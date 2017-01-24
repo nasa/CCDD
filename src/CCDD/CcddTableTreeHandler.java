@@ -1,0 +1,2301 @@
+/**
+ * CFS Command & Data Dictionary table tree handler. Copyright 2017 United
+ * States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United
+ * States under Title 17, U.S. Code. All Other Rights Reserved.
+ */
+package CCDD;
+
+import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
+import static CCDD.CcddConstants.LABEL_FONT_BOLD;
+import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
+import static CCDD.CcddConstants.LABEL_TEXT_COLOR;
+import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
+import static CCDD.CcddConstants.LINKED_VARIABLES_NODE_NAME;
+import static CCDD.CcddConstants.UNLINKED_VARIABLES_NODE_NAME;
+import static CCDD.CcddConstants.TableMemberType.INCLUDE_PRIMITIVES;
+import static CCDD.CcddConstants.TableMemberType.TABLES_ONLY;
+import static CCDD.CcddConstants.TableTreeType.ALL_INSTANCE_WITH_PRIMITIVES;
+import static CCDD.CcddConstants.TableTreeType.INSTANCE_ONLY;
+import static CCDD.CcddConstants.TableTreeType.INSTANCE_WITH_PRIMITIVES;
+import static CCDD.CcddConstants.TableTreeType.INSTANCE_WITH_PRIMITIVES_AND_RATES;
+import static CCDD.CcddConstants.TableTreeType.PROTOTYPE_AND_INSTANCE_WITH_PRIMITIVES;
+import static CCDD.CcddConstants.TableTreeType.PROTOTYPE_ONLY;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.regex.Pattern;
+
+import javax.swing.BorderFactory;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTree;
+import javax.swing.ToolTipManager;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+
+import CCDD.CcddClasses.GroupInformation;
+import CCDD.CcddClasses.TableMembers;
+import CCDD.CcddClasses.ToolTipTreeNode;
+import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.TableTreeType;
+
+/******************************************************************************
+ * CFS Command & Data Dictionary table tree handler class
+ *****************************************************************************/
+@SuppressWarnings("serial")
+public class CcddTableTreeHandler extends CcddCommonTreeHandler
+{
+    private final CcddMain ccddMain;
+    private final CcddGroupHandler groupHandler;
+    private final CcddTableTypeHandler tableTypeHandler;
+    private final CcddDataTypeHandler dataTypeHandler;
+    private final CcddDbTableCommandHandler dbTable;
+    private final CcddDbControlHandler dbControl;
+
+    // Components referenced by multiple methods
+    private JCheckBox expandChkBx;
+    private JCheckBox groupFilterChkBx;
+    private final List<TableMembers> tableMembers;
+    private List<Object[]> tablePathList;
+    private ToolTipTreeNode root;
+    private final TableTreeType treeType;
+    private ToolTipTreeNode instance;
+
+    // Flag to indicate if the tree should be filtered by table type
+    private boolean isByGroup;
+
+    // Flag to indicate if the tree should be filtered by table type
+    private boolean isByType;
+
+    // Flag indicating if the node descriptions should be obtained and added as
+    // tool tips
+    private final boolean getDescriptions;
+
+    // Flags indicating if the filter check boxes should be displayed
+    private final boolean showGroupFilter;
+    private final boolean showTypeFilter;
+
+    // Data stream rate column name and rate value used to filter the table
+    // tree for variables with rates
+    private String rateName;
+    private String rateFilter;
+
+    // Index into the rate table member rate parameters
+    private int rateIndex;
+
+    // Table descriptions from the custom values table
+    private String[][] tableDescriptions;
+
+    // List containing the selected variable paths
+    private List<Object[]> selectedVariablePaths;
+
+    // List containing the path for all primitive variables
+    private List<String> allPrimitivePaths;
+
+    // Flag to indicate if the table tree is being built
+    private boolean isBuilding;
+
+    // Storage for a child table referenced in its parent path
+    private String recursionTable;
+
+    // List of variables to be excluded from the tree
+    private List<String> excludedVariables;
+
+    // List of linked variables in the link tree
+    private List<String> linkedVariables;
+
+    // Flag that indicates if a hidden check box should be placed under the
+    // filter check boxes for alignment purposes with an adjacent tree
+    private final boolean addHiddenCheckBox;
+
+    // List containing variable paths from the custom values table that match
+    // the current rate column name and rate value
+    private List<String> rateValues;
+
+    /**************************************************************************
+     * Tree cell renderer with link size display handling class
+     *************************************************************************/
+    private class TableTreeCellRenderer extends DefaultTreeCellRenderer
+    {
+        /**********************************************************************
+         * Tree cell renderer with link size display handling class constructor
+         *********************************************************************/
+        TableTreeCellRenderer()
+        {
+            // Set the node font
+            super.setFont(LABEL_FONT_PLAIN);
+        }
+
+        /**********************************************************************
+         * Display the variable nodes using a special icon in the tree
+         *********************************************************************/
+        @Override
+        public Component getTreeCellRendererComponent(JTree tree,
+                                                      Object value,
+                                                      boolean sel,
+                                                      boolean expanded,
+                                                      boolean leaf,
+                                                      int row,
+                                                      boolean hasFocus)
+        {
+            // Display the node name
+            super.getTreeCellRendererComponent(tree,
+                                               value,
+                                               sel,
+                                               expanded,
+                                               leaf,
+                                               row,
+                                               hasFocus);
+
+            // Check if this node represents a variable
+            if (leaf
+                && ((ToolTipTreeNode) value).getLevel()
+                > ((CcddTableTreeHandler) tree).getTableNodeLevel()
+                && (treeType == PROTOTYPE_AND_INSTANCE_WITH_PRIMITIVES
+                    || treeType == INSTANCE_WITH_PRIMITIVES
+                    || treeType == INSTANCE_WITH_PRIMITIVES_AND_RATES))
+            {
+                // Set the icon for the variable node
+                setVariableNodeIcon(this,
+                                    (ToolTipTreeNode) value,
+                                    row,
+                                    linkedVariables.contains(removeExtraText(getFullVariablePath(((ToolTipTreeNode) value).getPath()))));
+            }
+
+            return this;
+        }
+    }
+
+    /**************************************************************************
+     * Table tree handler class constructor
+     * 
+     * @param ccddMain
+     *            main class
+     * 
+     * @param groupHandler
+     *            group handler
+     * 
+     * @param treeType
+     *            table tree type: PROTOTYPE_ONLY to show only the prototype
+     *            tables, INSTANCE_ONLY to show only the table instances
+     *            (parent tables with child tables), PROTOTYPE_AND_INSTANCE to
+     *            show the prototypes and instances,
+     *            STRUCT_INSTANCE_WITH_PRIMITIVES to show structure table
+     *            instances only including primitive variables,
+     *            ONLY_INSTANCE_WITH_PRIMITIVES to show structure table
+     *            instances only including primitive variables with a rate
+     *            value
+     * 
+     * @param getDescriptions
+     *            true if the node descriptions are to be added as tool tips
+     * 
+     * @param sortByName
+     *            true to sort the child structures by variable name; false to
+     *            show in the order defined in the structure
+     * 
+     * @param showGroupFilter
+     *            true to display the group filter check box
+     * 
+     * @param showTypeFilter
+     *            true to display the type filter check box
+     * 
+     * @param addHiddenCheckbox
+     *            true to add a hidden check box under the filter check boxes
+     *            for alignment purposes
+     * 
+     * @param rateName
+     *            data stream rate column name used to filter the table tree
+     *            for variables with rates
+     * 
+     * @param rateFilter
+     *            data rate used to filter the table tree for variables with
+     *            rates
+     * 
+     * @param excludedVariables
+     *            list of node paths to be excluded from the table; null or
+     *            empty list if no exclusions
+     * 
+     * @param parent
+     *            GUI component calling this method
+     *************************************************************************/
+    CcddTableTreeHandler(CcddMain ccddMain,
+                         CcddGroupHandler groupHandler,
+                         TableTreeType treeType,
+                         boolean getDescriptions,
+                         boolean sortByName,
+                         boolean showGroupFilter,
+                         boolean showTypeFilter,
+                         boolean addHiddenCheckbox,
+                         String rateName,
+                         String rateFilter,
+                         List<String> excludedVariables,
+                         Component parent)
+    {
+        super(ccddMain);
+
+        this.ccddMain = ccddMain;
+        this.groupHandler = groupHandler;
+        this.treeType = treeType;
+        this.getDescriptions = getDescriptions;
+        this.showGroupFilter = showGroupFilter;
+        this.showTypeFilter = showTypeFilter;
+        this.addHiddenCheckBox = addHiddenCheckbox;
+        this.excludedVariables = excludedVariables;
+        tableTypeHandler = ccddMain.getTableTypeHandler();
+        dataTypeHandler = ccddMain.getDataTypeHandler();
+        dbTable = ccddMain.getDbTableCommandHandler();
+        dbControl = ccddMain.getDbControlHandler();
+
+        // Get the tables and their members from the database, sorted by
+        // variable name
+        tableMembers = dbTable.loadTableMembers((treeType == PROTOTYPE_AND_INSTANCE_WITH_PRIMITIVES
+                                                 || treeType == INSTANCE_WITH_PRIMITIVES
+                                                 || treeType == INSTANCE_WITH_PRIMITIVES_AND_RATES
+                                                 || treeType == ALL_INSTANCE_WITH_PRIMITIVES)
+                                                                                             ? INCLUDE_PRIMITIVES
+                                                                                             : TABLES_ONLY,
+                                                sortByName,
+                                                parent);
+
+        // Set the tree to be collapsed initially with no filters applied
+        isByGroup = false;
+        isByType = false;
+
+        // Register the tool tip manager for the table tree (otherwise the
+        // tool tips aren't displayed)
+        ToolTipManager.sharedInstance().registerComponent(this);
+
+        // Check that the table members loaded successfully
+        if (tableMembers != null)
+        {
+            linkedVariables = new ArrayList<String>();
+
+            // Build the table tree
+            buildTableTree(false, rateName, rateFilter, parent);
+        }
+    }
+
+    /**************************************************************************
+     * Table tree handler class constructor
+     * 
+     * @param ccddMain
+     *            main class
+     * 
+     * @param groupHandler
+     *            group handler
+     * 
+     * @param treeType
+     *            table tree type: PROTOTYPE_ONLY to show only the prototype
+     *            tables, INSTANCE_ONLY to show only the table instances
+     *            (parent tables with child tables), PROTOTYPE_AND_INSTANCE to
+     *            show the prototypes and instances,
+     *            STRUCT_INSTANCE_WITH_PRIMITIVES to show structure table
+     *            instances only including primitive variables,
+     *            ONLY_INSTANCE_WITH_PRIMITIVES to show structure table
+     *            instances only including primitive variables with a rate
+     *            value
+     * 
+     * @param showGroupFilter
+     *            true to display the group filter check box
+     * 
+     * @param addHiddenCheckbox
+     *            true to add a hidden check box under the filter check boxes
+     *            for alignment purposes
+     * 
+     * @param parent
+     *            GUI component calling this method
+     *************************************************************************/
+    CcddTableTreeHandler(CcddMain ccddMain,
+                         CcddGroupHandler groupHandler,
+                         TableTreeType treeType,
+                         boolean showGroupFilter,
+                         boolean addHiddenCheckbox,
+                         Component parent)
+    {
+        // Build the table tree
+        this(ccddMain,
+             groupHandler,
+             treeType,
+             true,
+             true,
+             showGroupFilter,
+             true,
+             addHiddenCheckbox,
+             null,
+             null,
+             null,
+             parent);
+    }
+
+    /**************************************************************************
+     * Table tree handler class constructor. Get just the tree information of
+     * the specified type
+     * 
+     * @param ccddMain
+     *            main class
+     * 
+     * @param groupHandler
+     *            group handler
+     *
+     * @param treeType
+     *            table tree type: PROTOTYPE_ONLY to show only the prototype
+     *            tables, INSTANCE_ONLY to show only the table instances
+     *            (parent tables with child tables), PROTOTYPE_AND_INSTANCE to
+     *            show the prototypes and instances,
+     *            STRUCT_INSTANCE_WITH_PRIMITIVES to show structure table
+     *            instances only including primitive variables,
+     *            ONLY_INSTANCE_WITH_PRIMITIVES to show structure table
+     *            instances only including primitive variables with a rate
+     *            value
+     * 
+     * @param rateName
+     *            data stream rate column name used to filter the table tree
+     *            for variables with rates
+     * 
+     * @param rateFilter
+     *            data rate used to filter the table tree for variables with
+     *            rates
+     * 
+     * @param excludedVariables
+     *            list of node paths to be excluded from the table; null or
+     *            empty list if no exclusions
+     * 
+     * @param parent
+     *            GUI component calling this method
+     *************************************************************************/
+    CcddTableTreeHandler(CcddMain ccddMain,
+                         CcddGroupHandler groupHandler,
+                         TableTreeType treeType,
+                         String rateName,
+                         String rateFilter,
+                         List<String> excludedVariables,
+                         Component parent)
+    {
+        // Build the table tree
+        this(ccddMain,
+             groupHandler,
+             treeType,
+             true,
+             false,
+             true,
+             false,
+             false,
+             rateName,
+             rateFilter,
+             excludedVariables,
+             parent);
+    }
+
+    /**************************************************************************
+     * Table tree handler class constructor. Get just the tree information of
+     * the specified type
+     * 
+     * @param ccddMain
+     *            main class
+     * 
+     * @param treeType
+     *            table tree type: PROTOTYPE_ONLY to show only the prototype
+     *            tables, INSTANCE_ONLY to show only the table instances
+     *            (parent tables with child tables), PROTOTYPE_AND_INSTANCE to
+     *            show the prototypes and instances,
+     *            STRUCT_INSTANCE_WITH_PRIMITIVES to show structure table
+     *            instances only including primitive variables,
+     *            ONLY_INSTANCE_WITH_PRIMITIVES to show structure table
+     *            instances only including primitive variables with a rate
+     *            value
+     * 
+     * @param parent
+     *            GUI component calling this method
+     *************************************************************************/
+    CcddTableTreeHandler(CcddMain ccddMain,
+                         TableTreeType treeType,
+                         Component parent)
+    {
+        // Build the table tree
+        this(ccddMain,
+             null,
+             treeType,
+             false,
+             false,
+             false,
+             false,
+             false,
+             null,
+             null,
+             null,
+             parent);
+    }
+
+    /**************************************************************************
+     * Get the table tree root node
+     * 
+     * @return Table tree root node
+     *************************************************************************/
+    protected DefaultMutableTreeNode getRootNode()
+    {
+        return root;
+    }
+
+    /**************************************************************************
+     * Get the table tree instances node
+     * 
+     * @return Table tree instances node
+     *************************************************************************/
+    protected ToolTipTreeNode getInstancesNode()
+    {
+        return instance;
+    }
+
+    /**************************************************************************
+     * Get the list of table members
+     *
+     * @return List of table members
+     *************************************************************************/
+    protected List<TableMembers> getTableMembers()
+    {
+        return tableMembers;
+    }
+
+    /**************************************************************************
+     * Get the status of the group filter
+     *
+     * @return true if the group filter is enabled
+     *************************************************************************/
+    protected boolean isFilteredByGroup()
+    {
+        return isByGroup;
+    }
+
+    /**************************************************************************
+     * Get the first node index that represents a table. This skips the
+     * database (root), prototype/instance, group (if filtered by group), and
+     * type (if filtered by type) nodes
+     * 
+     * @return First node index for a table
+     *************************************************************************/
+    @Override
+    protected int getTableNodeLevel()
+    {
+        return 2 + (isByGroup ? 1 : 0) + (isByType ? 1 : 0);
+    }
+
+    /**************************************************************************
+     * Replace the list of linked variables with the list provided
+     *
+     * @param linkedVars
+     *            list of linked variables
+     *************************************************************************/
+    protected void setLinkedVariables(List<String> linkedVars)
+    {
+        linkedVariables.clear();
+        linkedVariables.addAll(linkedVars);
+    }
+
+    /**************************************************************************
+     * Set the list of excluded variables and update the node enable states
+     * 
+     * @param excludedVariables
+     *            list of variables to be excluded from the tree
+     *************************************************************************/
+    protected void setExcludedVariables(List<String> excludedVariables)
+    {
+        this.excludedVariables = excludedVariables;
+
+        // Set the node enable state (by setting the node name color) based on
+        // whether or not the name is in the exclusion list
+        setNodeEnableByExcludeList();
+
+        // Set the node enable state (by setting the node name color) based on
+        // whether or not all of the children of the node are disabled
+        setNodeEnableByChildState(root);
+    }
+
+    /**************************************************************************
+     * Override the table tree's tool tip text handler to provide the
+     * descriptions of the nodes
+     *************************************************************************/
+    @Override
+    public String getToolTipText(MouseEvent me)
+    {
+        String toolTip = null;
+
+        // Check if the mouse pointer is over a node
+        if (getRowForLocation(me.getX(), me.getY()) != -1)
+        {
+            // Get the tree path and the tool tip text associated with it
+            TreePath curPath = getPathForLocation(me.getX(), me.getY());
+            toolTip = ((ToolTipTreeNode) curPath.getLastPathComponent()).getToolTipText();
+
+            // Check if the tool tip text is blank
+            if (toolTip != null && toolTip.isEmpty())
+            {
+                // Set the tool tip text to null so that nothing is displayed
+                toolTip = null;
+            }
+        }
+
+        return toolTip;
+    }
+
+    /**************************************************************************
+     * Build the table tree from the database
+     * 
+     * @param isExpanded
+     *            true if all tree nodes should be expanded, false to collapse
+     *            all nodes, and null to use the current status of the
+     *            expansion check box (if present; if not present then use
+     *            false)
+     * 
+     * @param rateName
+     *            data stream rate column name used to filter the table tree
+     *            for variables with rates; null if the tree is not filtered by
+     *            data rate
+     * 
+     * @param rateFilter
+     *            data rate used to filter the table tree for variables with
+     *            rates; null if the tree is not filtered by data rate
+     * 
+     * @param parent
+     *            component building this table tree
+     *************************************************************************/
+    protected void buildTableTree(Boolean isExpanded,
+                                  String rateName,
+                                  String rateFilter,
+                                  Component parent)
+    {
+        this.rateName = rateName;
+        this.rateFilter = rateFilter;
+
+        // Check if a rate filter is in effect
+        if (rateFilter != null)
+        {
+            // Load all references to rate column values from the custom values
+            // table that match the rate name and filter
+            rateValues = dbTable.getRateValues(rateName,
+                                               rateFilter,
+                                               parent);
+        }
+
+        // Get the index into the table member rate array
+        rateIndex = ccddMain.getRateParameterHandler().getRateInformationIndexByRateName(rateName);
+
+        // Set the flag to indicate that the table tree is being built. This
+        // flag is used to inhibit actions involving tree selection value
+        // changes during the build process
+        isBuilding = true;
+
+        // Get the name of the currently open database
+        String databaseName = dbControl.getDatabase();
+
+        // Create the tree's root node using the database name and description
+        root = new ToolTipTreeNode(databaseName,
+                                   getDescriptions
+                                                  ? dbControl.getDatabaseDescription(databaseName)
+                                                  : null);
+
+        // Set the root node
+        setModel(new DefaultTreeModel(root));
+
+        // Hide the root node (project database name)
+        setRootVisible(false);
+
+        // Create a node to display the prototype tables
+        ToolTipTreeNode prototype = new ToolTipTreeNode("Prototypes",
+                                                        "Prototype tables");
+        instance = new ToolTipTreeNode("Parents & Children",
+                                       treeType == INSTANCE_ONLY
+                                                                ? "Parent and children tables"
+                                                                : "Parent and children tables and variables");
+
+        // Add the prototype and instance nodes to the root node
+        root.add(prototype);
+        root.add(instance);
+
+        // Check if both groups and table type are to be used to filter the
+        // table tree
+        if (isByGroup && isByType)
+        {
+            // Step through the groups
+            for (GroupInformation grpInfo : groupHandler.getGroupInformation())
+            {
+                // Create nodes for the group
+                ToolTipTreeNode protoGroupNode = new ToolTipTreeNode(grpInfo.getName(),
+                                                                     getDescriptions
+                                                                                    ? grpInfo.getDescription()
+                                                                                    : null);
+                ToolTipTreeNode instGroupNode = new ToolTipTreeNode(grpInfo.getName(),
+                                                                    getDescriptions
+                                                                                   ? grpInfo.getDescription()
+                                                                                   : null);
+
+                // Add the group node to the prototype and instance nodes
+                prototype.add(protoGroupNode);
+                instance.add(instGroupNode);
+
+                // Step through each table type
+                for (String type : tableTypeHandler.getTypes())
+                {
+                    List<String> tables = new ArrayList<String>();
+
+                    // Step through each table
+                    for (TableMembers member : tableMembers)
+                    {
+                        // Check if the table is of the current type and if it
+                        // belongs to the current group
+                        if (type.equals(member.getTableType())
+                            && grpInfo.getTables().contains(member.getTableName()))
+                        {
+                            // Add the table name to the list for this type
+                            tables.add(member.getTableName());
+                        }
+                    }
+
+                    // Create nodes for the type and add them to the root and
+                    // prototype nodes
+                    ToolTipTreeNode typeNode = new ToolTipTreeNode(type,
+                                                                   getDescriptions
+                                                                                  ? tableTypeHandler.getTypeDefinition(type).getDescription()
+                                                                                  : null);
+                    ToolTipTreeNode protoTypeNode = new ToolTipTreeNode(type,
+                                                                        getDescriptions
+                                                                                       ? tableTypeHandler.getTypeDefinition(type).getDescription()
+                                                                                       : null);
+                    instGroupNode.add(typeNode);
+                    protoGroupNode.add(protoTypeNode);
+
+                    // Build the top-level nodes filtered by group and type
+                    buildTopLevelNodes(tables,
+                                       typeNode,
+                                       protoTypeNode,
+                                       parent);
+                }
+            }
+        }
+        // Check if groups are to be used to filter the table tree
+        else if (isByGroup)
+        {
+            // Step through the groups
+            for (GroupInformation grpInfo : groupHandler.getGroupInformation())
+            {
+                // Create nodes for the group
+                ToolTipTreeNode protoGroupNode = new ToolTipTreeNode(grpInfo.getName(),
+                                                                     getDescriptions
+                                                                                    ? grpInfo.getDescription() :
+                                                                                    null);
+                ToolTipTreeNode instGroupNode = new ToolTipTreeNode(grpInfo.getName(),
+                                                                    getDescriptions
+                                                                                   ? grpInfo.getDescription()
+                                                                                   : null);
+
+                // Add the group node to the instance and prototype nodes
+                prototype.add(protoGroupNode);
+                instance.add(instGroupNode);
+
+                // Build the top-level nodes filtered by group
+                buildTopLevelNodes(grpInfo.getTables(),
+                                   instGroupNode,
+                                   protoGroupNode,
+                                   parent);
+            }
+        }
+        // Check if the table types are to be used to filter the table tree
+        else if (isByType)
+        {
+            // Step through each table type
+            for (String type : tableTypeHandler.getTypes())
+            {
+                List<String> tables = new ArrayList<String>();
+
+                // Step through each table
+                for (TableMembers member : tableMembers)
+                {
+                    // Check if the table is of the current type
+                    if (type.equals(member.getTableType()))
+                    {
+                        // Add the table name to the list for this type
+                        tables.add(member.getTableName());
+                    }
+                }
+
+                // Create nodes for the type and add them to the root and
+                // prototype nodes
+                ToolTipTreeNode protoTypeNode = new ToolTipTreeNode(type,
+                                                                    getDescriptions
+                                                                                   ? tableTypeHandler.getTypeDefinition(type).getDescription()
+                                                                                   : null);
+                ToolTipTreeNode instTypeNode = new ToolTipTreeNode(type,
+                                                                   getDescriptions
+                                                                                  ? tableTypeHandler.getTypeDefinition(type).getDescription()
+                                                                                  : null);
+
+                // Add the type node to the instance and prototype nodes
+                prototype.add(protoTypeNode);
+                instance.add(instTypeNode);
+
+                // Build the top-level nodes filtered by type
+                buildTopLevelNodes(tables,
+                                   instTypeNode,
+                                   protoTypeNode,
+                                   parent);
+            }
+        }
+        // Do not use the groups or types to filter the tree
+        else
+        {
+            // Build the root's top-level nodes
+            buildTopLevelNodes(null, instance, prototype, parent);
+        }
+
+        // Check if only the prototype node should be displayed
+        if (treeType == PROTOTYPE_ONLY)
+        {
+            // Remove the instance node
+            root.remove(instance);
+        }
+        // Check if the only the instance node should be displayed
+        else if (treeType == INSTANCE_ONLY
+                 || treeType == INSTANCE_WITH_PRIMITIVES
+                 || treeType == PROTOTYPE_AND_INSTANCE_WITH_PRIMITIVES
+                 || treeType == INSTANCE_WITH_PRIMITIVES_AND_RATES
+                 || treeType == ALL_INSTANCE_WITH_PRIMITIVES)
+        {
+            // Remove the prototype node
+            root.remove(prototype);
+        }
+
+        // Check if the expansion check box exists
+        if (expandChkBx != null)
+        {
+            // Check is the expansion state is not specified
+            if (isExpanded == null)
+            {
+                // Set the expansion state to the current expansion check box
+                // state
+                isExpanded = expandChkBx.isSelected();
+            }
+            // The expansion state is specified
+            else
+            {
+                // Update the expansion check box state to match the specified
+                // expansion state
+                expandChkBx.setSelected(isExpanded);
+            }
+        }
+        // Check is the expansion state is not specified
+        else if (isExpanded == null)
+        {
+            // Set the state to collapse the tree
+            isExpanded = false;
+        }
+
+        // Force the root node to draw with the node additions
+        ((DefaultTreeModel) treeModel).nodeStructureChanged(root);
+
+        // Expand or collapse the tree based on the expansion flag
+        setTreeExpansion(isExpanded);
+
+        // Set the node enable states based on the presence of child
+        // nodes
+        setNodeEnableByChildState(root);
+
+        // Clear the flag that indicates the table tree is being built
+        isBuilding = false;
+
+        // Set the renderer for the tree so that the custom icons can
+        // be used for the various node types
+        setCellRenderer(new TableTreeCellRenderer());
+    }
+
+    /**************************************************************************
+     * Build the top-level nodes for the table tree (based on the selected
+     * filters)
+     * 
+     * @param nameList
+     *            list of table names belonging to the filtered selection; null
+     *            if no filtering
+     * 
+     * @param instNode
+     *            parent node for the top-level nodes
+     * 
+     * @param protoNode
+     *            parent node for the prototype nodes
+     * 
+     * @param parent
+     *            GUI component calling this method
+     *************************************************************************/
+    private void buildTopLevelNodes(List<String> nameList,
+                                    ToolTipTreeNode instNode,
+                                    ToolTipTreeNode protoNode,
+                                    Component parent)
+    {
+        // Check if the descriptions are needed (i.e., if building a visible
+        // table tree)
+        if (getDescriptions)
+        {
+            // Get an array containing the tables and their variable paths, if
+            // any, for those tables with descriptions
+            tableDescriptions = dbTable.queryTableDescriptions(parent);
+        }
+
+        // Step through each table
+        for (TableMembers member : tableMembers)
+        {
+            // Check if the name is in the supplied list or if the list is
+            // empty. Only show structure type tables for a tree showing
+            // structure instances with primitives
+            if ((nameList == null
+                || nameList.contains(member.getTableName()))
+                && (treeType != INSTANCE_WITH_PRIMITIVES
+                || tableTypeHandler.getTypeDefinition(member.getTableType()).isStructure()))
+            {
+                // Add the table to the prototype node
+                protoNode.add(new ToolTipTreeNode(member.getTableName(),
+                                                  getTableDescription(member.getTableName(),
+                                                                      "")));
+
+                boolean isParent = true;
+
+                // Check if only parent tables should be included
+                if (treeType != PROTOTYPE_AND_INSTANCE_WITH_PRIMITIVES)
+                {
+                    // Step through each table
+                    for (TableMembers otherMember : tableMembers)
+                    {
+                        // Check if the current table has this table as a
+                        // member, that the table isn't referencing itself,
+                        // and, if the tree is filtered by group, that this
+                        // table is a member of the group
+                        if (otherMember.getDataTypes().contains(member.getTableName())
+                            && !member.equals(otherMember)
+                            && (!isByGroup || nameList.contains(otherMember.getTableName())))
+                        {
+                            // Clear the flag indicating this is a parent table
+                            // and stop searching
+                            isParent = false;
+                            break;
+                        }
+                    }
+                }
+
+                // Check if this is a parent table
+                if (isParent)
+                {
+                    recursionTable = null;
+
+                    // Build the nodes in the tree for this table and its
+                    // member tables
+                    buildNodes(member,
+                               instNode,
+                               new ToolTipTreeNode(member.getTableName(),
+                                                   getTableDescription(member.getTableName(),
+                                                                       "")));
+                    // Check if a recursive reference was detected
+                    if (recursionTable != null)
+                    {
+                        // Inform the user that the table has a recursive
+                        // reference
+                        new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                                  "<html><b>Table '</b>"
+                                                                      + member.getTableName()
+                                                                      + "<b>' contains a recursive reference to '</b>"
+                                                                      + recursionTable
+                                                                      + "<b>'",
+                                                                  "Table Reference",
+                                                                  JOptionPane.WARNING_MESSAGE,
+                                                                  DialogOption.OK_OPTION);
+                    }
+                }
+            }
+        }
+    }
+
+    /**************************************************************************
+     * Build the table tree nodes. This is a recursive method. In order to
+     * prevent an infinite loop, a check is made for a child node that exists
+     * in its own path; if found the recursion is terminated for that node
+     * 
+     * @param thisMember
+     *            TableMember class
+     * 
+     * @param parentNode
+     *            current working node for the table tree
+     * 
+     * @param childNode
+     *            new child node to add to the working node
+     *************************************************************************/
+    private void buildNodes(TableMembers thisMember,
+                            ToolTipTreeNode parentNode,
+                            ToolTipTreeNode childNode)
+    {
+        boolean recursionError = false;
+
+        // Step through each node in the parent's path
+        for (TreeNode node : parentNode.getPath())
+        {
+            // Check if the child is in the path
+            if (((ToolTipTreeNode) node).getUserObject().toString().equals(childNode.getUserObject().toString()))
+            {
+                // Store the name of the recursively referenced node and set
+                // the error flag
+                recursionTable = childNode.getUserObject().toString();
+                recursionError = true;
+                break;
+            }
+        }
+
+        // Check that a recursion error wasn't found; this prevents an infinite
+        // loop from occurring
+        if (!recursionError)
+        {
+            // Add the child node to its parent
+            parentNode.add(childNode);
+
+            // Get the parent table and variable path (without data types) for
+            // this variable
+            String fullTablePath = getFullVariablePath(childNode.getPath());
+
+            // Step through each data type referenced by the table member
+            for (int index = 0; index < thisMember.getDataTypes().size(); index++)
+            {
+                // Check if this data type is a primitive
+                if (dataTypeHandler.isPrimitive(thisMember.getDataTypes().get(index)))
+                {
+                    String tablePath = fullTablePath;
+
+                    // Set to true if the variable has a path (i.e., this is
+                    // not a prototype's variable)
+                    boolean isChildVariable = tablePath.contains(",");
+
+                    // Check if the variable has a path
+                    if (isChildVariable)
+                    {
+                        // Add the data type and variable name to the variable
+                        // path
+                        tablePath += ","
+                                     + thisMember.getDataTypes().get(index)
+                                     + "."
+                                     + thisMember.getVariableNames().get(index);
+                    }
+
+                    String rate = null;
+
+                    // Check if a rate filter is in effect
+                    if (rateFilter != null)
+                    {
+                        // Get the rate value for this variable. Use the
+                        // prototype's value if the variable doesn't have a
+                        // specific rate assigned
+                        rate = isChildVariable
+                               && rateValues.contains(tablePath)
+                                                                ? rateFilter
+                                                                : thisMember.getRates().get(index)[rateIndex];
+                    }
+
+                    // Check if no rate filter is in effect or, if not, that
+                    // the rate matches the specified rate filter
+                    if (rateFilter == null || rate.equals(rateFilter))
+                    {
+                        // Get the full variable name in the form
+                        // data_type.variable_name[:bit_length]
+                        String variable = thisMember.getFullVariableNameWithBits(index);
+
+                        // Check that no exclusion list is supplied, or if one
+                        // is in effect that the variable, using its full path
+                        // and name, is not in the exclusion list
+                        if (excludedVariables == null
+                            || !excludedVariables.contains(tablePath))
+                        {
+                            // Add the primitive as a node to this child node
+                            childNode.add(new ToolTipTreeNode(variable, ""));
+                        }
+                        // The variable is in the exclusion list
+                        else
+                        {
+                            // Add the variable with the node text grayed out
+                            childNode.add(new ToolTipTreeNode(DISABLED_TEXT_COLOR
+                                                              + variable,
+                                                              ""));
+                        }
+                    }
+                }
+                // Data type is not a primitive, it's a structure
+                else
+                {
+                    // Step through the other tables
+                    for (TableMembers member : tableMembers)
+                    {
+                        // Check if the table is a member of the target table
+                        if (thisMember.getDataTypes().get(index).equals(member.getTableName()))
+                        {
+                            // Build the node name from the prototype and
+                            // variable names
+                            String nodeName = thisMember.getDataTypes().get(index)
+                                              + "."
+                                              + thisMember.getVariableNames().get(index);
+
+                            // Get the variable name path to this node
+                            String tablePath = fullTablePath + "," + nodeName;
+
+                            // Add this table to the current table's node. The
+                            // node name is in the format
+                            // 'dataType.variableName<[arrayIndex]>'. If a
+                            // specific description exists for the table then
+                            // use it for the tool tip text; otherwise use the
+                            // prototype's description
+                            buildNodes(member,
+                                       childNode,
+                                       new ToolTipTreeNode(nodeName,
+                                                           getTableDescription(tablePath,
+                                                                               thisMember.getDataTypes().get(index))));
+                        }
+                    }
+                }
+            }
+
+            // Check if primitive variables are included in the tree and this
+            // node has no children (variables)
+            if ((treeType == PROTOTYPE_AND_INSTANCE_WITH_PRIMITIVES
+                 || treeType == INSTANCE_WITH_PRIMITIVES
+                 || treeType == INSTANCE_WITH_PRIMITIVES_AND_RATES)
+                && childNode.getChildCount() == 0)
+            {
+                // Remove the node
+                parentNode.remove(childNode);
+            }
+        }
+    }
+
+    /**************************************************************************
+     * Get the description for the specified table
+     * 
+     * @param tablePath
+     *            root table and variable path for the table
+     * 
+     * @param dataType
+     *            table data type
+     * 
+     * @return The description for this table. If this is an instance of a
+     *         table and no specific description exists for it then use the
+     *         prototype table's description. If the prototype table has no
+     *         description then return null
+     *************************************************************************/
+    protected String getTableDescription(String tablePath,
+                                         String dataType)
+    {
+        String description = null;
+        String protoDescription = null;
+
+        // Check if descriptions are needed and that descriptions are available
+        if (getDescriptions && tableDescriptions != null)
+        {
+            // Check if there's a table_name & var_name match and use that
+            // description; if no match then find the table_name match
+            for (int index = 0; index < tableDescriptions.length; index++)
+            {
+                // Check if this is this table's data type matches and the
+                // variable path in the descriptions list is empty
+                if (tableDescriptions[index][0].equals(dataType)
+                    && tableDescriptions[index][1].isEmpty())
+                {
+                    // Store the prototype description for this table
+                    protoDescription = tableDescriptions[index][1];
+                }
+                // Check if the table paths match
+                else if (tableDescriptions[index][0].equals(tablePath))
+                {
+                    // Store the specific description for this table and stop
+                    // searching
+                    description = tableDescriptions[index][1];
+                    break;
+                }
+            }
+        }
+
+        return description != null
+                                  ? description
+                                  : protoDescription;
+    }
+
+    /**************************************************************************
+     * Check the table tree to determine if a table is in the path for another
+     * table. The tree is searched starting at its root until the target table
+     * is located. Then the nodes "upstream" of this node are searched for a
+     * reference to the structure and, if found, then the structure is in the
+     * tables' path
+     * 
+     * @param checkTable
+     *            name of the table to check
+     * 
+     * @param targetTable
+     *            name of the target table to search for in the table's path
+     * 
+     * @return true if the structure is in the path of the table
+     *************************************************************************/
+    protected boolean isTargetInTablePath(String checkTable, String targetTable)
+    {
+        boolean isInPath = false;
+
+        // Step through the root node's children, if any
+        for (Enumeration<?> element = root.depthFirstEnumeration(); element.hasMoreElements();)
+        {
+            // Get the node referenced
+            ToolTipTreeNode tableNode = (ToolTipTreeNode) element.nextElement();
+
+            // Check if the node matches the target table's name
+            if (getTableFromNodeName(tableNode.getUserObject().toString()).equals(checkTable))
+            {
+                // Step through each node in the table's path, skipping the
+                // database, prototype/instance, group, and type nodes
+                for (int nodeIndex = getTableNodeLevel(); nodeIndex < tableNode.getPath().length; nodeIndex++)
+                {
+                    // Get the table name from the node name
+                    String nodeTable = getTableFromNodeName(tableNode.getPath()[nodeIndex].toString());
+
+                    // Check if the table name matches the target table
+                    if (nodeTable.equals(targetTable))
+                    {
+                        // Set the flag indicating the target table is in the
+                        // table's path and stop searching
+                        isInPath = true;
+                        break;
+                    }
+                }
+
+                // Stop searching since a match was found
+                break;
+            }
+        }
+
+        return isInPath;
+    }
+
+    /**************************************************************************
+     * Search the entire table tree and get the list of paths where the node
+     * contains the search table's name. If no search name is provided then a
+     * list of all nodes is returned. The paths are in the form of
+     * comma-separated node names, with any HTML tags removed
+     * 
+     * @param searchName
+     *            name of table to search for in the node names; null to get
+     *            all paths for the parent node
+     * 
+     * @return List of paths to the nodes matching the search table's name, or
+     *         all nodes if the search name is null
+     *************************************************************************/
+    protected List<String> getTableTreePathList(String searchName)
+    {
+        return getTableTreePathList(searchName, root);
+    }
+
+    /**************************************************************************
+     * Search the table tree starting at the specified node and get the list of
+     * paths where the node contains the search table's name. If no search name
+     * is provided then a list of all nodes is returned. The paths are in the
+     * form of comma-separated node names, with any HTML tags removed
+     * 
+     * @param searchName
+     *            name of table to search for in the node names; null to get
+     *            all paths for the parent node
+     * 
+     * @param startNode
+     *            starting node
+     * 
+     * @return List of paths to the nodes matching the search table's name, or
+     *         all nodes if the search name is null
+     *************************************************************************/
+    protected List<String> getTableTreePathList(String searchName,
+                                                ToolTipTreeNode startNode)
+    {
+        // Get the paths from the tree matching the search criteria
+        tablePathList = getTableTreePathArray(searchName, startNode);
+
+        List<String> variablePaths = new ArrayList<String>();
+
+        // Step through each path
+        for (Object[] path : tablePathList)
+        {
+            // Convert the path array to a string, stripping off the nodes
+            // names prior to the start index and the HTML tags
+            String variable = removeExtraText(createNameFromPath(path,
+                                                                 getTableNodeLevel()));
+
+            // Check if the path is not already in the list and that the path
+            // isn't blank
+            if (!variablePaths.contains(variable) && !variable.isEmpty())
+            {
+                // Add the path to the list
+                variablePaths.add(variable);
+            }
+        }
+
+        return variablePaths;
+    }
+
+    /**************************************************************************
+     * Search the entire table tree and get the list of path arrays where the
+     * node contains the search table's name. If no search name is provided
+     * then a list of all nodes is returned. The paths are in the form of
+     * arrays, with any HTML tags preserved
+     * 
+     * @param searchName
+     *            name of table to search for in the node names; null to get
+     *            all paths for the parent node
+     * 
+     * @return List of paths to the nodes matching the search table's name, or
+     *         all nodes if the search name is null
+     *************************************************************************/
+    protected List<Object[]> getTableTreePathArray(String searchName)
+    {
+        return getTableTreePathArray(searchName, root);
+    }
+
+    /**************************************************************************
+     * Search the table tree starting at the specified node and get the list of
+     * path arrays where the node contains the search table's name. If no
+     * search name is provided then a list of all nodes is returned. The paths
+     * are in the form of arrays, with any HTML tags preserved
+     * 
+     * @param searchName
+     *            name of table to search for in the node names; null to get
+     *            all paths for the parent node
+     * 
+     * @param startNode
+     *            starting node
+     * 
+     * @return List of paths to the nodes matching the search table's name, or
+     *         all nodes if the search name is null
+     *************************************************************************/
+    protected List<Object[]> getTableTreePathArray(String searchName,
+                                                   ToolTipTreeNode startNode)
+    {
+        // Initialize the path list
+        tablePathList = new ArrayList<Object[]>();
+
+        // Step through each element and child of this node
+        for (Enumeration<?> element = startNode.depthFirstEnumeration(); element.hasMoreElements();)
+        {
+            // Get the node reference
+            ToolTipTreeNode node = (ToolTipTreeNode) element.nextElement();
+
+            // Check if the node's table name matches the search table's name
+            // and that the node name isn't empty
+            if ((searchName == null
+                || searchName.equals(getTableFromNodeName(node.getUserObject().toString())))
+                && node.getUserObjectPath().length != 0)
+            {
+                // Add the table's path to the list
+                tablePathList.add(node.getUserObjectPath());
+            }
+        }
+
+        return tablePathList;
+    }
+
+    /**************************************************************************
+     * Determine if the specified path exists in the table tree
+     * 
+     * @param targetPath
+     *            name of the node to search for, in the form
+     *            rootTable[,dataType1.variable1[,dataType2.variable2[,...]]]
+     * 
+     * @return true if the target path exists in in the tree
+     *************************************************************************/
+    protected boolean isNodeInTree(String targetPath)
+    {
+        boolean isInTree = false;
+
+        // Step through the table tree
+        for (Enumeration<?> element = getRootNode().depthFirstEnumeration(); element.hasMoreElements();)
+        {
+            // Get the referenced node
+            ToolTipTreeNode tableNode = (ToolTipTreeNode) element.nextElement();
+
+            // Check if the target path matches the path in the tree (skipping
+            // header nodes such as the project database and filter nodes)
+            if (targetPath.equals(removeExtraText(getFullVariablePath(tableNode.getPath()))))
+            {
+                // Set the flag indicating the path is present in the tree and
+                // stop searching
+                isInTree = true;
+                break;
+            }
+        }
+
+        return isInTree;
+    }
+
+    /**************************************************************************
+     * Get the TreeNode for the node matching the specified node name (table
+     * name + variable name)
+     * 
+     * @param nodeName
+     *            name of the node to search for, in the form
+     *            tableName.variableName
+     * 
+     * @return TreeNode for the specified node; null if the node name doesn't
+     *         exist in the tree
+     *************************************************************************/
+    protected ToolTipTreeNode getNodeFromNodeName(String nodeName)
+    {
+        ToolTipTreeNode node = null;
+
+        // Step through the root node's children, if any
+        for (Enumeration<?> element = root.depthFirstEnumeration(); element.hasMoreElements();)
+        {
+            // Get the referenced node
+            ToolTipTreeNode tableNode = (ToolTipTreeNode) element.nextElement();
+
+            // Check if the node matches the target node's name
+            if (removeExtraText(tableNode.getUserObject().toString()).equals(nodeName))
+            {
+                // Store this node and stop searching
+                node = tableNode;
+                break;
+            }
+        }
+
+        return node;
+    }
+
+    /**************************************************************************
+     * Get the table name from the node name, removing the variable name if
+     * present
+     * 
+     * @return Table name portion of the node name
+     *************************************************************************/
+    private static String getTableFromNodeName(String nodeName)
+    {
+        // Get the index of a period, if present
+        int index = nodeName.indexOf(".");
+
+        // Check if the node name contains the variable name
+        if (index != -1)
+        {
+            // Remove the variable name, leaving the table name
+            nodeName = nodeName.substring(0, index);
+        }
+
+        return nodeName;
+    }
+
+    /**************************************************************************
+     * Get the variable name (including the bit length, if present) from the
+     * node name
+     * 
+     * @param nodeName
+     *            node name
+     * 
+     * @return Variable name portion of the node name; blank if no variable
+     *         name is present
+     *************************************************************************/
+    protected String getVariableFromNodeName(String nodeName)
+    {
+        // Get the index of a period, if present, which separates the data type
+        // and variable names
+        int index = nodeName.indexOf(".");
+
+        // Check if the node name contains the variable name
+        if (index != -1)
+        {
+            // Remove the data type, leaving the variable name
+            nodeName = nodeName.substring(index + 1);
+        }
+        // No variable name is present
+        else
+        {
+            // Set the variable name to a blank
+            nodeName = "";
+        }
+
+        return nodeName;
+    }
+
+    /**************************************************************************
+     * Get the variable parent from the specified node path
+     * 
+     * @param nodePath
+     *            node path from which to obtain the variable parent
+     * 
+     * @return The parent variable for the specified node path
+     *************************************************************************/
+    protected String getVariableParentFromNodePath(Object[] nodePath)
+    {
+        String parent = "";
+
+        // Step backwards through the node path
+        for (int index = nodePath.length - 1; index > 0; index--)
+        {
+            // Check if the node name isn't a variable. Variable nodes are in
+            // the format data_type.variable_name[:bit_length]
+            if (!nodePath[index].toString().contains("."))
+            {
+                // Store the parent and stop searching
+                parent = nodePath[index].toString();
+                break;
+            }
+        }
+
+        return parent;
+    }
+
+    /**************************************************************************
+     * Deselect any nodes that are not allowed to be selected. The basis is the
+     * table node level; this can be adjusted using the specified modifier
+     * 
+     * @param priorLevels
+     *            number of levels prior the table level that can be selected
+     *************************************************************************/
+    protected void clearNonTableNodes(int priorLevels)
+    {
+        // Get the selected tables
+        TreePath[] selectedPaths = getSelectionPaths();
+
+        // Check that a node is selected
+        if (selectedPaths != null)
+        {
+            // Determine the lowest selectable level based on the input flag
+            int lowestLevel = getTableNodeLevel() - priorLevels;
+
+            // Step through each selected table
+            for (TreePath path : selectedPaths)
+            {
+                // Check if the node isn't selectable
+                if (path.getPathCount() <= lowestLevel)
+                {
+                    // Clear the selected node
+                    removeSelectionPath(path);
+                }
+            }
+        }
+    }
+
+    /**************************************************************************
+     * Get a list of the tables represented by the selected nodes. If a header
+     * node (i.e., a non-table node one level above a table node, such as a
+     * group or type node) is selected then all of its child tables at the next
+     * level down are added to the list
+     * 
+     * @return List containing the table names of the selected node(s)
+     *************************************************************************/
+    protected List<String> getSelectedTablesWithoutChildren()
+    {
+        // Create storage for the table names
+        List<String> tables = new ArrayList<String>();
+
+        // Check if any tables are selected in the table tree
+        if (getSelectionPaths() != null)
+        {
+            // Step through each selected table in the tree
+            for (TreePath path : getSelectionPaths())
+            {
+                // Check that this node represents a structure or variable, or
+                // a header node one level above
+                if (path.getPathCount() >= getTableNodeLevel())
+                {
+                    // Get the node for this path
+                    ToolTipTreeNode node = (ToolTipTreeNode) path.getLastPathComponent();
+
+                    // Check if the node has no children or if this node
+                    // represents a table (i.e., isn't a header node with no
+                    // child nodes)
+                    if (node.getChildCount() == 0
+                        || path.getPathCount() > getTableNodeLevel())
+                    {
+                        // Add the table name to the list
+                        tables.add(node.getUserObject().toString());
+                    }
+                    // The node is a header node (i.e., a node with tables
+                    // nodes as children)
+                    else
+                    {
+                        // Step through each child node
+                        for (int index = 0; index < node.getChildCount(); index++)
+                        {
+                            // Add the name of the child to the table list
+                            tables.add(((ToolTipTreeNode) node.getChildAt(index)).getUserObject().toString());
+                        }
+                    }
+                }
+            }
+        }
+
+        return tables;
+    }
+
+    /**************************************************************************
+     * Get the parent structure and variable path for the selected node(s)
+     * 
+     * @param isVariable
+     *            true if the tree contains variables
+     * 
+     * @return List containing the path array(s) for the selected variable(s)
+     *************************************************************************/
+    protected List<Object[]> getSelectedVariables(boolean isVariable)
+    {
+        return getSelectedVariables(0, isVariable);
+    }
+
+    /**************************************************************************
+     * Get the parent structure and variable path for the selected node(s)
+     * 
+     * @param priorLevels
+     *            number of levels above the start index level to include
+     * 
+     * @param isVariable
+     *            true if the tree contains variables
+     * 
+     * @return List containing the path array(s) for the selected variable(s)
+     *************************************************************************/
+    protected List<Object[]> getSelectedVariables(int priorLevels,
+                                                  boolean isVariable)
+    {
+        selectedVariablePaths = new ArrayList<Object[]>();
+
+        // Check if at least one node is selected
+        if (getSelectionCount() != 0)
+        {
+            // Step through each selected node
+            for (TreePath path : getSelectionPaths())
+            {
+                // Check that this node represents a structure or variable, or
+                // a header node one level above
+                if (path.getPathCount() >= getTableNodeLevel() - priorLevels)
+                {
+                    // Check if the selected variable node has children
+                    addChildNodes((ToolTipTreeNode) path.getLastPathComponent(),
+                                  selectedVariablePaths,
+                                  excludedVariables,
+                                  isVariable);
+                }
+            }
+        }
+
+        return selectedVariablePaths;
+    }
+
+    /**************************************************************************
+     * Get a list of full node paths for all nodes that represent a primitive
+     * variable, starting at the specified node
+     * 
+     * @param startNode
+     *            starting node from which to build the variable list
+     * 
+     * @return List containing the full node paths for all nodes that represent
+     *         a primitive variable, starting with the specified node
+     *************************************************************************/
+    protected List<String> getPrimitiveVariablePaths(DefaultMutableTreeNode startNode)
+    {
+        // Create storage for the primitive variable paths
+        allPrimitivePaths = new ArrayList<String>();
+
+        // Step through each element and child of this node
+        for (Enumeration<?> element = startNode.depthFirstEnumeration(); element.hasMoreElements();)
+        {
+            // Get the node
+            ToolTipTreeNode node = (ToolTipTreeNode) element.nextElement();
+
+            // Get the data type for this node
+            String dataType = getTableFromNodeName(node.getUserObject().toString());
+
+            // Check if the data type is a primitive (versus a structure)
+            if (dataTypeHandler.isPrimitive(dataType))
+            {
+                // Get the path for this node as a string array
+                String[] nodePath = CcddUtilities.convertObjectToString(node.getPath());
+
+                // Step through each node in the path
+                for (int index = 0; index < nodePath.length; index++)
+                {
+                    // Remove the HTML tags from the node
+                    nodePath[index] = removeExtraText(nodePath[index]);
+                }
+
+                // Add the variable's entire node path to the list
+                allPrimitivePaths.add(CcddUtilities.convertArrayToString(nodePath).replaceAll(", ", ","));
+            }
+        }
+
+        return allPrimitivePaths;
+    }
+
+    /**************************************************************************
+     * Update the text color for the nodes that represent a primitive variable
+     * based on the variable exclusion list
+     *************************************************************************/
+    private void setNodeEnableByExcludeList()
+    {
+        // Step through elements and children of this node
+        for (Enumeration<?> element = root.depthFirstEnumeration(); element.hasMoreElements();)
+        {
+            // Get the node reference
+            ToolTipTreeNode node = (ToolTipTreeNode) element.nextElement();
+
+            // Check if this is node has no children, which indicates is may be
+            // a variable, and that the node is for a structure or variable
+            if (node.isLeaf() && node.getLevel() >= getTableNodeLevel())
+            {
+                // Get the node name
+                String nodeName = node.getUserObject().toString();
+
+                // Set to true if the variable in this path is not excluded (as
+                // evidenced by having a HTML tag)
+                boolean wasExcluded = nodeName.contains(DISABLED_TEXT_COLOR);
+
+                // Get the path for this node as a string array
+                String[] nodes = CcddUtilities.convertObjectToString(node.getPath());
+
+                // Step through each node in the path
+                for (int index = 0; index < nodes.length; index++)
+                {
+                    // Remove the HTML tags from the node
+                    nodes[index] = removeExtraText(nodes[index]);
+                }
+
+                // Get the variable path and name. Skip the link name node if
+                // present
+                String variablePath = getFullVariablePath(nodes,
+                                                          (nodes[1].equals(LINKED_VARIABLES_NODE_NAME)
+                                                                                                      ? 1
+                                                                                                      : 0));
+
+                // Set the flag indicating the variable is excluded if it's in
+                // the exclusion lists
+                boolean isExcluded = excludedVariables.contains(variablePath)
+                                     || (nodes[1].equals(UNLINKED_VARIABLES_NODE_NAME)
+                                     && linkedVariables.contains(variablePath));
+
+                // Check if the variable exclusion state has changed
+                if (wasExcluded != isExcluded)
+                {
+                    // Reset the node name to indicate its inclusion/exclusion
+                    // state. If excluded, prepend the HTML tag to gray out the
+                    // name. Indicate that the node changed so that the tree
+                    // redraws the name
+                    node.setUserObject((isExcluded
+                                                  ? DISABLED_TEXT_COLOR
+                                                  : "")
+                                       + nodes[nodes.length - 1]);
+                    ((DefaultTreeModel) getModel()).nodeChanged(node);
+                }
+            }
+        }
+    }
+
+    /**************************************************************************
+     * Set the node text color based on the enable state of its child nodes. If
+     * all children are disabled then disable the parent, otherwise enable the
+     * parent. This is a recursive method
+     * 
+     * @param node
+     *            node for which to adjust the text and color
+     * 
+     * @return true if the node is enabled; false if disabled
+     *************************************************************************/
+    private boolean setNodeEnableByChildState(ToolTipTreeNode node)
+    {
+        boolean isEnabled;
+
+        // Check if this node has any children
+        if (node.getChildCount() != 0)
+        {
+            isEnabled = false;
+
+            // Step through the node's children
+            for (Enumeration<?> element = node.children(); element.hasMoreElements();)
+            {
+                // Check if any of the child's children are enabled
+                if (setNodeEnableByChildState((ToolTipTreeNode) element.nextElement()))
+                {
+                    // Set the flag to indicate a child of this node is enabled
+                    isEnabled = true;
+                }
+            }
+        }
+        // The node has no child nodes
+        else
+        {
+            // Check if this isn't the root node and the node doesn't represent
+            // a table
+            if (node.getLevel() != 0 && node.getLevel() < getTableNodeLevel())
+            {
+                isEnabled = false;
+            }
+            // This is the root node or the node represents a table
+            else
+            {
+                // Initialize the enabled flag based on the node containing an
+                // HTML tag (hence it's disabled)
+                isEnabled = !node.getUserObject().toString().contains(DISABLED_TEXT_COLOR);
+            }
+        }
+
+        // Check if the enable state changed and that this isn't the root node
+        if (isEnabled != !node.getUserObject().toString().contains(DISABLED_TEXT_COLOR)
+            && node.getLevel() != 0)
+        {
+            // Reset the node name to indicate its enabled/disabled state. If
+            // disabled, prepend the HTML tag to gray out the name. Indicate
+            // that the node changed so that the tree redraws the name
+            node.setUserObject((isEnabled
+                                         ? ""
+                                         : DISABLED_TEXT_COLOR)
+                               + removeExtraText(node.getUserObject().toString()));
+            ((DefaultTreeModel) getModel()).nodeChanged(node);
+        }
+
+        return isEnabled;
+    }
+
+    /**************************************************************************
+     * Adjust the tree expansion state to account for the tree filter selection
+     * status
+     * 
+     * @param expState
+     *            string representing the desired tree expansion state
+     * 
+     * @param isByGroupChanged
+     *            true if the Group filter status changed
+     * 
+     * @param isByTypeChanged
+     *            true if the Type filter status changed
+     * 
+     * @param expState
+     *            string representing the tree expansion state with adjustments
+     *            made to account for the change in filter selection status
+     *************************************************************************/
+    private String adjustExpansionState(String expState,
+                                        boolean isByGroupChanged,
+                                        boolean isByTypeChanged)
+    {
+        // Break the expansion state into the separate visible nodes
+        String[] paths = expState.split(Pattern.quote("],"));
+
+        // Clear the expansion state
+        expState = "";
+
+        // Create the path termination regular expression
+        String termPattern = "(\\],|,.*)";
+
+        // Create the prefixes for the prototype and instance nodes
+        String[] prefixes = new String[] {"[" + dbControl.getDatabase() + ", Prototypes",
+                                          "[" + dbControl.getDatabase() + ", Parents & Children"};
+
+        // Initialize the group name regular expression pattern assuming there
+        // is no filtering by groups
+        String groupPattern = "(())";
+
+        // Check if the tree has changed to or is already being filtered by
+        // groups
+        if ((isByGroup && !isByGroupChanged) || (!isByGroup && isByGroupChanged))
+        {
+            // Initialize the group name regular expression pattern with group
+            // filtering enabled
+            groupPattern = "(, (";
+
+            // Step through each group
+            for (GroupInformation grpInfo : groupHandler.getGroupInformation())
+            {
+                // Add the group name to the pattern
+                groupPattern += Pattern.quote(grpInfo.getName()) + "|";
+            }
+
+            // Finish the group name pattern
+            groupPattern = CcddUtilities.removeTrailer(groupPattern, "|") + "))";
+        }
+
+        // Initialize the type name regular expression pattern assuming there
+        // is no filtering by types
+        String typePattern = "(())";
+
+        // Check if the tree has changed to or is already being filtered by
+        // types
+        if ((isByType && !isByTypeChanged) || (!isByType && isByTypeChanged))
+        {
+            // Initialize the type name regular expression pattern with type
+            // filtering enabled
+            typePattern = "(, (";
+
+            // Step through each table type
+            for (String type : tableTypeHandler.getTypes())
+            {
+                // Add the type name to the pattern
+                typePattern += Pattern.quote(type) + "|";
+            }
+
+            // Finish the type name pattern
+            typePattern = CcddUtilities.removeTrailer(typePattern, "|") + "))";
+        }
+
+        // Step through each visible path in the tree
+        for (String path : paths)
+        {
+            // Add the path terminator that was removed when the expansion
+            // state was split
+            path += "],";
+
+            // Step through the prototype and instance nodes
+            for (String prefix : prefixes)
+            {
+                // Set the flag to true if the path contains the group and/or a
+                // type nodes
+                boolean matchesEither = path.matches(Pattern.quote(prefix)
+                                                     + groupPattern
+                                                     + typePattern
+                                                     + termPattern);
+
+                // Set the flag to true if the path contains a group node but
+                // no type node
+                boolean matchesGroup = groupPattern.equals("(())")
+                                                                  ? false
+                                                                  : typePattern.equals("(())")
+                                                                                              ? path.matches(Pattern.quote(prefix)
+                                                                                                             + groupPattern
+                                                                                                             + termPattern)
+                                                                                              : path.matches(Pattern.quote(prefix)
+                                                                                                             + groupPattern
+                                                                                                             + "[^"
+                                                                                                             + typePattern
+                                                                                                             + "]"
+                                                                                                             + termPattern);
+
+                // Set the flag to true if the path contains a type node but
+                // no group node
+                boolean matchesType = typePattern.equals("(())")
+                                                                ? false
+                                                                : groupPattern.equals("(())")
+                                                                                             ? path.matches(Pattern.quote(prefix)
+                                                                                                            + typePattern
+                                                                                                            + termPattern)
+                                                                                             : path.matches(Pattern.quote(prefix)
+                                                                                                            + "[^"
+                                                                                                            + groupPattern
+                                                                                                            + "]"
+                                                                                                            + typePattern
+                                                                                                            + termPattern);
+
+                // Check if the path contains a group or type node
+                if (matchesEither)
+                {
+                    // Check if the group filter changed to enabled
+                    if (isByGroup && isByGroupChanged)
+                    {
+                        String newPath = "";
+
+                        // Step through each group
+                        for (GroupInformation grpInfo : groupHandler.getGroupInformation())
+                        {
+                            // Create the new group node for the path
+                            newPath += path.replaceAll(Pattern.quote(prefix)
+                                                       + typePattern
+                                                       + termPattern,
+                                                       prefix
+                                                           + ", "
+                                                           + grpInfo.getName()
+                                                           + "$3");
+
+                            // Modify the existing path to include the new
+                            // group node
+                            newPath += path.replaceAll(Pattern.quote(prefix)
+                                                       + typePattern
+                                                       + termPattern,
+                                                       prefix
+                                                           + ", "
+                                                           + grpInfo.getName()
+                                                           + "$1$3");
+                        }
+
+                        // Check if type filtering is enabled and that the path
+                        // contains a type
+                        if (isByType && matchesType)
+                        {
+                            // Blank the original path; only the new path items
+                            // are applicable
+                            path = "";
+                        }
+
+                        // Add the new group nodes to the path
+                        path += newPath;
+                    }
+                    // Check if the group filter changed to disabled
+                    else if (!isByGroup && isByGroupChanged)
+                    {
+                        // Remove the group name form the path
+                        path = path.replaceAll(Pattern.quote(prefix)
+                                               + groupPattern
+                                               + typePattern
+                                               + termPattern,
+                                               prefix
+                                                   + "$3$5");
+                    }
+                    // Check if the type filter changed to enabled
+                    else if (isByType && isByTypeChanged)
+                    {
+                        String newPath = "";
+
+                        // Step through each table type
+                        for (String type : tableTypeHandler.getTypes())
+                        {
+                            // Modify the existing path to include the new
+                            // type node
+                            newPath += path.replaceAll(Pattern.quote(prefix)
+                                                       + groupPattern
+                                                       + termPattern,
+                                                       prefix
+                                                           + "$1, "
+                                                           + type
+                                                           + "$3");
+                        }
+
+                        // Add the new type nodes to the path
+                        path += newPath;
+                    }
+                    // Check if the type filter changed to disabled
+                    else if (!isByType && isByTypeChanged)
+                    {
+                        // Remove the type name form the path
+                        path = path.replaceAll(Pattern.quote(prefix)
+                                               + groupPattern
+                                               + typePattern
+                                               + termPattern,
+                                               prefix
+                                                   + "$1$5");
+                    }
+
+                    break;
+                }
+                // Check if group filtering is disabled and the path contains a
+                // group
+                else if (!isByGroup && matchesGroup)
+                {
+                    // Blank the path
+                    path = "";
+                }
+            }
+
+            // Check that the path isn't already in the updated expansion state
+            if (!expState.contains(path))
+            {
+                // Add the path to the expansion state
+                expState += path;
+            }
+        }
+
+        return expState;
+    }
+
+    /**************************************************************************
+     * Create a table tree panel. The table tree is placed in a scroll pane. A
+     * check box is added that allows tree expansion/collapse
+     * 
+     * @param label
+     *            table tree title
+     * 
+     * @param selectionMode
+     *            tree item selection mode (single versus multiple)
+     * 
+     * @param parent
+     *            GUI component calling this method
+     * 
+     * @return JPanel containing the table tree components
+     *************************************************************************/
+    protected JPanel createTreePanel(String label,
+                                     int selectionMode,
+                                     final Component parent)
+    {
+        // Create an empty border
+        Border emptyBorder = BorderFactory.createEmptyBorder();
+
+        // Set the initial layout manager characteristics
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
+                                                        GridBagConstraints.BOTH,
+                                                        new Insets(0,
+                                                                   0,
+                                                                   LABEL_VERTICAL_SPACING / 2,
+                                                                   0),
+                                                        0,
+                                                        0);
+
+        // Set the table tree font and number of rows to display
+        setFont(LABEL_FONT_PLAIN);
+        setVisibleRowCount(10);
+
+        // Set the table tree selection mode
+        getSelectionModel().setSelectionMode(selectionMode);
+
+        // Create a panel to contain the table tree
+        JPanel treePnl = new JPanel(new GridBagLayout());
+        treePnl.setBorder(emptyBorder);
+
+        // Check if a label is provided
+        if (label != null && !label.isEmpty())
+        {
+            // Create the tree labels
+            JLabel treeLbl = new JLabel(label);
+            treeLbl.setFont(LABEL_FONT_BOLD);
+            treeLbl.setForeground(LABEL_TEXT_COLOR);
+            treePnl.add(treeLbl, gbc);
+            gbc.gridy++;
+        }
+
+        // Create the tree scroll pane
+        JScrollPane treeScroll = new JScrollPane(this);
+        treeScroll.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                                Color.LIGHT_GRAY,
+                                                                                                Color.GRAY),
+                                                                BorderFactory.createEmptyBorder(2, 2, 2, 2)));
+
+        // Set the preferred width of the tree's scroll pane
+        treeScroll.setPreferredSize(new Dimension(Math.min(Math.max(treeScroll.getPreferredSize().width,
+                                                                    200),
+                                                           400),
+                                                  treeScroll.getPreferredSize().height));
+        treeScroll.setMinimumSize(treeScroll.getPreferredSize());
+
+        // Add the tree to the panel
+        gbc.weighty = 1.0;
+        treePnl.add(treeScroll, gbc);
+
+        // Add a listener for changes to the table tree
+        addTreeSelectionListener(new TreeSelectionListener()
+        {
+            /******************************************************************
+             * Handle a change to the table tree selection
+             *****************************************************************/
+            @Override
+            public void valueChanged(TreeSelectionEvent lse)
+            {
+                // Check that a table tree (re)build isn't in progress.
+                // Building the tree triggers tree selection value changes that
+                // should not be processed
+                if (!isBuilding)
+                {
+                    // Update the groups based on the tables selected
+                    updateTableSelection();
+                }
+            }
+        });
+
+        // Add a listener for table tree expand and collapse events
+        addTreeExpansionListener(new TreeExpansionListener()
+        {
+            /******************************************************************
+             * Handle an expansion of the table tree
+             *****************************************************************/
+            @Override
+            public void treeExpanded(TreeExpansionEvent tee)
+            {
+                // Update the table selection based on the selected group
+                updateGroupSelection();
+            }
+
+            /******************************************************************
+             * Handle a collapse of the table tree
+             *****************************************************************/
+            @Override
+            public void treeCollapsed(TreeExpansionEvent tee)
+            {
+                // Update the table selection based on the selected group
+                updateGroupSelection();
+            }
+        });
+
+        // Create a tree expansion check box
+        expandChkBx = new JCheckBox("Expand all");
+        expandChkBx.setBorder(emptyBorder);
+        expandChkBx.setFont(LABEL_FONT_BOLD);
+        expandChkBx.setSelected(false);
+
+        // Check if this is the last component to add
+        if (!showGroupFilter && !showTypeFilter && !addHiddenCheckBox)
+        {
+            gbc.insets.bottom = 0;
+        }
+
+        gbc.insets.top = LABEL_VERTICAL_SPACING / 2;
+        gbc.weighty = 0.0;
+        gbc.gridy++;
+        treePnl.add(expandChkBx, gbc);
+
+        // Create a listener for changes in selection of the tree expansion
+        // check box
+        expandChkBx.addActionListener(new ActionListener()
+        {
+            /******************************************************************
+             * Handle a change to the tree expansion check box selection
+             *****************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                setTreeExpansion(expandChkBx.isSelected());
+            }
+        });
+
+        // Check if the group check box is valid for this tree type
+        if (showGroupFilter)
+        {
+            // Create a group filter check box
+            groupFilterChkBx = new JCheckBox("Filter by group");
+            groupFilterChkBx.setBorder(emptyBorder);
+            groupFilterChkBx.setFont(LABEL_FONT_BOLD);
+            groupFilterChkBx.setSelected(false);
+            groupFilterChkBx.setEnabled(!groupHandler.getGroupInformation().isEmpty());
+
+            // Check if this is the last component to add
+            if (!showTypeFilter && !addHiddenCheckBox)
+            {
+                gbc.insets.bottom = 0;
+            }
+
+            gbc.gridy++;
+            treePnl.add(groupFilterChkBx, gbc);
+
+            // Create a listener for changes in selection of the group filter
+            // check box
+            groupFilterChkBx.addActionListener(new ActionListener()
+            {
+                /**************************************************************
+                 * Handle a change to the group filter check box selection
+                 *************************************************************/
+                @Override
+                public void actionPerformed(ActionEvent ae)
+                {
+                    // Set the filter by group flag based on the check box
+                    // status
+                    isByGroup = groupFilterChkBx.isSelected();
+
+                    // Store the tree's current expansion state
+                    String expState = getExpansionState();
+
+                    // Rebuild the tree based on the filter selection
+                    buildTableTree(expandChkBx.isSelected(),
+                                   rateName,
+                                   rateFilter,
+                                   parent);
+
+                    // Adjust the expansion state to account for the change in
+                    // filtering, then restore the expansion state
+                    expState = adjustExpansionState(expState, true, false);
+                    setExpansionState(expState);
+                }
+            });
+        }
+
+        // Check if the type check box is valid for this tree type
+        if (showTypeFilter)
+        {
+            // Create a type filter check box
+            final JCheckBox typeFilterChkBx = new JCheckBox("Filter by type");
+            typeFilterChkBx.setBorder(emptyBorder);
+            typeFilterChkBx.setFont(LABEL_FONT_BOLD);
+            typeFilterChkBx.setSelected(false);
+
+            // Check if this is the last component to add
+            if (!addHiddenCheckBox)
+            {
+                gbc.insets.bottom = 0;
+            }
+
+            gbc.gridy++;
+            treePnl.add(typeFilterChkBx, gbc);
+
+            // Create a listener for changes in selection of the type filter
+            // check box
+            typeFilterChkBx.addActionListener(new ActionListener()
+            {
+                /**************************************************************
+                 * Handle a change to the type filter check box selection
+                 *************************************************************/
+                @Override
+                public void actionPerformed(ActionEvent ae)
+                {
+                    // Set the filter by type flag based on the check box
+                    // status
+                    isByType = typeFilterChkBx.isSelected();
+
+                    // Store the tree's current expansion state
+                    String expState = getExpansionState();
+
+                    // Rebuild the tree based on the filter selection
+                    buildTableTree(expandChkBx.isSelected(),
+                                   rateName,
+                                   rateFilter,
+                                   parent);
+
+                    // Adjust the expansion state to account for the change in
+                    // filtering, then restore the expansion state
+                    expState = adjustExpansionState(expState, false, true);
+                    setExpansionState(expState);
+                }
+            });
+        }
+
+        // In order to align the two adjacent trees a phantom check box may be
+        // needed for the table tree panel. Check if the flag is set to add
+        // this check box
+        if (addHiddenCheckBox)
+        {
+            // Create the hidden check box. To prevent display of the check box
+            // components an empty panel is placed over it
+            JPanel hiddenPnl = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            hiddenPnl.setBorder(emptyBorder);
+            JCheckBox hiddenChkBx = new JCheckBox(" ");
+            hiddenChkBx.setBorder(emptyBorder);
+            gbc.insets.bottom = 0;
+            gbc.gridy++;
+            treePnl.add(hiddenPnl, gbc);
+            hiddenChkBx.setFont(LABEL_FONT_BOLD);
+            hiddenChkBx.setFocusable(false);
+            hiddenChkBx.setDisabledIcon(null);
+            hiddenChkBx.setEnabled(false);
+            treePnl.add(hiddenChkBx, gbc);
+        }
+
+        return treePnl;
+    }
+
+    /**************************************************************************
+     * Placeholder for method to respond to changes in selection of a group in
+     * the group list
+     *************************************************************************/
+    private void updateGroupSelection()
+    {
+    }
+
+    /**************************************************************************
+     * Placeholder for method to respond to changes in selection of a table in
+     * the table tree
+     *************************************************************************/
+    protected void updateTableSelection()
+    {
+    }
+}

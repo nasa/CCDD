@@ -1,0 +1,359 @@
+# cFE telemetry structures
+#   Use the Data | Import table(s) command to
+#   import the cFE telemetry structure table
+#   definitions into an existing project
+
+_macros_
+"CFE_TBL_MAX_FULL_NAME_LEN","2"
+"CFE_EVS_MAX_MESSAGE_LENGTH","2"
+"CFE_ES_MAX_APPLICATIONS","2"
+"CFE_ES_MAX_SHELL_PKT","2"
+"CFE_ES_PERF_MAX_IDS / 32","2"
+"CFE_ES_MAX_MEMPOOL_BLOCK_SIZES","2"
+"OS_MAX_PATH_LEN","2"
+"OS_MAX_API_NAME","2"
+"CFE_SB_TLM_HDR_SIZE","2"
+
+_name_type_
+"CFE_ES_OneAppTlm_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"CFE_ES_AppInfo_t","AppInfo","","For more information, see #CFE_ES_AppInfo_t"
+
+_name_type_
+"CFE_ES_OneAppTlm_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","cFE Software Bus Telemetry Message Header"
+"CFE_ES_OneAppTlm_Payload_t","Payload","",""
+
+_name_type_
+"CFE_ES_PoolStatsTlm_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"uint32","PoolHandle","","ES_POOLHANDLE Handle of memory pool whose stats are being telemetered"
+"CFE_ES_MemPoolStats_t","PoolStats","","For more info, see #CFE_ES_MemPoolStats_t"
+
+_name_type_
+"CFE_ES_PoolStatsTlm_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","cFE Software Bus Telemetry Message Header"
+"CFE_ES_PoolStatsTlm_Payload_t","Payload","",""
+
+_name_type_
+"CFE_ES_AppInfo_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"uint32","AppId","","ES_APP_ID Application ID for this Application"
+"uint32","Type","","ES_APPTYPE The type of App: CORE or EXTERNAL"
+"char","Name","##OS_MAX_API_NAME##","ES_APPNAME The Registered Name of the Application"
+"char","EntryPoint","##OS_MAX_API_NAME##","ES_APPENTRYPT The Entry Point label for the Application"
+"char","FileName","##OS_MAX_PATH_LEN##","ES_APPFILENAME The Filename of the file containing the Application"
+"uint32","StackSize","","ES_STACKSIZE The Stack Size of the Application"
+"uint32","ModuleId","","ES_MODULEID The ID of the Loadable Module for the Application"
+"uint32","AddressesAreValid","","ES_ADDRVALID Indicates that the Code, Data, and BSS addresses/sizes are valid"
+"uint32","CodeAddress","","ES_CODEADDR The Address of the Application Code Segment*/"
+"uint32","CodeSize","","ES_CODESIZE The Code Size of the Application"
+"uint32","DataAddress","","ES_DATAADDR The Address of the Application Data Segment*/"
+"uint32","DataSize","","ES_DATASIZE The Data Size of the Application"
+"uint32","BSSAddress","","ES_BSSADDR The Address of the Application BSS Segment*/"
+"uint32","BSSSize","","ES_BSSSIZE The BSS Size of the Application"
+"uint32","StartAddress","","ES_STARTADDR The Start Address of the Application"
+"uint16","ExceptionAction","","ES_EXCEPTNACTN What should occur if Application has an exception (Restart Application OR Restart Processor)"
+"uint16","Priority","","ES_PRIORITY The Priority of the Application"
+"uint32","MainTaskId","","ES_MAINTASKID The Application's Main Task ID"
+"uint32","ExecutionCounter","","ES_MAINTASKEXECNT The Application's Main Task Execution Counter"
+"char","MainTaskName","##OS_MAX_API_NAME##","ES_MAINTASKNAME The Application's Main Task ID"
+"uint32","NumOfChildTasks","","ES_CHILDTASKS Number of Child tasks for an App"
+
+_name_type_
+"CFE_ES_BlockStats_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"uint32","BlockSize","","Number of bytes in each of these blocks"
+"uint32","NumCreated","","Number of Memory Blocks of this size created"
+"uint32","NumFree","","Number of Memory Blocks of this size that are free"
+
+_name_type_
+"CFE_ES_MemPoolStats_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"uint32","PoolSize","","ES_POOLSIZE Size of Memory Pool (in bytes)"
+"uint32","NumBlocksRequested","","ES_BLKSREQ Number of times a memory block has been allocated"
+"uint32","CheckErrCtr","","ES_BLKERRCTR Number of errors detected when freeing a memory block"
+"uint32","NumFreeBytes","","ES_FREEBYTES Number of bytes never allocated to a block"
+"CFE_ES_BlockStats_t","BlockStats","##CFE_ES_MAX_MEMPOOL_BLOCK_SIZES##","ES_BLKSTATS Contains stats on each block size"
+
+_name_type_
+"CFE_ES_HkPacket_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"uint8","CmdCounter","","ES_CMDPC The ES Application Command Counter"
+"uint8","ErrCounter","","ES_CMDEC The ES Application Command Error Counter"
+"uint16","CFECoreChecksum","","ES_CKSUM Checksum of cFE Core Code"
+"uint8","CFEMajorVersion","","ES_CFEMAJORVER Major Version Number of cFE"
+"uint8","CFEMinorVersion","","ES_CFEMINORVER Minor Version Number of cFE"
+"uint8","CFERevision","","ES_CFEREVISION Sub-Minor Version Number of cFE"
+"uint8","CFEMissionRevision","","ES_CFEMISSIONREV Mission Version Number of cFE"
+"uint8","OSALMajorVersion","","ES_OSMAJORVER OS Abstraction Layer Major Version Number"
+"uint8","OSALMinorVersion","","ES_OSMINORVER OS Abstraction Layer Minor Version Number"
+"uint8","OSALRevision","","ES_OSREVISION OS Abstraction Layer Revision Number"
+"uint8","OSALMissionRevision","","/* ES_OSMISSIONREV OS Abstraction Layer MissionRevision Number"
+"uint32","SysLogBytesUsed","","ES_SYSLOGBYTEUSED Total number of bytes used in system log"
+"uint32","SysLogSize","","ES_SYSLOGSIZE Total size of the system log"
+"uint32","SysLogEntries","","ES_SYSLOGENTRIES Number of entries in the system log"
+"uint32","SysLogMode","","ES_SYSLOGMODE Write/Overwrite Mode"
+"uint32","ERLogIndex","","ES_ERLOGINDEX Current index of the ER Log (wraps around)"
+"uint32","ERLogEntries","","ES_ERLOGENTRIES Number of entries made in the ER Log since the power on"
+"uint32","RegisteredCoreApps","","ES_REGCOREAPPS Number of Applications registered with ES"
+"uint32","RegisteredExternalApps","","ES_REGEXTAPPS Number of Applications registered with ES"
+"uint32","RegisteredTasks","","ES_REGTASKS Number of Tasks ( main AND child tasks ) registered with ES"
+"uint32","RegisteredLibs","","ES_REGLIBS Number of Libraries registered with ES"
+"uint32","ResetType","","ES_RESETTYPE Reset type ( PROCESSOR or POWERON )"
+"uint32","ResetSubtype","","ES_RESETSUBTYPE Reset Sub Type"
+"uint32","ProcessorResets","","ES_PROCRESETCNT Number of processor resets since last power on"
+"uint32","MaxProcessorResets","","ES_MAXPROCRESETS Max processor resets before a power on is done"
+"uint32","BootSource","","ES_BOOTSOURCE Boot source ( as provided from BSP )"
+"uint32","PerfState","","ES_PERFSTATE Current state of Performance Analyzer"
+"uint32","PerfMode","","ES_PERFMODE Current mode of Performance Analyzer"
+"uint32","PerfTriggerCount","","ES_PERFTRIGCNT Number of Times Performance Analyzer has Triggered"
+"uint32","PerfFilterMask","##CFE_ES_PERF_MAX_IDS / 32##","ES_PERFFLTRMASK Current Setting of Performance Analyzer Filter Masks"
+"uint32","PerfTriggerMask","##CFE_ES_PERF_MAX_IDS / 32##","ES_PERFTRIGMASK Current Setting of Performance Analyzer Trigger Masks"
+"uint32","PerfDataStart","","ES_PERFDATASTART Identifies First Stored Entry in Performance Analyzer Log"
+"uint32","PerfDataEnd","","ES_PERFDATAEND Identifies Last Stored Entry in Performance Analyzer Log"
+"uint32","PerfDataCount","","ES_PERFDATACNT Number of Entries Put Into the Performance Analyzer Log"
+"uint32","PerfDataToWrite","","ES_PERFDATA2WRITE Number of Performance Analyzer Log Entries Left to be Written to Log Dump File"
+"uint32","HeapBytesFree","","ES_HEAPBYTESFREE Number of free bytes remaining in the OS heap"
+"uint32","HeapBlocksFree","","ES_HEAPBLKSFREE Number of free blocks remaining in the OS heap"
+"uint32","HeapMaxBlockSize","","ES_HEAPMAXBLK Number of bytes in the largest free block"
+
+_name_type_
+"CFE_ES_HkPacket_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","cFE Software Bus Telemetry Message Header"
+"CFE_ES_HkPacket_Payload_t","Payload","",""
+
+_name_type_
+"CFE_ES_ShellPacket_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"char","ShellOutput","##CFE_ES_MAX_SHELL_PKT##","ASCII text string containing output from OS Shell that was received in response to an OS Shell Command"
+
+_name_type_
+"CFE_ES_ShellPacket_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","cFE Software Bus Telemetry Message Header"
+"CFE_ES_ShellPacket_Payload_t","Payload","",""
+
+_name_type_
+"CFE_EVS_AppTlmData_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"uint32","AppID","","EVS_APPID Numerical application identifier"
+"uint16","AppMessageSentCounter","","EVS_APPMSGSENTC Application message sent counter"
+"uint8","AppEnableStatus","","Application event service enable status"
+"uint8","Padding","","EVS_SPARE2ALIGN3 Padding for 32 bit boundary"
+
+_name_type_
+"CFE_EVS_TlmPkt_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"uint8","CommandCounter","","EVS_CMDPC EVS Command Counter"
+"uint8","CommandErrCounter","","EVS_CMDEC EVS Command Error Counter"
+"uint8","MessageFormatMode","","EVS_MSGFMTMODE Event message format mode (short/long)"
+"uint8","MessageTruncCounter","","EVS_MSGTRUNC Event message truncation counter"
+"uint8","UnregisteredAppCounter","","EVS_UNREGAPPC Unregistered application message send counter"
+"uint8","OutputPort","","EVS_OUTPUTPORT Output port mask"
+"uint8","LogFullFlag","","EVS_LOGFULL Local event log full flag"
+"uint8","LogMode","","EVS_LOGMODE Local event logging mode (overwrite/discard)"
+"uint16","MessageSendCounter","","EVS_MSGSENTC Event message send counter"
+"uint16","LogOverflowCounter","","EVS_LOGOVERFLOWC Local event log overflow counter"
+"uint8","LogEnabled","","EVS_LOGENABLED Current event log enable/disable state"
+"uint8","Spare1","","EVS_HK_SPARE1 Padding for 32 bit boundary"
+"uint8","Spare2","","EVS_HK_SPARE2 Padding for 32 bit boundary"
+"uint8","Spare3","","EVS_HK_SPARE3 Padding for 32 bit boundary"
+"CFE_EVS_AppTlmData_t","AppData","##CFE_ES_MAX_APPLICATIONS##","EVS_APP Array of registered application table data"
+
+_name_type_
+"CFE_EVS_TlmPkt_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##",""
+"CFE_EVS_TlmPkt_Payload_t","Payload","",""
+
+_name_type_
+"CFE_EVS_PacketID_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"char","AppName","##OS_MAX_API_NAME##","EVS_APPNAME Application name"
+"uint16","EventID","","EVS_EVENTID Numerical event identifier"
+"uint16","EventType","","EVS_EVENTTYPE Numerical event type identifier"
+"uint32","SpacecraftID","","EVS_SCID Spacecraft identifier"
+"uint32","ProcessorID","","EVS_PROCESSORID Numerical processor identifier"
+
+_name_type_
+"CFE_EVS_Packet_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"CFE_EVS_PacketID_t","PacketID","","Event packet information"
+"char","Message","##CFE_EVS_MAX_MESSAGE_LENGTH##","EVS_EVENT Event message string"
+"uint8","Spare1","","EVS_SPARE1 Structure padding"
+"uint8","Spare2","","EVS_SPARE2 Structure padding"
+
+_name_type_
+"CFE_EVS_Packet_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##",""
+"CFE_EVS_Packet_Payload_t","Payload","",""
+
+_name_type_
+"CFE_TBL_HkPacket_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"uint8","CmdCounter","","TBL_CMDPC Count of valid commands received"
+"uint8","ErrCounter","","TBL_CMDEC Count of invalid commands received"
+"uint16","NumTables","","TBL_NUMTABLES Number of Tables Registered"
+"uint16","NumLoadPending","","TBL_NUMUPDATESPEND Number of Tables pending on Applications for their update"
+"uint16","ValidationCtr","","TBL_VALCOMPLTDCTR Number of completed table validations"
+"uint32","LastValCrc","","TBL_LASTVALCRC Data Integrity Value computed for last table validated"
+"int32","LastValStatus","","TBL_LASTVALS Returned status from validation function for last table validated"
+"boolean","ActiveBuffer","","TBL_LASTVALBUF Indicator of whether table buffer validated was 0=Inactive, 1=Active"
+"char","LastValTableName","##CFE_TBL_MAX_FULL_NAME_LEN##","TBL_LASTVALTBLNAME Name of last table validated"
+"uint8","SuccessValCtr","","TBL_VALSUCCESSCTR Total number of successful table validations"
+"uint8","FailedValCtr","","TBL_VALFAILEDCTR Total number of unsuccessful table validations"
+"uint8","NumValRequests","","TBL_VALREQCTR Number of times Table Services has requested validations from Apps"
+"uint8","NumFreeSharedBufs","","TBL_NUMFREESHRBUF Number of free Shared Working Buffers"
+"uint8","ByteAlignPad1","","TBL_BYTEALIGNPAD1 Spare byte to ensure longword alignment"
+"uint32","MemPoolHandle","","TBL_MEMPOOLHANDLE Handle to TBL's memory pool"
+"CFE_TIME_SysTime_t","LastUpdateTime","","TBL_LASTUPDTIME Time of last table update"
+"char","LastUpdatedTbl","##CFE_TBL_MAX_FULL_NAME_LEN##","TBL_LASTUPDTBLNAME Name of the last table updated"
+"char","LastFileLoaded","##OS_MAX_PATH_LEN##","TBL_LASTFILELOADED Path and Name of last table image file loaded"
+"char","LastFileDumped","##OS_MAX_PATH_LEN##","TBL_LASTFILEDUMPED Path and Name of last file dumped to"
+"char","LastTableLoaded","##CFE_TBL_MAX_FULL_NAME_LEN##","TBL_LASTTABLELOADED Name of the last table loaded"
+
+_name_type_
+"CFE_TBL_HkPacket_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","cFE Software Bus Telemetry Message Header"
+"CFE_TBL_HkPacket_Payload_t","Payload","",""
+
+_name_type_
+"CFE_TIME_SysTime_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"uint32","Seconds","","Number of seconds since epoch"
+"uint32","Subseconds","","Number of subseconds since epoch (LSB = 2^(-32) seconds)"
+
+_name_type_
+"CFE_TBL_TblRegPacket_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"uint32","Size","","TBL_SIZE Size, in bytes, of Table"
+"uint32","Crc","","TBL_CRC Most recently calculated CRC of Table"
+"uint32","ActiveBufferAddr","","TBL_ACTBUFADD Address of Active Buffer"
+"uint32","InactiveBufferAddr","","TBL_IACTBUFADD Address of Inactive Buffer"
+"uint32","ValidationFuncPtr","","TBL_VALFUNCPTR Ptr to Owner App's function that validates tbl contents"
+"CFE_TIME_SysTime_t","TimeOfLastUpdate","","TBL_TIMELASTUPD Time when Table was last updated"
+"uint32","FileCreateTimeSecs","","TBL_FILECSECONDS File creation time from last file loaded into table"
+"uint32","FileCreateTimeSubSecs","","TBL_FILECSUBSECONDS File creation time from last file loaded into table"
+"boolean","TableLoadedOnce","","TBL_LOADEDONCE Flag indicating whether table has been loaded once or not"
+"boolean","LoadPending","","TBL_UPDATEPNDNG Flag indicating an inactive buffer is ready to be copied"
+"boolean","DumpOnly","","TBL_DUMPONLY Flag indicating Table is NOT to be loaded"
+"boolean","DblBuffered","","TBL_DBLBUFFERED Flag indicating Table has a dedicated inactive buffer"
+"char","Name","##CFE_TBL_MAX_FULL_NAME_LEN##","/* TBL_NAME Processor specific table name"
+"char","LastFileLoaded","##OS_MAX_PATH_LEN##","/* TBL_LASTFILEUPD Filename of last file loaded into table"
+"char","OwnerAppName","##OS_MAX_API_NAME##","TBL_OWNERAPP Name of owning application"
+"boolean","Critical","","TBL_CRITICAL Indicates whether table is Critical or not"
+"uint8","ByteAlign4","","TBL_SPARE4 Spare byte to maintain byte alignment"
+
+_name_type_
+"CFE_TBL_TblRegPacket_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","cFE Software Bus Telemetry Message Header"
+"CFE_TBL_TblRegPacket_Payload_t","Payload","",""
+
+_name_type_
+"CFE_TIME_HkPacket_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"uint8","CmdCounter","","TIME_CMDPC Time Command Execution Counter"
+"uint8","ErrCounter","","TIME_CMDEC Time Command Error Counter"
+"uint16","ClockStateFlags","","TIME_STATEFLG State Flags"
+"int16","ClockStateAPI","","TIME_APISTATE API State"
+"int16","LeapSeconds","","TIME_LEAPSECS Current Leaps Seconds"
+"uint32","SecondsMET","","TIME_METSECS Current MET (seconds)"
+"uint32","SubsecsMET","","TIME_METSUBSECS Current MET (sub-seconds)"
+"uint32","SecondsSTCF","","TIME_STCFSECS Current STCF (seconds)"
+"uint32","SubsecsSTCF","","TIME_STCFSUBSECS Current STCF (sub-seconds)"
+"uint32","Seconds1HzAdj","","TIME_1HZADJSECS Current 1 Hz SCTF adjustment (seconds)"
+"uint32","Subsecs1HzAdj","","TIME_1HZADJSSECS Current 1 Hz SCTF adjustment (sub-seconds)"
+"uint32","SecondsDelay","","TIME_1HZDLYSECS Current 1 Hz SCTF Delay (seconds)"
+"uint32","SubsecsDelay","","TIME_1HZDLYSSECS Current 1 Hz SCTF Delay (sub-seconds)"
+
+_name_type_
+"CFE_TIME_HkPacket_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##",""
+"CFE_TIME_HkPacket_Payload_t","Payload","",""
+
+_name_type_
+"CFE_TIME_DiagPacket_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"CFE_TIME_SysTime_t","AtToneMET","","TIME_TMETS MET at time of tone"
+"CFE_TIME_SysTime_t","AtToneSTCF","","TIME_STCFS STCF at time of tone"
+"CFE_TIME_SysTime_t","AtToneDelay","","TIME_LATENTS Adjustment for slow tone detection"
+"CFE_TIME_SysTime_t","AtToneLatch","","TIME_TVALIDS Local clock latched at time of tone"
+"int16","AtToneLeaps","","TIME_LEAPS Leap Seconds at time of tone"
+"int16","ClockStateAPI","","TIME_APISTATE Clock state as per API"
+"CFE_TIME_SysTime_t","TimeSinceTone","","TIME_ELAPSEDS Time elapsed since the tone"
+"CFE_TIME_SysTime_t","CurrentLatch","","TIME_LOCALS Local clock latched just "now""
+"CFE_TIME_SysTime_t","CurrentMET","","TIME_METS MET at this instant"
+"CFE_TIME_SysTime_t","CurrentTAI","","TIME_TAIS TAI at this instant"
+"CFE_TIME_SysTime_t","CurrentUTC","","TIME_UTCS UTC at this instant"
+"int16","ClockSetState","","TIME_VALID Time has been "set""
+"int16","ClockFlyState","","TIME_FLYWHEEL Current fly-wheel state"
+"int16","ClockSource","","TIME_SOURCE Internal vs external, etc."
+"int16","ClockSignal","","TIME_SIGNAL Primary vs redundant, etc."
+"int16","ServerFlyState","","TIME_SRVFLY Used by clients only"
+"int16","Forced2Fly","","TIME_CMD2FLY Commanded into fly-wheel"
+"uint16","ClockStateFlags","","TIME_STATEFLAGS Clock State Flags"
+"int16","OneTimeDirection","","TIME_ADJUSTDIR One time STCF adjustment direction (Add = 1, Sub = 2)"
+"int16","OneHzDirection","","TIME_1HZADJDIR 1Hz STCF adjustment direction"
+"int16","DelayDirection","","TIME_LATENTDIR Client latency adjustment direction"
+"CFE_TIME_SysTime_t","OneTimeAdjust","","TIME_ADJUSTS Previous one-time STCF adjustment"
+"CFE_TIME_SysTime_t","OneHzAdjust","","TIME_1HZADJS Current 1Hz STCF adjustment"
+"CFE_TIME_SysTime_t","ToneSignalLatch","","TIME_TTS Local Clock latched at most recent tone signal"
+"CFE_TIME_SysTime_t","ToneDataLatch","","TIME_TDS Local Clock latched at arrival of tone data"
+"uint32","ToneMatchCount","","TIME_VERIFYCNT Tone signal / data verification count"
+"uint32","ToneMatchErrors","","TIME_VERIFYER Tone signal / data verification error count"
+"uint32","ToneSignalCount","","TIME_TSDETCNT Tone signal detected SB message count"
+"uint32","ToneDataCount","","TIME_TATTCNT Time at the tone data SB message count"
+"uint32","ToneIntCount","","TIME_TSISRCNT Tone signal ISR execution count"
+"uint32","ToneIntErrors","","TIME_TSISRERR Tone signal ISR error count"
+"uint32","ToneTaskCount","","TIME_TSTASKCNT Tone task execution count"
+"uint32","VersionCount","","TIME_VERSIONCNT Count of mods to time at tone reference data (version)"
+"uint32","LocalIntCount","","TIME_1HZISRCNT Local 1Hz ISR execution count"
+"uint32","LocalTaskCount","","TIME_1HZTASKCNT Local 1Hz task execution count"
+"uint32","VirtualMET","","TIME_LOGICALMET Software MET"
+"uint32","MinElapsed","","TIME_MINWINDOW Min tone signal / data pkt arrival window (Sub-seconds)"
+"uint32","MaxElapsed","","TIME_MAXWINDOW Max tone signal / data pkt arrival window (Sub-seconds)"
+"CFE_TIME_SysTime_t","MaxLocalClock","","TIME_WRAPS Max local clock value before rollover"
+"uint32","ToneOverLimit","","TIME_MAXSS Max between tone signal interrupts"
+"uint32","ToneUnderLimit","","TIME_MINSS Min between tone signal interrupts"
+"uint32","DataStoreStatus","","TIME_ATASTSTAT Data Store status (preserved across processor reset)"
+
+_name_type_
+"CFE_TIME_DiagPacket_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##",""
+"CFE_TIME_DiagPacket_Payload_t","Payload","",""
+
