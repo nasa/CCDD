@@ -879,7 +879,7 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                     row = endRow;
                 }
                 // Check if this is the first member of a string variable array
-                else if (dataTypeHandler.isString(tblData.get(row)[dataTypeIndex].toString())
+                else if (dataTypeHandler.isCharacter(tblData.get(row)[dataTypeIndex].toString())
                          && tblData.get(row)[variableNameIndex].toString().endsWith("[0]"))
                 {
                     int endRow = row;
@@ -1302,11 +1302,17 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                              || column == arraySizeIndex)
                              && ArrayVariable.isArrayMember(rowData[variableNameIndex]))
 
-                        // This column only applies to primitive variables and
-                        // the data type is not a primitive
+                        // This data type is not a primitive (i.e., it's a
+                        // structure) and the column isn't valid for structures
                         || (dataTypeIndex != -1
                             && !dataTypeHandler.isPrimitive(rowData[dataTypeIndex].toString())
-                            && typeDefn.isPrimitiveOnly()[column])
+                            && !typeDefn.isStructureAllowed()[column])
+
+                        // This data type is a pointer and the column isn't
+                        // valid for pointers
+                        || (dataTypeIndex != -1
+                            && dataTypeHandler.isPointer(rowData[dataTypeIndex].toString())
+                            && !typeDefn.isPointerAllowed()[column])
 
                         // This is the enumeration or rate cell and the row
                         // displays an array definition,
@@ -1342,7 +1348,7 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                         // 'string' other than the first array member
                         || (variableNameIndex != -1
                             && dataTypeIndex != -1
-                            && dataTypeHandler.isString(rowData[dataTypeIndex].toString())
+                            && dataTypeHandler.isCharacter(rowData[dataTypeIndex].toString())
                             && ArrayVariable.isArrayMember(rowData[variableNameIndex])
                             && !rowData[variableNameIndex].toString().endsWith("[0]")))
                     {
@@ -1777,9 +1783,9 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                                  && column != arraySizeIndex
                                  && !getExpandedValueAt(tableData, row, arraySizeIndex).isEmpty()
                                  && (!tableData.get(row)[variableNameIndex].toString().endsWith("]")
-                                 || newDataTypeHandler.isString(getExpandedValueAt(tableData,
-                                                                                   row,
-                                                                                   dataTypeIndex))))
+                                 || newDataTypeHandler.isCharacter(getExpandedValueAt(tableData,
+                                                                                      row,
+                                                                                      dataTypeIndex))))
                         {
                             // Propagate the value to all members of this
                             // array/string
@@ -1900,41 +1906,39 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                     // Get the column index in model coordinates
                     int modelColumn = convertColumnIndexToModel(column);
 
-                    // Check if this isn't the variable name, data type, array
-                    // size, bit length, or a rate column, and that the cell is
-                    // not alterable
-                    if (modelColumn != variableNameIndex
-                        && modelColumn != dataTypeIndex
-                        && modelColumn != arraySizeIndex
-                        && modelColumn != bitLengthIndex
-                        && !rateIndex.contains(modelColumn)
-                        && !isDataAlterable(rowData, row, modelColumn))
+                    if ((
+                        // Check if this isn't the variable name, data type,
+                        // array size, bit length, or a rate column, and that
+                        // the cell is not alterable
+                        (modelColumn != variableNameIndex
+                         && modelColumn != dataTypeIndex
+                         && modelColumn != arraySizeIndex
+                         && modelColumn != bitLengthIndex
+                         && !rateIndex.contains(modelColumn)
+                         && !isDataAlterable(rowData, row, modelColumn)))
+
+                        // Check if the data type column exists, the data type
+                        // is not a primitive (i.e., it's a structure), and
+                        // structures are not allowed for this column
+                        || (dataTypeIndex != -1
+                            && !newDataTypeHandler.isPrimitive(rowData[dataTypeIndex].toString())
+                            && !typeDefn.isStructureAllowed()[modelColumn])
+
+                        // Check if the data type column exists, the data type
+                        // is a pointer, and pointers are not allowed for this
+                        // column
+                        || (dataTypeIndex != -1
+                            && newDataTypeHandler.isPointer(rowData[dataTypeIndex].toString())
+                            && !typeDefn.isPointerAllowed()[modelColumn])
+
+                        // Check if a data type column exists, this is the bit
+                        // length column, and the data type isn't a primitive
+                        || (dataTypeIndex != -1
+                            && modelColumn == bitLengthIndex
+                            && !newDataTypeHandler.isPrimitive(rowData[dataTypeIndex].toString())))
                     {
                         // Clear the contents of the cell
                         rowData[modelColumn] = "";
-                    }
-                    // Check if the data type column exists, the data type is
-                    // not a primitive, and only a primitive can have a value
-                    // for this column
-                    else if (dataTypeIndex != -1
-                             && !newDataTypeHandler.isPrimitive(rowData[dataTypeIndex].toString())
-                             && typeDefn.isPrimitiveOnly()[modelColumn])
-                    {
-                        // Clear the contents of the cell
-                        rowData[modelColumn] = "";
-                    }
-                    // Check if a data type column exists and this is the bit
-                    // length column
-                    else if (dataTypeIndex != -1
-                             && modelColumn == bitLengthIndex)
-                    {
-                        // Check if the data type isn't a primitive or is a
-                        // boolean
-                        if (!newDataTypeHandler.isPrimitive(rowData[dataTypeIndex].toString()))
-                        {
-                            // Clear the contents of the cell
-                            rowData[modelColumn] = "";
-                        }
                     }
                 }
             }
@@ -3691,7 +3695,7 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
             }
 
             // Check if the data type is an unsigned integer
-            if (newDataTypeHandler.isUnsigned(dataType))
+            if (newDataTypeHandler.isUnsignedInt(dataType))
             {
                 // Check if the value doesn't match the expected input type
                 if (!newValueS.matches(InputDataType.INT_NON_NEGATIVE.getInputMatch()))
@@ -4040,9 +4044,9 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
         // Check if the number of array dimensions is unchanged and that this
         // is a string array
         if (arraySizeOld.length == arraySizeNew.length
-            && newDataTypeHandler.isString(getExpandedValueAt(tableData,
-                                                              definitionRow,
-                                                              dataTypeIndex)))
+            && newDataTypeHandler.isCharacter(getExpandedValueAt(tableData,
+                                                                 definitionRow,
+                                                                 dataTypeIndex)))
         {
             // Step through each array member
             for (int row = definitionRow + 1; row <= lastRow; row++)
@@ -4100,7 +4104,7 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
      *************************************************************************/
     protected void setUpSampleRateColumn()
     {
-        // Create storage for all columns that are sample rates
+        // Get the list of column indices that are sample rates
         rateIndex = typeDefn.getColumnIndicesByInputType(InputDataType.RATE);
 
         // Step through each rate column defined for this table

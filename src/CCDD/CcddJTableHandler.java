@@ -598,8 +598,8 @@ public abstract class CcddJTableHandler extends JTable
 
     /**************************************************************************
      * Get the next non-empty table row number starting at the supplied index.
-     * Rows are empty if the cells contain no characters. Boolean cells (i.e,
-     * check boxes) are ignored
+     * Rows are empty if the cell values match that returned by the
+     * getEmptyRow() method
      * 
      * @param tableRow
      *            next table row to check for data
@@ -610,6 +610,9 @@ public abstract class CcddJTableHandler extends JTable
     {
         boolean hasData = false;
 
+        // Get an empty row for the table for comparison purposes
+        Object[] emptyRow = getEmptyRow();
+
         // Check if the row's cells are empty, and that the end of the table
         // hasn't been reached
         while (!hasData && tableRow < tableModel.getRowCount())
@@ -617,10 +620,10 @@ public abstract class CcddJTableHandler extends JTable
             // Step through each column in the row
             for (int column = 0; column < tableModel.getColumnCount(); column++)
             {
-                // Check if the cell isn't empty. Ignore cells containing
-                // boolean values (i.e., check boxes)
-                if (!(tableModel.getValueAt(tableRow, column) instanceof Boolean)
-                    && !tableModel.getValueAt(tableRow, column).toString().isEmpty())
+                // Check if the cell contents doesn't match the default value
+                // (usually empty, though default values, particularly for
+                // check boxes, are possible)
+                if (!emptyRow[column].equals(tableModel.getValueAt(tableRow, column)))
                 {
                     // Set the flag indicating data exists
                     hasData = true;
@@ -1066,10 +1069,6 @@ public abstract class CcddJTableHandler extends JTable
         // Set so that the columns aren't automatically resized when the table
         // is resized; this is handled manually below
         setAutoResizeMode(AUTO_RESIZE_OFF);
-
-        // Set the table header font and calculate the header height. The
-        // column widths are calculated elsewhere
-        getTableHeader().setFont(HEADER_FONT);
 
         // Set the table header font and calculate the header height. The
         // column widths are calculated elsewhere
@@ -3817,6 +3816,8 @@ public abstract class CcddJTableHandler extends JTable
      *************************************************************************/
     protected class UndoableTableModel extends DefaultTableModel
     {
+        int index = 0;
+
         /**********************************************************************
          * Return the class of the column object
          *********************************************************************/
@@ -4064,7 +4065,6 @@ public abstract class CcddJTableHandler extends JTable
                     for (int column = 0; column < tableModel.getColumnCount(); column++)
                     {
                         // Store the cell value
-                        // values[column] = tableModel.getValueAt(row, column);
                         values[column] = getValueAt(row, column);
                     }
 

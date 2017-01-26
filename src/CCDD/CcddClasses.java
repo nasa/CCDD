@@ -31,7 +31,6 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -4149,7 +4148,7 @@ public class CcddClasses
          * @param font
          *            combo box list item font
          *********************************************************************/
-        private void setListItemCharacteristics(String[] toolTips, Font font)
+        private void setListItemCharacteristics(final String[] toolTips, Font font)
         {
             // Set the foreground and background color and font for the list
             // items
@@ -4157,11 +4156,12 @@ public class CcddClasses
             setBackground(Color.WHITE);
             setFont(font);
 
-            // Set the renderer so that padding is added to the list items
-            setRenderer(new ComboBoxToolTipRenderer(toolTips)
+            // Set the renderer
+            setRenderer(new DefaultListCellRenderer()
             {
                 /**************************************************************
-                 * Override to add padding to the list items
+                 * Override so that tool tip text can be displayed for each
+                 * list item and padding is added to the items
                  *************************************************************/
                 @Override
                 public Component getListCellRendererComponent(JList<?> list,
@@ -4181,52 +4181,50 @@ public class CcddClasses
                                                                   CELL_HORIZONTAL_PADDING - 2,
                                                                   CELL_VERTICAL_PADDING - 2,
                                                                   CELL_HORIZONTAL_PADDING - 2));
+
+                    // Check if the list item is valid and if it has tool tip
+                    // text
+                    // associated with it
+                    if (index > -1
+                        && toolTips != null
+                        && index < toolTips.length
+                        && value != null)
+                    {
+                        // Set the item's tool tip text
+                        list.setToolTipText(toolTips[index]);
+                    }
+
                     return lbl;
                 }
             });
         }
-    }
-
-    /**************************************************************************
-     * Custom combo box list item renderer with tool tip text
-     *************************************************************************/
-    @SuppressWarnings("serial")
-    public static class ComboBoxToolTipRenderer extends DefaultListCellRenderer
-    {
-        private final String[] toolTips;
 
         /**********************************************************************
-         * Custom combo box list item renderer with tool tip text constructor
+         * Get the list index of the specified list item
+         * 
+         * @param itemName
+         *            name of the list item for which to search
+         * 
+         * @return the index of the specified item in the list; -1 if the item
+         *         isn't in the list
          *********************************************************************/
-        ComboBoxToolTipRenderer(String[] toolTips)
+        protected int getIndexOfItem(String itemName)
         {
-            this.toolTips = toolTips;
-        }
+            int itemIndex = -1;
 
-        /**********************************************************************
-         * Override so that tool tip text can be displayed for each list item
-         *********************************************************************/
-        @Override
-        public Component getListCellRendererComponent(JList<?> list,
-                                                      Object value,
-                                                      int index,
-                                                      boolean isSelected,
-                                                      boolean cellHasFocus)
-        {
-            JComponent comp = (JComponent) super.getListCellRendererComponent(list,
-                                                                              value,
-                                                                              index,
-                                                                              isSelected,
-                                                                              cellHasFocus);
-            // Check if the list item is valid and if it has tool tip text
-            // associated with it
-            if (index > -1 && value != null && toolTips != null)
+            // STep through each item in the list
+            for (int index = 0; index < getItemCount(); index++)
             {
-                // Set the item's tool tip text
-                list.setToolTipText(toolTips[index]);
+                // Check if list item matches the specified item
+                if (getItemAt(index).equals(itemName))
+                {
+                    // Store the list index and stop searching
+                    itemIndex = index;
+                    break;
+                }
             }
 
-            return comp;
+            return itemIndex;
         }
     }
 

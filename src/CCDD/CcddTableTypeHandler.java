@@ -68,15 +68,17 @@ public class CcddTableTypeHandler
         // Flag indicating if the column requires a value
         private final List<Boolean> isColumnRequired;
 
-        // Flag indicating if the column applies only to primitive data types
-        private final List<Boolean> isPrimitiveOnly;
+        // List for storage of flags indicating if the column applies to a
+        // specific data type
+        private final List<Boolean> isStructureOk;
+        private final List<Boolean> isPointerOk;
 
         /**********************************************************************
          * Table type definition class constructor
          * 
          * @return table type
          *********************************************************************/
-        private TypeDefinition(String tableType)
+        protected TypeDefinition(String tableType)
         {
             this.tableType = tableType;
             columnIndex = new ArrayList<Integer>();
@@ -86,7 +88,8 @@ public class CcddTableTypeHandler
             columnInputType = new ArrayList<InputDataType>();
             isColumnRequired = new ArrayList<Boolean>();
             isRowValueUnique = new ArrayList<Boolean>();
-            isPrimitiveOnly = new ArrayList<Boolean>();
+            isStructureOk = new ArrayList<Boolean>();
+            isPointerOk = new ArrayList<Boolean>();
 
             // Add the new definition to the list
             typeDefinitions.add(this);
@@ -131,10 +134,11 @@ public class CcddTableTypeHandler
                 // Store the column information
                 data[index - NUM_HIDDEN_COLUMNS][TableTypeEditorColumnInfo.INDEX.ordinal()] = columnIndex.get(index);
                 data[index - NUM_HIDDEN_COLUMNS][TableTypeEditorColumnInfo.NAME.ordinal()] = columnNamesUser.get(index);
-                data[index - NUM_HIDDEN_COLUMNS][TableTypeEditorColumnInfo.COMMENT.ordinal()] = columnToolTip.get(index);
+                data[index - NUM_HIDDEN_COLUMNS][TableTypeEditorColumnInfo.DESCRIPTION.ordinal()] = columnToolTip.get(index);
                 data[index - NUM_HIDDEN_COLUMNS][TableTypeEditorColumnInfo.UNIQUE.ordinal()] = isRowValueUnique.get(index);
                 data[index - NUM_HIDDEN_COLUMNS][TableTypeEditorColumnInfo.REQUIRED.ordinal()] = isColumnRequired.get(index);
-                data[index - NUM_HIDDEN_COLUMNS][TableTypeEditorColumnInfo.PRIMITIVE_ONLY.ordinal()] = isPrimitiveOnly.get(index);
+                data[index - NUM_HIDDEN_COLUMNS][TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal()] = isStructureOk.get(index);
+                data[index - NUM_HIDDEN_COLUMNS][TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal()] = isPointerOk.get(index);
                 data[index - NUM_HIDDEN_COLUMNS][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()] = columnInputType.get(index).getInputName();
             }
 
@@ -215,13 +219,23 @@ public class CcddTableTypeHandler
         }
 
         /**********************************************************************
-         * Get the array of primitive only flags
+         * Get the array of structure data type allowed flags
          * 
-         * @return Array of primitive only flags
+         * @return Array of structure data type allowed flags
          *********************************************************************/
-        protected Boolean[] isPrimitiveOnly()
+        protected Boolean[] isStructureAllowed()
         {
-            return isPrimitiveOnly.toArray(new Boolean[0]);
+            return isStructureOk.toArray(new Boolean[0]);
+        }
+
+        /**********************************************************************
+         * Get the array of pointer data type allowed flags
+         * 
+         * @return Array of pointer data type allowed only flags
+         *********************************************************************/
+        protected Boolean[] isPointerAllowed()
+        {
+            return isPointerOk.toArray(new Boolean[0]);
         }
 
         /**********************************************************************
@@ -473,35 +487,39 @@ public class CcddTableTypeHandler
          * @param inputType
          *            column input data type
          * 
-         * @param isUnique
+         * @param isRowValueUnique
          *            true if the each row value in the column must have a
          *            unique value
          * 
-         * @param isRequired
+         * @param isColumnRequired
          *            true if the column must have a value when the type is
          *            committed to the database
          * 
-         * @param isPrimitive
-         *            true if the the column only applies to primitive data
-         *            types
+         * @param isStructure
+         *            true if the the column applies to structure data types
+         * 
+         * @param isPointer
+         *            true if the the column applies to pointer data types
          *********************************************************************/
-        private void addColumn(Integer index,
-                               String databaseName,
-                               String visibleName,
-                               String comment,
-                               InputDataType inputType,
-                               Boolean isUnique,
-                               Boolean isRequired,
-                               Boolean isPrimitive)
+        protected void addColumn(Integer index,
+                                 String databaseName,
+                                 String visibleName,
+                                 String comment,
+                                 InputDataType inputType,
+                                 Boolean isRowValueUnique,
+                                 Boolean isColumnRequired,
+                                 Boolean isStructure,
+                                 Boolean isPointer)
         {
             columnIndex.add(index);
             columnNamesDatabase.add(databaseName);
             columnNamesUser.add(visibleName);
             columnToolTip.add(comment);
             columnInputType.add(inputType);
-            isRowValueUnique.add(isUnique);
-            isColumnRequired.add(isRequired);
-            isPrimitiveOnly.add(isPrimitive);
+            this.isRowValueUnique.add(isRowValueUnique);
+            this.isColumnRequired.add(isColumnRequired);
+            this.isStructureOk.add(isStructure);
+            this.isPointerOk.add(isPointer);
         }
 
         /**********************************************************************
@@ -860,7 +878,7 @@ public class CcddTableTypeHandler
                                                                          ccddMain.getMainFrame());
 
         // Step through each type entry
-        for (Object[] typeData : committedTypes)
+        for (String[] typeData : committedTypes)
         {
             // Create a new type definition
             TypeDefinition typeDefn = getTypeDefinition(typeData[TableTypesColumn.TYPE_NAME.ordinal()].toString());
@@ -885,9 +903,12 @@ public class CcddTableTypeHandler
                                typeData[TableTypesColumn.COLUMN_REQUIRED.ordinal()].equals("t")
                                                                                                ? true
                                                                                                : false,
-                               typeData[TableTypesColumn.PRIMITIVE_ONLY.ordinal()].equals("t")
-                                                                                              ? true
-                                                                                              : false);
+                               typeData[TableTypesColumn.STRUCTURE_ALLOWED.ordinal()].equals("t")
+                                                                                                 ? true
+                                                                                                 : false,
+                               typeData[TableTypesColumn.POINTER_ALLOWED.ordinal()].equals("t")
+                                                                                               ? true
+                                                                                               : false);
         }
     }
 
@@ -928,7 +949,8 @@ public class CcddTableTypeHandler
                            DefaultColumn.PRIMARY_KEY.getInputType(),
                            DefaultColumn.PRIMARY_KEY.isRowValueUnique(),
                            DefaultColumn.PRIMARY_KEY.isRequired(),
-                           DefaultColumn.PRIMARY_KEY.isPrimitiveOnly());
+                           DefaultColumn.PRIMARY_KEY.isStructure(),
+                           DefaultColumn.PRIMARY_KEY.isPointer());
         typeDefn.addColumn(DefaultColumn.ROW_INDEX.ordinal(),
                            DefaultColumn.ROW_INDEX.getDbName(),
                            DefaultColumn.ROW_INDEX.getName(),
@@ -936,7 +958,8 @@ public class CcddTableTypeHandler
                            DefaultColumn.ROW_INDEX.getInputType(),
                            DefaultColumn.ROW_INDEX.isRowValueUnique(),
                            DefaultColumn.ROW_INDEX.isRequired(),
-                           DefaultColumn.ROW_INDEX.isPrimitiveOnly());
+                           DefaultColumn.PRIMARY_KEY.isStructure(),
+                           DefaultColumn.PRIMARY_KEY.isPointer());
 
         // Step through each row in the type definition data
         for (int row = 0; row < typeData.length; row++)
@@ -951,16 +974,17 @@ public class CcddTableTypeHandler
             String dbColumnName = DefaultColumn.convertVisibleToDatabase(typeData[row][TableTypeEditorColumnInfo.NAME.ordinal()].toString(),
                                                                          inputType);
 
-            // Add the column indices, names, tool tip, and column required
-            // information to the type definition
+            // Add the column names, description, input type, and flags to the
+            // type definition
             typeDefn.addColumn(row,
                                dbColumnName,
                                (String) typeData[row][TableTypeEditorColumnInfo.NAME.ordinal()],
-                               (String) typeData[row][TableTypeEditorColumnInfo.COMMENT.ordinal()],
+                               (String) typeData[row][TableTypeEditorColumnInfo.DESCRIPTION.ordinal()],
                                inputType,
                                (Boolean) typeData[row][TableTypeEditorColumnInfo.UNIQUE.ordinal()],
                                (Boolean) typeData[row][TableTypeEditorColumnInfo.REQUIRED.ordinal()],
-                               (Boolean) typeData[row][TableTypeEditorColumnInfo.PRIMITIVE_ONLY.ordinal()]);
+                               (Boolean) typeData[row][TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal()],
+                               (Boolean) typeData[row][TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal()]);
         }
     }
 
@@ -1285,8 +1309,10 @@ public class CcddTableTypeHandler
                                                     altTypeDefn.isRowValueUnique())
                   && CcddUtilities.isArraySetsEqual(typeDefn.isRequired(),
                                                     altTypeDefn.isRequired())
-                  && CcddUtilities.isArraySetsEqual(typeDefn.isPrimitiveOnly(),
-                                                    altTypeDefn.isPrimitiveOnly())))
+                  && CcddUtilities.isArraySetsEqual(typeDefn.isStructureAllowed(),
+                                                    altTypeDefn.isStructureAllowed())
+                  && CcddUtilities.isArraySetsEqual(typeDefn.isPointerAllowed(),
+                                                    altTypeDefn.isPointerAllowed())))
             {
                 // Set the flag indicating a mismatch exists
                 typeUpdate = TableTypeUpdate.MISMATCH;

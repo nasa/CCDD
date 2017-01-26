@@ -579,8 +579,7 @@ public class CcddConstants
         UNSIGNED_INT("unsigned integer"),
         FLOATING_POINT("floating point"),
         CHARACTER("character"),
-        POINTER("pointer"),
-        OTHER("other");
+        POINTER("pointer");
 
         private final String name;
 
@@ -638,23 +637,23 @@ public class CcddConstants
      *************************************************************************/
     protected static enum DefaultPrimitiveTypeInfo
     {
-        INT8(1, "signed char", "int8_t", BaseDataTypeInfo.SIGNED_INT),
-        INT16(2, "signed short int", "int16_t", BaseDataTypeInfo.SIGNED_INT),
-        INT32(4, "signed int", "int32_t", BaseDataTypeInfo.SIGNED_INT),
-        INT64(8, "signed long int", "int64_t", BaseDataTypeInfo.SIGNED_INT),
-        UINT8(1, "unsigned char", "uint8_t", BaseDataTypeInfo.UNSIGNED_INT),
-        UINT16(2, "unsigned short int", "uint16_t", BaseDataTypeInfo.UNSIGNED_INT),
-        UINT32(4, "unsigned int", "uint32_t", BaseDataTypeInfo.UNSIGNED_INT),
-        UINT64(8, "unsigned long int", "uint64_t", BaseDataTypeInfo.UNSIGNED_INT),
-        FLOAT(4, "float", "float", BaseDataTypeInfo.FLOATING_POINT),
-        DOUBLE(8, "double", "double", BaseDataTypeInfo.FLOATING_POINT),
-        CHAR(1, "char", "char", BaseDataTypeInfo.CHARACTER),
-        STRING(2, "char", "string", BaseDataTypeInfo.CHARACTER),
-        ADDRESS(4, "addr", "void *", BaseDataTypeInfo.POINTER);
+        INT8("int8_t", "signed char", 1, BaseDataTypeInfo.SIGNED_INT),
+        INT16("int16_t", "signed short int", 2, BaseDataTypeInfo.SIGNED_INT),
+        INT32("int32_t", "signed int", 4, BaseDataTypeInfo.SIGNED_INT),
+        INT64("int64_t", "signed long int", 8, BaseDataTypeInfo.SIGNED_INT),
+        UINT8("uint8_t", "unsigned char", 1, BaseDataTypeInfo.UNSIGNED_INT),
+        UINT16("uint16_t", "unsigned short int", 2, BaseDataTypeInfo.UNSIGNED_INT),
+        UINT32("uint32_t", "unsigned int", 4, BaseDataTypeInfo.UNSIGNED_INT),
+        UINT64("uint64_t", "unsigned long int", 8, BaseDataTypeInfo.UNSIGNED_INT),
+        FLOAT("float", "float", 4, BaseDataTypeInfo.FLOATING_POINT),
+        DOUBLE("double", "double", 8, BaseDataTypeInfo.FLOATING_POINT),
+        CHAR("char", "char", 1, BaseDataTypeInfo.CHARACTER),
+        STRING("string", "char", 2, BaseDataTypeInfo.CHARACTER),
+        ADDRESS("address", "void *", 4, BaseDataTypeInfo.POINTER);
 
-        private final int bytes;
-        private final String cName;
         private final String userName;
+        private final String cType;
+        private final int bytes;
         private final BaseDataTypeInfo baseType;
 
         /**********************************************************************
@@ -663,7 +662,7 @@ public class CcddConstants
          * @param bytes
          *            number of bytes for this data type
          * 
-         * @param cName
+         * @param cType
          *            C language data type name
          * 
          * @param userName
@@ -672,35 +671,15 @@ public class CcddConstants
          * @param baseType
          *            base data type
          *********************************************************************/
-        DefaultPrimitiveTypeInfo(int bytes,
-                                 String cName,
-                                 String userName,
+        DefaultPrimitiveTypeInfo(String userName,
+                                 String cType,
+                                 int bytes,
                                  BaseDataTypeInfo baseType)
         {
-            this.bytes = bytes;
-            this.cName = cName;
             this.userName = userName;
+            this.cType = cType;
+            this.bytes = bytes;
             this.baseType = baseType;
-        }
-
-        /**********************************************************************
-         * Get the data type size in bytes
-         * 
-         * @return Data type size in bytes
-         *********************************************************************/
-        protected int getSizeInBytes()
-        {
-            return bytes;
-        }
-
-        /**********************************************************************
-         * Get the data type C language name
-         * 
-         * @return Data type C language name
-         *********************************************************************/
-        protected String getCName()
-        {
-            return cName;
         }
 
         /**********************************************************************
@@ -711,6 +690,26 @@ public class CcddConstants
         protected String getUserName()
         {
             return userName;
+        }
+
+        /**********************************************************************
+         * Get the data type C language name
+         * 
+         * @return Data type C language name
+         *********************************************************************/
+        protected String getCType()
+        {
+            return cType;
+        }
+
+        /**********************************************************************
+         * Get the data type size in bytes
+         * 
+         * @return Data type size in bytes
+         *********************************************************************/
+        protected int getSizeInBytes()
+        {
+            return bytes;
         }
 
         /**********************************************************************
@@ -740,7 +739,7 @@ public class CcddConstants
                 columnDefn += "('"
                               + defType.getUserName()
                               + "', '"
-                              + defType.getCName()
+                              + defType.getCType()
                               + "', "
                               + defType.getSizeInBytes()
                               + ", '"
@@ -765,11 +764,10 @@ public class CcddConstants
                          + "or more alphabetic, numeric, and underscore characters"),
 
         ALPHANUMERIC_MULTI("Alphanumeric (multi)",
-                           "(?:" + ALPHANUMERIC.getInputMatch() + "\\s*?)+\\*?",
+                           "(?:" + ALPHANUMERIC.getInputMatch() + "\\s*?)+",
                            "text",
-                           "One or more alphanumeric entries (see ALPHANUMERIC) "
-                               + "separated by one or more white space characters, "
-                               + "optionally terminated by an asterisk"),
+                           "One or more alphanumeric entries (see Alphanumeric) "
+                               + "separated by one or more white space characters"),
 
         ARGUMENT_NAME("Argument name",
                       ALPHANUMERIC.getInputMatch(),
@@ -1225,6 +1223,7 @@ public class CcddConstants
                     true,
                     true,
                     false,
+                    false,
                     false),
         ROW_INDEX("",
                   "_Index_",
@@ -1233,6 +1232,7 @@ public class CcddConstants
                   true,
                   true,
                   true,
+                  false,
                   false,
                   false),
 
@@ -1244,7 +1244,8 @@ public class CcddConstants
                       true,
                       true,
                       true,
-                      false,
+                      true,
+                      true,
                       true),
         DESCRIPTION_STRUCT(TYPE_STRUCTURE,
                            COL_DESCRIPTION,
@@ -1253,7 +1254,8 @@ public class CcddConstants
                            false,
                            false,
                            false,
-                           false,
+                           true,
+                           true,
                            false),
         UNITS(TYPE_STRUCTURE,
               COL_UNITS,
@@ -1262,7 +1264,8 @@ public class CcddConstants
               false,
               false,
               false,
-              false,
+              true,
+              true,
               false),
         DATA_TYPE(TYPE_STRUCTURE,
                   COL_DATA_TYPE,
@@ -1271,7 +1274,8 @@ public class CcddConstants
                   true,
                   false,
                   true,
-                  false,
+                  true,
+                  true,
                   true),
         ARRAY_SIZE(TYPE_STRUCTURE,
                    "Array Size",
@@ -1280,7 +1284,8 @@ public class CcddConstants
                    true,
                    false,
                    false,
-                   false,
+                   true,
+                   true,
                    true),
         BIT_LENGTH(TYPE_STRUCTURE,
                    "Bit Length",
@@ -1289,7 +1294,8 @@ public class CcddConstants
                    true,
                    false,
                    false,
-                   true,
+                   false,
+                   false,
                    true),
         ENUMERATION(TYPE_STRUCTURE,
                     COL_ENUMERATION,
@@ -1298,13 +1304,15 @@ public class CcddConstants
                     true,
                     false,
                     false,
-                    true,
+                    false,
+                    false,
                     false),
         RATE(TYPE_STRUCTURE,
              "Rate",
              "Downlink data rate, samples/second",
              InputDataType.RATE,
              true,
+             false,
              false,
              false,
              true,
@@ -1319,6 +1327,7 @@ public class CcddConstants
                      true,
                      true,
                      false,
+                     true,
                      true),
         COMMAND_CODE(TYPE_COMMAND,
                      "Command Code",
@@ -1328,6 +1337,7 @@ public class CcddConstants
                      true,
                      true,
                      false,
+                     true,
                      true),
         DESCRIPTION_CMD(TYPE_COMMAND,
                         COL_DESCRIPTION,
@@ -1337,6 +1347,7 @@ public class CcddConstants
                         false,
                         false,
                         false,
+                        true,
                         false),
         ARG_NAME_1(TYPE_COMMAND,
                    COL_ARGUMENT + " 1 Name",
@@ -1346,6 +1357,7 @@ public class CcddConstants
                    false,
                    false,
                    false,
+                   true,
                    false),
         ARG_DESCRIPTION_1(TYPE_COMMAND,
                           COL_ARGUMENT + " 1 " + COL_DESCRIPTION,
@@ -1355,6 +1367,7 @@ public class CcddConstants
                           false,
                           false,
                           false,
+                          true,
                           false),
         ARG_UNITS_1(TYPE_COMMAND,
                     COL_ARGUMENT + " 1 " + COL_UNITS,
@@ -1364,6 +1377,7 @@ public class CcddConstants
                     false,
                     false,
                     false,
+                    true,
                     false),
         ARG_TYPE_1(TYPE_COMMAND,
                    COL_ARGUMENT + " 1 " + COL_DATA_TYPE,
@@ -1373,12 +1387,14 @@ public class CcddConstants
                    false,
                    false,
                    false,
+                   true,
                    false),
         ARG_ENUMS_1(TYPE_COMMAND,
                     COL_ARGUMENT + " 1 " + COL_ENUMERATION,
                     "Command argument 1 enumeration",
                     InputDataType.ENUMERATION,
                     true,
+                    false,
                     false,
                     false,
                     false,
@@ -1391,12 +1407,14 @@ public class CcddConstants
                   false,
                   false,
                   false,
+                  false,
                   false),
         ARG_MAX_1(TYPE_COMMAND,
                   COL_ARGUMENT + " 1 " + COL_MAXIMUM,
                   "Command argument 1 maximum value",
                   InputDataType.MAXIMUM,
                   true,
+                  false,
                   false,
                   false,
                   false,
@@ -1409,7 +1427,8 @@ public class CcddConstants
         private final boolean isProtected;
         private final boolean isRowValueUnique;
         private final boolean isRequired;
-        private final boolean isPrimitiveOnly;
+        private final boolean isStructure;
+        private final boolean isPointer;
         private final boolean isInputTypeUnique;
 
         /**********************************************************************
@@ -1445,9 +1464,13 @@ public class CcddConstants
          *            highlighted when empty; it does not enforce entering a
          *            value. The user can change this flag in the type editor
          * 
-         * @param isPrimitiveOnly
-         *            true if the the column only applies to primitive data
-         *            types. The user can change this flag in the type editor
+         * @param isStructure
+         *            true if the the column applies to structure data types.
+         *            The user can change this flag in the type editor
+         * 
+         * @param isPointer
+         *            true if the the column applies to pointer data types. The
+         *            user can change this flag in the type editor
          * 
          * @param isInputTypeUnique
          *            true if this parameter's input type must be unique in its
@@ -1460,7 +1483,8 @@ public class CcddConstants
                       boolean isProtected,
                       boolean isRowValueUnique,
                       boolean isRequired,
-                      boolean isPrimitiveOnly,
+                      boolean isStructure,
+                      boolean isPointer,
                       boolean isInputTypeUnique)
         {
             this.tableType = tableType;
@@ -1470,7 +1494,8 @@ public class CcddConstants
             this.isProtected = isProtected;
             this.isRowValueUnique = isRowValueUnique;
             this.isRequired = isRequired;
-            this.isPrimitiveOnly = isPrimitiveOnly;
+            this.isStructure = isStructure;
+            this.isPointer = isPointer;
             this.isInputTypeUnique = isInputTypeUnique;
         }
 
@@ -1536,13 +1561,23 @@ public class CcddConstants
         }
 
         /**********************************************************************
-         * Get the primitive only status
+         * Get the structure data type allowed status
          * 
-         * @return true if the column only applies to primitive data types
+         * @return true if the column applies to structure data types
          *********************************************************************/
-        protected boolean isPrimitiveOnly()
+        protected boolean isStructure()
         {
-            return isPrimitiveOnly;
+            return isStructure;
+        }
+
+        /**********************************************************************
+         * Get the pointer data type allowed status
+         * 
+         * @return true if the column applies to pointer data types
+         *********************************************************************/
+        protected boolean isPointer()
+        {
+            return isPointer;
         }
 
         /**********************************************************************
@@ -1815,6 +1850,10 @@ public class CcddConstants
                                       + defCol.isRowValueUnique
                                       + ", "
                                       + defCol.isRequired
+                                      + ", "
+                                      + defCol.isStructure
+                                      + ", "
+                                      + defCol.isPointer
                                       + "), ";
 
                         index++;
@@ -1971,7 +2010,7 @@ public class CcddConstants
                ""),
 
         // Data table types
-        TABLE_TYPES("types",
+        TABLE_TYPES("table_types",
                     new String[][] { {TableTypesColumn.TYPE_NAME.columnName,
                                       TableTypesColumn.TYPE_NAME.dataType},
                                     {TableTypesColumn.INDEX.columnName,
@@ -1988,22 +2027,24 @@ public class CcddConstants
                                      TableTypesColumn.ROW_VALUE_UNIQUE.dataType},
                                     {TableTypesColumn.COLUMN_REQUIRED.columnName,
                                      TableTypesColumn.COLUMN_REQUIRED.dataType},
-                                    {TableTypesColumn.PRIMITIVE_ONLY.columnName,
-                                     TableTypesColumn.PRIMITIVE_ONLY.dataType}},
+                                    {TableTypesColumn.STRUCTURE_ALLOWED.columnName,
+                                     TableTypesColumn.STRUCTURE_ALLOWED.dataType},
+                                    {TableTypesColumn.POINTER_ALLOWED.columnName,
+                                     TableTypesColumn.POINTER_ALLOWED.dataType}},
                     "WITH OIDS",
 
                     // Enforce that (type, index) must be unique
                     "CREATE UNIQUE INDEX "
                         + INTERNAL_TABLE_PREFIX
-                        + "types_idx ON "
+                        + "table_types_idx ON "
                         + INTERNAL_TABLE_PREFIX
-                        + "types (type, index); "
+                        + "table_types (type, index); "
 
                         // Create default table definition for the telemetry
                         // and command table types
                         + "INSERT INTO "
                         + INTERNAL_TABLE_PREFIX
-                        + "types VALUES "
+                        + "table_types VALUES "
                         + DefaultColumn.getColumnDefinitions()),
 
         // Telemetry scheduler
@@ -2384,7 +2425,8 @@ public class CcddConstants
             INPUT_TYPE("input_type", "text"),
             ROW_VALUE_UNIQUE("row_value_unique", "boolean"),
             COLUMN_REQUIRED("column_required", "boolean"),
-            PRIMITIVE_ONLY("primitive_only", "boolean");
+            STRUCTURE_ALLOWED("allow_structure", "boolean"),
+            POINTER_ALLOWED("allow_pointer", "boolean");
 
             private final String columnName;
             private final String dataType;
@@ -2657,7 +2699,7 @@ public class CcddConstants
     {
         INDEX("Column Index", "Column index", "", true),
         NAME("Column Name", "Table column name", "", true),
-        COMMENT("Description", "Table column description", "", false),
+        DESCRIPTION("Description", "Table column description", "", false),
         INPUT_TYPE("Input Type",
                    "Input type that can be entered in this column",
                    InputDataType.TEXT.getInputName(),
@@ -2670,10 +2712,14 @@ public class CcddConstants
                  "Select if a value is required in the column",
                  false,
                  false),
-        PRIMITIVE_ONLY("Primitive",
-                       "Select if this column only applies to primitive data types",
-                       false,
-                       false);
+        STRUCTURE_ALLOWED("<html><center><p style=\"font-size:8px\">Enable if<br>Structure",
+                          "Select if this column is allowed with structure data types",
+                          false,
+                          false),
+        POINTER_ALLOWED("<html><center><p style=\"font-size:8px\">Enable if<br>Pointer",
+                        "Select if this column is allowed with pointer data types",
+                        false,
+                        false);
 
         private final String columnName;
         private final String toolTip;

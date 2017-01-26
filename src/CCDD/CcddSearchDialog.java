@@ -586,7 +586,7 @@ public class CcddSearchDialog extends CcddDialogHandler
         // Search the database for the text
         String[] hits = dbCommand.getList(DatabaseListCommand.SEARCH,
                                           new String[][] { {"_search_text_",
-                                                            searchFld.getText()},
+                                                            Pattern.quote(searchFld.getText())},
                                                           {"_case_insensitive_",
                                                            String.valueOf(ignoreCaseCb.isSelected())},
                                                           {"_selected_tables_",

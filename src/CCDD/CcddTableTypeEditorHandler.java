@@ -19,6 +19,8 @@ import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -350,25 +352,27 @@ public class CcddTableTypeEditorHandler extends CcddEditorPanelHandler
             }
 
             /******************************************************************
-             * Allow resizing of all columns except the Unique and Required
-             * columns
+             * Allow resizing of the specified columns
              *****************************************************************/
             @Override
             protected boolean isColumnResizable(int column)
             {
-                return column != TableTypeEditorColumnInfo.UNIQUE.ordinal()
-                       && column != TableTypeEditorColumnInfo.REQUIRED.ordinal();
+                return column == TableTypeEditorColumnInfo.INDEX.ordinal()
+                       || column == TableTypeEditorColumnInfo.NAME.ordinal()
+                       || column == TableTypeEditorColumnInfo.DESCRIPTION.ordinal()
+                       || column == TableTypeEditorColumnInfo.INPUT_TYPE.ordinal();
             }
 
             /******************************************************************
-             * Allow multiple line display in all but the Unique and Required
-             * columns
+             * Allow multiple line display in the specified columns
              *****************************************************************/
             @Override
             protected boolean isColumnMultiLine(int column)
             {
-                return column != TableTypeEditorColumnInfo.UNIQUE.ordinal()
-                       && column != TableTypeEditorColumnInfo.REQUIRED.ordinal();
+                return column == TableTypeEditorColumnInfo.INDEX.ordinal()
+                       || column == TableTypeEditorColumnInfo.NAME.ordinal()
+                       || column == TableTypeEditorColumnInfo.DESCRIPTION.ordinal()
+                       || column == TableTypeEditorColumnInfo.INPUT_TYPE.ordinal();
             }
 
             /******************************************************************
@@ -428,18 +432,29 @@ public class CcddTableTypeEditorHandler extends CcddEditorPanelHandler
                                               int row,
                                               int column)
             {
-                // Allow editing if this is the column name or description
-                // column, or if this column isn't protected (unless this is
-                // the Primitive column and the input type is a rate or
-                // enumeration)
-                return column == TableTypeEditorColumnInfo.NAME.ordinal()
-                       || column == TableTypeEditorColumnInfo.COMMENT.ordinal()
-                       || typeDefinition == null
-                       || (!DefaultColumn.isProtectedColumn(typeDefinition.getName(),
-                                                            rowData[TableTypeEditorColumnInfo.NAME.ordinal()].toString())
-                       && (column != TableTypeEditorColumnInfo.PRIMITIVE_ONLY.ordinal()
-                       || (!rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].equals(InputDataType.RATE.getInputName())
-                       && !rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].equals(InputDataType.ENUMERATION.getInputName()))));
+                // Allow editing if:
+                return
+                // This is the column name or description
+                // column
+                column == TableTypeEditorColumnInfo.NAME.ordinal()
+                    || column == TableTypeEditorColumnInfo.DESCRIPTION.ordinal()
+                    || typeDefinition == null
+
+                    // The column isn't protected...
+                    || (!DefaultColumn.isProtectedColumn(typeDefinition.getName(),
+                                                         rowData[TableTypeEditorColumnInfo.NAME.ordinal()].toString())
+
+                    // ... and this isn't the structure allowed column, or it
+                    // is and the input type isn't a rate or enumeration
+                    && ((column != TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal()
+                    || (!rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].equals(InputDataType.RATE.getInputName())
+                    && !rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].equals(InputDataType.ENUMERATION.getInputName())))
+
+                    // ... and this isn't the pointer allowed column, or it is
+                    // and the input type isn't a bit length or enumeration
+                    && (column != TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal()
+                    || (!rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].equals(InputDataType.BIT_LENGTH.getInputName())
+                    && !rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].equals(InputDataType.ENUMERATION.getInputName())))));
             }
 
             /******************************************************************
@@ -570,6 +585,10 @@ public class CcddTableTypeEditorHandler extends CcddEditorPanelHandler
                     // Check if this is the input type column
                     else if (column == TableTypeEditorColumnInfo.INPUT_TYPE.ordinal())
                     {
+                        // Get the list index of the currently selected input
+                        // type
+                        int selectedIndex = comboBox.getSelectedIndex();
+
                         // Check if the input type is disabled
                         if (newValueS.startsWith(DISABLED_TEXT_COLOR))
                         {
@@ -590,20 +609,23 @@ public class CcddTableTypeEditorHandler extends CcddEditorPanelHandler
                                  && (newValueS.equals(InputDataType.ENUMERATION.getInputName())
                                  || newValueS.equals(InputDataType.RATE.getInputName())))
                         {
-                            // Set the 'primitive only' flag
-                            tableData.get(row)[TableTypeEditorColumnInfo.PRIMITIVE_ONLY.ordinal()] = true;
+                            // Clear the 'structure allowed' flag
+                            tableData.get(row)[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal()] = false;
                         }
                         // Check if this is the first selection of an input
                         // type that only allows one column of this type in a
                         // table definition
-                        else if (DefaultColumn.isInputTypeUnique(TYPE_STRUCTURE, newValueS)
-                                 || DefaultColumn.isInputTypeUnique(TYPE_COMMAND, newValueS))
+                        else if (DefaultColumn.isInputTypeUnique(TYPE_STRUCTURE,
+                                                                 newValueS)
+                                 || DefaultColumn.isInputTypeUnique(TYPE_COMMAND,
+                                                                    newValueS))
                         {
                             // Display the input type as disabled so that it
                             // can't be selected again
-                            int index = comboBox.getSelectedIndex();
                             comboBox.removeItem(newValueS);
-                            comboBox.insertItemAt(DISABLED_TEXT_COLOR + newValueS, index);
+                            comboBox.insertItemAt(DISABLED_TEXT_COLOR
+                                                  + newValueS,
+                                                  selectedIndex);
                         }
 
                         // Convert the original value to a string
@@ -614,83 +636,127 @@ public class CcddTableTypeEditorHandler extends CcddEditorPanelHandler
                         if (DefaultColumn.isInputTypeUnique(TYPE_STRUCTURE, oldValueS)
                             || DefaultColumn.isInputTypeUnique(TYPE_COMMAND, oldValueS))
                         {
-                            // Step through each item in the combo box
-                            for (int index = 0; index < comboBox.getItemCount(); index++)
+                            // Get the list index for the original value with
+                            // the disabled tag prepended
+                            String comboItem = DISABLED_TEXT_COLOR + oldValueS;
+                            int index = comboBox.getIndexOfItem(comboItem);
+
+                            // Check if the type exists
+                            if (index != -1)
                             {
-                                // Check if the previous, disabled selection is
-                                // located
-                                if (oldValueS.equals(CcddUtilities.removeHTMLTags(comboBox.getItemAt(index))))
+                                // Remove the disable tag from the list item
+                                comboBox.removeItem(comboItem);
+                                comboBox.insertItemAt(oldValueS, index);
+                            }
+                        }
+
+                        // First disable the primitive input type that wasn't
+                        // selected. Check if the primitive and structure type
+                        // is selected
+                        if (newValueS.equals(InputDataType.PRIM_AND_STRUCT.getInputName()))
+                        {
+                            // Get the list index for the primitive input type
+                            String comboItem = InputDataType.PRIMITIVE.getInputName();
+                            int index = comboBox.getIndexOfItem(comboItem);
+
+                            // Check if the type exists
+                            if (index != -1)
+                            {
+                                // Append the disable tag to the primitive type
+                                comboBox.removeItem(comboItem);
+                                comboBox.insertItemAt(DISABLED_TEXT_COLOR
+                                                      + comboItem,
+                                                      index);
+                            }
+                        }
+                        // Check if the primitive type is selected
+                        else if (newValueS.equals(InputDataType.PRIMITIVE.getInputName()))
+                        {
+                            // Get the list index for the primitive and
+                            // structure input type
+                            String comboItem = InputDataType.PRIM_AND_STRUCT.getInputName();
+                            int index = comboBox.getIndexOfItem(comboItem);
+
+                            // Check if the type exists
+                            if (index != -1)
+                            {
+                                // Append the disable tag to the primitive and
+                                // structure type
+                                comboBox.removeItem(comboItem);
+                                comboBox.insertItemAt(DISABLED_TEXT_COLOR
+                                                      + comboItem,
+                                                      index);
+                            }
+                        }
+
+                        // Now need to reenable the other primitive type if
+                        // applicable. Check if the cell changed from the
+                        // primitive and structure input type
+                        if (oldValueS.equals(InputDataType.PRIM_AND_STRUCT.getInputName()))
+                        {
+                            // Get the list index for the disabled primitive
+                            // input type
+                            String comboItem = DISABLED_TEXT_COLOR
+                                               + InputDataType.PRIMITIVE.getInputName();
+                            int index = comboBox.getIndexOfItem(comboItem);
+
+                            // Check if the type exists
+                            if (index != -1)
+                            {
+                                // Remove the disable tag from the primitive
+                                // type
+                                comboBox.removeItem(comboItem);
+                                comboBox.insertItemAt(InputDataType.PRIMITIVE.getInputName(),
+                                                      index);
+                            }
+                        }
+                        // Check if the cell changed from the primitive input
+                        // type
+                        else if (oldValueS.equals(InputDataType.PRIMITIVE.getInputName()))
+                        {
+                            boolean hasPrimitive = false;
+
+                            // Multiple primitives can be selected, so
+                            // determine if any remain after changing the
+                            // current one. Step through each item in the list
+                            for (int listRow = 0; listRow < getRowCount(); listRow++)
+                            {
+                                // Check if the item is the primitive input
+                                // type
+                                if (getValueAt(convertRowIndexToView(listRow),
+                                               inputTypeIndex).toString().equals(InputDataType.PRIMITIVE.getInputName()))
                                 {
-                                    // Display the input type as enabled so
-                                    // that it can be selected again, and stop
-                                    // searching
-                                    comboBox.removeItemAt(index);
-                                    comboBox.insertItemAt(oldValueS, index);
+                                    // Set the flag to indicate more primitive
+                                    // types remain and stop searching
+                                    hasPrimitive = true;
                                     break;
                                 }
                             }
-                        }
 
-                        // Set the value to the original cell value for the
-                        // first loop
-                        String value = oldValueS;
-
-                        // Check both the old and new cell values
-                        for (int loop = 0; loop < 2; loop++)
-                        {
-                            // Get the two input types that represent data
-                            // types. A table can only use one of these two
-                            // types
-                            InputDataType inputType1 = InputDataType.PRIM_AND_STRUCT;
-                            InputDataType inputType2 = InputDataType.PRIMITIVE;
-
-                            // Check if the input type name matches either of
-                            // the two target types
-                            if (value.equals(inputType1.getInputName())
-                                || value.equals(inputType2.getInputName()))
+                            // Check if the last primitive input type was
+                            // removed
+                            if (!hasPrimitive)
                             {
-                                // Check if the input type matches the second
-                                // target type
-                                if (value.equals(inputType2.getInputName()))
-                                {
-                                    // Swap the target types
-                                    InputDataType temp = inputType1;
-                                    inputType1 = inputType2;
-                                    inputType2 = temp;
-                                }
+                                // Get the list index for the disabled
+                                // primitive and structure input type
+                                String comboItem = DISABLED_TEXT_COLOR
+                                                   + InputDataType.PRIM_AND_STRUCT.getInputName();
+                                int index = comboBox.getIndexOfItem(comboItem);
 
-                                // Step through each input type in the combo
-                                // box
-                                for (int index = 0; index < comboBox.getItemCount(); index++)
+                                // Check if the type exists
+                                if (index != -1)
                                 {
-                                    // Set the flag to true if the input type
-                                    // is disabled
-                                    boolean isDisabled = comboBox.getItemAt(index).startsWith(DISABLED_TEXT_COLOR);
-
-                                    // Check if this is the the second input
-                                    // type. Ignore the HTML tags if disabled
-                                    if (inputType2.getInputName().equals(isDisabled
-                                                                                   ? CcddUtilities.removeHTMLTags(comboBox.getItemAt(index))
-                                                                                   : comboBox.getItemAt(index)))
-                                    {
-                                        // Toggle display of the second input
-                                        // type between enabled and disabled,
-                                        // and stop searching
-                                        comboBox.removeItemAt(index);
-                                        comboBox.insertItemAt(isDisabled
-                                                                        ? inputType2.getInputName()
-                                                                        : DISABLED_TEXT_COLOR
-                                                                          + inputType2.getInputName(),
-                                                              index);
-                                        break;
-                                    }
+                                    // Remove the disable tag from the
+                                    // primitive and structure type
+                                    comboBox.removeItem(comboItem);
+                                    comboBox.insertItemAt(InputDataType.PRIM_AND_STRUCT.getInputName(),
+                                                          index);
                                 }
                             }
-
-                            // Set the value to the new cell value for the
-                            // second loop
-                            value = newValueS;
                         }
+
+                        // Set the selected list index
+                        comboBox.setSelectedIndex(selectedIndex);
                     }
                 }
                 catch (CCDDException ce)
@@ -735,8 +801,9 @@ public class CcddTableTypeEditorHandler extends CcddEditorPanelHandler
                 // Check if the primitive only column should be hidden
                 if (!includePrimitiveOnly)
                 {
-                    // Hide the primitive only column
-                    hiddenColumns.add(TableTypeEditorColumnInfo.PRIMITIVE_ONLY.ordinal());
+                    // Hide the structure data type allowed column
+                    hiddenColumns.add(TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal());
+                    hiddenColumns.add(TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal());
                 }
 
                 // Place the data into the table model along with the column
@@ -777,10 +844,11 @@ public class CcddTableTypeEditorHandler extends CcddEditorPanelHandler
                     && comp.getBackground() != SELECTED_BACK_COLOR)
                 {
                     boolean found = true;
+                    String value = table.getValueAt(row, column).toString();
 
                     // Check if the cell is required and is empty
                     if (TableTypeEditorColumnInfo.values()[table.convertColumnIndexToModel(column)].isRequired()
-                        && table.getValueAt(row, column).toString().isEmpty())
+                        && value.isEmpty())
                     {
                         // Set the flag indicating that the cell value is
                         // invalid
@@ -797,7 +865,7 @@ public class CcddTableTypeEditorHandler extends CcddEditorPanelHandler
                             // Check if the cell matches the combo box item.
                             // Remove any HTML tags in case this item is
                             // displayed as disabled
-                            if (CcddUtilities.removeHTMLTags(comboBox.getItemAt(index)).equals(table.getValueAt(row, column).toString()))
+                            if (CcddUtilities.removeHTMLTags(comboBox.getItemAt(index)).equals(value))
                             {
                                 // Set the flag indicating that the cell value
                                 // is valid
@@ -886,8 +954,9 @@ public class CcddTableTypeEditorHandler extends CcddEditorPanelHandler
         // Check if the primitive only column should be displayed
         if (includePrimitiveOnly)
         {
-            // Display the primitive only column
-            checkBoxColumns.add(TableTypeEditorColumnInfo.PRIMITIVE_ONLY.ordinal());
+            // Display the structure data type allowed column
+            checkBoxColumns.add(TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal());
+            checkBoxColumns.add(TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal());
         }
 
         // Set common table parameters and characteristics
@@ -955,17 +1024,16 @@ public class CcddTableTypeEditorHandler extends CcddEditorPanelHandler
                     // The input type is for a primitive+structure data type
                     // and this is the primitive data type input type
                     || (inputType.equals(InputDataType.PRIM_AND_STRUCT.getInputName())
-                    && inputNames[index].equals(InputDataType.PRIMITIVE.getInputName()))
+                    && CcddUtilities.removeHTMLTags(inputNames[index]).equals(InputDataType.PRIMITIVE.getInputName()))
 
                     // The input type is for a primitive data type and this is
                     // the primitive+structure data type input type
                     || (inputType.equals(InputDataType.PRIMITIVE.getInputName())
-                    && inputNames[index].equals(InputDataType.PRIM_AND_STRUCT.getInputName())))
+                    && CcddUtilities.removeHTMLTags(inputNames[index]).equals(InputDataType.PRIM_AND_STRUCT.getInputName())))
                 {
                     // Set the input type so that it appears disabled in the
                     // list and stop searching
                     inputNames[index] = DISABLED_TEXT_COLOR + inputNames[index];
-                    break;
                 }
             }
         }
@@ -973,7 +1041,42 @@ public class CcddTableTypeEditorHandler extends CcddEditorPanelHandler
         // Create a combo box for displaying table type input types
         comboBox = new PaddedComboBox(inputNames,
                                       InputDataType.getDescriptions(true),
-                                      CELL_FONT);
+                                      CELL_FONT)
+        {
+            /******************************************************************
+             * Override so that items flagged as disabled (grayed out) are
+             * correctly identified and selected
+             *****************************************************************/
+            @Override
+            public void setSelectedItem(Object anObject)
+            {
+                // Check if the specified item with the disable tag prepended
+                // is in the combo box list
+                if (getIndexOfItem(DISABLED_TEXT_COLOR + anObject.toString()) != -1)
+                {
+                    // Update the specified item to include the disable tag
+                    anObject = DISABLED_TEXT_COLOR + anObject;
+                }
+
+                // Set the selected item to the specified item, if it exists in
+                // the list
+                super.setSelectedItem(anObject);
+            }
+        };
+
+        // Add a listener to the combo box for focus changes
+        comboBox.addFocusListener(new FocusAdapter()
+        {
+            /******************************************************************
+             * Handle a focus gained event so that the combo box automatically
+             * expands when selected
+             *****************************************************************/
+            @Override
+            public void focusGained(FocusEvent fe)
+            {
+                comboBox.showPopup();
+            }
+        });
 
         // Get the index of the input data type column in view coordinates
         inputTypeIndex = table.convertColumnIndexToView(TableTypeEditorColumnInfo.INPUT_TYPE.ordinal());

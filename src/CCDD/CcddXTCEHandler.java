@@ -1389,11 +1389,12 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                         // definition
                         tableTypeDefn.addColumn(new Object[] {columnNumber,
                                                               definition[TableTypeEditorColumnInfo.NAME.ordinal() + index - 1],
-                                                              definition[TableTypeEditorColumnInfo.COMMENT.ordinal() + index - 1],
+                                                              definition[TableTypeEditorColumnInfo.DESCRIPTION.ordinal() + index - 1],
                                                               definition[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal() + index - 1],
                                                               Boolean.valueOf(definition[TableTypeEditorColumnInfo.UNIQUE.ordinal() + index - 1]),
                                                               Boolean.valueOf(definition[TableTypeEditorColumnInfo.REQUIRED.ordinal() + index - 1]),
-                                                              Boolean.valueOf(definition[TableTypeEditorColumnInfo.PRIMITIVE_ONLY.ordinal() + index - 1])});
+                                                              Boolean.valueOf(definition[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal() + index - 1]),
+                                                              Boolean.valueOf(definition[TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal() + index - 1])});
                     }
 
                     // Check if the table type isn't new and doesn't match an
@@ -1551,7 +1552,9 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                       + "\",\""
                                       + tableTypeDefn.isRequired()[column]
                                       + "\",\""
-                                      + tableTypeDefn.isPrimitiveOnly()[column]
+                                      + tableTypeDefn.isStructureAllowed()[column]
+                                      + "\",\""
+                                      + tableTypeDefn.isPointerAllowed()[column]
                                       + "\"");
                 }
 
@@ -2235,7 +2238,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
         // Check if the data type is a string and if the array size column
         // isn't empty
-        if (dataTypeHandler.isString(tableInfo.getData()[row][typeColumn])
+        if (dataTypeHandler.isCharacter(tableInfo.getData()[row][typeColumn])
             && dataTypeHandler.getSizeInBytes(tableInfo.getData()[row][typeColumn]) > 1
             && !tableInfo.getData()[row][sizeColumn].isEmpty())
         {
@@ -2811,7 +2814,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
             xtceDataType = XTCEDataType.FLOAT;
         }
         // Check if the type is a string (character or string)
-        else if (dataTypeHandler.isString(dataType))
+        else if (dataTypeHandler.isCharacter(dataType))
         {
             xtceDataType = XTCEDataType.STRING;
         }
@@ -2881,7 +2884,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                 intEncodingType.setSizeInBits(BigInteger.valueOf(dataTypeHandler.getSizeInBits(dataType)));
 
                 // Check if the data type is an unsigned integer
-                if (dataTypeHandler.isUnsigned(dataType))
+                if (dataTypeHandler.isUnsignedInt(dataType))
                 {
                     // Set the encoding type to indicate an unsigned integer
                     intEncodingType.setEncoding("unsigned");
@@ -2906,7 +2909,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                         IntegerDataEncodingType intEncodingType = factory.createIntegerDataEncodingType();
 
                         // Check if the data type is an unsigned integer
-                        if (dataTypeHandler.isUnsigned(dataType))
+                        if (dataTypeHandler.isUnsignedInt(dataType))
                         {
                             // Set the encoding type to indicate an unsigned
                             // integer
@@ -3035,7 +3038,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                 IntegerDataEncodingType intEncodingType = factory.createIntegerDataEncodingType();
 
                 // Check if the data type is an unsigned integer
-                if (dataTypeHandler.isUnsigned(argumentType))
+                if (dataTypeHandler.isUnsignedInt(argumentType))
                 {
                     // Set the encoding type to indicate an unsigned
                     // integer
@@ -3057,7 +3060,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                         IntegerDataEncodingType intEncodingType = factory.createIntegerDataEncodingType();
 
                         // Check if the data type is an unsigned integer
-                        if (dataTypeHandler.isUnsigned(argumentType))
+                        if (dataTypeHandler.isUnsignedInt(argumentType))
                         {
                             // Set the encoding type to indicate an unsigned
                             // integer
@@ -3082,7 +3085,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                         // differentiate a 'char' from a 'string'; 1 for a
                         // 'char' and 2 for a 'string'
                         commandDescription = factory.createStringDataType();
-                        ((StringDataType) commandDescription).setCharacterWidth(BigInteger.valueOf(dataTypeHandler.isString(argumentType)
+                        ((StringDataType) commandDescription).setCharacterWidth(BigInteger.valueOf(dataTypeHandler.isCharacter(argumentType)
                                                                                                    && dataTypeHandler.getSizeInBytes(argumentType) == 1
                                                                                                                                                        ? 1
                                                                                                                                                        : 2));

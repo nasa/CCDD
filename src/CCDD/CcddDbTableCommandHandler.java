@@ -3555,8 +3555,7 @@ public class CcddDbTableCommandHandler
                 infoData.close();
 
                 // Log that the internal table retrieval succeeded
-                eventLog.logEvent(SUCCESS_MSG,
-                                  intTableName + " retrieved");
+                eventLog.logEvent(SUCCESS_MSG, intTableName + " retrieved");
             }
         }
         catch (SQLException se)
@@ -3963,7 +3962,9 @@ public class CcddDbTableCommandHandler
                            + ", "
                            + typeDefn.isRequired()[index]
                            + ", "
-                           + typeDefn.isPrimitiveOnly()[index]
+                           + typeDefn.isStructureAllowed()[index]
+                           + ", "
+                           + typeDefn.isPointerAllowed()[index]
                            + "), ";
             }
         }

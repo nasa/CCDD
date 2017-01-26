@@ -763,6 +763,9 @@ public class CcddMacroHandler
      * @param macroName
      *            macro name for which to search
      * 
+     * @param parent
+     *            GUI component calling this method
+     * 
      * @return List containing the tables in the database that reference the
      *         specified macro name
      *************************************************************************/
@@ -770,7 +773,7 @@ public class CcddMacroHandler
     {
         return dbCommand.getList(DatabaseListCommand.SEARCH,
                                  new String[][] { {"_search_text_",
-                                                   macroName},
+                                                   Pattern.quote(macroName)},
                                                  {"_case_insensitive_",
                                                   "true"},
                                                  {"_selected_tables_",

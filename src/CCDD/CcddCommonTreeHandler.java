@@ -393,7 +393,7 @@ public class CcddCommonTreeHandler extends JTree
                             nodeIndex = getBitPackedVariables(node);
                         }
                         // Check if this is a string
-                        else if (dataTypeHandler.isString(node.getUserObject().toString()))
+                        else if (dataTypeHandler.isCharacter(node.getUserObject().toString()))
                         {
                             // Get the node indices that encompass the string
                             // array members

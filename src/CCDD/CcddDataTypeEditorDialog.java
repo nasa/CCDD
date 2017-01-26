@@ -26,6 +26,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -371,9 +373,39 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                             // The data type C type has been changed
                             else
                             {
-                                // Check if the data type C type does not match
-                                // the multiple alphanumeric input type
-                                if (!newValueS.matches(InputDataType.ALPHANUMERIC_MULTI.getInputMatch()))
+                                // initialize the C type name matching regular
+                                // expression
+                                String match = InputDataType.ALPHANUMERIC_MULTI.getInputMatch();
+
+                                // Check if the base data type is a pointer
+                                if (tableData.get(row)[DataTypeEditorColumnInfo.BASE.ordinal()].equals(BaseDataTypeInfo.POINTER.getName()))
+                                {
+                                    // Check if the C type name doesn't already
+                                    // end with an asterisk
+                                    if (!newValueS.endsWith("*"))
+                                    {
+                                        // Append an asterisk to the C type
+                                        // name
+                                        newValueS += "*";
+                                        tableData.get(row)[column] = newValueS;
+                                    }
+
+                                    // Add the ending asterisk to the matching
+                                    // regular expression
+                                    match += "\\*+";
+                                }
+                                // Check if the base type is blank
+                                else if (tableData.get(row)[DataTypeEditorColumnInfo.BASE.ordinal()].toString().isEmpty())
+                                {
+                                    // Add the optional ending asterisk to the
+                                    // matching regular expression
+                                    match += "\\*?+";
+                                }
+
+                                // Check if the data type name does not match
+                                // the multiple alphanumeric input type (with
+                                // an asterisk if this is a pointer)
+                                if (!newValueS.matches(match))
                                 {
                                     throw new CCDDException("Illegal character(s) in data type C type name");
                                 }
@@ -391,8 +423,34 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
                             // Remove any unneeded characters and store the
                             // cleaned number
-                            tableData.get(row)[column] = newValueS.replaceAll(InputDataType.INT_POSITIVE.getInputMatch(),
-                                                                              "$1");
+                            tableData.get(row)[column] = newValueS.replaceAll(InputDataType.INT_POSITIVE.getInputMatch(), "$1");
+                        }
+                        // Check if this is the data type base type column
+                        else if (column == DataTypeEditorColumnInfo.BASE.ordinal())
+                        {
+                            // Get the C type name
+                            String cType = tableData.get(row)[DataTypeEditorColumnInfo.C_TYPE.ordinal()].toString();
+
+                            // Check if the base type changed from a
+                            // non-pointer to a pointer
+                            if (newValueS.equals(BaseDataTypeInfo.POINTER.getName()))
+                            {
+                                // Check that a C type name is present and
+                                // doesn't already end with an asterisk
+                                if (!cType.isEmpty() && !cType.endsWith("*"))
+                                {
+                                    // Append an asterisk to the C type name
+                                    tableData.get(row)[DataTypeEditorColumnInfo.C_TYPE.ordinal()] += "*";
+                                }
+                            }
+                            // Check if the base type changed from a pointer to
+                            // a non-pointer or if the base type had been empty
+                            else if (oldValueS.equals(BaseDataTypeInfo.POINTER.getName())
+                                     || oldValueS.isEmpty())
+                            {
+                                // Remove any asterisks from the C type name
+                                tableData.get(row)[DataTypeEditorColumnInfo.C_TYPE.ordinal()] = cType.replaceAll("\\*", "");
+                            }
                         }
 
                         // Check if the size was reduced for an integer (signed
@@ -1013,7 +1071,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
     private void createBasePrimitiveTypeCellEditor()
     {
         // Create a combo box for displaying the base data types
-        PaddedComboBox baseComboBox = new PaddedComboBox(dataTypeTable.getFont());
+        final PaddedComboBox baseComboBox = new PaddedComboBox(dataTypeTable.getFont());
 
         // Step through each base data type
         for (BaseDataTypeInfo type : BaseDataTypeInfo.values())
@@ -1021,6 +1079,20 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
             // Add the data type to the list
             baseComboBox.addItem(type.getName().toLowerCase());
         }
+
+        // Add a listener to the combo box for focus changes
+        baseComboBox.addFocusListener(new FocusAdapter()
+        {
+            /******************************************************************
+             * Handle a focus gained event so that the combo box automatically
+             * expands when selected
+             *****************************************************************/
+            @Override
+            public void focusGained(FocusEvent fe)
+            {
+                baseComboBox.showPopup();
+            }
+        });
 
         // Create the data type cell editor for enumerations
         baseTypeCellEditor = new DefaultCellEditor(baseComboBox);
@@ -1062,6 +1134,9 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                     && dataTypeTable.getValueAt(row,
                                                 DataTypeEditorColumnInfo.C_TYPE.ordinal()).toString().isEmpty())
                 {
+                    // Set the 'data is missing' flag
+                    dataIsMissing = true;
+
                     // Inform the user that a row is missing required data. If
                     // Cancel is selected then do not perform checks on other
                     // columns and rows

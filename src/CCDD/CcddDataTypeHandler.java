@@ -12,6 +12,7 @@ import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.DatabaseListCommand;
@@ -304,6 +305,19 @@ public class CcddDataTypeHandler
     }
 
     /**************************************************************************
+     * Determine if the the specified data type is a signed integer
+     * 
+     * @param dataTypeName
+     *            data type name
+     * 
+     * @return true if the specified data type is a signed integer
+     *************************************************************************/
+    protected boolean isSignedInt(String dataTypeName)
+    {
+        return getBaseDataType(dataTypeName) == BaseDataTypeInfo.SIGNED_INT;
+    }
+
+    /**************************************************************************
      * Determine if the the specified data type is an unsigned integer
      * 
      * @param dataTypeName
@@ -311,7 +325,7 @@ public class CcddDataTypeHandler
      * 
      * @return true if the specified data type is an unsigned integer
      *************************************************************************/
-    protected boolean isUnsigned(String dataTypeName)
+    protected boolean isUnsignedInt(String dataTypeName)
     {
         return getBaseDataType(dataTypeName) == BaseDataTypeInfo.UNSIGNED_INT;
     }
@@ -337,24 +351,22 @@ public class CcddDataTypeHandler
      * 
      * @return true if this data type is a character or string
      *************************************************************************/
-    protected boolean isString(String dataTypeName)
+    protected boolean isCharacter(String dataTypeName)
     {
         return getBaseDataType(dataTypeName) == BaseDataTypeInfo.CHARACTER;
     }
 
     /**************************************************************************
-     * Determine if the this primitive data type is not an integer, floating
-     * point, or string
+     * Determine if the this primitive data type is a pointer
      * 
      * @param dataTypeName
      *            data type name
      * 
-     * @return true if this data type is not an integer, floating point, or
-     *         string
+     * @return true if this data type is a pointer
      *************************************************************************/
-    protected boolean isOther(String dataTypeName)
+    protected boolean isPointer(String dataTypeName)
     {
-        return getBaseDataType(dataTypeName) == BaseDataTypeInfo.OTHER;
+        return getBaseDataType(dataTypeName) == BaseDataTypeInfo.POINTER;
     }
 
     /**********************************************************************
@@ -375,7 +387,7 @@ public class CcddDataTypeHandler
         int bytes = getSizeInBytes(dataTypeName);
 
         // Check if the data type is an unsigned integer
-        if (isUnsigned(dataTypeName))
+        if (isUnsignedInt(dataTypeName))
         {
             minimum = 0;
         }
@@ -417,7 +429,7 @@ public class CcddDataTypeHandler
         int bytes = getSizeInBytes(dataTypeName);
 
         // Check if the data type is an unsigned integer
-        if (isUnsigned(dataTypeName))
+        if (isUnsignedInt(dataTypeName))
         {
             maximum = (int) Math.pow(2, bytes * 8);
         }
@@ -477,6 +489,9 @@ public class CcddDataTypeHandler
      * @param dataTypeName
      *            data type name for which to search
      * 
+     * @param parent
+     *            GUI component calling this method
+     * 
      * @return List containing the tables in the database that reference the
      *         specified data type name
      *************************************************************************/
@@ -487,7 +502,7 @@ public class CcddDataTypeHandler
         // data type name
         List<String> matches = new ArrayList<String>(Arrays.asList(dbCommand.getList(DatabaseListCommand.SEARCH,
                                                                                      new String[][] { {"_search_text_",
-                                                                                                       dataTypeName},
+                                                                                                       Pattern.quote(dataTypeName)},
                                                                                                      {"_case_insensitive_",
                                                                                                       "true"},
                                                                                                      {"_selected_tables_",

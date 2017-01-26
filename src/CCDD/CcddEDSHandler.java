@@ -471,11 +471,12 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                     // type definition
                                     tableTypeDefn.addColumn(new Object[] {columnNumber,
                                                                           definition[TableTypeEditorColumnInfo.NAME.ordinal() + index - 1],
-                                                                          definition[TableTypeEditorColumnInfo.COMMENT.ordinal() + index - 1],
+                                                                          definition[TableTypeEditorColumnInfo.DESCRIPTION.ordinal() + index - 1],
                                                                           definition[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal() + index - 1],
                                                                           Boolean.valueOf(definition[TableTypeEditorColumnInfo.UNIQUE.ordinal() + index - 1]),
                                                                           Boolean.valueOf(definition[TableTypeEditorColumnInfo.REQUIRED.ordinal() + index - 1]),
-                                                                          Boolean.valueOf(definition[TableTypeEditorColumnInfo.PRIMITIVE_ONLY.ordinal() + index - 1])});
+                                                                          Boolean.valueOf(definition[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal() + index - 1]),
+                                                                          Boolean.valueOf(definition[TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal() + index - 1])});
                                 }
 
                                 // Check if the table type isn't new and
@@ -1276,7 +1277,9 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                       + "\",\""
                                       + tableTypeDefn.isRequired()[column]
                                       + "\",\""
-                                      + tableTypeDefn.isPrimitiveOnly()[column]
+                                      + tableTypeDefn.isStructureAllowed()[column]
+                                      + "\",\""
+                                      + tableTypeDefn.isPointerAllowed()[column]
                                       + "\"");
                 }
 
@@ -1343,7 +1346,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
                         IntegerDataEncodingType encodingType = factory.createIntegerDataEncodingType();
 
                         // Check if the primitive is an unsigned integer
-                        if (dataTypeHandler.isUnsigned(dataTypeName))
+                        if (dataTypeHandler.isUnsignedInt(dataTypeName))
                         {
                             // Set the encoding as unsigned
                             encodingType.setEncoding(IntegerEncodingType.UNSIGNED);
@@ -1363,7 +1366,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
                         type = factory.createFloatDataType();
                     }
                     // Check if the primitive is a character or string
-                    else if (dataTypeHandler.isString(dataTypeName))
+                    else if (dataTypeHandler.isCharacter(dataTypeName))
                     {
                         type = factory.createStringDataType();
                     }
@@ -1935,7 +1938,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
         {
             // Check if the data type is a string and if the array size column
             // isn't empty
-            if (dataTypeHandler.isString(tableInfo.getData()[row][typeColumn])
+            if (dataTypeHandler.isCharacter(tableInfo.getData()[row][typeColumn])
                 && dataTypeHandler.getSizeInBytes(tableInfo.getData()[row][typeColumn]) > 1
                 && !tableInfo.getData()[row][sizeColumn].isEmpty())
             {
@@ -2368,7 +2371,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
                         intEncodingType.setSizeInBits(BigInteger.valueOf(dataTypeHandler.getSizeInBits(dataType)));
 
                         // Check if the data type is an unsigned integer
-                        if (dataTypeHandler.isUnsigned(dataType))
+                        if (dataTypeHandler.isUnsignedInt(dataType))
                         {
                             // Set the encoding type to indicate an unsigned
                             // integer
@@ -2572,7 +2575,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
             intEncodingType.setSizeInBits(BigInteger.valueOf(dataTypeHandler.getSizeInBits(dataType)));
 
             // Check if the data type is an unsigned integer
-            if (dataTypeHandler.isUnsigned(dataType))
+            if (dataTypeHandler.isUnsignedInt(dataType))
             {
                 // Set the encoding type to indicate an unsigned integer
                 intEncodingType.setEncoding(IntegerEncodingType.UNSIGNED);

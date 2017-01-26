@@ -410,12 +410,12 @@ public class CcddScriptDataAccessHandler
         {
             // Get the encoding character based on the data type's base type
             encodedType = dataTypeHandler.isInteger(dataType)
-                                                             ? (dataTypeHandler.isUnsigned(dataType)
+                                                             ? (dataTypeHandler.isUnsignedInt(dataType)
                                                                                                     ? "U"
                                                                                                     : "I")
                                                              : (dataTypeHandler.isFloat(dataType)
                                                                                                  ? "F"
-                                                                                                 : (dataTypeHandler.isString(dataType)
+                                                                                                 : (dataTypeHandler.isCharacter(dataType)
                                                                                                                                       ? "S"
                                                                                                                                       : "R"));
 

@@ -1572,10 +1572,13 @@ public class CcddDbControlHandler
                                 setDatabaseLockStatus(activeDatabase, true);
                             }
 
-                            // Check if the functions should be created
+                            // Check if the internal tables and functions
+                            // should be created
                             if (createFunctions)
                             {
-                                // Create the reusable database functions
+                                // Create the internal tables (if not present)
+                                // and the reusable database functions
+                                createTablesAndFunctions();
                                 createTablesAndFunctions();
                             }
 
@@ -1602,6 +1605,10 @@ public class CcddDbControlHandler
                                 // Start the web server
                                 ccddMain.getWebServer().startServer();
                             }
+
+                            // TODO Perform any patches to update this project
+                            // database to the latest schema
+                            new CcddPatchHandler(ccddMain);
                         }
 
                         // Check if the reserved word list hasn't been

@@ -342,11 +342,12 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                     // column definition
                                                     tableTypeDefn.addColumn(new Object[] {columnNumber,
                                                                                           columnValues[TableTypeEditorColumnInfo.NAME.ordinal() - 1],
-                                                                                          columnValues[TableTypeEditorColumnInfo.COMMENT.ordinal() - 1],
+                                                                                          columnValues[TableTypeEditorColumnInfo.DESCRIPTION.ordinal() - 1],
                                                                                           columnValues[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal() - 1],
                                                                                           Boolean.valueOf(columnValues[TableTypeEditorColumnInfo.UNIQUE.ordinal() - 1]),
                                                                                           Boolean.valueOf(columnValues[TableTypeEditorColumnInfo.REQUIRED.ordinal() - 1]),
-                                                                                          Boolean.valueOf(columnValues[TableTypeEditorColumnInfo.PRIMITIVE_ONLY.ordinal() - 1])});
+                                                                                          Boolean.valueOf(columnValues[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal() - 1]),
+                                                                                          Boolean.valueOf(columnValues[TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal() - 1])});
                                                     columnNumber++;
                                                 }
                                                 // Incorrect number of inputs
@@ -1024,13 +1025,14 @@ public class CcddCSVHandler implements CcddImportExportInterface
                     for (int column = NUM_HIDDEN_COLUMNS; column < typeDefn.getColumnCountDatabase(); column++)
                     {
                         // Output the column definition
-                        pw.printf("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+                        pw.printf("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
                                   typeDefn.getColumnNamesUser()[column],
                                   typeDefn.getColumnToolTips()[column],
                                   typeDefn.getInputTypes()[column].getInputName(),
                                   typeDefn.isRowValueUnique()[column],
                                   typeDefn.isRequired()[column],
-                                  typeDefn.isPrimitiveOnly()[column]);
+                                  typeDefn.isStructureAllowed()[column],
+                                  typeDefn.isPointerAllowed()[column]);
                     }
                 }
             }
