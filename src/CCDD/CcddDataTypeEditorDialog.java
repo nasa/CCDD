@@ -156,8 +156,21 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
         dbTable = ccddMain.getDbTableCommandHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
 
+        // Set the reference to this dialog in main
+        ccddMain.setDataTypeEditor(this);
+
         // Create the data type editor dialog
         initialize();
+    }
+
+    /**************************************************************************
+     * Get the reference to the data type table
+     * 
+     * @return Reference to the data type table
+     *************************************************************************/
+    protected CcddJTableHandler getTable()
+    {
+        return dataTypeTable;
     }
 
     /**************************************************************************

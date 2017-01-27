@@ -223,7 +223,8 @@ public class CcddFileIOHandler
 
                                                                  false,
                                                                  false,
-                                                                 "Backup Project",
+                                                                 "Backup Project "
+                                                                     + databaseName,
                                                                  LAST_DATABASE_BACKUP_FILE,
                                                                  DialogOption.BACKUP_OPTION);
 

@@ -1606,7 +1606,7 @@ public class CcddDbControlHandler
                                 ccddMain.getWebServer().startServer();
                             }
 
-                            // TODO Perform any patches to update this project
+                            // Perform any patches to update this project
                             // database to the latest schema
                             new CcddPatchHandler(ccddMain);
                         }
@@ -2106,7 +2106,7 @@ public class CcddDbControlHandler
      *            name of the database to backup
      * 
      * @param backupFile
-     *            file to backup the database to
+     *            file to which to backup the database
      *************************************************************************/
     protected void backupDatabase(final String databaseName,
                                   final File backupFile)

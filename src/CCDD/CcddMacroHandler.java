@@ -18,8 +18,6 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
@@ -30,11 +28,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JList;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.PopupMenuEvent;
@@ -178,56 +173,6 @@ public class CcddMacroHandler
     }
 
     /**************************************************************************
-     * Combo box tool tip renderer class
-     *************************************************************************/
-    @SuppressWarnings("serial")
-    class ComboBoxToolTipRenderer extends DefaultListCellRenderer
-    {
-        private List<String> toolTips;
-
-        /**********************************************************************
-         * Get the list containing the tool tip text
-         * 
-         * @return List containing the tool tip text
-         *********************************************************************/
-        public void setToolTips(List<String> toolTips)
-        {
-            this.toolTips = toolTips;
-        }
-
-        /**********************************************************************
-         * Override the list cell renderer so that the tool tip text can be
-         * displayed
-         *********************************************************************/
-        @Override
-        public Component getListCellRendererComponent(JList<?> list,
-                                                      Object value,
-                                                      int index,
-                                                      boolean isSelected,
-                                                      boolean cellHasFocus)
-        {
-
-            JComponent comp = (JComponent) super.getListCellRendererComponent(list,
-                                                                              value,
-                                                                              index,
-                                                                              isSelected,
-                                                                              cellHasFocus);
-
-            // Check if the value, list index, and tool tip are valid
-            if (value != null
-                && index != -1
-                && toolTips != null
-                && index < toolTips.size())
-            {
-                // Set the tool tip text
-                list.setToolTipText(toolTips.get(index));
-            }
-
-            return comp;
-        }
-    }
-
-    /**************************************************************************
      * Get the macro name encased in the macro identifier character(s)
      * 
      * @param macroName
@@ -359,9 +304,8 @@ public class CcddMacroHandler
         // Check if any macros exist
         if (!macros.isEmpty())
         {
+            List<String> validMacros = new ArrayList<String>();
             List<String> toolTips = new ArrayList<String>();
-            macroCbox = new PaddedComboBox(CELL_FONT);
-            macroCbox.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 
             // Step through each macro
             for (String[] macro : macros)
@@ -376,24 +320,22 @@ public class CcddMacroHandler
                 // field's input type
                 if (text.isEmpty() || text.matches(inputType.getInputMatch()))
                 {
-                    // Add the macro name to the combo box with its value as
-                    // the item's tool tip text
-                    macroCbox.addItem(" "
-                                      + macro[MacrosColumn.MACRO_NAME.ordinal()]
-                                      + " ");
+                    // Add the macro name to the list with its value as the
+                    // item's tool tip text
+                    validMacros.add(macro[MacrosColumn.MACRO_NAME.ordinal()]);
                     toolTips.add(macro[MacrosColumn.VALUE.ordinal()]);
                 }
             }
 
             // Check if any of the macro's are applicable to the target text
             // field
-            if (macroCbox.getItemCount() != 0)
+            if (!validMacros.isEmpty())
             {
-                // Create a renderer so that the macro values are displayed as
-                // tool tip text for the macro name pop-up items
-                ComboBoxToolTipRenderer renderer = new ComboBoxToolTipRenderer();
-                macroCbox.setRenderer(renderer);
-                renderer.setToolTips(toolTips);
+                // Create the pop-up combo box
+                macroCbox = new PaddedComboBox(validMacros.toArray(new String[0]),
+                                               toolTips.toArray(new String[0]),
+                                               CELL_FONT);
+                macroCbox.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 
                 // Set the first macro as initially selected
                 macroCbox.setSelectedIndex(0);
@@ -456,20 +398,6 @@ public class CcddMacroHandler
                     }
                 });
 
-                // Add a listener for focus changes to the pop-up dialog
-                comboDlg.addFocusListener(new FocusAdapter()
-                {
-                    /**********************************************************
-                     * Handle a gain of pop-up dialog focus
-                     *********************************************************/
-                    @Override
-                    public void focusGained(FocusEvent fe)
-                    {
-                        // Expand the combo box when it appears
-                        macroCbox.showPopup();
-                    }
-                });
-
                 // Add a listener for changes to the expansion/contraction of
                 // the combo box
                 macroCbox.addPopupMenuListener(new PopupMenuListener()
@@ -500,8 +428,8 @@ public class CcddMacroHandler
                         // Remove the macro pop-up and return to the caller
                         exitMacroCombo();
                     }
-
                 });
+
                 // Create the dialog to contain the macro pop-up combo box. Set
                 // to modeless so that pop-up dialog focus changes can be
                 // detected
@@ -565,6 +493,38 @@ public class CcddMacroHandler
             comboDlg.setLocation(textField.getLocationOnScreen().x,
                                  textField.getLocationOnScreen().y);
         }
+    }
+
+    /**************************************************************************
+     * Get the text of the specified text field with the macro name or value
+     * inserted at the current selection point
+     * 
+     * @param text
+     *            macro name or value
+     * 
+     * @param textField
+     *            text field over which the pop-up combo box is displayed
+     * 
+     * @return Text of the specified text field with the macro name or value
+     *         inserted at the current selection point
+     *************************************************************************/
+    private String getInsertedMacro(String text, JTextField textField)
+    {
+        // Insert the text into the text field at the selection start position,
+        // replacing any characters between the selection start and end
+        // positions
+        return textField.getText().substring(0, textField.getSelectionStart())
+               + text
+               + textField.getText().substring(textField.getSelectionEnd());
+    }
+
+    /**************************************************************************
+     * Remove the macro pop-up combo box and return to the caller
+     *************************************************************************/
+    private void exitMacroCombo()
+    {
+        comboDlg.setVisible(false);
+        comboDlg.dispose();
     }
 
     /**************************************************************************
@@ -866,38 +826,6 @@ public class CcddMacroHandler
         }
 
         return text;
-    }
-
-    /**************************************************************************
-     * Get the text of the specified text field with the macro name or value
-     * inserted at the current selection point
-     * 
-     * @param text
-     *            macro name or value
-     * 
-     * @param textField
-     *            text field over which the pop-up combo box is displayed
-     * 
-     * @return Text of the specified text field with the macro name or value
-     *         inserted at the current selection point
-     *************************************************************************/
-    private String getInsertedMacro(String text, JTextField textField)
-    {
-        // Insert the text into the text field at the selection start position,
-        // replacing any characters between the selection start and end
-        // positions
-        return textField.getText().substring(0, textField.getSelectionStart())
-               + text
-               + textField.getText().substring(textField.getSelectionEnd());
-    }
-
-    /**************************************************************************
-     * Remove the macro pop-up combo box and return to the caller
-     *************************************************************************/
-    private void exitMacroCombo()
-    {
-        comboDlg.setVisible(false);
-        comboDlg.dispose();
     }
 
     /**************************************************************************

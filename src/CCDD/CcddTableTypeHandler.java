@@ -1267,11 +1267,11 @@ public class CcddTableTypeHandler
                                  tableTypeDefn.getDescription());
 
             // Check if the table type editor is open
-            if (ccddMain.getTypeEditorWindow() != null
-                && ccddMain.getTypeEditorWindow().isShowing())
+            if (ccddMain.getTableTypeEditor() != null
+                && ccddMain.getTableTypeEditor().isShowing())
             {
                 // Add the new table type tab to the editor
-                ccddMain.getTypeEditorWindow().addTypePanes(new String[] {tableTypeDefn.getTypeName()},
+                ccddMain.getTableTypeEditor().addTypePanes(new String[] {tableTypeDefn.getTypeName()},
                                                             new ArrayList<String[]>());
             }
 

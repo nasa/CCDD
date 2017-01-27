@@ -80,7 +80,8 @@ public class CcddMain
     private final CcddDbTableCommandHandler dbTable;
     private CcddDataTypeHandler dataTypeHandler;
     private CcddTableTypeHandler tableTypeHandler;
-    private CcddTableTypeEditorDialog typeEditorDialog;
+    private CcddTableTypeEditorDialog tableTypeEditorDialog;
+    private CcddDataTypeEditorDialog dataTypeEditorDialog;
     private final CcddFileIOHandler fileIOHandler;
     private final CcddScriptHandler scriptHandler;
     private CcddScriptManagerDialog scriptAssnDlg;
@@ -126,7 +127,7 @@ public class CcddMain
     private JMenuItem mntmImportTable;
     private JMenuItem mntmExportCSV;
     private JMenuItem mntmManageDataTypes;
-    private JMenuItem mntmManageTypes;
+    private JMenuItem mntmManageTableTypes;
     private JMenuItem mntmManageGroups;
     private JMenuItem mntmManageMacros;
     private JMenuItem mntmAssignMsgID;
@@ -480,16 +481,6 @@ public class CcddMain
     }
 
     /**************************************************************************
-     * Get the reference to the table type editor dialog
-     * 
-     * @return Reference to the type editor dialog
-     *************************************************************************/
-    protected CcddTableTypeEditorDialog getTypeEditorWindow()
-    {
-        return typeEditorDialog;
-    }
-
-    /**************************************************************************
      * Get the file handler
      * 
      * @return File handler
@@ -539,16 +530,6 @@ public class CcddMain
     }
 
     /**************************************************************************
-     * Get the data field table editor
-     * 
-     * @return Data field table editor
-     *************************************************************************/
-    protected CcddFieldTableEditorDialog getFieldTableEditor()
-    {
-        return fieldTblEditorDialog;
-    }
-
-    /**************************************************************************
      * Get the keyboard handler
      * 
      * @return Keyboard handler reference
@@ -556,6 +537,47 @@ public class CcddMain
     protected CcddKeyboardHandler getKeyboardHandler()
     {
         return keyboardHandler;
+    }
+
+    /**************************************************************************
+     * Get the reference to the table type editor dialog
+     * 
+     * @return Reference to the table type editor dialog
+     *************************************************************************/
+    protected CcddTableTypeEditorDialog getTableTypeEditor()
+    {
+        return tableTypeEditorDialog;
+    }
+
+    /**************************************************************************
+     * Get the reference to the data type editor dialog
+     * 
+     * @return Reference to the data type editor dialog
+     *************************************************************************/
+    protected CcddDataTypeEditorDialog getDataTypeEditor()
+    {
+        return dataTypeEditorDialog;
+    }
+
+    /**************************************************************************
+     * Set the reference to the data type editor dialog
+     * 
+     * @param dataTypeEditorDialog
+     *            reference to the data type editor dialog
+     *************************************************************************/
+    protected void setDataTypeEditor(CcddDataTypeEditorDialog dataTypeEditorDialog)
+    {
+        this.dataTypeEditorDialog = dataTypeEditorDialog;
+    }
+
+    /**************************************************************************
+     * Get the data field table editor
+     * 
+     * @return Data field table editor
+     *************************************************************************/
+    protected CcddFieldTableEditorDialog getFieldTableEditor()
+    {
+        return fieldTblEditorDialog;
     }
 
     /**************************************************************************
@@ -597,9 +619,9 @@ public class CcddMain
         mntmExportXTCE.setEnabled(dbControl.isDatabaseConnected());
         mntmUnlock.setEnabled(dbControl.isServerConnected());
         mntmVerifyDatabase.setEnabled(dbControl.isDatabaseConnected());
-        mntmManageDataTypes.setEnabled(dbControl.isDatabaseConnected());
-        mntmManageTypes.setEnabled(dbControl.isDatabaseConnected());
         mntmManageGroups.setEnabled(dbControl.isDatabaseConnected());
+        mntmManageTableTypes.setEnabled(dbControl.isDatabaseConnected());
+        mntmManageDataTypes.setEnabled(dbControl.isDatabaseConnected());
         mntmManageMacros.setEnabled(dbControl.isDatabaseConnected());
         mntmAssignMsgID.setEnabled(dbControl.isDatabaseConnected());
         mntmEditDataField.setEnabled(dbControl.isDatabaseConnected());
@@ -625,10 +647,10 @@ public class CcddMain
         }
 
         // Check if the type editor is open
-        if (typeEditorDialog != null)
+        if (tableTypeEditorDialog != null)
         {
             // Enable/disable the table type editor dialog controls
-            typeEditorDialog.setControlsEnabled(activate);
+            tableTypeEditorDialog.setControlsEnabled(activate);
         }
     }
 
@@ -947,9 +969,9 @@ public class CcddMain
         mntmExportEDS = createMenuItem(mnExport, "EDS", KeyEvent.VK_E, "Export selected data table(s) in EDS XML format");
         mntmExportXTCE = createMenuItem(mnExport, "XTCE", KeyEvent.VK_X, "Export selected data table(s) in XTCE XML format");
         mnData.addSeparator();
-        mntmManageDataTypes = createMenuItem(mnData, "Manage data types", KeyEvent.VK_D, "Open the data type manager");
-        mntmManageTypes = createMenuItem(mnData, "Manage table types", KeyEvent.VK_T, "Open the table type manager");
         mntmManageGroups = createMenuItem(mnData, "Manage groups", KeyEvent.VK_G, "Open the table group manager");
+        mntmManageTableTypes = createMenuItem(mnData, "Manage table types", KeyEvent.VK_T, "Open the table type manager");
+        mntmManageDataTypes = createMenuItem(mnData, "Manage data types", KeyEvent.VK_D, "Open the data type manager");
         mntmManageMacros = createMenuItem(mnData, "Manage macros", KeyEvent.VK_O, "Open the macro editor");
         mnData.addSeparator();
         mntmAssignMsgID = createMenuItem(mnData, "Assign message IDs", KeyEvent.VK_M, "Auto-assign message ID numbers");
@@ -1413,34 +1435,6 @@ public class CcddMain
             }
         });
 
-        // Add a listener for the Manage Data Types menu item
-        mntmManageDataTypes.addActionListener(new ActionListener()
-        {
-            /******************************************************************
-             * Show the data type editor dialog
-             *****************************************************************/
-            @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                // Open the data type editor
-                new CcddDataTypeEditorDialog(CcddMain.this);
-            }
-        });
-
-        // Add a listener for the Manage Types menu item
-        mntmManageTypes.addActionListener(new ActionListener()
-        {
-            /******************************************************************
-             * Show the table type editor dialog
-             *****************************************************************/
-            @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                typeEditorDialog = new CcddTableTypeEditorDialog(CcddMain.this,
-                                                                 tableTypeHandler.getTypes());
-            }
-        });
-
         // Add a listener for the Manage Groups Table menu item
         mntmManageGroups.addActionListener(new ActionListener()
         {
@@ -1452,6 +1446,34 @@ public class CcddMain
             {
                 // Open the group manager dialog
                 new CcddGroupManagerDialog(CcddMain.this);
+            }
+        });
+
+        // Add a listener for the Manage Table Types menu item
+        mntmManageTableTypes.addActionListener(new ActionListener()
+        {
+            /******************************************************************
+             * Show the table type editor dialog
+             *****************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                tableTypeEditorDialog = new CcddTableTypeEditorDialog(CcddMain.this,
+                                                                      tableTypeHandler.getTypes());
+            }
+        });
+
+        // Add a listener for the Manage Data Types menu item
+        mntmManageDataTypes.addActionListener(new ActionListener()
+        {
+            /******************************************************************
+             * Show the data type editor dialog
+             *****************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                // Open the data type editor
+                new CcddDataTypeEditorDialog(CcddMain.this);
             }
         });
 
@@ -1990,13 +2012,13 @@ public class CcddMain
             }
 
             // Check if the table type editor dialog is open
-            if (typeEditorDialog != null && typeEditorDialog.isShowing())
+            if (tableTypeEditorDialog != null && tableTypeEditorDialog.isShowing())
             {
                 // Update the type editor dialog to the new look & feel
-                SwingUtilities.updateComponentTreeUI(typeEditorDialog);
-                typeEditorDialog.setButtonWidth();
-                typeEditorDialog.getTypeEditor().getTable().setTableGrid();
-                typeEditorDialog.validate();
+                SwingUtilities.updateComponentTreeUI(tableTypeEditorDialog);
+                tableTypeEditorDialog.setButtonWidth();
+                tableTypeEditorDialog.getTypeEditor().getTable().setTableGrid();
+                tableTypeEditorDialog.validate();
             }
         }
 
@@ -2104,9 +2126,9 @@ public class CcddMain
         // instance
         if (!isChanged
             && (((tableTypes == null || tableTypes.isEmpty())
-                 && typeEditorDialog != null
-                 && typeEditorDialog.isShowing()
-                 && typeEditorDialog.isTypesChanged())
+                 && tableTypeEditorDialog != null
+                 && tableTypeEditorDialog.isShowing()
+                 && tableTypeEditorDialog.isTypesChanged())
                  || (fieldTblEditorDialog != null
                      && fieldTblEditorDialog.isShowing()
                      && fieldTblEditorDialog.isFieldTableChanged())))
@@ -2141,10 +2163,10 @@ public class CcddMain
             }
 
             // Check if the type editor dialog is open
-            if (typeEditorDialog != null && typeEditorDialog.isShowing())
+            if (tableTypeEditorDialog != null && tableTypeEditorDialog.isShowing())
             {
                 // Close the editor dialog
-                typeEditorDialog.closeFrame();
+                tableTypeEditorDialog.closeFrame();
             }
 
             // Check if the data field table editor dialog is open

@@ -34,6 +34,8 @@ import javax.swing.Timer;
 import javax.swing.undo.UndoManager;
 
 import CCDD.CcddConstants.ArrowFocusOption;
+import CCDD.CcddConstants.BaseDataTypeInfo;
+import CCDD.CcddConstants.DataTypeEditorColumnInfo;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.SearchDialogType;
 
@@ -45,6 +47,7 @@ public class CcddKeyboardHandler
     // Class reference
     private final CcddMain ccddMain;
     private CcddMacroHandler macroHandler;
+    private CcddDataTypeHandler dataTypeHandler;
     private CcddUndoManager modalUndoManager;
 
     /**************************************************************************
@@ -62,11 +65,12 @@ public class CcddKeyboardHandler
     }
 
     /**************************************************************************
-     * Set the reference to the macro handler class
+     * Set the reference to the macro and data type handler classes
      *************************************************************************/
     protected void setHandlers()
     {
         macroHandler = ccddMain.getMacroHandler();
+        dataTypeHandler = ccddMain.getDataTypeHandler();
     }
 
     /**************************************************************************
@@ -384,6 +388,40 @@ public class CcddKeyboardHandler
                         // Set the flag to indicate this key press was handled
                         handled = true;
                     }
+                    // Check if the Ctrl-S key is pressed in the data type
+                    // editor. The following handles structure name insertion
+                    else if (ke.getKeyCode() == KeyEvent.VK_S
+                             && ccddMain.getDataTypeEditor() != null
+                             && ccddMain.getDataTypeEditor().isFocused()
+                             && ccddMain.getDataTypeEditor().getTable().isEditing()
+                             && comp instanceof JTextField)
+                    {
+                        // Get the reference to the data type table in the
+                        // dialog
+                        CcddJTableHandler table = ccddMain.getDataTypeEditor().getTable();
+
+                        // Get the row and column being edited in the table,
+                        // and the contents of the edited row's base data type
+                        int row = table.getEditingRow();
+                        int column = table.getEditingColumn();
+                        String baseType = table.getValueAt(row, DataTypeEditorColumnInfo.BASE.ordinal()).toString();
+
+                        // Check if the type name or C name columns are being
+                        // edited and the base data type is empty or a pointer
+                        if ((column == DataTypeEditorColumnInfo.USER_NAME.ordinal()
+                            || column == DataTypeEditorColumnInfo.C_TYPE.ordinal())
+                            && (baseType.isEmpty()
+                            || baseType.equals(BaseDataTypeInfo.POINTER.getName())))
+                        {
+                            // Insert the structure name chosen by the user
+                            // into the text field at the current text
+                            // insertion point
+                            dataTypeHandler.insertStructureName((JTextField) comp);
+                        }
+
+                        // Set the flag to indicate this key press was handled
+                        handled = true;
+                    }
                     // Check if the Ctrl-M key is pressed. The following
                     // handles macro insertion and expansion
                     else if (ke.getKeyCode() == KeyEvent.VK_M)
@@ -587,7 +625,7 @@ public class CcddKeyboardHandler
 
             // Get a reference to the type editor dialog to shorten subsequent
             // calls
-            CcddTableTypeEditorDialog editorDialog = ccddMain.getTypeEditorWindow();
+            CcddTableTypeEditorDialog editorDialog = ccddMain.getTableTypeEditor();
 
             // Check if no table undo manager is applicable and the table type
             // editor is open
@@ -663,8 +701,7 @@ public class CcddKeyboardHandler
 
             // Get the row and column in the table with the focus
             int row = table.getSelectedRow() + table.getSelectedRowCount() - 1;
-            int column = table.getSelectedColumn()
-                         + table.getSelectedColumnCount() - 1;
+            int column = table.getSelectedColumn() + table.getSelectedColumnCount() - 1;
 
             // Check that a cell is selected
             if (row != -2 && column != -2)

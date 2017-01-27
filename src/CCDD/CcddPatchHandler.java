@@ -1,9 +1,19 @@
+/**
+ * CFS Command & Data Dictionary project database patch handler. Copyright 2017
+ * United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United
+ * States under Title 17, U.S. Code. All Other Rights Reserved.
+ */
 package CCDD;
 
+import static CCDD.CcddConstants.BACKUP_FILE_EXTENSION;
 import static CCDD.CcddConstants.EventLogMessageType.SUCCESS_MSG;
 
+import java.io.File;
 import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import CCDD.CcddConstants.DefaultColumn;
@@ -21,7 +31,11 @@ public class CcddPatchHandler
 
     /**************************************************************************
      * CFS Command & Data Dictionary project database patch handler class
-     * constructor
+     * constructor. THe patch handler is used to integrate application changes
+     * that require alteration of the project database schema. The alterations
+     * are meant to be transparent to the user; however, once patched older
+     * versions of the application are no longer guaranteed to function
+     * properly and may have detrimental effects
      * 
      * * @param ccddMain main class
      *************************************************************************/
@@ -29,6 +43,7 @@ public class CcddPatchHandler
     {
         this.ccddMain = ccddMain;
 
+        // Patch #01262017: Rename the table types table and alter its content
         updateTableTypesTable();
     }
 
@@ -37,20 +52,31 @@ public class CcddPatchHandler
      * the primitive_only column, and add the structure allowed and pointer
      * allowed columns. If successful, the original table (__types) is renamed,
      * preserving the original information and preventing subsequent conversion
-     * attempts
+     * attempts. The project database is first backed up to the file
+     * <projectName>_<timeStamp>.dbu
      *************************************************************************/
     private void updateTableTypesTable()
     {
         CcddDbTableCommandHandler dbTable = ccddMain.getDbTableCommandHandler();
-        CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
-        CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
-        CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
-        CcddTableTypeHandler tableTypeHandler = ccddMain.getTableTypeHandler();
 
+        // Check if the old table exists
         if (dbTable.isTableExists("__types", ccddMain.getMainFrame()))
         {
+            CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
+            CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
+            CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
+            CcddTableTypeHandler tableTypeHandler = ccddMain.getTableTypeHandler();
+
             try
             {
+                // Back up the project database before applying the patch
+                dbControl.backupDatabase(dbControl.getDatabase(),
+                                         new File(dbControl.getDatabase()
+                                                  + "_"
+                                                  + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
+                                                  + "."
+                                                  + BACKUP_FILE_EXTENSION));
+
                 // Create lists to contain the old and new table types table
                 // items
                 List<String[]> oldTableData = new ArrayList<String[]>();

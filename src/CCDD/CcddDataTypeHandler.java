@@ -6,14 +6,34 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.CELL_FONT;
 import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dialog.ModalityType;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
+import javax.swing.text.BadLocationException;
+
+import CCDD.CcddClasses.PaddedComboBox;
 import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.InputDataType;
@@ -29,8 +49,18 @@ import CCDD.CcddTableTypeHandler.TypeDefinition;
 public class CcddDataTypeHandler
 {
     // Class references
+    private CcddMain ccddMain;
+    private CcddDbTableCommandHandler dbTable;
     private CcddDbCommandHandler dbCommand;
     private CcddTableTypeHandler tableTypeHandler;
+
+    // Pop-up combo box for displaying the structure names and the dialog to
+    // contain it
+    private PaddedComboBox structureCbox;
+    private JDialog comboDlg;
+
+    // Array containing the prototype structure table names
+    private String[] structures;
 
     // List containing the data type names and associated data type definitions
     private List<String[]> dataTypes;
@@ -60,6 +90,9 @@ public class CcddDataTypeHandler
         this(ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.DATA_TYPES,
                                                                           true,
                                                                           ccddMain.getMainFrame()));
+        // Get references to make subsequent calls shorter
+        this.ccddMain = ccddMain;
+        dbTable = ccddMain.getDbTableCommandHandler();
         dbCommand = ccddMain.getDbCommandHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
     }
@@ -602,5 +635,229 @@ public class CcddDataTypeHandler
         }
 
         return badType;
+    }
+
+    /**************************************************************************
+     * Display a pop-up combo box containing the names of the defined
+     * structures. When the user selects a structure insert it into the
+     * supplied text field
+     * 
+     * @param textField
+     *            text field over which to display the pop-up combo box and
+     *            insert the selected structure name
+     *************************************************************************/
+    protected void insertStructureName(final JTextField textField)
+    {
+        comboDlg = new JDialog(ccddMain.getDataTypeEditor());
+
+        // Get the array of prototype structure table names
+        structures = dbTable.getStructureTables();
+
+        // Check if any structures exist
+        if (structures.length != 0)
+        {
+            // Sort the structure names alphabetically
+            Arrays.sort(structures, String.CASE_INSENSITIVE_ORDER);
+
+            // Create the pop-up combo box
+            structureCbox = new PaddedComboBox(structures, CELL_FONT);
+
+            // Set the first structure as initially selected
+            structureCbox.setSelectedIndex(0);
+
+            // Set the property to allow the arrow keys to be used to change
+            // the structure selection in the combo box
+            structureCbox.putClientProperty("JComboBox.isTableCellEditor",
+                                            Boolean.TRUE);
+
+            // Add a listener for selection events in the structure pop-up
+            // combo box
+            structureCbox.addActionListener(new ActionListener()
+            {
+                /**************************************************************
+                 * Handle a selection event in the structure combo box
+                 *************************************************************/
+                @Override
+                public void actionPerformed(ActionEvent ae)
+                {
+                    // Get the selected structure's name and enclose it in the
+                    // structure identifier character(s)
+                    String structureName = ((JComboBox<?>) ae.getSource()).getSelectedItem().toString();
+
+                    // Get the starting index of the selected text in the field
+                    int start = textField.getSelectionStart();
+
+                    // Insert the structure into the text field's existing
+                    // text, overwriting any of the text that is highlighted
+                    textField.setText(getInsertedStructure(structureName, textField));
+                    textField.setSelectionStart(start);
+
+                    // Select the structure name that was inserted
+                    textField.setSelectionEnd(start + structureName.length());
+
+                    // Remove the structure pop-up and return to the caller.
+                    // Get the selected structure's name and enclose it in the
+                    // structure identifier character(s)
+                    exitStructCombo();
+                }
+            });
+
+            // Add a listener for key press events in the structure pop-up
+            // combo box
+            structureCbox.addKeyListener(new KeyAdapter()
+            {
+                /**************************************************************
+                 * Handle a key press event in the structure combo box
+                 *************************************************************/
+                @Override
+                public void keyPressed(KeyEvent ke)
+                {
+                    // Check if the escape key is pressed
+                    if (ke.getKeyCode() == KeyEvent.VK_ESCAPE)
+                    {
+                        // Remove the structure pop-up and return to the caller
+                        exitStructCombo();
+                    }
+                }
+            });
+
+            // Add a listener for changes to the expansion/contraction of the
+            // combo box
+            structureCbox.addPopupMenuListener(new PopupMenuListener()
+            {
+                /**************************************************************
+                 * Handle a combo box expansion event
+                 *************************************************************/
+                @Override
+                public void popupMenuWillBecomeVisible(PopupMenuEvent pme)
+                {
+                }
+
+                /**************************************************************
+                 * Handle a combo box contraction event
+                 *************************************************************/
+                @Override
+                public void popupMenuWillBecomeInvisible(PopupMenuEvent pme)
+                {
+                }
+
+                /**************************************************************
+                 * Handle a combo box cancel event. This occurs if the mouse is
+                 * clicked outside the combo box
+                 *************************************************************/
+                @Override
+                public void popupMenuCanceled(PopupMenuEvent pme)
+                {
+                    // Remove the structure pop-up and return to the caller
+                    exitStructCombo();
+                }
+            });
+
+            // Create the dialog to contain the structure pop-up combo box. Set
+            // to modeless so that pop-up dialog focus changes can be detected
+            comboDlg.setModalityType(ModalityType.MODELESS);
+            comboDlg.setUndecorated(true);
+            comboDlg.add(structureCbox, BorderLayout.NORTH);
+            comboDlg.setSize(new Dimension(structureCbox.getPreferredSize()));
+
+            // Add a listener for focus changes to the pop-up dialog
+            comboDlg.addWindowFocusListener(new WindowFocusListener()
+            {
+                /**************************************************************
+                 * Handle a gain of pop-up dialog focus
+                 *************************************************************/
+                @Override
+                public void windowGainedFocus(WindowEvent we)
+                {
+                    // Create a runnable object to be executed
+                    SwingUtilities.invokeLater(new Runnable()
+                    {
+                        /******************************************************
+                         * Execute after all pending Swing events are finished.
+                         * This ensures the pop-up is showing and can be
+                         * expanded
+                         *****************************************************/
+                        @Override
+                        public void run()
+                        {
+                            // Expand the combo box when it appears
+                            structureCbox.showPopup();
+                        }
+                    });
+                }
+
+                /**************************************************************
+                 * Handle a loss of pop-up dialog focus
+                 *************************************************************/
+                @Override
+                public void windowLostFocus(WindowEvent we)
+                {
+                    // Remove the structure pop-up and return to the caller
+                    exitStructCombo();
+                }
+            });
+
+            // Position and display the pop-up
+            positionStructurePopup(textField);
+            comboDlg.setVisible(true);
+        }
+    }
+
+    /**************************************************************************
+     * Position the dialog containing the structure pop-up combo box at the
+     * text cursor position in the text field
+     * 
+     * @param textField
+     *            text field over which to display the pop-up combo box
+     *************************************************************************/
+    private void positionStructurePopup(JTextField textField)
+    {
+        try
+        {
+            // Get the position of the text cursor within the text field
+            Rectangle popUp = textField.modelToView(textField.getCaretPosition());
+
+            // Position the pop-up at the text cursor position
+            comboDlg.setLocation(textField.getLocationOnScreen().x + popUp.x,
+                                 textField.getLocationOnScreen().y);
+        }
+        catch (BadLocationException ble)
+        {
+            // Position the pop-up at the left end of the text field
+            comboDlg.setLocation(textField.getLocationOnScreen().x,
+                                 textField.getLocationOnScreen().y);
+        }
+    }
+
+    /**************************************************************************
+     * Get the text of the specified text field with the structure name or
+     * value inserted at the current selection point
+     * 
+     * @param text
+     *            structure name or value
+     * 
+     * @param textField
+     *            text field over which the pop-up combo box is displayed
+     * 
+     * @return Text of the specified text field with the structure name or
+     *         value inserted at the current selection point
+     *************************************************************************/
+    private String getInsertedStructure(String text, JTextField textField)
+    {
+        // Insert the text into the text field at the selection start position,
+        // replacing any characters between the selection start and end
+        // positions
+        return textField.getText().substring(0, textField.getSelectionStart())
+               + text
+               + textField.getText().substring(textField.getSelectionEnd());
+    }
+
+    /**************************************************************************
+     * Remove the structure pop-up combo box and return to the caller
+     *************************************************************************/
+    private void exitStructCombo()
+    {
+        comboDlg.setVisible(false);
+        comboDlg.dispose();
     }
 }

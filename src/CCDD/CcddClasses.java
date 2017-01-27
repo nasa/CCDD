@@ -4148,7 +4148,8 @@ public class CcddClasses
          * @param font
          *            combo box list item font
          *********************************************************************/
-        private void setListItemCharacteristics(final String[] toolTips, Font font)
+        private void setListItemCharacteristics(final String[] toolTips,
+                                                Font font)
         {
             // Set the foreground and background color and font for the list
             // items
@@ -4183,8 +4184,7 @@ public class CcddClasses
                                                                   CELL_HORIZONTAL_PADDING - 2));
 
                     // Check if the list item is valid and if it has tool tip
-                    // text
-                    // associated with it
+                    // text associated with it
                     if (index > -1
                         && toolTips != null
                         && index < toolTips.length
