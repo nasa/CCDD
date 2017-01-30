@@ -271,7 +271,7 @@ public class CcddFileIOHandler
             if (!cancelBackup)
             {
                 // Create a backup of the current database
-                dbControl.backupDatabase(databaseName, dataFile[0]);
+                dbControl.backupDatabaseInBackground(databaseName, dataFile[0]);
             }
         }
     }

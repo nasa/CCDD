@@ -1430,7 +1430,7 @@ public class CcddDbControlHandler
                         }
 
                         // Backup the database
-                        backupDatabase(databaseName, new File(backupFileName));
+                        backupDatabaseInBackground(databaseName, new File(backupFileName));
 
                         // Reset the backup file name to prevent another
                         // automatic backup
@@ -2108,78 +2108,86 @@ public class CcddDbControlHandler
      * @param backupFile
      *            file to which to backup the database
      *************************************************************************/
-    protected void backupDatabase(final String databaseName,
-                                  final File backupFile)
+    protected void backupDatabaseInBackground(final String databaseName,
+                                              final File backupFile)
     {
         // Execute the command in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
         {
-            String errorType = "";
-
             /******************************************************************
              * Backup database command
              *****************************************************************/
             @Override
             protected void execute()
             {
-                // Build the command to backup the database
-                String command = "pg_dump "
-                                 + getUserHostAndPort()
-                                 + databaseName
-                                 + " -f ";
-
-                // Get the number of command line arguments
-                int numArgs = command.split(" ").length + 1;
-
-                // Append the file name. Since it may have spaces the argument
-                // count must be made without it and the name is placed within
-                // quotes
-                command += backupFile.getAbsolutePath();
-
-                // Log the database backup command
-                eventLog.logEvent(COMMAND_MSG, command);
-
-                // Execute the backup command
-                errorType = executeProcess(command, numArgs);
-
-                // Check if no error occurred
-                if (errorType.isEmpty())
-                {
-                    // Store the backup file name in the program preferences
-                    // backing store
-                    ccddMain.getProgPrefs().put(LAST_DATABASE_BACKUP_FILE,
-                                                backupFile.getAbsolutePath());
-
-                    // Log that backing up the database succeeded
-                    eventLog.logEvent(SUCCESS_MSG,
-                                      "project database '"
-                                          + databaseName
-                                          + "' backed up");
-                }
-            }
-
-            /******************************************************************
-             * Backup database command complete
-             *****************************************************************/
-            @Override
-            protected void complete()
-            {
-                // Check if an error occurred backing up the database
-                if (!errorType.isEmpty())
-                {
-                    // Inform the user that the database could not be backed up
-                    eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                          "Project database '"
-                                              + databaseName
-                                              + "' backup failed;  cause '"
-                                              + errorType
-                                              + "'",
-                                          "<html><b>Project database '</b>"
-                                              + databaseName
-                                              + "<b>' backup failed");
-                }
+                // Perform the backup operation
+                backupDatabase(databaseName, backupFile);
             }
         });
+    }
+
+    /**************************************************************************
+     * Backup a database
+     * 
+     * @param databaseName
+     *            name of the database to backup
+     * 
+     * @param backupFile
+     *            file to which to backup the database
+     *************************************************************************/
+    protected void backupDatabase(final String databaseName,
+                                  final File backupFile)
+    {
+        String errorType = "";
+
+        // Build the command to backup the database
+        String command = "pg_dump "
+                         + getUserHostAndPort()
+                         + databaseName
+                         + " -f ";
+
+        // Get the number of command line arguments
+        int numArgs = command.split(" ").length + 1;
+
+        // Append the file name. Since it may have spaces the argument count
+        // must be made without it and the name is placed within quotes
+        command += backupFile.getAbsolutePath();
+
+        // Log the database backup command
+        eventLog.logEvent(COMMAND_MSG, command);
+
+        // Execute the backup command
+        errorType = executeProcess(command, numArgs);
+
+        // Check if no error occurred
+        if (errorType.isEmpty())
+        {
+            // Store the backup file name in the program preferences backing
+            // store
+            ccddMain.getProgPrefs().put(LAST_DATABASE_BACKUP_FILE,
+                                        backupFile.getAbsolutePath());
+
+            // Log that backing up the database succeeded
+            eventLog.logEvent(SUCCESS_MSG,
+                              "project database '"
+                                  + databaseName
+                                  + "' backed up");
+        }
+
+        // An error occurred backing up the database
+        else
+        {
+            // Inform the user that the database could not be backed up
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Project database '"
+                                      + databaseName
+                                      + "' backup failed;  cause '"
+                                      + errorType
+                                      + "'",
+                                  "<html><b>Project database '</b>"
+                                      + databaseName
+                                      + "<b>' backup failed");
+        }
     }
 
     /**************************************************************************

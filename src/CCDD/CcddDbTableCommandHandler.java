@@ -5452,6 +5452,7 @@ public class CcddDbTableCommandHandler
                         // table name and row data to shorten comparisons below
                         String refTableName = tblColDescAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()];
                         String[] refContext = CcddUtilities.splitAndRemoveQuotes(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
+
                         // Set to true if the referenced table is a prototype
                         // table and false if the reference is to the internal
                         // custom values table

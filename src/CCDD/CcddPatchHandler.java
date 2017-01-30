@@ -17,6 +17,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import CCDD.CcddConstants.DefaultColumn;
+import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.TableTypesColumn;
@@ -70,12 +71,12 @@ public class CcddPatchHandler
             try
             {
                 // Back up the project database before applying the patch
-                dbControl.backupDatabase(dbControl.getDatabase(),
-                                         new File(dbControl.getDatabase()
-                                                  + "_"
-                                                  + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
-                                                  + "."
-                                                  + BACKUP_FILE_EXTENSION));
+                dbControl.backupDatabaseInBackground(dbControl.getDatabase(),
+                                                     new File(dbControl.getDatabase()
+                                                              + "_"
+                                                              + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
+                                                              + "."
+                                                              + BACKUP_FILE_EXTENSION));
 
                 // Create lists to contain the old and new table types table
                 // items
@@ -230,6 +231,10 @@ public class CcddPatchHandler
                 // doesn't take place again
                 dbCommand.executeDbCommand("ALTER TABLE __types RENAME TO __types_backup;",
                                            ccddMain.getMainFrame());
+
+                // Inform the user that converting the table types completed
+                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+                                  "Table types conversion complete");
             }
             catch (Exception e)
             {
