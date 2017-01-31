@@ -596,8 +596,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmImport = ccddMain.createMenuItem(mnFile, "Import data", KeyEvent.VK_I, "Import data from a CSV or XTCE/EDS XML file into the current editor table");
         JMenu mnExport = ccddMain.createSubMenu(mnFile, "Export table", KeyEvent.VK_X, null);
         mntmExportCSV = ccddMain.createMenuItem(mnExport, "CSV", KeyEvent.VK_C, "Export the current editor table in CSV format");
-        mntmExportXTCE = ccddMain.createMenuItem(mnExport, "XTCE", KeyEvent.VK_X, "Export the current editor table in XTCE XML format");
         mntmExportEDS = ccddMain.createMenuItem(mnExport, "EDS", KeyEvent.VK_E, "Export the current editor table in EDS XML format");
+        mntmExportXTCE = ccddMain.createMenuItem(mnExport, "XTCE", KeyEvent.VK_X, "Export the current editor table in XTCE XML format");
         mnFile.addSeparator();
         mntmPrint = ccddMain.createMenuItem(mnFile, "Print current", KeyEvent.VK_P, "Print the current editor table information");
         mntmSearchTable = ccddMain.createMenuItem(mnFile, "Search tables", KeyEvent.VK_S, "Search the project database tables");

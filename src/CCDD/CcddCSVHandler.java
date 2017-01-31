@@ -1012,27 +1012,27 @@ public class CcddCSVHandler implements CcddImportExportInterface
                 for (String tableType : referencedTableTypes)
                 {
                     // Get the table type definition based on the type name
-                    TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableType);
+                    TypeDefinition tableTypeDefn = tableTypeHandler.getTypeDefinition(tableType);
 
                     // Output the table type tag, and the type name and
                     // description
                     pw.printf("\n" + CSVTags.TABLE_TYPE.getTag() + "\n\"%s\",\"%s\"\n",
-                              typeDefn.getName(),
-                              typeDefn.getDescription());
+                              tableTypeDefn.getName(),
+                              tableTypeDefn.getDescription());
 
                     // Step through each column defined for the table type,
                     // skipping the primary key and row index columns
-                    for (int column = NUM_HIDDEN_COLUMNS; column < typeDefn.getColumnCountDatabase(); column++)
+                    for (int column = NUM_HIDDEN_COLUMNS; column < tableTypeDefn.getColumnCountDatabase(); column++)
                     {
                         // Output the column definition
-                        pw.printf("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
-                                  typeDefn.getColumnNamesUser()[column],
-                                  typeDefn.getColumnToolTips()[column],
-                                  typeDefn.getInputTypes()[column].getInputName(),
-                                  typeDefn.isRowValueUnique()[column],
-                                  typeDefn.isRequired()[column],
-                                  typeDefn.isStructureAllowed()[column],
-                                  typeDefn.isPointerAllowed()[column]);
+                        pw.printf("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+                                  tableTypeDefn.getColumnNamesUser()[column],
+                                  tableTypeDefn.getColumnToolTips()[column],
+                                  tableTypeDefn.getInputTypes()[column].getInputName(),
+                                  tableTypeDefn.isRowValueUnique()[column],
+                                  tableTypeDefn.isRequired()[column],
+                                  tableTypeDefn.isStructureAllowed()[column],
+                                  tableTypeDefn.isPointerAllowed()[column]);
                     }
                 }
             }
@@ -1050,7 +1050,8 @@ public class CcddCSVHandler implements CcddImportExportInterface
                     if (referencedDataTypes.contains(CcddDataTypeHandler.getDataTypeName(dataType)))
                     {
                         // Output the data type definition
-                        pw.printf("\"%s\",\"%s\",\"%s\",\"%s\"\n", dataType[DataTypesColumn.USER_NAME.ordinal()],
+                        pw.printf("\"%s\",\"%s\",\"%s\",\"%s\"\n",
+                                  dataType[DataTypesColumn.USER_NAME.ordinal()],
                                   dataType[DataTypesColumn.C_NAME.ordinal()],
                                   dataType[DataTypesColumn.SIZE.ordinal()],
                                   dataType[DataTypesColumn.BASE_TYPE.ordinal()]);
