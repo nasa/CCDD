@@ -225,32 +225,68 @@ public class CcddUtilities
         return array;
     }
 
-    // TODO
+    /**************************************************************************
+     * Determine the character that separates an enumeration value from its
+     * corresponding label
+     * 
+     * @param enumeration
+     *            enumeration in the format <enum value><enum value
+     *            separator><enum label>[<enum value separator>...][<enum pair
+     *            separator>...]
+     * 
+     * @return Character that separates an enumeration value from its
+     *         corresponding label
+     *************************************************************************/
     protected static String getEnumeratedValueSeparator(String enumeration)
     {
         String separator = null;
 
+        // Check if the enumeration is in the expected format
         if (enumeration.matches("^\\d+.+$"))
         {
+            // Extract the enumerated value separator character
             separator = enumeration.replaceFirst("^\\d+", "").substring(0, 1);
         }
 
         return separator;
     }
 
+    /**************************************************************************
+     * Determine the character that separates the enumerated pairs
+     * 
+     * @param enumeration
+     *            enumeration in the format <enum value><enum value
+     *            separator><enum label>[<enum value separator>...][<enum pair
+     *            separator>...]
+     * 
+     * @param enumValueSeparator
+     *            character used to separate an enumeration value from its
+     *            corresponding label
+     * 
+     * @return Character that separates the enumerated pairs
+     *************************************************************************/
     protected static String getEnumerationPairSeparator(String enumeration,
                                                         String enumValueSeparator)
     {
         String separator = null;
 
+        // Check if the enumeration is in the expected format
         if (enumeration.matches("^\\d+"
                                 + enumValueSeparator
                                 + ".+\\d+"
                                 + enumValueSeparator
                                 + ".+$"))
         {
+            // Separate the enumeration at the value+enumerated value separator
+            // characters
             String[] parts = enumeration.split("\\d+"
                                                + Pattern.quote(enumValueSeparator));
+
+            // Remove any leading and trailing white space characters, then
+            // determine the length of the second array member. This consists
+            // of the first enumerated value followed by the enumerated pair
+            // separator character. Extract the ending character which is the
+            // enumerated pair separator
             parts[1] = parts[1].trim();
             int index = parts[1].length();
             separator = parts[1].substring(index - 1, index);

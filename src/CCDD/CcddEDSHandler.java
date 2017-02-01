@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
 import javax.xml.bind.JAXBContext;
@@ -2646,8 +2647,9 @@ public class CcddEDSHandler implements CcddImportExportInterface
      *            name space
      * 
      * @param enumeration
-     *            enumeration in the format <enum label>|<enum
-     *            value>[|...][,...]
+     *            enumeration in the format <enum value><enum value
+     *            separator><enum label>[<enum value separator>...][<enum pair
+     *            separator>...]
      * 
      * @return Enumeration list for the supplied enumeration string
      *************************************************************************/
@@ -2656,43 +2658,60 @@ public class CcddEDSHandler implements CcddImportExportInterface
     {
         EnumerationListType enumList = factory.createEnumerationListType();
 
-        // Divide the enumeration string into the separate enumeration
-        // definitions
-        String[] enumDefn = enumeration.split(",");
-
-        // Step through each enumeration definition
-        for (int index = 0; index < enumDefn.length; index++)
+        try
         {
-            // Split the enumeration definition into the name and label
-            // components
-            String[] enumParts = enumDefn[index].split("\\|", 2);
+            // Get the character that separates the enumeration value from the
+            // associated label
+            String enumValSep = CcddUtilities.getEnumeratedValueSeparator(enumeration);
 
-            // Check if the enumeration definition doesn't begin with a
-            // positive integer
-            if (!enumParts[0].trim().matches(InputDataType.INT_NON_NEGATIVE.getInputMatch()))
+            // Check if the value separator couldn't be located
+            if (enumValSep == null)
             {
-                // Inform the user that the enumeration format is invalid
-                new CcddDialogHandler().showMessageDialog(parent,
-                                                          "<html><b>Enumeration '"
-                                                              + enumeration
-                                                              + "' definition in table '"
-                                                              + nameSpace.getName()
-                                                              + "' missing initial non-negative integer",
-                                                          "Enumeration Error",
-                                                          JOptionPane.WARNING_MESSAGE,
-                                                          DialogOption.OK_OPTION);
-
-                // Skip this enumeration
-                continue;
-
+                throw new CCDDException("separator character between enumeration value and label missing");
             }
 
-            // Create a new enumeration value type and add the enumerated
-            // name and value to the enumeration list
-            ValueEnumerationType valueEnum = factory.createValueEnumerationType();
-            valueEnum.setLabel(enumParts[1].trim());
-            valueEnum.setValue(BigInteger.valueOf(Integer.valueOf(enumParts[0].trim())));
-            enumList.getEnumeration().add(valueEnum);
+            // Get the character that separates the enumerated pairs
+            String enumPairSep = CcddUtilities.getEnumerationPairSeparator(enumeration, enumValSep);
+
+            // Check if the enumerated pair separator couldn't be located
+            if (enumPairSep == null)
+            {
+                throw new CCDDException("separator character between enumerated pairs missing");
+            }
+
+            // Divide the enumeration string into the separate enumeration
+            // definitions
+            String[] enumDefn = enumeration.split(Pattern.quote(enumPairSep));
+
+            // Step through each enumeration definition
+            for (int index = 0; index < enumDefn.length; index++)
+            {
+                // Split the enumeration definition into the name and label
+                // components
+                String[] enumParts = enumDefn[index].split(Pattern.quote(enumValSep), 2);
+
+                // Create a new enumeration value type and add the enumerated
+                // name and value to the enumeration list
+                ValueEnumerationType valueEnum = factory.createValueEnumerationType();
+                valueEnum.setLabel(enumParts[1].trim());
+                valueEnum.setValue(BigInteger.valueOf(Integer.valueOf(enumParts[0].trim())));
+                enumList.getEnumeration().add(valueEnum);
+            }
+        }
+        catch (CCDDException ce)
+        {
+            // TODO add to user's guide
+            // Inform the user that the enumeration format is invalid
+            new CcddDialogHandler().showMessageDialog(parent,
+                                                      "<html><b>Enumeration '"
+                                                          + enumeration
+                                                          + "' format invalid in table '"
+                                                          + nameSpace.getName()
+                                                          + "'; "
+                                                          + ce.getMessage(),
+                                                      "Enumeration Error",
+                                                      JOptionPane.WARNING_MESSAGE,
+                                                      DialogOption.OK_OPTION);
         }
 
         return enumList;

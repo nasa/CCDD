@@ -411,13 +411,13 @@ public class CcddScriptDataAccessHandler
             // Get the encoding character based on the data type's base type
             encodedType = dataTypeHandler.isInteger(dataType)
                                                              ? (dataTypeHandler.isUnsignedInt(dataType)
-                                                                                                    ? "U"
-                                                                                                    : "I")
+                                                                                                       ? "U"
+                                                                                                       : "I")
                                                              : (dataTypeHandler.isFloat(dataType)
                                                                                                  ? "F"
                                                                                                  : (dataTypeHandler.isCharacter(dataType)
-                                                                                                                                      ? "S"
-                                                                                                                                      : "R"));
+                                                                                                                                         ? "S"
+                                                                                                                                         : "R"));
 
             // Check if the data type is recognized
             if (!encodedType.equals("R"))
@@ -2582,6 +2582,49 @@ public class CcddScriptDataAccessHandler
     }
 
     /**************************************************************************
+     * Divide the supplied enumeration string into the values and labels. The
+     * enumeration value/label separator character and the enumerated pair
+     * separator character are automatically determined. Any leading or
+     * trailing white space characters are removed from each array member
+     * 
+     * @param enumeration
+     *            enumeration in the format <enum value><enum value
+     *            separator><enum label>[<enum value separator>...][<enum pair
+     *            separator>...]
+     * 
+     * @return Two-dimensional array representing the enumeration parameters ;
+     *         returns null if the input text is empty or the enumeration
+     *         separator characters cannot be determined
+     *************************************************************************/
+    public String[][] parseEnumerationParameters(String enumeration)
+    {
+        String[][] pairs = null;
+
+        // Get the character that separates the enumeration value from the
+        // associated label
+        String enumSeparator = CcddUtilities.getEnumeratedValueSeparator(enumeration);
+
+        // Check if the value separator exists
+        if (enumSeparator != null)
+        {
+            // Get the character that separates the enumerated pairs
+            String pairSeparator = CcddUtilities.getEnumerationPairSeparator(enumeration,
+                                                                             enumSeparator);
+
+            // Check if the enumerated pair separator exists
+            if (pairSeparator != null)
+            {
+                // Separate the enumeration parameters into an array
+                pairs = getArrayFromString(enumeration,
+                                           enumSeparator,
+                                           pairSeparator);
+            }
+        }
+
+        return pairs;
+    }
+
+    /**************************************************************************
      * Divide the supplied string into an array using the supplied separator
      * character or string, and trim any leading or trailing white space
      * characters from each array member
@@ -2647,10 +2690,7 @@ public class CcddScriptDataAccessHandler
             // No row separator was provided; assume a single row exists
             else
             {
-                rowArray = new String[]
-                {
-                 text
-                };
+                rowArray = new String[] {text};
             }
 
             // Create storage for the columns in each row
