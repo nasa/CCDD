@@ -225,6 +225,40 @@ public class CcddUtilities
         return array;
     }
 
+    // TODO
+    protected static String getEnumeratedValueSeparator(String enumeration)
+    {
+        String separator = null;
+
+        if (enumeration.matches("^\\d+.+$"))
+        {
+            separator = enumeration.replaceFirst("^\\d+", "").substring(0, 1);
+        }
+
+        return separator;
+    }
+
+    protected static String getEnumerationPairSeparator(String enumeration,
+                                                        String enumValueSeparator)
+    {
+        String separator = null;
+
+        if (enumeration.matches("^\\d+"
+                                + enumValueSeparator
+                                + ".+\\d+"
+                                + enumValueSeparator
+                                + ".+$"))
+        {
+            String[] parts = enumeration.split("\\d+"
+                                               + Pattern.quote(enumValueSeparator));
+            parts[1] = parts[1].trim();
+            int index = parts[1].length();
+            separator = parts[1].substring(index - 1, index);
+        }
+
+        return separator;
+    }
+
     /**************************************************************************
      * Create a copy of a two-dimensional array with a specified number of
      * extra columns appended

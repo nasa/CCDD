@@ -386,6 +386,26 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                 extraInfo[4],
                                 extraInfo[5]);
 
+            try
+            {
+                // Output the file creation information
+                marshaller.setProperty("com.sun.xml.internal.bind.xmlHeaders",
+                                       "\n<!-- Created "
+                                           + new Date().toString()
+                                           + " : project = "
+                                           + dbControl.getDatabase()
+                                           + " : host = "
+                                           + dbControl.getServer()
+                                           + " : user = "
+                                           + dbControl.getUser()
+                                           + " -->");
+            }
+            catch (JAXBException je)
+            {
+                // Ignore the error if setting this property fails; the comment
+                // is not included
+            }
+
             // Output the XML to the specified file
             marshaller.marshal(project, exportFile);
         }

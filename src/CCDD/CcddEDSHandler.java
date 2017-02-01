@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -335,6 +336,26 @@ public class CcddEDSHandler implements CcddImportExportInterface
         {
             // Convert the table data into EDS format
             convertTablesToEDS(tableNames, replaceMacros, extraInfo[0]);
+
+            try
+            {
+                // Output the file creation information
+                marshaller.setProperty("com.sun.xml.internal.bind.xmlHeaders",
+                                       "\n<!-- Created "
+                                           + new Date().toString()
+                                           + " : project = "
+                                           + dbControl.getDatabase()
+                                           + " : host = "
+                                           + dbControl.getServer()
+                                           + " : user = "
+                                           + dbControl.getUser()
+                                           + " -->");
+            }
+            catch (JAXBException je)
+            {
+                // Ignore the error if setting this property fails; the comment
+                // is not included
+            }
 
             // Output the XML to the specified file
             marshaller.marshal(project, exportFile);
