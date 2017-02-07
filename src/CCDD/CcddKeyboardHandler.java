@@ -404,12 +404,12 @@ public class CcddKeyboardHandler
                         // and the contents of the edited row's base data type
                         int row = table.getEditingRow();
                         int column = table.getEditingColumn();
-                        String baseType = table.getValueAt(row, DataTypeEditorColumnInfo.BASE.ordinal()).toString();
+                        String baseType = table.getValueAt(row, DataTypeEditorColumnInfo.BASE_TYPE.ordinal()).toString();
 
                         // Check if the type name or C name columns are being
                         // edited and the base data type is empty or a pointer
                         if ((column == DataTypeEditorColumnInfo.USER_NAME.ordinal()
-                            || column == DataTypeEditorColumnInfo.C_TYPE.ordinal())
+                            || column == DataTypeEditorColumnInfo.C_NAME.ordinal())
                             && (baseType.isEmpty()
                             || baseType.equals(BaseDataTypeInfo.POINTER.getName())))
                         {

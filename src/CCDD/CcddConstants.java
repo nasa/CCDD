@@ -394,7 +394,8 @@ public class CcddConstants
         IMPORT,
         EXPORT_CSV,
         EXPORT_XTCE,
-        EXPORT_EDS
+        EXPORT_EDS,
+        EXPORT_JSON
     }
 
     // Table tree types
@@ -519,7 +520,8 @@ public class CcddConstants
         DBU(BACKUP_FILE_EXTENSION, "database backup files"),
         CSV("csv", "comma-separated values"),
         XTCE("xtce", "extensible markup language telemetric and command exchange XML"),
-        EDS("eds", "electronic data sheet XML");
+        EDS("eds", "electronic data sheet XML"),
+        JSON("json", "JavaScript object notation");
 
         private final String entensionName;
         private final String description;
@@ -3268,9 +3270,9 @@ public class CcddConstants
     protected static enum DataTypeEditorColumnInfo
     {
         USER_NAME("Type Name", "User-defined data type name", "", false),
-        C_TYPE("C Type", "C-language data type name", "", false),
+        C_NAME("C Name", "C-language data type name", "", false),
         SIZE("Size", "Data type size in bytes", "", true),
-        BASE("Base Type", "Base data type", "", true),
+        BASE_TYPE("Base Type", "Base data type", "", true),
         OID("OID", "Data type index", "", false);
 
         private final String columnName;

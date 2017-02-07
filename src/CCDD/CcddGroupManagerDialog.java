@@ -1079,10 +1079,20 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                            DialogOption.COPY_OPTION,
                                            true) == OK_BUTTON)
             {
-                // Copy the group
+                // Copy the group node in the group tree
                 groupTree.copyNodeTree(groupInfo.getName(),
                                        groupNameFld.getText(),
                                        groupInfo);
+
+                // Copy the target group's data fields to the copy of the group
+                groupTree.getGroupHandler().getGroupInformationByName(groupNameFld.getText()).setFieldInformation(CcddFieldHandler.getFieldInformationCopy(groupInfo.getFieldInformation()));
+
+                // Step through each data field in the copied group
+                for (FieldInformation fieldInfo : groupTree.getGroupHandler().getGroupInformationByName(groupNameFld.getText()).getFieldInformation())
+                {
+                    // Set the data field owner to the copy's group name
+                    fieldInfo.setOwnerName(CcddFieldHandler.getFieldGroupName(groupNameFld.getText()));
+                }
             }
         }
     }
@@ -1337,7 +1347,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 isDiffers = true;
             }
 
-            // Check if the group is new or a existing group's data field
+            // Check if the group is new or an existing group's data field
             // changed
             if (isDiffers)
             {

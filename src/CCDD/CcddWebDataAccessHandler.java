@@ -54,7 +54,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     private CcddRateParameterHandler rateHandler;
     private CcddLinkHandler linkHandler;
     private TableInformation tableInfo;
-
     private TableTreeType tableTreeType;
 
     /**************************************************************************
@@ -429,6 +428,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             response = response.replaceAll("\\\\\\\\",
                                            "\\\\").replaceAll("\\\\/", "/");
         }
+
         return response;
     }
 

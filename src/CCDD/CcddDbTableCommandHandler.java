@@ -3819,15 +3819,13 @@ public class CcddDbTableCommandHandler
         // then the creation commands
         StringBuilder command = new StringBuilder("DROP TABLE IF EXISTS "
                                                   + tableName
-                                                  + ";");
-
-        // Build the command to create the internal table
-        command.append(" CREATE TABLE "
-                       + tableName
-                       + " "
-                       + intTable.getColumnCommand(false)
-                       + dbControl.buildOwnerCommand(DatabaseObject.TABLE,
-                                                     tableName));
+                                                  + "; CREATE TABLE "
+                                                  + tableName
+                                                  + " "
+                                                  + intTable.getColumnCommand(false)
+                                                  + " "
+                                                  + dbControl.buildOwnerCommand(DatabaseObject.TABLE,
+                                                                                tableName));
 
         try
         {
@@ -3855,11 +3853,11 @@ public class CcddDbTableCommandHandler
             {
                 // Build the command to restore the comment after the table is
                 // deleted and recreated
-                command.append(" COMMENT ON TABLE "
+                command.append("COMMENT ON TABLE "
                                + tableName
                                + " IS "
                                + delimitText(tableComment)
-                               + ";");
+                               + "; ");
             }
         }
         catch (SQLException se)
@@ -3881,7 +3879,7 @@ public class CcddDbTableCommandHandler
         if (!tableData.isEmpty())
         {
             // Append the insert value command to add the items
-            command.append(" INSERT INTO " + tableName + " VALUES ");
+            command.append("INSERT INTO " + tableName + " VALUES ");
 
             // Step through each row in the table data
             for (Object row[] : tableData)

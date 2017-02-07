@@ -572,6 +572,13 @@ public class CcddFileIOHandler
                             // Create a CSV handler
                             ioHandler = new CcddCSVHandler(ccddMain, parent);
                         }
+                        // Check if the file to import is in EDS XML format
+                        // based on the extension
+                        else if (dataFile[0].getAbsolutePath().endsWith(FileExtension.EDS.getExtension()))
+                        {
+                            // Create an EDS handler
+                            ioHandler = new CcddEDSHandler(ccddMain, parent);
+                        }
                         // Check if the file to import is in XTCE XML format
                         // based on the extension
                         else if (dataFile[0].getAbsolutePath().endsWith(FileExtension.XTCE.getExtension()))
@@ -579,12 +586,12 @@ public class CcddFileIOHandler
                             // Create an XTCE handler
                             ioHandler = new CcddXTCEHandler(ccddMain, parent);
                         }
-                        // Check if the file to import is in EDS XML format
-                        // based on the extension
-                        else if (dataFile[0].getAbsolutePath().endsWith(FileExtension.EDS.getExtension()))
+                        // Check if the file to import is in JSON format based
+                        // on the extension
+                        else if (dataFile[0].getAbsolutePath().endsWith(FileExtension.JSON.getExtension()))
                         {
-                            // Create an EDS handler
-                            ioHandler = new CcddEDSHandler(ccddMain, parent);
+                            // Create a JSON handler
+                            ioHandler = new CcddJSONHandler(ccddMain, parent);
                         }
                         // The file extension isn't recognized
                         else
@@ -1417,17 +1424,23 @@ public class CcddFileIOHandler
                     // Create a CSV handler
                     ioHandler = new CcddCSVHandler(ccddMain, parent);
                 }
-                // Check if the output format is XTCE XML
-                else if (fileExtn == FileExtension.XTCE)
-                {
-                    // Create an XTCE handler
-                    ioHandler = new CcddXTCEHandler(ccddMain, parent);
-                }
                 // Check if the output format is EDS XML
                 else if (fileExtn == FileExtension.EDS)
                 {
                     // Create an EDS handler
                     ioHandler = new CcddEDSHandler(ccddMain, parent);
+                }
+                // Check if the output format is JSON
+                else if (fileExtn == FileExtension.JSON)
+                {
+                    // Create an JSON handler
+                    ioHandler = new CcddJSONHandler(ccddMain, parent);
+                }
+                // Check if the output format is XTCE XML
+                else if (fileExtn == FileExtension.XTCE)
+                {
+                    // Create an XTCE handler
+                    ioHandler = new CcddXTCEHandler(ccddMain, parent);
                 }
 
                 // Check that no error occurred creating the format conversion

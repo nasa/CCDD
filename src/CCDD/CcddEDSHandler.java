@@ -2700,7 +2700,6 @@ public class CcddEDSHandler implements CcddImportExportInterface
         }
         catch (CCDDException ce)
         {
-            // TODO add to user's guide
             // Inform the user that the enumeration format is invalid
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Enumeration '"

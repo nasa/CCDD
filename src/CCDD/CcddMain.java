@@ -115,8 +115,6 @@ public class CcddMain
     private JMenuItem mntmDeleteDb;
     private JMenuItem mntmBackupDb;
     private JMenuItem mntmRestoreDb;
-    private JMenuItem mntmExportEDS;
-    private JMenuItem mntmExportXTCE;
     private JMenuItem mntmUnlock;
     private JMenuItem mntmVerifyDatabase;
     private JMenuItem mntmNewTable;
@@ -126,6 +124,9 @@ public class CcddMain
     private JMenuItem mntmDeleteTable;
     private JMenuItem mntmImportTable;
     private JMenuItem mntmExportCSV;
+    private JMenuItem mntmExportEDS;
+    private JMenuItem mntmExportJSON;
+    private JMenuItem mntmExportXTCE;
     private JMenuItem mntmManageDataTypes;
     private JMenuItem mntmManageTableTypes;
     private JMenuItem mntmManageGroups;
@@ -616,6 +617,7 @@ public class CcddMain
         mntmImportTable.setEnabled(dbControl.isDatabaseConnected());
         mntmExportCSV.setEnabled(dbControl.isDatabaseConnected());
         mntmExportEDS.setEnabled(dbControl.isDatabaseConnected());
+        mntmExportJSON.setEnabled(dbControl.isDatabaseConnected());
         mntmExportXTCE.setEnabled(dbControl.isDatabaseConnected());
         mntmUnlock.setEnabled(dbControl.isServerConnected());
         mntmVerifyDatabase.setEnabled(dbControl.isDatabaseConnected());
@@ -967,6 +969,7 @@ public class CcddMain
         JMenu mnExport = createSubMenu(mnData, "Export table(s)", KeyEvent.VK_X, null);
         mntmExportCSV = createMenuItem(mnExport, "CSV", KeyEvent.VK_C, "Export selected data table(s) in CSV format");
         mntmExportEDS = createMenuItem(mnExport, "EDS", KeyEvent.VK_E, "Export selected data table(s) in EDS XML format");
+        mntmExportJSON = createMenuItem(mnExport, "JSON", KeyEvent.VK_E, "Export selected data table(s) in JSON format");
         mntmExportXTCE = createMenuItem(mnExport, "XTCE", KeyEvent.VK_X, "Export selected data table(s) in XTCE XML format");
         mnData.addSeparator();
         mntmManageGroups = createMenuItem(mnData, "Manage groups", KeyEvent.VK_G, "Open the table group manager");
@@ -1417,6 +1420,21 @@ public class CcddMain
             {
                 new CcddTableManagerDialog(CcddMain.this,
                                            ManagerDialogType.EXPORT_EDS);
+            }
+        });
+
+        // Add a listener for the Export Table(s) - JSON menu item
+        mntmExportJSON.addActionListener(new ActionListener()
+        {
+            /******************************************************************
+             * Show the data table management dialog to select one or more
+             * tables to export in JSON format
+             *****************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                new CcddTableManagerDialog(CcddMain.this,
+                                           ManagerDialogType.EXPORT_JSON);
             }
         });
 

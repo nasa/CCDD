@@ -41,6 +41,7 @@ import javax.swing.border.BevelBorder;
 import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.RateInformation;
 import CCDD.CcddClasses.TableInformation;
+import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.TablePathType;
@@ -369,6 +370,32 @@ public class CcddScriptDataAccessHandler
     }
 
     /**************************************************************************
+     * Get the base type for the specified data type
+     * 
+     * @param dataType
+     *            primitive data type
+     * 
+     * @return Base type for the specified data type; returns null if the data
+     *         type doesn't exist or isn't a primitive type
+     *************************************************************************/
+    public String getBaseDataType(String dataType)
+    {
+        String baseType = null;
+
+        // Get the base data type information based on the data type
+        BaseDataTypeInfo baseTypeInfo = dataTypeHandler.getBaseDataType(dataType);
+
+        // Check if the data type exists
+        if (baseTypeInfo != null)
+        {
+            // Get the base type for the data type
+            baseType = dataTypeHandler.getBaseDataType(dataType).getName();
+        }
+
+        return baseType;
+    }
+
+    /**************************************************************************
      * Get the number of bytes for the specified data type
      * 
      * @param dataType
@@ -408,16 +435,41 @@ public class CcddScriptDataAccessHandler
         // Check if the data type is a recognized primitive
         if (dataTypeHandler.isPrimitive(dataType))
         {
-            // Get the encoding character based on the data type's base type
-            encodedType = dataTypeHandler.isInteger(dataType)
-                                                             ? (dataTypeHandler.isUnsignedInt(dataType)
-                                                                                                       ? "U"
-                                                                                                       : "I")
-                                                             : (dataTypeHandler.isFloat(dataType)
-                                                                                                 ? "F"
-                                                                                                 : (dataTypeHandler.isCharacter(dataType)
-                                                                                                                                         ? "S"
-                                                                                                                                         : "R"));
+            // Set the encoding character based on the data type's base type.
+            // Check if the data type is in integer
+            if (dataTypeHandler.isInteger(dataType))
+            {
+                // Check if the integer is unsigned
+                if (dataTypeHandler.isUnsignedInt(dataType))
+                {
+                    encodedType = "U";
+                }
+                // The integer is signed
+                else
+                {
+                    encodedType = "I";
+                }
+            }
+            // Check if the data type is a floating point
+            else if (dataTypeHandler.isFloat(dataType))
+            {
+                encodedType = "F";
+            }
+            // Check if the data type is a character or string
+            else if (dataTypeHandler.isCharacter(dataType))
+            {
+                encodedType = "S";
+            }
+            // Check if the data type is a pointer
+            else if (dataTypeHandler.isPointer(dataType))
+            {
+                encodedType = "U";
+            }
+            // The data type isn't recognized; set to 'raw'
+            else
+            {
+                encodedType = "R";
+            }
 
             // Check if the data type is recognized
             if (!encodedType.equals("R"))

@@ -164,10 +164,8 @@ public class CcddCSVHandler implements CcddImportExportInterface
                 // Create a buffered reader to read the file
                 br = new BufferedReader(new FileReader(importFile));
 
-                // Flag indicating if importing should continue with a column
-                // mismatch. prototypes), but is set to true for the second
-                // pass (to build child tables) since any mismatches would've
-                // been detected during the first pass
+                // Flag indicating if importing should continue after an input
+                // mismatch is detected
                 boolean continueOnMismatch = false;
 
                 // Initialize the input type
@@ -373,26 +371,33 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                                                       columnValues[DataTypesColumn.BASE_TYPE.ordinal()],
                                                                                       ""});
                                             }
-                                            // Incorrect number of inputs. Get
-                                            // confirmation from the user to
-                                            // ignore the discrepancy
-                                            else if (new CcddDialogHandler().showMessageDialog(parent,
-                                                                                               "<html><b>Too many/few data type inputs; continue?",
-                                                                                               "Data Type Mismatch",
-                                                                                               JOptionPane.QUESTION_MESSAGE,
-                                                                                               DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                                            // Incorrect number of inputs.
+                                            // Check if the user hasn't already
+                                            // elected to ignore mismatches
+                                            else if (!continueOnMismatch)
                                             {
-                                                continueOnMismatch = true;
+                                                // Get confirmation from the
+                                                // user to ignore the
+                                                // discrepancy
+                                                if (new CcddDialogHandler().showMessageDialog(parent,
+                                                                                              "<html><b>Too many/few data type inputs; continue?",
+                                                                                              "Data Type Mismatch",
+                                                                                              JOptionPane.QUESTION_MESSAGE,
+                                                                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                                                {
+                                                    continueOnMismatch = true;
+                                                }
+                                                // The user chose to not ignore
+                                                // the discrepancy
+                                                else
+                                                {
+                                                    // No error message is
+                                                    // provided since the user
+                                                    // chose this action
+                                                    throw new CCDDException("");
+                                                }
                                             }
-                                            // The user chose to not ignore the
-                                            // discrepancy
-                                            else
-                                            {
-                                                // No error message is provided
-                                                // since the user chose this
-                                                // action
-                                                throw new CCDDException("");
-                                            }
+
                                             break;
 
                                         case MACRO:
@@ -408,25 +413,31 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                                                    columnValues[1],
                                                                                    ""});
                                             }
-                                            // Incorrect number of inputs. Get
-                                            // confirmation from the user to
-                                            // ignore the discrepancy
-                                            else if (new CcddDialogHandler().showMessageDialog(parent,
-                                                                                               "<html><b>Too many/few macro inputs; continue?",
-                                                                                               "Macro Mismatch",
-                                                                                               JOptionPane.QUESTION_MESSAGE,
-                                                                                               DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                                            // Incorrect number of inputs.
+                                            // Check if the user hasn't already
+                                            // elected to ignore mismatches
+                                            else if (!continueOnMismatch)
                                             {
-                                                continueOnMismatch = true;
-                                            }
-                                            // The user chose to not ignore the
-                                            // discrepancy
-                                            else
-                                            {
-                                                // No error message is provided
-                                                // since the user chose this
-                                                // action
-                                                throw new CCDDException("");
+                                                // Get confirmation from the
+                                                // user to ignore the
+                                                // discrepancy
+                                                if (new CcddDialogHandler().showMessageDialog(parent,
+                                                                                              "<html><b>Too many/few macro inputs; continue?",
+                                                                                              "Macro Mismatch",
+                                                                                              JOptionPane.QUESTION_MESSAGE,
+                                                                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                                                {
+                                                    continueOnMismatch = true;
+                                                }
+                                                // The user chose to not ignore
+                                                // the discrepancy
+                                                else
+                                                {
+                                                    // No error message is
+                                                    // provided since the user
+                                                    // chose this action
+                                                    throw new CCDDException("");
+                                                }
                                             }
 
                                             break;
@@ -650,25 +661,31 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                                                      columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
                                                                                      columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1]});
                                             }
-                                            // Incorrect number of inputs. Get
-                                            // confirmation from the user to
-                                            // ignore the discrepancy
-                                            else if (new CcddDialogHandler().showMessageDialog(parent,
-                                                                                               "<html><b>Too many/few data field inputs; continue?",
-                                                                                               "Data Field Mismatch",
-                                                                                               JOptionPane.QUESTION_MESSAGE,
-                                                                                               DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                                            // Incorrect number of inputs.
+                                            // Check if the user hasn't already
+                                            // elected to ignore mismatches
+                                            else if (!continueOnMismatch)
                                             {
-                                                continueOnMismatch = true;
-                                            }
-                                            // The user chose to not ignore the
-                                            // discrepancy
-                                            else
-                                            {
-                                                // No error message is provided
-                                                // since the user chose this
-                                                // action
-                                                throw new CCDDException("");
+                                                // Get confirmation from the
+                                                // user to ignore the
+                                                // discrepancy
+                                                if (new CcddDialogHandler().showMessageDialog(parent,
+                                                                                              "<html><b>Too many/few data field inputs; continue?",
+                                                                                              "Data Field Mismatch",
+                                                                                              JOptionPane.QUESTION_MESSAGE,
+                                                                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                                                {
+                                                    continueOnMismatch = true;
+                                                }
+                                                // The user chose to not ignore
+                                                // the discrepancy
+                                                else
+                                                {
+                                                    // No error message is
+                                                    // provided since the user
+                                                    // chose this action
+                                                    throw new CCDDException("");
+                                                }
                                             }
 
                                             break;

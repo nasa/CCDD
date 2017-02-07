@@ -243,7 +243,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
             protected boolean isColumnMultiLine(int column)
             {
                 return column == DataTypeEditorColumnInfo.USER_NAME.ordinal()
-                       || column == DataTypeEditorColumnInfo.C_TYPE.ordinal();
+                       || column == DataTypeEditorColumnInfo.C_NAME.ordinal();
             }
 
             /******************************************************************
@@ -291,7 +291,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
                 // Check if the column for which the cell editor is requested
                 // is the base data type column
-                if (modelColumn == DataTypeEditorColumnInfo.BASE.ordinal())
+                if (modelColumn == DataTypeEditorColumnInfo.BASE_TYPE.ordinal())
                 {
                     // Select the combo box cell editor that displays the base
                     // data types
@@ -355,7 +355,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                         // Check if the data type user name or C type has been
                         // changed
                         if (column == DataTypeEditorColumnInfo.USER_NAME.ordinal()
-                            || column == DataTypeEditorColumnInfo.C_TYPE.ordinal())
+                            || column == DataTypeEditorColumnInfo.C_NAME.ordinal())
                         {
                             // Compare this data type name to the others in the
                             // table in order to avoid creating a duplicate
@@ -366,7 +366,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                 // the one being added (case insensitive)
                                 if (otherRow != row
                                     && newValueS.equalsIgnoreCase(CcddDataTypeHandler.getDataTypeName(tableData.get(otherRow)[DataTypeEditorColumnInfo.USER_NAME.ordinal()].toString(),
-                                                                                                      tableData.get(otherRow)[DataTypeEditorColumnInfo.C_TYPE.ordinal()].toString())))
+                                                                                                      tableData.get(otherRow)[DataTypeEditorColumnInfo.C_NAME.ordinal()].toString())))
                                 {
                                     throw new CCDDException("Data type name already in use");
                                 }
@@ -391,7 +391,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                 String match = InputDataType.ALPHANUMERIC_MULTI.getInputMatch();
 
                                 // Check if the base data type is a pointer
-                                if (tableData.get(row)[DataTypeEditorColumnInfo.BASE.ordinal()].equals(BaseDataTypeInfo.POINTER.getName()))
+                                if (tableData.get(row)[DataTypeEditorColumnInfo.BASE_TYPE.ordinal()].equals(BaseDataTypeInfo.POINTER.getName()))
                                 {
                                     // Check if the C type name doesn't already
                                     // end with an asterisk
@@ -408,7 +408,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                     match += "\\*+";
                                 }
                                 // Check if the base type is blank
-                                else if (tableData.get(row)[DataTypeEditorColumnInfo.BASE.ordinal()].toString().isEmpty())
+                                else if (tableData.get(row)[DataTypeEditorColumnInfo.BASE_TYPE.ordinal()].toString().isEmpty())
                                 {
                                     // Add the optional ending asterisk to the
                                     // matching regular expression
@@ -439,10 +439,10 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                             tableData.get(row)[column] = newValueS.replaceAll(InputDataType.INT_POSITIVE.getInputMatch(), "$1");
                         }
                         // Check if this is the data type base type column
-                        else if (column == DataTypeEditorColumnInfo.BASE.ordinal())
+                        else if (column == DataTypeEditorColumnInfo.BASE_TYPE.ordinal())
                         {
                             // Get the C type name
-                            String cType = tableData.get(row)[DataTypeEditorColumnInfo.C_TYPE.ordinal()].toString();
+                            String cType = tableData.get(row)[DataTypeEditorColumnInfo.C_NAME.ordinal()].toString();
 
                             // Check if the base type changed from a
                             // non-pointer to a pointer
@@ -453,7 +453,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                 if (!cType.isEmpty() && !cType.endsWith("*"))
                                 {
                                     // Append an asterisk to the C type name
-                                    tableData.get(row)[DataTypeEditorColumnInfo.C_TYPE.ordinal()] += "*";
+                                    tableData.get(row)[DataTypeEditorColumnInfo.C_NAME.ordinal()] += "*";
                                 }
                             }
                             // Check if the base type changed from a pointer to
@@ -462,7 +462,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                      || oldValueS.isEmpty())
                             {
                                 // Remove any asterisks from the C type name
-                                tableData.get(row)[DataTypeEditorColumnInfo.C_TYPE.ordinal()] = cType.replaceAll("\\*", "");
+                                tableData.get(row)[DataTypeEditorColumnInfo.C_NAME.ordinal()] = cType.replaceAll("\\*", "");
                             }
                         }
 
@@ -473,10 +473,10 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                         if (!oldValueS.isEmpty()
                             && ((column == DataTypeEditorColumnInfo.SIZE.ordinal()
                                  && Integer.valueOf(newValueS) < Integer.valueOf(oldValueS)
-                                 && (tableData.get(row)[DataTypeEditorColumnInfo.BASE.ordinal()].equals(BaseDataTypeInfo.SIGNED_INT.getName())
-                            || tableData.get(row)[DataTypeEditorColumnInfo.BASE.ordinal()].equals(BaseDataTypeInfo.UNSIGNED_INT.getName())))
+                                 && (tableData.get(row)[DataTypeEditorColumnInfo.BASE_TYPE.ordinal()].equals(BaseDataTypeInfo.SIGNED_INT.getName())
+                            || tableData.get(row)[DataTypeEditorColumnInfo.BASE_TYPE.ordinal()].equals(BaseDataTypeInfo.UNSIGNED_INT.getName())))
 
-                            || (column == DataTypeEditorColumnInfo.BASE.ordinal()
+                            || (column == DataTypeEditorColumnInfo.BASE_TYPE.ordinal()
                                 && (oldValueS.equals(BaseDataTypeInfo.SIGNED_INT.getName())
                                 || oldValueS.equals(BaseDataTypeInfo.UNSIGNED_INT.getName()))
                                 && !(newValueS.equals(BaseDataTypeInfo.SIGNED_INT.getName())
@@ -736,11 +736,11 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
                     // Check if both the user name and C type columns are blank
                     if ((modelColumn == DataTypeEditorColumnInfo.USER_NAME.ordinal()
-                        || modelColumn == DataTypeEditorColumnInfo.C_TYPE.ordinal())
+                        || modelColumn == DataTypeEditorColumnInfo.C_NAME.ordinal())
                         && dataTypeTable.getValueAt(row,
                                                     DataTypeEditorColumnInfo.USER_NAME.ordinal()).toString().isEmpty()
                         && dataTypeTable.getValueAt(row,
-                                                    DataTypeEditorColumnInfo.C_TYPE.ordinal()).toString().isEmpty())
+                                                    DataTypeEditorColumnInfo.C_NAME.ordinal()).toString().isEmpty())
                     {
                         // Set the flag indicating that the cell value is
                         // invalid
@@ -1145,7 +1145,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                 if (dataTypeTable.getValueAt(row,
                                              DataTypeEditorColumnInfo.USER_NAME.ordinal()).toString().isEmpty()
                     && dataTypeTable.getValueAt(row,
-                                                DataTypeEditorColumnInfo.C_TYPE.ordinal()).toString().isEmpty())
+                                                DataTypeEditorColumnInfo.C_NAME.ordinal()).toString().isEmpty())
                 {
                     // Set the 'data is missing' flag
                     dataIsMissing = true;
@@ -1157,7 +1157,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                                                   "<html><b>Data must be provided for column '"
                                                                       + dataTypeTable.getColumnName(DataTypeEditorColumnInfo.USER_NAME.ordinal())
                                                                       + "' or '"
-                                                                      + dataTypeTable.getColumnName(DataTypeEditorColumnInfo.C_TYPE.ordinal())
+                                                                      + dataTypeTable.getColumnName(DataTypeEditorColumnInfo.C_NAME.ordinal())
                                                                       + "' [row "
                                                                       + (row + 1)
                                                                       + "]",

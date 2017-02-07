@@ -508,6 +508,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                                                                    FileExtension.CSV.getExtensionName()),
                                                                                        new FileNameExtensionFilter(FileExtension.EDS.getDescription(),
                                                                                                                    FileExtension.EDS.getExtensionName()),
+                                                                                       new FileNameExtensionFilter(FileExtension.JSON.getDescription(),
+                                                                                                                   FileExtension.JSON.getExtensionName()),
                                                                                        new FileNameExtensionFilter(FileExtension.XTCE.getDescription(),
                                                                                                                    FileExtension.XTCE.getExtensionName())},
                                                         false,
@@ -535,12 +537,23 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             case EXPORT_CSV:
             case EXPORT_XTCE:
             case EXPORT_EDS:
-                // Get the file extension type
-                FileExtension fileExtn = dialogType == ManagerDialogType.EXPORT_CSV
-                                                                                   ? FileExtension.CSV
-                                                                                   : dialogType == ManagerDialogType.EXPORT_XTCE
-                                                                                                                                ? FileExtension.XTCE
-                                                                                                                                : FileExtension.EDS;
+            case EXPORT_JSON:
+                // Assume the file extension type is CSV
+                FileExtension fileExtn = FileExtension.CSV;
+
+                // Set the file extension based on the dialog type
+                if (dialogType == ManagerDialogType.EXPORT_EDS)
+                {
+                    fileExtn = FileExtension.EDS;
+                }
+                else if (dialogType == ManagerDialogType.EXPORT_XTCE)
+                {
+                    fileExtn = FileExtension.XTCE;
+                }
+                else if (dialogType == ManagerDialogType.EXPORT_JSON)
+                {
+                    fileExtn = FileExtension.JSON;
+                }
 
                 // Create the export dialog
                 dialogPnl = createExportPanel(fileExtn, gbc);
@@ -549,7 +562,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 if (dialogPnl != null && showOptionsDialog(caller,
                                                            dialogPnl,
                                                            "Export Table(s) in "
-                                                               + fileExtn.getExtensionName()
+                                                               + fileExtn.getExtensionName().toUpperCase()
                                                                + " Format",
                                                            DialogOption.EXPORT_OPTION,
                                                            true) == OK_BUTTON)
@@ -1522,8 +1535,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                     break;
 
                 case EXPORT_CSV:
-                case EXPORT_XTCE:
                 case EXPORT_EDS:
+                case EXPORT_JSON:
+                case EXPORT_XTCE:
                     // Remove any leading or trailing white space characters
                     // from the file path/name
                     pathFld.setText(pathFld.getText().trim());
