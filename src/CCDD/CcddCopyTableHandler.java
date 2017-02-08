@@ -12,6 +12,7 @@ import java.util.List;
 import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.Message;
 import CCDD.CcddClasses.Variable;
+import CCDD.CcddConstants.CopyTableEntry;
 import CCDD.CcddConstants.SchedulerType;
 
 /******************************************************************************
@@ -26,43 +27,6 @@ public class CcddCopyTableHandler
 
     // List of copy table entries
     private final List<String[]> copyTable;
-
-    /**************************************************************************
-     * Copy table entries
-     *************************************************************************/
-    protected enum CopyTableEntry
-    {
-        INPUT_MSG_ID("Input Message ID"),
-        INPUT_OFFSET("Input Offset"),
-        OUTPUT_MSG_ID("Output Message ID"),
-        OUTPUT_OFFSET("Output Offset"),
-        VARIABLE_BYTES("Number of Bytes"),
-        VARIABLE_ROOT("Root Table"),
-        VARIABLE_NAME("Variable Path");
-
-        private String columnName;
-
-        /**********************************************************************
-         * Copy table entries constructor
-         * 
-         * @param name
-         *            copy table column name
-         *********************************************************************/
-        CopyTableEntry(String columnName)
-        {
-            this.columnName = columnName;
-        }
-
-        /**********************************************************************
-         * Get the copy table column name
-         * 
-         * @Return Copy table column name
-         *********************************************************************/
-        protected String getColumnName()
-        {
-            return columnName;
-        }
-    }
 
     /**************************************************************************
      * Housekeeping copy table handler class constructor
@@ -93,11 +57,17 @@ public class CcddCopyTableHandler
      * @param linkHandler
      *            link handler reference
      * 
-     * @param optimize
-     *            true to create copy table with memory copies optimized
-     * 
      * @param dataStreamName
      *            data stream name
+     * 
+     * @param headerSize
+     *            size of the packet header in bytes
+     * 
+     * @param messageIDNameField
+     *            name of the data field containing the message ID name
+     * 
+     * @param optimize
+     *            true to create copy table with memory copies optimized
      * 
      * @return Array containing the copy table entries
      *************************************************************************/

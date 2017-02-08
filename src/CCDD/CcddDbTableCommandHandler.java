@@ -648,7 +648,7 @@ public class CcddDbTableCommandHandler
      * @param parent
      *            GUI component calling this method
      * 
-     * @return Table description
+     * @return Table description; blank if the table has no description
      *************************************************************************/
     protected String queryTableDescription(String tablePath, Component parent)
     {

@@ -42,11 +42,11 @@ import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.RateInformation;
 import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddConstants.BaseDataTypeInfo;
+import CCDD.CcddConstants.CopyTableEntry;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.TablePathType;
 import CCDD.CcddConstants.TableTreeType;
-import CCDD.CcddCopyTableHandler.CopyTableEntry;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /******************************************************************************

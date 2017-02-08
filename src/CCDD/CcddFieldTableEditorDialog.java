@@ -63,7 +63,7 @@ import javax.swing.undo.CannotUndoException;
 import CCDD.CcddClasses.CellSelectionHandler;
 import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.ValidateCellActionListener;
-import CCDD.CcddConstants.DataFieldEditorColumnInfo;
+import CCDD.CcddConstants.FieldTableEditorColumnInfo;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
@@ -347,12 +347,12 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
                 // Return true if this is not the owner or path column, or if
                 // the table does not have the field specified by the column
-                return column != DataFieldEditorColumnInfo.OWNER.ordinal()
-                       && column != DataFieldEditorColumnInfo.PATH.ordinal()
+                return column != FieldTableEditorColumnInfo.OWNER.ordinal()
+                       && column != FieldTableEditorColumnInfo.PATH.ordinal()
                        && fieldHandler.getFieldInformationByName(getOwnerWithPath(getModel().getValueAt(row,
-                                                                                                        DataFieldEditorColumnInfo.OWNER.ordinal()).toString(),
+                                                                                                        FieldTableEditorColumnInfo.OWNER.ordinal()).toString(),
                                                                                   getModel().getValueAt(row,
-                                                                                                        DataFieldEditorColumnInfo.PATH.ordinal()).toString()),
+                                                                                                        FieldTableEditorColumnInfo.PATH.ordinal()).toString()),
                                                                  columnNames[column]) != null;
             }
 
@@ -415,8 +415,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 if (!newValueS.isEmpty())
                 {
                     // Get the owner name, with path if applicable
-                    String ownerAndPath = getOwnerWithPath(tableData.get(row)[DataFieldEditorColumnInfo.OWNER.ordinal()].toString(),
-                                                           tableData.get(row)[DataFieldEditorColumnInfo.PATH.ordinal()].toString());
+                    String ownerAndPath = getOwnerWithPath(tableData.get(row)[FieldTableEditorColumnInfo.OWNER.ordinal()].toString(),
+                                                           tableData.get(row)[FieldTableEditorColumnInfo.PATH.ordinal()].toString());
 
                     // Get the reference to the data field
                     FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(ownerAndPath,
@@ -468,8 +468,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // Get the default column names and tool tip text for the
                 // data field editor table
                 String[] toolTips = new String[columnNames.length];
-                toolTips[DataFieldEditorColumnInfo.OWNER.ordinal()] = DataFieldEditorColumnInfo.OWNER.getToolTip();
-                toolTips[DataFieldEditorColumnInfo.PATH.ordinal()] = DataFieldEditorColumnInfo.PATH.getToolTip();
+                toolTips[FieldTableEditorColumnInfo.OWNER.ordinal()] = FieldTableEditorColumnInfo.OWNER.getToolTip();
+                toolTips[FieldTableEditorColumnInfo.PATH.ordinal()] = FieldTableEditorColumnInfo.PATH.getToolTip();
 
                 // Create a list for any columns to be hidden
                 List<Integer> hiddenColumns = new ArrayList<Integer>();
@@ -482,7 +482,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 if (!isPath)
                 {
                     // Hide the structure path column
-                    hiddenColumns.add(DataFieldEditorColumnInfo.PATH.ordinal());
+                    hiddenColumns.add(FieldTableEditorColumnInfo.PATH.ordinal());
                 }
 
                 // Place the data into the table model along with the column
@@ -521,7 +521,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // highlight color
                 if (comp.getBackground() != FOCUS_COLOR
                     && comp.getBackground() != SELECTED_BACK_COLOR
-                    && columnModel != DataFieldEditorColumnInfo.OWNER.ordinal())
+                    && columnModel != FieldTableEditorColumnInfo.OWNER.ordinal())
                 {
                     // Get the row index in model coordinates
                     int rowModel = convertRowIndexToModel(row);
@@ -532,12 +532,12 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
                     // Get the contents of the owner and path columns
                     String ownerValue = tableModel.getValueAt(rowModel,
-                                                              DataFieldEditorColumnInfo.OWNER.ordinal()).toString().trim();
+                                                              FieldTableEditorColumnInfo.OWNER.ordinal()).toString().trim();
                     String pathValue = tableModel.getValueAt(rowModel,
-                                                             DataFieldEditorColumnInfo.PATH.ordinal()).toString();
+                                                             FieldTableEditorColumnInfo.PATH.ordinal()).toString();
 
                     // Check if this is the structure path column
-                    if (columnModel == DataFieldEditorColumnInfo.PATH.ordinal())
+                    if (columnModel == FieldTableEditorColumnInfo.PATH.ordinal())
                     {
                         // Check if the cell is blank, and that the owner is
                         // not a structure table or a group
@@ -915,8 +915,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             for (int column = 0; column < dataFieldTable.getModel().getColumnCount(); column++)
             {
                 // Check if this is not the table name or path column
-                if (column != DataFieldEditorColumnInfo.OWNER.ordinal()
-                    && column != DataFieldEditorColumnInfo.PATH.ordinal())
+                if (column != FieldTableEditorColumnInfo.OWNER.ordinal()
+                    && column != FieldTableEditorColumnInfo.PATH.ordinal())
                 {
                     // Check if the cell at these coordinates is selected
                     if (dataFieldTable.isCellSelected(row,
@@ -993,7 +993,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             {
                 // Get the owner for this row
                 String owner = dataFieldTable.getModel().getValueAt(row,
-                                                                    DataFieldEditorColumnInfo.OWNER.ordinal()).toString().trim();
+                                                                    FieldTableEditorColumnInfo.OWNER.ordinal()).toString().trim();
 
                 // Check if the cell at these coordinates is selected and that
                 // the data field for this row belongs to a table (versus a
@@ -1003,7 +1003,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 {
                     // Get the structure path for this row
                     String path = dataFieldTable.getModel().getValueAt(row,
-                                                                       DataFieldEditorColumnInfo.PATH.ordinal()).toString();
+                                                                       FieldTableEditorColumnInfo.PATH.ordinal()).toString();
 
                     // Add the table path to the list and stop checking the
                     // columns in this row
@@ -1143,8 +1143,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     {
                         // Check if the owner name and path for the data field
                         // matches
-                        if (ownerDataFld[DataFieldEditorColumnInfo.OWNER.ordinal()].equals(ownerName)
-                            && ownerDataFld[DataFieldEditorColumnInfo.PATH.ordinal()].equals(pathName))
+                        if (ownerDataFld[FieldTableEditorColumnInfo.OWNER.ordinal()].equals(ownerName)
+                            && ownerDataFld[FieldTableEditorColumnInfo.PATH.ordinal()].equals(pathName))
                         {
                             // Store the data field value in the existing list
                             // item and stop searching
@@ -1163,8 +1163,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
                         // Insert the owner name, path, and the data field
                         // value into the new row
-                        newTable[DataFieldEditorColumnInfo.OWNER.ordinal()] = ownerName;
-                        newTable[DataFieldEditorColumnInfo.PATH.ordinal()] = pathName;
+                        newTable[FieldTableEditorColumnInfo.OWNER.ordinal()] = ownerName;
+                        newTable[FieldTableEditorColumnInfo.PATH.ordinal()] = pathName;
                         newTable[dataFieldIndex] = fieldInfo.getValue();
 
                         // Add the new row to the list
@@ -1206,12 +1206,12 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             for (int column = 0; column < tableData[row].length; column++)
             {
                 // Check that this isn't the table owner or path columns
-                if (column != DataFieldEditorColumnInfo.OWNER.ordinal()
-                    && column != DataFieldEditorColumnInfo.PATH.ordinal())
+                if (column != FieldTableEditorColumnInfo.OWNER.ordinal()
+                    && column != FieldTableEditorColumnInfo.PATH.ordinal())
                 {
                     // Get the table name, with path if applicable
-                    String tableAndPath = getOwnerWithPath(tableData[row][DataFieldEditorColumnInfo.OWNER.ordinal()].toString(),
-                                                           tableData[row][DataFieldEditorColumnInfo.PATH.ordinal()].toString());
+                    String tableAndPath = getOwnerWithPath(tableData[row][FieldTableEditorColumnInfo.OWNER.ordinal()].toString(),
+                                                           tableData[row][FieldTableEditorColumnInfo.PATH.ordinal()].toString());
 
                     // Check if this field is selected for removal
                     if (selectedCells.contains(row, column))
@@ -1393,8 +1393,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     // Create a list for the column names. Add the default
                     // columns (table name and path)
                     List<String> columnNamesList = new ArrayList<String>();
-                    columnNamesList.add(DataFieldEditorColumnInfo.OWNER.getColumnName());
-                    columnNamesList.add(DataFieldEditorColumnInfo.PATH.getColumnName());
+                    columnNamesList.add(FieldTableEditorColumnInfo.OWNER.getColumnName());
+                    columnNamesList.add(FieldTableEditorColumnInfo.PATH.getColumnName());
 
                     // Step through each selected data field name
                     for (String name : selectDlg.getCheckBoxSelected())

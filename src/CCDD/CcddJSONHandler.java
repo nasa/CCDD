@@ -45,6 +45,8 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FieldEditorColumnInfo;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
+import CCDD.CcddConstants.InternalTable.MacrosColumn;
+import CCDD.CcddConstants.JSONTags;
 import CCDD.CcddConstants.MacroEditorColumnInfo;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -72,50 +74,6 @@ public class CcddJSONHandler implements CcddImportExportInterface
     // List containing the imported table, table type, data type, and macro
     // definitions
     private List<TableDefinition> tableDefinitions;
-
-    /**************************************************************************
-     * JSON data type tags
-     *************************************************************************/
-    protected enum JSONTags
-    {
-        FILE_DESCRIPTION("File Description"),
-        DATA_TYPE_DEFN("Data Type Definition"),
-        TABLE_TYPE_DEFN("Table Type Definition"),
-        TABLE_TYPE_NAME("Table Type Name"),
-        TABLE_TYPE_DESCRIPTION("Table Type Description"),
-        TABLE_TYPE_COLUMN("Table Type Column"),
-        MACRO_DEFN("Macro Definition"),
-        TABLE_DEFN("Table Definition"),
-        TABLE_NAME("Table Name"),
-        TABLE_TYPE("Table Type"),
-        TABLE_DESCRIPTION("Table Description"),
-        TABLE_DATA("Table Data"),
-        TABLE_SYSTEM("System Name"),
-        DATA_FIELD("Data Field");
-
-        private final String tag;
-
-        /**********************************************************************
-         * JSON data type tags constructor
-         * 
-         * @param tag
-         *            text describing the data
-         *********************************************************************/
-        JSONTags(String tag)
-        {
-            this.tag = tag;
-        }
-
-        /**********************************************************************
-         * Get the data type tag
-         * 
-         * @return Text describing the data
-         *********************************************************************/
-        protected String getTag()
-        {
-            return tag;
-        }
-    }
 
     /**************************************************************************
      * JSON handler class constructor
@@ -157,20 +115,44 @@ public class CcddJSONHandler implements CcddImportExportInterface
     }
 
     /**************************************************************************
+     * Get the JSON object referred to by the supplied key from the supplied
+     * JSON object
+     * 
+     * @param jsonObj
+     *            JSON object
+     * 
+     * @param key
+     *            JSON object key
+     * 
+     * @return JSON object referred to by the supplied key; null if the JSON
+     *         object with the supplied key does not exist
+     *************************************************************************/
+    private Object getObject(JSONObject jsonObj, String key)
+    {
+        return jsonObj.get(key);
+    }
+
+    /**************************************************************************
      * Get the string representation of an object; return a blank if the object
      * is null
      * 
-     * @param obj
-     *            object to convert
+     * @param jsonObj
+     *            JSON object
+     * 
+     * @param key
+     *            JSON object key
      * 
      * @return String representation of the supplied object; blank if the
      *         object is null
      *************************************************************************/
-    private String getString(Object obj)
+    private String getString(JSONObject jsonObj, String key)
     {
         String str = "";
 
-        // Check if the object isn't null
+        // Get the JSON object referred to by the supplied key
+        Object obj = getObject(jsonObj, key);
+
+        // Check if the object exists
         if (obj != null)
         {
             // Get the string representation of the object
@@ -305,9 +287,12 @@ public class CcddJSONHandler implements CcddImportExportInterface
                 for (JSONObject tableTypeJO : parseJSONArray(defn))
                 {
                     // Get the table type definition components
-                    String typeName = getString(tableTypeJO.get(JSONTags.TABLE_TYPE_NAME.getTag()));
-                    String typeDesc = getString(tableTypeJO.get(JSONTags.TABLE_TYPE_DESCRIPTION.getTag()));
-                    Object typeColumn = tableTypeJO.get(JSONTags.TABLE_TYPE_COLUMN.getTag());
+                    String typeName = getString(tableTypeJO,
+                                                JSONTags.TABLE_TYPE_NAME.getTag());
+                    String typeDesc = getString(tableTypeJO,
+                                                JSONTags.TABLE_TYPE_DESCRIPTION.getTag());
+                    Object typeColumn = getObject(tableTypeJO,
+                                                  JSONTags.TABLE_TYPE_COLUMN.getTag());
 
                     // Check if the expected inputs are present
                     if (!typeName.isEmpty()
@@ -324,13 +309,20 @@ public class CcddJSONHandler implements CcddImportExportInterface
                         for (JSONObject typeJO : parseJSONArray(typeColumn))
                         {
                             // Get the table type column definition components
-                            String name = getString(typeJO.get(TableTypeEditorColumnInfo.NAME.getColumnName()));
-                            String description = getString(typeJO.get(TableTypeEditorColumnInfo.DESCRIPTION.getColumnName()));
-                            String inputType = getString(typeJO.get(TableTypeEditorColumnInfo.INPUT_TYPE.getColumnName()));
-                            String unique = getString(typeJO.get(TableTypeEditorColumnInfo.UNIQUE.getColumnName()));
-                            String required = getString(typeJO.get(TableTypeEditorColumnInfo.REQUIRED.getColumnName()));
-                            String structAllow = getString(typeJO.get(TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.getColumnName()));
-                            String ptrAllow = getString(typeJO.get(TableTypeEditorColumnInfo.POINTER_ALLOWED.getColumnName()));
+                            String name = getString(typeJO,
+                                                    TableTypeEditorColumnInfo.NAME.getColumnName());
+                            String description = getString(typeJO,
+                                                           TableTypeEditorColumnInfo.DESCRIPTION.getColumnName());
+                            String inputType = getString(typeJO,
+                                                         TableTypeEditorColumnInfo.INPUT_TYPE.getColumnName());
+                            String unique = getString(typeJO,
+                                                      TableTypeEditorColumnInfo.UNIQUE.getColumnName());
+                            String required = getString(typeJO,
+                                                        TableTypeEditorColumnInfo.REQUIRED.getColumnName());
+                            String structAllow = getString(typeJO,
+                                                           TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.getColumnName());
+                            String ptrAllow = getString(typeJO,
+                                                        TableTypeEditorColumnInfo.POINTER_ALLOWED.getColumnName());
 
                             // Check if the expected input is present
                             if (!name.isEmpty())
@@ -415,10 +407,14 @@ public class CcddJSONHandler implements CcddImportExportInterface
                 for (JSONObject dataTypeJO : parseJSONArray(defn))
                 {
                     // Get the data type definition components
-                    String userName = getString(dataTypeJO.get(DataTypeEditorColumnInfo.USER_NAME.getColumnName()));
-                    String cName = getString(dataTypeJO.get(DataTypeEditorColumnInfo.C_NAME.getColumnName()));
-                    String size = getString(dataTypeJO.get(DataTypeEditorColumnInfo.SIZE.getColumnName()));
-                    String baseType = getString(dataTypeJO.get(DataTypeEditorColumnInfo.BASE_TYPE.getColumnName()));
+                    String userName = getString(dataTypeJO,
+                                                DataTypeEditorColumnInfo.USER_NAME.getColumnName());
+                    String cName = getString(dataTypeJO,
+                                             DataTypeEditorColumnInfo.C_NAME.getColumnName());
+                    String size = getString(dataTypeJO,
+                                            DataTypeEditorColumnInfo.SIZE.getColumnName());
+                    String baseType = getString(dataTypeJO,
+                                                DataTypeEditorColumnInfo.BASE_TYPE.getColumnName());
 
                     // Check if the expected inputs are present
                     if ((!userName.isEmpty() || !cName.isEmpty())
@@ -468,8 +464,10 @@ public class CcddJSONHandler implements CcddImportExportInterface
                 for (JSONObject macroJO : parseJSONArray(defn))
                 {
                     // Get the macro definition components
-                    String name = getString(macroJO.get(MacroEditorColumnInfo.NAME.getColumnName()));
-                    String value = getString(macroJO.get(MacroEditorColumnInfo.VALUE.getColumnName()));
+                    String name = getString(macroJO,
+                                            MacroEditorColumnInfo.NAME.getColumnName());
+                    String value = getString(macroJO,
+                                             MacroEditorColumnInfo.VALUE.getColumnName());
 
                     // Check if the expected input is present
                     if (!name.isEmpty())
@@ -554,11 +552,16 @@ public class CcddJSONHandler implements CcddImportExportInterface
                 for (JSONObject tableJO : parseJSONArray(defn))
                 {
                     // Get the table definition components
-                    String tableName = getString(tableJO.get(JSONTags.TABLE_NAME.getTag()));
-                    String tableType = getString(tableJO.get(JSONTags.TABLE_TYPE.getTag()));
-                    String tableDesc = getString(tableJO.get(JSONTags.TABLE_DESCRIPTION.getTag()));
-                    Object tableDataJA = tableJO.get(JSONTags.TABLE_DATA.getTag());
-                    Object dataFieldsJA = tableJO.get(JSONTags.DATA_FIELD.getTag());
+                    String tableName = getString(tableJO,
+                                                 JSONTags.TABLE_NAME.getTag());
+                    String tableType = getString(tableJO,
+                                                 JSONTags.TABLE_TYPE.getTag());
+                    String tableDesc = getString(tableJO,
+                                                 JSONTags.TABLE_DESCRIPTION.getTag());
+                    Object tableDataJA = getObject(tableJO,
+                                                   JSONTags.TABLE_DATA.getTag());
+                    Object dataFieldsJA = getObject(tableJO,
+                                                    JSONTags.TABLE_FIELD.getTag());
 
                     // Check if the expected inputs are present
                     if (!tableName.isEmpty()
@@ -597,7 +600,8 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                 // Get the value from the JSON input, if
                                 // present; use a blank if a value for this
                                 // column doesn't exist
-                                rowData[column] = getString(rowDataJO.get(typeDefn.getColumnNamesVisible()[column]));
+                                rowData[column] = getString(rowDataJO,
+                                                            typeDefn.getColumnNamesVisible()[column]);
                             }
 
                             // Add the row of data read in from the file to the
@@ -612,13 +616,20 @@ public class CcddJSONHandler implements CcddImportExportInterface
                             for (JSONObject dataFieldJO : parseJSONArray(dataFieldsJA))
                             {
                                 // Get the data field definition components
-                                String name = getString(dataFieldJO.get(FieldEditorColumnInfo.NAME.getColumnName()));
-                                String description = getString(dataFieldJO.get(FieldEditorColumnInfo.DESCRIPTION.getColumnName()));
-                                String size = getString(dataFieldJO.get(FieldEditorColumnInfo.SIZE.getColumnName()));
-                                String inputType = getString(dataFieldJO.get(FieldEditorColumnInfo.INPUT_TYPE.getColumnName()));
-                                String required = getString(dataFieldJO.get(FieldEditorColumnInfo.REQUIRED.getColumnName()));
-                                String applicability = getString(dataFieldJO.get(FieldEditorColumnInfo.APPLICABILITY.getColumnName()));
-                                String value = getString(dataFieldJO.get(FieldEditorColumnInfo.VALUE.getColumnName()));
+                                String name = getString(dataFieldJO,
+                                                        FieldEditorColumnInfo.NAME.getColumnName());
+                                String description = getString(dataFieldJO,
+                                                               FieldEditorColumnInfo.DESCRIPTION.getColumnName());
+                                String size = getString(dataFieldJO,
+                                                        FieldEditorColumnInfo.SIZE.getColumnName());
+                                String inputType = getString(dataFieldJO,
+                                                             FieldEditorColumnInfo.INPUT_TYPE.getColumnName());
+                                String required = getString(dataFieldJO,
+                                                            FieldEditorColumnInfo.REQUIRED.getColumnName());
+                                String applicability = getString(dataFieldJO,
+                                                                 FieldEditorColumnInfo.APPLICABILITY.getColumnName());
+                                String value = getString(dataFieldJO,
+                                                         FieldEditorColumnInfo.VALUE.getColumnName());
 
                                 // Check if the expected input is present
                                 if (!name.isEmpty() && !size.isEmpty())
@@ -784,6 +795,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
                              + " : user = "
                              + dbControl.getUser());
 
+            // Check if any tables are provided
             if (tableNames.length != 0)
             {
                 JSONArray tableJA = new JSONArray();
@@ -802,7 +814,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                                                  !replaceMacros);
 
                     // Check if the table's data successfully loaded
-                    if (tableInfoJO != null)
+                    if (tableInfoJO != null && !tableInfoJO.isEmpty())
                     {
                         // Add the wrapper for the table
                         tableJA.add(tableInfoJO);
@@ -874,6 +886,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
                     }
                 }
 
+                // Check if any tables were processed successfully
                 if (tableJA != null)
                 {
                     // Add the table information to the JSON output
@@ -881,38 +894,17 @@ public class CcddJSONHandler implements CcddImportExportInterface
                 }
             }
 
-            // Get the referenced table type definition(s)
-            JSONArray defnJA = getTableTypeDefinitions(referencedTableTypes);
+            // Add the referenced table type definition(s), if any, to the
+            // output
+            outputJO = getTableTypeDefinitions(referencedTableTypes, outputJO);
 
-            // Check if a table type is referenced
-            if (defnJA != null)
-            {
-                // Add the referenced table type definition(s) to the JSON
-                // output
-                outputJO.put(JSONTags.TABLE_TYPE_DEFN.getTag(), defnJA);
-            }
+            // Add the referenced data type definition(s), if any, to the
+            // output
+            outputJO = getDataTypeDefinitions(referencedDataTypes, outputJO);
 
-            // Get the referenced data type definition(s)
-            defnJA = getDataTypeDefinitions(referencedDataTypes);
-
-            // Check if a data type is referenced
-            if (defnJA != null)
-            {
-                // Add the referenced data type definition(s) to the JSON
-                // output
-                outputJO.put(JSONTags.DATA_TYPE_DEFN.getTag(), defnJA);
-            }
-
-            // Get the referenced macro definition(s)
-            defnJA = getMacroDefinitions(referencedMacros);
-
-            // Check if a macro is referenced
-            if (defnJA != null)
-            {
-                // Add the referenced macro definition(s) to the JSON
-                // output
-                outputJO.put(JSONTags.MACRO_DEFN.getTag(), defnJA);
-            }
+            // Add the referenced macro definition(s), if any, to the
+            // output
+            outputJO = getMacroDefinitions(referencedMacros, outputJO);
 
             // Create a JavaScript engine for use in formatting the JSON output
             ScriptEngineManager manager = new ScriptEngineManager();
@@ -1001,16 +993,20 @@ public class CcddJSONHandler implements CcddImportExportInterface
      *            false to display the macro values in place of the
      *            corresponding macro names; true to display the macro names
      * 
-     * @return JSON array containing the specified table cell data; empty if a
-     *         table name is specified and the table doesn't exist. Empty table
-     *         cells are omitted
+     * @param outputJO
+     *            JSON object to which the data types are added
+     * 
+     * @return The supplied JSON object, with the table data added (if any);
+     *         null if the table doesn't exists or an error occurs when loading
+     *         the data. Empty table cells are omitted
      *************************************************************************/
     @SuppressWarnings("unchecked")
-    private JSONArray getTableData(String tableName,
-                                   boolean getDescription,
-                                   boolean showMacroNames)
+    protected JSONObject getTableData(String tableName,
+                                      boolean getDescription,
+                                      boolean showMacroNames,
+                                      JSONObject outputJO)
     {
-        JSONArray dataJA = new JSONArray();
+        JSONArray tableDataJA = null;
 
         // Get the information from the database for the specified table
         tableInfo = dbTable.loadTableData(tableName,
@@ -1024,6 +1020,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
         if (tableInfo != null && !tableInfo.isErrorFlag())
         {
             JSONObject columnJO = new JSONObject();
+            tableDataJA = new JSONArray();
 
             // Get a reference to the table's data
             String[][] data = tableInfo.getData();
@@ -1070,12 +1067,25 @@ public class CcddJSONHandler implements CcddImportExportInterface
 
                     // Add the column values to the data array. An array is
                     // used to preserve the order of the rows
-                    dataJA.add(columnJO);
+                    tableDataJA.add(columnJO);
                 }
             }
+
+            // Check if any table data was loaded
+            if (!tableDataJA.isEmpty())
+            {
+                // Add the table data to the JSON output
+                outputJO.put(JSONTags.TABLE_DATA.getTag(), tableDataJA);
+            }
+        }
+        // The table failed to load (database error or the table doesn't exist)
+        else
+        {
+            // Set the output to null in order to indicate the error
+            outputJO = null;
         }
 
-        return dataJA;
+        return outputJO;
     }
 
     /**************************************************************************
@@ -1089,12 +1099,16 @@ public class CcddJSONHandler implements CcddImportExportInterface
      * @param fieldHandler
      *            data field handler
      * 
-     * @return JSON array containing the specified table's data fields; empty
-     *         if the table has no data fields
+     * @param outputJO
+     *            JSON object to which the data types are added
+     * 
+     * @return The supplied JSON object, with the table data field(s) added (if
+     *         any)
      *************************************************************************/
     @SuppressWarnings("unchecked")
-    private JSONArray getTableFields(String tableName,
-                                     CcddFieldHandler fieldHandler)
+    protected JSONObject getTableFields(String tableName,
+                                        CcddFieldHandler fieldHandler,
+                                        JSONObject outputJO)
     {
         JSONArray dataFieldDefnJA = new JSONArray();
 
@@ -1117,7 +1131,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
                 fieldJO.put(FieldEditorColumnInfo.DESCRIPTION.getColumnName(),
                             fieldInfo.getDescription());
                 fieldJO.put(FieldEditorColumnInfo.SIZE.getColumnName(),
-                            fieldInfo.getDescription());
+                            fieldInfo.getSize());
                 fieldJO.put(FieldEditorColumnInfo.INPUT_TYPE.getColumnName(),
                             fieldInfo.getInputType().getInputName());
                 fieldJO.put(FieldEditorColumnInfo.REQUIRED.getColumnName(),
@@ -1128,9 +1142,16 @@ public class CcddJSONHandler implements CcddImportExportInterface
                             fieldInfo.getValue());
                 dataFieldDefnJA.add(fieldJO);
             }
+
+            // Check if any data field exists
+            if (!dataFieldDefnJA.isEmpty())
+            {
+                // Add the data field(s) to the JSON output
+                outputJO.put(JSONTags.TABLE_FIELD.getTag(), dataFieldDefnJA);
+            }
         }
 
-        return dataFieldDefnJA;
+        return outputJO;
     }
 
     /**************************************************************************
@@ -1139,8 +1160,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
      * 
      * @param tableName
      *            table name and path in the format
-     *            rootTable[,dataType1.variable1[,...]]. Blank to return the
-     *            data for all tables
+     *            rootTable[,dataType1.variable1[,...]]
      * 
      * @param fieldHandler
      *            data field handler
@@ -1150,29 +1170,31 @@ public class CcddJSONHandler implements CcddImportExportInterface
      *            corresponding macro names; true to display the macro names
      * 
      * @return JSON encoded string containing the specified table information;
-     *         null if a table name is specified and the table doesn't exist
+     *         null if the specified table doesn't exist or fails to load
      *************************************************************************/
     @SuppressWarnings("unchecked")
-    private JSONObject getTableInformation(String tableName,
-                                           CcddFieldHandler fieldHandler,
-                                           boolean showMacroNames)
+    protected JSONObject getTableInformation(String tableName,
+                                             CcddFieldHandler fieldHandler,
+                                             boolean showMacroNames)
     {
-        JSONObject tableInformation = null;
+        // Store the table's data
+        JSONObject tableInformation = getTableData(tableName,
+                                                   false,
+                                                   showMacroNames,
+                                                   new JSONObject());
 
-        // Get the table's data
-        JSONArray data = getTableData(tableName, false, showMacroNames);
-
-        // Check if the table exists
-        if (!data.isEmpty())
+        // Check that the table loaded successfully
+        if (tableInformation != null)
         {
-            // Store the table's name, type, and description
-            tableInformation = new JSONObject();
-            tableInformation.put(JSONTags.TABLE_NAME.getTag(),
-                                 tableName);
+            // Store the table's name, type, description, and data fields
+            tableInformation.put(JSONTags.TABLE_NAME.getTag(), tableName);
             tableInformation.put(JSONTags.TABLE_TYPE.getTag(),
                                  tableInfo.getType());
             tableInformation.put(JSONTags.TABLE_DESCRIPTION.getTag(),
                                  tableInfo.getDescription());
+            tableInformation = getTableFields(tableName,
+                                              fieldHandler,
+                                              tableInformation);
 
             // Get the table's system from the system name data field, if it
             // exists
@@ -1186,38 +1208,54 @@ public class CcddJSONHandler implements CcddImportExportInterface
                 tableInformation.put(JSONTags.TABLE_SYSTEM.getTag(),
                                      systemField.getValue());
             }
-
-            // Store the table's data and data fields
-            tableInformation.put(JSONTags.TABLE_DATA.getTag(), data);
-            tableInformation.put(JSONTags.DATA_FIELD.getTag(),
-                                 getTableFields(tableName, fieldHandler));
         }
 
         return tableInformation;
     }
 
     /**************************************************************************
-     * Get the table type definitions
+     * Add the table type definition(s) corresponding to the supplied table
+     * type name(s) to the specified JSON object. If no table type is provided,
+     * or if none are recognized, then nothing is added to the JSON object
      * 
-     * @param referencedDataTypes
-     *            names of the table types referenced by the selected table(s)
+     * @param tableTypeNames
+     *            names of the table types to add; null to include all defined
+     *            table types
      * 
-     * @return JSON encoded string containing the table type definitions; null
-     *         if the number of parameters or their formats are incorrect
+     * @param outputJO
+     *            JSON object to which the data types are added
+     * 
+     * @return The supplied JSON object, with the table type definitions added
+     *         (if any)
      *************************************************************************/
     @SuppressWarnings("unchecked")
-    private JSONArray getTableTypeDefinitions(List<String> referencedTableTypes)
+    protected JSONObject getTableTypeDefinitions(List<String> tableTypeNames,
+                                                 JSONObject outputJO)
     {
         JSONArray tableTypeJA = null;
 
+        // Check if the table type name list is null, in which case all defined
+        // table types are included
+        if (tableTypeNames == null)
+        {
+            tableTypeNames = new ArrayList<String>();
+
+            // Step through each table type definition
+            for (TypeDefinition typeDefn : tableTypeHandler.getTypeDefinitions())
+            {
+                // Add the table type name to the list
+                tableTypeNames.add(typeDefn.getName());
+            }
+        }
+
         // Check if any table types are referenced
-        if (!referencedTableTypes.isEmpty())
+        if (!tableTypeNames.isEmpty())
         {
             JSONArray typeDefnJA = new JSONArray();
             tableTypeJA = new JSONArray();
 
             // Step through each referenced table type
-            for (String refTableType : referencedTableTypes)
+            for (String refTableType : tableTypeNames)
             {
                 // Get the table type definition
                 TypeDefinition tableTypeDefn = tableTypeHandler.getTypeDefinition(refTableType);
@@ -1262,32 +1300,60 @@ public class CcddJSONHandler implements CcddImportExportInterface
                     tableTypeJA.add(tableTypeJO);
                 }
             }
+
+            // Check if a table type definition was recognized
+            if (!tableTypeJA.isEmpty())
+            {
+                // Add the table type definition(s) to the JSON output
+                outputJO.put(JSONTags.TABLE_TYPE_DEFN.getTag(), tableTypeJA);
+            }
         }
 
-        return tableTypeJA;
+        return outputJO;
     }
 
     /**************************************************************************
-     * Get the data type definitions
+     * Add the data type definition(s) corresponding to the supplied data type
+     * name(s) to the specified JSON object. If no data type is provided, or if
+     * none are recognized, then nothing is added to the JSON object
      * 
-     * @param referencedDataTypes
-     *            names of the data types referenced by the selected table(s)
+     * @param dataTypeNames
+     *            names of the data types to add; null to include all defined
+     *            data types
      * 
-     * @return JSON encoded string containing the data type definitions; null
-     *         if the number of parameters or their formats are incorrect
+     * @param outputJO
+     *            JSON object to which the data types are added
+     * 
+     * @return The supplied JSON object, with the data type definitions added
+     *         (if any)
      *************************************************************************/
     @SuppressWarnings("unchecked")
-    private JSONArray getDataTypeDefinitions(List<String> referencedDataTypes)
+    protected JSONObject getDataTypeDefinitions(List<String> dataTypeNames,
+                                                JSONObject outputJO)
     {
         JSONArray dataTypeJA = null;
 
+        // Check if the data type name list is null, in which case all defined
+        // data types are included
+        if (dataTypeNames == null)
+        {
+            dataTypeNames = new ArrayList<String>();
+
+            // Step through each data type definition
+            for (String[] dataType : dataTypeHandler.getDataTypeData())
+            {
+                // Add the data type name to the list
+                dataTypeNames.add(CcddDataTypeHandler.getDataTypeName(dataType));
+            }
+        }
+
         // Check if any data types are referenced
-        if (!referencedDataTypes.isEmpty())
+        if (!dataTypeNames.isEmpty())
         {
             dataTypeJA = new JSONArray();
 
             // Step through each referenced table type
-            for (String refDataType : referencedDataTypes)
+            for (String refDataType : dataTypeNames)
             {
                 // Get the data type information
                 String[] dataType = dataTypeHandler.getDataTypeInfo(refDataType);
@@ -1311,52 +1377,87 @@ public class CcddJSONHandler implements CcddImportExportInterface
                     dataTypeJA.add(dataTypeJO);
                 }
             }
+
+            // Check if a data type definition was recognized
+            if (!dataTypeJA.isEmpty())
+            {
+                // Add the data type definition(s) to the JSON output
+                outputJO.put(JSONTags.DATA_TYPE_DEFN.getTag(), dataTypeJA);
+            }
         }
 
-        return dataTypeJA;
+        return outputJO;
     }
 
     /**************************************************************************
-     * Get the macro definitions
+     * Add the macro definition(s) corresponding to the supplied macro name(s)
+     * to the specified JSON object. If no macro is provided, or if none are
+     * recognized, then nothing is added to the JSON object
      * 
-     * @param referencedMacros
-     *            names of the macros referenced by the selected table(s)
+     * @param macroNames
+     *            names of the macros to add; null to include all defined
+     *            macros
      * 
-     * @return JSON encoded string containing the macro definitions; null if
-     *         the number of parameters or their formats are incorrect
+     * @param outputJO
+     *            JSON object to which the macros are added
+     * 
+     * @return The supplied JSON object, with the macro definitions added (if
+     *         any)
      *************************************************************************/
     @SuppressWarnings("unchecked")
-    private JSONArray getMacroDefinitions(List<String> referencedMacros)
+    protected JSONObject getMacroDefinitions(List<String> macroNames,
+                                             JSONObject outputJO)
     {
         JSONArray macroJA = null;
 
-        // Check if any macros are referenced
-        if (!referencedMacros.isEmpty())
+        // Check if the macro name list is null, in which case all defined
+        // macros are included
+        if (macroNames == null)
+        {
+            macroNames = new ArrayList<String>();
+
+            // Step through each macro definition
+            for (String[] macro : macroHandler.getMacroData())
+            {
+                // Add the macro name to the list
+                macroNames.add(macro[MacrosColumn.MACRO_NAME.ordinal()]);
+            }
+        }
+
+        // Check if there are any macros to process
+        if (!macroNames.isEmpty())
         {
             macroJA = new JSONArray();
 
             // Step through each referenced macro
-            for (String refMacro : referencedMacros)
+            for (String macroName : macroNames)
             {
                 // Get the macro value
-                String value = macroHandler.getMacroValue(refMacro);
+                String macroValue = macroHandler.getMacroValue(macroName);
 
                 // Check if the macro exists
-                if (value != null)
+                if (macroValue != null)
                 {
                     // Store the macro name and value
                     JSONObject macroJO = new JSONObject();
                     macroJO.put(MacroEditorColumnInfo.NAME.getColumnName(),
-                                refMacro);
+                                macroName);
                     macroJO.put(MacroEditorColumnInfo.VALUE.getColumnName(),
-                                value);
+                                macroValue);
 
                     // Add the macro definition to the array
                     macroJA.add(macroJO);
                 }
             }
+
+            // Check if a macro was recognized
+            if (!macroJA.isEmpty())
+            {
+                // Add the macro definition(s) to the JSON output
+                outputJO.put(JSONTags.MACRO_DEFN.getTag(), macroJA);
+            }
         }
 
-        return macroJA;
+        return outputJO;
     }
 }

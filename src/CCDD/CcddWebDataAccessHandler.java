@@ -7,7 +7,6 @@
 package CCDD;
 
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
-import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.TYPE_DATA_FIELD_IDENT;
 
 import java.io.IOException;
@@ -30,14 +29,11 @@ import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.GroupInformation;
 import CCDD.CcddClasses.RateInformation;
-import CCDD.CcddClasses.TableInformation;
-import CCDD.CcddConstants.DefaultColumn;
+import CCDD.CcddConstants.CopyTableEntry;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.FieldEditorColumnInfo;
-import CCDD.CcddConstants.InternalTable.DataTypesColumn;
-import CCDD.CcddConstants.InternalTable.MacrosColumn;
+import CCDD.CcddConstants.JSONTags;
 import CCDD.CcddConstants.TableTreeType;
-import CCDD.CcddCopyTableHandler.CopyTableEntry;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /******************************************************************************
@@ -49,12 +45,10 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     private final CcddMain ccddMain;
     private final CcddDbTableCommandHandler dbTable;
     private final CcddEventLogDialog eventLog;
-    private CcddDataTypeHandler dataTypeHandler;
-    private CcddMacroHandler macroHandler;
     private CcddRateParameterHandler rateHandler;
     private CcddLinkHandler linkHandler;
-    private TableInformation tableInfo;
     private TableTreeType tableTreeType;
+    private final CcddJSONHandler jsonHandler;
 
     /**************************************************************************
      * Web data access handler class constructor
@@ -65,18 +59,16 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     protected CcddWebDataAccessHandler(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
-        this.dbTable = ccddMain.getDbTableCommandHandler();
-        this.eventLog = ccddMain.getSessionEventLog();
+        dbTable = ccddMain.getDbTableCommandHandler();
+        eventLog = ccddMain.getSessionEventLog();
+        jsonHandler = new CcddJSONHandler(ccddMain, ccddMain.getMainFrame());
     }
 
     /**************************************************************************
-     * Set the references to the data type, macro, and rate parameter handler
-     * classes
+     * Set the reference to the rate parameter handler class
      *************************************************************************/
     protected void setHandlers()
     {
-        dataTypeHandler = ccddMain.getDataTypeHandler();
-        macroHandler = ccddMain.getMacroHandler();
         rateHandler = ccddMain.getRateParameterHandler();
     }
 
@@ -310,6 +302,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // groups if no group name is specified)
                         response = getGroupDescription(attributeAndName[1],
                                                        applicationOnly,
+                                                       true,
                                                        new CcddGroupHandler(ccddMain,
                                                                             ccddMain.getMainFrame()));
                         break;
@@ -372,8 +365,14 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                                 + "'");
                 }
             }
+            // Check if this is a table type definition request
+            else if (component.equals("table_type"))
+            {
+                // Get the table type definitions
+                response = getTableTypeDefinitions();
+            }
             // Check if this is a data type definition request
-            else if (component.equals("datatype"))
+            else if (component.equals("data_type"))
             {
                 // Get the data type definitions
                 response = getDataTypeDefinitions();
@@ -450,22 +449,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     }
 
     /**************************************************************************
-     * Remove the table name from a table data or table fields JSON string
-     * 
-     * @param name
-     *            table or group name to remove
-     * 
-     * @return JSON encoded string with the leading table/group name and
-     *         associated braces removed
-     *************************************************************************/
-    private String removeName(String name, String input)
-    {
-        return input.replaceAll("^\\{\\\""
-                                + Pattern.quote(name)
-                                + "\\\":|\\}$", "");
-    }
-
-    /**************************************************************************
      * Get the table name and show macros flag status
      * 
      * @param tableName
@@ -528,7 +511,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
         return getTableData(nameAndMacro[0],
                             getDescription,
-                            Boolean.valueOf(nameAndMacro[1]));
+                            Boolean.valueOf(nameAndMacro[1]),
+                            true);
     }
 
     /**************************************************************************
@@ -547,6 +531,10 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *            false to display the macro values in place of the
      *            corresponding macro names; true to display the macro names
      * 
+     * @param checkExists
+     *            true to check if the specified table exists in the project
+     *            database
+     * 
      * @return JSON encoded string containing the specified table cell data;
      *         null if a table name is specified and the table doesn't exist or
      *         if no data tables exist in the project database, or blank if the
@@ -556,7 +544,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     @SuppressWarnings("unchecked")
     private String getTableData(String tableName,
                                 boolean getDescription,
-                                boolean showMacroNames) throws CCDDException
+                                boolean showMacroNames,
+                                boolean checkExists) throws CCDDException
     {
         String response = null;
 
@@ -585,7 +574,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // correct
                         responseJA.add(parser.parse(getTableData(name,
                                                                  true,
-                                                                 showMacroNames)));
+                                                                 showMacroNames,
+                                                                 false)));
                     }
                     catch (ParseException pe)
                     {
@@ -597,106 +587,20 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 response = responseJA.toString();
             }
         }
-        // A table name is provided
-        else
+        // A table name is provided. Check if the table existence should be
+        // ignored, or else if the table exists in the database
+        else if (!checkExists
+                 || dbTable.isTableExists(tableName, ccddMain.getMainFrame()))
         {
-            // Get the information from the database for the specified table
-            tableInfo = dbTable.loadTableData(tableName,
-                                              true,
-                                              !getDescription,
-                                              false,
-                                              false,
-                                              ccddMain.getMainFrame());
-
-            // Check if the table exists and successfully loaded
-            if (tableInfo != null && !tableInfo.isErrorFlag())
-            {
-                JSONArray dataJA = new JSONArray();
-                JSONObject rowJO = new JSONObject();
-                JSONArray columnJA = new JSONArray();
-
-                // Get a reference to the table's data
-                String[][] data = tableInfo.getData();
-
-                // Check if the macro name should be replaced with the
-                // corresponding macro values
-                if (!showMacroNames)
-                {
-                    // Step through each row
-                    for (int row = 0; row < data.length && !tableInfo.isErrorFlag(); row++)
-                    {
-                        // Step through each column (skipping the primary key
-                        // and row index)
-                        for (int column = NUM_HIDDEN_COLUMNS; column < data[row].length; column++)
-                        {
-                            // Expand any embedded macros
-                            data[row][column] = macroHandler.getMacroExpansion(data[row][column]);
-                        }
-                    }
-                }
-
-                // Get the column names for this table's type definition
-                TypeDefinition typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(tableInfo.getType());
-                String[] columnNames = typeDefn.getColumnNamesUser();
-
-                // Step through each table column
-                for (int column = 0; column < columnNames.length; column++)
-                {
-                    // Check if this is not the primary key or row index
-                    // columns
-                    if (column != DefaultColumn.PRIMARY_KEY.ordinal()
-                        && column != DefaultColumn.ROW_INDEX.ordinal())
-                    {
-                        // Add the column name to the row object
-                        columnJA.add(columnNames[column]);
-                    }
-                }
-
-                // Add the column names to the data array. An array is used to
-                // preserve the order of the rows
-                rowJO.put("columns", columnJA);
-                dataJA.add(rowJO);
-
-                // Check if the table has any data
-                if (data.length != 0)
-                {
-                    // Step through each table row
-                    for (int row = 0; row < data.length; row++)
-                    {
-                        columnJA = new JSONArray();
-
-                        // Step through each table column
-                        for (int column = 0; column < columnNames.length; column++)
-                        {
-                            // Check if this is not the primary key or row
-                            // index columns
-                            if (column != DefaultColumn.PRIMARY_KEY.ordinal()
-                                && column != DefaultColumn.ROW_INDEX.ordinal())
-                            {
-                                // Add the column name and value to the cell
-                                // object
-                                columnJA.add(data[row][column]);
-                            }
-                        }
-
-                        // Add the column values to the row object, then add
-                        // the row to the data array. An array is used to
-                        // preserve the order of the rows
-                        rowJO = new JSONObject();
-                        rowJO.put("row " + row, columnJA);
-                        dataJA.add(rowJO);
-                    }
-                }
-
-                // Add the table name and data. If the table has no data then
-                // the table data is empty
-                JSONObject tableNameAndData = new JSONObject();
-                tableNameAndData.put(tableName,
-                                     (data.length != 0
-                                                      ? dataJA
-                                                      : ""));
-                response = tableNameAndData.toString();
-            }
+            // Add the table name and data. If the table has no data then the
+            // table data shows empty
+            JSONObject tableNameAndData = new JSONObject();
+            tableNameAndData.put(JSONTags.TABLE_NAME.getTag(), tableName);
+            tableNameAndData = jsonHandler.getTableData(tableName,
+                                                        getDescription,
+                                                        showMacroNames,
+                                                        tableNameAndData);
+            response = tableNameAndData.toString();
         }
 
         return response;
@@ -714,68 +618,72 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * 
      * @return JSON encoded string containing the specified table's
      *         description; null if the specified table doesn't exist or the
-     *         project has no data tables, or blank if the specified table has
-     *         no description or if all tables are requested but none have a
-     *         description
+     *         project has no data tables
      *************************************************************************/
     @SuppressWarnings("unchecked")
     private String getTableDescription(String tableName)
     {
         String response = null;
 
-        // Check if all tables are requested and at least one table exists, or
-        // if the specified table exists
-        if ((tableName.isEmpty()
-            && dbTable.queryTableList(ccddMain.getMainFrame()).length != 0)
-            || dbTable.isTableExists(tableName, ccddMain.getMainFrame()))
+        // Check if a table name is provided
+        if (!tableName.isEmpty())
         {
-            JSONArray responseJA = new JSONArray();
-            JSONObject tableNameAndDesc = null;
-            response = "";
-
-            // Get the description for every table that has a description
-            String[][] namePathAndDesc = dbTable.queryTableDescriptions(ccddMain.getMainFrame());
-
-            // Set the flag to indicate if only one table's description is
-            // specified or only one exists
-            boolean isSingle = !tableName.isEmpty() || namePathAndDesc.length == 1;
-
-            // Step through each table name
-            for (int index = 0; index < namePathAndDesc.length; index++)
+            // Check if the table exists in the project database
+            if (dbTable.isTableExists(tableName, ccddMain.getMainFrame()))
             {
-                // Check if no table name is specified or, otherwise, if the
-                // name matches the name and path from the description array
-                if (tableName.isEmpty() || tableName.equalsIgnoreCase(namePathAndDesc[index][0]))
-                {
-                    // Store the table name and description
-                    tableNameAndDesc = new JSONObject();
-                    tableNameAndDesc.put(namePathAndDesc[index][0],
-                                         namePathAndDesc[index][1]);
+                // Store the table name and description
+                JSONObject tableNameAndDesc = new JSONObject();
+                tableNameAndDesc.put(JSONTags.TABLE_NAME.getTag(), tableName);
+                tableNameAndDesc.put(JSONTags.TABLE_DESCRIPTION.getTag(),
+                                     dbTable.queryTableDescription(tableName,
+                                                                   ccddMain.getMainFrame()));
+                response = tableNameAndDesc.toString();
+            }
+        }
+        // No table is specified; i.e., get the descriptions for all tables
+        else
+        {
+            // Get the array of data table names
+            String[] tableNames = dbTable.queryTableList(ccddMain.getMainFrame());
 
-                    // Check if only one table's description is in the response
-                    if (isSingle)
+            // Check if the project database contains a data table
+            if (tableNames.length != 0)
+            {
+                JSONObject tableNameAndDesc;
+                JSONArray responseJA = new JSONArray();
+
+                // Get the description for every table that has a description
+                String[][] namePathAndDesc = dbTable.queryTableDescriptions(ccddMain.getMainFrame());
+
+                // Step through each table name
+                for (String name : tableNames)
+                {
+                    String description = "";
+
+                    // Step through each table name in the array of tables with
+                    // descriptions
+                    for (int index = 0; index < namePathAndDesc.length; index++)
                     {
-                        // Stop searching
-                        break;
+                        // Check if the name matches the name and path from the
+                        // description array
+                        if (name.equalsIgnoreCase(namePathAndDesc[index][0]))
+                        {
+                            // Store the description and stop searching
+                            description = namePathAndDesc[index][1];
+                            break;
+                        }
                     }
 
-                    // More than one description is in the response; add this
-                    // table and description to the array
+                    // Store the table name and description, and add it to the
+                    // array
+                    tableNameAndDesc = new JSONObject();
+                    tableNameAndDesc.put(JSONTags.TABLE_NAME.getTag(), name);
+                    tableNameAndDesc.put(JSONTags.TABLE_DESCRIPTION.getTag(),
+                                         description);
                     responseJA.add(tableNameAndDesc);
                 }
-            }
 
-            // Check if the specified table has a description, or if any table
-            // has a description if all tables are requested
-            if (!responseJA.toString().isEmpty())
-            {
-                // Set the response based of if a single table's description or
-                // multiple tables' descriptions are included in the response.
-                // If single then the JSON object is used to prevent the
-                // extraneous brackets from enclosing the response
-                response = (isSingle)
-                                     ? tableNameAndDesc.toString()
-                                     : responseJA.toString();
+                response = responseJA.toString();
             }
         }
 
@@ -857,56 +765,18 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 response = responseJA.toString();
             }
         }
-        // A table name is provided
-        else
+        // A table name is provided. Check if the table existence should be
+        // ignored, or else if the table exists in the database
+        else if (!checkExists
+                 || dbTable.isTableExists(tableName, ccddMain.getMainFrame()))
         {
-            // Check if the table existence should be ignored, or else if the
-            // table exists in the database
-            if (!checkExists
-                || dbTable.isTableExists(tableName, ccddMain.getMainFrame()))
-            {
-                JSONArray dataFieldsJA = new JSONArray();
-
-                // Get the existing data fields for the specified table
-                fieldHandler.buildFieldInformation(tableName);
-
-                // Check if the table has any fields
-                if (!fieldHandler.getFieldInformation().isEmpty())
-                {
-                    JSONObject fieldJO = new JSONObject();
-                    JSONArray fieldJA = new JSONArray();
-
-                    // Add the data field column names to the output
-                    fieldJA.add(FieldEditorColumnInfo.NAME.getColumnName());
-                    fieldJA.add(FieldEditorColumnInfo.DESCRIPTION.getColumnName());
-                    fieldJA.add(FieldEditorColumnInfo.INPUT_TYPE.getColumnName());
-                    fieldJA.add(FieldEditorColumnInfo.VALUE.getColumnName());
-                    fieldJO.put("field columns", fieldJA);
-                    dataFieldsJA.add(fieldJO);
-
-                    int index = 0;
-
-                    // Step through the data fields for this table
-                    for (FieldInformation fieldInfo : fieldHandler.getFieldInformation())
-                    {
-                        // Add the data field column values to the output
-                        fieldJO = new JSONObject();
-                        fieldJA = new JSONArray();
-                        fieldJA.add(fieldInfo.getFieldName());
-                        fieldJA.add(fieldInfo.getDescription());
-                        fieldJA.add(fieldInfo.getInputType().getInputName());
-                        fieldJA.add(fieldInfo.getValue());
-                        fieldJO.put("field " + index, fieldJA);
-                        dataFieldsJA.add(fieldJO);
-                        index++;
-                    }
-                }
-
-                // Add the data field information to the output
-                JSONObject tableNameAndFields = new JSONObject();
-                tableNameAndFields.put(tableName, dataFieldsJA);
-                response = tableNameAndFields.toString();
-            }
+            // Add the table name and data field information to the output
+            JSONObject tableNameAndFields = new JSONObject();
+            tableNameAndFields.put(JSONTags.TABLE_NAME.getTag(), tableName);
+            tableNameAndFields = jsonHandler.getTableFields(tableName,
+                                                            fieldHandler,
+                                                            tableNameAndFields);
+            response = tableNameAndFields.toString();
         }
 
         return response;
@@ -988,7 +858,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     }
 
                     // Store the table type and associated table name(s)
-                    responseJO.put(type, namesJA);
+                    responseJO.put(JSONTags.TABLE_TYPE.getTag(), type);
+                    responseJO.put(JSONTags.TABLE_NAMES.getTag(), namesJA);
 
                     // Check if only one table type is being processed
                     if (isSingle)
@@ -1069,7 +940,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     }
 
                     // Store the table name and its size in bytes
-                    responseJO.put(table[1], linkHandler.getDataTypeSizeInBytes(table[1]));
+                    responseJO.put(JSONTags.TABLE_NAME.getTag(), table[1]);
+                    responseJO.put(JSONTags.TABLE_BYTE_SIZE.getTag(),
+                                   linkHandler.getDataTypeSizeInBytes(table[1]));
 
                     // Check if only one table is being processed
                     if (isSingle)
@@ -1195,55 +1068,17 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             }
         }
         // A table name is provided
-        else
         {
-            // Get the table's data
-            String data = getTableData(tableName, false, showMacroNames);
+            // Get the tables information
+            JSONObject tableInfoJO = jsonHandler.getTableInformation(tableName,
+                                                                     fieldHandler,
+                                                                     showMacroNames);
 
-            // Check if the table exists
-            if (data != null)
+            // Check if the table loaded successfully
+            if (tableInfoJO != null)
             {
-                // Store the table's name, type, and description
-                JSONObject tableInformation = new JSONObject();
-                tableInformation.put("table name", tableName);
-                tableInformation.put("table type", tableInfo.getType());
-                tableInformation.put("table description", tableInfo.getDescription());
-
-                try
-                {
-                    // Get the table's size
-                    String size = getStructureSize(tableName);
-
-                    // Check if the table has a size (i.e., it's a structure
-                    // table)
-                    if (size != null)
-                    {
-                        // Store the table size without the table name that's
-                        // part of the JSON string when this method are called
-                        // stand-alone
-                        tableInformation.put("table size",
-                                             parser.parse(removeName(tableName, size)));
-                    }
-
-                    // Store the table's data and data fields without the table
-                    // name that's part of the JSON string when these methods
-                    // are called stand-alone
-                    tableInformation.put("table data",
-                                         parser.parse(removeName(tableName,
-                                                                 data)));
-                    tableInformation.put("table data fields",
-                                         parser.parse(removeName(tableName,
-                                                                 getTableFields(tableName,
-                                                                                false,
-                                                                                fieldHandler))));
-                }
-                catch (ParseException pe)
-                {
-                    throw new CCDDException("error parsing table information");
-                }
-
-                // Convert the response object to a JSON string
-                response = tableInformation.toString();
+                // Add the table's information to the output
+                response = tableInfoJO.toString();
             }
         }
 
@@ -1262,8 +1097,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *            true if only groups that represent applications should be
      *            processed
      * 
-     * @param includeHeader
-     *            true to include the table name item
+     * @param includeNameTag
+     *            true to include the group name item
      * 
      * @param groupHandler
      *            group handler
@@ -1278,7 +1113,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     @SuppressWarnings("unchecked")
     private String getGroupTables(String groupName,
                                   boolean applicationOnly,
-                                  boolean includeHeader,
+                                  boolean includeNameTag,
                                   CcddGroupHandler groupHandler) throws CCDDException
     {
         String response = null;
@@ -1345,29 +1180,41 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 // Get the list of the group's tables
                 List<String> tables = groupInfo.getTables();
 
-                // Check if the group has any tables
-                if (!tables.isEmpty())
+                // Step through each table
+                for (String table : tables)
                 {
-                    // Step through each table
-                    for (String table : tables)
-                    {
-                        // Add the table to the array
-                        dataJA.add(table);
-                    }
+                    // Add the table to the array
+                    dataJA.add(table);
                 }
 
                 // Add the group name and description to the list. An array is
                 // used to preserve the order of the items
-                JSONObject groupNameAndDesc;
+                JSONObject groupNameAndTable;
 
                 // Add the group tables. If the group has no tables then the
                 // table data is blank
-                groupNameAndDesc = new JSONObject();
-                groupNameAndDesc.put(groupName,
-                                     (!tables.isEmpty()
-                                                       ? dataJA
-                                                       : ""));
-                response = groupNameAndDesc.toString();
+                groupNameAndTable = new JSONObject();
+
+                // Check if the group name is to be included
+                if (includeNameTag)
+                {
+                    // Add the group name and tables to the output
+                    groupNameAndTable.put((applicationOnly
+                                                          ? JSONTags.APPLICATION_NAME.getTag()
+                                                          : JSONTags.GROUP_NAME.getTag()),
+                                          groupName);
+                    groupNameAndTable.put((applicationOnly
+                                                          ? JSONTags.APPLICATION_TABLE.getTag()
+                                                          : JSONTags.GROUP_TABLE.getTag()),
+                                          dataJA);
+                    response = groupNameAndTable.toString();
+                }
+                // Don't include the name and table tags
+                else
+                {
+                    // Add the tables to the output
+                    response = dataJA.toString();
+                }
             }
         }
 
@@ -1399,6 +1246,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     @SuppressWarnings("unchecked")
     private String getGroupDescription(String groupName,
                                        boolean applicationOnly,
+                                       boolean includeNameTag,
                                        CcddGroupHandler groupHandler) throws CCDDException
     {
         String response = null;
@@ -1429,6 +1277,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // correct
                         responseJA.add(parser.parse(getGroupDescription(name,
                                                                         applicationOnly,
+                                                                        true,
                                                                         groupHandler)));
                     }
                     catch (ParseException pe)
@@ -1458,15 +1307,28 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 && (!applicationOnly
                 || groupInfo.isApplication()))
             {
-                // Add the group name and description to the list. An array is
-                // used to preserve the order of the items
-                JSONObject groupNameAndDesc;
-                groupNameAndDesc = new JSONObject();
-                groupNameAndDesc.put(groupName,
-                                     (groupInfo.getDescription() != null
-                                                                        ? groupInfo.getDescription()
-                                                                        : ""));
-                response = groupNameAndDesc.toString();
+                JSONObject groupNameAndDesc = new JSONObject();
+
+                // Get the description. If no description exists then use a
+                // blank
+                response = groupInfo.getDescription() != null
+                                                             ? groupInfo.getDescription()
+                                                             : "";
+
+                // Check if the group name is to be included
+                if (includeNameTag)
+                {
+                    // Add the group name and description to the output
+                    groupNameAndDesc.put((applicationOnly
+                                                         ? JSONTags.APPLICATION_NAME.getTag()
+                                                         : JSONTags.GROUP_NAME.getTag()),
+                                         groupName);
+                    groupNameAndDesc.put((applicationOnly
+                                                         ? JSONTags.APPLICATION_DESCRIPTION.getTag()
+                                                         : JSONTags.GROUP_DESCRIPTION.getTag()),
+                                         response);
+                    response = groupNameAndDesc.toString();
+                }
             }
         }
 
@@ -1485,7 +1347,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *            true if only groups that represent applications should be
      *            processed
      * 
-     * @param includeHeader
+     * @param includeNameTag
      *            true to include the group name item
      * 
      * @param groupHandler
@@ -1501,7 +1363,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     @SuppressWarnings("unchecked")
     private String getGroupFields(String groupName,
                                   boolean applicationOnly,
-                                  boolean includeHeader,
+                                  boolean includeNameTag,
                                   CcddGroupHandler groupHandler,
                                   CcddFieldHandler fieldHandler) throws CCDDException
     {
@@ -1564,8 +1426,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 && (!applicationOnly
                 || groupInfo.isApplication()))
             {
-                JSONArray dataFieldsJA = new JSONArray();
-
                 // Build the field information list for this group
                 fieldHandler.buildFieldInformation(CcddFieldHandler.getFieldGroupName(groupName));
 
@@ -1573,38 +1433,51 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 if (!fieldHandler.getFieldInformation().isEmpty())
                 {
                     JSONObject fieldJO = new JSONObject();
-                    JSONArray fieldJA = new JSONArray();
-
-                    // Add the data field column names to the output
-                    fieldJA.add(FieldEditorColumnInfo.NAME.getColumnName());
-                    fieldJA.add(FieldEditorColumnInfo.DESCRIPTION.getColumnName());
-                    fieldJA.add(FieldEditorColumnInfo.INPUT_TYPE.getColumnName());
-                    fieldJA.add(FieldEditorColumnInfo.VALUE.getColumnName());
-                    fieldJO.put("field columns", fieldJA);
-                    dataFieldsJA.add(fieldJO);
-
-                    int index = 0;
+                    JSONArray groupFieldsJA = new JSONArray();
 
                     // Step through the data fields for this group
                     for (FieldInformation fieldInfo : fieldHandler.getFieldInformation())
                     {
-                        // Add the data field column values to the output
                         fieldJO = new JSONObject();
-                        fieldJA = new JSONArray();
-                        fieldJA.add(fieldInfo.getFieldName());
-                        fieldJA.add(fieldInfo.getDescription());
-                        fieldJA.add(fieldInfo.getInputType().getInputName());
-                        fieldJA.add(fieldInfo.getValue());
-                        fieldJO.put("field " + index, fieldJA);
-                        dataFieldsJA.add(fieldJO);
-                        index++;
+
+                        // Add the data field column values to the output
+                        fieldJO.put(FieldEditorColumnInfo.NAME.getColumnName(),
+                                    fieldInfo.getFieldName());
+                        fieldJO.put(FieldEditorColumnInfo.DESCRIPTION.getColumnName(),
+                                    fieldInfo.getDescription());
+                        fieldJO.put(FieldEditorColumnInfo.SIZE.getColumnName(),
+                                    fieldInfo.getDescription());
+                        fieldJO.put(FieldEditorColumnInfo.INPUT_TYPE.getColumnName(),
+                                    fieldInfo.getInputType().getInputName());
+                        fieldJO.put(FieldEditorColumnInfo.REQUIRED.getColumnName(),
+                                    fieldInfo.isRequired());
+                        fieldJO.put(FieldEditorColumnInfo.APPLICABILITY.getColumnName(),
+                                    fieldInfo.getApplicabilityType().getApplicabilityName());
+                        fieldJO.put(FieldEditorColumnInfo.VALUE.getColumnName(),
+                                    fieldInfo.getValue());
+                        groupFieldsJA.add(fieldJO);
+                    }
+
+                    JSONObject groupNameAndFields = new JSONObject();
+
+                    // Check if the name tag is to be included
+                    if (includeNameTag)
+                    {
+                        // Add the group name and group data fields to the
+                        // output
+                        groupNameAndFields.put(JSONTags.GROUP_NAME.getTag(),
+                                               groupName);
+                        groupNameAndFields.put(JSONTags.TABLE_FIELD.getTag(),
+                                               groupFieldsJA);
+                        response = groupNameAndFields.toString();
+                    }
+                    // Don't include the name tag
+                    else
+                    {
+                        // Add the data fields to the output
+                        response = groupFieldsJA.toString();
                     }
                 }
-
-                // Add the data field information to the output
-                JSONObject groupNameAndFields = new JSONObject();
-                groupNameAndFields.put(groupName, dataFieldsJA);
-                response = groupNameAndFields.toString();
             }
         }
 
@@ -1649,9 +1522,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
             // Store the group/application name(s)
             responseJO.put((applicationOnly
-                                           ? "application"
-                                           : "group")
-                           + " names", namesJA);
+                                           ? JSONTags.APPLICATION_NAMES.getTag()
+                                           : JSONTags.GROUP_NAMES.getTag()),
+                           namesJA);
             response = responseJO.toString();
         }
 
@@ -1690,10 +1563,30 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         JSONArray responseJA = new JSONArray();
         JSONParser parser = new JSONParser();
         String response = null;
+        String groupType;
+        String nameTag;
+        String descriptionTag;
+        String dataFieldTag;
+        String tableTag;
 
-        String groupType = applicationOnly
-                                          ? "application"
-                                          : "group";
+        // Check if only groups that represent applications are to be processed
+        if (applicationOnly)
+        {
+            groupType = "application";
+            nameTag = JSONTags.APPLICATION_NAME.getTag();
+            descriptionTag = JSONTags.APPLICATION_DESCRIPTION.getTag();
+            dataFieldTag = JSONTags.APPLICATION_FIELD.getTag();
+            tableTag = JSONTags.APPLICATION_TABLE.getTag();
+        }
+        // Process groups of any type
+        else
+        {
+            groupType = "group";
+            nameTag = JSONTags.GROUP_NAME.getTag();
+            descriptionTag = JSONTags.GROUP_DESCRIPTION.getTag();
+            dataFieldTag = JSONTags.GROUP_FIELD.getTag();
+            tableTag = JSONTags.GROUP_TABLE.getTag();
+        }
 
         // Check if no group name is provided (i.e., get the fields for all
         // groups/applications)
@@ -1756,31 +1649,27 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 // Check if the group/application exists
                 if (tables != null)
                 {
-                    // Store the group's name
-                    JSONObject groupInformation = new JSONObject();
-                    groupInformation.put(groupType + " name", groupName);
-
                     try
                     {
-                        // Store the group's description, tables, and data
-                        // fields without the group name that's part of the
-                        // JSON string when these methods are called
-                        // stand-alone
-                        groupInformation.put(groupType + " description",
-                                             parser.parse(removeName(groupName,
-                                                                     getGroupDescription(groupName,
-                                                                                         applicationOnly,
-                                                                                         groupHandler))));
-                        groupInformation.put(groupType + " tables",
-                                             parser.parse(removeName(groupName,
-                                                                     tables)));
-                        groupInformation.put(groupType + " data fields",
-                                             parser.parse(removeName(groupName,
-                                                                     getGroupFields(groupName,
-                                                                                    applicationOnly,
-                                                                                    true,
-                                                                                    groupHandler,
-                                                                                    fieldHandler))));
+                        // Store the group's name, description, tables, and
+                        // data fields
+                        JSONObject groupInformation = new JSONObject();
+                        groupInformation.put(nameTag, groupName);
+                        groupInformation.put(descriptionTag,
+                                             getGroupDescription(groupName,
+                                                                 applicationOnly,
+                                                                 false,
+                                                                 groupHandler));
+                        groupInformation.put(tableTag, parser.parse(tables));
+                        groupInformation.put(dataFieldTag,
+                                             parser.parse(getGroupFields(groupName,
+                                                                         applicationOnly,
+                                                                         false,
+                                                                         groupHandler,
+                                                                         fieldHandler)));
+
+                        // Convert the response object to a JSON string
+                        response = groupInformation.toString();
                     }
                     catch (ParseException pe)
                     {
@@ -1788,9 +1677,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                                 + groupType
                                                 + " information");
                     }
-
-                    // Convert the response object to a JSON string
-                    response = groupInformation.toString();
                 }
             }
         }
@@ -1859,54 +1745,33 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // Check if there are any entries in the table
             if (copyTable.length != 0)
             {
-                JSONArray rowJA = new JSONArray();
-
-                // Step through each column in the row
-                for (int index = 0; index < CopyTableEntry.values().length; index++)
-                {
-                    // Add the table value to the array. An array is used
-                    // to preserve the order of the items
-                    rowJA.add(CopyTableEntry.values()[index].getColumnName());
-                }
-
-                // Add the copy table column names to the output array
-                JSONObject columnsValues = new JSONObject();
-                columnsValues.put("column names", rowJA);
-                tableJA.add(columnsValues);
-
-                int index = 0;
-
                 // Step through each row in the table
                 for (String[] row : copyTable)
                 {
-                    rowJA = new JSONArray();
+                    JSONObject rowJO = new JSONObject();
 
                     // Step through each column in the row
                     for (int column = 0; column < row.length; column++)
                     {
-                        // Add the table value to the array. An array is used
-                        // to preserve the order of the items
-                        rowJA.add(row[column]);
+                        // Add the copy table value to the array. An array is
+                        // used to preserve the order of the items
+                        rowJO.put(CopyTableEntry.values()[column].getColumnName(),
+                                  row[column]);
                     }
 
                     // Add the row's copy table values to the table array
-                    columnsValues = new JSONObject();
-                    columnsValues.put("row " + index + " values", rowJA);
-                    tableJA.add(columnsValues);
-                    index++;
+                    tableJA.add(rowJO);
                 }
             }
 
-            // Store the copy table information and convert the object to a
-            // JSON string
+            // Store the copy table information
             JSONObject copyJO = new JSONObject();
-            copyJO.put("data stream", streamName);
-            copyJO.put("header size", String.valueOf(headerSize));
-            copyJO.put("optimized", String.valueOf(optimize));
-            copyJO.put("copy table",
-                       (copyTable.length != 0
-                                             ? tableJA
-                                             : ""));
+            copyJO.put(JSONTags.COPY_TABLE_STREAM.getTag(), streamName);
+            copyJO.put(JSONTags.COPY_TABLE_HDR_SIZE.getTag(),
+                       String.valueOf(headerSize));
+            copyJO.put(JSONTags.COPY_TABLE_OPTIMIZE.getTag(),
+                       String.valueOf(optimize));
+            copyJO.put(JSONTags.COPY_TABLE_DATA.getTag(), tableJA);
             response = copyJO.toString();
         }
         // Incorrect number of parameters or invalid parameter format
@@ -1935,81 +1800,41 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     }
 
     /**************************************************************************
+     * Get the table type definitions
+     * 
+     * @return JSON encoded string containing the table type definitions; an
+     *         empty list if no table type definition exists
+     *************************************************************************/
+    private String getTableTypeDefinitions()
+    {
+        // Add the table type definitions to the output
+        return jsonHandler.getTableTypeDefinitions(null,
+                                                   new JSONObject()).toJSONString();
+    }
+
+    /**************************************************************************
      * Get the data type definitions
      * 
-     * @return JSON encoded string containing the data type definitions; null
-     *         if the number of parameters or their formats are incorrect
+     * @return JSON encoded string containing the data type definitions; an
+     *         empty list if no data type definition exists
      *************************************************************************/
-    @SuppressWarnings("unchecked")
     private String getDataTypeDefinitions()
     {
-        String response = null;
-
-        // Get the list of data type definitions
-        List<String[]> dataTypes = dataTypeHandler.getDataTypeData();
-
-        // Check if any data types are defined
-        if (!dataTypes.isEmpty())
-        {
-            JSONArray responseJA = new JSONArray();
-
-            // Step through each data type definition
-            for (String[] dataType : dataTypes)
-            {
-                // Store the data type user-defined name, C-language name,
-                // size, and base type
-                JSONObject dataTypeJO = new JSONObject();
-                dataTypeJO.put("user name", dataType[DataTypesColumn.USER_NAME.ordinal()]);
-                dataTypeJO.put("c name", dataType[DataTypesColumn.C_NAME.ordinal()]);
-                dataTypeJO.put("size", dataType[DataTypesColumn.SIZE.ordinal()]);
-                dataTypeJO.put("base type", dataType[DataTypesColumn.BASE_TYPE.ordinal()]);
-
-                // Add the data type definition to the array
-                responseJA.add(dataTypeJO);
-            }
-
-            // Convert the data type definition object to a JSON string
-            response = responseJA.toString();
-        }
-
-        return response;
+        // Add the data type definitions to the output
+        return jsonHandler.getDataTypeDefinitions(null,
+                                                  new JSONObject()).toJSONString();
     }
 
     /**************************************************************************
      * Get the macro definitions
      * 
-     * @return JSON encoded string containing the macro definitions; null if
-     *         the number of parameters or their formats are incorrect
+     * @return JSON encoded string containing the macro definitions; an empty
+     *         list if no macro definition exists
      *************************************************************************/
-    @SuppressWarnings("unchecked")
     private String getMacroDefinitions()
     {
-        String response = null;
-
-        // Get the list of macro definitions
-        List<String[]> macros = macroHandler.getMacroData();
-
-        // Check if any macros are defined
-        if (!macros.isEmpty())
-        {
-            JSONArray responseJA = new JSONArray();
-
-            // Step through each macro definition
-            for (String[] macro : macros)
-            {
-                // Store the macro name and value
-                JSONObject macroNameAndValue = new JSONObject();
-                macroNameAndValue.put(macro[MacrosColumn.MACRO_NAME.ordinal()],
-                                      macro[MacrosColumn.VALUE.ordinal()]);
-
-                // Add the macro definition to the array
-                responseJA.add(macroNameAndValue);
-            }
-
-            // Convert the macro definition object to a JSON string
-            response = responseJA.toString();
-        }
-
-        return response;
+        // Add the macro definitions to the output
+        return jsonHandler.getMacroDefinitions(null,
+                                               new JSONObject()).toJSONString();
     }
 }

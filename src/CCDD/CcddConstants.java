@@ -3005,141 +3005,6 @@ public class CcddConstants
     }
 
     /**************************************************************************
-     * Table data field editor column information
-     *************************************************************************/
-    protected static enum FieldEditorColumnInfo
-    {
-        NAME("Field Name", "Data field name", "", true),
-        DESCRIPTION("Description", "Data field description", "", false),
-        SIZE("Size", "Data field size (characters)", "", true),
-        INPUT_TYPE("Input Type", "Data field input data type", "Text", true),
-        REQUIRED("Required",
-                 "Select if a value is required in the column",
-                 false,
-                 false),
-        APPLICABILITY("Applicability",
-                      "Add field to all tables, parent tables only, or child tables only",
-                      "All",
-                      true),
-        VALUE("Value", "", "", false);
-
-        private final String columnName;
-        private final String toolTip;
-        private final Object initialValue;
-        private final boolean isRequired;
-
-        /**********************************************************************
-         * Table data field editor column information constructor
-         * 
-         * @param columnName
-         *            text to display for the field editor column header
-         * 
-         * @param toolTip
-         *            tool tip text to display for the column
-         * 
-         * @param initialValue
-         *            initial column value
-         * 
-         * @param isRequired
-         *            true if a value is required in this column
-         *********************************************************************/
-        FieldEditorColumnInfo(String columnName,
-                              String toolTip,
-                              Object initialValue,
-                              boolean isRequired)
-        {
-            this.columnName = columnName;
-            this.toolTip = toolTip;
-            this.initialValue = initialValue;
-            this.isRequired = isRequired;
-        }
-
-        /**********************************************************************
-         * Get the field editor column name
-         * 
-         * @return Field editor column name
-         *********************************************************************/
-        protected String getColumnName()
-        {
-            return columnName;
-        }
-
-        /**********************************************************************
-         * Get the field editor column required flag
-         * 
-         * @return Field editor column required flag
-         *********************************************************************/
-        protected boolean isRequired()
-        {
-            return isRequired;
-        }
-
-        /**********************************************************************
-         * Get the field editor column names
-         * 
-         * @return Array containing the field editor column names
-         *********************************************************************/
-        protected static String[] getColumnNames()
-        {
-            String[] names = new String[FieldEditorColumnInfo.values().length];
-            int index = 0;
-
-            // Step through each column
-            for (FieldEditorColumnInfo type : FieldEditorColumnInfo.values())
-            {
-                // Store the column name
-                names[index] = type.columnName;
-                index++;
-            }
-
-            return names;
-        }
-
-        /**********************************************************************
-         * Get the field editor column tool tips
-         * 
-         * @return Array containing the field editor column tool tips
-         *********************************************************************/
-        protected static String[] getToolTips()
-        {
-            String[] toolTips = new String[FieldEditorColumnInfo.values().length];
-            int index = 0;
-
-            // Step through each column
-            for (FieldEditorColumnInfo type : FieldEditorColumnInfo.values())
-            {
-                // Get the tool tip text
-                toolTips[index] = type.toolTip;
-                index++;
-            }
-
-            return toolTips;
-        }
-
-        /**********************************************************************
-         * Get a row with initialized values for the field editor
-         * 
-         * @return Array containing initial values for a row in the field
-         *         editor
-         *********************************************************************/
-        protected static Object[] getEmptyRow()
-        {
-            Object[] emptyRow = new Object[FieldEditorColumnInfo.values().length];
-            int index = 0;
-
-            // Step through each column
-            for (FieldEditorColumnInfo type : FieldEditorColumnInfo.values())
-            {
-                // Initialize the column value
-                emptyRow[index] = type.initialValue;
-                index++;
-            }
-
-            return emptyRow;
-        }
-    }
-
-    /**************************************************************************
      * Macro editor column information
      *************************************************************************/
     protected static enum MacroEditorColumnInfo
@@ -3392,9 +3257,144 @@ public class CcddConstants
     }
 
     /**************************************************************************
-     * Data field editor table column information
+     * Data field editor column information
      *************************************************************************/
-    protected static enum DataFieldEditorColumnInfo
+    protected static enum FieldEditorColumnInfo
+    {
+        NAME("Field Name", "Data field name", "", true),
+        DESCRIPTION("Description", "Data field description", "", false),
+        SIZE("Size", "Data field size (characters)", "", true),
+        INPUT_TYPE("Input Type", "Data field input data type", "Text", true),
+        REQUIRED("Required",
+                 "Select if a value is required in the column",
+                 false,
+                 false),
+        APPLICABILITY("Applicability",
+                      "Add field to all tables, parent tables only, or child tables only",
+                      "All",
+                      true),
+        VALUE("Value", "", "", false);
+
+        private final String columnName;
+        private final String toolTip;
+        private final Object initialValue;
+        private final boolean isRequired;
+
+        /**********************************************************************
+         * Data field editor column information constructor
+         * 
+         * @param columnName
+         *            text to display for the field editor column header
+         * 
+         * @param toolTip
+         *            tool tip text to display for the column
+         * 
+         * @param initialValue
+         *            initial column value
+         * 
+         * @param isRequired
+         *            true if a value is required in this column
+         *********************************************************************/
+        FieldEditorColumnInfo(String columnName,
+                              String toolTip,
+                              Object initialValue,
+                              boolean isRequired)
+        {
+            this.columnName = columnName;
+            this.toolTip = toolTip;
+            this.initialValue = initialValue;
+            this.isRequired = isRequired;
+        }
+
+        /**********************************************************************
+         * Get the field editor column name
+         * 
+         * @return Field editor column name
+         *********************************************************************/
+        protected String getColumnName()
+        {
+            return columnName;
+        }
+
+        /**********************************************************************
+         * Get the field editor column required flag
+         * 
+         * @return Field editor column required flag
+         *********************************************************************/
+        protected boolean isRequired()
+        {
+            return isRequired;
+        }
+
+        /**********************************************************************
+         * Get the field editor column names
+         * 
+         * @return Array containing the field editor column names
+         *********************************************************************/
+        protected static String[] getColumnNames()
+        {
+            String[] names = new String[FieldEditorColumnInfo.values().length];
+            int index = 0;
+
+            // Step through each column
+            for (FieldEditorColumnInfo type : FieldEditorColumnInfo.values())
+            {
+                // Store the column name
+                names[index] = type.columnName;
+                index++;
+            }
+
+            return names;
+        }
+
+        /**********************************************************************
+         * Get the field editor column tool tips
+         * 
+         * @return Array containing the field editor column tool tips
+         *********************************************************************/
+        protected static String[] getToolTips()
+        {
+            String[] toolTips = new String[FieldEditorColumnInfo.values().length];
+            int index = 0;
+
+            // Step through each column
+            for (FieldEditorColumnInfo type : FieldEditorColumnInfo.values())
+            {
+                // Get the tool tip text
+                toolTips[index] = type.toolTip;
+                index++;
+            }
+
+            return toolTips;
+        }
+
+        /**********************************************************************
+         * Get a row with initialized values for the field editor
+         * 
+         * @return Array containing initial values for a row in the field
+         *         editor
+         *********************************************************************/
+        protected static Object[] getEmptyRow()
+        {
+            Object[] emptyRow = new Object[FieldEditorColumnInfo.values().length];
+            int index = 0;
+
+            // Step through each column
+            for (FieldEditorColumnInfo type : FieldEditorColumnInfo.values())
+            {
+                // Initialize the column value
+                emptyRow[index] = type.initialValue;
+                index++;
+            }
+
+            return emptyRow;
+        }
+    }
+
+    /**************************************************************************
+     * Data field table editor column information
+     *************************************************************************/
+    protected static enum FieldTableEditorColumnInfo
     {
         OWNER("Field Owner", "Data field owner (table or group name)"),
         PATH("Structure Path", "Structure table path");
@@ -3403,7 +3403,7 @@ public class CcddConstants
         private final String toolTip;
 
         /**********************************************************************
-         * Data field editor table column information constructor
+         * Data field table editor column information constructor
          * 
          * @param columnName
          *            text to display for the data field editor column name
@@ -3411,16 +3411,16 @@ public class CcddConstants
          * @param toolTip
          *            tool tip text to display for the column
          *********************************************************************/
-        DataFieldEditorColumnInfo(String columnName, String toolTip)
+        FieldTableEditorColumnInfo(String columnName, String toolTip)
         {
             this.columnName = columnName;
             this.toolTip = toolTip;
         }
 
         /**********************************************************************
-         * Get the data field editor table column name
+         * Get the data field table editor column name
          * 
-         * @return Data field editor table column name
+         * @return Data field table editor column name
          *********************************************************************/
         protected String getColumnName()
         {
@@ -3428,9 +3428,9 @@ public class CcddConstants
         }
 
         /**********************************************************************
-         * Get the data field editor table column tool tip
+         * Get the data field table editor column tool tip
          * 
-         * @return Data field editor table column tool tip
+         * @return Data field table editor column tool tip
          *********************************************************************/
         protected String getToolTip()
         {
@@ -3777,6 +3777,103 @@ public class CcddConstants
 
             // Remove the trailing comma
             return CcddUtilities.removeTrailer(comment, ",");
+        }
+    }
+
+    /**************************************************************************
+     * Copy table entries
+     *************************************************************************/
+    protected static enum CopyTableEntry
+    {
+        INPUT_MSG_ID("Input Message ID"),
+        INPUT_OFFSET("Input Offset"),
+        OUTPUT_MSG_ID("Output Message ID"),
+        OUTPUT_OFFSET("Output Offset"),
+        VARIABLE_BYTES("Number of Bytes"),
+        VARIABLE_ROOT("Root Table"),
+        VARIABLE_NAME("Variable Path");
+
+        private final String columnName;
+
+        /**********************************************************************
+         * Copy table entries constructor
+         * 
+         * @param name
+         *            copy table column name
+         *********************************************************************/
+        CopyTableEntry(String columnName)
+        {
+            this.columnName = columnName;
+        }
+
+        /**********************************************************************
+         * Get the copy table column name
+         * 
+         * @Return Copy table column name
+         *********************************************************************/
+        protected String getColumnName()
+        {
+            return columnName;
+        }
+    }
+
+    /**************************************************************************
+     * JSON data type tags
+     *************************************************************************/
+    protected static enum JSONTags
+    {
+        FILE_DESCRIPTION("File Description"),
+        DATA_TYPE_DEFN("Data Type Definition"),
+        TABLE_TYPE_DEFN("Table Type Definition"),
+        TABLE_TYPE_NAME("Table Type Name"),
+        TABLE_TYPE_DESCRIPTION("Table Type Description"),
+        TABLE_TYPE_COLUMN("Table Type Column"),
+        MACRO_DEFN("Macro Definition"),
+        TABLE_DEFN("Table Definition"),
+        TABLE_NAMES("Table Names"),
+        TABLE_NAME("Table Name"),
+        TABLE_TYPE("Table Type"),
+        TABLE_DESCRIPTION("Table Description"),
+        TABLE_DATA("Table Data"),
+        TABLE_SYSTEM("System Name"),
+        TABLE_FIELD("Data Field"),
+        TABLE_BYTE_SIZE("Byte Size"),
+        GROUP_NAMES("Group Names"),
+        GROUP_NAME("Group Name"),
+        GROUP_DESCRIPTION("Group Description"),
+        GROUP_FIELD("Group Data Field"),
+        GROUP_TABLE("Group Table"),
+        APPLICATION_NAMES("Application Names"),
+        APPLICATION_NAME("Application Name"),
+        APPLICATION_DESCRIPTION("Application Description"),
+        APPLICATION_FIELD("Application Data Field"),
+        APPLICATION_TABLE("Application Table"),
+        COPY_TABLE_STREAM("Stream Name"),
+        COPY_TABLE_HDR_SIZE("Header Size"),
+        COPY_TABLE_OPTIMIZE("Optimized"),
+        COPY_TABLE_DATA("Copy Table");
+
+        private final String tag;
+
+        /**********************************************************************
+         * JSON data type tags constructor
+         * 
+         * @param tag
+         *            text describing the data
+         *********************************************************************/
+        JSONTags(String tag)
+        {
+            this.tag = tag;
+        }
+
+        /**********************************************************************
+         * Get the data type tag
+         * 
+         * @return Text describing the data
+         *********************************************************************/
+        protected String getTag()
+        {
+            return tag;
         }
     }
 
