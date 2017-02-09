@@ -579,19 +579,19 @@ public class CcddFileIOHandler
                             // Create an EDS handler
                             ioHandler = new CcddEDSHandler(ccddMain, parent);
                         }
-                        // Check if the file to import is in XTCE XML format
-                        // based on the extension
-                        else if (dataFile[0].getAbsolutePath().endsWith(FileExtension.XTCE.getExtension()))
-                        {
-                            // Create an XTCE handler
-                            ioHandler = new CcddXTCEHandler(ccddMain, parent);
-                        }
                         // Check if the file to import is in JSON format based
                         // on the extension
                         else if (dataFile[0].getAbsolutePath().endsWith(FileExtension.JSON.getExtension()))
                         {
                             // Create a JSON handler
                             ioHandler = new CcddJSONHandler(ccddMain, parent);
+                        }
+                        // Check if the file to import is in XTCE XML format
+                        // based on the extension
+                        else if (dataFile[0].getAbsolutePath().endsWith(FileExtension.XTCE.getExtension()))
+                        {
+                            // Create an XTCE handler
+                            ioHandler = new CcddXTCEHandler(ccddMain, parent);
                         }
                         // The file extension isn't recognized
                         else
@@ -1153,6 +1153,8 @@ public class CcddFileIOHandler
                                                                                                                             FileExtension.CSV.getExtensionName()),
                                                                                                 new FileNameExtensionFilter(FileExtension.EDS.getDescription(),
                                                                                                                             FileExtension.EDS.getExtensionName()),
+                                                                                                new FileNameExtensionFilter(FileExtension.JSON.getDescription(),
+                                                                                                                            FileExtension.JSON.getExtensionName()),
                                                                                                 new FileNameExtensionFilter(FileExtension.XTCE.getDescription(),
                                                                                                                             FileExtension.XTCE.getExtensionName())},
                                                                  false,
@@ -1176,19 +1178,26 @@ public class CcddFileIOHandler
                     // Create a CSV handler
                     ioHandler = new CcddCSVHandler(ccddMain, tableHandler.getTableEditor());
                 }
-                // Check if the file to import is in XTCE XML format based on
-                // the extension
-                else if (dataFile[0].getAbsolutePath().endsWith(FileExtension.XTCE.getExtension()))
-                {
-                    // Create an XTCE handler
-                    ioHandler = new CcddXTCEHandler(ccddMain, tableHandler.getTableEditor());
-                }
                 // Check if the file to import is in EDS XML format based on
                 // the extension
                 else if (dataFile[0].getAbsolutePath().endsWith(FileExtension.EDS.getExtension()))
                 {
                     // Create an EDS handler
                     ioHandler = new CcddEDSHandler(ccddMain, tableHandler.getTableEditor());
+                }
+                // Check if the file to import is in JSON format based on the
+                // extension
+                else if (dataFile[0].getAbsolutePath().endsWith(FileExtension.JSON.getExtension()))
+                {
+                    // Create a JSON handler
+                    ioHandler = new CcddJSONHandler(ccddMain, tableHandler.getTableEditor());
+                }
+                // Check if the file to import is in XTCE XML format based on
+                // the extension
+                else if (dataFile[0].getAbsolutePath().endsWith(FileExtension.XTCE.getExtension()))
+                {
+                    // Create an XTCE handler
+                    ioHandler = new CcddXTCEHandler(ccddMain, tableHandler.getTableEditor());
                 }
                 // The file extension isn't recognized
                 else
@@ -1214,6 +1223,11 @@ public class CcddFileIOHandler
                         pasteIntoTableFromDefinition(tableHandler,
                                                      tableDefinitions.get(0),
                                                      tableHandler.getTableEditor());
+
+                        // Store the data file name in the program preferences
+                        // backing store
+                        ccddMain.getProgPrefs().put(LAST_SAVED_DATA_FILE,
+                                                    dataFile[0].getAbsolutePath());
                     }
                 }
             }

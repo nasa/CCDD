@@ -74,8 +74,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     private JMenuItem mntmStoreAll;
     private JMenuItem mntmImport;
     private JMenuItem mntmExportCSV;
-    private JMenuItem mntmExportXTCE;
     private JMenuItem mntmExportEDS;
+    private JMenuItem mntmExportJSON;
+    private JMenuItem mntmExportXTCE;
     private JMenuItem mntmPrint;
     private JMenuItem mntmSearchTable;
     private JMenuItem mntmCloseActive;
@@ -252,8 +253,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmStoreAll.setEnabled(enable);
         mntmImport.setEnabled(enable);
         mntmExportCSV.setEnabled(enable);
-        mntmExportXTCE.setEnabled(enable);
         mntmExportEDS.setEnabled(enable);
+        mntmExportJSON.setEnabled(enable);
+        mntmExportXTCE.setEnabled(enable);
         mntmPrint.setEnabled(enable);
         mntmSearchTable.setEnabled(enable);
         mntmCloseActive.setEnabled(enable);
@@ -593,10 +595,11 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmStore = ccddMain.createMenuItem(mnFile, "Store current", KeyEvent.VK_U, "Store changes to the current editor table");
         mntmStoreAll = ccddMain.createMenuItem(mnFile, "Store all", KeyEvent.VK_L, "Store the changes to all tables in this editor");
         mnFile.addSeparator();
-        mntmImport = ccddMain.createMenuItem(mnFile, "Import data", KeyEvent.VK_I, "Import data from a CSV or XTCE/EDS XML file into the current editor table");
+        mntmImport = ccddMain.createMenuItem(mnFile, "Import data", KeyEvent.VK_I, "Import data from a CSV, EDS XML, JSON, or XTCE XML file into the current editor table");
         JMenu mnExport = ccddMain.createSubMenu(mnFile, "Export table", KeyEvent.VK_X, null);
         mntmExportCSV = ccddMain.createMenuItem(mnExport, "CSV", KeyEvent.VK_C, "Export the current editor table in CSV format");
         mntmExportEDS = ccddMain.createMenuItem(mnExport, "EDS", KeyEvent.VK_E, "Export the current editor table in EDS XML format");
+        mntmExportJSON = ccddMain.createMenuItem(mnExport, "JSON", KeyEvent.VK_E, "Export the current editor table in JSON format");
         mntmExportXTCE = ccddMain.createMenuItem(mnExport, "XTCE", KeyEvent.VK_X, "Export the current editor table in XTCE XML format");
         mnFile.addSeparator();
         mntmPrint = ccddMain.createMenuItem(mnFile, "Print current", KeyEvent.VK_P, "Print the current editor table information");
@@ -733,11 +736,59 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             }
         });
 
+        // Add a listener for the Export - EDS command
+        mntmExportEDS.addActionListener(new ValidateCellActionListener()
+        {
+            /******************************************************************
+             * Export the table to a file in EDS XML format
+             *****************************************************************/
+            @Override
+            protected void performAction(ActionEvent ae)
+            {
+                new CcddTableManagerDialog(ccddMain,
+                                           ManagerDialogType.EXPORT_EDS,
+                                           CcddTableEditorDialog.this);
+            }
+
+            /******************************************************************
+             * Get the reference to the currently displayed table
+             *****************************************************************/
+            @Override
+            protected CcddJTableHandler getTable()
+            {
+                return activeEditor.getTable();
+            }
+        });
+
+        // Add a listener for the Export - JSON command
+        mntmExportJSON.addActionListener(new ValidateCellActionListener()
+        {
+            /******************************************************************
+             * Export the table to a file in JSON format
+             *****************************************************************/
+            @Override
+            protected void performAction(ActionEvent ae)
+            {
+                new CcddTableManagerDialog(ccddMain,
+                                           ManagerDialogType.EXPORT_JSON,
+                                           CcddTableEditorDialog.this);
+            }
+
+            /******************************************************************
+             * Get the reference to the currently displayed table
+             *****************************************************************/
+            @Override
+            protected CcddJTableHandler getTable()
+            {
+                return activeEditor.getTable();
+            }
+        });
+
         // Add a listener for the Export - XTCE command
         mntmExportXTCE.addActionListener(new ValidateCellActionListener()
         {
             /******************************************************************
-             * Export the table to a file in XTCE format
+             * Export the table to a file in XTCE XML format
              *****************************************************************/
             @Override
             protected void performAction(ActionEvent ae)

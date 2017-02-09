@@ -70,7 +70,7 @@ public class CcddScriptDataAccessHandler
     private final CcddMacroHandler macroHandler;
     private CcddTableTreeHandler tableTree;
     private final CcddEventLogDialog eventLog;
-    private CcddApplicationSchedulerTable schTable;
+    private CcddSchedulerTableHandler schTable;
     private CcddCopyTableHandler copyHandler;
 
     // Calling GUI component
@@ -3139,16 +3139,16 @@ public class CcddScriptDataAccessHandler
     }
 
     /**************************************************************************
-     * Get the list of defines for the scheduler table TODO IS THUIS CORRECT?
+     * Get the specified entry in the scheduler table
      * 
-     * @param entry
-     *            TODO
+     * @param index
+     *            Index of the entry in the scheduler table
      * 
-     * @return Array containing the defines list
+     * @return Array containing the specified entry in the scheduler table
      *************************************************************************/
-    public String[][] getApplicationSchedulerEntry(int entry)
+    public String[][] getApplicationSchedulerEntry(int index)
     {
-        return schTable.getApplicationScheduleTableIndex(entry);
+        return schTable.getApplicationScheduleTableIndex(index);
     }
 
     /**************************************************************************
@@ -3160,7 +3160,7 @@ public class CcddScriptDataAccessHandler
     {
         // Initialize the scheduler table. This is the first function called by
         // the script
-        schTable = new CcddApplicationSchedulerTable(ccddMain);
+        schTable = new CcddSchedulerTableHandler(ccddMain);
 
         return schTable.createSchedulerMessageTable();
     }
@@ -3177,9 +3177,8 @@ public class CcddScriptDataAccessHandler
 
     // end TODO
 
-    // TODO
     /**************************************************************************
-     * *** FOR TESTING ***
+     * *** TODO INCLUDED FOR TESTING ***
      * 
      * Display the table information for each associated table type
      *************************************************************************/

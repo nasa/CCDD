@@ -924,14 +924,18 @@ public class CcddSchedulerHandler
         // Remove current options
         optionModel.removeAllElements();
 
-        // Get the options from the telemetry scheduler
-        List<String> options = schedulerEditor.getMessageAvailability(CcddUtilities.convertStringToFloat(rateFilter.getSelectedItem().toString()));
-
-        // Step through each option
-        for (String option : options)
+        // Check if there are any applications available
+        if (rateFilter.getSelectedItem() != null)
         {
-            // Add each option to the option model
-            optionModel.add(optionModel.size(), option);
+            // Get the options from the telemetry scheduler
+            List<String> options = schedulerEditor.getMessageAvailability(CcddUtilities.convertStringToFloat(rateFilter.getSelectedItem().toString()));
+
+            // Step through each option
+            for (String option : options)
+            {
+                // Add each option to the option model
+                optionModel.add(optionModel.size(), option);
+            }
         }
 
         // Check if the option model is empty

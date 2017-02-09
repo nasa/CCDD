@@ -1272,7 +1272,7 @@ public class CcddTableTypeHandler
             {
                 // Add the new table type tab to the editor
                 ccddMain.getTableTypeEditor().addTypePanes(new String[] {tableTypeDefn.getTypeName()},
-                                                            new ArrayList<String[]>());
+                                                           new ArrayList<String[]>());
             }
 
             // Check if the database functions and rate parameters should be

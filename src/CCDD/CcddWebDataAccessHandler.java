@@ -31,7 +31,6 @@ import CCDD.CcddClasses.GroupInformation;
 import CCDD.CcddClasses.RateInformation;
 import CCDD.CcddConstants.CopyTableEntry;
 import CCDD.CcddConstants.EventLogMessageType;
-import CCDD.CcddConstants.FieldEditorColumnInfo;
 import CCDD.CcddConstants.JSONTags;
 import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -511,8 +510,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
         return getTableData(nameAndMacro[0],
                             getDescription,
-                            Boolean.valueOf(nameAndMacro[1]),
-                            true);
+                            Boolean.valueOf(nameAndMacro[1]));
     }
 
     /**************************************************************************
@@ -531,10 +529,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *            false to display the macro values in place of the
      *            corresponding macro names; true to display the macro names
      * 
-     * @param checkExists
-     *            true to check if the specified table exists in the project
-     *            database
-     * 
      * @return JSON encoded string containing the specified table cell data;
      *         null if a table name is specified and the table doesn't exist or
      *         if no data tables exist in the project database, or blank if the
@@ -544,8 +538,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     @SuppressWarnings("unchecked")
     private String getTableData(String tableName,
                                 boolean getDescription,
-                                boolean showMacroNames,
-                                boolean checkExists) throws CCDDException
+                                boolean showMacroNames) throws CCDDException
     {
         String response = null;
 
@@ -574,8 +567,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // correct
                         responseJA.add(parser.parse(getTableData(name,
                                                                  true,
-                                                                 showMacroNames,
-                                                                 false)));
+                                                                 showMacroNames)));
                     }
                     catch (ParseException pe)
                     {
@@ -587,20 +579,23 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 response = responseJA.toString();
             }
         }
-        // A table name is provided. Check if the table existence should be
-        // ignored, or else if the table exists in the database
-        else if (!checkExists
-                 || dbTable.isTableExists(tableName, ccddMain.getMainFrame()))
+        // A table name is provided
+        else
         {
-            // Add the table name and data. If the table has no data then the
-            // table data shows empty
-            JSONObject tableNameAndData = new JSONObject();
-            tableNameAndData.put(JSONTags.TABLE_NAME.getTag(), tableName);
-            tableNameAndData = jsonHandler.getTableData(tableName,
-                                                        getDescription,
-                                                        showMacroNames,
-                                                        tableNameAndData);
-            response = tableNameAndData.toString();
+            // Get the table data
+            JSONObject tableNameAndData = jsonHandler.getTableData(tableName,
+                                                                   getDescription,
+                                                                   showMacroNames,
+                                                                   new JSONObject());
+
+            // Check if the table data loaded successfully
+            if (tableNameAndData != null)
+            {
+                // Add the table name. If the table has no data then the table
+                // data shows empty
+                tableNameAndData.put(JSONTags.TABLE_NAME.getTag(), tableName);
+                response = tableNameAndData.toString();
+            }
         }
 
         return response;
@@ -753,7 +748,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // to the response array. This is needed to get the
                         // brackets and commas in the JSON formatted string
                         // correct
-                        responseJA.add(parser.parse(getTableFields(name, false, fieldHandler)));
+                        responseJA.add(parser.parse(getTableFields(name,
+                                                                   false,
+                                                                   fieldHandler)));
                     }
                     catch (ParseException pe)
                     {
@@ -1348,7 +1345,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *            processed
      * 
      * @param includeNameTag
-     *            true to include the group name item
+     *            true to include the group name item and data field tag
      * 
      * @param groupHandler
      *            group handler
@@ -1432,42 +1429,26 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 // Check if the group has any fields
                 if (!fieldHandler.getFieldInformation().isEmpty())
                 {
-                    JSONObject fieldJO = new JSONObject();
-                    JSONArray groupFieldsJA = new JSONArray();
-
-                    // Step through the data fields for this group
-                    for (FieldInformation fieldInfo : fieldHandler.getFieldInformation())
-                    {
-                        fieldJO = new JSONObject();
-
-                        // Add the data field column values to the output
-                        fieldJO.put(FieldEditorColumnInfo.NAME.getColumnName(),
-                                    fieldInfo.getFieldName());
-                        fieldJO.put(FieldEditorColumnInfo.DESCRIPTION.getColumnName(),
-                                    fieldInfo.getDescription());
-                        fieldJO.put(FieldEditorColumnInfo.SIZE.getColumnName(),
-                                    fieldInfo.getDescription());
-                        fieldJO.put(FieldEditorColumnInfo.INPUT_TYPE.getColumnName(),
-                                    fieldInfo.getInputType().getInputName());
-                        fieldJO.put(FieldEditorColumnInfo.REQUIRED.getColumnName(),
-                                    fieldInfo.isRequired());
-                        fieldJO.put(FieldEditorColumnInfo.APPLICABILITY.getColumnName(),
-                                    fieldInfo.getApplicabilityType().getApplicabilityName());
-                        fieldJO.put(FieldEditorColumnInfo.VALUE.getColumnName(),
-                                    fieldInfo.getValue());
-                        groupFieldsJA.add(fieldJO);
-                    }
-
-                    JSONObject groupNameAndFields = new JSONObject();
+                    // Get the group data fields (extract the data field array
+                    // from the table field tag)
+                    JSONObject fieldsJO = jsonHandler.getTableFields(CcddFieldHandler.getFieldGroupName(groupName),
+                                                                     fieldHandler,
+                                                                     new JSONObject());
+                    JSONArray groupFieldsJA = (JSONArray) fieldsJO.get(JSONTags.TABLE_FIELD.getTag());
 
                     // Check if the name tag is to be included
                     if (includeNameTag)
                     {
                         // Add the group name and group data fields to the
                         // output
-                        groupNameAndFields.put(JSONTags.GROUP_NAME.getTag(),
+                        JSONObject groupNameAndFields = new JSONObject();
+                        groupNameAndFields.put((applicationOnly
+                                                               ? JSONTags.APPLICATION_NAME.getTag()
+                                                               : JSONTags.GROUP_NAME.getTag()),
                                                groupName);
-                        groupNameAndFields.put(JSONTags.TABLE_FIELD.getTag(),
+                        groupNameAndFields.put((applicationOnly
+                                                               ? JSONTags.APPLICATION_FIELD.getTag()
+                                                               : JSONTags.GROUP_FIELD.getTag()),
                                                groupFieldsJA);
                         response = groupNameAndFields.toString();
                     }

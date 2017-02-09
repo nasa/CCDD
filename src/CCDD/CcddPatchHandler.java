@@ -71,12 +71,12 @@ public class CcddPatchHandler
             try
             {
                 // Back up the project database before applying the patch
-                dbControl.backupDatabaseInBackground(dbControl.getDatabase(),
-                                                     new File(dbControl.getDatabase()
-                                                              + "_"
-                                                              + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
-                                                              + "."
-                                                              + BACKUP_FILE_EXTENSION));
+                dbControl.backupDatabase(dbControl.getDatabase(),
+                                         new File(dbControl.getDatabase()
+                                                  + "_"
+                                                  + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
+                                                  + "."
+                                                  + BACKUP_FILE_EXTENSION));
 
                 // Create lists to contain the old and new table types table
                 // items

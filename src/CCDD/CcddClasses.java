@@ -483,9 +483,9 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the table's parent table name. The parent table is the structure
-         * table for which the table represented by this class instance is a
-         * direct member. The parent and root tables are the same if this table
-         * is a direct child of the root table
+         * table for which the table represented by this class instance is an
+         * immediate descendant (child). The parent and root tables are the
+         * same if this table is a child of a root table
          *
          * @param tablePath
          *            table path in the format
@@ -4032,8 +4032,8 @@ public class CcddClasses
 
         /**********************************************************************
          * Validate cell action listener. getTable should be overridden to
-         * provide the specific table to validate. If no table is specified the
-         * the action is performed
+         * provide the specific table to validate. If no table is specified
+         * then the action is performed
          *********************************************************************/
         ValidateCellActionListener()
         {
@@ -4212,7 +4212,7 @@ public class CcddClasses
         {
             int itemIndex = -1;
 
-            // STep through each item in the list
+            // Step through each item in the list
             for (int index = 0; index < getItemCount(); index++)
             {
                 // Check if list item matches the specified item

@@ -611,16 +611,18 @@ public class CcddUtilities
     }
 
     /**************************************************************************
-     * Remove HTML tag(s)
+     * Replace any HTML break tags with spaces, then remove the remaining HTML
+     * tag(s) from the supplied text
      * 
      * @param text
-     *            string from which to remove the extra text
+     *            string from which to remove the HTML tags
      *
-     * @return Input string minus any HTML tag(s)
+     * @return Input string with spaces replacing breaks and minus any HTML
+     *         tag(s)
      *************************************************************************/
     protected static String removeHTMLTags(String text)
     {
-        return text.replaceAll("<[^>]*>", "");
+        return text.replaceAll("<br>", " ").replaceAll("<[^>]*>", "");
     }
 
     /**************************************************************************

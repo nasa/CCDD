@@ -320,9 +320,9 @@ public class CcddJSONHandler implements CcddImportExportInterface
                             String required = getString(typeJO,
                                                         TableTypeEditorColumnInfo.REQUIRED.getColumnName());
                             String structAllow = getString(typeJO,
-                                                           TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.getColumnName());
+                                                           CcddUtilities.removeHTMLTags(TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.getColumnName()));
                             String ptrAllow = getString(typeJO,
-                                                        TableTypeEditorColumnInfo.POINTER_ALLOWED.getColumnName());
+                                                        CcddUtilities.removeHTMLTags(TableTypeEditorColumnInfo.POINTER_ALLOWED.getColumnName()));
 
                             // Check if the expected input is present
                             if (!name.isEmpty())
@@ -1280,9 +1280,9 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                         tableTypeDefn.isRowValueUnique()[column]);
                         tableTypeJO.put(TableTypeEditorColumnInfo.REQUIRED.getColumnName(),
                                         tableTypeDefn.isRequired()[column]);
-                        tableTypeJO.put(TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.getColumnName(),
+                        tableTypeJO.put(CcddUtilities.removeHTMLTags(TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.getColumnName()),
                                         tableTypeDefn.isStructureAllowed()[column]);
-                        tableTypeJO.put(TableTypeEditorColumnInfo.POINTER_ALLOWED.getColumnName(),
+                        tableTypeJO.put(CcddUtilities.removeHTMLTags(TableTypeEditorColumnInfo.POINTER_ALLOWED.getColumnName()),
                                         tableTypeDefn.isPointerAllowed()[column]);
 
                         // Add the table type definition to the array

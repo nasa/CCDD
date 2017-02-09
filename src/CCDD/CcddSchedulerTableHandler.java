@@ -17,9 +17,9 @@ import CCDD.CcddClasses.Variable;
 import CCDD.CcddConstants.SchedulerType;
 
 /******************************************************************************
- * CFS Command & Data Dictionary application scheduler table handler class
+ * CFS Command & Data Dictionary scheduler table handler class
  *****************************************************************************/
-public class CcddApplicationSchedulerTable
+public class CcddSchedulerTableHandler
 {
     // Class references
     private final CcddMain ccddMain;
@@ -37,12 +37,12 @@ public class CcddApplicationSchedulerTable
     private final String GROUPNONE = "SCH_GROUP_NONE";
 
     /**************************************************************************
-     * Application scheduler table handler class constructor
+     * Scheduler table handler class constructor
      * 
      * @param ccddMain
      *            main class
      *************************************************************************/
-    CcddApplicationSchedulerTable(CcddMain ccddMain)
+    CcddSchedulerTableHandler(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
         schedulerDB = new CcddSchedulerDbIOHandler(ccddMain,
@@ -55,7 +55,7 @@ public class CcddApplicationSchedulerTable
     }
 
     /**************************************************************************
-     * Create a application scheduler table based on the time slot definitions
+     * Create a scheduler table based on the time slot definitions
      *************************************************************************/
     protected void createApplicationSchedulerTable()
     {
