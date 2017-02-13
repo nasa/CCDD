@@ -55,6 +55,7 @@ import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
+import CCDD.CcddImportExportInterface.ImportType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /******************************************************************************
@@ -606,7 +607,7 @@ public class CcddFileIOHandler
                         if (!ioHandler.getErrorStatus())
                         {
                             // Import the table definition(s) from the file
-                            ioHandler.importFromFile(file);
+                            ioHandler.importFromFile(file, ImportType.IMPORT_ALL);
 
                             // Check if the user elected to append any new data
                             // fields to any existing ones for a table
@@ -709,8 +710,36 @@ public class CcddFileIOHandler
                                                                       "File Error",
                                                                       ce.getMessageType(),
                                                                       DialogOption.OK_OPTION);
-                            errorFlag = true;
                         }
+
+                        errorFlag = true;
+                    }
+                    // TODO Consider a generic exception handler for unexpected
+                    // errors
+                    catch (Exception e)
+                    {
+                        String message = "<html><b>Error trace:</b><br>";
+
+                        for (StackTraceElement ste : e.getStackTrace())
+                        {
+                            if (ste.getClassName().startsWith("CCDD"))
+                            {
+                                message += "&#160;&#160;"
+                                           + ste.getClassName().replaceFirst("CCDD\\.", "")
+                                           + "."
+                                           + ste.getMethodName()
+                                           + " ("
+                                           + ste.getLineNumber()
+                                           + ")<br>";
+                            }
+                        }
+
+                        new CcddDialogHandler().showMessageDialog(parent,
+                                                                  message,
+                                                                  "CCDD Error",
+                                                                  JOptionPane.ERROR_MESSAGE,
+                                                                  DialogOption.OK_OPTION);
+                        errorFlag = true;
                     }
                 }
             }
@@ -1211,8 +1240,12 @@ public class CcddFileIOHandler
                 // handler
                 if (!ioHandler.getErrorStatus())
                 {
+                    // Store the current table type information so that it can
+                    // be restored
+                    List<TypeDefinition> originalTableTypes = tableTypeHandler.getTypeDefinitions();
+
                     // Import the data file into a table definition
-                    ioHandler.importFromFile(dataFile[0]);
+                    ioHandler.importFromFile(dataFile[0], ImportType.FIRST_DATA_ONLY);
                     tableDefinitions = ioHandler.getTableDefinitions();
 
                     // Check if a table definition was successfully created
@@ -1223,6 +1256,10 @@ public class CcddFileIOHandler
                         pasteIntoTableFromDefinition(tableHandler,
                                                      tableDefinitions.get(0),
                                                      tableHandler.getTableEditor());
+
+                        // Restore the table types to the values prior to the
+                        // import operation
+                        tableTypeHandler.setTypeDefinitions(originalTableTypes);
 
                         // Store the data file name in the program preferences
                         // backing store

@@ -18,6 +18,15 @@ import CCDD.CcddClasses.TableDefinition;
  *****************************************************************************/
 public interface CcddImportExportInterface
 {
+    // Import type: IMPORT_ALL to import the table type, data type, and macro
+    // definitions, and the data from all the table definitions;
+    // FIRST_DATA_ONLY to load only the data for the first table defined
+    static enum ImportType
+    {
+        IMPORT_ALL,
+        FIRST_DATA_ONLY
+    }
+
     /**************************************************************************
      * Get the status of the conversion setup error flag
      * 
@@ -37,9 +46,16 @@ public interface CcddImportExportInterface
      * 
      * @param importFile
      *            reference to the user-specified input file
+     * 
+     * @param importAll
+     *            ImportType.IMPORT_ALL to import the table type, data type,
+     *            and macro definitions, and the data from all the table
+     *            definitions; ImportType.FIRST_DATA_ONLY to load only the data
+     *            for the first table defined
      *************************************************************************/
-    abstract void importFromFile(File importFile) throws CCDDException,
-                                                 IOException;
+    abstract void importFromFile(File importFile,
+                                 ImportType importType) throws CCDDException,
+                                                       IOException;
 
     /**************************************************************************
      * Export the project to the specified file

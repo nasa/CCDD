@@ -29,7 +29,6 @@ import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.TableDefinition;
 import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddClasses.TableTypeDefinition;
-import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
@@ -141,9 +140,16 @@ public class CcddCSVHandler implements CcddImportExportInterface
      * 
      * @param importFile
      *            import file reference
+     * 
+     * @param importAll
+     *            ImportType.IMPORT_ALL to import the table type, data type,
+     *            and macro definitions, and the data from all the table
+     *            definitions; ImportType.FIRST_DATA_ONLY to load only the data
+     *            for the first table defined
      *************************************************************************/
     @Override
-    public void importFromFile(File importFile) throws CCDDException, IOException
+    public void importFromFile(File importFile,
+                               ImportType importType) throws CCDDException, IOException
     {
         BufferedReader br = null;
 
@@ -168,8 +174,8 @@ public class CcddCSVHandler implements CcddImportExportInterface
                 // mismatch is detected
                 boolean continueOnMismatch = false;
 
-                // Initialize the input type
-                CSVTags importType = null;
+                // Initialize the input tag
+                CSVTags importTag = null;
 
                 // Read first line in file
                 String line = br.readLine();
@@ -226,7 +232,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                             {
                                 // Set the input type to look for the table
                                 // name and table type
-                                importType = CSVTags.NAME_TYPE;
+                                importTag = CSVTags.NAME_TYPE;
 
                                 // Check if this is the second pass and if the
                                 // name and type are already set; if so, this
@@ -247,7 +253,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                             {
                                 // Set the input type to look for the table
                                 // column names
-                                importType = CSVTags.COLUMN_NAMES;
+                                importTag = CSVTags.COLUMN_NAMES;
                             }
                             // Check if this is the table description tag and
                             // that a table name and type are defined
@@ -256,7 +262,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                             {
                                 // Set the input type to look for the table
                                 // description
-                                importType = CSVTags.DESCRIPTION;
+                                importTag = CSVTags.DESCRIPTION;
                             }
                             // Check if this is the data field tag and that a
                             // table name and type are defined
@@ -265,14 +271,14 @@ public class CcddCSVHandler implements CcddImportExportInterface
                             {
                                 // Set the input type to look for the data
                                 // field(s)
-                                importType = CSVTags.DATA_FIELD;
+                                importTag = CSVTags.DATA_FIELD;
                             }
                             // Check if this is the table type tag
                             else if (columnValues[0].equalsIgnoreCase(CSVTags.TABLE_TYPE.getTag()))
                             {
                                 // Set the input type to look for the table
                                 // type definition
-                                importType = CSVTags.TABLE_TYPE;
+                                importTag = CSVTags.TABLE_TYPE;
 
                                 // Set the flag so that the next row is treated
                                 // as the table type name and description
@@ -283,13 +289,13 @@ public class CcddCSVHandler implements CcddImportExportInterface
                             {
                                 // Set the input type to look for the data
                                 // type(s)
-                                importType = CSVTags.DATA_TYPE;
+                                importTag = CSVTags.DATA_TYPE;
                             }
                             // Check if this is the macro tag
                             else if (columnValues[0].equalsIgnoreCase(CSVTags.MACRO.getTag()))
                             {
                                 // Set the input type to look for the macro(s)
-                                importType = CSVTags.MACRO;
+                                importTag = CSVTags.MACRO;
                             }
                             // Not a tag (or no table name and type are
                             // defined); read in the information based on the
@@ -299,7 +305,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                 // Check if this is the first pass
                                 if (loop == 1)
                                 {
-                                    switch (importType)
+                                    switch (importTag)
                                     {
                                         case TABLE_TYPE:
                                             // Check if this is the table type
@@ -358,85 +364,99 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                             break;
 
                                         case DATA_TYPE:
-                                            // Check if the expected number of
-                                            // inputs is present
-                                            if (columnValues.length == 4)
+                                            // Check if all definitions are to
+                                            // be loaded
+                                            if (importType == ImportType.IMPORT_ALL)
                                             {
-                                                // Add the data type definition
-                                                // (add a blank to represent
-                                                // the OID)
-                                                dataTypeDefinitions.add(new String[] {columnValues[DataTypesColumn.USER_NAME.ordinal()],
-                                                                                      columnValues[DataTypesColumn.C_NAME.ordinal()],
-                                                                                      columnValues[DataTypesColumn.SIZE.ordinal()],
-                                                                                      columnValues[DataTypesColumn.BASE_TYPE.ordinal()],
-                                                                                      ""});
-                                            }
-                                            // Incorrect number of inputs.
-                                            // Check if the user hasn't already
-                                            // elected to ignore mismatches
-                                            else if (!continueOnMismatch)
-                                            {
-                                                // Get confirmation from the
-                                                // user to ignore the
-                                                // discrepancy
-                                                if (new CcddDialogHandler().showMessageDialog(parent,
-                                                                                              "<html><b>Too many/few data type inputs; continue?",
-                                                                                              "Data Type Mismatch",
-                                                                                              JOptionPane.QUESTION_MESSAGE,
-                                                                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                                                // Check if the expected number
+                                                // of inputs is present
+                                                if (columnValues.length == 4)
                                                 {
-                                                    continueOnMismatch = true;
+                                                    // Add the data type
+                                                    // definition (add a blank
+                                                    // to represent the OID)
+                                                    dataTypeDefinitions.add(new String[] {columnValues[DataTypesColumn.USER_NAME.ordinal()],
+                                                                                          columnValues[DataTypesColumn.C_NAME.ordinal()],
+                                                                                          columnValues[DataTypesColumn.SIZE.ordinal()],
+                                                                                          columnValues[DataTypesColumn.BASE_TYPE.ordinal()],
+                                                                                          ""});
                                                 }
-                                                // The user chose to not ignore
-                                                // the discrepancy
-                                                else
+                                                // Incorrect number of inputs.
+                                                // Check if the user hasn't
+                                                // already elected to ignore
+                                                // mismatches
+                                                else if (!continueOnMismatch)
                                                 {
-                                                    // No error message is
-                                                    // provided since the user
-                                                    // chose this action
-                                                    throw new CCDDException("");
+                                                    // Get confirmation from
+                                                    // the user to ignore the
+                                                    // discrepancy
+                                                    if (new CcddDialogHandler().showMessageDialog(parent,
+                                                                                                  "<html><b>Too many/few data type inputs; continue?",
+                                                                                                  "Data Type Mismatch",
+                                                                                                  JOptionPane.QUESTION_MESSAGE,
+                                                                                                  DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                                                    {
+                                                        continueOnMismatch = true;
+                                                    }
+                                                    // The user chose to not
+                                                    // ignore the discrepancy
+                                                    else
+                                                    {
+                                                        // No error message is
+                                                        // provided since the
+                                                        // user chose this
+                                                        // action
+                                                        throw new CCDDException("");
+                                                    }
                                                 }
                                             }
 
                                             break;
 
                                         case MACRO:
-                                            // Check if the expected number of
-                                            // inputs is present
-                                            if (columnValues.length == 2)
+                                            // Check if all definitions are to
+                                            // be loaded
+                                            if (importType == ImportType.IMPORT_ALL)
+                                            {
+                                                // Check if the expected number
+                                                // of inputs is present
+                                                if (columnValues.length == 2)
 
-                                            {
-                                                // Add the macro definition
-                                                // (add a blank to represent
-                                                // the OID)
-                                                macroDefinitions.add(new String[] {columnValues[0],
-                                                                                   columnValues[1],
-                                                                                   ""});
-                                            }
-                                            // Incorrect number of inputs.
-                                            // Check if the user hasn't already
-                                            // elected to ignore mismatches
-                                            else if (!continueOnMismatch)
-                                            {
-                                                // Get confirmation from the
-                                                // user to ignore the
-                                                // discrepancy
-                                                if (new CcddDialogHandler().showMessageDialog(parent,
-                                                                                              "<html><b>Too many/few macro inputs; continue?",
-                                                                                              "Macro Mismatch",
-                                                                                              JOptionPane.QUESTION_MESSAGE,
-                                                                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                                                 {
-                                                    continueOnMismatch = true;
+                                                    // Add the macro definition
+                                                    // (add a blank to
+                                                    // represent the OID)
+                                                    macroDefinitions.add(new String[] {columnValues[0],
+                                                                                       columnValues[1],
+                                                                                       ""});
                                                 }
-                                                // The user chose to not ignore
-                                                // the discrepancy
-                                                else
+                                                // Incorrect number of inputs.
+                                                // Check if the user hasn't
+                                                // already elected to ignore
+                                                // mismatches
+                                                else if (!continueOnMismatch)
                                                 {
-                                                    // No error message is
-                                                    // provided since the user
-                                                    // chose this action
-                                                    throw new CCDDException("");
+                                                    // Get confirmation from
+                                                    // the user to ignore the
+                                                    // discrepancy
+                                                    if (new CcddDialogHandler().showMessageDialog(parent,
+                                                                                                  "<html><b>Too many/few macro inputs; continue?",
+                                                                                                  "Macro Mismatch",
+                                                                                                  JOptionPane.QUESTION_MESSAGE,
+                                                                                                  DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                                                    {
+                                                        continueOnMismatch = true;
+                                                    }
+                                                    // The user chose to not
+                                                    // ignore the discrepancy
+                                                    else
+                                                    {
+                                                        // No error message is
+                                                        // provided since the
+                                                        // user chose this
+                                                        // action
+                                                        throw new CCDDException("");
+                                                    }
                                                 }
                                             }
 
@@ -461,7 +481,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                 // This is the second pass
                                 else
                                 {
-                                    switch (importType)
+                                    switch (importTag)
                                     {
                                         case NAME_TYPE:
                                             // Check if the expected number of
@@ -508,6 +528,11 @@ public class CcddCSVHandler implements CcddImportExportInterface
 
                                             break;
 
+                                        case DESCRIPTION:
+                                            // Store the table description
+                                            tableDefn.setDescription(columnValues[0]);
+                                            break;
+
                                         case COLUMN_NAMES:
                                             // Check if any column names exist
                                             if (columnValues.length != 0)
@@ -544,14 +569,11 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                     // Check if the user hasn't
                                                     // elected to ignore any
                                                     // column discrepancies,
-                                                    // and if the number of
-                                                    // columns differ or the
-                                                    // column name doesn't
-                                                    // exist for this table
-                                                    // type
+                                                    // and if the column name
+                                                    // doesn't exist for this
+                                                    // table type
                                                     if (!continueOnMismatch
-                                                        && (columnValues.length != numColumns
-                                                        || columnIndex[index] == -1))
+                                                        && columnIndex[index] == -1)
                                                     {
                                                         // Get confirmation
                                                         // from the user to
@@ -559,15 +581,13 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                         // discrepancy
                                                         if (new CcddDialogHandler().showMessageDialog(parent,
                                                                                                       "<html><b>"
-                                                                                                          + (columnIndex[index] == -1
-                                                                                                                                     ? "Unknown column name '</b>"
-                                                                                                                                       + columnValues[index]
-                                                                                                                                       + "<b>'"
-                                                                                                                                     : "Number of columns differ")
+                                                                                                          + "Unrecognized column name '</b>"
+                                                                                                          + columnValues[index]
+                                                                                                          + "<b>'"
                                                                                                           + " in table '</b>"
                                                                                                           + tableDefn.getName()
                                                                                                           + "<b>'; continue?",
-                                                                                                      "Column Mismatch",
+                                                                                                      "Unknown Column",
                                                                                                       JOptionPane.QUESTION_MESSAGE,
                                                                                                       DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                                                         {
@@ -609,7 +629,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
 
                                             // Set the input type to look for
                                             // cell data
-                                            importType = CSVTags.CELL_DATA;
+                                            importTag = CSVTags.CELL_DATA;
                                             break;
 
                                         case CELL_DATA:
@@ -640,51 +660,53 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                             tableDefn.addData(rowData);
                                             break;
 
-                                        case DESCRIPTION:
-                                            // Store the table description
-                                            tableDefn.setDescription(columnValues[0]);
-                                            break;
-
                                         case DATA_FIELD:
-                                            // Check if the expected number of
-                                            // inputs is present
-                                            if (columnValues.length == FieldsColumn.values().length - 1)
+                                            // Check if all definitions are to
+                                            // be loaded
+                                            if (importType == ImportType.IMPORT_ALL)
                                             {
-                                                // Add the data field
-                                                // definition
-                                                tableDefn.addDataField(new String[] {tablePath,
-                                                                                     columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
-                                                                                     columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
-                                                                                     columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
-                                                                                     columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
-                                                                                     columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
-                                                                                     columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
-                                                                                     columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1]});
-                                            }
-                                            // Incorrect number of inputs.
-                                            // Check if the user hasn't already
-                                            // elected to ignore mismatches
-                                            else if (!continueOnMismatch)
-                                            {
-                                                // Get confirmation from the
-                                                // user to ignore the
-                                                // discrepancy
-                                                if (new CcddDialogHandler().showMessageDialog(parent,
-                                                                                              "<html><b>Too many/few data field inputs; continue?",
-                                                                                              "Data Field Mismatch",
-                                                                                              JOptionPane.QUESTION_MESSAGE,
-                                                                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                                                // Check if the expected number
+                                                // of inputs is present
+                                                if (columnValues.length == FieldsColumn.values().length - 1)
                                                 {
-                                                    continueOnMismatch = true;
+                                                    // Add the data field
+                                                    // definition
+                                                    tableDefn.addDataField(new String[] {tablePath,
+                                                                                         columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
+                                                                                         columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
+                                                                                         columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
+                                                                                         columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
+                                                                                         columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
+                                                                                         columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
+                                                                                         columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1]});
                                                 }
-                                                // The user chose to not ignore
-                                                // the discrepancy
-                                                else
+                                                // Incorrect number of inputs.
+                                                // Check if the user hasn't
+                                                // already elected to ignore
+                                                // mismatches
+                                                else if (!continueOnMismatch)
                                                 {
-                                                    // No error message is
-                                                    // provided since the user
-                                                    // chose this action
-                                                    throw new CCDDException("");
+                                                    // Get confirmation from
+                                                    // the user to ignore the
+                                                    // discrepancy
+                                                    if (new CcddDialogHandler().showMessageDialog(parent,
+                                                                                                  "<html><b>Too many/few data field inputs; continue?",
+                                                                                                  "Data Field Mismatch",
+                                                                                                  JOptionPane.QUESTION_MESSAGE,
+                                                                                                  DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                                                    {
+                                                        continueOnMismatch = true;
+                                                    }
+                                                    // The user chose to not
+                                                    // ignore the discrepancy
+                                                    else
+                                                    {
+                                                        // No error message is
+                                                        // provided since the
+                                                        // user chose this
+                                                        // action
+                                                        throw new CCDDException("");
+                                                    }
                                                 }
                                             }
 
@@ -716,6 +738,14 @@ public class CcddCSVHandler implements CcddImportExportInterface
                     {
                         // Add the table's definition to the list
                         tableDefinitions.add(tableDefn);
+
+                        // Check if only the data from the first table is to be
+                        // read
+                        if (importType == ImportType.FIRST_DATA_ONLY)
+                        {
+                            // Stop reading table definitions
+                            break;
+                        }
                     }
                 }
 
@@ -736,31 +766,35 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                 + "' doesn't match the existing definition");
                     }
 
-                    // Add the data type if it's new or match it to an existing
-                    // one with the same name if the type definitions are the
-                    // same
-                    badDefn = dataTypeHandler.updateDataTypes(dataTypeDefinitions);
-
-                    // Check if a data type isn't new and doesn't match an
-                    // existing one with the same name
-                    if (badDefn != null)
+                    // Check if all definitions are to be loaded
+                    if (importType == ImportType.IMPORT_ALL)
                     {
-                        throw new CCDDException("Imported data type '"
-                                                + badDefn
-                                                + "' doesn't match the existing definition");
-                    }
+                        // Add the data type if it's new or match it to an
+                        // existing one with the same name if the type
+                        // definitions are the same
+                        badDefn = dataTypeHandler.updateDataTypes(dataTypeDefinitions);
 
-                    // Add the macro if it's new or match it to an existing one
-                    // with the same name if the values are the same
-                    badDefn = macroHandler.updateMacros(macroDefinitions);
+                        // Check if a data type isn't new and doesn't match an
+                        // existing one with the same name
+                        if (badDefn != null)
+                        {
+                            throw new CCDDException("Imported data type '"
+                                                    + badDefn
+                                                    + "' doesn't match the existing definition");
+                        }
 
-                    // Check if a macro isn't new and doesn't match an existing
-                    // one with the same name
-                    if (badDefn != null)
-                    {
-                        throw new CCDDException("Imported macro '"
-                                                + badDefn
-                                                + "' doesn't match the existing definition");
+                        // Add the macro if it's new or match it to an existing
+                        // one with the same name if the values are the same
+                        badDefn = macroHandler.updateMacros(macroDefinitions);
+
+                        // Check if a macro isn't new and doesn't match an
+                        // existing one with the same name
+                        if (badDefn != null)
+                        {
+                            throw new CCDDException("Imported macro '"
+                                                    + badDefn
+                                                    + "' doesn't match the existing definition");
+                        }
                     }
                 }
             }
@@ -901,90 +935,13 @@ public class CcddCSVHandler implements CcddImportExportInterface
                         systemName = ",\"" + systemField.getValue() + "\"";
                     }
 
-                    // Output the table path (if applicable) and name, and
-                    // table type
+                    // Output the table path (if applicable) and name, table
+                    // type, and system name (if provided)
                     pw.printf(CSVTags.NAME_TYPE.getTag()
-                              + "\n\"%s\",\"%s\"\n"
-                              + CSVTags.COLUMN_NAMES.getTag()
-                              + systemName
-                              + "\n",
+                              + "\n\"%s\",\"%s\",\"%s\"\n",
                               tableInfo.getTablePath(),
                               tableInfo.getType(),
                               systemName);
-
-                    // Step through each row in the table
-                    for (int row = -1; row < tableInfo.getData().length; row++)
-                    {
-                        boolean firstPass = true;
-
-                        // Step through each column in the row
-                        for (int column = 0; column < columnNames.length; column++)
-                        {
-                            // Check if the column isn't the primary key or row
-                            // index
-                            if (column != DefaultColumn.PRIMARY_KEY.ordinal()
-                                && column != DefaultColumn.ROW_INDEX.ordinal())
-                            {
-                                // Check if this isn't the first column
-                                if (!firstPass)
-                                {
-                                    // Append a comma to separate the data
-                                    // values
-                                    pw.printf(",");
-                                }
-
-                                // Set the flag for subsequent columns
-                                firstPass = false;
-
-                                // Store the column name (if the first row) or
-                                // data value (subsequent rows). Surround the
-                                // text with quotes; during file import the
-                                // quotes are necessary in the event the text
-                                // contains a comma
-                                pw.printf("\"%s\"",
-                                          (row == -1)
-                                                     ? columnNames[column]
-                                                     : tableInfo.getData()[row][column]);
-
-                                // Check if this is not the column name row
-                                if (row != -1)
-                                {
-                                    List<Integer> dataTypeColumns = new ArrayList<Integer>();
-
-                                    // Get the column indices for all columns
-                                    // that can contain a primitive data type
-                                    dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(InputDataType.PRIM_AND_STRUCT));
-                                    dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(InputDataType.PRIMITIVE));
-
-                                    // Step through each data type column
-                                    for (int dataTypeColumn : dataTypeColumns)
-                                    {
-                                        // Get the value in the data type
-                                        // column
-                                        String dataTypeName = tableInfo.getData()[row][dataTypeColumn].toString();
-
-                                        // Check if the data type is a
-                                        // primitive and isn't already in the
-                                        // list
-                                        if (dataTypeHandler.isPrimitive(dataTypeName)
-                                            && !referencedDataTypes.contains(dataTypeName))
-                                        {
-                                            // Add the data type name to the
-                                            // list of references data types
-                                            referencedDataTypes.add(dataTypeName);
-                                        }
-                                    }
-
-                                    // Get the names of the macros referenced
-                                    // in the cell and add them to the list
-                                    referencedMacros.addAll(macroHandler.getReferencedMacros(tableInfo.getData()[row][column].toString()));
-                                }
-                            }
-                        }
-
-                        // Append a line feed to end the row
-                        pw.println();
-                    }
 
                     // Check if the table has a description
                     if (!tableInfo.getDescription().isEmpty())
@@ -992,6 +949,70 @@ public class CcddCSVHandler implements CcddImportExportInterface
                         // Output the table description header and description
                         pw.printf(CSVTags.DESCRIPTION.getTag() + "\n\"%s\"\n",
                                   tableInfo.getDescription());
+                    }
+
+                    // Output the column data tag
+                    pw.printf(CSVTags.COLUMN_NAMES.getTag() + "\n");
+
+                    // Step through each row in the table
+                    for (int row = -1; row < tableInfo.getData().length; row++)
+                    {
+                        // Step through each column in the row
+                        for (int column = NUM_HIDDEN_COLUMNS; column < columnNames.length; column++)
+                        {
+                            // Check if this isn't the first column
+                            if (column != NUM_HIDDEN_COLUMNS)
+                            {
+                                // Append a comma to separate the data
+                                // values
+                                pw.printf(",");
+                            }
+
+                            // Store the column name (if the first row) or
+                            // data value (subsequent rows). Surround the
+                            // text with quotes; during file import the
+                            // quotes are necessary in the event the text
+                            // contains a comma
+                            pw.printf("\"%s\"",
+                                      (row == -1)
+                                                 ? columnNames[column]
+                                                 : tableInfo.getData()[row][column]);
+
+                            // Check if this is not the column name row
+                            if (row != -1)
+                            {
+                                List<Integer> dataTypeColumns = new ArrayList<Integer>();
+
+                                // Get the column indices for all columns that
+                                // can contain a primitive data type
+                                dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(InputDataType.PRIM_AND_STRUCT));
+                                dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(InputDataType.PRIMITIVE));
+
+                                // Step through each data type column
+                                for (int dataTypeColumn : dataTypeColumns)
+                                {
+                                    // Get the value in the data type column
+                                    String dataTypeName = tableInfo.getData()[row][dataTypeColumn].toString();
+
+                                    // Check if the data type is a primitive
+                                    // and isn't already in the list
+                                    if (dataTypeHandler.isPrimitive(dataTypeName)
+                                        && !referencedDataTypes.contains(dataTypeName))
+                                    {
+                                        // Add the data type name to the list
+                                        // of references data types
+                                        referencedDataTypes.add(dataTypeName);
+                                    }
+                                }
+
+                                // Get the names of the macros referenced in
+                                // the cell and add them to the list
+                                referencedMacros.addAll(macroHandler.getReferencedMacros(tableInfo.getData()[row][column].toString()));
+                            }
+                        }
+
+                        // Append a line feed to end the row
+                        pw.println();
                     }
 
                     // Get the table's data field information

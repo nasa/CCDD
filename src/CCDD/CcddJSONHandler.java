@@ -18,6 +18,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -255,17 +256,22 @@ public class CcddJSONHandler implements CcddImportExportInterface
      * 
      * @param importFile
      *            import file reference
+     * 
+     * @param importAll
+     *            ImportType.IMPORT_ALL to import the table type, data type,
+     *            and macro definitions, and the data from all the table
+     *            definitions; ImportType.FIRST_DATA_ONLY to load only the data
+     *            for the first table defined
      *************************************************************************/
     @Override
-    public void importFromFile(File importFile) throws CCDDException, IOException
+    public void importFromFile(File importFile,
+                               ImportType importType) throws CCDDException, IOException
     {
         BufferedReader br = null;
 
         try
         {
             List<TableTypeDefinition> tableTypeDefinitions = new ArrayList<TableTypeDefinition>();
-            List<String[]> dataTypeDefinitions = new ArrayList<String[]>();
-            List<String[]> macroDefinitions = new ArrayList<String[]>();
             tableDefinitions = new ArrayList<TableDefinition>();
 
             // Flag indicating if importing should continue after an input
@@ -397,110 +403,6 @@ public class CcddJSONHandler implements CcddImportExportInterface
                 }
             }
 
-            // Get the data type definitions JSON object
-            defn = jsonObject.get(JSONTags.DATA_TYPE_DEFN.getTag());
-
-            // Check if the data type definitions exist
-            if (defn != null && defn instanceof JSONArray)
-            {
-                // Step through each data type definition
-                for (JSONObject dataTypeJO : parseJSONArray(defn))
-                {
-                    // Get the data type definition components
-                    String userName = getString(dataTypeJO,
-                                                DataTypeEditorColumnInfo.USER_NAME.getColumnName());
-                    String cName = getString(dataTypeJO,
-                                             DataTypeEditorColumnInfo.C_NAME.getColumnName());
-                    String size = getString(dataTypeJO,
-                                            DataTypeEditorColumnInfo.SIZE.getColumnName());
-                    String baseType = getString(dataTypeJO,
-                                                DataTypeEditorColumnInfo.BASE_TYPE.getColumnName());
-
-                    // Check if the expected inputs are present
-                    if ((!userName.isEmpty() || !cName.isEmpty())
-                        && !size.isEmpty()
-                        && !baseType.isEmpty())
-                    {
-                        // Add the data type definition (add a blank to
-                        // represent the OID)
-                        dataTypeDefinitions.add(new String[] {userName,
-                                                              cName,
-                                                              size,
-                                                              baseType,
-                                                              ""});
-                    }
-                    // Incorrect number of inputs. Check if the user
-                    // hasn't already elected to ignore mismatches
-                    else if (!continueOnMismatch)
-                    {
-                        // Get confirmation from the user to ignore the
-                        // discrepancy
-                        if (new CcddDialogHandler().showMessageDialog(parent,
-                                                                      "<html><b>Missing data type input(s); continue?",
-                                                                      "Data Type Mismatch",
-                                                                      JOptionPane.QUESTION_MESSAGE,
-                                                                      DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-                        {
-                            continueOnMismatch = true;
-                        }
-                        // The user chose to not ignore the discrepancy
-                        else
-                        {
-                            // No error message is provided since the user
-                            // chose this action
-                            throw new CCDDException("");
-                        }
-                    }
-                }
-            }
-
-            // Get the macro definitions JSON object
-            defn = jsonObject.get(JSONTags.MACRO_DEFN.getTag());
-
-            // Check if the macro definitions exist
-            if (defn != null && defn instanceof JSONArray)
-            {
-                // Step through each macro definition
-                for (JSONObject macroJO : parseJSONArray(defn))
-                {
-                    // Get the macro definition components
-                    String name = getString(macroJO,
-                                            MacroEditorColumnInfo.NAME.getColumnName());
-                    String value = getString(macroJO,
-                                             MacroEditorColumnInfo.VALUE.getColumnName());
-
-                    // Check if the expected input is present
-                    if (!name.isEmpty())
-                    {
-                        // Add the macro definition (add a blank to represent
-                        // the OID)
-                        macroDefinitions.add(new String[] {name, value, ""});
-                    }
-                    // Incorrect number of inputs. Check if the user
-                    // hasn't already elected to ignore mismatches
-                    else if (!continueOnMismatch)
-                    {
-                        // Get confirmation from the user to ignore the
-                        // discrepancy
-                        if (new CcddDialogHandler().showMessageDialog(parent,
-                                                                      "<html><b>Missing macro name; continue?",
-                                                                      "Macro Mismatch",
-                                                                      JOptionPane.QUESTION_MESSAGE,
-                                                                      DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-                        {
-                            continueOnMismatch = true;
-                        }
-                        // The user chose to not ignore the discrepancy
-                        else
-                        {
-                            // No error message is provided since the user
-                            // chose this action
-                            throw new CCDDException("");
-                        }
-                    }
-                }
-            }
-
             // Add the table type if it's new or match it to an
             // existing one with the same name if the type definitions
             // are the same
@@ -515,31 +417,141 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                         + "' doesn't match the existing definition");
             }
 
-            // Add the data type if it's new or match it to an existing
-            // one with the same name if the type definitions are the
-            // same
-            badDefn = dataTypeHandler.updateDataTypes(dataTypeDefinitions);
-
-            // Check if a data type isn't new and doesn't match an
-            // existing one with the same name
-            if (badDefn != null)
+            // Check if all definitions are to be loaded
+            if (importType == ImportType.IMPORT_ALL)
             {
-                throw new CCDDException("Imported data type '"
-                                        + badDefn
-                                        + "' doesn't match the existing definition");
-            }
+                List<String[]> dataTypeDefinitions = new ArrayList<String[]>();
+                List<String[]> macroDefinitions = new ArrayList<String[]>();
 
-            // Add the macro if it's new or match it to an existing one
-            // with the same name if the values are the same
-            badDefn = macroHandler.updateMacros(macroDefinitions);
+                // Get the data type definitions JSON object
+                defn = jsonObject.get(JSONTags.DATA_TYPE_DEFN.getTag());
 
-            // Check if a macro isn't new and doesn't match an existing
-            // one with the same name
-            if (badDefn != null)
-            {
-                throw new CCDDException("Imported macro '"
-                                        + badDefn
-                                        + "' doesn't match the existing definition");
+                // Check if the data type definitions exist
+                if (defn != null && defn instanceof JSONArray)
+                {
+                    // Step through each data type definition
+                    for (JSONObject dataTypeJO : parseJSONArray(defn))
+                    {
+                        // Get the data type definition components
+                        String userName = getString(dataTypeJO,
+                                                    DataTypeEditorColumnInfo.USER_NAME.getColumnName());
+                        String cName = getString(dataTypeJO,
+                                                 DataTypeEditorColumnInfo.C_NAME.getColumnName());
+                        String size = getString(dataTypeJO,
+                                                DataTypeEditorColumnInfo.SIZE.getColumnName());
+                        String baseType = getString(dataTypeJO,
+                                                    DataTypeEditorColumnInfo.BASE_TYPE.getColumnName());
+
+                        // Check if the expected inputs are present
+                        if ((!userName.isEmpty() || !cName.isEmpty())
+                            && !size.isEmpty()
+                            && !baseType.isEmpty())
+                        {
+                            // Add the data type definition (add a blank to
+                            // represent the OID)
+                            dataTypeDefinitions.add(new String[] {userName,
+                                                                  cName,
+                                                                  size,
+                                                                  baseType,
+                                                                  ""});
+                        }
+                        // Incorrect number of inputs. Check if the user
+                        // hasn't already elected to ignore mismatches
+                        else if (!continueOnMismatch)
+                        {
+                            // Get confirmation from the user to ignore the
+                            // discrepancy
+                            if (new CcddDialogHandler().showMessageDialog(parent,
+                                                                          "<html><b>Missing data type input(s); continue?",
+                                                                          "Data Type Mismatch",
+                                                                          JOptionPane.QUESTION_MESSAGE,
+                                                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                            {
+                                continueOnMismatch = true;
+                            }
+                            // The user chose to not ignore the discrepancy
+                            else
+                            {
+                                // No error message is provided since the user
+                                // chose this action
+                                throw new CCDDException("");
+                            }
+                        }
+                    }
+                }
+
+                // Get the macro definitions JSON object
+                defn = jsonObject.get(JSONTags.MACRO_DEFN.getTag());
+
+                // Check if the macro definitions exist
+                if (defn != null && defn instanceof JSONArray)
+                {
+                    // Step through each macro definition
+                    for (JSONObject macroJO : parseJSONArray(defn))
+                    {
+                        // Get the macro definition components
+                        String name = getString(macroJO,
+                                                MacroEditorColumnInfo.NAME.getColumnName());
+                        String value = getString(macroJO,
+                                                 MacroEditorColumnInfo.VALUE.getColumnName());
+
+                        // Check if the expected input is present
+                        if (!name.isEmpty())
+                        {
+                            // Add the macro definition (add a blank to
+                            // represent the OID)
+                            macroDefinitions.add(new String[] {name, value, ""});
+                        }
+                        // Incorrect number of inputs. Check if the user
+                        // hasn't already elected to ignore mismatches
+                        else if (!continueOnMismatch)
+                        {
+                            // Get confirmation from the user to ignore the
+                            // discrepancy
+                            if (new CcddDialogHandler().showMessageDialog(parent,
+                                                                          "<html><b>Missing macro name; continue?",
+                                                                          "Macro Mismatch",
+                                                                          JOptionPane.QUESTION_MESSAGE,
+                                                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                            {
+                                continueOnMismatch = true;
+                            }
+                            // The user chose to not ignore the discrepancy
+                            else
+                            {
+                                // No error message is provided since the user
+                                // chose this action
+                                throw new CCDDException("");
+                            }
+                        }
+                    }
+                }
+
+                // Add the data type if it's new or match it to an existing one
+                // with the same name if the type definitions are the same
+                badDefn = dataTypeHandler.updateDataTypes(dataTypeDefinitions);
+
+                // Check if a data type isn't new and doesn't match an
+                // existing one with the same name
+                if (badDefn != null)
+                {
+                    throw new CCDDException("Imported data type '"
+                                            + badDefn
+                                            + "' doesn't match the existing definition");
+                }
+
+                // Add the macro if it's new or match it to an existing one
+                // with the same name if the values are the same
+                badDefn = macroHandler.updateMacros(macroDefinitions);
+
+                // Check if a macro isn't new and doesn't match an existing one
+                // with the same name
+                if (badDefn != null)
+                {
+                    throw new CCDDException("Imported macro '"
+                                            + badDefn
+                                            + "' doesn't match the existing definition");
+                }
             }
 
             // Get the table definitions JSON object
@@ -579,29 +591,75 @@ public class CcddJSONHandler implements CcddImportExportInterface
                         if (typeDefn == null)
                         {
                             throw new CCDDException("Unknown table type '"
-                                                    + tableDefn.getType()
+                                                    + tableType
                                                     + "'");
                         }
+
+                        // Store the table's type name
+                        tableDefn.setType(tableType);
 
                         // Get the number of expected columns (the hidden
                         // columns, primary key and row index, should not be
                         // included in the JSON file)
                         int numColumns = typeDefn.getColumnCountVisible();
 
-                        // Create storage for the row of cell data
+                        // Create storage for the row of cell data and
+                        // initialize the values to blanks
                         String[] rowData = new String[numColumns];
+                        Arrays.fill(rowData, "");
 
                         // Step through each row of data
                         for (JSONObject rowDataJO : parseJSONArray(tableDataJA))
                         {
-                            // Step through each expected column
-                            for (int column = 0; column < numColumns; column++)
+                            // Step through each key (column name)
+                            for (Object columnName : rowDataJO.keySet())
                             {
-                                // Get the value from the JSON input, if
-                                // present; use a blank if a value for this
-                                // column doesn't exist
-                                rowData[column] = getString(rowDataJO,
-                                                            typeDefn.getColumnNamesVisible()[column]);
+                                // Get the column index based on the column
+                                // name
+                                int column = typeDefn.getVisibleColumnIndexByUserName(columnName.toString());
+
+                                // Check if a column by this name exists
+                                if (column != -1)
+                                {
+                                    // Get the value from the JSON input, if
+                                    // present; use a blank if a value for this
+                                    // column doesn't exist
+                                    rowData[column] = getString(rowDataJO,
+                                                                typeDefn.getColumnNamesVisible()[column]);
+                                }
+                                // Check that the user hasn't elected to ignore
+                                // discrepancies
+                                else if (!continueOnMismatch)
+                                {
+                                    // Check if the column name isn't
+                                    // recognized in the table's type
+                                    // definition
+                                    if (typeDefn.getVisibleColumnIndexByUserName(columnName.toString()) == -1)
+                                    {
+                                        // Check if the user confirms ignoring
+                                        // the unknown column name
+                                        if (new CcddDialogHandler().showMessageDialog(parent,
+                                                                                      "<html><b>Unrecognized column name '</b>"
+                                                                                          + columnName
+                                                                                          + "<b>' in table<br>'</b>"
+                                                                                          + tableName
+                                                                                          + "<b>'; continue?",
+                                                                                      "Unknown Column",
+                                                                                      JOptionPane.QUESTION_MESSAGE,
+                                                                                      DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                                        {
+                                            continueOnMismatch = true;
+                                        }
+                                        // The user chose to not ignore the
+                                        // discrepancy
+                                        else
+                                        {
+                                            // No error message is provided
+                                            // since the user chose this action
+                                            throw new CCDDException("");
+                                        }
+                                    }
+                                }
                             }
 
                             // Add the row of data read in from the file to the
@@ -609,8 +667,10 @@ public class CcddJSONHandler implements CcddImportExportInterface
                             tableDefn.addData(rowData);
                         }
 
-                        // Check if any data fields are defined
-                        if (dataFieldsJA != null)
+                        // Check if all definitions are to be loaded and if any
+                        // data fields are defined
+                        if (importType == ImportType.IMPORT_ALL
+                            && dataFieldsJA != null)
                         {
                             // Step through each data field definition
                             for (JSONObject dataFieldJO : parseJSONArray(dataFieldsJA))
@@ -696,6 +756,14 @@ public class CcddJSONHandler implements CcddImportExportInterface
 
                         // Add the table's definition to the list
                         tableDefinitions.add(tableDefn);
+                    }
+
+                    // Check if only the data from the first table is to be
+                    // read
+                    if (importType == ImportType.FIRST_DATA_ONLY)
+                    {
+                        // Stop reading table definitions
+                        break;
                     }
                 }
             }

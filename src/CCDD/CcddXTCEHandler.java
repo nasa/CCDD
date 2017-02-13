@@ -6,6 +6,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.CONTAINS_DESCRIPTION;
 import static CCDD.CcddConstants.CONTAINS_UNITS;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
@@ -299,9 +300,16 @@ public class CcddXTCEHandler implements CcddImportExportInterface
      * 
      * @param importFile
      *            reference to the user-specified XML input file
+     * 
+     * @param importAll
+     *            ImportType.IMPORT_ALL to import the table type, data type,
+     *            and macro definitions, and the data from all the table
+     *            definitions; ImportType.FIRST_DATA_ONLY to load only the data
+     *            for the first table defined
      *************************************************************************/
     @Override
-    public void importFromFile(File importFile) throws CCDDException, IOException
+    public void importFromFile(File importFile,
+                               ImportType importType) throws CCDDException, IOException
     {
         try
         {
@@ -311,11 +319,16 @@ public class CcddXTCEHandler implements CcddImportExportInterface
             // Get the top-level space system
             SpaceSystemType rootSystem = (SpaceSystemType) jaxbElement.getValue();
 
-            // Import the table type, data type, and macro definitions, if
-            // present
+            // Import the table type, if present
             importTableTypeDefinitions(rootSystem);
-            importDataTypeDefinitions(rootSystem);
-            importMacroDefinitions(rootSystem);
+
+            // Check if all definitions are to be loaded
+            if (importType == ImportType.IMPORT_ALL)
+            {
+                // Import the data type and macro definitions, if present
+                importDataTypeDefinitions(rootSystem);
+                importMacroDefinitions(rootSystem);
+            }
 
             tableDefinitions = new ArrayList<TableDefinition>();
 
@@ -325,7 +338,14 @@ public class CcddXTCEHandler implements CcddImportExportInterface
             {
                 // Recursively step through the XTCE-formatted data and extract
                 // the telemetry and command information
-                unbuildSpaceSystems(spaceSystem, spaceSystem.getName());
+                unbuildSpaceSystems(spaceSystem, spaceSystem.getName(), importType);
+
+                // Check if only the data from the first table is to be read
+                if (importType == ImportType.FIRST_DATA_ONLY)
+                {
+                    // Stop reading table definitions
+                    break;
+                }
             }
         }
         catch (JAXBException je)
@@ -521,14 +541,24 @@ public class CcddXTCEHandler implements CcddImportExportInterface
      * 
      * @param systemName
      *            system name
+     * 
+     * @param importAll
+     *            ImportType.IMPORT_ALL to import the table data fields along
+     *            with the data from the table; ImportType.FIRST_DATA_ONLY to
+     *            load only the data for the table
      *************************************************************************/
     private void unbuildSpaceSystems(SpaceSystemType parentSystem,
-                                     String systemName) throws CCDDException
+                                     String systemName,
+                                     ImportType importType) throws CCDDException
     {
         // Get the list of this parent system's child systems
         List<SpaceSystemType> childSystems = parentSystem.getSpaceSystem();
 
         int numColumns = 0;
+
+        // Flag indicating if importing should continue after an unrecognized
+        // column is detected
+        boolean continueOnError = false;
 
         // Step through each child system, if any. Only structure tables can
         // have child tables, and all child tables are structure tables
@@ -581,8 +611,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                         // type
                         numColumns = typeDefn.getColumnCountVisible();
                     }
-                    // Check if this is a data field definition
-                    else if (ancillaryData.getName().startsWith(XTCETags.DATA_FIELD.getTag()))
+                    // Check if data fields are to be imported and this is a
+                    // data field definition
+                    else if (importType == ImportType.IMPORT_ALL
+                             && ancillaryData.getName().startsWith(XTCETags.DATA_FIELD.getTag()))
                     {
                         // Parse data field. The values are comma-separated;
                         // however, commas within quotes are ignored - this
@@ -625,6 +657,15 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                                     * numColumns
                                                     + column,
                                                     ancillaryData.getValue());
+                        }
+                        // The column doesn't exist
+                        else
+                        {
+                            // Get user confirmation to continue or stop the
+                            // import
+                            continueOnError = confirmContinue(continueOnError,
+                                                              columnName,
+                                                              tableDefn.getName());
                         }
                     }
                 }
@@ -732,11 +773,19 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                 int column = typeDefn.getVisibleColumnIndexByUserName(columnName);
 
                                 // Check if the column exists in the table type
-                                // definition and that the cell hasn't already
-                                // been populated by other telemetry data
+                                // definition
                                 if (column != -1)
                                 {
                                     newRow[column] = ancillaryData.getValue();
+                                }
+                                // The column doesn't exist
+                                else
+                                {
+                                    // Get user confirmation to continue or
+                                    // stop the import
+                                    continueOnError = confirmContinue(continueOnError,
+                                                                      columnName,
+                                                                      tableDefn.getName());
                                 }
                             }
                         }
@@ -968,9 +1017,6 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                 // indices for each argument grouping
                 commandArguments = typeDefn.getAssociatedCommandColumns(true);
 
-                // Get the command name column
-                commandNameIndex = typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.COMMAND_NAME));
-
                 // Get the command description column. If the default command
                 // description column name isn't used then the first column
                 // containing 'description' is selected that doesn't refer to a
@@ -1076,20 +1122,32 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                 int column = typeDefn.getVisibleColumnIndexByUserName(columnName);
 
                                 // Check if the column exists in the table type
-                                // definition and that the cell hasn't already
-                                // been populated by other command metadata
-                                if (column != -1
-                                    && tableDefn.getData().get(row
-                                                               * numColumns
-                                                               + column).isEmpty())
+                                // definition
+                                if (column != -1)
                                 {
-                                    // Update the table data at the row and
-                                    // column specified with the value from the
-                                    // ancillary data
-                                    tableDefn.getData().set(row
-                                                            * numColumns
-                                                            + column,
-                                                            ancillaryData.getValue());
+                                    // Check if the cell hasn't already been
+                                    // populated by other command metadata
+                                    if (tableDefn.getData().get(row
+                                                                * numColumns
+                                                                + column).isEmpty())
+                                    {
+                                        // Update the table data at the row and
+                                        // column specified with the value from
+                                        // the ancillary data
+                                        tableDefn.getData().set(row
+                                                                * numColumns
+                                                                + column,
+                                                                ancillaryData.getValue());
+                                    }
+                                }
+                                // The column doesn't exist
+                                else
+                                {
+                                    // Get user confirmation to continue or
+                                    // stop the import
+                                    continueOnError = confirmContinue(continueOnError,
+                                                                      columnName,
+                                                                      tableDefn.getName());
                                 }
                             }
                         }
@@ -1342,22 +1400,34 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                 int column = typeDefn.getVisibleColumnIndexByUserName(columnName);
 
                                 // Check if the column exists in the table type
-                                // definition and that the cell hasn't already
-                                // been populated by other command metadata
-                                // (except for the data type)
-                                if (column != -1
-                                    && (tableDefn.getData().get(row
+                                // definition
+                                if (column != -1)
+                                {
+                                    // Check if the cell hasn't already been
+                                    // populated by other command metadata
+                                    // (except for the data type)
+                                    if (tableDefn.getData().get(row
                                                                 * numColumns
                                                                 + column).isEmpty()
-                                                                || column == commandArguments.get(cmdArgIndex).getDataType()))
+                                        || column == commandArguments.get(cmdArgIndex).getDataType())
+                                    {
+                                        // Update the table data at the row and
+                                        // column specified with the value from
+                                        // the ancillary data
+                                        tableDefn.getData().set(row
+                                                                * numColumns
+                                                                + column,
+                                                                ancillaryData.getValue());
+                                    }
+                                }
+                                // The column doesn't exist
+                                else
                                 {
-                                    // Update the table data at the row and
-                                    // column specified with the value from the
-                                    // ancillary data
-                                    tableDefn.getData().set(row
-                                                            * numColumns
-                                                            + column,
-                                                            ancillaryData.getValue());
+                                    // Get user confirmation to continue or
+                                    // stop the import
+                                    continueOnError = confirmContinue(continueOnError,
+                                                                      columnName,
+                                                                      tableDefn.getName());
                                 }
                             }
                         }
@@ -1368,9 +1438,56 @@ public class CcddXTCEHandler implements CcddImportExportInterface
             // Add the table definition to the list
             tableDefinitions.add(tableDefn);
 
-            // Process this child system's children, if any
-            unbuildSpaceSystems(childSystem, systemName);
+            // Check if the data from all tables is to be read
+            if (importType == ImportType.IMPORT_ALL)
+            {
+                // Process this child system's children, if any
+                unbuildSpaceSystems(childSystem, systemName, importType);
+            }
         }
+    }
+
+    /**************************************************************************
+     * Confirm if the user wishes to continue or stop the import following
+     * detection of an unrecognized column name
+     * 
+     * @param continueOnError
+     *            true if the user has already elected to continue following an
+     *            unknown column name
+     * 
+     * @param columnName
+     *            column name (as seen by the user)
+     * 
+     * @param tableName
+     *            table name
+     * 
+     * @return true if the user chooses to continue following detection of an
+     *         unrecognized column name
+     *************************************************************************/
+    private boolean confirmContinue(boolean continueOnError,
+                                    String columnName,
+                                    String tableName) throws CCDDException
+    {
+        // Check if the user hasn't already elected to ignore any column
+        // discrepancies. Get confirmation from the user to cancel importing
+        if (!continueOnError
+            && new CcddDialogHandler().showMessageDialog(parent,
+                                                         "<html><b>"
+                                                             + "Unrecognized column name '</b>"
+                                                             + columnName
+                                                             + "<b>'"
+                                                             + " in table '</b>"
+                                                             + tableName
+                                                             + "<b>'; continue?",
+                                                         "Unknown Column",
+                                                         JOptionPane.QUESTION_MESSAGE,
+                                                         DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
+        {
+            // No error message is provided since the user chose this action
+            throw new CCDDException("");
+        }
+
+        return true;
     }
 
     /**************************************************************************

@@ -9,6 +9,7 @@ package CCDD;
 import static CCDD.CcddConstants.CONTAINS_DESCRIPTION;
 import static CCDD.CcddConstants.CONTAINS_UNITS;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
+import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
@@ -270,9 +271,16 @@ public class CcddEDSHandler implements CcddImportExportInterface
      * 
      * @param importFile
      *            reference to the user-specified XML input file
+     * 
+     * @param importAll
+     *            ImportType.IMPORT_ALL to import the table type, data type,
+     *            and macro definitions, and the data from all the table
+     *            definitions; ImportType.FIRST_DATA_ONLY to load only the data
+     *            for the first table defined
      *************************************************************************/
     @Override
-    public void importFromFile(File importFile) throws CCDDException, IOException
+    public void importFromFile(File importFile,
+                               ImportType importType) throws CCDDException, IOException
     {
         try
         {
@@ -284,7 +292,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
             // Step through the EDS-formatted data and extract the telemetry
             // and command information
-            unbuildDataSheets();
+            unbuildDataSheets(importType);
         }
         catch (JAXBException je)
         {
@@ -432,8 +440,14 @@ public class CcddEDSHandler implements CcddImportExportInterface
     /**************************************************************************
      * Step through the EDS-formatted data and extract the telemetry and
      * command information
+     * 
+     * @param importAll
+     *            ImportType.IMPORT_ALL to import the table type, data type,
+     *            and macro definitions, and the data from all the table
+     *            definitions; ImportType.FIRST_DATA_ONLY to load only the data
+     *            for the first table defined
      *************************************************************************/
-    private void unbuildDataSheets() throws CCDDException
+    private void unbuildDataSheets(ImportType importType) throws CCDDException
     {
         int variableNameIndex = -1;
         int dataTypeIndex = -1;
@@ -446,6 +460,10 @@ public class CcddEDSHandler implements CcddImportExportInterface
         tableDefinitions = new ArrayList<TableDefinition>();
         List<String[]> dataTypeDefns = new ArrayList<String[]>();
         List<String[]> macroDefns = new ArrayList<String[]>();
+
+        // Flag indicating if importing should continue after an unrecognized
+        // column is detected
+        boolean continueOnError = false;
 
         // Get a list of defined name spaces
         List<NamespaceType> nameSpaces = dataSheet.getNamespace();
@@ -514,35 +532,11 @@ public class CcddEDSHandler implements CcddImportExportInterface
                         }
                     }
                 }
-                // Check if this is the macro definitions name space and if an
-                // interface set exists
-                else if (nameSpace.getName().equals(EDSTags.MACRO.getTag())
-                         && nameSpace.getDeclaredInterfaceSet() != null)
-                {
-                    // Step through the interfaces in order to locate the name
-                    // space's parameter and command sets
-                    for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
-                    {
-                        // Check if this interface contains a generic type set
-                        if (intfcDecType.getGenericTypeSet() != null
-                            && !intfcDecType.getGenericTypeSet().getGenericType().isEmpty()
-                            && intfcDecType.getName().startsWith(EDSTags.MACRO.getTag()))
-                        {
-                            // Step through each generic type data
-                            for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
-                            {
-                                // Add the macro definition to the list (add a
-                                // blank for the OID column)
-                                macroDefns.add(new String[] {genType.getName(),
-                                                             genType.getShortDescription(),
-                                                             ""});
-                            }
-                        }
-                    }
-                }
-                // Check if this is the primitive data type definitions name
-                // space and if an interface set exists
-                else if (nameSpace.getName().equals(EDSTags.DATA_TYPE.getTag())
+                // Check if all definitions are to be loaded, this is the
+                // primitive data type definitions name space, and an interface
+                // set exists
+                else if (importType == ImportType.IMPORT_ALL
+                         && nameSpace.getName().equals(EDSTags.DATA_TYPE.getTag())
                          && nameSpace.getDataTypeSet() != null)
                 {
                     // Get the data types defined in the data set
@@ -696,12 +690,42 @@ public class CcddEDSHandler implements CcddImportExportInterface
                         }
                     }
                 }
-                // Check if this is a table definition name space, an interface
-                // set exists, and that the name space name is in the correct
-                // format for a table (table identifier : table name< : system
-                // name>)
-                else if (nameSpace.getName().startsWith(EDSTags.TABLE.getTag()
-                                                        + ":")
+                // Check if all definitions are to be loaded, this is the macro
+                // definitions name space, and an interface set exists
+                else if (importType == ImportType.IMPORT_ALL
+                         && nameSpace.getName().equals(EDSTags.MACRO.getTag())
+                         && nameSpace.getDeclaredInterfaceSet() != null)
+                {
+                    // Step through the interfaces in order to locate the name
+                    // space's parameter and command sets
+                    for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
+                    {
+                        // Check if this interface contains a generic type set
+                        if (intfcDecType.getGenericTypeSet() != null
+                            && !intfcDecType.getGenericTypeSet().getGenericType().isEmpty()
+                            && intfcDecType.getName().startsWith(EDSTags.MACRO.getTag()))
+                        {
+                            // Step through each generic type data
+                            for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
+                            {
+                                // Add the macro definition to the list (add a
+                                // blank for the OID column)
+                                macroDefns.add(new String[] {genType.getName(),
+                                                             genType.getShortDescription(),
+                                                             ""});
+                            }
+                        }
+                    }
+                }
+                // Check if all definitions are to be loaded or that this is
+                // the first table, this is a table definition name space, an
+                // interface set exists, and that the name space name is in the
+                // correct format for a table (table identifier : table name< :
+                // system name>)
+                else if ((importType == ImportType.IMPORT_ALL
+                         || tableDefinitions.size() == 0)
+                         && nameSpace.getName().startsWith(EDSTags.TABLE.getTag()
+                                                           + ":")
                          && nameSpace.getDeclaredInterfaceSet() != null
                          && nameSpace.getName().matches("[^:]+?:[^:]+?(?::[^:]*)?$"))
                 {
@@ -718,7 +742,6 @@ public class CcddEDSHandler implements CcddImportExportInterface
                     // by the system and the table name, separated by colons
                     tableDefn = new TableDefinition(nameParts[1].trim(),
                                                     nameSpace.getShortDescription());
-                    tableDefinitions.add(tableDefn);
 
                     // Make three passes through the name space interface. The
                     // first pass processes the telemetry and command
@@ -1162,9 +1185,11 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                                 }
                                             }
                                         }
-                                        // Check if this is a data field
+                                        // Check if all definitions are to be
+                                        // loaded and this is a data field
                                         // definition
-                                        else if (intfcDecType.getName().equals(EDSTags.DATA_FIELD.getTag()))
+                                        else if (importType == ImportType.IMPORT_ALL
+                                                 && intfcDecType.getName().equals(EDSTags.DATA_FIELD.getTag()))
                                         {
                                             // Parse data field. The values are
                                             // comma-separated; however, commas
@@ -1212,6 +1237,10 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                                     tableDefn.addData(newRow);
                                                 }
 
+                                                // Check if the cell is empty
+                                                // (i.e., don't replace the
+                                                // cell value if it already is
+                                                // present)
                                                 if (tableDefn.getData().get(row
                                                                             * numColumns
                                                                             + column).isEmpty())
@@ -1224,39 +1253,76 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                                                             genType.getShortDescription());
                                                 }
                                             }
+                                            // Check if the user hasn't already
+                                            // elected to ignore any column
+                                            // discrepancies
+                                            else if (!continueOnError)
+                                            {
+                                                // Check if the user confirms
+                                                // ignoring the unknown column
+                                                // name
+                                                if (new CcddDialogHandler().showMessageDialog(parent,
+                                                                                              "<html><b>Unrecognized column name '</b>"
+                                                                                                  + columnName
+                                                                                                  + "<b>' in table<br>'</b>"
+                                                                                                  + tableDefn.getName()
+                                                                                                  + "<b>'; continue?",
+                                                                                              "Unknown Column",
+                                                                                              JOptionPane.QUESTION_MESSAGE,
+                                                                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                                                {
+                                                    continueOnError = true;
+                                                }
+                                                // The user chose to not ignore
+                                                // the discrepancy
+                                                else
+                                                {
+                                                    // No error message is
+                                                    // provided since the user
+                                                    // chose this action
+                                                    throw new CCDDException("");
+                                                }
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
                     }
+
+                    // Add the table definition to the list
+                    tableDefinitions.add(tableDefn);
                 }
             }
 
-            // Add the data type if it's new or match it to an existing one
-            // with the same name if the type definitions are the same
-            String badDefn = dataTypeHandler.updateDataTypes(dataTypeDefns);
-
-            // Check if a data type isn't new and doesn't match an existing
-            // one with the same name
-            if (badDefn != null)
+            // Check if all definitions are to be loaded
+            if (importType == ImportType.IMPORT_ALL)
             {
-                throw new CCDDException("data type '"
-                                        + badDefn
-                                        + "' already exists and doesn't match the import definition");
-            }
+                // Add the data type if it's new or match it to an existing one
+                // with the same name if the type definitions are the same
+                String badDefn = dataTypeHandler.updateDataTypes(dataTypeDefns);
 
-            // Add the macro if it's new or match it to an existing one
-            // with the same name if the values are the same
-            badDefn = macroHandler.updateMacros(macroDefns);
+                // Check if a data type isn't new and doesn't match an existing
+                // one with the same name
+                if (badDefn != null)
+                {
+                    throw new CCDDException("data type '"
+                                            + badDefn
+                                            + "' already exists and doesn't match the import definition");
+                }
 
-            // Check if a macro isn't new and doesn't match an existing one
-            // with the same name
-            if (badDefn != null)
-            {
-                throw new CCDDException("macro '"
-                                        + badDefn
-                                        + "' already exists and doesn't match the import definition");
+                // Add the macro if it's new or match it to an existing one
+                // with the same name if the values are the same
+                badDefn = macroHandler.updateMacros(macroDefns);
+
+                // Check if a macro isn't new and doesn't match an existing one
+                // with the same name
+                if (badDefn != null)
+                {
+                    throw new CCDDException("macro '"
+                                            + badDefn
+                                            + "' already exists and doesn't match the import definition");
+                }
             }
         }
     }

@@ -7,28 +7,21 @@
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
-import static CCDD.CcddConstants.CANCEL_ICON;
 import static CCDD.CcddConstants.CELL_FONT;
-import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.FOCUS_COLOR;
 import static CCDD.CcddConstants.IGNORE_BUTTON;
 import static CCDD.CcddConstants.INITIAL_VIEWABLE_DATA_TABLE_ROWS;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
-import static CCDD.CcddConstants.OK_ICON;
 import static CCDD.CcddConstants.PROTECTED_BACK_COLOR;
 import static CCDD.CcddConstants.PROTECTED_TEXT_COLOR;
 import static CCDD.CcddConstants.SELECTED_BACK_COLOR;
 import static CCDD.CcddConstants.TABLE_BACK_COLOR;
 import static CCDD.CcddConstants.TEXT_HIGHLIGHT_COLOR;
-import static CCDD.CcddConstants.UPDATE_BUTTON;
 
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -39,11 +32,9 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.swing.DefaultCellEditor;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
@@ -1856,12 +1847,13 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                         {
                             // Inform the user that the input value is invalid
                             CcddDialogHandler validityDlg = new CcddDialogHandler();
-                            int buttonSelected = validityDlg.showMessageDialog(editorDialog,
+                            int buttonSelected = validityDlg.showIgnoreCancelDialog(editorDialog,
                                                                                "<html><b>"
                                                                                    + ce.getMessage(),
-                                                                               createValidityButtonPanel(validityDlg),
                                                                                "Invalid Input",
-                                                                               JOptionPane.QUESTION_MESSAGE);
+                                                                               "Ignore this invalid input",
+                                                                               "Ignore this and any remaining invalid inputs for this table",
+                                                                               "Cease inputting values");
 
                             // Check if the Ignore All button was pressed
                             if (buttonSelected == IGNORE_BUTTON)
@@ -3077,68 +3069,6 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                                       false);
             }
         }
-    }
-
-    /**************************************************************************
-     * Create the validity check dialog buttons
-     * 
-     * @param dialog
-     *            reference to the dialog
-     * 
-     * @return JPanel containing the dialog buttons
-     *************************************************************************/
-    private JPanel createValidityButtonPanel(final CcddDialogHandler dialog)
-    {
-        // Create the Ignore button
-        final JButton btnIgnore = CcddButtonPanelHandler.createButton("Ignore",
-                                                                      OK_ICON,
-                                                                      KeyEvent.VK_I,
-                                                                      "Ignore this invalid input");
-
-        // Create the Ignore All button
-        final JButton btnIgnoreAll = CcddButtonPanelHandler.createButton("Ignore All",
-                                                                         DELETE_ICON,
-                                                                         KeyEvent.VK_A,
-                                                                         "Ignore this and any remaining invalid inputs for this table");
-
-        // Create the Cancel button
-        JButton btnCancel = CcddButtonPanelHandler.createButton("Cancel",
-                                                                CANCEL_ICON,
-                                                                KeyEvent.VK_C,
-                                                                "Cease inputting values");
-
-        // Create a listener for the button actions
-        ActionListener listener = new ActionListener()
-        {
-            /******************************************************************
-             * Indicate the which button was pressed and close the dialog
-             *****************************************************************/
-            @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                JButton button = (JButton) ae.getSource();
-
-                dialog.closeDialog(button == btnIgnore
-                                                      ? UPDATE_BUTTON
-                                                      : (button == btnIgnoreAll
-                                                                               ? IGNORE_BUTTON
-                                                                               : CANCEL_BUTTON));
-            }
-        };
-
-        // Set the button listeners
-        btnIgnore.addActionListener(listener);
-        btnIgnoreAll.addActionListener(listener);
-        btnCancel.addActionListener(listener);
-
-        // Create the panel for the dialog buttons and add the dialog buttons
-        // to the panel
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(btnIgnore);
-        buttonPanel.add(btnIgnoreAll);
-        buttonPanel.add(btnCancel);
-
-        return buttonPanel;
     }
 
     /**************************************************************************

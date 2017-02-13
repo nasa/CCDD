@@ -7,11 +7,14 @@
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
+import static CCDD.CcddConstants.CANCEL_ICON;
 import static CCDD.CcddConstants.CHECK_BOX_CHANGE_EVENT;
+import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.DIALOG_INNER_PAD;
 import static CCDD.CcddConstants.DIALOG_MAX_LINE_LENGTH;
 import static CCDD.CcddConstants.DIALOG_MIN_WINDOW_WIDTH;
 import static CCDD.CcddConstants.ERROR_ICON;
+import static CCDD.CcddConstants.IGNORE_BUTTON;
 import static CCDD.CcddConstants.INFORMATION_ICON;
 import static CCDD.CcddConstants.LABEL_FONT_BOLD;
 import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
@@ -19,8 +22,10 @@ import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
 import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.MIN_WINDOW_HEIGHT;
 import static CCDD.CcddConstants.OK_BUTTON;
+import static CCDD.CcddConstants.OK_ICON;
 import static CCDD.CcddConstants.QUESTION_ICON;
 import static CCDD.CcddConstants.RADIO_BUTTON_CHANGE_EVENT;
+import static CCDD.CcddConstants.UPDATE_BUTTON;
 import static CCDD.CcddConstants.WARNING_ICON;
 
 import java.awt.Component;
@@ -33,6 +38,7 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -46,6 +52,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -508,6 +515,96 @@ public class CcddDialogHandler extends JDialog
         }
 
         return icon;
+    }
+
+    // TODO
+    /**************************************************************************
+     * Create the Ignore/Ignore All/Cancel dialog
+     * 
+     * @param parent
+     *            window to center the dialog over
+     * 
+     * @param message
+     *            text message to display
+     * 
+     * @param title
+     *            title to display in the dialog window frame
+     * 
+     * @param ignoreToolTip
+     *            Ignore button tool tip text; null if no tool tip is to be
+     *            displayed
+     * 
+     * @param ignoreAllToolTip
+     *            Ignore All button tool tip text; null if no tool tip is to be
+     *            displayed
+     * 
+     * @param cancelToolTip
+     *            Cancel button tool tip text; null if no tool tip is to be
+     *            displayed
+     * 
+     * @return Selected button type
+     *************************************************************************/
+    protected int showIgnoreCancelDialog(Component parent,
+                                         String message,
+                                         String title,
+                                         String ignoreToolTip,
+                                         String ignoreAllToolTip,
+                                         String cancelToolTip)
+    {
+        // Create the Ignore button
+        final JButton btnIgnore = CcddButtonPanelHandler.createButton("Ignore",
+                                                                      OK_ICON,
+                                                                      KeyEvent.VK_I,
+                                                                      ignoreToolTip);
+
+        // Create the Ignore All button
+        final JButton btnIgnoreAll = CcddButtonPanelHandler.createButton("Ignore All",
+                                                                         DELETE_ICON,
+                                                                         KeyEvent.VK_A,
+                                                                         ignoreAllToolTip);
+
+        // Create the Cancel button
+        JButton btnCancel = CcddButtonPanelHandler.createButton("Cancel",
+                                                                CANCEL_ICON,
+                                                                KeyEvent.VK_C,
+                                                                cancelToolTip);
+
+        // Create a listener for the button actions
+        ActionListener listener = new ActionListener()
+        {
+            /******************************************************************
+             * Indicate the which button was pressed and close the dialog
+             *****************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                JButton button = (JButton) ae.getSource();
+
+                closeDialog(button == btnIgnore
+                                               ? UPDATE_BUTTON
+                                               : (button == btnIgnoreAll
+                                                                        ? IGNORE_BUTTON
+                                                                        : CANCEL_BUTTON));
+            }
+        };
+
+        // Set the button listeners
+        btnIgnore.addActionListener(listener);
+        btnIgnoreAll.addActionListener(listener);
+        btnCancel.addActionListener(listener);
+
+        // Create the panel for the dialog buttons and add the dialog buttons
+        // to the panel
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(btnIgnore);
+        buttonPanel.add(btnIgnoreAll);
+        buttonPanel.add(btnCancel);
+
+        return showMessageDialog(parent,
+                                 message,
+                                 buttonPanel,
+                                 title,
+                                 JOptionPane.QUESTION_MESSAGE);
     }
 
     /**************************************************************************
