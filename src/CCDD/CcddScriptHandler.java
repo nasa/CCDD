@@ -574,6 +574,12 @@ public class CcddScriptHandler
                 // executed
                 isBad[assnIndex] = true;
             }
+            catch (Exception e)
+            {
+                // Display a dialog providing details on the unanticipated
+                // error
+                CcddUtilities.displayException(e, ccddMain.getMainFrame());
+            }
         }
 
         // Get the link assignment information, if any
@@ -717,6 +723,12 @@ public class CcddScriptHandler
                     // Set the flag for this association indicating it can't be
                     // executed
                     isBad[assnIndex] = true;
+                }
+                catch (Exception e)
+                {
+                    // Display a dialog providing details on the unanticipated
+                    // error
+                    CcddUtilities.displayException(e, ccddMain.getMainFrame());
                 }
             }
         }
@@ -941,6 +953,12 @@ public class CcddScriptHandler
                                             + "' error '"
                                             + se.getMessage()
                                             + "'");
+                }
+                catch (Exception e)
+                {
+                    // Display a dialog providing details on the unanticipated
+                    // error
+                    CcddUtilities.displayException(e, ccddMain.getMainFrame());
                 }
 
                 // Stop searching since a match was found

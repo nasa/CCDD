@@ -4044,7 +4044,7 @@ public class CcddConstants
                + "' || table_description || E'"
                + TABLE_DESCRIPTION_SEPARATOR
                + "' || column_value AS search_result FROM "
-               + "search_tables('_search_text_', "
+               + "search_tables(E'_search_text_', "
                + "_case_insensitive_, '_selected_tables_') "
                + "ORDER BY table_name, column_name ASC;"),
 

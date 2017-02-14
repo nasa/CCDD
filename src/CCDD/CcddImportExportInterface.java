@@ -55,7 +55,8 @@ public interface CcddImportExportInterface
      *************************************************************************/
     abstract void importFromFile(File importFile,
                                  ImportType importType) throws CCDDException,
-                                                       IOException;
+                                                       IOException,
+                                                       Exception;
 
     /**************************************************************************
      * Export the project to the specified file

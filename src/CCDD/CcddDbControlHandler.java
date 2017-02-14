@@ -991,11 +991,12 @@ public class CcddDbControlHandler
         }
     }
 
+    // TODO ORIGINAL METHOD
     /**************************************************************************
      * Create the reusable database functions for obtaining structure table
      * members and structure-defining column values
      *************************************************************************/
-    protected void createStructureColumnFunctions()
+    protected void createStructureColumnFunctionsORG()
     {
         // Check if connected to a project database
         if (connectionStatus == TO_DATABASE)
@@ -1206,6 +1207,353 @@ public class CcddDbControlHandler
                                                + ", "
                                                + dbBitLength
                                                + rateCol
+                                               + " WHERE "
+                                               + dbArraySize
+                                               + " = E'''' OR "
+                                               + dbVariableName
+                                               + " ~ E''^.+]'' ORDER BY "
+                                               + functionParm[1]
+                                               + " ASC'; END $$ LANGUAGE plpgsql; "
+                                               + buildOwnerCommand(DatabaseObject.FUNCTION,
+                                                                   "get_def_columns_by_"
+                                                                       + functionParm[0]
+                                                                       + "(name text)"),
+                                               ccddMain.getMainFrame());
+                }
+
+                // Database function to search for all tables containing a data
+                // type column, and replace a target value with a new value
+                dbCommand.executeDbCommand(deleteFunction("update_data_type_names")
+                                           + "CREATE FUNCTION update_data_type_names(oldType text, "
+                                           + "newType text) RETURNS VOID AS $$ BEGIN DECLARE row "
+                                           + "record; BEGIN DROP TABLE IF EXISTS "
+                                           + INTERNAL_TABLE_PREFIX
+                                           + "telemetry_tables; CREATE TEMP TABLE "
+                                           + INTERNAL_TABLE_PREFIX
+                                           + "telemetry_tables AS SELECT t.tablename AS real_name "
+                                           + "FROM pg_tables AS t WHERE t.schemaname = 'public' "
+                                           + "AND substr(t.tablename, 1, "
+                                           + INTERNAL_TABLE_PREFIX.length()
+                                           + ") != '"
+                                           + INTERNAL_TABLE_PREFIX
+                                           + "'; FOR row IN SELECT * FROM "
+                                           + INTERNAL_TABLE_PREFIX
+                                           + "telemetry_tables LOOP IF EXISTS (SELECT 1 FROM "
+                                           + "information_schema.columns WHERE table_name = "
+                                           + "row.real_name AND column_name = '"
+                                           + dbDataType
+                                           + "') THEN EXECUTE E'UPDATE ' || row.real_name || E' SET "
+                                           + dbDataType
+                                           + " = ''' || newType || E''' WHERE "
+                                           + dbDataType
+                                           + " = ''' || oldType || E''''; END IF; "
+                                           + "END LOOP; END; END; $$ LANGUAGE plpgsql; "
+                                           + buildOwnerCommand(DatabaseObject.FUNCTION,
+                                                               "update_data_type_names(oldType text,"
+                                                                   + " newType text)"),
+                                           ccddMain.getMainFrame());
+            }
+            catch (SQLException se)
+            {
+                // Inform the user that creating the database functions failed
+                eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                      "Cannot create functions in project database '"
+                                          + activeDatabase
+                                          + "' as user '"
+                                          + activeUser
+                                          + "'; cause '"
+                                          + se.getMessage()
+                                          + "'",
+                                      "<html><b>Cannot create functions in project database '</b>"
+                                          + activeDatabase
+                                          + "<b>'");
+            }
+        }
+    }
+
+    // TODO MODIFIED METHOD
+    /**************************************************************************
+     * Create the reusable database functions for obtaining structure table
+     * members and structure-defining column values
+     *************************************************************************/
+    protected void createStructureColumnFunctions()
+    {
+        // Check if connected to a project database
+        if (connectionStatus == TO_DATABASE)
+        {
+            try
+            {
+                // Structure-defining column names, as used by the database
+                String dbVariableName = null;
+                String dbDataType = null;
+                String dbArraySize = null;
+                String dbBitLength = null;
+                String dbRate = null;
+                String dbEnumeration = null;
+
+                String compareColumns = "";
+
+                // Use the default structure column names for certain default
+                // columns
+                dbVariableName = DefaultColumn.VARIABLE_NAME.getDbName();
+                dbDataType = DefaultColumn.DATA_TYPE.getDbName();
+                dbArraySize = DefaultColumn.ARRAY_SIZE.getDbName();
+                dbBitLength = DefaultColumn.BIT_LENGTH.getDbName();
+
+                // Create a string containing the partial command for
+                // determining if the columns that are necessary to define a
+                // structure table are present in a table
+                String defStructCols = "(column_name = '" + dbVariableName + "' OR "
+                                       + "column_name = '" + dbDataType + "' OR "
+                                       + "column_name = '" + dbArraySize + "' OR "
+                                       + "column_name = '" + dbBitLength + "' OR ";
+
+                List<String> rateAndEnums = new ArrayList<String>();
+
+                // Step through each table type definition
+                for (TypeDefinition typeDefn : ccddMain.getTableTypeHandler().getTypeDefinitions())
+                {
+                    // Check if the type represents a structure
+                    if (typeDefn.isStructure())
+                    {
+                        // Get this type's first rate and enumeration column
+                        // names
+                        dbRate = typeDefn.getDbColumnNameByInputType(InputDataType.RATE);
+                        dbEnumeration = typeDefn.getDbColumnNameByInputType(InputDataType.ENUMERATION);
+
+                        // Create the portion of the command comparing the
+                        // column name to the first rate and enumeration column
+                        // names
+                        String rateAndEnum = "column_name = '" + dbRate + "' OR "
+                                             + "column_name = '" + dbEnumeration + "') OR ";
+
+                        // Check if this pair of rate and enumeration columns
+                        // names doesn't already exist in the comparison
+                        if (!rateAndEnums.contains(rateAndEnum))
+                        {
+                            // Add the rate and enumeration name pair so that
+                            // it won't be added again
+                            rateAndEnums.add(rateAndEnum);
+
+                            // Create a string containing the partial command
+                            // for determining if the columns that are
+                            // necessary to define a structure table are
+                            // present in a table
+                            compareColumns += defStructCols
+                                              + "column_name = '" + dbRate + "' OR "
+                                              + "column_name = '" + dbEnumeration + "') OR ";
+                        }
+                    }
+                }
+
+                // Check if no structure table type exists
+                if (compareColumns.isEmpty())
+                {
+                    // Get the default rate and enumeration column names
+                    dbRate = DefaultColumn.RATE.getDbName();
+                    dbEnumeration = DefaultColumn.ENUMERATION.getDbName();
+
+                    // Create a string containing the partial command for
+                    // determining if the columns that are necessary to define
+                    // a structure table are present in a table
+                    compareColumns = defStructCols
+                                     + "column_name = '" + dbRate + "' OR "
+                                     + "column_name = '" + dbEnumeration + "')";
+
+                }
+                // At least one structure table type exists
+                else
+                {
+                    compareColumns = CcddUtilities.removeTrailer(compareColumns, " OR ");
+                }
+
+                // Temporary data storage table
+                String tempTable = INTERNAL_TABLE_PREFIX + "temp_table";
+
+                // Create functions for gathering the structure table member
+                // information sorted alphabetically by name or numerically by
+                // row index
+                for (String[] functionParm : functionParameters)
+                {
+                    // Create function to get the table name, data type,
+                    // variable name, bit length, sample rate, and enumeration
+                    // for all structure tables that contain at least one row,
+                    // sorted by table name or index, and then by variable
+                    // name. For arrays, only the members are retrieved; the
+                    // array definitions are ignored
+                    dbCommand.executeDbCommand(deleteFunction("get_table_members_by_"
+                                                              + functionParm[0])
+                                               + "CREATE FUNCTION get_table_members_by_"
+                                               + functionParm[0]
+                                               + "() RETURNS TABLE(tbl_name text, data_type "
+                                               + "text, variable_name text, bit_length text, "
+                                               + "rate text, enumeration text) AS $$ BEGIN "
+                                               + "DECLARE row record; BEGIN DROP TABLE IF EXISTS "
+                                               + tempTable
+                                               + "; CREATE TEMP TABLE "
+                                               + tempTable
+                                               + " AS SELECT t.tablename AS real_name FROM "
+                                               + "pg_tables AS t WHERE t.schemaname = 'public' "
+                                               + "AND substr(t.tablename, 1, 2) != '"
+                                               + INTERNAL_TABLE_PREFIX
+                                               + "' ORDER BY real_name ASC; FOR row IN SELECT * FROM "
+                                               + tempTable
+                                               + " LOOP IF EXISTS (SELECT * FROM "
+                                               + "(SELECT COUNT(*) FROM information_schema.columns "
+                                               + "WHERE table_name = row.real_name AND ("
+                                               + compareColumns
+                                               + ")) AS alias1 WHERE count = '"
+                                               + DefaultColumn.getProtectedColumnCount(TYPE_STRUCTURE)
+                                               + "') THEN RETURN QUERY EXECUTE E'SELECT ''' || "
+                                               + "row.real_name || '''::text, * FROM get_def_columns_by_"
+                                               + functionParm[0]
+                                               + "(''' || row.real_name || ''')'; END IF; "
+                                               + "END LOOP; END; DROP TABLE IF EXISTS "
+                                               + tempTable
+                                               + "; END; $$ LANGUAGE plpgsql; "
+                                               + buildOwnerCommand(DatabaseObject.FUNCTION,
+                                                                   "get_table_members_by_"
+                                                                       + functionParm[0]
+                                                                       + "()"),
+                                               ccddMain.getMainFrame());
+                }
+
+                // TODO CHECK THAT THIS CORRECTLY GETS THE RATE(S) AND ENUM(S),
+                // WHEN THERE IS ONE OR MORE DEFINED ACROSS MULTIPLE TABLE
+                // TYPES
+
+                String rateCol = "";
+                String rateJoin = "";
+
+                // Check if any rate columns are defined
+                if (ccddMain.getRateParameterHandler().getNumRateColumns() != 0)
+                {
+                    // Step through each rate column name (in its database
+                    // form)
+                    for (String rateColName : ccddMain.getRateParameterHandler().getRateColumnNames(true))
+                    {
+                        // Add detection for the rate column. If the column
+                        // doesn't exist in the table then a blank is returned
+                        // for that column's rate value
+                        rateCol += "CASE WHEN "
+                                   + rateColName
+                                   + "_exists THEN "
+                                   + rateColName
+                                   + "::text ELSE ''''::text END || '','' || ";
+                        rateJoin += " CROSS JOIN (SELECT EXISTS (SELECT 1 FROM "
+                                    + "pg_catalog.pg_attribute WHERE attrelid = ''' "
+                                    + "|| name || '''::regclass AND attname  = ''"
+                                    + rateColName
+                                    + "'' "
+                                    + "AND NOT attisdropped AND attnum > 0) AS "
+                                    + rateColName
+                                    + "_exists) "
+                                    + rateColName;
+                    }
+
+                    // Remove the trailing separator text
+                    rateCol = CcddUtilities.removeTrailer(rateCol, " || '','' || ");
+                }
+                // No rate columns exist
+                else
+                {
+                    // Return a blank for the rate column value
+                    rateCol = "''''::text";
+                }
+
+                // Get the unique enumeration columns
+                List<String> enumColumns = new ArrayList<String>();
+
+                // Step through each table type definition
+                for (TypeDefinition typeDefn : ccddMain.getTableTypeHandler().getTypeDefinitions())
+                {
+                    // Check if the type represents a structure
+                    if (typeDefn.isStructure())
+                    {
+                        // Step through each of the table's enumeration columns
+                        for (int enumIndex : typeDefn.getColumnIndicesByInputType(InputDataType.ENUMERATION))
+                        {
+                            // Get the name of the column (database)
+                            String name = typeDefn.getColumnNamesDatabase()[enumIndex];
+
+                            // Check if the name hasn't already been added
+                            if (!enumColumns.contains(name))
+                            {
+                                // Add the enumeration column name to the list
+                                enumColumns.add(name);
+                            }
+                        }
+                    }
+                }
+
+                String enumCol = "";
+                String enumJoin = "";
+
+                // Check if any enumeration columns are defined
+                if (enumColumns.size() != 0)
+                {
+                    // Step through each enumeration column name (in its
+                    // database form)
+                    for (String enumColName : enumColumns)
+                    {
+                        // Add detection for the enumeration column. If the
+                        // column doesn't exist in the table then a blank is
+                        // returned for that column's enumeration value
+                        enumCol += "CASE WHEN "
+                                   + enumColName
+                                   + "_exists THEN "
+                                   + enumColName
+                                   + "::text ELSE ''''::text END || '','' || ";
+                        enumJoin += " CROSS JOIN (SELECT EXISTS (SELECT 1 FROM "
+                                    + "pg_catalog.pg_attribute WHERE attrelid = ''' "
+                                    + "|| name || '''::regclass AND attname  = ''"
+                                    + enumColName
+                                    + "'' "
+                                    + "AND NOT attisdropped AND attnum > 0) AS "
+                                    + enumColName
+                                    + "_exists) "
+                                    + enumColName;
+                    }
+
+                    // Remove the trailing separator text
+                    enumCol = CcddUtilities.removeTrailer(enumCol, " || '','' || ");
+                }
+                // No enumeration columns exist
+                else
+                {
+                    // Return a blank for the enumeration column value
+                    enumCol += "''''::text";
+                }
+
+                // Create functions for gathering the structure table member
+                // information sorted alphabetically by name or numerically by
+                // row index
+                for (String[] functionParm : functionParameters)
+                {
+                    // Create function to get the data type and variable name
+                    // column data for the specified table, sorted by variable
+                    // name. For arrays, only the members are retrieved; the
+                    // array definitions are ignored
+                    dbCommand.executeDbCommand(deleteFunction("get_def_columns_by_"
+                                                              + functionParm[0])
+                                               + "CREATE FUNCTION get_def_columns_by_"
+                                               + functionParm[0]
+                                               + "(name text) RETURNS TABLE(data_type "
+                                               + "text, variable_name text, bit_length text, "
+                                               + "rate text, enumeration text) AS $$ "
+                                               + "BEGIN RETURN QUERY EXECUTE 'SELECT "
+                                               + dbDataType
+                                               + ", "
+                                               + dbVariableName
+                                               + ", "
+                                               + dbBitLength
+                                               + ", "
+                                               + rateCol
+                                               + ", "
+                                               + enumCol
+                                               + " FROM ' || name || '"
+                                               + rateJoin
+                                               + enumJoin
                                                + " WHERE "
                                                + dbArraySize
                                                + " = E'''' OR "
@@ -1622,14 +1970,30 @@ public class CcddDbControlHandler
                                                          ccddMain.getMainFrame());
                         }
 
-                        // Store the database name, user name, server host, and
-                        // server port in the program preferences backing store
-                        ccddMain.getProgPrefs().put(DATABASE, activeDatabase);
-                        ccddMain.getProgPrefs().put(USER, activeUser);
-                        ccddMain.getProgPrefs().put(POSTGRESQL_SERVER_HOST,
-                                                    serverHost);
-                        ccddMain.getProgPrefs().put(POSTGRESQL_SERVER_PORT,
-                                                    serverPort);
+                        try
+                        {
+                            // Store the database name, user name, server host,
+                            // and server port in the program preferences
+                            // backing store
+                            ccddMain.getProgPrefs().put(DATABASE, activeDatabase);
+                            ccddMain.getProgPrefs().put(USER, activeUser);
+                            ccddMain.getProgPrefs().put(POSTGRESQL_SERVER_HOST,
+                                                        serverHost);
+                            ccddMain.getProgPrefs().put(POSTGRESQL_SERVER_PORT,
+                                                        serverPort);
+                        }
+                        catch (Exception e)
+                        {
+                            // Inform the user that there the program
+                            // preferences can't be stored
+                            new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                                      "<html><b>Cannot store program preference values; cause '"
+                                                                          + e.getMessage()
+                                                                          + "'",
+                                                                      "File Warning",
+                                                                      JOptionPane.WARNING_MESSAGE,
+                                                                      DialogOption.OK_OPTION);
+                        }
                     }
                 }
                 catch (LinkageError | ClassNotFoundException le)
@@ -1647,15 +2011,9 @@ public class CcddDbControlHandler
                 }
                 catch (Exception e)
                 {
-                    // Inform the user that there the program preferences can't
-                    // be stored
-                    new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                              "<html><b>Cannot store program preference values; cause '"
-                                                                  + e.getMessage()
-                                                                  + "'",
-                                                              "File Warning",
-                                                              JOptionPane.WARNING_MESSAGE,
-                                                              DialogOption.OK_OPTION);
+                    // Display a dialog providing details on the unanticipated
+                    // error
+                    CcddUtilities.displayException(e, ccddMain.getMainFrame());
                 }
             }
             // A required parameter is missing

@@ -9,6 +9,7 @@ package CCDD;
 import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.CONTAINS_DESCRIPTION;
 import static CCDD.CcddConstants.CONTAINS_UNITS;
+import static CCDD.CcddConstants.IGNORE_BUTTON;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
@@ -74,6 +75,7 @@ import CCDD.CcddClasses.TableTypeDefinition;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DefaultPrimitiveTypeInfo;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.FieldEditorColumnInfo;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
@@ -309,7 +311,9 @@ public class CcddXTCEHandler implements CcddImportExportInterface
      *************************************************************************/
     @Override
     public void importFromFile(File importFile,
-                               ImportType importType) throws CCDDException, IOException
+                               ImportType importType) throws CCDDException,
+                                                     IOException,
+                                                     Exception
     {
         try
         {
@@ -320,14 +324,14 @@ public class CcddXTCEHandler implements CcddImportExportInterface
             SpaceSystemType rootSystem = (SpaceSystemType) jaxbElement.getValue();
 
             // Import the table type, if present
-            importTableTypeDefinitions(rootSystem);
+            importTableTypeDefinitions(rootSystem, importFile.getAbsolutePath());
 
             // Check if all definitions are to be loaded
             if (importType == ImportType.IMPORT_ALL)
             {
                 // Import the data type and macro definitions, if present
-                importDataTypeDefinitions(rootSystem);
-                importMacroDefinitions(rootSystem);
+                importDataTypeDefinitions(rootSystem, importFile.getAbsolutePath());
+                importMacroDefinitions(rootSystem, importFile.getAbsolutePath());
             }
 
             tableDefinitions = new ArrayList<TableDefinition>();
@@ -338,7 +342,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
             {
                 // Recursively step through the XTCE-formatted data and extract
                 // the telemetry and command information
-                unbuildSpaceSystems(spaceSystem, spaceSystem.getName(), importType);
+                unbuildSpaceSystems(spaceSystem,
+                                    spaceSystem.getName(),
+                                    importType,
+                                    importFile.getAbsolutePath());
 
                 // Check if only the data from the first table is to be read
                 if (importType == ImportType.FIRST_DATA_ONLY)
@@ -444,6 +451,12 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                                       DialogOption.OK_OPTION);
             errorFlag = true;
         }
+        catch (Exception e)
+        {
+            // Display a dialog providing details on the unanticipated error
+            CcddUtilities.displayException(e, parent);
+            errorFlag = true;
+        }
 
         return errorFlag;
     }
@@ -546,19 +559,24 @@ public class CcddXTCEHandler implements CcddImportExportInterface
      *            ImportType.IMPORT_ALL to import the table data fields along
      *            with the data from the table; ImportType.FIRST_DATA_ONLY to
      *            load only the data for the table
+     * 
+     * @param importFileName
+     *            import file name
      *************************************************************************/
     private void unbuildSpaceSystems(SpaceSystemType parentSystem,
                                      String systemName,
-                                     ImportType importType) throws CCDDException
+                                     ImportType importType,
+                                     String importFileName) throws CCDDException
     {
         // Get the list of this parent system's child systems
         List<SpaceSystemType> childSystems = parentSystem.getSpaceSystem();
 
         int numColumns = 0;
 
-        // Flag indicating if importing should continue after an unrecognized
-        // column is detected
-        boolean continueOnError = false;
+        // Flags indicating if importing should continue after an input
+        // error is detected
+        boolean continueOnColumnError = false;
+        boolean continueOnDataFieldError = false;
 
         // Step through each child system, if any. Only structure tables can
         // have child tables, and all child tables are structure tables
@@ -616,16 +634,58 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                     else if (importType == ImportType.IMPORT_ALL
                              && ancillaryData.getName().startsWith(XTCETags.DATA_FIELD.getTag()))
                     {
+                        // Get the data field inputs. If not present use a
+                        // blank to prevent an error when separating the inputs
+                        String inputs = ancillaryData.getValue() != null
+                                                                        ? ancillaryData.getValue()
+                                                                        : "";
+
                         // Parse data field. The values are comma-separated;
                         // however, commas within quotes are ignored - this
                         // allows commas to be included in the data values
                         String[] fieldDefn = CcddUtilities.splitAndRemoveQuotes("\""
                                                                                 + tableDefn.getName()
                                                                                 + "\","
-                                                                                + ancillaryData.getValue());
+                                                                                + inputs);
 
-                        // Add the data field definition to the table
-                        tableDefn.addDataField(fieldDefn);
+                        // Check if the expected number of inputs is present
+                        if (fieldDefn.length == FieldEditorColumnInfo.values().length + 1)
+                        {
+                            // Add the data field definition to the table
+                            tableDefn.addDataField(fieldDefn);
+                        }
+                        // Check that the user hasn't elected to ignore data
+                        // field errors
+                        else if (!continueOnDataFieldError)
+                        {
+                            // Inform the user that the data field name inputs
+                            // are incorrect
+                            int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                "<html><b>Table '</b>"
+                                                                                                    + tableDefn.getName()
+                                                                                                    + "<b>' has missing or extra data field input(s) in import file '</b>"
+                                                                                                    + importFileName
+                                                                                                    + "<b>'; continue?",
+                                                                                                "Data Field Error",
+                                                                                                "Ignore this invalid data field",
+                                                                                                "Ignore this and any remaining invalid data fields",
+                                                                                                "Stop importing");
+
+                            // Check if the Ignore All button was pressed
+                            if (buttonSelected == IGNORE_BUTTON)
+                            {
+                                // Set the flag to ignore subsequent data field
+                                // errors
+                                continueOnDataFieldError = true;
+                            }
+                            // Check if the Cancel button was pressed
+                            else if (buttonSelected == CANCEL_BUTTON)
+                            {
+                                // No error message is provided since the user
+                                // chose this action
+                                throw new CCDDException("");
+                            }
+                        }
                     }
                     // Check if this is a table column value. This is for
                     // tables that aren't structure or command tables
@@ -663,9 +723,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                         {
                             // Get user confirmation to continue or stop the
                             // import
-                            continueOnError = confirmContinue(continueOnError,
-                                                              columnName,
-                                                              tableDefn.getName());
+                            continueOnColumnError = confirmContinue(continueOnColumnError,
+                                                                    columnName,
+                                                                    tableDefn.getName(),
+                                                                    importFileName);
                         }
                     }
                 }
@@ -783,9 +844,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                 {
                                     // Get user confirmation to continue or
                                     // stop the import
-                                    continueOnError = confirmContinue(continueOnError,
-                                                                      columnName,
-                                                                      tableDefn.getName());
+                                    continueOnColumnError = confirmContinue(continueOnColumnError,
+                                                                            columnName,
+                                                                            tableDefn.getName(),
+                                                                            importFileName);
                                 }
                             }
                         }
@@ -1145,9 +1207,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                 {
                                     // Get user confirmation to continue or
                                     // stop the import
-                                    continueOnError = confirmContinue(continueOnError,
-                                                                      columnName,
-                                                                      tableDefn.getName());
+                                    continueOnColumnError = confirmContinue(continueOnColumnError,
+                                                                            columnName,
+                                                                            tableDefn.getName(),
+                                                                            importFileName);
                                 }
                             }
                         }
@@ -1425,9 +1488,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                 {
                                     // Get user confirmation to continue or
                                     // stop the import
-                                    continueOnError = confirmContinue(continueOnError,
-                                                                      columnName,
-                                                                      tableDefn.getName());
+                                    continueOnColumnError = confirmContinue(continueOnColumnError,
+                                                                            columnName,
+                                                                            tableDefn.getName(),
+                                                                            importFileName);
                                 }
                             }
                         }
@@ -1442,7 +1506,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
             if (importType == ImportType.IMPORT_ALL)
             {
                 // Process this child system's children, if any
-                unbuildSpaceSystems(childSystem, systemName, importType);
+                unbuildSpaceSystems(childSystem,
+                                    systemName,
+                                    importType,
+                                    importFileName);
             }
         }
     }
@@ -1451,7 +1518,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
      * Confirm if the user wishes to continue or stop the import following
      * detection of an unrecognized column name
      * 
-     * @param continueOnError
+     * @param continueOnColumnError
      *            true if the user has already elected to continue following an
      *            unknown column name
      * 
@@ -1461,33 +1528,52 @@ public class CcddXTCEHandler implements CcddImportExportInterface
      * @param tableName
      *            table name
      * 
-     * @return true if the user chooses to continue following detection of an
-     *         unrecognized column name
+     * @param importFileName
+     *            import file name
+     * 
+     * @return false if the user chooses to ignore this unrecognized column
+     *         name, true if the user chooses to ignore any subsequent
+     *         unrecognized column names, and throws an exception if the user
+     *         elects to stop the import
      *************************************************************************/
-    private boolean confirmContinue(boolean continueOnError,
+    private boolean confirmContinue(boolean continueOnColumnError,
                                     String columnName,
-                                    String tableName) throws CCDDException
+                                    String tableName,
+                                    String importFileName) throws CCDDException
     {
-        // Check if the user hasn't already elected to ignore any column
-        // discrepancies. Get confirmation from the user to cancel importing
-        if (!continueOnError
-            && new CcddDialogHandler().showMessageDialog(parent,
-                                                         "<html><b>"
-                                                             + "Unrecognized column name '</b>"
-                                                             + columnName
-                                                             + "<b>'"
-                                                             + " in table '</b>"
-                                                             + tableName
-                                                             + "<b>'; continue?",
-                                                         "Unknown Column",
-                                                         JOptionPane.QUESTION_MESSAGE,
-                                                         DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
+        // Check that the user hasn't elected to ignore column name errors
+        if (!continueOnColumnError)
         {
-            // No error message is provided since the user chose this action
-            throw new CCDDException("");
+            // Inform the user that the column name is invalid
+            int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                "<html><b>Table '</b>"
+                                                                                    + tableName
+                                                                                    + "<b>' column name '</b>"
+                                                                                    + columnName
+                                                                                    + "<b>' unrecognized in import file '</b>"
+                                                                                    + importFileName
+                                                                                    + "<b>'; continue?",
+                                                                                "Column Error",
+                                                                                "Ignore this invalid column name",
+                                                                                "Ignore this and any remaining invalid column names",
+                                                                                "Stop importing");
+
+            // Check if the Ignore All button was pressed
+            if (buttonSelected == IGNORE_BUTTON)
+            {
+                // Set the flag to ignore subsequent column name errors
+                continueOnColumnError = true;
+            }
+            // Check if the Cancel button was pressed
+            else if (buttonSelected == CANCEL_BUTTON)
+            {
+                // No error message is provided since the user chose this
+                // action
+                throw new CCDDException("");
+            }
         }
 
-        return true;
+        return continueOnColumnError;
     }
 
     /**************************************************************************
@@ -1496,8 +1582,12 @@ public class CcddXTCEHandler implements CcddImportExportInterface
      * 
      * @param spaceSystem
      *            top-level space system
+     * 
+     * @param importFileName
+     *            import file name
      *************************************************************************/
-    private void importTableTypeDefinitions(SpaceSystemType spaceSystem) throws CCDDException
+    private void importTableTypeDefinitions(SpaceSystemType spaceSystem,
+                                            String importFileName) throws CCDDException
     {
         // Get the table type definitions
         AncillaryDataSet ancillarySet = spaceSystem.getAncillaryDataSet();
@@ -1505,6 +1595,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
         // Check if any extra data exists
         if (ancillarySet != null)
         {
+            // Flag indicating if importing should continue after an input
+            // error is detected
+            boolean continueOnTableTypeError = false;
+
             // Step through the extra data
             for (AncillaryData ancillaryData : ancillarySet.getAncillaryData())
             {
@@ -1514,34 +1608,70 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                     // Extract the table type information
                     String[] definition = CcddUtilities.splitAndRemoveQuotes(ancillaryData.getValue());
 
-                    // Create the table type definition, supplying the name and
-                    // description
-                    TableTypeDefinition tableTypeDefn = new TableTypeDefinition(definition[0],
-                                                                                definition[1]);
-
-                    // Step through each column definition (ignoring the
-                    // primary key and row index columns)
-                    for (int columnNumber = NUM_HIDDEN_COLUMNS, index = 2; index < definition.length; columnNumber++, index += TableTypeEditorColumnInfo.values().length - 1)
+                    // Check if the expected number of inputs is present
+                    if ((definition.length - 2) % TableTypeEditorColumnInfo.values().length == 0)
                     {
-                        // Add the column definition to the table type
-                        // definition
-                        tableTypeDefn.addColumn(new Object[] {columnNumber,
-                                                              definition[TableTypeEditorColumnInfo.NAME.ordinal() + index - 1],
-                                                              definition[TableTypeEditorColumnInfo.DESCRIPTION.ordinal() + index - 1],
-                                                              definition[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal() + index - 1],
-                                                              Boolean.valueOf(definition[TableTypeEditorColumnInfo.UNIQUE.ordinal() + index - 1]),
-                                                              Boolean.valueOf(definition[TableTypeEditorColumnInfo.REQUIRED.ordinal() + index - 1]),
-                                                              Boolean.valueOf(definition[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal() + index - 1]),
-                                                              Boolean.valueOf(definition[TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal() + index - 1])});
+                        // Create the table type definition, supplying the name
+                        // and description
+                        TableTypeDefinition tableTypeDefn = new TableTypeDefinition(definition[0],
+                                                                                    definition[1]);
+
+                        // Step through each column definition (ignoring the
+                        // primary key and row index columns)
+                        for (int columnNumber = NUM_HIDDEN_COLUMNS, index = 2; index < definition.length; columnNumber++, index += TableTypeEditorColumnInfo.values().length - 1)
+                        {
+                            // Add the column definition to the table type
+                            // definition
+                            tableTypeDefn.addColumn(new Object[] {columnNumber,
+                                                                  definition[TableTypeEditorColumnInfo.NAME.ordinal() + index - 1],
+                                                                  definition[TableTypeEditorColumnInfo.DESCRIPTION.ordinal() + index - 1],
+                                                                  definition[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal() + index - 1],
+                                                                  Boolean.valueOf(definition[TableTypeEditorColumnInfo.UNIQUE.ordinal() + index - 1]),
+                                                                  Boolean.valueOf(definition[TableTypeEditorColumnInfo.REQUIRED.ordinal() + index - 1]),
+                                                                  Boolean.valueOf(definition[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal() + index - 1]),
+                                                                  Boolean.valueOf(definition[TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal() + index - 1])});
+                        }
+
+                        // Check if the table type isn't new and doesn't match
+                        // an existing one with the same name
+                        if (tableTypeHandler.updateTableTypes(tableTypeDefn, true) == TableTypeUpdate.MISMATCH)
+                        {
+                            throw new CCDDException("table type '"
+                                                    + tableTypeDefn.getTypeName()
+                                                    + "' already exists and doesn't match the import definition");
+                        }
                     }
-
-                    // Check if the table type isn't new and doesn't match an
-                    // existing one with the same name
-                    if (tableTypeHandler.updateTableTypes(tableTypeDefn, true) == TableTypeUpdate.MISMATCH)
+                    // Check if the user hasn't already elected to ignore table
+                    // type errors
+                    else if (!continueOnTableTypeError)
                     {
-                        throw new CCDDException("table type '"
-                                                + tableTypeDefn.getTypeName()
-                                                + "' already exists and doesn't match the import definition");
+                        // Inform the user that the table type name is
+                        // incorrect
+                        int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                            "<html><b>Table type '"
+                                                                                                + definition[0]
+                                                                                                + "' definition has missing or extra input(s) in import file '</b>"
+                                                                                                + importFileName
+                                                                                                + "<b>'; continue?",
+                                                                                            "Table Type Error",
+                                                                                            "Ignore this table type",
+                                                                                            "Ignore this and any remaining invalid table types",
+                                                                                            "Stop importing");
+
+                        // Check if the Ignore All button was pressed
+                        if (buttonSelected == IGNORE_BUTTON)
+                        {
+                            // Set the flag to ignore subsequent column name
+                            // errors
+                            continueOnTableTypeError = true;
+                        }
+                        // Check if the Cancel button was pressed
+                        else if (buttonSelected == CANCEL_BUTTON)
+                        {
+                            // No error message is provided since the user
+                            // chose this action
+                            throw new CCDDException("");
+                        }
                     }
                 }
             }
@@ -1554,8 +1684,12 @@ public class CcddXTCEHandler implements CcddImportExportInterface
      * 
      * @param spaceSystem
      *            top-level space system
+     * 
+     * @param importFileName
+     *            import file name
      *************************************************************************/
-    private void importDataTypeDefinitions(SpaceSystemType spaceSystem) throws CCDDException
+    private void importDataTypeDefinitions(SpaceSystemType spaceSystem,
+                                           String importFileName) throws CCDDException
     {
         List<String[]> dataTypeDefinitions = new ArrayList<String[]>();
 
@@ -1565,6 +1699,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
         // Check if any extra data exists
         if (ancillarySet != null)
         {
+            // Flag indicating if importing should continue after an input
+            // error is detected
+            boolean continueOnDataTypeError = false;
+
             // Step through the extra data
             for (AncillaryData ancillaryData : ancillarySet.getAncillaryData())
             {
@@ -1572,15 +1710,49 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                 if (ancillaryData.getName().startsWith(XTCETags.DATA_TYPE.getTag()))
                 {
                     // Extract the data type information
-                    String[] nameAndValue = ancillaryData.getValue().split(",", 4);
+                    String[] definition = ancillaryData.getValue().split(",");
 
-                    // Add the data type definition to the list (add a blank
-                    // for the OID column)
-                    dataTypeDefinitions.add(new String[] {nameAndValue[DataTypesColumn.USER_NAME.ordinal()],
-                                                          nameAndValue[DataTypesColumn.C_NAME.ordinal()],
-                                                          nameAndValue[DataTypesColumn.SIZE.ordinal()],
-                                                          nameAndValue[DataTypesColumn.BASE_TYPE.ordinal()],
-                                                          ""});
+                    // Check if the number of expected inputs is present
+                    if (definition.length == DataTypesColumn.values().length - 1)
+                    {
+                        // Add the data type definition to the list (add a
+                        // blank for the OID column)
+                        dataTypeDefinitions.add(new String[] {definition[DataTypesColumn.USER_NAME.ordinal()],
+                                                              definition[DataTypesColumn.C_NAME.ordinal()],
+                                                              definition[DataTypesColumn.SIZE.ordinal()],
+                                                              definition[DataTypesColumn.BASE_TYPE.ordinal()],
+                                                              ""});
+                    }
+                    // Incorrect number of inputs. Check if the user hasn't
+                    // already elected to ignore data type errors
+                    else if (!continueOnDataTypeError)
+                    {
+                        // Inform the user that the data type inputs are
+                        // incorrect
+                        int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                            "<html><b>Missing or extra data type definition input(s) in import file '</b>"
+                                                                                                + importFileName
+                                                                                                + "<b>'; continue?",
+                                                                                            "Data Type Error",
+                                                                                            "Ignore this data type",
+                                                                                            "Ignore this and any remaining invalid data types",
+                                                                                            "Stop importing");
+
+                        // Check if the Ignore All button was pressed
+                        if (buttonSelected == IGNORE_BUTTON)
+                        {
+                            // Set the flag to ignore subsequent column name
+                            // errors
+                            continueOnDataTypeError = true;
+                        }
+                        // Check if the Cancel button was pressed
+                        else if (buttonSelected == CANCEL_BUTTON)
+                        {
+                            // No error message is provided since the user
+                            // chose this action
+                            throw new CCDDException("");
+                        }
+                    }
                 }
             }
 
@@ -1604,8 +1776,12 @@ public class CcddXTCEHandler implements CcddImportExportInterface
      * 
      * @param spaceSystem
      *            top-level space system
+     * 
+     * @param importFileName
+     *            import file name
      *************************************************************************/
-    private void importMacroDefinitions(SpaceSystemType spaceSystem) throws CCDDException
+    private void importMacroDefinitions(SpaceSystemType spaceSystem,
+                                        String importFileName) throws CCDDException
     {
         List<String[]> macroDefinitions = new ArrayList<String[]>();
 
@@ -1615,6 +1791,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
         // Check if any extra data exists
         if (ancillarySet != null)
         {
+            // Flag indicating if importing should continue after an input
+            // error is detected
+            boolean continueOnMacroError = false;
+
             // Step through the extra data
             for (AncillaryData ancillaryData : ancillarySet.getAncillaryData())
             {
@@ -1622,13 +1802,46 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                 if (ancillaryData.getName().startsWith(XTCETags.MACRO.getTag()))
                 {
                     // Extract the macro information
-                    String[] nameAndValue = ancillaryData.getValue().split(",", 2);
+                    String[] definition = ancillaryData.getValue().split(",", 2);
 
-                    // Add the macro definition to the list (add a blank for
-                    // the OID column)
-                    macroDefinitions.add(new String[] {nameAndValue[MacrosColumn.MACRO_NAME.ordinal()],
-                                                       nameAndValue[MacrosColumn.VALUE.ordinal()],
-                                                       ""});
+                    // Check if the number of expected inputs is present
+                    if (definition.length == MacrosColumn.values().length - 1)
+                    {
+                        // Add the macro definition to the list (add a blank
+                        // for the OID column)
+                        macroDefinitions.add(new String[] {definition[MacrosColumn.MACRO_NAME.ordinal()],
+                                                           definition[MacrosColumn.VALUE.ordinal()],
+                                                           ""});
+                    }
+                    // Incorrect number of inputs. Check if the user hasn't
+                    // already elected to ignore macro errors
+                    else if (!continueOnMacroError)
+                    {
+                        // Inform the user that the macro inputs are incorrect
+                        int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                            "<html><b>Missing or extra macro definition input(s) in import file '</b>"
+                                                                                                + importFileName
+                                                                                                + "<b>'; continue?",
+                                                                                            "Macro Error",
+                                                                                            "Ignore this macro",
+                                                                                            "Ignore this and any remaining invalid macros",
+                                                                                            "Stop importing");
+
+                        // Check if the Ignore All button was pressed
+                        if (buttonSelected == IGNORE_BUTTON)
+                        {
+                            // Set the flag to ignore subsequent column name
+                            // errors
+                            continueOnMacroError = true;
+                        }
+                        // Check if the Cancel button was pressed
+                        else if (buttonSelected == CANCEL_BUTTON)
+                        {
+                            // No error message is provided since the user
+                            // chose this action
+                            throw new CCDDException("");
+                        }
+                    }
                 }
             }
 

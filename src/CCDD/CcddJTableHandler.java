@@ -3729,7 +3729,9 @@ public abstract class CcddJTableHandler extends JTable
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Table '" +
                                                           tableName
-                                                          + "' printing failed",
+                                                          + "' printing failed; cause '"
+                                                          + pe.getMessage()
+                                                          + "'",
                                                       "Print Fail",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);

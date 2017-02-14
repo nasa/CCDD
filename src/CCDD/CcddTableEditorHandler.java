@@ -1848,12 +1848,12 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                             // Inform the user that the input value is invalid
                             CcddDialogHandler validityDlg = new CcddDialogHandler();
                             int buttonSelected = validityDlg.showIgnoreCancelDialog(editorDialog,
-                                                                               "<html><b>"
-                                                                                   + ce.getMessage(),
-                                                                               "Invalid Input",
-                                                                               "Ignore this invalid input",
-                                                                               "Ignore this and any remaining invalid inputs for this table",
-                                                                               "Cease inputting values");
+                                                                                    "<html><b>"
+                                                                                        + ce.getMessage(),
+                                                                                    "Invalid Input",
+                                                                                    "Ignore this invalid input",
+                                                                                    "Ignore this and any remaining invalid inputs for this table",
+                                                                                    "Cease inputting values");
 
                             // Check if the Ignore All button was pressed
                             if (buttonSelected == IGNORE_BUTTON)

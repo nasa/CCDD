@@ -88,6 +88,9 @@ public class CcddDialogHandler extends JDialog
     // Radio button selected by the user
     private String radioButtonSelected;
 
+    // Text field containing the file name(s) chosen by the user
+    private JTextField nameField;
+
     // Check boxes generated from user-supplied list
     private JCheckBox[] checkBox;
 
@@ -276,6 +279,16 @@ public class CcddDialogHandler extends JDialog
     protected String getRadioButtonSelected()
     {
         return radioButtonSelected;
+    }
+
+    /**************************************************************************
+     * Get the reference to the file chooser file name text field
+     * 
+     * @return Reference to the file chooser file name text field
+     *************************************************************************/
+    protected JTextField getFileNameField()
+    {
+        return nameField;
     }
 
     /**************************************************************************
@@ -517,7 +530,6 @@ public class CcddDialogHandler extends JDialog
         return icon;
     }
 
-    // TODO
     /**************************************************************************
      * Create the Ignore/Ignore All/Cancel dialog
      * 
@@ -959,7 +971,7 @@ public class CcddDialogHandler extends JDialog
         // so that the selected file can be updated. Otherwise, changes made to
         // the file name are ignored and when the Okay button is pressed the
         // file name used is the highlighted one in the file list box
-        final JTextField nameField = getFileChooserTextField(chooser);
+        nameField = getFileChooserTextField(chooser);
 
         // Check if only a folder is allowed to be chosen
         if (folderOnly)
@@ -1106,7 +1118,6 @@ public class CcddDialogHandler extends JDialog
             // commas, which now delineate the separate file names
             String[] fileNames = names.replaceAll(",,+", ",").replaceAll("\"+",
                                                                          "").split(",");
-
             // Check if the file name text field isn't empty
             if (!fileNames[0].isEmpty())
             {

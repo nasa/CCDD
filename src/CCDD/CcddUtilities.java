@@ -8,6 +8,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.COMMAS_AND_QUOTES;
 
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -16,6 +17,9 @@ import java.util.regex.Pattern;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
+
+import CCDD.CcddConstants.DialogOption;
 
 /******************************************************************************
  * CFS Command & Data Dictionary utilities class
@@ -1118,5 +1122,48 @@ public class CcddUtilities
                                                             list.getMaxSelectionIndex()));
             }
         }
+    }
+
+    /**************************************************************************
+     * Display a dialog for a generic exception, showing the cause and the
+     * stack trace
+     * 
+     * @param exception
+     *            exception reference
+     * 
+     * @param parent
+     *            GUI component over which to center the dialog
+     *************************************************************************/
+    protected static void displayException(Exception e, Component parent)
+    {
+        // Build the dialog message
+        String message = "<html><b>An unanticipated error occurred; cause<br>&#160;&#160;'</b>"
+                         + e.getMessage()
+                         + "<b>'<br><br>Error trace:</b><br>";
+
+        // Step through each element in the stack trace
+        for (StackTraceElement ste : e.getStackTrace())
+        {
+            // Check if the reference is to a CCDD class (i.e., skip references
+            // in the Java library classes)
+            if (ste.getClassName().startsWith("CCDD"))
+            {
+                // Add the trace information to the message
+                message += "&#160;&#160;"
+                           + ste.getClassName().replaceFirst("CCDD\\.", "").replaceFirst("\\$\\d*", "")
+                           + ": "
+                           + ste.getMethodName()
+                           + "() line "
+                           + ste.getLineNumber()
+                           + "<br>";
+            }
+        }
+
+        // Display a dialog showing the stack trace
+        new CcddDialogHandler().showMessageDialog(parent,
+                                                  message,
+                                                  "CCDD Error",
+                                                  JOptionPane.ERROR_MESSAGE,
+                                                  DialogOption.OK_OPTION);
     }
 }

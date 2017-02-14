@@ -85,6 +85,7 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
         {
             e.printStackTrace();
         }
+
         // Auto-fill button
         btnAutoFill = CcddButtonPanelHandler.createButton("Auto-fill",
                                                           AUTO_CREATE_ICON,

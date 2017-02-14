@@ -714,31 +714,11 @@ public class CcddFileIOHandler
 
                         errorFlag = true;
                     }
-                    // TODO Consider a generic exception handler for unexpected
-                    // errors
                     catch (Exception e)
                     {
-                        String message = "<html><b>Error trace:</b><br>";
-
-                        for (StackTraceElement ste : e.getStackTrace())
-                        {
-                            if (ste.getClassName().startsWith("CCDD"))
-                            {
-                                message += "&#160;&#160;"
-                                           + ste.getClassName().replaceFirst("CCDD\\.", "")
-                                           + "."
-                                           + ste.getMethodName()
-                                           + " ("
-                                           + ste.getLineNumber()
-                                           + ")<br>";
-                            }
-                        }
-
-                        new CcddDialogHandler().showMessageDialog(parent,
-                                                                  message,
-                                                                  "CCDD Error",
-                                                                  JOptionPane.ERROR_MESSAGE,
-                                                                  DialogOption.OK_OPTION);
+                        // Display a dialog providing details on the
+                        // unanticipated error
+                        CcddUtilities.displayException(e, parent);
                         errorFlag = true;
                     }
                 }
@@ -1293,6 +1273,12 @@ public class CcddFileIOHandler
                                                               ce.getMessageType(),
                                                               DialogOption.OK_OPTION);
                 }
+            }
+            catch (Exception e)
+            {
+                // Display a dialog providing details on the unanticipated
+                // error
+                CcddUtilities.displayException(e, tableHandler.getTableEditor());
             }
         }
     }

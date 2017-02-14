@@ -6,8 +6,9 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.CANCEL_BUTTON;
+import static CCDD.CcddConstants.IGNORE_BUTTON;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
-import static CCDD.CcddConstants.OK_BUTTON;
 
 import java.awt.Component;
 import java.io.BufferedReader;
@@ -265,7 +266,9 @@ public class CcddJSONHandler implements CcddImportExportInterface
      *************************************************************************/
     @Override
     public void importFromFile(File importFile,
-                               ImportType importType) throws CCDDException, IOException
+                               ImportType importType) throws CCDDException,
+                                                     IOException,
+                                                     Exception
     {
         BufferedReader br = null;
 
@@ -274,9 +277,13 @@ public class CcddJSONHandler implements CcddImportExportInterface
             List<TableTypeDefinition> tableTypeDefinitions = new ArrayList<TableTypeDefinition>();
             tableDefinitions = new ArrayList<TableDefinition>();
 
-            // Flag indicating if importing should continue after an input
-            // mismatch is detected
-            boolean continueOnMismatch = false;
+            // Flags indicating if importing should continue after an input
+            // error is detected
+            boolean continueOnTableTypeError = false;
+            boolean continueOnDataTypeError = false;
+            boolean continueOnMacroError = false;
+            boolean continueOnColumnError = false;
+            boolean continueOnDataFieldError = false;
 
             // Create a JSON parser and use it to parse the import file
             // contents
@@ -331,7 +338,8 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                                         CcddUtilities.removeHTMLTags(TableTypeEditorColumnInfo.POINTER_ALLOWED.getColumnName()));
 
                             // Check if the expected input is present
-                            if (!name.isEmpty())
+                            if (!name.isEmpty()
+                                && typeJO.keySet().size() <= TableTypeEditorColumnInfo.values().length)
                             {
                                 // Check if the input type is empty
                                 if (inputType.isEmpty())
@@ -345,6 +353,13 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                 {
                                     // Default to 'false'
                                     unique = "false";
+                                }
+
+                                // Check if the 'required' flag is empty
+                                if (required.isEmpty())
+                                {
+                                    // Default to 'false'
+                                    required = "false";
                                 }
 
                                 // Check if the 'structure allowed' flag is
@@ -374,21 +389,32 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                 columnNumber++;
                             }
                             // Incorrect number of inputs. Check if the user
-                            // hasn't already elected to ignore mismatches
-                            else if (!continueOnMismatch)
+                            // hasn't already elected to ignore table type
+                            // errors
+                            else if (!continueOnTableTypeError)
                             {
-                                // Get confirmation from the user to ignore the
-                                // discrepancy
-                                if (new CcddDialogHandler().showMessageDialog(parent,
-                                                                              "<html><b>Missing table type name; continue?",
-                                                                              "Table Type Mismatch",
-                                                                              JOptionPane.QUESTION_MESSAGE,
-                                                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                                // Inform the user that the table type column
+                                // name is missing
+                                int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                    "<html><b>Table type '"
+                                                                                                        + typeName
+                                                                                                        + "' definition has missing or extra input(s) in import file '</b>"
+                                                                                                        + importFile.getAbsolutePath()
+                                                                                                        + "<b>'; continue?",
+                                                                                                    "Table Type Error",
+                                                                                                    "Ignore this table type",
+                                                                                                    "Ignore this and any remaining invalid table types",
+                                                                                                    "Stop importing");
+
+                                // Check if the Ignore All button was pressed
+                                if (buttonSelected == IGNORE_BUTTON)
                                 {
-                                    continueOnMismatch = true;
+                                    // Set the flag to ignore subsequent table
+                                    // type errors
+                                    continueOnTableTypeError = true;
                                 }
-                                // The user chose to not ignore the discrepancy
-                                else
+                                // Check if the Cancel button was pressed
+                                else if (buttonSelected == CANCEL_BUTTON)
                                 {
                                     // No error message is provided since the
                                     // user chose this action
@@ -430,22 +456,23 @@ public class CcddJSONHandler implements CcddImportExportInterface
                 if (defn != null && defn instanceof JSONArray)
                 {
                     // Step through each data type definition
-                    for (JSONObject dataTypeJO : parseJSONArray(defn))
+                    for (JSONObject typeJO : parseJSONArray(defn))
                     {
                         // Get the data type definition components
-                        String userName = getString(dataTypeJO,
+                        String userName = getString(typeJO,
                                                     DataTypeEditorColumnInfo.USER_NAME.getColumnName());
-                        String cName = getString(dataTypeJO,
+                        String cName = getString(typeJO,
                                                  DataTypeEditorColumnInfo.C_NAME.getColumnName());
-                        String size = getString(dataTypeJO,
+                        String size = getString(typeJO,
                                                 DataTypeEditorColumnInfo.SIZE.getColumnName());
-                        String baseType = getString(dataTypeJO,
+                        String baseType = getString(typeJO,
                                                     DataTypeEditorColumnInfo.BASE_TYPE.getColumnName());
 
                         // Check if the expected inputs are present
                         if ((!userName.isEmpty() || !cName.isEmpty())
                             && !size.isEmpty()
-                            && !baseType.isEmpty())
+                            && !baseType.isEmpty()
+                            && typeJO.keySet().size() < DataTypeEditorColumnInfo.values().length)
                         {
                             // Add the data type definition (add a blank to
                             // represent the OID)
@@ -456,21 +483,29 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                                                   ""});
                         }
                         // Incorrect number of inputs. Check if the user
-                        // hasn't already elected to ignore mismatches
-                        else if (!continueOnMismatch)
+                        // hasn't already elected to ignore data type errors
+                        else if (!continueOnDataTypeError)
                         {
-                            // Get confirmation from the user to ignore the
-                            // discrepancy
-                            if (new CcddDialogHandler().showMessageDialog(parent,
-                                                                          "<html><b>Missing data type input(s); continue?",
-                                                                          "Data Type Mismatch",
-                                                                          JOptionPane.QUESTION_MESSAGE,
-                                                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                            // Inform the user that the data type inputs are
+                            // incorrect
+                            int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                "<html><b>Missing or extra data type definition input(s) in import file '</b>"
+                                                                                                    + importFile.getAbsolutePath()
+                                                                                                    + "<b>'; continue?",
+                                                                                                "Data Type Error",
+                                                                                                "Ignore this data type",
+                                                                                                "Ignore this and any remaining invalid data types",
+                                                                                                "Stop importing");
+
+                            // Check if the Ignore All button was pressed
+                            if (buttonSelected == IGNORE_BUTTON)
                             {
-                                continueOnMismatch = true;
+                                // Set the flag to ignore subsequent data type
+                                // errors
+                                continueOnDataTypeError = true;
                             }
-                            // The user chose to not ignore the discrepancy
-                            else
+                            // Check if the Cancel button was pressed
+                            else if (buttonSelected == CANCEL_BUTTON)
                             {
                                 // No error message is provided since the user
                                 // chose this action
@@ -495,29 +530,37 @@ public class CcddJSONHandler implements CcddImportExportInterface
                         String value = getString(macroJO,
                                                  MacroEditorColumnInfo.VALUE.getColumnName());
 
-                        // Check if the expected input is present
-                        if (!name.isEmpty())
+                        // Check if the expected inputs are present
+                        if (!name.isEmpty()
+                            && macroJO.keySet().size() < MacroEditorColumnInfo.values().length)
                         {
                             // Add the macro definition (add a blank to
                             // represent the OID)
                             macroDefinitions.add(new String[] {name, value, ""});
                         }
                         // Incorrect number of inputs. Check if the user
-                        // hasn't already elected to ignore mismatches
-                        else if (!continueOnMismatch)
+                        // hasn't already elected to ignore macro errors
+                        else if (!continueOnMacroError)
                         {
-                            // Get confirmation from the user to ignore the
-                            // discrepancy
-                            if (new CcddDialogHandler().showMessageDialog(parent,
-                                                                          "<html><b>Missing macro name; continue?",
-                                                                          "Macro Mismatch",
-                                                                          JOptionPane.QUESTION_MESSAGE,
-                                                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                            // Inform the user that the macro name is missing
+                            int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                "<html><b>Missing or extra macro definition input(s) in import file '</b>"
+                                                                                                    + importFile.getAbsolutePath()
+                                                                                                    + "<b>'; continue?",
+                                                                                                "Macro Error",
+                                                                                                "Ignore this macro",
+                                                                                                "Ignore this and any remaining invalid macros",
+                                                                                                "Stop importing");
+
+                            // Check if the Ignore All button was pressed
+                            if (buttonSelected == IGNORE_BUTTON)
                             {
-                                continueOnMismatch = true;
+                                // Set the flag to ignore subsequent macro
+                                // errors
+                                continueOnMacroError = true;
                             }
-                            // The user chose to not ignore the discrepancy
-                            else
+                            // Check if the Cancel button was pressed
+                            else if (buttonSelected == CANCEL_BUTTON)
                             {
                                 // No error message is provided since the user
                                 // chose this action
@@ -603,14 +646,15 @@ public class CcddJSONHandler implements CcddImportExportInterface
                         // included in the JSON file)
                         int numColumns = typeDefn.getColumnCountVisible();
 
-                        // Create storage for the row of cell data and
-                        // initialize the values to blanks
+                        // Create storage for the row of cell data
                         String[] rowData = new String[numColumns];
-                        Arrays.fill(rowData, "");
 
                         // Step through each row of data
                         for (JSONObject rowDataJO : parseJSONArray(tableDataJA))
                         {
+                            // Initialize the column values to blanks
+                            Arrays.fill(rowData, "");
+
                             // Step through each key (column name)
                             for (Object columnName : rowDataJO.keySet())
                             {
@@ -628,36 +672,38 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                                                 typeDefn.getColumnNamesVisible()[column]);
                                 }
                                 // Check that the user hasn't elected to ignore
-                                // discrepancies
-                                else if (!continueOnMismatch)
+                                // column name errors
+                                else if (!continueOnColumnError)
                                 {
-                                    // Check if the column name isn't
-                                    // recognized in the table's type
-                                    // definition
-                                    if (typeDefn.getVisibleColumnIndexByUserName(columnName.toString()) == -1)
+                                    // Inform the user that the column name is
+                                    // invalid
+                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                        "<html><b>Table '</b>"
+                                                                                                            + tableName
+                                                                                                            + "<b>' column name '</b>"
+                                                                                                            + columnName
+                                                                                                            + "<b>' unrecognized in import file '</b>"
+                                                                                                            + importFile.getAbsolutePath()
+                                                                                                            + "<b>'; continue?",
+                                                                                                        "Column Error",
+                                                                                                        "Ignore this invalid column name",
+                                                                                                        "Ignore this and any remaining invalid column names",
+                                                                                                        "Stop importing");
+
+                                    // Check if the Ignore All button was
+                                    // pressed
+                                    if (buttonSelected == IGNORE_BUTTON)
                                     {
-                                        // Check if the user confirms ignoring
-                                        // the unknown column name
-                                        if (new CcddDialogHandler().showMessageDialog(parent,
-                                                                                      "<html><b>Unrecognized column name '</b>"
-                                                                                          + columnName
-                                                                                          + "<b>' in table<br>'</b>"
-                                                                                          + tableName
-                                                                                          + "<b>'; continue?",
-                                                                                      "Unknown Column",
-                                                                                      JOptionPane.QUESTION_MESSAGE,
-                                                                                      DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-                                        {
-                                            continueOnMismatch = true;
-                                        }
-                                        // The user chose to not ignore the
-                                        // discrepancy
-                                        else
-                                        {
-                                            // No error message is provided
-                                            // since the user chose this action
-                                            throw new CCDDException("");
-                                        }
+                                        // Set the flag to ignore subsequent
+                                        // column name errors
+                                        continueOnColumnError = true;
+                                    }
+                                    // Check if the Cancel button was pressed
+                                    else if (buttonSelected == CANCEL_BUTTON)
+                                    {
+                                        // No error message is provided since
+                                        // the user chose this action
+                                        throw new CCDDException("");
                                     }
                                 }
                             }
@@ -691,8 +737,10 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                 String value = getString(dataFieldJO,
                                                          FieldEditorColumnInfo.VALUE.getColumnName());
 
-                                // Check if the expected input is present
-                                if (!name.isEmpty() && !size.isEmpty())
+                                // Check if the expected inputs are present
+                                if (!name.isEmpty()
+                                    && !size.isEmpty()
+                                    && dataFieldJO.keySet().size() <= FieldEditorColumnInfo.values().length)
                                 {
                                     // Check if the field size is empty
                                     if (size.isEmpty())
@@ -732,24 +780,38 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                                                          applicability,
                                                                          value});
                                 }
-                                // Incorrect number of inputs. Get confirmation
-                                // from the user to ignore the discrepancy
-                                else if (new CcddDialogHandler().showMessageDialog(parent,
-                                                                                   "<html><b>Missing data field name in table<br>'</b>"
-                                                                                       + tableName
-                                                                                       + "<b>'; continue?",
-                                                                                   "Data Field Mismatch",
-                                                                                   JOptionPane.QUESTION_MESSAGE,
-                                                                                   DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                                // Check that the user hasn't elected to ignore
+                                // data field errors
+                                else if (!continueOnDataFieldError)
                                 {
-                                    continueOnMismatch = true;
-                                }
-                                // The user chose to not ignore the discrepancy
-                                else
-                                {
-                                    // No error message is provided since the
-                                    // user chose this action
-                                    throw new CCDDException("");
+                                    // Inform the user that the data field name
+                                    // is missing
+                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                        "<html><b>Table '</b>"
+                                                                                                            + tableName
+                                                                                                            + "<b>' has missing or extra data field input(s) in import file '</b>"
+                                                                                                            + importFile.getAbsolutePath()
+                                                                                                            + "<b>'; continue?",
+                                                                                                        "Data Field Error",
+                                                                                                        "Ignore this invalid data field",
+                                                                                                        "Ignore this and any remaining invalid data fields",
+                                                                                                        "Stop importing");
+
+                                    // Check if the Ignore All button was
+                                    // pressed
+                                    if (buttonSelected == IGNORE_BUTTON)
+                                    {
+                                        // Set the flag to ignore subsequent
+                                        // data field errors
+                                        continueOnDataFieldError = true;
+                                    }
+                                    // Check if the Cancel button was pressed
+                                    else if (buttonSelected == CANCEL_BUTTON)
+                                    {
+                                        // No error message is provided since
+                                        // the user chose this action
+                                        throw new CCDDException("");
+                                    }
                                 }
                             }
                         }
@@ -993,6 +1055,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                                       "File Error",
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);
+            errorFlag = true;
         }
         catch (ScriptException se)
         {
@@ -1004,6 +1067,13 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                                       "JavaScript Error",
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);
+            errorFlag = true;
+        }
+        catch (Exception e)
+        {
+            // Display a dialog providing details on the unanticipated error
+            CcddUtilities.displayException(e, parent);
+            errorFlag = true;
         }
         finally
         {

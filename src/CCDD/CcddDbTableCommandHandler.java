@@ -2263,6 +2263,7 @@ public class CcddDbTableCommandHandler
             List<String> variableNames;
             List<String> bitLengths;
             List<String[]> rates;
+            List<String[]> enumerations;
 
             // Set the flag based on if any data was returned by the database
             // query
@@ -2275,8 +2276,9 @@ public class CcddDbTableCommandHandler
                 // lists
                 dataTypes = new ArrayList<String>();
                 variableNames = new ArrayList<String>();
-                rates = new ArrayList<String[]>();
                 bitLengths = new ArrayList<String>();
+                rates = new ArrayList<String[]>();
+                enumerations = new ArrayList<String[]>();
 
                 // Get the table name for this query table row
                 String tableName = rowData.getString(1);
@@ -2290,6 +2292,15 @@ public class CcddDbTableCommandHandler
                     String bitLength = rowData.getString(4);
                     String[] rate = rowData.getString(5).split(",",
                                                                rateHandler.getNumRateColumns());
+                    String[] enumeration = rowData.getString(6).split(",",
+                                                                      rateHandler.getNumRateColumns());// TODO
+                                                                                                       // CAN'T
+                                                                                                       // USE
+                                                                                                       // A
+                                                                                                       // COMMA
+                                                                                                       // TO
+                                                                                                       // SEPARATE
+                                                                                                       // THESE
 
                     // The data type is not a primitive type
                     if (dataType != null
@@ -2305,6 +2316,7 @@ public class CcddDbTableCommandHandler
                         variableNames.add(variableName);
                         bitLengths.add(bitLength);
                         rates.add(rate);
+                        enumerations.add(enumeration);
                     }
 
                     // Go to the next row in the query results; set the flag to
@@ -2326,7 +2338,8 @@ public class CcddDbTableCommandHandler
                                                   dataTypes,
                                                   variableNames,
                                                   bitLengths,
-                                                  rates));
+                                                  rates,
+                                                  enumerations));
             }
 
             rowData.close();
@@ -2368,6 +2381,7 @@ public class CcddDbTableCommandHandler
                                                     new ArrayList<String>(),
                                                     new ArrayList<String>(),
                                                     new ArrayList<String>(),
+                                                    new ArrayList<String[]>(),
                                                     new ArrayList<String[]>()));
                 }
             }
@@ -5776,7 +5790,9 @@ public class CcddDbTableCommandHandler
                 }
                 catch (Exception e)
                 {
-                    e.printStackTrace();
+                    // Display a dialog providing details on the unanticipated
+                    // error
+                    CcddUtilities.displayException(e, dialog);
                 }
                 finally
                 {

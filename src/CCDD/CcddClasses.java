@@ -687,6 +687,7 @@ public class CcddClasses
         private final List<String> variableNames;
         private final List<String> bitLengths;
         private final List<String[]> rates;
+        private final List<String[]> enumerations;
 
         /**********************************************************************
          * Table members class constructor
@@ -709,13 +710,17 @@ public class CcddClasses
          *
          * @param rates
          *            list of the rates associated with the variables
+         *
+         * @param enumerations
+         *            list of the enumerations associated with the variables
          *********************************************************************/
         protected TableMembers(String name,
                                String type,
                                List<String> dataTypes,
                                List<String> variableNames,
                                List<String> bitLengths,
-                               List<String[]> rates)
+                               List<String[]> rates,
+                               List<String[]> enumerations)
         {
             this.name = name;
             this.type = type;
@@ -723,6 +728,7 @@ public class CcddClasses
             this.variableNames = variableNames;
             this.bitLengths = bitLengths;
             this.rates = rates;
+            this.enumerations = enumerations;
         }
 
         /**********************************************************************
@@ -786,6 +792,17 @@ public class CcddClasses
         protected List<String[]> getRates()
         {
             return rates;
+        }
+
+        /**********************************************************************
+         * Get the list of this table's enumerations associated with the
+         * variables
+         *
+         * @return List of this table's enumerations
+         *********************************************************************/
+        protected List<String[]> getEnumerations()
+        {
+            return enumerations;
         }
 
         /**********************************************************************

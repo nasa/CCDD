@@ -93,6 +93,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     private JTextField class2Fld;
     private JTextField class3Fld;
     private JTextField systemFld;
+    private JTextField pathFld;
 
     // Group selection change in progress flag
     private boolean isNodeSelectionChanging;
@@ -101,8 +102,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     // or the selected import file(s)
     private File[] filePath;
 
-    // Path selection field
-    private JTextField pathFld;
+    // TODO
+    private File[] dataFile;
 
     // Array of new table names to create
     private String[] tableNames;
@@ -496,28 +497,25 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 break;
 
             case IMPORT:
-                // Create an import dialog
-                CcddDialogHandler dialog = new CcddDialogHandler();
-
                 // Allow the user to select the data file path + name(s) from
                 // which to import, and the import options
-                File[] dataFile = dialog.choosePathFile(ccddMain,
-                                                        caller,
-                                                        null,
-                                                        new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.CSV.getDescription(),
-                                                                                                                   FileExtension.CSV.getExtensionName()),
-                                                                                       new FileNameExtensionFilter(FileExtension.EDS.getDescription(),
-                                                                                                                   FileExtension.EDS.getExtensionName()),
-                                                                                       new FileNameExtensionFilter(FileExtension.JSON.getDescription(),
-                                                                                                                   FileExtension.JSON.getExtensionName()),
-                                                                                       new FileNameExtensionFilter(FileExtension.XTCE.getDescription(),
-                                                                                                                   FileExtension.XTCE.getExtensionName())},
-                                                        false,
-                                                        true,
-                                                        "Import Table(s)",
-                                                        LAST_SAVED_DATA_FILE,
-                                                        DialogOption.IMPORT_OPTION,
-                                                        createImportPanel(gbc));
+                dataFile = choosePathFile(ccddMain,
+                                          caller,
+                                          null,
+                                          new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.CSV.getDescription(),
+                                                                                                     FileExtension.CSV.getExtensionName()),
+                                                                         new FileNameExtensionFilter(FileExtension.EDS.getDescription(),
+                                                                                                     FileExtension.EDS.getExtensionName()),
+                                                                         new FileNameExtensionFilter(FileExtension.JSON.getDescription(),
+                                                                                                     FileExtension.JSON.getExtensionName()),
+                                                                         new FileNameExtensionFilter(FileExtension.XTCE.getDescription(),
+                                                                                                     FileExtension.XTCE.getExtensionName())},
+                                          false,
+                                          true,
+                                          "Import Table(s)",
+                                          LAST_SAVED_DATA_FILE,
+                                          DialogOption.IMPORT_OPTION,
+                                          createImportPanel(gbc));
 
                 // Check if a file was chosen
                 if (dataFile != null)
@@ -529,7 +527,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                              replaceExistingTablesCb.isSelected(),
                                              appendExistingFieldsCb.isSelected(),
                                              useExistingFieldsCb.isSelected(),
-                                             dialog);
+                                             this);
                 }
 
                 break;
@@ -559,13 +557,14 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 dialogPnl = createExportPanel(fileExtn, gbc);
 
                 // Check if the export panel exists; if so display the dialog
-                if (dialogPnl != null && showOptionsDialog(caller,
-                                                           dialogPnl,
-                                                           "Export Table(s) in "
-                                                               + fileExtn.getExtensionName().toUpperCase()
-                                                               + " Format",
-                                                           DialogOption.EXPORT_OPTION,
-                                                           true) == OK_BUTTON)
+                if (dialogPnl != null
+                    && showOptionsDialog(caller,
+                                         dialogPnl,
+                                         "Export Table(s) in "
+                                             + fileExtn.getExtensionName().toUpperCase()
+                                             + " Format",
+                                         DialogOption.EXPORT_OPTION,
+                                         true) == OK_BUTTON)
                 {
                     // Create storage for the list of table+variable names,
                     // table paths, and the parent table names
@@ -1532,6 +1531,29 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                     break;
 
                 case IMPORT:
+                    // Remove any leading or trailing white space characters
+                    // from the file path/name
+                    getFileNameField().setText(getFileNameField().getText().trim());
+
+                    // Check if the name field is empty or contains no file
+                    // name in the path
+                    if (getFileNameField().getText().isEmpty()
+                        || getFileNameField().getText().matches(".*\\"
+                                                            + File.separator
+                                                            + "\\.*?$"))
+                    {
+                        // Inform the user that the import file is missing
+                        new CcddDialogHandler().showMessageDialog(CcddTableManagerDialog.this,
+                                                                  "<html><b>Must select an import file name",
+                                                                  "Missing/Invalid Input",
+                                                                  JOptionPane.WARNING_MESSAGE,
+                                                                  DialogOption.OK_OPTION);
+
+                        // Set the flag to indicate the dialog input is
+                        // invalid
+                        isValid = false;
+                    }
+
                     break;
 
                 case EXPORT_CSV:
@@ -1563,7 +1585,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                         {
                             // Inform the user that no file name has been
                             // selected
-                            throw new CCDDException("Must select an output file name");
+                            throw new CCDDException("Must select an export file name");
                         }
 
                         // Create a file reference from the file path/name
@@ -1586,7 +1608,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                             {
                                 // Inform the user that no file name has been
                                 // selected
-                                throw new CCDDException("Invalid output file name");
+                                throw new CCDDException("Invalid export file name");
                             }
                         }
                     }

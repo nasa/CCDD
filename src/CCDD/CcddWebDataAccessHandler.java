@@ -364,6 +364,26 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                                 + "'");
                 }
             }
+            // TODO
+            // Check if this is a telemetry parameter request
+            else if (component.equals("telemetry"))
+            {
+                // Set the tree type (instance, prototype, or both) based on
+                // the command
+                tableTreeType = component.equals("table")
+                                                         ? TableTreeType.PROTOTYPE_AND_INSTANCE
+                                                         : (component.equals("proto_table")
+                                                                                           ? TableTreeType.PROTOTYPE_ONLY
+                                                                                           : TableTreeType.INSTANCE_ONLY);
+
+                // Use the attribute to determine the request
+                switch (attributeAndName[0])
+                {
+                    case "all":
+                    case "":
+                        break;
+                }
+            }
             // Check if this is a table type definition request
             else if (component.equals("table_type"))
             {
@@ -416,6 +436,11 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                       + ce.getMessage()
                                       + "'",
                                   "<html><b>Invalid web server request");
+        }
+        catch (Exception e)
+        {
+            // Display a dialog providing details on the unanticipated error
+            CcddUtilities.displayException(e, ccddMain.getMainFrame());
         }
 
         // Check if a response to the request was made

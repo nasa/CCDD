@@ -6,10 +6,11 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.CONTAINS_DESCRIPTION;
 import static CCDD.CcddConstants.CONTAINS_UNITS;
+import static CCDD.CcddConstants.IGNORE_BUTTON;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
-import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
@@ -62,6 +63,7 @@ import CCDD.CcddClasses.TableTypeDefinition;
 import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.FieldEditorColumnInfo;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
@@ -280,7 +282,9 @@ public class CcddEDSHandler implements CcddImportExportInterface
      *************************************************************************/
     @Override
     public void importFromFile(File importFile,
-                               ImportType importType) throws CCDDException, IOException
+                               ImportType importType) throws CCDDException,
+                                                     IOException,
+                                                     Exception
     {
         try
         {
@@ -292,7 +296,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
             // Step through the EDS-formatted data and extract the telemetry
             // and command information
-            unbuildDataSheets(importType);
+            unbuildDataSheets(importType, importFile.getAbsolutePath());
         }
         catch (JAXBException je)
         {
@@ -383,6 +387,12 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                                       DialogOption.OK_OPTION);
             errorFlag = true;
         }
+        catch (Exception e)
+        {
+            // Display a dialog providing details on the unanticipated error
+            CcddUtilities.displayException(e, parent);
+            errorFlag = true;
+        }
 
         return errorFlag;
     }
@@ -446,8 +456,12 @@ public class CcddEDSHandler implements CcddImportExportInterface
      *            and macro definitions, and the data from all the table
      *            definitions; ImportType.FIRST_DATA_ONLY to load only the data
      *            for the first table defined
+     * 
+     * @param importFileName
+     *            import file name
      *************************************************************************/
-    private void unbuildDataSheets(ImportType importType) throws CCDDException
+    private void unbuildDataSheets(ImportType importType,
+                                   String importFileName) throws CCDDException
     {
         int variableNameIndex = -1;
         int dataTypeIndex = -1;
@@ -461,9 +475,13 @@ public class CcddEDSHandler implements CcddImportExportInterface
         List<String[]> dataTypeDefns = new ArrayList<String[]>();
         List<String[]> macroDefns = new ArrayList<String[]>();
 
-        // Flag indicating if importing should continue after an unrecognized
-        // column is detected
-        boolean continueOnError = false;
+        // Flags indicating if importing should continue after an input
+        // error is detected
+        boolean continueOnTableTypeError = false;
+        boolean continueOnDataTypeError = false;
+        boolean continueOnMacroError = false;
+        boolean continueOnColumnError = false;
+        boolean continueOnDataFieldError = false;
 
         // Get a list of defined name spaces
         List<NamespaceType> nameSpaces = dataSheet.getNamespace();
@@ -491,42 +509,124 @@ public class CcddEDSHandler implements CcddImportExportInterface
                             // Step through each generic type data
                             for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
                             {
-                                // Extract the table type information
-                                String[] definition = CcddUtilities.splitAndRemoveQuotes(("\""
-                                                                                          + genType.getName()
-                                                                                          + "\","
-                                                                                          + genType.getShortDescription()));
-
-                                // Create the table type definition, supplying
-                                // the name and description
-                                TableTypeDefinition tableTypeDefn = new TableTypeDefinition(definition[0],
-                                                                                            definition[1]);
-
-                                // Step through each column definition
-                                // (ignoring the primary key and row index
-                                // columns)
-                                for (int columnNumber = NUM_HIDDEN_COLUMNS, index = 2; index < definition.length; columnNumber++, index += TableTypeEditorColumnInfo.values().length - 1)
+                                // Check if the table type inputs are present
+                                if (genType.getName() != null
+                                    && genType.getShortDescription() != null)
                                 {
-                                    // Add the column definition to the table
-                                    // type definition
-                                    tableTypeDefn.addColumn(new Object[] {columnNumber,
-                                                                          definition[TableTypeEditorColumnInfo.NAME.ordinal() + index - 1],
-                                                                          definition[TableTypeEditorColumnInfo.DESCRIPTION.ordinal() + index - 1],
-                                                                          definition[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal() + index - 1],
-                                                                          Boolean.valueOf(definition[TableTypeEditorColumnInfo.UNIQUE.ordinal() + index - 1]),
-                                                                          Boolean.valueOf(definition[TableTypeEditorColumnInfo.REQUIRED.ordinal() + index - 1]),
-                                                                          Boolean.valueOf(definition[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal() + index - 1]),
-                                                                          Boolean.valueOf(definition[TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal() + index - 1])});
+                                    // Get the table type inputs. If not
+                                    // present use a blank to prevent an error
+                                    // when separating the inputs
+                                    String inputs = genType.getShortDescription() != null
+                                                                                         ? genType.getShortDescription()
+                                                                                         : "";
+
+                                    // Extract the table type information
+                                    String[] definition = CcddUtilities.splitAndRemoveQuotes(("\""
+                                                                                              + genType.getName()
+                                                                                              + "\","
+                                                                                              + inputs));
+
+                                    // Check if the expected number of inputs
+                                    // is present
+                                    if ((definition.length) - 2 % TableTypeEditorColumnInfo.values().length != 0)
+                                    {
+                                        // Create the table type definition,
+                                        // supplying the name and description
+                                        TableTypeDefinition tableTypeDefn = new TableTypeDefinition(definition[0],
+                                                                                                    definition[1]);
+
+                                        // Step through each column definition
+                                        // (ignoring the primary key and row
+                                        // index columns)
+                                        for (int columnNumber = NUM_HIDDEN_COLUMNS, index = 2; index < definition.length; columnNumber++, index += TableTypeEditorColumnInfo.values().length - 1)
+                                        {
+                                            // Add the column definition to the
+                                            // table type definition
+                                            tableTypeDefn.addColumn(new Object[] {columnNumber,
+                                                                                  definition[TableTypeEditorColumnInfo.NAME.ordinal() + index - 1],
+                                                                                  definition[TableTypeEditorColumnInfo.DESCRIPTION.ordinal() + index - 1],
+                                                                                  definition[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal() + index - 1],
+                                                                                  Boolean.valueOf(definition[TableTypeEditorColumnInfo.UNIQUE.ordinal() + index - 1]),
+                                                                                  Boolean.valueOf(definition[TableTypeEditorColumnInfo.REQUIRED.ordinal() + index - 1]),
+                                                                                  Boolean.valueOf(definition[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal() + index - 1]),
+                                                                                  Boolean.valueOf(definition[TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal() + index - 1])});
+                                        }
+
+                                        // Check if the table type isn't new
+                                        // and doesn't match an existing one
+                                        // with the same name
+                                        if (tableTypeHandler.updateTableTypes(tableTypeDefn, true) == TableTypeUpdate.MISMATCH)
+                                        {
+                                            throw new CCDDException("table type '"
+                                                                    + tableTypeDefn.getTypeName()
+                                                                    + "' already exists and doesn't match the import definition");
+                                        }
+                                    }
+                                    // Check if the user hasn't already elected
+                                    // to ignore table type errors
+                                    else if (!continueOnTableTypeError)
+                                    {
+                                        // Inform the user that the table type
+                                        // name is incorrect
+                                        int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                            "<html><b>Table type '"
+                                                                                                                + genType.getName()
+                                                                                                                + "' definition has missing or extra input(s) in import file '</b>"
+                                                                                                                + importFileName
+                                                                                                                + "<b>'; continue?",
+                                                                                                            "Table Type Error",
+                                                                                                            "Ignore this table type",
+                                                                                                            "Ignore this and any remaining invalid table types",
+                                                                                                            "Stop importing");
+
+                                        // Check if the Ignore All button was
+                                        // pressed
+                                        if (buttonSelected == IGNORE_BUTTON)
+                                        {
+                                            // Set the flag to ignore
+                                            // subsequent column name errors
+                                            continueOnTableTypeError = true;
+                                        }
+                                        // Check if the Cancel button was
+                                        // pressed
+                                        else if (buttonSelected == CANCEL_BUTTON)
+                                        {
+                                            // No error message is provided
+                                            // since the user chose this action
+                                            throw new CCDDException("");
+                                        }
+                                    }
                                 }
-
-                                // Check if the table type isn't new and
-                                // doesn't match an existing one with the same
-                                // name
-                                if (tableTypeHandler.updateTableTypes(tableTypeDefn, true) == TableTypeUpdate.MISMATCH)
+                                // Check if the user hasn't already elected to
+                                // ignore table type errors
+                                else if (!continueOnTableTypeError)
                                 {
-                                    throw new CCDDException("table type '"
-                                                            + tableTypeDefn.getTypeName()
-                                                            + "' already exists and doesn't match the import definition");
+                                    // Inform the user that the table type name
+                                    // is missing
+                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                        "<html><b>Missing table type name in import file '</b>"
+                                                                                                            + importFileName
+                                                                                                            + "<b>'; continue?",
+                                                                                                        "Table Type Error",
+                                                                                                        "Ignore this table type",
+                                                                                                        "Ignore this and any remaining invalid table types",
+                                                                                                        "Stop importing");
+
+                                    // Check if the Ignore All button was
+                                    // pressed
+                                    if (buttonSelected == IGNORE_BUTTON)
+                                    {
+                                        // Set the flag to ignore subsequent
+                                        // column name errors
+                                        continueOnTableTypeError = true;
+                                    }
+                                    // Check if the Cancel button was pressed
+                                    else if (buttonSelected == CANCEL_BUTTON)
+                                    {
+                                        // No error message is provided since
+                                        // the user chose this action
+                                        throw new CCDDException("");
+                                    }
                                 }
                             }
                         }
@@ -613,78 +713,118 @@ public class CcddEDSHandler implements CcddImportExportInterface
                             // Step through each generic type data
                             for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
                             {
-                                boolean isFound = false;
-
-                                // Build the data type definition from the
-                                // generic type data
-                                String[] typeDefn = (genType.getName()
-                                                     + ","
-                                                     + genType.getShortDescription()
-                                                     + ",\"\"").split(",", -1);
-
-                                // Step through the data type definitions
-                                // already added
-                                for (int index = 0; index < dataTypeDefns.size(); index++)
+                                // Check if the expected inputs are present
+                                if (genType.getName() != null
+                                    && genType.getShortDescription() != null)
                                 {
-                                    // Check if the data type in the generic
-                                    // set matches an existing one from the
-                                    // data set
-                                    if (CcddDataTypeHandler.getDataTypeName(typeDefn).equals(CcddDataTypeHandler.getDataTypeName(dataTypeDefns.get(index))))
+                                    boolean isFound = false;
+
+                                    // Build the data type definition from the
+                                    // generic type data
+                                    String[] typeDefn = (genType.getName()
+                                                         + ","
+                                                         + genType.getShortDescription()
+                                                         + ",\"\"").split(",", -1);
+
+                                    // Step through the data type definitions
+                                    // already added
+                                    for (int index = 0; index < dataTypeDefns.size(); index++)
                                     {
-                                        // Set the flag to indicate a match
-                                        // exists
-                                        isFound = true;
-
-                                        // Check if the user name is empty in
-                                        // either the data set or generic type
-                                        // set. This accounts for definitions
-                                        // with a blank user name (i.e., the C
-                                        // name is used as the data type name)
-                                        if (dataTypeDefns.get(index)[DataTypesColumn.USER_NAME.ordinal()].isEmpty()
-                                            || typeDefn[DataTypesColumn.USER_NAME.ordinal()].isEmpty())
+                                        // Check if the data type in the
+                                        // generic set matches an existing one
+                                        // from the data set
+                                        if (CcddDataTypeHandler.getDataTypeName(typeDefn).equals(CcddDataTypeHandler.getDataTypeName(dataTypeDefns.get(index))))
                                         {
-                                            // Set the user name to the one
-                                            // from the generic set
-                                            dataTypeDefns.get(index)[DataTypesColumn.USER_NAME.ordinal()] = typeDefn[DataTypesColumn.USER_NAME.ordinal()];
-                                        }
+                                            // Set the flag to indicate a match
+                                            // exists
+                                            isFound = true;
 
-                                        // Check if the data set C name is
-                                        // blank
-                                        if (dataTypeDefns.get(index)[DataTypesColumn.C_NAME.ordinal()].isEmpty())
-                                        {
-                                            // Set the C name to the one from
-                                            // the generic set
-                                            dataTypeDefns.get(index)[DataTypesColumn.C_NAME.ordinal()] = typeDefn[DataTypesColumn.C_NAME.ordinal()];
-                                        }
+                                            // Check if the user name is empty
+                                            // in either the data set or
+                                            // generic type set. This accounts
+                                            // for definitions with a blank
+                                            // user name (i.e., the C name is
+                                            // used as the data type name)
+                                            if (dataTypeDefns.get(index)[DataTypesColumn.USER_NAME.ordinal()].isEmpty()
+                                                || typeDefn[DataTypesColumn.USER_NAME.ordinal()].isEmpty())
+                                            {
+                                                // Set the user name to the one
+                                                // from the generic set
+                                                dataTypeDefns.get(index)[DataTypesColumn.USER_NAME.ordinal()] = typeDefn[DataTypesColumn.USER_NAME.ordinal()];
+                                            }
 
-                                        // Check if the data set size is blank
-                                        if (dataTypeDefns.get(index)[DataTypesColumn.SIZE.ordinal()].isEmpty())
-                                        {
-                                            // Set the size to the one from the
-                                            // generic set
-                                            dataTypeDefns.get(index)[DataTypesColumn.SIZE.ordinal()] = typeDefn[DataTypesColumn.SIZE.ordinal()];
-                                        }
+                                            // Check if the data set C name is
+                                            // blank
+                                            if (dataTypeDefns.get(index)[DataTypesColumn.C_NAME.ordinal()].isEmpty())
+                                            {
+                                                // Set the C name to the one
+                                                // from the generic set
+                                                dataTypeDefns.get(index)[DataTypesColumn.C_NAME.ordinal()] = typeDefn[DataTypesColumn.C_NAME.ordinal()];
+                                            }
 
-                                        // Check if the data set base type is
-                                        // blank
-                                        if (dataTypeDefns.get(index)[DataTypesColumn.BASE_TYPE.ordinal()].isEmpty())
-                                        {
-                                            // Set the base type to the one
-                                            // from the generic set
-                                            dataTypeDefns.get(index)[DataTypesColumn.BASE_TYPE.ordinal()] = typeDefn[DataTypesColumn.BASE_TYPE.ordinal()];
-                                        }
+                                            // Check if the data set size is
+                                            // blank
+                                            if (dataTypeDefns.get(index)[DataTypesColumn.SIZE.ordinal()].isEmpty())
+                                            {
+                                                // Set the size to the one from
+                                                // the generic set
+                                                dataTypeDefns.get(index)[DataTypesColumn.SIZE.ordinal()] = typeDefn[DataTypesColumn.SIZE.ordinal()];
+                                            }
 
-                                        break;
+                                            // Check if the data set base type
+                                            // is blank
+                                            if (dataTypeDefns.get(index)[DataTypesColumn.BASE_TYPE.ordinal()].isEmpty())
+                                            {
+                                                // Set the base type to the one
+                                                // from the generic set
+                                                dataTypeDefns.get(index)[DataTypesColumn.BASE_TYPE.ordinal()] = typeDefn[DataTypesColumn.BASE_TYPE.ordinal()];
+                                            }
+
+                                            break;
+                                        }
+                                    }
+
+                                    // Check if the data type doesn't match one
+                                    // already added from the data set
+                                    if (!isFound)
+                                    {
+                                        // Add the data type definition to the
+                                        // list (add a blank for the OID
+                                        // column)
+                                        dataTypeDefns.add(typeDefn);
                                     }
                                 }
-
-                                // Check if the data type doesn't match one
-                                // already added from the data set
-                                if (!isFound)
+                                // Incorrect number of inputs. Check if the
+                                // user hasn't already elected to ignore data
+                                // type errors
+                                else if (!continueOnDataTypeError)
                                 {
-                                    // Add the data type definition to the list
-                                    // (add a blank for the OID column)
-                                    dataTypeDefns.add(typeDefn);
+                                    // Inform the user that the data type
+                                    // inputs are incorrect
+                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                        "<html><b>Missing or extra data type definition input(s) in import file '</b>"
+                                                                                                            + importFileName
+                                                                                                            + "<b>'; continue?",
+                                                                                                        "Data Type Error",
+                                                                                                        "Ignore this data type",
+                                                                                                        "Ignore this and any remaining invalid data types",
+                                                                                                        "Stop importing");
+
+                                    // Check if the Ignore All button was
+                                    // pressed
+                                    if (buttonSelected == IGNORE_BUTTON)
+                                    {
+                                        // Set the flag to ignore subsequent
+                                        // column name errors
+                                        continueOnDataTypeError = true;
+                                    }
+                                    // Check if the Cancel button was pressed
+                                    else if (buttonSelected == CANCEL_BUTTON)
+                                    {
+                                        // No error message is provided since
+                                        // the user chose this action
+                                        throw new CCDDException("");
+                                    }
                                 }
                             }
                         }
@@ -708,11 +848,49 @@ public class CcddEDSHandler implements CcddImportExportInterface
                             // Step through each generic type data
                             for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
                             {
-                                // Add the macro definition to the list (add a
-                                // blank for the OID column)
-                                macroDefns.add(new String[] {genType.getName(),
-                                                             genType.getShortDescription(),
-                                                             ""});
+                                // Check that the macro name is present
+                                if (genType.getName() != null)
+                                {
+                                    // Add the macro definition to the list
+                                    // (add a blank for the OID column)
+                                    macroDefns.add(new String[] {genType.getName(),
+                                                                 (genType.getShortDescription() != null
+                                                                                                       ? genType.getShortDescription()
+                                                                                                       : ""),
+                                                                 ""});
+                                }
+                                // Incorrect number of inputs. Check if the
+                                // user hasn't already elected to ignore macro
+                                // errors
+                                else if (!continueOnMacroError)
+                                {
+                                    // Inform the user that the macro inputs
+                                    // are incorrect
+                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                        "<html><b>Missing or extra macro definition input(s) in import file '</b>"
+                                                                                                            + importFileName
+                                                                                                            + "<b>'; continue?",
+                                                                                                        "Macro Error",
+                                                                                                        "Ignore this macro",
+                                                                                                        "Ignore this and any remaining invalid macros",
+                                                                                                        "Stop importing");
+
+                                    // Check if the Ignore All button was
+                                    // pressed
+                                    if (buttonSelected == IGNORE_BUTTON)
+                                    {
+                                        // Set the flag to ignore subsequent
+                                        // column name errors
+                                        continueOnMacroError = true;
+                                    }
+                                    // Check if the Cancel button was pressed
+                                    else if (buttonSelected == CANCEL_BUTTON)
+                                    {
+                                        // No error message is provided since
+                                        // the user chose this action
+                                        throw new CCDDException("");
+                                    }
+                                }
                             }
                         }
                     }
@@ -724,8 +902,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
                 // system name>)
                 else if ((importType == ImportType.IMPORT_ALL
                          || tableDefinitions.size() == 0)
-                         && nameSpace.getName().startsWith(EDSTags.TABLE.getTag()
-                                                           + ":")
+                         && nameSpace.getName().startsWith(EDSTags.TABLE.getTag() + ":")
                          && nameSpace.getDeclaredInterfaceSet() != null
                          && nameSpace.getName().matches("[^:]+?:[^:]+?(?::[^:]*)?$"))
                 {
@@ -1191,6 +1368,14 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                         else if (importType == ImportType.IMPORT_ALL
                                                  && intfcDecType.getName().equals(EDSTags.DATA_FIELD.getTag()))
                                         {
+                                            // Get the data field inputs. If
+                                            // not present use a blank to
+                                            // prevent an error when separating
+                                            // the inputs
+                                            String inputs = genType.getShortDescription() != null
+                                                                                                 ? genType.getShortDescription()
+                                                                                                 : "";
+
                                             // Parse data field. The values are
                                             // comma-separated; however, commas
                                             // within quotes are ignored - this
@@ -1199,11 +1384,55 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                             String[] fieldDefn = CcddUtilities.splitAndRemoveQuotes("\""
                                                                                                     + tableDefn.getName()
                                                                                                     + "\","
-                                                                                                    + genType.getShortDescription());
+                                                                                                    + inputs);
 
-                                            // Add the data field definition to
-                                            // the table
-                                            tableDefn.addDataField(fieldDefn);
+                                            // Check if the expected number of
+                                            // inputs is present
+                                            if (fieldDefn.length == FieldEditorColumnInfo.values().length + 1)
+                                            {
+                                                // Add the data field
+                                                // definition to the table
+                                                tableDefn.addDataField(fieldDefn);
+                                            }
+                                            // Check that the user hasn't
+                                            // elected to ignore data field
+                                            // errors
+                                            else if (!continueOnDataFieldError)
+                                            {
+                                                // Inform the user that the
+                                                // data field name inputs are
+                                                // incorrect
+                                                int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                                    "<html><b>Table '</b>"
+                                                                                                                        + tableDefn.getName()
+                                                                                                                        + "<b>' has missing or extra data field input(s) in import file '</b>"
+                                                                                                                        + importFileName
+                                                                                                                        + "<b>'; continue?",
+                                                                                                                    "Data Field Error",
+                                                                                                                    "Ignore this invalid data field",
+                                                                                                                    "Ignore this and any remaining invalid data fields",
+                                                                                                                    "Stop importing");
+
+                                                // Check if the Ignore All
+                                                // button was pressed
+                                                if (buttonSelected == IGNORE_BUTTON)
+                                                {
+                                                    // Set the flag to ignore
+                                                    // subsequent data field
+                                                    // errors
+                                                    continueOnDataFieldError = true;
+                                                }
+                                                // Check if the Cancel
+                                                // button was pressed
+                                                else if (buttonSelected == CANCEL_BUTTON)
+                                                {
+                                                    // No error message is
+                                                    // provided since the
+                                                    // user chose this
+                                                    // action
+                                                    throw new CCDDException("");
+                                                }
+                                            }
                                         }
                                     }
                                     // Check if this is the third pass
@@ -1253,29 +1482,38 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                                                             genType.getShortDescription());
                                                 }
                                             }
-                                            // Check if the user hasn't already
-                                            // elected to ignore any column
-                                            // discrepancies
-                                            else if (!continueOnError)
+                                            // Check that the user hasn't
+                                            // elected to ignore column name
+                                            // errors
+                                            else if (!continueOnColumnError)
                                             {
-                                                // Check if the user confirms
-                                                // ignoring the unknown column
-                                                // name
-                                                if (new CcddDialogHandler().showMessageDialog(parent,
-                                                                                              "<html><b>Unrecognized column name '</b>"
-                                                                                                  + columnName
-                                                                                                  + "<b>' in table<br>'</b>"
-                                                                                                  + tableDefn.getName()
-                                                                                                  + "<b>'; continue?",
-                                                                                              "Unknown Column",
-                                                                                              JOptionPane.QUESTION_MESSAGE,
-                                                                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                                                // Inform the user that the
+                                                // column name is invalid
+                                                int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                                    "<html><b>Table '</b>"
+                                                                                                                        + tableDefn.getName()
+                                                                                                                        + "<b>' column name '</b>"
+                                                                                                                        + columnName
+                                                                                                                        + "<b>' unrecognized in import file '</b>"
+                                                                                                                        + importFileName
+                                                                                                                        + "<b>'; continue?",
+                                                                                                                    "Column Error",
+                                                                                                                    "Ignore this invalid column name",
+                                                                                                                    "Ignore this and any remaining invalid column names",
+                                                                                                                    "Stop importing");
+
+                                                // Check if the Ignore All
+                                                // button was pressed
+                                                if (buttonSelected == IGNORE_BUTTON)
                                                 {
-                                                    continueOnError = true;
+                                                    // Set the flag to ignore
+                                                    // subsequent column name
+                                                    // errors
+                                                    continueOnColumnError = true;
                                                 }
-                                                // The user chose to not ignore
-                                                // the discrepancy
-                                                else
+                                                // Check if the Cancel button
+                                                // was pressed
+                                                else if (buttonSelected == CANCEL_BUTTON)
                                                 {
                                                     // No error message is
                                                     // provided since the user

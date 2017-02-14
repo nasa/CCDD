@@ -585,6 +585,12 @@ public class CcddDbVerificationHandler
                                               + dbControl.getDatabase()
                                               + "'metadata");
                 }
+                catch (Exception e)
+                {
+                    // Display a dialog providing details on the unanticipated
+                    // error
+                    CcddUtilities.displayException(e, ccddMain.getMainFrame());
+                }
             }
 
             /******************************************************************
