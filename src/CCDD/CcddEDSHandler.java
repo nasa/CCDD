@@ -1208,19 +1208,23 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                             // type table
                                             if (typeDefn.isStructure())
                                             {
+                                                String descColName;
+
                                                 // Get the structure column
                                                 // indices, if this is a
                                                 // structure type
                                                 variableNameIndex = typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.VARIABLE));
                                                 dataTypeIndex = typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.PRIM_AND_STRUCT));
 
-                                                // Get the variable description
-                                                // column. If the default
-                                                // structure description column
-                                                // name isn't used then the
-                                                // first column containing
-                                                // 'description' is selected
-                                                descriptionIndex = typeDefn.getVisibleColumnIndexByUserName(DefaultColumn.DESCRIPTION_STRUCT.getName());
+                                                // Get the description column
+                                                // name
+                                                if ((descColName = typeDefn.getColumnNameByInputType(InputDataType.DESCRIPTION)) != null)
+                                                {
+                                                    // Get the variable
+                                                    // description column, if
+                                                    // present
+                                                    descriptionIndex = typeDefn.getVisibleColumnIndexByUserName(descColName);
+                                                }
 
                                                 // Check if the column by the
                                                 // default name isn't present
@@ -1863,62 +1867,30 @@ public class CcddEDSHandler implements CcddImportExportInterface
                 // Check if this is a structure table
                 if (tableType.equals(TYPE_STRUCTURE))
                 {
+                    String descColName;
+                    String unitsColName;
+
                     // Get the default column indices
                     int varColumn = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
                     int typeColumn = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
                     int sizeColumn = typeDefn.getColumnIndexByInputType(InputDataType.ARRAY_INDEX);
                     int bitColumn = typeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH);
                     List<Integer> enumColumn = typeDefn.getColumnIndicesByInputType(InputDataType.ENUMERATION);
+                    int descColumn = -1;
+                    int unitsColumn = -1;
 
-                    // Get the array of visible column names
-                    String[] columnNames = typeDefn.getColumnNamesVisible();
-
-                    // Get the variable description column. If the default
-                    // structure description column name isn't used then
-                    // the first column containing 'description' is
-                    // selected
-                    int descColumn = typeDefn.getVisibleColumnIndexByUserName(DefaultColumn.DESCRIPTION_STRUCT.getName());
-
-                    // Check if the column by the default name isn't
-                    // present
-                    if (descColumn == -1)
+                    // Get the description column name
+                    if ((descColName = typeDefn.getColumnNameByInputType(InputDataType.DESCRIPTION)) != null)
                     {
-                        // Step through each column
-                        for (int column = 0; column < typeDefn.getColumnCountVisible(); column++)
-                        {
-                            // Check if the column name contain
-                            // 'description'
-                            if (columnNames[column].matches(CONTAINS_DESCRIPTION))
-                            {
-                                // Set this column as the description
-                                // column and stop searching
-                                descColumn = column;
-                                break;
-                            }
-                        }
+                        // Get the description column index
+                        descColumn = typeDefn.getVisibleColumnIndexByUserName(descColName);
                     }
 
-                    // Get the units column. If the default units column
-                    // name isn't used then the first column containing
-                    // 'units' is selected
-                    int unitsColumn = typeDefn.getVisibleColumnIndexByUserName(DefaultColumn.UNITS.getName());
-
-                    // Check if the column by the default name isn't
-                    // present
-                    if (unitsColumn == -1)
+                    // Get the units column name
+                    if ((unitsColName = typeDefn.getColumnNameByInputType(InputDataType.UNITS)) != null)
                     {
-                        // Step through each column
-                        for (int column = 0; column < typeDefn.getColumnCountVisible(); column++)
-                        {
-                            // Check if the column name contain 'units'
-                            if (columnNames[column].matches(CONTAINS_UNITS))
-                            {
-                                // Set this column as the units column and
-                                // stop searching
-                                unitsColumn = column;
-                                break;
-                            }
-                        }
+                        // Get the units column index
+                        unitsColumn = typeDefn.getVisibleColumnIndexByUserName(unitsColName);
                     }
 
                     // Get the structure table description
@@ -2112,7 +2084,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
             nameSpaceName = path + "," + nameSpaceName;
         }
 
-        // CHeck if a system name is provided
+        // Check if a system name is provided
         if (systemName != null && !systemName.isEmpty())
         {
             // Prepend the system name to the name space name to get the full
@@ -2542,7 +2514,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
                     String colName = typeDefn.getColumnNamesUser()[col];
 
                     // Check if this column is for the command description
-                    if (colName.matches(CONTAINS_DESCRIPTION))
+                    if (col == typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION))
                     {
                         // Store the command description
                         commandDescription = rowData[col];

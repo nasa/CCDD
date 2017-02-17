@@ -115,6 +115,9 @@ public class CcddConstants
     // Separator for the table description list database query
     protected static final String TABLE_DESCRIPTION_SEPARATOR = "\\\\";
 
+    // Separator for multiple enumeration columns in a table member query
+    protected static final String ENUMERATION_SEPARATOR = "\\\\\\";
+
     // Table property, radio button, and check box change event names
     protected static final String TABLE_CHANGE_EVENT = "tableHasChanges";
     protected static final String RADIO_BUTTON_CHANGE_EVENT = "radioButtonChanged";
@@ -804,6 +807,11 @@ public class CcddConstants
                      "hexadecimal",
                      "Command code; hexadecimal number (see Hexadecimal)"),
 
+        DESCRIPTION("Description",
+                    ".*",
+                    "text",
+                    "Data description; same constraints as for text (see Text)"),
+
         ENUMERATION("Enumeration",
                     ".*",
                     "enumeration",
@@ -914,6 +922,11 @@ public class CcddConstants
              ".*",
              "text",
              "Text, including alphabetic, numeric, and special characters"),
+
+        UNITS("Units",
+              ".*",
+              "text",
+              "Data units; same constraints as for text (see Text)"),
 
         VARIABLE("Variable name",
                  "[a-zA-Z_][a-zA-Z0-9_]*",
@@ -1252,23 +1265,23 @@ public class CcddConstants
         DESCRIPTION_STRUCT(TYPE_STRUCTURE,
                            COL_DESCRIPTION,
                            "Parameter description",
-                           InputDataType.TEXT,
+                           InputDataType.DESCRIPTION,
                            false,
                            false,
                            false,
                            true,
                            true,
-                           false),
+                           true),
         UNITS(TYPE_STRUCTURE,
               COL_UNITS,
               "Parameter units",
-              InputDataType.TEXT,
+              InputDataType.UNITS,
               false,
               false,
               false,
               true,
               true,
-              false),
+              true),
         DATA_TYPE(TYPE_STRUCTURE,
                   COL_DATA_TYPE,
                   "Parameter data type",
@@ -1344,13 +1357,13 @@ public class CcddConstants
         DESCRIPTION_CMD(TYPE_COMMAND,
                         COL_DESCRIPTION,
                         "Command description",
-                        InputDataType.TEXT,
+                        InputDataType.DESCRIPTION,
                         false,
                         false,
                         false,
                         false,
                         true,
-                        false),
+                        true),
         ARG_NAME_1(TYPE_COMMAND,
                    COL_ARGUMENT + " 1 Name",
                    "Command argument 1 name",

@@ -134,7 +134,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
 
     // List containing variable paths from the custom values table that match
     // the current rate column name and rate value
-    private List<String> rateValues;
+    private List<String[]> rateValues;
 
     /**************************************************************************
      * Tree cell renderer with link size display handling class
@@ -595,7 +595,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         {
             // Load all references to rate column values from the custom values
             // table that match the rate name and filter
-            rateValues = dbTable.getRateValues(rateName,
+            rateValues = dbTable.getCustomValues(rateName,
                                                rateFilter,
                                                parent);
         }
@@ -974,8 +974,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // Add the child node to its parent
             parentNode.add(childNode);
 
-            // Get the parent table and variable path (without data types) for
-            // this variable
+            // Get the parent table and variable path for this variable
             String fullTablePath = getFullVariablePath(childNode.getPath());
 
             // Step through each data type referenced by the table member

@@ -742,55 +742,29 @@ public class CcddXTCEHandler implements CcddImportExportInterface
             // table type is recognized
             if (tlmMetaData != null && typeDefn != null)
             {
-                // Get variable name and data type column indices
+                String descColName;
+                String unitsColName;
+
+                // Get variable name, data type, enumeration, description, and
+                // units column indices
                 int variableNameIndex = typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.VARIABLE));
                 int dataTypeIndex = typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.PRIM_AND_STRUCT));
                 int enumerationIndex = typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.ENUMERATION));
+                int descriptionIndex = -1;
+                int unitsIndex = -1;
 
-                // Get the array of visible column names
-                String[] columnNames = typeDefn.getColumnNamesVisible();
-
-                // Get the variable description column. If the default
-                // structure description column name isn't used then the first
-                // column containing 'description' is selected
-                int descriptionIndex = typeDefn.getVisibleColumnIndexByUserName(DefaultColumn.DESCRIPTION_STRUCT.getName());
-
-                // Check if the column by the default name isn't present
-                if (descriptionIndex == -1)
+                // Get the description column name
+                if ((descColName = typeDefn.getColumnNameByInputType(InputDataType.DESCRIPTION)) != null)
                 {
-                    // Step through each column
-                    for (int column = 0; column < numColumns; column++)
-                    {
-                        // Check if the column name contain 'description'
-                        if (columnNames[column].matches(CONTAINS_DESCRIPTION))
-                        {
-                            // Set this column as the description column and
-                            // stop searching
-                            descriptionIndex = column;
-                            break;
-                        }
-                    }
+                    // Get the description column index
+                    descriptionIndex = typeDefn.getVisibleColumnIndexByUserName(descColName);
                 }
 
-                // Get the units column. If the default units column name isn't
-                // used then the first column containing 'units' is selected
-                int unitsIndex = typeDefn.getVisibleColumnIndexByUserName(DefaultColumn.UNITS.getName());
-
-                // Check if the column by the default name isn't present
-                if (unitsIndex == -1)
+                // Get the units column name
+                if ((unitsColName = typeDefn.getColumnNameByInputType(InputDataType.UNITS)) != null)
                 {
-                    // Step through each column
-                    for (int column = 0; column < numColumns; column++)
-                    {
-                        // Check if the column name contain 'units'
-                        if (columnNames[column].matches(CONTAINS_UNITS))
-                        {
-                            // Set this column as the units column and stop
-                            // searching
-                            unitsIndex = column;
-                            break;
-                        }
-                    }
+                    // Get the units column index
+                    unitsIndex = typeDefn.getVisibleColumnIndexByUserName(unitsColName);
                 }
 
                 // Get the telemetry information
@@ -1066,6 +1040,9 @@ public class CcddXTCEHandler implements CcddImportExportInterface
             // table type is recognized
             if (cmdMetaData != null && typeDefn != null)
             {
+                String descColName;
+                int cmdDescriptionIndex = -1;
+
                 // Get the command name column
                 int commandNameIndex = typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.COMMAND_NAME));
 
@@ -1074,57 +1051,11 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                 // indices for each argument grouping
                 List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandColumns(true);
 
-                // Get the list containing command argument name, data type,
-                // enumeration, minimum, maximum, and other associated column
-                // indices for each argument grouping
-                commandArguments = typeDefn.getAssociatedCommandColumns(true);
-
-                // Get the command description column. If the default command
-                // description column name isn't used then the first column
-                // containing 'description' is selected that doesn't refer to a
-                // command argument
-                int cmdDescriptionIndex = typeDefn.getVisibleColumnIndexByUserName(DefaultColumn.DESCRIPTION_CMD.getName());
-
-                // Check if the column by the default name isn't present
-                if (cmdDescriptionIndex == -1)
+                // Get the description column name
+                if ((descColName = typeDefn.getColumnNameByInputType(InputDataType.DESCRIPTION)) != null)
                 {
-                    // Get the array of visible column names
-                    String[] columnNames = typeDefn.getColumnNamesVisible();
-
-                    // Step through each column
-                    for (int column = 0; column < numColumns; column++)
-                    {
-                        // Check if the column name contain 'description'
-                        if (columnNames[column].matches(CONTAINS_DESCRIPTION))
-                        {
-                            boolean isArgDesc = false;
-
-                            // Step through the command argument columns
-                            for (AssociatedColumns argCols : commandArguments)
-                            {
-                                // Check if this column is the description for
-                                // a command argument
-                                if (argCols.getOther().contains(column))
-                                {
-                                    // Set the flag indicating this is a
-                                    // command argument description and stop
-                                    // searching
-                                    isArgDesc = true;
-                                    break;
-                                }
-                            }
-
-                            // Check if the column isn't a command argument
-                            // description
-                            if (!isArgDesc)
-                            {
-                                // Set this column as the description column
-                                // and stop searching
-                                cmdDescriptionIndex = column;
-                                break;
-                            }
-                        }
-                    }
+                    // Get the description column index
+                    cmdDescriptionIndex = typeDefn.getVisibleColumnIndexByUserName(descColName);
                 }
 
                 // Get the command set information
@@ -2153,57 +2084,13 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                         sizeColumn = typeDefn.getColumnIndexByInputType(InputDataType.ARRAY_INDEX);
                         bitColumn = typeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH);
                         enumColumn = typeDefn.getColumnIndexByInputType(InputDataType.ENUMERATION);
-
-                        // Get the array of visible column names
-                        String[] columnNames = typeDefn.getColumnNamesVisible();
+                        descColumn = typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION);
+                        unitsColumn = typeDefn.getColumnIndexByInputType(InputDataType.UNITS);
 
                         // Get the variable description column. If the default
                         // structure description column name isn't used then
                         // the first column containing 'description' is
                         // selected
-                        descColumn = typeDefn.getVisibleColumnIndexByUserName(DefaultColumn.DESCRIPTION_STRUCT.getName());
-
-                        // Check if the column by the default name isn't
-                        // present
-                        if (descColumn == -1)
-                        {
-                            // Step through each column
-                            for (int column = 0; column < typeDefn.getColumnCountVisible(); column++)
-                            {
-                                // Check if the column name contain
-                                // 'description'
-                                if (columnNames[column].matches(CONTAINS_DESCRIPTION))
-                                {
-                                    // Set this column as the description
-                                    // column and stop searching
-                                    descColumn = column;
-                                    break;
-                                }
-                            }
-                        }
-
-                        // Get the units column. If the default units column
-                        // name isn't used then the first column containing
-                        // 'units' is selected
-                        unitsColumn = typeDefn.getVisibleColumnIndexByUserName(DefaultColumn.UNITS.getName());
-
-                        // Check if the column by the default name isn't
-                        // present
-                        if (unitsColumn == -1)
-                        {
-                            // Step through each column
-                            for (int column = 0; column < typeDefn.getColumnCountVisible(); column++)
-                            {
-                                // Check if the column name contain 'units'
-                                if (columnNames[column].matches(CONTAINS_UNITS))
-                                {
-                                    // Set this column as the units column and
-                                    // stop searching
-                                    unitsColumn = column;
-                                    break;
-                                }
-                            }
-                        }
 
                         // Add the structure
                         parentSystem = addSpaceSystem(parentSystem,
@@ -2864,7 +2751,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                     String colName = typeDefn.getColumnNamesUser()[col];
 
                     // Check if this column is for the command description
-                    if (colName.matches(CONTAINS_DESCRIPTION))
+                    if (col == typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION))
                     {
                         // Store the command description
                         commandDescription = rowData[col];

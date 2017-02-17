@@ -1168,6 +1168,46 @@ public class CcddTableTypeHandler
     }
 
     /**************************************************************************
+     * Get the list of unique structure table enumeration column names
+     * 
+     * @param useDbName
+     *            true to use the database column name; false to use the user
+     *            column name
+     * 
+     * @return List of unique structure table enumeration column names
+     *************************************************************************/
+    protected List<String> getStructEnumColNames(boolean useDbName)
+    {
+        List<String> enumColumns = new ArrayList<String>();
+
+        // Step through each table type definition
+        for (TypeDefinition typeDefn : ccddMain.getTableTypeHandler().getTypeDefinitions())
+        {
+            // Check if the type represents a structure
+            if (typeDefn.isStructure())
+            {
+                // Step through each of the table's enumeration columns
+                for (int enumIndex : typeDefn.getColumnIndicesByInputType(InputDataType.ENUMERATION))
+                {
+                    // Get the name of the column
+                    String name = useDbName
+                                           ? typeDefn.getColumnNamesDatabase()[enumIndex]
+                                           : typeDefn.getColumnNamesUser()[enumIndex];
+
+                    // Check if the name hasn't already been added
+                    if (!enumColumns.contains(name))
+                    {
+                        // Add the enumeration column name to the list
+                        enumColumns.add(name);
+                    }
+                }
+            }
+        }
+
+        return enumColumns;
+    }
+
+    /**************************************************************************
      * Check if the specified table types are new or match an existing one. If
      * new then add the table type. If the table type name matches then compare
      * the type definitions to ensure the two are the same (ignoring the column

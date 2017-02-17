@@ -50,7 +50,7 @@ import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /******************************************************************************
- * CFS Command & Data Dictionary script data access class. THis class contains
+ * CFS Command & Data Dictionary script data access class. This class contains
  * public methods that are accessible to the data output scripts
  *****************************************************************************/
 public class CcddScriptDataAccessHandler
@@ -72,6 +72,7 @@ public class CcddScriptDataAccessHandler
     private final CcddEventLogDialog eventLog;
     private CcddSchedulerTableHandler schTable;
     private CcddCopyTableHandler copyHandler;
+    private CcddVariableConversionHandler variableHandler;
 
     // Calling GUI component
     private final Component parent;
@@ -81,12 +82,6 @@ public class CcddScriptDataAccessHandler
 
     // Data table information array
     private final TableInformation[] tableInformation;
-
-    // Lists that show a variable's full name before and after converting any
-    // commas and brackets to underscores. Only variable's where the converted
-    // name matches another variable's are saved in the lists
-    List<String> originalVariableNameList;
-    List<String> convertedVariableNameList;
 
     /**************************************************************************
      * Script data access class constructor
@@ -141,8 +136,6 @@ public class CcddScriptDataAccessHandler
         eventLog = ccddMain.getSessionEventLog();
         tableTree = null;
         copyHandler = null;
-        originalVariableNameList = null;
-        convertedVariableNameList = null;
     }
 
     /**************************************************************************
@@ -1155,8 +1148,47 @@ public class CcddScriptDataAccessHandler
     {
         String fullName = "";
 
+        // Check if the variable handler has't already been created
+        if (variableHandler == null)
+        {
+            // Create storage for the variable paths and names. This is used to
+            // create a list of converted names. This is done for the first
+            // call to this method; subsequent calls use the list built in the
+            // initial call
+            List<String[]> variableInformation = new ArrayList<String[]>();
+
+            // Step through each structure table row
+            for (int tableRow = 0; tableRow < getStructureTableNumRows(); tableRow++)
+            {
+                // Get the name of the variable name column
+                String variableNameColumnName = tableTypeHandler.getColumnNameByInputType(getStructureTypeNameByRow(tableRow),
+                                                                                          InputDataType.VARIABLE);
+                // Check that the variable name column exists
+                if (variableNameColumnName != null)
+                {
+                    // Get the variable path and name for this row
+                    String variablePath = getStructureTableVariablePathByRow(tableRow);
+                    String variableName = macroHandler.getMacroExpansion(getStructureTableData(variableNameColumnName, tableRow));
+
+                    // Check that the path and name are not null or blank
+                    if (variablePath != null
+                        && !variablePath.isEmpty()
+                        && variableName != null
+                        && !variableName.isEmpty())
+                    {
+                        // Add the variable's path and name to the list
+                        variableInformation.add(new String[] {variablePath, variableName});
+                    }
+                }
+            }
+
+            // Create the variable handler
+            variableHandler = new CcddVariableConversionHandler(variableInformation, macroHandler);
+        }
+
         // Get the name of the variable name column
-        String variableNameColumnName = tableTypeHandler.getColumnNameByInputType(getStructureTypeNameByRow(row),
+        String tableType = getStructureTypeNameByRow(row);
+        String variableNameColumnName = tableTypeHandler.getColumnNameByInputType(tableType,
                                                                                   InputDataType.VARIABLE);
 
         // Check that the variable name column exists
@@ -1164,135 +1196,16 @@ public class CcddScriptDataAccessHandler
         {
             // Get the variable path and variable name at the specified row
             String variablePath = getStructureTableVariablePathByRow(row);
-            String variableName = macroHandler.getMacroExpansion(getStructureTableData(variableNameColumnName, row));
+            String variableName = macroHandler.getMacroExpansion(getStructureTableData(variableNameColumnName,
+                                                                                       row));
 
-            // Check that the path and name are not blank
-            if (!variablePath.isEmpty()
-                && variableName != null
-                && !variableName.isEmpty())
-            {
-                // Create the original and converted variable name lists if not
-                // present
-                createConvertedVariableNameList();
-
-                // Create the full name by prepending the path to the variable
-                // name
-                fullName = variablePath + "," + variableName;
-
-                int index = -1;
-
-                // Check if the separator character is an underscore
-                if (separator.equals("_"))
-                {
-                    // Get the index of the variable name from the list of
-                    // original names
-                    index = originalVariableNameList.indexOf(fullName);
-                }
-
-                // Check if the variable name was extracted from the list
-                if (index != -1)
-                {
-                    // Get the converted variable name for this variable. This
-                    // name has one or more underscores appended since it would
-                    // otherwise duplicate another variable's name
-                    fullName = convertedVariableNameList.get(index);
-                }
-                // The separator character isn't an underscore or the variable
-                // name isn't in the list
-                else
-                {
-                    // Replace the commas in the path, which separate each
-                    // structure variable in the path, with underscores.
-                    // Replace any left brackets with underscores and right
-                    // brackets with blanks (in case there are any array
-                    // members in the path)
-                    fullName = fullName.replaceAll("[,\\[]",
-                                                   separator).replaceAll("\\]", "");
-                }
-            }
+            // Get the full variable name
+            fullName = variableHandler.getFullVariableName(variablePath,
+                                                           variableName,
+                                                           separator);
         }
 
         return fullName;
-    }
-
-    /**************************************************************************
-     * Create a pair of lists that show a variable's full name before and after
-     * converting any commas and brackets to underscores. Check if duplicate
-     * variable names result form the conversion; is a duplicate is found
-     * append an underscore to the duplicate's name. Once all variable names
-     * are processed trim the list to include only those variables that are
-     * modified to prevent a duplicate. These lists are used by
-     * getFullVariableName() to that it always returns a unique name
-     *************************************************************************/
-    private void createConvertedVariableNameList()
-    {
-        // Check if the lists aren't already created
-        if (convertedVariableNameList == null)
-        {
-            originalVariableNameList = new ArrayList<String>();
-            convertedVariableNameList = new ArrayList<String>();
-
-            // Step through each structure table row
-            for (int row = 0; row < getStructureTableNumRows(); row++)
-            {
-                // Get the name of the variable name column
-                String variableNameColumnName = tableTypeHandler.getColumnNameByInputType(getStructureTypeNameByRow(row),
-                                                                                          InputDataType.VARIABLE);
-                // Check that the variable name column exists
-                if (variableNameColumnName != null)
-                {
-                    // Get the variable path and name for this row
-                    String variablePath = getStructureTableVariablePathByRow(row);
-                    String variableName = macroHandler.getMacroExpansion(getStructureTableData(variableNameColumnName, row));
-
-                    // Check that the path and name are not blank
-                    if (!variablePath.isEmpty() && variableName != null && !variableName.isEmpty())
-                    {
-                        // Create the full name by prepending the path to the
-                        // variable name
-                        String fullName = variablePath + "," + variableName;
-
-                        // Add the full variable name to the original variable
-                        // name list
-                        originalVariableNameList.add(fullName);
-
-                        // Replace the commas in the path, which separate each
-                        // structure variable in the path, with underscores.
-                        // Replace any left brackets with underscores and right
-                        // brackets with blanks (in case there are any array
-                        // members in the path)
-                        fullName = fullName.replaceAll("[,\\[]", "_").replaceAll("\\]", "");
-
-                        // Compare the converted variable name to those already
-                        // added to the list
-                        while (convertedVariableNameList.contains(fullName))
-                        {
-                            // A matching name already exists; append an
-                            // underscore to this variable's name
-                            fullName += "_";
-                        }
-
-                        // Add the variable name to the converted variable name
-                        // list
-                        convertedVariableNameList.add(fullName);
-                    }
-                }
-            }
-
-            // Step through the converted variable name list
-            for (int index = convertedVariableNameList.size() - 1; index >= 0; index--)
-            {
-                // Check if this variable isn't one that is modified
-                if (!convertedVariableNameList.get(index).endsWith("_"))
-                {
-                    // Remove the variable from the list. This shortens the
-                    // list and allows all other variables to have their full
-                    // name built "on-the-fly"
-                    originalVariableNameList.remove(index);
-                    convertedVariableNameList.remove(index);
-                }
-            }
-        }
     }
 
     /**************************************************************************
@@ -1357,8 +1270,7 @@ public class CcddScriptDataAccessHandler
      *         table type doesn't exist. The path starts with the top-level
      *         table name. The top-level name is followed by a period and then
      *         the variable name(s) that define(s) the table's path. Each
-     *         variable in the path is separated by an underscore. The format
-     *         is:
+     *         variable in the path is separated by an period. The format is:
      * 
      *         top-level<.variable1_parent1<.variable2_parent2<...>>>
      *************************************************************************/
@@ -1387,7 +1299,7 @@ public class CcddScriptDataAccessHandler
      *            TablePathType.VARIABLE_ONLY to return the path with only the
      *            variable names (parent names removed), or
      *            TablePathType.ITOS_RECORD to return the path formatted for
-     *            use in an ITOS recored file
+     *            use in an ITOS record file
      * 
      * @return The table path, for the structure table, to the current row's
      *         parameter; returns a blank if an instance of the structure table

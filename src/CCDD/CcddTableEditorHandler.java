@@ -17,6 +17,7 @@ import static CCDD.CcddConstants.PROTECTED_TEXT_COLOR;
 import static CCDD.CcddConstants.SELECTED_BACK_COLOR;
 import static CCDD.CcddConstants.TABLE_BACK_COLOR;
 import static CCDD.CcddConstants.TEXT_HIGHLIGHT_COLOR;
+import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -3345,7 +3346,7 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
         {
             // Get the array of structure tables, if any
             allStructureTables = (allStructTbls == null)
-                                                        ? dbTable.getStructureTables()
+                                                        ? dbTable.getTablesOfType(TYPE_STRUCTURE)
                                                         : allStructTbls;
 
             // Get the table tree

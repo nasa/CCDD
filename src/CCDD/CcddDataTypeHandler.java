@@ -8,6 +8,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.CELL_FONT;
 import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
+import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -651,7 +652,7 @@ public class CcddDataTypeHandler
         comboDlg = new JDialog(ccddMain.getDataTypeEditor());
 
         // Get the array of prototype structure table names
-        structures = dbTable.getStructureTables();
+        structures = dbTable.getTablesOfType(TYPE_STRUCTURE);
 
         // Check if any structures exist
         if (structures.length != 0)

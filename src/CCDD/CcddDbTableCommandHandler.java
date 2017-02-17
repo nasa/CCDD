@@ -8,10 +8,13 @@ package CCDD;
 
 import static CCDD.CcddConstants.DB_SAVE_POINT_NAME;
 import static CCDD.CcddConstants.DIALOG_MAX_MESSAGE_LENGTH;
+import static CCDD.CcddConstants.ENUMERATION_SEPARATOR;
 import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
+import static CCDD.CcddConstants.TYPE_COMMAND;
+import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import static CCDD.CcddConstants.EventLogMessageType.SUCCESS_MSG;
 
 import java.awt.Component;
@@ -28,6 +31,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
+import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.ArrayVariable;
 import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.RateInformation;
@@ -2098,69 +2102,72 @@ public class CcddDbTableCommandHandler
 
     /**************************************************************************
      * Perform the database query to load the rows from the custom values table
-     * that reference a rate column value and match the specified rate column
-     * name and rate value
+     * that match the specified column name and column value
      * 
-     * @param rateName
-     *            data stream rate column name used to filter the table tree
-     *            for variables with rates; null if the tree is not filtered by
-     *            data rate
+     * @param columnName
+     *            name to match in the custom values table 'column name' column
      * 
-     * @param rateFilter
-     *            data rate used to filter the table tree for variables with
-     *            rates; null if the tree is not filtered by data rate
+     * @param columnValue
+     *            value to match in the custom values table 'value' column;
+     *            null or blank to match any value
      * 
      * @param parent
      *            GUI component calling this method
      * 
-     * @return List containing those variable paths from the custom values
-     *         table that reference the specified rate column name and rate
-     *         value
+     * @return List containing arrays with the row data (table path, column
+     *         name, and value) from the custom values table for those rows
+     *         that match the specified column name and column value
      *************************************************************************/
-    protected List<String> getRateValues(String rateName,
-                                         String rateFilter,
-                                         Component parent)
+    protected List<String[]> getCustomValues(String columnName,
+                                             String columnValue,
+                                             Component parent)
     {
-        List<String> rateValues = new ArrayList<String>();
+        List<String[]> customValues = new ArrayListMultiple();
 
         try
         {
-            // Get the values from the values table for all rate columns with a
-            // matching rate column name and rate value
+            // Get the row data from the custom values table for all columns
+            // with a matching column name and column value
             ResultSet rowData = dbCommand.executeDbQuery("SELECT * FROM "
                                                          + InternalTable.VALUES.getTableName()
                                                          + " WHERE "
                                                          + ValuesColumn.COLUMN_NAME.getColumnName()
                                                          + " = '"
-                                                         + rateName
-                                                         + "' AND "
-                                                         + ValuesColumn.VALUE.getColumnName()
-                                                         + " = '"
-                                                         + rateFilter
-                                                         + "';",
+                                                         + columnName
+                                                         + "'"
+                                                         + (columnValue == null
+                                                            || columnValue.isEmpty()
+                                                                                    ? ""
+                                                                                    : " AND "
+                                                                                      + ValuesColumn.VALUE.getColumnName()
+                                                                                      + " = '"
+                                                                                      + columnValue
+                                                                                      + "'")
+                                                         + ";",
                                                          parent);
 
             // Step through each of the query results
             while (rowData.next())
             {
-                // Add the columns from the matching row to the rate values
-                // list
-                rateValues.add(rowData.getString(1));
+                // Add the row data from the matching row to the array list
+                customValues.add(new String[] {rowData.getString(ValuesColumn.TABLE_PATH.ordinal() + 1),
+                                               rowData.getString(ValuesColumn.COLUMN_NAME.ordinal() + 1),
+                                               rowData.getString(ValuesColumn.VALUE.ordinal() + 1)});
             }
 
             rowData.close();
         }
         catch (SQLException se)
         {
-            // Inform the user that loading the rate values failed
+            // Inform the user that loading the custom values failed
             eventLog.logFailEvent(parent,
-                                  "Cannot load rate values; cause '"
+                                  "Cannot load data from the custom values table; cause '"
                                       + se.getMessage()
                                       + "'",
-                                  "<html><b>Cannot load rate values");
+                                  "<html><b>Cannot load data from the custom values table");
         }
 
-        return rateValues;
+        return customValues;
     }
 
     /**************************************************************************
@@ -2228,7 +2235,7 @@ public class CcddDbTableCommandHandler
      * @param parent
      *            GUI component calling this method
      * 
-     * @return List containing the tables sorted by table name. For structure
+     * @return List containing the table member information. For structure
      *         tables the member tables are included, along with primitive
      *         variables (if specified), sorted by variable name or row index
      *         as specified
@@ -2272,8 +2279,8 @@ public class CcddDbTableCommandHandler
             // Step through the query results
             while (doLoop)
             {
-                // Initialize the data type, variable, rate(s), and bit length
-                // lists
+                // Initialize the data type, variable, bit length, rate(s), and
+                // enumeration(s) lists
                 dataTypes = new ArrayList<String>();
                 variableNames = new ArrayList<String>();
                 bitLengths = new ArrayList<String>();
@@ -2285,24 +2292,18 @@ public class CcddDbTableCommandHandler
 
                 do
                 {
-                    // Get the data type, variable name, bit length, and
-                    // rate(s) from this query row
+                    // Get the data type, variable name, bit length, rate(s),
+                    // and enumeration(s) from this query row
                     String dataType = rowData.getString(2);
                     String variableName = rowData.getString(3);
                     String bitLength = rowData.getString(4);
-                    String[] rate = rowData.getString(5).split(",",
-                                                               rateHandler.getNumRateColumns());
-                    String[] enumeration = rowData.getString(6).split(",",
-                                                                      rateHandler.getNumRateColumns());// TODO
-                                                                                                       // CAN'T
-                                                                                                       // USE
-                                                                                                       // A
-                                                                                                       // COMMA
-                                                                                                       // TO
-                                                                                                       // SEPARATE
-                                                                                                       // THESE
+                    String[] rate = rowData.getString(5).split(",", rateHandler.getNumRateColumns());
+                    String[] enumeration = rowData.getString(6).split(Pattern.quote(ENUMERATION_SEPARATOR),
+                                                                      tableTypeHandler.getStructEnumColNames(true).size());
 
-                    // The data type is not a primitive type
+                    // Check if a data type and variable name exist, and that
+                    // the data type is not a primitive type (i.e., this is a
+                    // structure) or if primitive types are to be included
                     if (dataType != null
                         && !dataType.isEmpty()
                         && variableName != null
@@ -2310,8 +2311,9 @@ public class CcddDbTableCommandHandler
                         && (!dataTypeHandler.isPrimitive(dataType)
                         || memberType == TableMemberType.INCLUDE_PRIMITIVES))
                     {
-                        // Add the data type, variable name, bit length, and
-                        // rate(s) to the list for this table
+                        // Add the data type, variable name, bit length,
+                        // rate(s), and enumeration(s) to the lists for this
+                        // table
                         dataTypes.add(dataType);
                         variableNames.add(variableName);
                         bitLengths.add(bitLength);
@@ -5144,7 +5146,7 @@ public class CcddDbTableCommandHandler
         if (!ccddMain.getTableEditorDialogs().isEmpty())
         {
             // Build the structure table array and table tree
-            String[] allStructureTables = getStructureTables();
+            String[] allStructureTables = getTablesOfType(TYPE_STRUCTURE);
             CcddTableTreeHandler newTableTree = new CcddTableTreeHandler(ccddMain,
                                                                          TableTreeType.INSTANCE_ONLY,
                                                                          parent);
@@ -5820,27 +5822,38 @@ public class CcddDbTableCommandHandler
     }
 
     /**************************************************************************
-     * Get an array containing all tables that represent a structure
+     * Get an array containing all tables that represent the specified type
      * 
-     * @return Array containing all tables that represent a structure
+     * @param tableType
+     *            TYPE_STRUCTURE to get all tables for any type that represents
+     *            a structure, TYPE_COMMAND to get all tables for any type that
+     *            represents a command, or the table type name to get all
+     *            tables for the specified type
+     * 
+     * @return Array containing all tables that represent the specified type
      *************************************************************************/
-    protected String[] getStructureTables()
+    protected String[] getTablesOfType(String tableType)
     {
-        String[] allStructureTables = null;
+        String[] tablesOfType = null;
 
         // Step through each table type
         for (String type : tableTypeHandler.getTypes())
         {
-            // Check if the type represents a structure
-            if (tableTypeHandler.getTypeDefinition(type).isStructure())
+            // Check if the table type matches the one specified. Note that all
+            // structure types are handled as one, as are all command types
+            if (tableType.equals(TYPE_STRUCTURE)
+                                                ? tableTypeHandler.getTypeDefinition(type).isStructure()
+                                                : tableType.equals(TYPE_COMMAND)
+                                                                                ? tableTypeHandler.getTypeDefinition(type).isCommand()
+                                                                                : tableType.equals(type))
             {
                 // Append the table name(s) of this type to the array of names
-                allStructureTables = CcddUtilities.concatenateArrays(allStructureTables,
-                                                                     queryTablesOfTypeList(type,
-                                                                                           ccddMain.getMainFrame()));
+                tablesOfType = CcddUtilities.concatenateArrays(tablesOfType,
+                                                               queryTablesOfTypeList(type,
+                                                                                     ccddMain.getMainFrame()));
             }
         }
 
-        return allStructureTables;
+        return tablesOfType;
     }
 }

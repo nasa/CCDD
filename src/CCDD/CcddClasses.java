@@ -1311,7 +1311,7 @@ public class CcddClasses
     /**************************************************************************
      * Command argument class. Contains associated command argument name, data
      * type, enumeration, minimum value, and maximum value column indices in
-     * model coordinates
+     * view or model coordinates (as specified)
      *************************************************************************/
     protected static class AssociatedColumns
     {
@@ -4586,7 +4586,9 @@ public class CcddClasses
     protected static class ArrayListCaseInsensitive extends ArrayList<String>
     {
         /**********************************************************************
-         * Override the contains method
+         * Override the contains method. Compare the input object to each
+         * member of the list, ignoring case, and return true if a macth is
+         * found
          *********************************************************************/
         @Override
         public boolean contains(Object o)
@@ -4607,6 +4609,53 @@ public class CcddClasses
             }
 
             return isMatch;
+        }
+    }
+
+    /**************************************************************************
+     * Array list class with string arrays
+     *************************************************************************/
+    @SuppressWarnings("serial")
+    protected static class ArrayListMultiple extends ArrayList<String[]>
+    {
+        /**********************************************************************
+         * Override the contains method. Compare the input object to the first
+         * string in each array member in the list and return true is a match
+         * is found
+         *********************************************************************/
+        @Override
+        public boolean contains(Object obj)
+        {
+            return indexOf(obj) != -1;
+        }
+
+        /**********************************************************************
+         * Override the indexOf method. Compare the input object to the first
+         * string in each array member in the list and return the index of the
+         * matching array, or -1 if no match is found
+         *********************************************************************/
+        @Override
+        public int indexOf(Object obj)
+        {
+            int matchIndex = -1;
+            int index = 0;
+            String checkString = (String) obj;
+
+            // Step through each string array in the list
+            for (String[] listString : this)
+            {
+                // Check if the input string matches the first one in the array
+                if (checkString.equals(listString[0]))
+                {
+                    // Set the index to the matching one and stop searching
+                    matchIndex = index;
+                    break;
+                }
+
+                index++;
+            }
+
+            return matchIndex;
         }
     }
 

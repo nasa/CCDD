@@ -654,7 +654,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                                                   treeScroll.getPreferredSize().height));
         treeScroll.setMinimumSize(treeScroll.getPreferredSize());
 
-        // CHeck if this is the last component to add
+        // Check if this is the last component to add
         if (noFilters)
         {
             gbc.insets.bottom = 0;
