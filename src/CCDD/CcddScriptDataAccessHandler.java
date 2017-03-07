@@ -15,7 +15,6 @@ import static CCDD.CcddConstants.PATH_COLUMN_DELTA;
 import static CCDD.CcddConstants.TYPE_COLUMN_DELTA;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
-import static CCDD.CcddConstants.EventLogMessageType.SUCCESS_MSG;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -23,8 +22,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.io.PrintWriter;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -57,7 +54,6 @@ public class CcddScriptDataAccessHandler
 {
     // Class references
     private final CcddMain ccddMain;
-    private final CcddDbCommandHandler dbCommand;
     private final CcddDbTableCommandHandler dbTable;
     private final CcddDbControlHandler dbControl;
     private final CcddTableTypeHandler tableTypeHandler;
@@ -69,7 +65,6 @@ public class CcddScriptDataAccessHandler
     private final CcddRateParameterHandler rateHandler;
     private final CcddMacroHandler macroHandler;
     private CcddTableTreeHandler tableTree;
-    private final CcddEventLogDialog eventLog;
     private CcddSchedulerTableHandler schTable;
     private CcddCopyTableHandler copyHandler;
     private CcddVariableConversionHandler variableHandler;
@@ -125,7 +120,6 @@ public class CcddScriptDataAccessHandler
         this.groupHandler = groupHandler;
         this.scriptFileName = scriptFileName;
         this.parent = scriptDialog;
-        dbCommand = ccddMain.getDbCommandHandler();
         dbTable = ccddMain.getDbTableCommandHandler();
         dbControl = ccddMain.getDbControlHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
@@ -133,7 +127,6 @@ public class CcddScriptDataAccessHandler
         fileIOHandler = ccddMain.getFileIOHandler();
         rateHandler = ccddMain.getRateParameterHandler();
         macroHandler = ccddMain.getMacroHandler();
-        eventLog = ccddMain.getSessionEventLog();
         tableTree = null;
         copyHandler = null;
     }
@@ -2496,53 +2489,8 @@ public class CcddScriptDataAccessHandler
      *************************************************************************/
     public String[][] getDatabaseQuery(String sqlCommand)
     {
-        String[][] queryResults = null;
-
-        try
-        {
-            // Execute the query command
-            ResultSet infoData = dbCommand.executeDbQuery(sqlCommand,
-                                                          ccddMain.getMainFrame());
-
-            // Create a list to contain the row information
-            List<String[]> tableData = new ArrayList<String[]>();
-
-            // Step through each of the query results
-            while (infoData.next())
-            {
-                // Create an array to contain the column values
-                String[] columnValues = new String[infoData.getMetaData().getColumnCount()];
-
-                // Step through each column in the row
-                for (int column = 0; column < infoData.getMetaData().getColumnCount(); column++)
-                {
-                    // Add the column value to the array. Note that the first
-                    // column's index in the database is 1, not 0
-                    columnValues[column] = infoData.getString(column + 1);
-                }
-
-                // Add the row data to the list
-                tableData.add(columnValues);
-            }
-
-            infoData.close();
-
-            // Convert the list into an array
-            queryResults = tableData.toArray(new String[0][0]);
-
-            // Log that the query succeeded
-            eventLog.logEvent(SUCCESS_MSG, "Script query completed");
-        }
-        catch (SQLException se)
-        {
-            // Inform the user that the query failed
-            eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                  "Script query failed; cause '"
-                                      + se.getMessage()
-                                      + "'", "<html><b>Script query failed");
-        }
-
-        return queryResults;
+        return dbTable.getDatabaseQuery(sqlCommand,
+                                        ccddMain.getMainFrame()).toArray(new String[0][0]);
     }
 
     /**************************************************************************
@@ -3097,6 +3045,7 @@ public class CcddScriptDataAccessHandler
     public void showData()
     {
         if (tableInformation == null
+            || tableInformation.length == 0
             || tableInformation[0].getType().isEmpty())
         {
             System.out.println("No table data associated with this script");

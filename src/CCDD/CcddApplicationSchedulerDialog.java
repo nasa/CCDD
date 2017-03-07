@@ -9,7 +9,6 @@ package CCDD;
 import static CCDD.CcddConstants.AUTO_CREATE_ICON;
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.OK_BUTTON;
-import static CCDD.CcddConstants.OK_ICON;
 import static CCDD.CcddConstants.STORE_ICON;
 import static CCDD.CcddConstants.UNDO_ICON;
 
@@ -38,14 +37,15 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
     private final CcddMain ccddMain;
     private CcddSchedulerHandler schedulerHndlr;
     private final CcddSchedulerDbIOHandler schedulerDb;
-    private final CcddSchedulerValidator validator;
 
     // Components referenced by multiple methods
     private JButton btnAutoFill;
-    private JButton btnValidate;
     private JButton btnStore;
     private JButton btnClear;
     private JButton btnClose;
+
+    // Dialog title
+    private static final String DIALOG_TITLE = "Application Scheduler";
 
     /**************************************************************************
      * Application scheduler dialog class constructor
@@ -59,7 +59,6 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
         schedulerDb = new CcddSchedulerDbIOHandler(ccddMain,
                                                    SchedulerType.APPLICATION_SCHEDULER,
                                                    this);
-        validator = new CcddSchedulerValidator(ccddMain, this);
 
         // Create the application scheduler dialog
         initialize();
@@ -124,31 +123,6 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
             }
         });
 
-        // Validate button
-        btnValidate = CcddButtonPanelHandler.createButton("Validate",
-                                                          OK_ICON,
-                                                          KeyEvent.VK_V,
-                                                          "Remove any invalid applications from the messages");
-
-        // Add a listener for the Validate button
-        btnValidate.addActionListener(new ValidateCellActionListener(schedulerHndlr.getSchedulerEditor().getTable())
-        {
-            /******************************************************************
-             * Validate the applications for all of the messages
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                // Check if any time slots contain invalid entries
-                if (schedulerHndlr.validateMessages())
-                {
-                    // Update the assigned applications list
-                    schedulerHndlr.getSchedulerEditor().updateAssignmentDefinitions();
-                    schedulerHndlr.getSchedulerEditor().updateAssignmentList();
-                }
-            }
-        });
-
         // Store button
         btnStore = CcddButtonPanelHandler.createButton("Store",
                                                        STORE_ICON,
@@ -196,19 +170,10 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
             }
         });
 
-        // Invisible button for aligning the buttons in the button panel
-        JButton btnDummy = new JButton("");
-        btnDummy.setFocusable(false);
-        btnDummy.setOpaque(false);
-        btnDummy.setContentAreaFilled(false);
-        btnDummy.setBorderPainted(false);
-
         // Add buttons in the order in which they'll appear (left to right)
         buttonPanel.add(btnAutoFill);
-        buttonPanel.add(btnValidate);
         buttonPanel.add(btnStore);
         buttonPanel.add(btnClear);
-        buttonPanel.add(btnDummy);
         buttonPanel.add(btnClose);
 
         // Create two rows of buttons
@@ -218,7 +183,7 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
         showOptionsDialog(ccddMain.getMainFrame(),
                           schedulerHndlr.getSchedulerPanel(),
                           buttonPanel,
-                          "Application Scheduler",
+                          DIALOG_TITLE,
                           true);
     }
 
@@ -300,17 +265,6 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
     }
 
     /**************************************************************************
-     * Gets the scheduler validator
-     * 
-     * @return Schedule validator
-     *************************************************************************/
-    @Override
-    public CcddSchedulerValidator getSchedulerValidator()
-    {
-        return validator;
-    }
-
-    /**************************************************************************
      * Creates and returns a scheduler input object
      * 
      * @param unused
@@ -333,5 +287,32 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
     public CcddSchedulerHandler getSchedulerHandler()
     {
         return schedulerHndlr;
+    }
+
+    /**************************************************************************
+     * Update the change indicator for the scheduler handler
+     *************************************************************************/
+    @Override
+    public void updateChangeIndicator()
+    {
+        setTitle(DIALOG_TITLE
+                 + (schedulerHndlr.getSchedulerEditor().isMessagesChanged()
+                                                                           ? "*"
+                                                                           : ""));
+    }
+
+    /**************************************************************************
+     * Steps to perform following storing of the scheduler data in the project
+     * database
+     *************************************************************************/
+    @Override
+    public void doSchedulerUpdatesComplete(boolean errorFlag)
+    {
+        // Check that no error occurred storing the application scheduler table
+        if (!errorFlag)
+        {
+            // Remove the change indicator
+            setTitle(DIALOG_TITLE);
+        }
     }
 }

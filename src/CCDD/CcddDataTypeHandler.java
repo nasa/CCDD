@@ -24,7 +24,6 @@ import java.awt.event.WindowFocusListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -536,7 +535,7 @@ public class CcddDataTypeHandler
         // data type name
         List<String> matches = new ArrayList<String>(Arrays.asList(dbCommand.getList(DatabaseListCommand.SEARCH,
                                                                                      new String[][] { {"_search_text_",
-                                                                                                       Pattern.quote(dataTypeName)},
+                                                                                                       dataTypeName},
                                                                                                      {"_case_insensitive_",
                                                                                                       "true"},
                                                                                                      {"_selected_tables_",

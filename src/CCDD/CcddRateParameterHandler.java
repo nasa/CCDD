@@ -106,13 +106,9 @@ public class CcddRateParameterHandler
      * 
      * @param rateName
      *            new rate's column name
-     * 
-     * @return true if the specified rate doesn't exist and is added
      *************************************************************************/
-    protected boolean addRateInformation(String rateName)
+    protected void addRateInformation(String rateName)
     {
-        boolean isAdded = false;
-
         // Get the rate information based on the rate column name
         RateInformation rateInfo = getRateInformationByRateName(rateName);
 
@@ -122,7 +118,6 @@ public class CcddRateParameterHandler
             // Create the specified rate, adjust the rate counter, and set the
             // flag to indicate a rate is added
             rateInformation.add(new RateInformation(rateName));
-            isAdded = true;
         }
         // The rate information already exists for this rate column name
         else
@@ -130,8 +125,6 @@ public class CcddRateParameterHandler
             // Increment the share counter for the existing rate information
             rateInfo.setNumSharedTableTypes(rateInfo.getNumSharedTableTypes() + 1);
         }
-
-        return isAdded;
     }
 
     /**************************************************************************
@@ -146,14 +139,10 @@ public class CcddRateParameterHandler
      * 
      * @param newRateName
      *            new rate column name
-     * 
-     * @return true if the specified rate exists and is renamed
      *************************************************************************/
-    protected boolean renameRateInformation(String oldRateName,
-                                            String newRateName)
+    protected void renameRateInformation(String oldRateName,
+                                         String newRateName)
     {
-        boolean isRenamed = false;
-
         // Get the rate information for the original rate column name
         RateInformation rateInfo = getRateInformationByRateName(oldRateName);
 
@@ -173,7 +162,6 @@ public class CcddRateParameterHandler
                     // Rename the specified rate column and set the flag to
                     // indicate a rate is renamed
                     rateInfo.setRateName(newRateName);
-                    isRenamed = true;
 
                     // Check if the original rate column name is the same as
                     // the stream name; this implies the user hasn't chosen a
@@ -189,7 +177,7 @@ public class CcddRateParameterHandler
                 {
                     // Delete the original rate column's information and
                     // increment the counter for the 'new' rate column
-                    isRenamed = deleteRateInformation(oldRateName);
+                    deleteRateInformation(oldRateName);
                     rateInfoNew.setNumSharedTableTypes(rateInfoNew.getNumSharedTableTypes() + 1);
                 }
             }
@@ -199,12 +187,10 @@ public class CcddRateParameterHandler
                 // Create new rate column information so that the shared one is
                 // unchanged and decrement the share counter for the existing
                 // rate information
-                isRenamed = addRateInformation(newRateName);
+                addRateInformation(newRateName);
                 rateInfo.setNumSharedTableTypes(rateInfo.getNumSharedTableTypes() - 1);
             }
         }
-
-        return isRenamed;
     }
 
     /**************************************************************************
@@ -212,13 +198,9 @@ public class CcddRateParameterHandler
      * 
      * @param rateName
      *            rate name for the rate information object to remove
-     * 
-     * @return true if the specified rate exists and is removed
      *************************************************************************/
-    protected boolean deleteRateInformation(String rateName)
+    protected void deleteRateInformation(String rateName)
     {
-        boolean isDeleted = false;
-
         // Get the rate information based on the rate column name
         RateInformation rateInfo = getRateInformationByRateName(rateName);
 
@@ -231,7 +213,6 @@ public class CcddRateParameterHandler
                 // Remove the specified rate's information, adjust the rate
                 // counter, and set the flag to indicate a rate is removed
                 rateInformation.remove(rateInfo);
-                isDeleted = true;
             }
             // The rate column name is shared between multiple table types
             else
@@ -241,8 +222,6 @@ public class CcddRateParameterHandler
                 rateInfo.setNumSharedTableTypes(rateInfo.getNumSharedTableTypes() - 1);
             }
         }
-
-        return isDeleted;
     }
 
     /**************************************************************************
@@ -251,7 +230,8 @@ public class CcddRateParameterHandler
      * @param rateColumnName
      *            rate column name
      * 
-     * @return Rate information with the specified rate column
+     * @return Rate information with the specified rate column; null if the
+     *         rate column doesn't exist
      *************************************************************************/
     protected RateInformation getRateInformationByRateName(String rateColumnName)
     {
@@ -277,7 +257,8 @@ public class CcddRateParameterHandler
      * @param streamName
      *            name of stream
      * 
-     * @return Rate information with the data stream name
+     * @return Rate information with the data stream name; null if the rate
+     *         column doesn't exist
      *************************************************************************/
     protected RateInformation getRateInformationByStreamName(String streamName)
     {
@@ -529,6 +510,7 @@ public class CcddRateParameterHandler
         {
             // Inform the user that calculating the rate parameters failed
             ccddMain.getSessionEventLog().logFailEvent(ccddMain.getMainFrame(),
+                                                       "Rate Parameter Error",
                                                        "Invalid rate parameter(s): using default values instead; cause '"
                                                            + e.getMessage()
                                                            + "'",

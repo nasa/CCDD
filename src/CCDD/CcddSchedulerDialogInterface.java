@@ -26,13 +26,6 @@ public interface CcddSchedulerDialogInterface
     abstract CcddSchedulerDbIOHandler getSchedulerDatabaseHandler();
 
     /**************************************************************************
-     * Get the scheduler validator
-     * 
-     * @return Schedule validator
-     *************************************************************************/
-    abstract CcddSchedulerValidator getSchedulerValidator();
-
-    /**************************************************************************
      * Get the scheduler input object
      * 
      * @param value
@@ -48,4 +41,15 @@ public interface CcddSchedulerDialogInterface
      * @return Scheduler handler
      *************************************************************************/
     abstract CcddSchedulerHandler getSchedulerHandler();
+
+    /**************************************************************************
+     * Update the change indicator for the scheduler dialog
+     *************************************************************************/
+    abstract void updateChangeIndicator();
+
+    /**************************************************************************
+     * Steps to perform following storing of the scheduler data in the project
+     * database
+     *************************************************************************/
+    abstract void doSchedulerUpdatesComplete(boolean errorFlag);
 }

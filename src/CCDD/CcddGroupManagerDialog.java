@@ -74,6 +74,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     private CcddTableTreeHandler tableTree;
     private CcddGroupTreeHandler groupTree;
     private FieldPanel fieldPnl;
+    private CcddUndoManager undoManager;
 
     // Component referenced by multiple methods
     private Border border;
@@ -105,6 +106,9 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     // List containing the names of any groups that are deleted
     private List<String> deletedGroups;
 
+    // Dialog title
+    private static final String DIALOG_TITLE = "Manage Groups";
+
     /**************************************************************************
      * Description and data field panel handler class
      * 
@@ -120,6 +124,15 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         protected Component getTableEditor()
         {
             return CcddGroupManagerDialog.this;
+        }
+
+        /**********************************************************************
+         * Update the group manager change indicator
+         *********************************************************************/
+        @Override
+        protected void updateOwnerChangeIndicator()
+        {
+            updateChangeIndicator();
         }
     }
 
@@ -166,10 +179,13 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 // Update the data field editor table
                 fldTblEditor.reloadDataFieldTable();
             }
+
+            // Remove the group dialog's change indicator
+            setTitle(DIALOG_TITLE);
         }
 
         // Discard any store edits
-        fieldPnl.getEditPanelUndoManager().discardAllEdits();
+        undoManager.discardAllEdits();
     }
 
     /**************************************************************************
@@ -351,11 +367,27 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                    null,
                                    "",
                                    groupTree.getFieldHandler());
-        fieldPnl.setEditPanelUndoManager(new CcddUndoManager());
+
+        // Add an undo edit manager and add it as a listener for undo/redo
+        // changes
+        undoManager = new CcddUndoManager()
+        {
+            /******************************************************************
+             * Update the change indicator if the editor panel has changed
+             *****************************************************************/
+            @Override
+            protected void ownerHasChanged()
+            {
+                updateChangeIndicator();
+            }
+        };
+
+        // Set the undo/redo manager for the description and data field values
+        fieldPnl.setEditPanelUndoManager(undoManager);
 
         // Set the undo manager in the keyboard handler while the group manager
         // is active
-        ccddMain.getKeyboardHandler().setUndoManager(fieldPnl.getEditPanelUndoManager());
+        ccddMain.getKeyboardHandler().setModalUndoManager(undoManager);
 
         // Add the field panel to the dialog
         gbc.insets.top = LABEL_VERTICAL_SPACING / 2;
@@ -636,7 +668,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                     closeDialog();
 
                     // Clear the undo manager in the keyboard handler
-                    ccddMain.getKeyboardHandler().setUndoManager(null);
+                    ccddMain.getKeyboardHandler().setModalUndoManager(null);
                 }
             }
         });
@@ -662,7 +694,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         showOptionsDialog(ccddMain.getMainFrame(),
                           managerPnl,
                           buttonPnl,
-                          "Manage Groups",
+                          DIALOG_TITLE,
                           true);
     }
 
@@ -679,7 +711,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     private void setGroupAndFields(String groupName)
     {
         // End any active edit sequence
-        fieldPnl.getEditPanelUndoManager().endEditSequence();
+        undoManager.endEditSequence();
 
         // Initialize the data field information and description assuming a
         // single group isn't selected
@@ -849,6 +881,9 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         groupTree.addSourceNodesToTargetNode(tableTree.getSelectedVariables(false),
                                              tableTree.getTableNodeLevel(),
                                              false);
+
+        // Update the group dialog's change indicator
+        updateChangeIndicator();
     }
 
     /**************************************************************************
@@ -858,6 +893,9 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     {
         // Remove the selected tables from the groups in the group tree
         groupTree.removeSelectedChildNodes(false);
+
+        // Update the group dialog's change indicator
+        updateChangeIndicator();
     }
 
     /**************************************************************************
@@ -885,16 +923,17 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         dialogPnl.add(descriptionLbl, gbc);
 
         // Create the group description input field
-        final JTextArea groupDescriptionFld = new JTextArea("", 3, 20);
-        groupDescriptionFld.setFont(LABEL_FONT_PLAIN);
-        groupDescriptionFld.setEditable(true);
-        groupDescriptionFld.setLineWrap(true);
-        groupDescriptionFld.setForeground(Color.BLACK);
-        groupDescriptionFld.setBackground(Color.WHITE);
-        groupDescriptionFld.setBorder(emptyBorder);
-        groupDescriptionFld.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null);
-        groupDescriptionFld.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
-        JScrollPane descScrollPane = new JScrollPane(groupDescriptionFld);
+        final JTextArea descriptionFld = new JTextArea("", 3, 20);
+        descriptionFld.setFont(LABEL_FONT_PLAIN);
+        descriptionFld.setEditable(true);
+        descriptionFld.setLineWrap(true);
+        descriptionFld.setForeground(Color.BLACK);
+        descriptionFld.setBackground(Color.WHITE);
+        descriptionFld.setBorder(emptyBorder);
+        descriptionFld.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null);
+        descriptionFld.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
+
+        JScrollPane descScrollPane = new JScrollPane(descriptionFld);
         descScrollPane.setBorder(border);
 
         // Add the description field to the dialog panel
@@ -923,7 +962,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             @Override
             protected boolean verifySelection()
             {
-                groupDescriptionFld.setText(groupDescriptionFld.getText().trim());
+                descriptionFld.setText(descriptionFld.getText().trim());
                 return verifyGroupName(this);
             }
         };
@@ -937,12 +976,12 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         {
             // Add the new group information
             groupTree.getGroupHandler().addGroupInformation(groupNameFld.getText(),
-                                                            groupDescriptionFld.getText(),
+                                                            descriptionFld.getText(),
                                                             appCb.isSelected());
 
             // Insert the new group into the group tree
             groupTree.addInformationNode(groupNameFld.getText(),
-                                         groupDescriptionFld.getText(),
+                                         descriptionFld.getText(),
                                          appCb.isSelected());
 
             // Check if the check box indicating this group represents an
@@ -960,6 +999,9 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                     fieldInfo.add(field.createFieldInformation(CcddFieldHandler.getFieldGroupName(groupNameFld.getText())));
                 }
             }
+
+            // Update the group dialog's change indicator
+            updateChangeIndicator();
         }
     }
 
@@ -979,6 +1021,9 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
             // Remove the selected group(s) from the group tree
             groupTree.removeSelectedTopLevelNodes();
+
+            // Update the group dialog's change indicator
+            updateChangeIndicator();
         }
     }
 
@@ -1028,6 +1073,9 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 // Rename the group
                 groupTree.getGroupHandler().getGroupInformationByName(selected[0]).setName(groupNameFld.getText());
                 groupTree.renameNode(selected[0], groupNameFld.getText());
+
+                // Update the group dialog's change indicator
+                updateChangeIndicator();
             }
         }
     }
@@ -1093,6 +1141,9 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                     // Set the data field owner to the copy's group name
                     fieldInfo.setOwnerName(CcddFieldHandler.getFieldGroupName(groupNameFld.getText()));
                 }
+
+                // Update the group dialog's change indicator
+                updateChangeIndicator();
             }
         }
     }
@@ -1398,5 +1449,18 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         }
 
         return ignoreChanges;
+    }
+
+    /**************************************************************************
+     * Update the change indicator for the group manager
+     *************************************************************************/
+    protected void updateChangeIndicator()
+    {
+        // Replace the dialog title, appending the change indicator if changes
+        // exist
+        setTitle(DIALOG_TITLE
+                 + (isGroupsChanged()
+                                     ? "*"
+                                     : ""));
     }
 }

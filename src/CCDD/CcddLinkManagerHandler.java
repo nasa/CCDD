@@ -40,6 +40,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -295,7 +297,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         managerPnl.add(titlePnl, gbc);
 
         // Initialize the currently selected rate to a 1 Hz if present in the
-        // list of available rate; otherwise set to a dummy value
+        // list of available rates; otherwise set to a dummy value
         selectedRate = Arrays.asList(availableRates).contains("1")
                                                                   ? "1"
                                                                   : "0";
@@ -410,6 +412,38 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         descriptionFld.setBorder(emptyBorder);
         descriptionFld.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null);
         descriptionFld.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
+
+        // Add a listener to detect addition or deletion of text in the input
+        // field
+        descriptionFld.getDocument().addDocumentListener(new DocumentListener()
+        {
+            /******************************************************************
+             * Update the change indicator when text is added
+             *****************************************************************/
+            @Override
+            public void insertUpdate(DocumentEvent de)
+            {
+                linkDialog.updateChangeIndicator();
+            }
+
+            /******************************************************************
+             * Update the change indicator when text is removed
+             *****************************************************************/
+            @Override
+            public void removeUpdate(DocumentEvent de)
+            {
+                linkDialog.updateChangeIndicator();
+            }
+
+            /******************************************************************
+             * Handle updates to a attribute change (unused)
+             *****************************************************************/
+            @Override
+            public void changedUpdate(DocumentEvent de)
+            {
+            }
+        });
+
         descScrollPane = new JScrollPane(descriptionFld);
         descScrollPane.setBackground(Color.LIGHT_GRAY);
         descScrollPane.setBorder(border);
@@ -790,6 +824,9 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         // Update the variable tree with the list of variables that are already
         // linked
         variableTree.setExcludedVariables(linkedVars);
+
+        // Update the link dialog's change indicator
+        linkDialog.updateChangeIndicator();
     }
 
     /**************************************************************************

@@ -418,7 +418,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                 {
                                     // No error message is provided since the
                                     // user chose this action
-                                    throw new CCDDException("");
+                                    throw new CCDDException();
                                 }
                             }
                         }
@@ -509,7 +509,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
                             {
                                 // No error message is provided since the user
                                 // chose this action
-                                throw new CCDDException("");
+                                throw new CCDDException();
                             }
                         }
                     }
@@ -564,7 +564,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
                             {
                                 // No error message is provided since the user
                                 // chose this action
-                                throw new CCDDException("");
+                                throw new CCDDException();
                             }
                         }
                     }
@@ -703,7 +703,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                     {
                                         // No error message is provided since
                                         // the user chose this action
-                                        throw new CCDDException("");
+                                        throw new CCDDException();
                                     }
                                 }
                             }
@@ -810,7 +810,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                     {
                                         // No error message is provided since
                                         // the user chose this action
-                                        throw new CCDDException("");
+                                        throw new CCDDException();
                                     }
                                 }
                             }
@@ -1127,9 +1127,9 @@ public class CcddJSONHandler implements CcddImportExportInterface
      * @param getDescription
      *            true to get the table description when loading the table data
      * 
-     * @param showMacroNames
-     *            false to display the macro values in place of the
-     *            corresponding macro names; true to display the macro names
+     * @param isReplaceMacro
+     *            true to display the macro values in place of the
+     *            corresponding macro names; false to display the macro names
      * 
      * @param outputJO
      *            JSON object to which the data types are added
@@ -1141,7 +1141,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
     @SuppressWarnings("unchecked")
     protected JSONObject getTableData(String tableName,
                                       boolean getDescription,
-                                      boolean showMacroNames,
+                                      boolean isReplaceMacro,
                                       JSONObject outputJO)
     {
         JSONArray tableDataJA = null;
@@ -1160,46 +1160,35 @@ public class CcddJSONHandler implements CcddImportExportInterface
             JSONObject columnJO = new JSONObject();
             tableDataJA = new JSONArray();
 
-            // Get a reference to the table's data
-            String[][] data = tableInfo.getData();
-
-            // Check if the macro name should be replaced with the
+            // Check if the macro names should be replaced with the
             // corresponding macro values
-            if (!showMacroNames)
+            if (isReplaceMacro)
             {
-                // Step through each row
-                for (int row = 0; row < data.length && !tableInfo.isErrorFlag(); row++)
-                {
-                    // Step through each column (skipping the primary key and
-                    // row index)
-                    for (int column = NUM_HIDDEN_COLUMNS; column < data[row].length; column++)
-                    {
-                        // Expand any embedded macros
-                        data[row][column] = macroHandler.getMacroExpansion(data[row][column]);
-                    }
-                }
+                // Replace all macros in the table
+                tableInfo.setData(macroHandler.replaceAllMacros(tableInfo.getData()));
             }
 
             // Check if the table has any data
-            if (data.length != 0)
+            if (tableInfo.getData().length != 0)
             {
                 // Get the column names for this table's type definition
                 TypeDefinition typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(tableInfo.getType());
                 String[] columnNames = typeDefn.getColumnNamesUser();
 
                 // Step through each table row
-                for (int row = 0; row < data.length; row++)
+                for (int row = 0; row < tableInfo.getData().length; row++)
                 {
                     columnJO = new JSONObject();
 
                     // Step through each table column
-                    for (int column = NUM_HIDDEN_COLUMNS; column < data[row].length; column++)
+                    for (int column = NUM_HIDDEN_COLUMNS; column < tableInfo.getData()[row].length; column++)
                     {
                         // Check if a cell isn't blank
-                        if (!data[row][column].isEmpty())
+                        if (!tableInfo.getData()[row][column].isEmpty())
                         {
                             // Add the column name and value to the cell object
-                            columnJO.put(columnNames[column], data[row][column]);
+                            columnJO.put(columnNames[column],
+                                         tableInfo.getData()[row][column]);
                         }
                     }
 
@@ -1303,9 +1292,9 @@ public class CcddJSONHandler implements CcddImportExportInterface
      * @param fieldHandler
      *            data field handler
      * 
-     * @param showMacroNames
-     *            false to display the macro values in place of the
-     *            corresponding macro names; true to display the macro names
+     * @param isReplaceMacro
+     *            true to display the macro values in place of the
+     *            corresponding macro names; false to display the macro names
      * 
      * @return JSON encoded string containing the specified table information;
      *         null if the specified table doesn't exist or fails to load
@@ -1313,12 +1302,12 @@ public class CcddJSONHandler implements CcddImportExportInterface
     @SuppressWarnings("unchecked")
     protected JSONObject getTableInformation(String tableName,
                                              CcddFieldHandler fieldHandler,
-                                             boolean showMacroNames)
+                                             boolean isReplaceMacro)
     {
         // Store the table's data
         JSONObject tableInformation = getTableData(tableName,
                                                    false,
-                                                   showMacroNames,
+                                                   isReplaceMacro,
                                                    new JSONObject());
 
         // Check that the table loaded successfully

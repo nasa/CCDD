@@ -699,7 +699,8 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
         // Create the script association list
         JPanel listPnl = scriptHandler.createScriptAssociationPanel("Script Associations",
                                                                     7,
-                                                                    true);
+                                                                    true,
+                                                                    CcddScriptManagerDialog.this);
 
         // Add a listener for association list selection changes
         scriptHandler.getAssociationsList().addListSelectionListener(new ListSelectionListener()

@@ -23,7 +23,6 @@ public class CcddCopyTableHandler
     // Class references
     private final CcddRateParameterHandler rateHandler;
     private final CcddSchedulerDbIOHandler schedulerDb;
-    private final CcddSchedulerValidator validator;
 
     // List of copy table entries
     private final List<String[]> copyTable;
@@ -40,7 +39,6 @@ public class CcddCopyTableHandler
         schedulerDb = new CcddSchedulerDbIOHandler(ccddMain,
                                                    SchedulerType.TELEMETRY_SCHEDULER,
                                                    null);
-        validator = new CcddSchedulerValidator(ccddMain, null);
 
         // Get a list of the current messages
         schedulerDb.loadStoredData();
@@ -84,7 +82,7 @@ public class CcddCopyTableHandler
         copyTable.clear();
 
         // Step through each message for the specified rate
-        for (Message message : getValidatedStoredData(dataStreamName))
+        for (Message message : getStoredMessages(dataStreamName))
         {
             // Step through the message's sub-messages
             for (Message subMsg : message.getSubMessages())
@@ -163,7 +161,7 @@ public class CcddCopyTableHandler
         List<String[]> messageIDs = new ArrayList<String[]>();
 
         // Step through each message for the specified rate
-        for (Message message : getValidatedStoredData(streamName))
+        for (Message message : getStoredMessages(streamName))
         {
             // Check if the message ID name and ID value are not blank
             if (!message.getName().isEmpty() && !message.getID().isEmpty())
@@ -191,29 +189,20 @@ public class CcddCopyTableHandler
     }
 
     /**************************************************************************
-     * Get messages for the specified rate from the project database and
-     * validate the message. Invalid message entries are removed from the list
+     * Get messages for the specified rate from the project database
      * 
      * @param streamName
      *            data stream name
      * 
-     * @return List of valid messages
+     * @return List of messages for the specified rate
      *************************************************************************/
-    private List<Message> getValidatedStoredData(String streamName)
+    private List<Message> getStoredMessages(String streamName)
     {
         // Get the index for the specified rate
         int rateIndex = rateHandler.getRateInformationIndexByStreamName(streamName);
 
         // Get the messages for the specified rate from project database
-        List<Message> messages = schedulerDb.getStoredData(rateIndex);
-
-        // Validate the message data
-        validator.validateTableData(schedulerDb.getVariableList(rateIndex),
-                                    messages,
-                                    SchedulerType.TELEMETRY_SCHEDULER,
-                                    rateHandler.getRateInformationByStreamName(streamName).getRateName());
-
-        return messages;
+        return schedulerDb.getStoredData(rateIndex);
     }
 
     /**************************************************************************

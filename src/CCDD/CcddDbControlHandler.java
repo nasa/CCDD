@@ -464,6 +464,21 @@ public class CcddDbControlHandler
     }
 
     /**************************************************************************
+     * Get the server + database
+     * 
+     * @param databaseName
+     *            database name
+     * 
+     * @return server + database
+     *************************************************************************/
+    private String getServerAndDatabase(String databaseName)
+    {
+        return getServer()
+               + "/"
+               + databaseName;
+    }
+
+    /**************************************************************************
      * Get the database URL
      * 
      * @param databaseName
@@ -473,10 +488,7 @@ public class CcddDbControlHandler
      *************************************************************************/
     protected String getDatabaseURL(String databaseName)
     {
-        return "jdbc:postgresql://"
-               + getServer()
-               + "/"
-               + databaseName;
+        return "jdbc:postgresql://" + getServerAndDatabase(databaseName);
     }
 
     /**************************************************************************
@@ -791,7 +803,7 @@ public class CcddDbControlHandler
             // Inform the user that the database command failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Cannot create project database '"
-                                      + getDatabaseURL(databaseName)
+                                      + getServerAndDatabase(databaseName)
                                       + "'; cause '"
                                       + se.getMessage()
                                       + "'",
@@ -1522,7 +1534,7 @@ public class CcddDbControlHandler
                                           + (connectionStatus == TO_SERVER_ONLY
                                                                                ? "server"
                                                                                : "project database '"
-                                                                                 + getDatabaseURL(databaseName)
+                                                                                 + getServerAndDatabase(databaseName)
                                                                                  + "'")
                                           + " as user '"
                                           + activeUser
@@ -1533,7 +1545,7 @@ public class CcddDbControlHandler
                                           + (connectionStatus == TO_SERVER_ONLY
                                                                                ? "server"
                                                                                : "project database '</b>"
-                                                                                 + getDatabaseURL(databaseName)
+                                                                                 + getServerAndDatabase(databaseName)
                                                                                  + "<b>'"));
             }
 
@@ -1864,7 +1876,7 @@ public class CcddDbControlHandler
                     // Inform the user that the database cannot be renamed
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
                                           "Cannot rename project database '"
-                                              + getDatabaseURL(activeDatabase)
+                                              + getServerAndDatabase(oldName)
                                               + "'; cause '"
                                               + se.getMessage()
                                               + "'",
@@ -1968,7 +1980,7 @@ public class CcddDbControlHandler
                     // Inform the user that the database cannot be copied
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
                                           "Cannot copy project database '"
-                                              + getDatabaseURL(activeDatabase)
+                                              + getServerAndDatabase(targetName)
                                               + "'; cause '"
                                               + se.getMessage()
                                               + "'",
@@ -2021,7 +2033,7 @@ public class CcddDbControlHandler
             // Inform the user that the database deletion failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Cannot delete project database '"
-                                      + getDatabaseURL(databaseName)
+                                      + getServerAndDatabase(databaseName)
                                       + "'; cause '"
                                       + se.getMessage()
                                       + "'",
@@ -2117,7 +2129,7 @@ public class CcddDbControlHandler
                 // Inform the user that the database failed to close
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
                                       "Cannot close project database '"
-                                          + getDatabaseURL(activeDatabase)
+                                          + getServerAndDatabase(activeDatabase)
                                           + "'; cause '"
                                           + se.getMessage()
                                           + "'",

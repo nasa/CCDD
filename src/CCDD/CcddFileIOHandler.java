@@ -750,6 +750,7 @@ public class CcddFileIOHandler
                     macroHandler.setMacroData(originalMacros);
 
                     eventLog.logFailEvent(parent,
+                                          "Import Error",
                                           "Table import completed with errors",
                                           "<html><b>Table import completed with errors");
                 }
@@ -1051,7 +1052,7 @@ public class CcddFileIOHandler
                                         null,
                                         ccddMain.getMainFrame()))
                 {
-                    throw new CCDDException("");
+                    throw new CCDDException();
                 }
             }
 
@@ -1061,7 +1062,7 @@ public class CcddFileIOHandler
                                     tableInfo.getType(),
                                     ccddMain.getMainFrame()))
             {
-                throw new CCDDException("");
+                throw new CCDDException();
             }
 
             // Add the prototype table name to the list of table editors to
@@ -1136,7 +1137,7 @@ public class CcddFileIOHandler
                                             null,
                                             ccddMain.getMainFrame()))
                 {
-                    throw new CCDDException("");
+                    throw new CCDDException();
                 }
             }
         }
@@ -1603,6 +1604,7 @@ public class CcddFileIOHandler
                 else
                 {
                     eventLog.logFailEvent(parent,
+                                          "Export Error",
                                           "Table export completed with errors",
                                           "<html><b>Table export completed with errors");
                 }

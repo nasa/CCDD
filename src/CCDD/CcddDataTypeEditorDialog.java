@@ -16,6 +16,7 @@ import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.REDO_ICON;
 import static CCDD.CcddConstants.STORE_ICON;
 import static CCDD.CcddConstants.TABLE_BACK_COLOR;
+import static CCDD.CcddConstants.TABLE_CHANGE_EVENT;
 import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
 import static CCDD.CcddConstants.UNDO_ICON;
 import static CCDD.CcddConstants.UP_ICON;
@@ -29,6 +30,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -97,6 +100,9 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
     // List of data type references already loaded from the database. This is
     // used to avoid repeated searches for a the same data type
     private List<DataTypeReference> loadedReferences;
+
+    // Dialog title
+    private static final String DIALOG_TITLE = "Data Type Editor";
 
     /**************************************************************************
      * Data type data table references class
@@ -386,7 +392,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                             // The data type C type has been changed
                             else
                             {
-                                // initialize the C type name matching regular
+                                // Initialize the C type name matching regular
                                 // expression
                                 String match = InputDataType.ALPHANUMERIC_MULTI.getInputMatch();
 
@@ -702,6 +708,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                             DataTypeEditorColumnInfo.getColumnNames(),
                                             null,
                                             new Integer[] {DataTypesColumn.OID.ordinal()},
+                                            null,
                                             DataTypeEditorColumnInfo.getToolTips(),
                                             true,
                                             true,
@@ -792,11 +799,32 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                               true,
                                               true,
                                               CELL_FONT,
-                                              null,
                                               true);
 
         // Discard the edits created by adding the columns initially
         dataTypeTable.getUndoManager().discardAllEdits();
+
+        // Add a listener for table content change events
+        dataTypeTable.addPropertyChangeListener(new PropertyChangeListener()
+        {
+            /******************************************************************
+             * Handle a table content change event
+             *****************************************************************/
+            @Override
+            public void propertyChange(PropertyChangeEvent pce)
+            {
+                // Check if the event indicates a table content change
+                if (pce.getPropertyName().equals(TABLE_CHANGE_EVENT))
+                {
+                    // Add or remove the change indicator based on whether any
+                    // unstored changes exist
+                    setTitle(DIALOG_TITLE
+                             + (dataTypeTable.isTableChanged(committedData)
+                                                                           ? "*"
+                                                                           : ""));
+                }
+            }
+        });
 
         // Create the cell editor for base data types
         createBasePrimitiveTypeCellEditor();
@@ -828,7 +856,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
         // Set the undo manager in the keyboard handler while the data type
         // editor is active
-        ccddMain.getKeyboardHandler().setUndoManager(dataTypeTable.getUndoManager());
+        ccddMain.getKeyboardHandler().setModalUndoManager(dataTypeTable.getUndoManager());
 
         // Create the lower (button) panel
         JPanel buttonPanel = new JPanel();
@@ -1049,7 +1077,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
         showOptionsDialog(ccddMain.getMainFrame(),
                           outerPanel,
                           buttonPanel,
-                          "Data Type Editor",
+                          DIALOG_TITLE,
                           true);
     }
 
@@ -1074,7 +1102,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
             closeDialog();
 
             // Clear the undo manager in the keyboard handler
-            ccddMain.getKeyboardHandler().setUndoManager(null);
+            ccddMain.getKeyboardHandler().setModalUndoManager(null);
         }
     }
 

@@ -118,6 +118,14 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                 // Store the links in the committed links list
                 linkHandler.updateCommittedLinks();
             }
+
+            // Step through each data stream tab
+            for (int index = 0; index < tabbedPane.getTabCount(); index++)
+            {
+                // Remove the change indicator from the tab title
+                tabbedPane.setTitleAt(index,
+                                      tabbedPane.getTitleAt(index).replaceAll("\\*", ""));
+            }
         }
     }
 
@@ -499,6 +507,9 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
 
             // Update the link tree node name to show that it's empty
             activeHandler.getLinkTree().adjustNodeText(newNode);
+
+            // Update the link dialog's change indicator
+            updateChangeIndicator();
         }
     }
 
@@ -515,6 +526,9 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
 
             // Remove the selected link(s) from the link tree
             activeHandler.getLinkTree().removeSelectedTopLevelNodes();
+
+            // Update the link dialog's change indicator
+            updateChangeIndicator();
         }
     }
 
@@ -570,6 +584,9 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                                                                                      linkNameFld.getText());
                 activeHandler.getLinkTree().adjustNodeText(renamedNode);
                 activeHandler.getLinkTree().getLinkInformation(selected[0]).setName(linkNameFld.getText());
+
+                // Update the link dialog's change indicator
+                updateChangeIndicator();
             }
         }
     }
@@ -774,6 +791,10 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                                         // the target stream (e.g., add the
                                         // rate/size information)
                                         targetTree.adjustNodeText(targetNode);
+
+                                        // Update the link dialog's change
+                                        // indicator
+                                        updateChangeIndicator(index);
                                     }
                                     // The stream does not support the rate of
                                     // the copied link
@@ -994,11 +1015,47 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
             {
                 // Set the flag indicating a change exists, but keep searching
                 // so that the current links are updated for all data streams
-                // are detected
                 isChanged = true;
             }
         }
 
         return isChanged;
+    }
+
+    /**************************************************************************
+     * Update the change indicator for the active link manager
+     *************************************************************************/
+    protected void updateChangeIndicator()
+    {
+        updateChangeIndicator(-1);
+    }
+
+    /**************************************************************************
+     * Update the change indicator for the specified link manager
+     * 
+     * @param index
+     *            index for the tab containing the data stream to update; an
+     *            invalid tab number causes the active tab to be selected
+     *************************************************************************/
+    protected void updateChangeIndicator(int index)
+    {
+        // Check if the specified index is invalid
+        if (index < 0 || index >= tabbedPane.getTabCount())
+        {
+            // Get the index of the currently displayed tab
+            index = tabbedPane.getSelectedIndex();
+        }
+
+        // Check that the tab index is valid
+        if (index != -1)
+        {
+            // Replace the tab name, appending the change indicator if changes
+            // exist
+            tabbedPane.setTitleAt(index,
+                                  tabbedPane.getTitleAt(index).replaceAll("\\*", "")
+                                      + (linkMgrs.get(index).isLinksChanged()
+                                                                             ? "*"
+                                                                             : ""));
+        }
     }
 }

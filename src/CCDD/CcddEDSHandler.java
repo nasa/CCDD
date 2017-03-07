@@ -593,7 +593,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                         {
                                             // No error message is provided
                                             // since the user chose this action
-                                            throw new CCDDException("");
+                                            throw new CCDDException();
                                         }
                                     }
                                 }
@@ -625,7 +625,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                     {
                                         // No error message is provided since
                                         // the user chose this action
-                                        throw new CCDDException("");
+                                        throw new CCDDException();
                                     }
                                 }
                             }
@@ -823,7 +823,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                     {
                                         // No error message is provided since
                                         // the user chose this action
-                                        throw new CCDDException("");
+                                        throw new CCDDException();
                                     }
                                 }
                             }
@@ -888,7 +888,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                     {
                                         // No error message is provided since
                                         // the user chose this action
-                                        throw new CCDDException("");
+                                        throw new CCDDException();
                                     }
                                 }
                             }
@@ -1434,7 +1434,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                                     // provided since the
                                                     // user chose this
                                                     // action
-                                                    throw new CCDDException("");
+                                                    throw new CCDDException();
                                                 }
                                             }
                                         }
@@ -1522,7 +1522,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                                     // No error message is
                                                     // provided since the user
                                                     // chose this action
-                                                    throw new CCDDException("");
+                                                    throw new CCDDException();
                                                 }
                                             }
                                         }

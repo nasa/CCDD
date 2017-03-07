@@ -222,12 +222,21 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
      *            false if the database commands successfully completed; true
      *            if an error occurred and the changes were not made
      * 
+     * 
+     * @param updatedEditor
+     *            reference to the table type editor where the change(s)
+     *            occurred
+     * 
      * @param tableNames
      *            array of modified table names
      ************************************************************************/
     protected void doTypeModificationComplete(boolean commandError,
+                                              CcddTableTypeEditorHandler updatedEditor,
                                               String[] tableNames)
     {
+        // Update the table type editor in which the change(s) occurred
+        updatedEditor.doTypeUpdatesComplete(commandError);
+
         // Check if an error occurred and that a table was modified
         if (!commandError && tableNames != null)
         {
@@ -241,7 +250,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
             for (CcddTableEditorDialog editorDialog : ccddMain.getTableEditorDialogs())
             {
                 // Step through each individual editor
-                for (CcddTableEditorHandler editor : editorDialog.getTableEditors())
+                for (final CcddTableEditorHandler editor : editorDialog.getTableEditors())
                 {
                     // Check if the editor is for the table that was altered
                     if (Arrays.asList(tableNames).contains(editor.getTableInformation().getTablePath()))
@@ -258,20 +267,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         // data
                         if (!tableInfo.isErrorFlag())
                         {
-                            // Update the editor's type definition reference
-                            editor.setTypeDefinition();
-
-                            // Update the committed table information
-                            editor.setCommittedInformation(tableInfo);
-
-                            // Update the table editor contents
-                            editor.getTable().loadAndFormatData();
-
-                            // Update the current field information
-                            editor.getFieldHandler().setFieldInformation(tableInfo.getFieldHandler().getFieldInformation());
-
-                            // Update the editor data fields
-                            editor.updateDataFields();
+                            // Update the table editor for the table type
+                            // change
+                            editor.updateForTableTypeChange(tableInfo);
                         }
                         // An error occurred loading the table's data
                         else
@@ -283,13 +281,6 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     }
                 }
             }
-        }
-
-        // Step through each table type
-        for (CcddTableTypeEditorHandler typeEditor : typeEditors)
-        {
-            // Perform the type update command completion steps
-            typeEditor.doTypeUpdatesComplete(commandError);
         }
     }
 
@@ -754,6 +745,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
             @Override
             protected void performAction(ActionEvent ae)
             {
+
                 activeEditor.getTable().deleteRow(true);
             }
 
@@ -856,7 +848,6 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
             @Override
             protected void performAction(ActionEvent ae)
             {
-                // Undo the last edit
                 activeEditor.getEditPanelUndoManager().undo();
             }
 
@@ -891,7 +882,6 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
             @Override
             protected void performAction(ActionEvent ae)
             {
-                // Redo the last edit that was undone
                 activeEditor.getEditPanelUndoManager().redo();
             }
 
@@ -1192,14 +1182,16 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
         // Recreate the table type definitions table in the database and update
         // the affected table(s)
-        dbTable.modifyTypeInBackground(editor.getTypeName(),
-                                       editor.getFieldHandler().getFieldInformation(),
-                                       mntmOverwrite.isSelected(),
-                                       editor.getTypeAdditions(),
-                                       editor.getTypeModifications(),
-                                       editor.getTypeDeletions(),
-                                       editor.getColumnOrderChange(),
-                                       CcddTableTypeEditorDialog.this);
+        dbTable.modifyTableTypeInBackground(editor.getTypeName(),
+                                            editor.getFieldHandler().getFieldInformation(),
+                                            mntmOverwrite.isSelected(),
+                                            editor.getTypeAdditions(),
+                                            editor.getTypeModifications(),
+                                            editor.getTypeDeletions(),
+                                            editor.getColumnOrderChange(),
+                                            editor.getTypeDefinition(),
+                                            CcddTableTypeEditorDialog.this,
+                                            activeEditor);
     }
 
     /**************************************************************************
@@ -1231,14 +1223,16 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         editor.buildUpdates();
 
                         // Perform the changes to the table in the database
-                        dbTable.modifyType(editor.getTypeName(),
-                                           editor.getFieldHandler().getFieldInformation(),
-                                           mntmOverwrite.isSelected(),
-                                           editor.getTypeAdditions(),
-                                           editor.getTypeModifications(),
-                                           editor.getTypeDeletions(),
-                                           editor.getColumnOrderChange(),
-                                           CcddTableTypeEditorDialog.this);
+                        dbTable.modifyTableType(editor.getTypeName(),
+                                                editor.getFieldHandler().getFieldInformation(),
+                                                mntmOverwrite.isSelected(),
+                                                editor.getTypeAdditions(),
+                                                editor.getTypeModifications(),
+                                                editor.getTypeDeletions(),
+                                                editor.getColumnOrderChange(),
+                                                editor.getTypeDefinition(),
+                                                CcddTableTypeEditorDialog.this,
+                                                editor);
                     }
                 }
             }
@@ -1262,47 +1256,27 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         {
             // Create an editor for this table type and add it to the list of
             // editors
-            CcddTableTypeEditorHandler editor = new CcddTableTypeEditorHandler(ccddMain,
-                                                                               name,
-                                                                               fieldDefinitions.toArray(new Object[0][0]),
-                                                                               (tableTypeHandler.getTypeDefinition(name) != null
-                                                                               && tableTypeHandler.getTypeDefinition(name).isStructure()),
-                                                                               this);
+            final CcddTableTypeEditorHandler editor = new CcddTableTypeEditorHandler(ccddMain,
+                                                                                     name,
+                                                                                     fieldDefinitions.toArray(new Object[0][0]),
+                                                                                     this);
             typeEditors.add(editor);
 
             // Add a listener for table content change events
             editor.getTable().addPropertyChangeListener(new PropertyChangeListener()
             {
-                /******************************************************************
+                /**************************************************************
                  * Handle a table content change event
-                 *****************************************************************/
+                 *************************************************************/
                 @Override
                 public void propertyChange(PropertyChangeEvent pce)
                 {
                     // Check if the event indicates a table content change
                     if (pce.getPropertyName().equals(TABLE_CHANGE_EVENT))
                     {
-                        // Get the name of the changed table
-                        String tableName = ((CcddJTableHandler) pce.getSource()).getName();
-
-                        // Set the change status indicator based on the event
-                        String changeFlag = pce.getNewValue().equals(Boolean.TRUE)
-                                                                                  ? "*"
-                                                                                  : "";
-
-                        // Step through each editor tab
-                        for (int index = 0; index < tabbedPane.getTabCount(); index++)
-                        {
-                            // Check if the tab name (minus any change
-                            // indicator) matches the table that changed
-                            if (tabbedPane.getTitleAt(index).replaceAll("\\*", "").equals(tableName))
-                            {
-                                // Replace the tab name, appending the change
-                                // indicator, and stop searching
-                                tabbedPane.setTitleAt(index, tableName + changeFlag);
-                                break;
-                            }
-                        }
+                        // Update the change indicator for the current table
+                        // type tab
+                        updateChangeIndicator();
                     }
                 }
             });
@@ -1319,6 +1293,27 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         {
             // Select the tab for the newly added type
             tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
+        }
+    }
+
+    /**************************************************************************
+     * Update the change indicator for the current table type editor
+     *************************************************************************/
+    protected void updateChangeIndicator()
+    {
+        // Get the index of the currently displayed tab
+        int index = tabbedPane.getSelectedIndex();
+
+        // Check that the tab index is valid
+        if (index != -1)
+        {
+            // Replace the tab name, appending the change indicator if changes
+            // exist
+            tabbedPane.setTitleAt(index,
+                                  tabbedPane.getTitleAt(index).replaceAll("\\*", "")
+                                      + (typeEditors.get(index).isTableChanged()
+                                                                                ? "*"
+                                                                                : ""));
         }
     }
 

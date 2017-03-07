@@ -6,6 +6,8 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -244,7 +246,7 @@ public class CcddSchedulerDbIOHandler
                 msg[TlmSchedulerColumn.MESSAGE_NAME.ordinal()] = message.getName();
                 msg[TlmSchedulerColumn.MESSAGE_ID.ordinal()] = message.getID();
                 msg[TlmSchedulerColumn.MEMBER.ordinal()] = var.getRate()
-                                                           + "\\"
+                                                           + TLM_SCH_SEPARATOR
                                                            + var.getFullName();
 
                 // Add the array to the list of arrays
@@ -409,7 +411,7 @@ public class CcddSchedulerDbIOHandler
                     {
                         // Split the member column to remove the rate and
                         // extract the variable name
-                        String varName = member.split("\\\\")[1];
+                        String varName = member.split("\\" + TLM_SCH_SEPARATOR, 2)[1];
 
                         // Step through the variables
                         for (Variable var : varList)

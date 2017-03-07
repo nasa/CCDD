@@ -57,11 +57,10 @@ import javax.swing.border.Border;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
+import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.ArrayVariable;
 import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddClasses.TableInformation;
-import CCDD.CcddClasses.ToolTipTreeNode;
-import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
@@ -76,7 +75,6 @@ import CCDD.CcddTableTypeHandler.TypeDefinition;
 public class CcddScriptHandler
 {
     private final CcddMain ccddMain;
-    private final CcddDbCommandHandler dbCommand;
     private final CcddDbTableCommandHandler dbTable;
     private final CcddEventLogDialog eventLog;
     private CcddTableTypeHandler tableTypeHandler;
@@ -114,7 +112,6 @@ public class CcddScriptHandler
         this.ccddMain = ccddMain;
 
         // Create references to shorten subsequent calls
-        dbCommand = ccddMain.getDbCommandHandler();
         dbTable = ccddMain.getDbTableCommandHandler();
         eventLog = ccddMain.getSessionEventLog();
 
@@ -446,9 +443,9 @@ public class CcddScriptHandler
                                                  component);
         }
 
-        // Create storage for the individual tables' data and table names
+        // Create storage for the individual tables' data and table path+names
         List<TableInformation> tableInformation = new ArrayList<TableInformation>();
-        List<String> protoVarNames = new ArrayList<String>();
+        List<String> loadedTablePaths = new ArrayList<String>();
 
         // To reduce database access and speed script execution when executing
         // multiple associations, first load all of the associated tables,
@@ -465,41 +462,27 @@ public class CcddScriptHandler
                 // association
                 if (!associations[assnIndex][AssociationsColumn.MEMBERS.ordinal()].isEmpty())
                 {
-                    // Separate the individual table names
-                    String[] tableNames = associations[assnIndex][AssociationsColumn.MEMBERS.ordinal()].split(Pattern.quote(LIST_TABLE_SEPARATOR));
+                    // Separate the individual table path+names
+                    String[] tablePaths = associations[assnIndex][AssociationsColumn.MEMBERS.ordinal()].split(Pattern.quote(LIST_TABLE_SEPARATOR));
 
-                    // Step through each table name
-                    for (String tableName : tableNames)
+                    // Step through each table path+name
+                    for (String tablePath : tablePaths)
                     {
-                        // Get the tree path to this table
-                        ToolTipTreeNode path = tableTree.getNodeFromNodeName(tableName);
-
-                        // Check if the table could not be located in the tree
-                        if (path == null)
-                        {
-                            throw new CCDDException("table '"
-                                                    + tableName
-                                                    + "' not found in the database");
-                        }
-
                         // Check if the table is not already stored in the list
-                        if (!protoVarNames.contains(tableName))
+                        if (!loadedTablePaths.contains(tablePath))
                         {
-                            // Add the table to the list
-                            protoVarNames.add(tableName);
-
-                            // Create the table path string from the tree path
-                            String tablePath = tableTree.getFullVariablePath(path.getPath());
+                            // Add the table to the list. This is used to
+                            // prevent reloading a table that's referenced in
+                            // more than one association
+                            loadedTablePaths.add(tablePath);
 
                             // Initialize the array for each of the tables to
                             // load from the database
                             combinedData = new String[0][0];
 
-                            // Read the table and sub-table data from the
+                            // Read the table and child table data from the
                             // database
-                            tableInformation.add(readTable(tablePath,
-                                                           tableName,
-                                                           component));
+                            tableInformation.add(readTable(tablePath, component));
 
                             // Get a reference to the last table information
                             // read
@@ -516,8 +499,8 @@ public class CcddScriptHandler
                             // The table loaded successfully
                             else
                             {
-                                // Store the data for the table and its
-                                // sub-table
+                                // Store the data for the table and its child
+                                // table
                                 tableInfo.setData(combinedData);
 
                                 // Get the type definition based on the table
@@ -594,7 +577,6 @@ public class CcddScriptHandler
         // Load the group information from the database
         CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain,
                                                              component);
-
         // Once all table information is loaded then gather the data for each
         // association and execute it. Step through each script association
         // definition
@@ -624,7 +606,7 @@ public class CcddScriptHandler
                     for (TableInformation tableInfo : tableInformation)
                     {
                         // Check if this table is a member of the association
-                        if (tableNames.contains(tableInfo.getProtoVariableName()))
+                        if (tableNames.contains(tableInfo.getTablePath()))
                         {
                             // Check if the type for this table is not
                             // already in the list
@@ -653,7 +635,7 @@ public class CcddScriptHandler
                         {
                             // Check if this table is a member of the
                             // association
-                            if (tableNames.contains(tableInfo.getProtoVariableName()))
+                            if (tableNames.contains(tableInfo.getTablePath()))
                             {
                                 // Check if the table types match
                                 if (tableTypes.get(typeIndex).equals(tableInfo.getType()))
@@ -664,7 +646,7 @@ public class CcddScriptHandler
                                         // Assign the name of the first table
                                         // of this type as this type's table
                                         // name
-                                        tableName += tableInfo.getProtoVariableName();
+                                        tableName += tableInfo.getTablePath();
                                     }
 
                                     // Append the table data to the combined
@@ -825,6 +807,7 @@ public class CcddScriptHandler
     {
         // Inform the user that the script can't be executed
         eventLog.logFailEvent(component,
+                              "Script Error",
                               "Cannot execute script '"
                                   + scriptFileName
                                   + "' using table(s) '"
@@ -980,14 +963,10 @@ public class CcddScriptHandler
 
     /**************************************************************************
      * Recursive method to load a table, and all the tables referenced within
-     * it and its sub-tables. The data is combined into a single array
+     * it and its child tables. The data is combined into a single array
      * 
      * @param tablePath
      *            table path
-     * 
-     * @param pathName
-     *            name(s) of the table(s) and variable name(s) that called this
-     *            table separated by periods
      * 
      * @param parent
      *            GUI component calling this method
@@ -995,9 +974,7 @@ public class CcddScriptHandler
      * @return A TableDataHandler for the parent table. The error flag for the
      *         table data handler is set if an error occurred loading the data
      *************************************************************************/
-    private TableInformation readTable(String tablePath,
-                                       String pathName,
-                                       Component parent)
+    private TableInformation readTable(String tablePath, Component parent)
     {
         // Read the table's data from the database
         TableInformation tableInfo = dbTable.loadTableData(tablePath,
@@ -1029,8 +1006,8 @@ public class CcddScriptHandler
             {
                 // Use the index column to store the table path and type for
                 // reference during script execution
-                data[row][pathColumn] = pathName;
                 data[row][typeColumn] = tableInfo.getType();
+                data[row][pathColumn] = tablePath;
 
                 // Store the data from the table in the combined storage array
                 combinedData = CcddUtilities.concatenateArrays(combinedData,
@@ -1064,17 +1041,14 @@ public class CcddScriptHandler
                                 || ArrayVariable.isArrayMember(data[row][varNameColumn])))
                         {
                             // Get the variable in the format
-                            // dataType.variableName. Prepend a comma to
+                            // dataType.variableName, prepend a comma to
                             // separate the new variable from the preceding
-                            // variable path
-                            String variable = ","
-                                              + data[row][dataTypeColumn]
-                                              + "."
-                                              + data[row][varNameColumn];
-
-                            // Break down this sub-table
-                            readTable(tablePath + variable,
-                                      pathName + variable,
+                            // variable path, then break down the child table
+                            readTable(tablePath
+                                      + ","
+                                      + data[row][dataTypeColumn]
+                                      + "."
+                                      + data[row][varNameColumn],
                                       parent);
                         }
                     }
@@ -1159,12 +1133,16 @@ public class CcddScriptHandler
      *            that these can be deleted if desired. Scripts that are
      *            selected and disabled are ignored when executing scripts
      * 
+     * @param parent
+     *            GUI component calling this method
+     * 
      * @return List object for display and selection of the script associations
      *************************************************************************/
     @SuppressWarnings("serial")
     protected JPanel createScriptAssociationPanel(String scriptText,
                                                   int numDisplayRows,
-                                                  boolean allowSelectDisabled)
+                                                  boolean allowSelectDisabled,
+                                                  Component parent)
     {
         associationsModel = new DefaultListModel<String>();
         associationsLongModel = new DefaultListModel<String>();
@@ -1172,58 +1150,116 @@ public class CcddScriptHandler
         // Store the flag that allows selection of disabled scripts
         isSelectDisabled = allowSelectDisabled;
 
-        // Get the array of table names in the database
-        List<String> dbTableNames = Arrays.asList(dbCommand.getList(DatabaseListCommand.ALL_TABLES,
-                                                                    null,
-                                                                    ccddMain.getMainFrame()));
-
         // Read the stored script associations from the database
         committedAssociationsList = dbTable.retrieveInformationTable(InternalTable.ASSOCIATIONS,
-                                                                     ccddMain.getMainFrame());
+                                                                     parent);
+
+        // Get the list of table names and their associated table type
+        ArrayListMultiple protoNamesAndTableTypes = new ArrayListMultiple();
+        protoNamesAndTableTypes.addAll(dbTable.queryTableAndTypeList(parent));
 
         // Step through each script association
-        for (int index = 0; index < committedAssociationsList.size(); index++)
+        for (String[] association : committedAssociationsList)
         {
-            // Use the file methods to extract the file name without the path
-            File file = new File(committedAssociationsList.get(index)[AssociationsColumn.SCRIPT_FILE.ordinal()]);
+            String textColor = "";
 
-            // Check if the file exists; if not set the color to highlight the
-            // unavailable association
-            String textColor = file.exists()
-                                            ? ""
-                                            : DISABLED_TEXT_COLOR;
+            // Get the reference to the association's script file
+            File file = new File(association[AssociationsColumn.SCRIPT_FILE.ordinal()]);
 
-            // Check if the association isn't already disabled and that at
-            // least one table is associated with the script
-            if (textColor.isEmpty()
-                && !committedAssociationsList.get(index)[1].trim().isEmpty())
+            try
             {
-                // Separate the individual table names in the association
-                String[] assnTableNames = committedAssociationsList.get(index)[1].split(Pattern.quote(LIST_TABLE_SEPARATOR));
-
-                // Step through each table name
-                for (String tableName : assnTableNames)
+                // Check if the script file doesn't exist
+                if (!file.exists())
                 {
-                    // Check if the no prototype for this table exists in the
-                    // project database
-                    if (!dbTableNames.contains(tableName.toLowerCase().split(Pattern.quote("."))[0]))
+                    throw new CCDDException();
+                }
+
+                // Step through each table referenced in this association
+                for (String tableName : association[AssociationsColumn.MEMBERS.ordinal()].trim().split(Pattern.quote(LIST_TABLE_SEPARATOR)))
+                {
+                    // Check that at least one table is referenced
+                    if (!tableName.isEmpty())
                     {
-                        // Set the color to highlight the unavailable
-                        // association and stop searching
-                        textColor = DISABLED_TEXT_COLOR;
-                        break;
+                        String parentTable = "";
+
+                        // Step through each data type and variable name pair
+                        for (String variable : tableName.split(","))
+                        {
+                            // Split the variable reference into the data type
+                            // and variable name
+                            String[] typeAndVar = variable.split(Pattern.quote("."));
+
+                            // Locate the table's prototype in the list
+                            int index = protoNamesAndTableTypes.indexOf(typeAndVar[0]);
+
+                            // Check if the prototype table doesn't exist
+                            if (index == -1)
+                            {
+                                throw new CCDDException();
+                            }
+
+                            // Check if a variable name is present (the first
+                            // pass is for the root table, so there is no
+                            // variable name)
+                            if (typeAndVar.length == 2)
+                            {
+                                // Get the table's type definition
+                                TypeDefinition typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(protoNamesAndTableTypes.get(index)[2]);
+
+                                // Check if the table doesn't represent a
+                                // structure
+                                if (!typeDefn.isStructure())
+                                {
+                                    throw new CCDDException();
+                                }
+
+                                // Get the name of the column that represents
+                                // the variable name
+                                String varColumn = typeDefn.getDbColumnNameByInputType(InputDataType.VARIABLE);
+
+                                // Search for the variable name in the parent
+                                // table
+                                List<String[]> result = dbTable.getDatabaseQuery("SELECT "
+                                                                                 + varColumn
+                                                                                 + " FROM "
+                                                                                 + parentTable
+                                                                                 + " WHERE "
+                                                                                 + varColumn
+                                                                                 + " = '"
+                                                                                 + typeAndVar[1]
+                                                                                 + "';",
+                                                                                 parent);
+
+                                // Check if no variable by this name exists in
+                                // the parent table
+                                if (result == null || result.size() == 0)
+                                {
+                                    throw new CCDDException();
+                                }
+                            }
+
+                            // Store the data type, which is the parent for the
+                            // next variable (if any)
+                            parentTable = typeAndVar[0];
+                        }
                     }
                 }
+            }
+            catch (CCDDException ce)
+            {
+                // The script file or associated table doesn't exist; set the
+                // text color to indicate the association isn't available
+                textColor = DISABLED_TEXT_COLOR;
             }
 
             // Add the association to the script associations lists
             associationsModel.addElement(textColor
                                          + file.getName()
                                          + LIST_TABLE_DESC_SEPARATOR
-                                         + committedAssociationsList.get(index)[1]);
-            associationsLongModel.addElement(committedAssociationsList.get(index)[AssociationsColumn.SCRIPT_FILE.ordinal()]
+                                         + association[AssociationsColumn.MEMBERS.ordinal()]);
+            associationsLongModel.addElement(association[AssociationsColumn.SCRIPT_FILE.ordinal()]
                                              + LIST_TABLE_DESC_SEPARATOR
-                                             + committedAssociationsList.get(index)[AssociationsColumn.MEMBERS.ordinal()]);
+                                             + association[AssociationsColumn.MEMBERS.ordinal()]);
         }
 
         // Create the script associations JList

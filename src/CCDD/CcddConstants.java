@@ -67,7 +67,6 @@ public class CcddConstants
     protected static final String LAST_SCRIPT_FILE = "LastScriptFile";
     protected static final String LAST_SCRIPT_PATH = "LastScriptPath";
     protected static final String LOOK_AND_FEEL = "LookAndFeel";
-    protected static final String AUTO_VALIDATE = "AutoValidate";
     protected static final String WEB_SERVER_PORT = "WebServerPort";
 
     // Database backup file extension
@@ -117,6 +116,10 @@ public class CcddConstants
 
     // Separator for multiple enumeration columns in a table member query
     protected static final String ENUMERATION_SEPARATOR = "\\\\\\";
+
+    // Separator for rate values and table names in the telemetry scheduler
+    // table
+    protected static final String TLM_SCH_SEPARATOR = "\\";
 
     // Table property, radio button, and check box change event names
     protected static final String TABLE_CHANGE_EVENT = "tableHasChanges";
@@ -792,9 +795,9 @@ public class CcddConstants
                        + "zeroes are optional)"),
 
         BOOLEAN("Boolean",
-                "0|1",
+                "(?i)true|false",
                 "boolean",
-                "Boolean value; 0 or 1"),
+                "Boolean value; true or false"),
 
         COMMAND_NAME("Command name",
                      ALPHANUMERIC.getInputMatch(),
@@ -1049,6 +1052,12 @@ public class CcddConstants
                     // hexadecimal identifier, if needed, and preserving any
                     // leading zeroes
                     valueS = String.format("0x%s%x", leadZeroes, value);
+                }
+                // Check if the value is a boolean
+                else if (inputFormat.equals("boolean"))
+                {
+                    // Format the string as a boolean
+                    valueS = valueS.toLowerCase();
                 }
                 // Check if the values represents array index values
                 else if (inputFormat.equals("array"))
@@ -3908,9 +3917,9 @@ public class CcddConstants
                     + "AND obj_description(oid) != '') AS alias1) AS alias2 "
                     + "ORDER BY name ASC;"),
 
-        // Get the list containing the table type, user-viewable table name,
-        // and database table name for all data tables, sorted alphabetically
-        DATA_TABLES_WITH_TYPE("SELECT type || E',' || name || E',' || relname FROM "
+        // Get the list containing the user-viewable table name, database table
+        // name, and table type for all data tables, sorted alphabetically
+        DATA_TABLES_WITH_TYPE("SELECT name || E',' || relname || E',' || type FROM "
                               + "(SELECT split_part(obj_description, ',', 1) AS name, "
                               + "lower(split_part(obj_description, ',', 2)) AS type,"
                               + " relname FROM (SELECT obj_description(oid), relname"
@@ -3948,8 +3957,8 @@ public class CcddConstants
         // Get the list of databases for which the user has access. '_user-
         // must be replaced by the user name and '_owner_' by the database
         // owner name
-        DATABASES_BY_USER("SELECT * FROM (SELECT datname || E',' || "
-                          + "split_part(description, '"
+        DATABASES_BY_USER("SELECT database_and_description, allow FROM "
+                          + "(SELECT datname || E',' || split_part(description, '"
                           + DATABASE_TYPE_IDENTIFIER
                           + "', 2) AS database_and_description, pg_has_role('_user_', "
                           + "pg_catalog.pg_get_userbyid(d.datdba), 'member') AS allow "
@@ -4025,23 +4034,20 @@ public class CcddConstants
 
         // Get the list of data tables and their comments, sorted
         // alphabetically
-        TABLE_COMMENTS("SELECT * FROM (SELECT obj_description AS description "
-                       + "FROM (SELECT obj_description(oid) "
-                       + "FROM pg_class WHERE relkind = 'r' "
-                       + "AND obj_description(oid) != '' "
-                       + "AND substr(relname, 1, "
+        TABLE_COMMENTS("SELECT description FROM (SELECT obj_description "
+                       + "AS description FROM (SELECT obj_description(oid) "
+                       + "FROM pg_class WHERE relkind = 'r' AND "
+                       + "obj_description(oid) != '' AND substr(relname, 1, "
                        + INTERNAL_TABLE_PREFIX.length()
                        + ") != '"
                        + INTERNAL_TABLE_PREFIX
                        + "') alias1) alias2 ORDER BY description ASC;"),
 
-        // Get the list of data tables only, extracted from the table comments
-        // to retain their original capitalization, sorted alphabetically
         // Get the list of stored scripts, sorted alphabetically
-        SCRIPTS("SELECT * FROM (SELECT obj_description AS script_name FROM "
-                + "(SELECT obj_description(oid) FROM pg_class WHERE "
-                + "relkind = 'r' AND obj_description(oid) != '' AND "
-                + "substr(relname, 1, "
+        SCRIPTS("SELECT script_name FROM (SELECT obj_description AS "
+                + "script_name FROM (SELECT obj_description(oid) FROM "
+                + "pg_class WHERE relkind = 'r' AND obj_description(oid) "
+                + "!= '' AND substr(relname, 1, "
                 + InternalTable.SCRIPT.getTableName().length()
                 + ") = '"
                 + InternalTable.SCRIPT.getTableName()

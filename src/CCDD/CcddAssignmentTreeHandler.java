@@ -10,6 +10,7 @@ import static CCDD.CcddConstants.LABEL_FONT_BOLD;
 import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
 import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
 import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
+import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -222,7 +223,7 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
             String parentMessage = "";
 
             // Separate the rate and message name from the filter value
-            String[] rateAndMessage = filterValue.split("\\\\");
+            String[] rateAndMessage = filterValue.split("\\" + TLM_SCH_SEPARATOR);
 
             // Store the rate
             rateName = rateAndMessage[0];
@@ -247,9 +248,11 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
                     && (assignDefn[TlmSchedulerColumn.MESSAGE_NAME.ordinal()].equals(rateAndMessage[1])
                     || assignDefn[TlmSchedulerColumn.MESSAGE_NAME.ordinal()].equals(parentMessage)))
                 {
-                    // Add the variable to the node and stop searching
+                    // Add the variable to the node
                     addNodeToInfoNode(root,
-                                      assignDefn[TlmSchedulerColumn.MEMBER.ordinal()].split("\\\\")[1].split(","),
+                                      assignDefn[TlmSchedulerColumn.MEMBER.ordinal()].split("\\"
+                                                                                            + TLM_SCH_SEPARATOR,
+                                                                                            2)[1].split(","),
                                       0);
                 }
             }
@@ -263,6 +266,30 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
 
         // Clear the flag that indicates the assignment tree is being built
         isBuilding = false;
+    }
+
+    /**************************************************************************
+     * Update references to the specified message name with the new name. This
+     * is necessary for the tree to be rebuilt following a message name change
+     * 
+     * @param oldName
+     *            original message name
+     * 
+     * @param newName
+     *            new message name
+     *************************************************************************/
+    protected void updateMessageName(String oldName, String newName)
+    {
+        // Step through each assignment definition
+        for (String[] assignDefn : assignDefinitions)
+        {
+            // Check if the message names match
+            if (assignDefn[1].equals(oldName))
+            {
+                // Change the message name from the old to the new
+                assignDefn[1] = newName;
+            }
+        }
     }
 
     /**************************************************************************
@@ -372,7 +399,7 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
         msg[TlmSchedulerColumn.MESSAGE_NAME.ordinal()] = message.getName();
         msg[TlmSchedulerColumn.MESSAGE_ID.ordinal()] = message.getID();
         msg[TlmSchedulerColumn.MEMBER.ordinal()] = variable.getRate()
-                                                   + "\\"
+                                                   + TLM_SCH_SEPARATOR
                                                    + variable.getFullName().trim();
 
         // Add the variable assignment to the list of definitions

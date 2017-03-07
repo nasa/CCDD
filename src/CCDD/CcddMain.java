@@ -6,7 +6,6 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.AUTO_VALIDATE;
 import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.CCDD_AUTHOR;
 import static CCDD.CcddConstants.CCDD_DATE;
@@ -82,6 +81,7 @@ public class CcddMain
     private CcddTableTypeHandler tableTypeHandler;
     private CcddTableTypeEditorDialog tableTypeEditorDialog;
     private CcddDataTypeEditorDialog dataTypeEditorDialog;
+    private CcddMacroEditorDialog macroEditorDialog;
     private final CcddFileIOHandler fileIOHandler;
     private final CcddScriptHandler scriptHandler;
     private CcddScriptManagerDialog scriptAssnDlg;
@@ -139,7 +139,6 @@ public class CcddMain
     private JMenuItem mntmManageApps;
     private JMenuItem mntmRateParameters;
     private JMenuItem mntmAppParameters;
-    private JCheckBoxMenuItem mntmAutoValidate;
     private JMenuItem mntmManageScripts;
     private JMenuItem mntmExecuteScripts;
     private JMenuItem mntmStoreScripts;
@@ -154,6 +153,9 @@ public class CcddMain
 
     // Program preferences backing store node
     private final Preferences progPrefs;
+
+    // File path to where the session log is stored
+    private String logFilePath;
 
     // Look and feel currently selected by the user
     private String selectedLaF;
@@ -186,6 +188,13 @@ public class CcddMain
         // have their own preferences
         progPrefs = Preferences.userNodeForPackage(this.getClass());
 
+        // Create the command line handler
+        CcddCommandLineHandler cmdLnHandler = new CcddCommandLineHandler(CcddMain.this, args);
+
+        // Check if the command that sets the session event log file path is
+        // present, and if so set the path
+        cmdLnHandler.parseCommand(true);
+
         // Create the database command and control handler classes
         dbCommand = new CcddDbCommandHandler(CcddMain.this);
         dbControl = new CcddDbControlHandler(CcddMain.this);
@@ -217,11 +226,8 @@ public class CcddMain
         // Set the selected look & feel
         setLookAndFeel(null);
 
-        // Initialize the automatic scheduler validation check box menu item
-        mntmAutoValidate.setSelected(progPrefs.getBoolean(AUTO_VALIDATE, false));
-
         // Read the command line arguments and make adjustments as needed
-        new CcddCommandLineHandler(CcddMain.this, args);
+        cmdLnHandler.parseCommand(false);
 
         // Make the main application window visible if the GUI set to be active
         frameCCDD.setVisible(!isGUIHidden());
@@ -308,6 +314,29 @@ public class CcddMain
     }
 
     /**************************************************************************
+     * Get the session event log file path
+     * 
+     * @return Session event log file path; if no log file path is set then
+     *         return blank to point to the folder in which the application
+     *         starts
+     *************************************************************************/
+    protected String getLogPath()
+    {
+        return logFilePath == null ? "" : logFilePath;
+    }
+
+    /**************************************************************************
+     * Set the session event log file path
+     * 
+     * @param logFilePath
+     *            session event log file path
+     *************************************************************************/
+    protected void setLogPath(String logFilePath)
+    {
+        this.logFilePath = logFilePath;
+    }
+
+    /**************************************************************************
      * Start the web server
      * 
      * @param gui
@@ -323,7 +352,7 @@ public class CcddMain
         // Enable the web server check box menu item
         mntmEnableWebServer.setSelected(true);
 
-        // Enable the server log message filter
+        // // Enable the server log message filter
         CcddMain.this.getSessionEventLog().setServerFilterEnable(true);
 
         // Check if the user interface shouldn't be displayed
@@ -572,6 +601,27 @@ public class CcddMain
     }
 
     /**************************************************************************
+     * Get the reference to the macro editor dialog
+     * 
+     * @return Reference to the macro editor dialog
+     *************************************************************************/
+    protected CcddMacroEditorDialog getMacroEditor()
+    {
+        return macroEditorDialog;
+    }
+
+    /**************************************************************************
+     * Set the reference to the macro editor dialog
+     * 
+     * @param macroEditorDialog
+     *            reference to the macro editor dialog
+     *************************************************************************/
+    protected void setMacroEditor(CcddMacroEditorDialog macroEditorDialog)
+    {
+        this.macroEditorDialog = macroEditorDialog;
+    }
+
+    /**************************************************************************
      * Get the data field table editor
      * 
      * @return Data field table editor
@@ -633,7 +683,6 @@ public class CcddMain
         mntmManageApps.setEnabled(dbControl.isDatabaseConnected());
         mntmRateParameters.setEnabled(dbControl.isDatabaseConnected());
         mntmAppParameters.setEnabled(dbControl.isDatabaseConnected());
-        mntmAutoValidate.setEnabled(dbControl.isDatabaseConnected());
         mntmManageScripts.setEnabled(dbControl.isDatabaseConnected());
         mntmExecuteScripts.setEnabled(dbControl.isDatabaseConnected());
         mntmStoreScripts.setEnabled(dbControl.isDatabaseConnected());
@@ -685,28 +734,6 @@ public class CcddMain
     protected List<CcddTableEditorDialog> getTableEditorDialogs()
     {
         return tableEditorDialogs;
-    }
-
-    /**************************************************************************
-     * Get the state of the automatic validation check box menu item
-     *************************************************************************/
-    protected boolean isAutoValidate()
-    {
-        return mntmAutoValidate.isSelected();
-    }
-
-    /**************************************************************************
-     * Set the state of the automatic validation check box menu item
-     *************************************************************************/
-    protected void setAutoValidate(boolean autoValidate)
-    {
-        // Set the check box state
-        mntmAutoValidate.setSelected(autoValidate);
-
-        // Store the automatic validation state in the program preferences
-        // backing store
-        progPrefs.putBoolean(AUTO_VALIDATE, autoValidate);
-
     }
 
     /**************************************************************************
@@ -916,7 +943,7 @@ public class CcddMain
         currentDatabase.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setCurrentDatabaseLabel();
         sessionPanel.add(currentDatabase, BorderLayout.PAGE_START);
-        sessionPanel.add(CcddMain.this.getSessionEventLog().getEventPanel(),
+        sessionPanel.add(getSessionEventLog().getEventPanel(),
                          BorderLayout.CENTER);
         frameCCDD.getContentPane().add(sessionPanel);
 
@@ -990,8 +1017,6 @@ public class CcddMain
         mnScheduling.addSeparator();
         mntmRateParameters = createMenuItem(mnScheduling, "Rate parameters", KeyEvent.VK_A, "Change telemetry rate parameters");
         mntmAppParameters = createMenuItem(mnScheduling, "App parameters", KeyEvent.VK_U, "Change application scheduler parameters");
-        mnScheduling.addSeparator();
-        mntmAutoValidate = createCheckBoxMenuItem(mnScheduling, "Auto validate", KeyEvent.VK_V, "Check messages for invalid entries", false);
 
         // Create the Script menu and menu items
         JMenu mnScript = createMenu(menuBar, "Script", KeyEvent.VK_S, null);
@@ -1593,19 +1618,6 @@ public class CcddMain
             public void actionPerformed(ActionEvent ae)
             {
                 new CcddApplicationParameterDialog(CcddMain.this);
-            }
-        });
-
-        // Add a listener for the Auto Validate check box menu item
-        mntmAutoValidate.addActionListener(new ActionListener()
-        {
-            /******************************************************************
-             * Set and store the state of the automatic validation check box
-             *****************************************************************/
-            @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                setAutoValidate(mntmAutoValidate.isSelected());
             }
         });
 

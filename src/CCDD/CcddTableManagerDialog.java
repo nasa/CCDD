@@ -98,13 +98,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     // Group selection change in progress flag
     private boolean isNodeSelectionChanging;
 
-    // Array of file references containing the selected export file path(s)
-    // or the selected import file(s)
-    private File[] filePath;
-
-    // TODO
-    private File[] dataFile;
-
     // Array of new table names to create
     private String[] tableNames;
 
@@ -499,30 +492,30 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             case IMPORT:
                 // Allow the user to select the data file path + name(s) from
                 // which to import, and the import options
-                dataFile = choosePathFile(ccddMain,
-                                          caller,
-                                          null,
-                                          new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.CSV.getDescription(),
-                                                                                                     FileExtension.CSV.getExtensionName()),
-                                                                         new FileNameExtensionFilter(FileExtension.EDS.getDescription(),
-                                                                                                     FileExtension.EDS.getExtensionName()),
-                                                                         new FileNameExtensionFilter(FileExtension.JSON.getDescription(),
-                                                                                                     FileExtension.JSON.getExtensionName()),
-                                                                         new FileNameExtensionFilter(FileExtension.XTCE.getDescription(),
-                                                                                                     FileExtension.XTCE.getExtensionName())},
-                                          false,
-                                          true,
-                                          "Import Table(s)",
-                                          LAST_SAVED_DATA_FILE,
-                                          DialogOption.IMPORT_OPTION,
-                                          createImportPanel(gbc));
+                File[] filePath = choosePathFile(ccddMain,
+                                                 caller,
+                                                 null,
+                                                 new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.CSV.getDescription(),
+                                                                                                            FileExtension.CSV.getExtensionName()),
+                                                                                new FileNameExtensionFilter(FileExtension.EDS.getDescription(),
+                                                                                                            FileExtension.EDS.getExtensionName()),
+                                                                                new FileNameExtensionFilter(FileExtension.JSON.getDescription(),
+                                                                                                            FileExtension.JSON.getExtensionName()),
+                                                                                new FileNameExtensionFilter(FileExtension.XTCE.getDescription(),
+                                                                                                            FileExtension.XTCE.getExtensionName())},
+                                                 false,
+                                                 true,
+                                                 "Import Table(s)",
+                                                 LAST_SAVED_DATA_FILE,
+                                                 DialogOption.IMPORT_OPTION,
+                                                 createImportPanel(gbc));
 
                 // Check if a file was chosen
-                if (dataFile != null)
+                if (filePath != null)
                 {
                     // Export the contents of the selected table(s) in the
                     // specified format
-                    fileIOHandler.importFile(dataFile,
+                    fileIOHandler.importFile(filePath,
                                              backupFirstCb.isSelected(),
                                              replaceExistingTablesCb.isSelected(),
                                              appendExistingFieldsCb.isSelected(),
@@ -1312,6 +1305,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             @Override
             public void actionPerformed(ActionEvent ae)
             {
+                File[] filePath;
+
                 // Check if tables should be exported to a single file
                 if (singleFileCb.isSelected())
                 {
@@ -1539,8 +1534,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                     // name in the path
                     if (getFileNameField().getText().isEmpty()
                         || getFileNameField().getText().matches(".*\\"
-                                                            + File.separator
-                                                            + "\\.*?$"))
+                                                                + File.separator
+                                                                + "\\.*?$"))
                     {
                         // Inform the user that the import file is missing
                         new CcddDialogHandler().showMessageDialog(CcddTableManagerDialog.this,

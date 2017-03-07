@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
@@ -31,6 +32,7 @@ import CCDD.CcddClasses.TelemetryData;
 import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddClasses.Variable;
 import CCDD.CcddClasses.VariableGenerator;
+import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable.LinksColumn;
 import CCDD.CcddConstants.TableTreeType;
 
@@ -484,20 +486,38 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
             // variable
             int numVars = nodeIndex.getLastIndex() - nodeIndex.getFirstIndex();
 
-            // Step through the associated variables
-            for (int index = 1; index <= numVars; index++)
+            // Check if the number of associated variables doesn't exceed the
+            // number of variable in the list provided
+            if (numVars < variables.size())
             {
-                // Check that this isn't a bit-wise variable (ie.e, it's a
-                // string variable)
-                if (!isBitPack)
+                // Step through the associated variables
+                for (int index = 1; index <= numVars; index++)
                 {
-                    // Add the variable's size to the total
-                    totalSize += variables.get(index).getSize();
+                    // Check that this isn't a bit-wise variable (ie.e, it's a
+                    // string variable)
+                    if (!isBitPack)
+                    {
+                        // Add the variable's size to the total
+                        totalSize += variables.get(index).getSize();
+                    }
+
+                    // Add the variable to the list of associated variables
+                    associatedVars.add(variables.get(index));
                 }
-
-                // Add the variable to the list of associated variables
-                associatedVars.add(variables.get(index));
-
+            }
+            // More associated variable were detected than were provided. This
+            // can only occur if the rates for associated variables don't match
+            // - this shouldn't be possible
+            else
+            {
+                // Inform the user if there is a rate assignment issue
+                new CcddDialogHandler().showMessageDialog(schedulerDlg.getDialog(),
+                                                          "<html><b> Auto-fill detected mismatched "
+                                                              + "rates for variable(s) associated with </b>"
+                                                              + variables.get(0).getFullName(),
+                                                          "Assign Failure",
+                                                          JOptionPane.WARNING_MESSAGE,
+                                                          DialogOption.OK_OPTION);
             }
         }
 

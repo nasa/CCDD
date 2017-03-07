@@ -97,7 +97,10 @@ public class CcddScriptExecutiveDialog extends CcddDialogHandler
         gbc.weighty = 1.0;
         gbc.insets.top = 0;
         gbc.gridy++;
-        dialogPnl.add(scriptHandler.createScriptAssociationPanel(null, 10, false),
+        dialogPnl.add(scriptHandler.createScriptAssociationPanel(null,
+                                                                 10,
+                                                                 false,
+                                                                 CcddScriptExecutiveDialog.this),
                       gbc);
 
         // Create the button panel

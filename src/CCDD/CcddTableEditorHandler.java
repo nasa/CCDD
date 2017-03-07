@@ -431,8 +431,8 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
         if (isTableChanged())
         {
             // Send a change event so that the editor tab name reflects that
-            // the table has changes
-            table.getUndoManager().ownerHasChanges(true);
+            // the table has changed
+            table.getUndoManager().ownerHasChanged();
         }
     }
 
@@ -582,6 +582,67 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
     protected boolean isCanHaveArrays()
     {
         return variableNameIndex != -1 && arraySizeIndex != -1;
+    }
+
+    /**************************************************************************
+     * Get the model column indices containing the variable name, data type,
+     * array size, array index, enumeration(s), and sample rate(s), if extant.
+     * This must be called when the table editor is first instantiated and
+     * whenever the table's type definition is altered
+     *************************************************************************/
+    private void getSpecialColumnIndices()
+    {
+        variableNameIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
+        dataTypeIndex = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
+        arraySizeIndex = typeDefn.getColumnIndexByInputType(InputDataType.ARRAY_INDEX);
+        bitLengthIndex = typeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH);
+        enumerationIndex = typeDefn.getColumnIndicesByInputType(InputDataType.ENUMERATION);
+        rateIndex = typeDefn.getColumnIndicesByInputType(InputDataType.RATE);
+    }
+
+    /**************************************************************************
+     * Update the table editor following a change to the table's type
+     * definition
+     * 
+     * @param tableInfo
+     *            table information
+     *************************************************************************/
+    protected void updateForTableTypeChange(TableInformation tableInfo)
+    {
+        // Update the editor's type definition reference
+        setTypeDefinition();
+
+        // Get the model column indices for columns with
+        // special input types
+        getSpecialColumnIndices();
+
+        // Update the committed table information
+        setCommittedInformation(tableInfo);
+
+        // Update the table editor contents
+        table.loadAndFormatData();
+
+        // Update the current field information
+        getFieldHandler().setFieldInformation(tableInfo.getFieldHandler().getFieldInformation());
+
+        // Update the editor data fields
+        updateDataFields();
+
+        // Create a runnable object to be executed
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            /******************************************************************
+             * Execute after all pending Swing events are finished
+             *****************************************************************/
+            @Override
+            public void run()
+            {
+                // Force the table to redraw in case the number of columns
+                // changed
+                tableModel.fireTableStructureChanged();
+                tableModel.fireTableDataChanged();
+            }
+        });
     }
 
     /**************************************************************************
@@ -742,9 +803,8 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                     @Override
                     public int compare(TableDeletion del1, TableDeletion del2)
                     {
-                        return
-                        Integer.compare(Integer.valueOf(del2.getRowData()[rowIndex].toString()),
-                                        Integer.valueOf(del1.getRowData()[rowIndex].toString()));
+                        return Integer.compare(Integer.valueOf(del2.getRowData()[rowIndex].toString()),
+                                               Integer.valueOf(del1.getRowData()[rowIndex].toString()));
                     }
                 });
 
@@ -1068,6 +1128,9 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
      *************************************************************************/
     private void initialize()
     {
+        // Get the model column indices for columns with special input types
+        getSpecialColumnIndices();
+
         // Get the array size and index column indices and create a row filter
         // to show/hide the array member rows if an array size column exists
         setUpArraySizeColumn();
@@ -1632,6 +1695,7 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                         // formatting the cell value per its input type. This
                         // is needed primarily to clean up numeric formatting
                         newValueS = typeDefn.getInputTypes()[column].formatInput(newValueS);
+                        newValue = newValueS;
                         tableData.get(row)[column] = newValueS;
                     }
 
@@ -1952,6 +2016,7 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                                                              committedInfo.getColumnOrder(),
                                                              new Integer[] {primaryKeyIndex,
                                                                             rowIndex},
+                                                             null,
                                                              toolTips,
                                                              true,
                                                              true,
@@ -1959,8 +2024,10 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                                                              true);
 
                 // Check that the table is open in a table editor (versus open
-                // for a macro name and/or value change)
-                if (editorDialog != null)
+                // for a macro name and/or value change) and if this is the
+                // widest editor table in this tabbed editor dialog
+                if (editorDialog != null
+                    && editorDialog.getTableWidth() < totalWidth)
                 {
                     // Set the minimum table size based on the column widths
                     editorDialog.setTableWidth(totalWidth);
@@ -2112,13 +2179,17 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
             /******************************************************************
              * Adjust the start and end selections for a row move to encompass
              * the array members if the start or end selection falls within the
-             * array's rows
+             * array's rows. If the table doesn't represent a structure then
+             * only the selected row(s) are checked to determine if moving is
+             * possible
              * 
              * @param rowDelta
              *            row move direction
              * 
              * @param selected
              *            cell selection class
+             * 
+             * @return true if the row(s) can be moved
              *****************************************************************/
             private boolean encompassArray(int rowDelta, MoveCellSelection selected)
             {
@@ -2242,19 +2313,23 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                     // selection falls on an array definition
                     if (encompassArray(rowDelta, selected))
                     {
-                        // While the target row contains an array member
-                        while (ArrayVariable.isArrayMember(getExpandedValueAt(modelToRow,
-                                                                              variableNameIndex)))
+                        // Check if the table can display arrays
+                        if (isCanHaveArrays())
                         {
-                            // Decrement the target row
-                            modelToRow--;
-
-                            // Check if the array members are displayed
-                            if (isShowArrayMembers)
+                            // While the target row contains an array member
+                            while (ArrayVariable.isArrayMember(getExpandedValueAt(modelToRow,
+                                                                                  variableNameIndex)))
                             {
-                                // Adjust the row delta to keep the correct
-                                // rows highlighted after the move
-                                rowDelta--;
+                                // Decrement the target row
+                                modelToRow--;
+
+                                // Check if the array members are displayed
+                                if (isShowArrayMembers)
+                                {
+                                    // Adjust the row delta to keep the correct
+                                    // rows highlighted after the move
+                                    rowDelta--;
+                                }
                             }
                         }
 
@@ -2294,23 +2369,28 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                     // selection falls on an array definition
                     if (encompassArray(rowDelta, selected))
                     {
-                        // Get the array size column value for the target row
-                        String arraySize = getExpandedValueAt(modelEndRow + 1,
-                                                              arraySizeIndex);
-
-                        // Check if the array size is present on this row
-                        if (!arraySize.isEmpty())
+                        // Check if the table can display arrays
+                        if (isCanHaveArrays())
                         {
-                            // Get the total number of array members
-                            int totalSize = ArrayVariable.getNumMembersFromArraySize(arraySize);
+                            // Get the array size column value for the target
+                            // row
+                            String arraySize = getExpandedValueAt(modelEndRow + 1,
+                                                                  arraySizeIndex);
 
-                            // Adjust the target row and the number of rows to
-                            // move based on the number of array members and
-                            // the visibility of the array members
-                            rowDelta += isShowArrayMembers
-                                                          ? totalSize
-                                                          : 0;
-                            modelToRow += totalSize;
+                            // Check if the array size is present on this row
+                            if (!arraySize.isEmpty())
+                            {
+                                // Get the total number of array members
+                                int totalSize = ArrayVariable.getNumMembersFromArraySize(arraySize);
+
+                                // Adjust the target row and the number of rows
+                                // to move based on the number of array members
+                                // and the visibility of the array members
+                                rowDelta += isShowArrayMembers
+                                                              ? totalSize
+                                                              : 0;
+                                modelToRow += totalSize;
+                            }
                         }
 
                         // Move the row(s) down and update the cell selection
@@ -2963,7 +3043,6 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                                       true,
                                       true,
                                       CELL_FONT,
-                                      null,
                                       true);
 
         // Get a reference to the table model to shorten later calls
@@ -3335,11 +3414,6 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
             // Incorporate any cell changes and terminate editing
             table.getCellEditor().stopCellEditing();
         }
-
-        // Get the index for the column containing the data type and for the
-        // column(s) containing an enumeration
-        dataTypeIndex = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
-        enumerationIndex = typeDefn.getColumnIndicesByInputType(InputDataType.ENUMERATION);
 
         // Check if this table has a data type column
         if (dataTypeIndex != -1)
@@ -3752,12 +3826,6 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
      *************************************************************************/
     private void setUpArraySizeColumn()
     {
-        // Get the model column indices containing the variable name, array
-        // size, and array index, if extant
-        variableNameIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
-        arraySizeIndex = typeDefn.getColumnIndexByInputType(InputDataType.ARRAY_INDEX);
-        bitLengthIndex = typeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH);
-
         // Check if the variable name and array size columns are present
         if (isCanHaveArrays())
         {
@@ -4035,9 +4103,6 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
      *************************************************************************/
     protected void setUpSampleRateColumn()
     {
-        // Get the list of column indices that are sample rates
-        rateIndex = typeDefn.getColumnIndicesByInputType(InputDataType.RATE);
-
         // Step through each rate column defined for this table
         for (int index = 0; index < rateIndex.size(); index++)
         {
@@ -4506,5 +4571,25 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                                                 dataTypeIndex));
             }
         }
+    }
+
+    /**************************************************************************
+     * Reset the order of the columns to the default, as specified by the
+     * table's type definition
+     *************************************************************************/
+    protected void resetColumnOrder()
+    {
+        // Set the column order to the default
+        table.arrangeColumns(tableTypeHandler.getDefaultColumnOrder(typeDefn.getName()));
+    }
+
+    /**********************************************************************
+     * Update the tab for this table in the table editor dialog change
+     * indicator
+     *********************************************************************/
+    @Override
+    protected void updateOwnerChangeIndicator()
+    {
+        editorDialog.updateChangeIndicator();
     }
 }

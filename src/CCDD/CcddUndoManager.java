@@ -7,6 +7,8 @@
 package CCDD;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CompoundEdit;
@@ -65,8 +67,8 @@ public class CcddUndoManager extends UndoManager
             compoundEdits.add(new CompoundEdit());
             pointer++;
 
-            // Send event indicating the owner has been changed
-            ownerHasChanges(true);
+            // Send event indicating the owner has changed
+            ownerHasChanged();
         }
 
         // Add the edit action to the sequence
@@ -141,12 +143,8 @@ public class CcddUndoManager extends UndoManager
             compoundEdits.get(pointer).undo();
             pointer--;
 
-            // Check if all changes have been undone
-            if (pointer == -1)
-            {
-                // Send event indicating the owner has no changes
-                ownerHasChanges(false);
-            }
+            // Send event indicating the owner has changed
+            ownerHasChanged();
         }
     }
 
@@ -168,8 +166,8 @@ public class CcddUndoManager extends UndoManager
             pointer++;
             compoundEdits.get(pointer).redo();
 
-            // Send event indicating the owner has been changed
-            ownerHasChanges(true);
+            // Send event indicating the owner has changed
+            ownerHasChanged();
         }
     }
 
@@ -181,18 +179,54 @@ public class CcddUndoManager extends UndoManager
     {
         super.discardAllEdits();
 
-        // Reset the stack pointer and clear the edit list
-        pointer = -1;
-        compoundEdits.clear();
+        // Check if there are any edits to discard
+        if (pointer != -1)
+        {
+            // Reset the stack pointer and clear the edit list
+            pointer = -1;
+            compoundEdits.clear();
 
-        // Send event indicating the owner has no changes
-        ownerHasChanges(false);
+            // Send event indicating the owner has changed
+            ownerHasChanged();
+        }
+    }
+
+    /**************************************************************************
+     * Remove the specified edit types from the edit stack
+     * 
+     * @param editTypes
+     *            array of edit type names to remove from the edit stack
+     *************************************************************************/
+    protected void discardEdits(String[] editTypes)
+    {
+        // Check if there are any edits to discard
+        if (pointer != -1)
+        {
+            List<String> editTypeList = Arrays.asList(editTypes);
+            List<CompoundEdit> removedEdits = new ArrayList<CompoundEdit>();
+
+            // Step through each edit in the stack
+            for (CompoundEdit compoundEdit : compoundEdits)
+            {
+                // Check if the edit matches one in the list to remove
+                if (editTypeList.contains(compoundEdit.getPresentationName()))
+                {
+                    // Add the edit reference to the list of those to remove
+                    removedEdits.add(compoundEdit);
+                }
+            }
+
+            // Remove any edits that match those in the specified list and
+            // adjust the stack pointer
+            compoundEdits.removeAll(removedEdits);
+            pointer -= removedEdits.size();
+        }
     }
 
     /**************************************************************************
      * Placeholder for method to flag changes to the undo manager owner
      *************************************************************************/
-    protected void ownerHasChanges(boolean isChanged)
+    protected void ownerHasChanged()
     {
     }
 }

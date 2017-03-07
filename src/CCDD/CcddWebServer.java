@@ -187,6 +187,7 @@ public class CcddWebServer
         {
             // Inform the user that creating the web server failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Web Server Error",
                                   "Cannot create web server; cause '"
                                       + e.getMessage()
                                       + "'",
@@ -214,6 +215,7 @@ public class CcddWebServer
         {
             // Inform the user that starting the web server failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Web Server Error",
                                   "Web server failed to start; cause '"
                                       + e.getMessage()
                                       + "'",
@@ -239,6 +241,7 @@ public class CcddWebServer
         {
             // Inform the user that stopping the web server failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Web Server Error",
                                   "Web server failed to stop; cause '"
                                       + e.getMessage()
                                       + "'",

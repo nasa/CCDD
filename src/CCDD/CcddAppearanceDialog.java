@@ -102,9 +102,9 @@ public class CcddAppearanceDialog extends CcddDialogHandler
             // Add a listener for radio button selection change events
             addPropertyChangeListener(new PropertyChangeListener()
             {
-                /******************************************************************
+                /**************************************************************
                  * Handle a radio button selection change event
-                 *****************************************************************/
+                 *************************************************************/
                 @Override
                 public void propertyChange(PropertyChangeEvent pce)
                 {

@@ -96,6 +96,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     private JMenuItem mntmMoveDown;
     private JMenuItem mntmMoveLeft;
     private JMenuItem mntmMoveRight;
+    private JMenuItem mntmResetOrder;
     private JMenuItem mntmClearData;
     private JMenuItem mntmManageFields;
     private JMenuItem mntmClearValues;
@@ -275,6 +276,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmMoveDown.setEnabled(enableParent);
         mntmMoveLeft.setEnabled(enable);
         mntmMoveRight.setEnabled(enable);
+        mntmResetOrder.setEnabled(enable);
         mntmClearData.setEnabled(enable);
         mntmClearValues.setEnabled(enable
                                    && !activeEditor.getFieldHandler().getFieldInformation().isEmpty());
@@ -398,14 +400,6 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 // Step through each individual editor
                 for (CcddTableEditorHandler editor : editorDialog.getTableEditors())
                 {
-                    // Check if this is the editor for the table that was
-                    // changed
-                    if (tableInfo.equals(editor.getTableInformation()))
-                    {
-                        // Accept all edits for this table
-                        editor.getTable().getUndoManager().discardAllEdits();
-                    }
-
                     // Check if the prototype of the editor's table matches
                     // that of the table that was updated
                     if (editor.getTableInformation().getPrototypeName().equals(tableInfo.getPrototypeName()))
@@ -435,6 +429,14 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                                                       modifications,
                                                       deletions,
                                                       linkHandler);
+                    }
+
+                    // Check if this is the editor for the table that was
+                    // changed
+                    if (tableInfo.equals(editor.getTableInformation()))
+                    {
+                        // Accept all edits for this table
+                        editor.getTable().getUndoManager().discardAllEdits();
                     }
 
                     // Step through each row modification
@@ -641,6 +643,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         JMenu mnColumn = ccddMain.createMenu(menuBar, "Column", KeyEvent.VK_C, null);
         mntmMoveLeft = ccddMain.createMenuItem(mnColumn, "Move left", KeyEvent.VK_L, "Move the currently selected column(s) left one column");
         mntmMoveRight = ccddMain.createMenuItem(mnColumn, "Move right", KeyEvent.VK_R, "Move the currently selected column(s) right one column");
+        mntmResetOrder = ccddMain.createMenuItem(mnColumn, "Reset order", KeyEvent.VK_R, "Reset the column order to the default");
 
         // Create the Field menu and menu items
         JMenu mnField = ccddMain.createMenu(menuBar, "Field", KeyEvent.VK_F, null);
@@ -993,6 +996,28 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                     // Update the database for every table that has changes
                     storeAllChanges();
                 }
+            }
+
+            /******************************************************************
+             * Get the reference to the currently displayed table
+             *****************************************************************/
+            @Override
+            protected CcddJTableHandler getTable()
+            {
+                return activeEditor.getTable();
+            }
+        });
+
+        // Add a listener for the Reset Order command
+        mntmResetOrder.addActionListener(new ValidateCellActionListener()
+        {
+            /******************************************************************
+             * Reset the column order to the default
+             *****************************************************************/
+            @Override
+            protected void performAction(ActionEvent ae)
+            {
+                activeEditor.resetColumnOrder();
             }
 
             /******************************************************************
@@ -1680,36 +1705,18 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             // Add a listener for table content change events
             editor.getTable().addPropertyChangeListener(new PropertyChangeListener()
             {
-                /******************************************************************
+                /**************************************************************
                  * Handle a table content change event
-                 *****************************************************************/
+                 *************************************************************/
                 @Override
                 public void propertyChange(PropertyChangeEvent pce)
                 {
                     // Check if the event indicates a table content change
                     if (pce.getPropertyName().equals(TABLE_CHANGE_EVENT))
                     {
-                        // Get the name of the changed table
-                        String tableName = ((CcddJTableHandler) pce.getSource()).getName();
-
-                        // Set the change status indicator based on the event
-                        String changeFlag = pce.getNewValue().equals(Boolean.TRUE)
-                                                                                  ? "*"
-                                                                                  : "";
-
-                        // Step through each editor tab
-                        for (int index = 0; index < tabbedPane.getTabCount(); index++)
-                        {
-                            // Check if the tab name (minus any change
-                            // indicator) matches the table that changed
-                            if (tabbedPane.getTitleAt(index).replaceAll("\\*", "").equals(tableName))
-                            {
-                                // Replace the tab name, appending the change
-                                // indicator, and stop searching
-                                tabbedPane.setTitleAt(index, tableName + changeFlag);
-                                break;
-                            }
-                        }
+                        // Update the change indicator for the current table
+                        // tab
+                        updateChangeIndicator();
                     }
                 }
             });
@@ -1726,6 +1733,27 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         {
             // Select the tab for the newly opened table
             tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
+        }
+    }
+
+    /**************************************************************************
+     * Update the change indicator for the current table editor
+     *************************************************************************/
+    protected void updateChangeIndicator()
+    {
+        // Get the index of the currently displayed tab
+        int index = tabbedPane.getSelectedIndex();
+
+        // Check that the tab index is valid
+        if (index != -1)
+        {
+            // Replace the tab name, appending the change indicator if changes
+            // exist
+            tabbedPane.setTitleAt(index,
+                                  tabbedPane.getTitleAt(index).replaceAll("\\*", "")
+                                      + (tableEditors.get(index).isTableChanged()
+                                                                                 ? "*"
+                                                                                 : ""));
         }
     }
 

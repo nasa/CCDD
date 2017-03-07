@@ -141,13 +141,13 @@ public class CcddSchedulerHandler
     }
 
     /**************************************************************************
-     * Get the scheduler dialog
+     * Get the reference to the scheduler dialog
      * 
-     * @return Scheduler dialog
+     * @return Reference to the scheduler dialog
      *************************************************************************/
-    protected CcddDialogHandler getSchedulerDialog()
+    protected CcddSchedulerDialogInterface getSchedulerDialog()
     {
-        return schedulerDlg.getDialog();
+        return schedulerDlg;
     }
 
     /**************************************************************************
@@ -341,17 +341,6 @@ public class CcddSchedulerHandler
     }
 
     /**************************************************************************
-     * Set the reference to the scheduler editor
-     * 
-     * @param schedulerEditor
-     *            reference to the scheduler editor
-     *************************************************************************/
-    protected void setSchedulerEditor(CcddSchedulerEditorHandler schedulerEditor)
-    {
-        this.schedulerEditor = schedulerEditor;
-    }
-
-    /**************************************************************************
      * Get a list of the current messages
      * 
      * @return List of the current messages
@@ -369,19 +358,6 @@ public class CcddSchedulerHandler
     protected JPanel getSchedulerPanel()
     {
         return schedulerPnl;
-    }
-
-    /**************************************************************************
-     * Validate the entries in the messages
-     * 
-     * @return true if any invalid entry is detected
-     *************************************************************************/
-    protected boolean validateMessages()
-    {
-        return schedulerDlg.getSchedulerValidator().validateTableData(getVariableList(),
-                                                                      getCurrentMessages(),
-                                                                      getSchedulerOption(),
-                                                                      getRateName());
     }
 
     /**************************************************************************
@@ -634,6 +610,9 @@ public class CcddSchedulerHandler
 
                 // Update the assigned variables/applications list panel
                 schedulerEditor.updateAssignmentList();
+
+                // Update the scheduler dialog's change indicator
+                getSchedulerDialog().updateChangeIndicator();
             }
         });
     }
@@ -913,6 +892,9 @@ public class CcddSchedulerHandler
 
         // Set the unused bytes field
         setUnusedField();
+
+        // Update the scheduler dialog's change indicator
+        getSchedulerDialog().updateChangeIndicator();
     }
 
     /**************************************************************************
@@ -975,7 +957,7 @@ public class CcddSchedulerHandler
         // Create the scheduler input (variables or applications) handler
         schedulerInput = schedulerDlg.createSchedulerInput(rateName);
 
-        int totalMsg = 0;
+        int totalMsgs = 0;
         int totalBytes = 0;
         int msgsPerSec = 0;
 
@@ -989,7 +971,7 @@ public class CcddSchedulerHandler
             RateInformation info = rateHandler.getRateInformationByRateName(rateName);
 
             // Get the rate parameters
-            totalMsg = info.getMaxMsgsPerCycle();
+            totalMsgs = info.getMaxMsgsPerCycle();
             totalBytes = info.getMaxBytesPerSec();
             msgsPerSec = rateHandler.getMaxMsgsPerSecond();
         }
@@ -997,26 +979,26 @@ public class CcddSchedulerHandler
         else if (option == SchedulerType.APPLICATION_SCHEDULER)
         {
             // Set the total number of messages to the largest rate
-            totalMsg = ccddMain.getApplicationParameterHandler().getMsgsPerCycle();
+            totalMsgs = ccddMain.getApplicationParameterHandler().getMsgsPerCycle();
 
             // Set messages per second to highest to ensure the cycle time is 1
             // second
             msgsPerSec = ccddMain.getApplicationParameterHandler().getMaxMsgsPerSecond();
-            totalBytes = (int) ((Float.valueOf(totalMsg) / Float.valueOf(msgsPerSec)) * 1000);
+            totalBytes = (int) ((Float.valueOf(totalMsgs) / Float.valueOf(msgsPerSec)) * 1000);
         }
 
         // Create the scheduler editor handler
-        new CcddSchedulerEditorHandler(ccddMain,
-                                       this,
-                                       totalMsg,
-                                       totalBytes,
-                                       msgsPerSec);
+        schedulerEditor = new CcddSchedulerEditorHandler(ccddMain,
+                                                         this,
+                                                         totalMsgs,
+                                                         totalBytes,
+                                                         msgsPerSec);
 
         // Create the options model
         optionModel = new DefaultListModel<String>();
 
         // Set the cycle value label to the period
-        cycleFld.setText(String.valueOf(Float.valueOf(totalMsg)
+        cycleFld.setText(String.valueOf(Float.valueOf(totalMsgs)
                                         / Float.valueOf(msgsPerSec)));
 
         // Create panels to hold the components

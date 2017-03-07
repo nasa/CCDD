@@ -247,7 +247,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
 
                     // Update the existing tables of this type to the new type
                     // name
-                    dbTable.renameType(activeTypeName,
+                    dbTable.renameTableType(activeTypeName,
                                        typeNameFld.getText(),
                                        CcddTableTypeManagerDialog.this);
                 }
@@ -279,7 +279,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                                                               editorDialog.getTypeEditor().getDescription());
 
                         // Copy the table type to the new type name
-                        dbTable.copyType(activeTypeName,
+                        dbTable.copyTableType(activeTypeName,
                                          typeNameFld.getText(),
                                          CcddTableTypeManagerDialog.this);
                     }
@@ -301,12 +301,9 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                     // an error occurs or the user cancels the operation
                     savedDefn = tableTypeHandler.getTypeDefinition(activeTypeName);
 
-                    // Delete the type definition
-                    tableTypeHandler.getTypeDefinitions().remove(tableTypeHandler.getTypeDefinition(activeTypeName));
-
                     // Delete the type definition and tables of the deleted
                     // type
-                    dbTable.deleteType(activeTypeName,
+                    dbTable.deleteTableType(activeTypeName,
                                        savedDefn.isStructure(),
                                        CcddTableTypeManagerDialog.this,
                                        editorDialog);

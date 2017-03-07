@@ -100,6 +100,18 @@ public class CcddFrameHandler extends JFrame
     }
 
     /**************************************************************************
+     * Get the total width of the table to be displayed in the window which is
+     * the sum of the minimum column sizes
+     * 
+     * @return Total width, in pixels, of the minimum column sizes of the table
+     *         to be displayed in the window
+     *************************************************************************/
+    protected int getTableWidth()
+    {
+        return tableWidth;
+    }
+
+    /**************************************************************************
      * Set the total width of the table to be displayed in the window which is
      * the sum of the minimum column sizes
      * 

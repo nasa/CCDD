@@ -13,6 +13,7 @@ import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
+import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import static CCDD.CcddConstants.EventLogMessageType.SUCCESS_MSG;
@@ -362,6 +363,70 @@ public class CcddDbTableCommandHandler
     }
 
     /**************************************************************************
+     * Perform a query on the currently open database
+     * 
+     * @param sqlCommand
+     *            PostgreSQL-compatible database query statement
+     * 
+     * @param parent
+     *            GUI component calling this method
+     * 
+     * @return Two-dimensional array representing the rows and columns of data
+     *         returned by the database query; returns null if the query
+     *         produces an error, or an empty array if there are no results
+     *************************************************************************/
+    protected List<String[]> getDatabaseQuery(String sqlCommand,
+                                              Component parent)
+    {
+        List<String[]> queryResults = null;
+
+        try
+        {
+            // Execute the query command
+            ResultSet results = dbCommand.executeDbQuery(sqlCommand, parent);
+
+            // Create a list to contain the row information
+            List<String[]> tableData = new ArrayList<String[]>();
+
+            // Step through each of the query results
+            while (results.next())
+            {
+                // Create an array to contain the column values
+                String[] columnValues = new String[results.getMetaData().getColumnCount()];
+
+                // Step through each column in the row
+                for (int column = 0; column < results.getMetaData().getColumnCount(); column++)
+                {
+                    // Add the column value to the array. Note that the first
+                    // column's index in the database is 1, not 0
+                    columnValues[column] = results.getString(column + 1);
+                }
+
+                // Add the row data to the list
+                tableData.add(columnValues);
+            }
+
+            results.close();
+
+            // Store the list
+            queryResults = tableData;
+
+            // Log that the query succeeded
+            eventLog.logEvent(SUCCESS_MSG, "Database query completed");
+        }
+        catch (SQLException se)
+        {
+            // Inform the user that the query failed
+            eventLog.logFailEvent(parent,
+                                  "Database query failed; cause '"
+                                      + se.getMessage()
+                                      + "'", "<html><b>Database query failed");
+        }
+
+        return queryResults;
+    }
+
+    /**************************************************************************
      * Retrieve a list of all data tables in the database. Any non-data tables
      * are ignored
      * 
@@ -385,14 +450,14 @@ public class CcddDbTableCommandHandler
      * @param parent
      *            GUI component calling this method
      * 
-     * @return String array containing the table types and table names. The
-     *         table names are provided in both the user-viewable form, which
+     * @return List array containing the table names and table types. The table
+     *         names are provided in both the user-viewable form, which
      *         preserves capitalization, and the database form. An empty array
      *         is returned if no tables exist
      *************************************************************************/
-    protected String[][] queryTableAndTypeList(Component parent)
+    protected List<String[]> queryTableAndTypeList(Component parent)
     {
-        String[][] typeAndTable;
+        List<String[]> typeAndTable = new ArrayList<String[]>(0);
 
         // Get the array containing the table types and names
         String[] tables = dbCommand.getList(DatabaseListCommand.DATA_TABLES_WITH_TYPE,
@@ -402,20 +467,12 @@ public class CcddDbTableCommandHandler
         // Check if any tables exist
         if (tables.length != 0)
         {
-            typeAndTable = new String[tables.length][3];
-
             // Step through each table
-            for (int index = 0; index < tables.length; index++)
+            for (String table : tables)
             {
-                // Split the type from the name
-                typeAndTable[index] = tables[index].split(",", 3);
+                // Separate the names and type
+                typeAndTable.add(table.split(",", 3));
             }
-        }
-        // No tables exist
-        else
-        {
-            // Create an empty array
-            typeAndTable = new String[0][0];
         }
 
         return typeAndTable;
@@ -1615,9 +1672,9 @@ public class CcddDbTableCommandHandler
             String linksCmd = "; DELETE FROM "
                               + InternalTable.LINKS.getTableName()
                               + " WHERE ";
-            String messagesCmd = "; DELETE FROM "
-                                 + InternalTable.TLM_SCHEDULER.getTableName()
-                                 + " WHERE ";
+            String tlmSchCmd = "; DELETE FROM "
+                               + InternalTable.TLM_SCHEDULER.getTableName()
+                               + " WHERE ";
             String groupsCmd = "; DELETE FROM "
                                + InternalTable.GROUPS.getTableName()
                                + " WHERE ";
@@ -1643,13 +1700,19 @@ public class CcddDbTableCommandHandler
             }
 
             // Replace the column 1 name placeholder with the table's column 1
-            // name, then add the update string to the command
+            // name, then add the update string to the command. In the
+            // telemetry scheduler table the table names are preceded by the
+            // rate value and a separator which must be skipped
             valuesCmd += infoCmd.replaceAll("col1",
                                             ValuesColumn.TABLE_PATH.getColumnName());
             linksCmd += infoCmd.replaceAll("col1",
                                            LinksColumn.MEMBER.getColumnName());
-            messagesCmd += infoCmd.replaceAll("col1",
-                                              TlmSchedulerColumn.MEMBER.getColumnName());
+            tlmSchCmd += infoCmd.replaceAll("col1",
+                                            TlmSchedulerColumn.MEMBER.getColumnName());
+            tlmSchCmd = tlmSchCmd.replaceAll("\\^",
+                                             "^\\\\\\\\d+\\\\\\\\.\\\\\\\\d+"
+                                                 + "\\\\\\\\\\\\\\"
+                                                 + TLM_SCH_SEPARATOR);
             groupsCmd += infoCmd.replaceAll("col1",
                                             GroupsColumn.MEMBERS.getColumnName());
             fieldsCmd += infoCmd.replaceAll("col1",
@@ -1662,7 +1725,7 @@ public class CcddDbTableCommandHandler
                                                    " OR ")
                        + CcddUtilities.removeTrailer(linksCmd,
                                                      " OR ")
-                       + CcddUtilities.removeTrailer(messagesCmd,
+                       + CcddUtilities.removeTrailer(tlmSchCmd,
                                                      " OR ")
                        + CcddUtilities.removeTrailer(groupsCmd,
                                                      " OR ")
@@ -2150,9 +2213,9 @@ public class CcddDbTableCommandHandler
             while (rowData.next())
             {
                 // Add the row data from the matching row to the array list
-                customValues.add(new String[] {rowData.getString(ValuesColumn.TABLE_PATH.ordinal() + 1),
-                                               rowData.getString(ValuesColumn.COLUMN_NAME.ordinal() + 1),
-                                               rowData.getString(ValuesColumn.VALUE.ordinal() + 1)});
+                customValues.add(new String[] {rowData.getString(ValuesColumn.TABLE_PATH.getColumnName()),
+                                               rowData.getString(ValuesColumn.COLUMN_NAME.getColumnName()),
+                                               rowData.getString(ValuesColumn.VALUE.getColumnName())});
             }
 
             rowData.close();
@@ -2206,11 +2269,6 @@ public class CcddDbTableCommandHandler
         setTableComment(InternalTable.TLM_SCHEDULER.getTableName(),
                         comment,
                         parent);
-
-        // Update the database functions that collect structure table members
-        // and structure-defining column data to use the current rate column
-        // name(s)
-        dbControl.createStructureColumnFunctions();
     }
 
     /**************************************************************************
@@ -2941,9 +2999,9 @@ public class CcddDbTableCommandHandler
                                 }
 
                                 // Check if the data type has been changed and
-                                // if the data type was or now is a structure,
-                                // if the variable was changed to/from an
-                                // array, or if the rate changed
+                                // if the data type was or now is a structure
+                                // reference, if the variable was changed
+                                // to/from an array, or if the rate changed
                                 if ((dataTypeChanged
                                     && (!dataTypeHandler.isPrimitive(oldDataType)
                                     || !newDataTypeHandler.isPrimitive(newDataType)))
@@ -2971,7 +3029,8 @@ public class CcddDbTableCommandHandler
                                                      + InternalTable.TLM_SCHEDULER.getTableName()
                                                      + " WHERE "
                                                      + TlmSchedulerColumn.MEMBER.getColumnName()
-                                                     + " ~ E'^.*\\"
+                                                     + " ~ E'^.*"
+                                                     + TLM_SCH_SEPARATOR
                                                      + orgVariablePath
                                                      + "(,|\\\\[|:|$)'; ");
                                 }
@@ -3014,7 +3073,7 @@ public class CcddDbTableCommandHandler
                                 // Check if the bit length changed and the rate
                                 // remains the same (if the rate changed then
                                 // the variable is no longer a member of the
-                                // link)
+                                // link or message)
                                 if (bitLengthChanged && !rateChanged)
                                 {
                                     // Change the bit length in the links table
@@ -3034,23 +3093,60 @@ public class CcddDbTableCommandHandler
                                                        + newBitLength
                                                        + "'); ");
 
-                                    // Change the bit length in the telemetry
-                                    // scheduler table
-                                    tlmModCmd.append("UPDATE "
-                                                     + InternalTable.TLM_SCHEDULER.getTableName()
-                                                     + " SET "
-                                                     + TlmSchedulerColumn.MEMBER.getColumnName()
-                                                     + " = regexp_replace("
-                                                     + TlmSchedulerColumn.MEMBER.getColumnName()
-                                                     + ", E'^(.*\\)"
-                                                     + orgVariablePath
-                                                     + ":"
-                                                     + oldBitLength
-                                                     + "$', E'\\\\1"
-                                                     + orgVariablePath
-                                                     + ":"
-                                                     + newBitLength
-                                                     + "'); ");
+                                    // Get the original and new sizes of the
+                                    // variable based on its bit length and
+                                    // data type
+                                    int oldLen = !oldBitLength.isEmpty()
+                                                                        ? Integer.valueOf(oldBitLength)
+                                                                        : dataTypeHandler.getSizeInBits(oldDataType);
+                                    int newLen = !newBitLength.isEmpty()
+                                                                        ? Integer.valueOf(newBitLength)
+                                                                        : dataTypeHandler.getSizeInBits(newDataType);
+
+                                    // Check if the new size is not greater
+                                    // than the original size
+                                    if (newLen <= oldLen)
+                                    {
+                                        // Since the variable still fits within
+                                        // the any message in the telemetry
+                                        // scheduler table to which it's
+                                        // assigned leave it in the message and
+                                        // change the bit length
+                                        tlmModCmd.append("UPDATE "
+                                                         + InternalTable.TLM_SCHEDULER.getTableName()
+                                                         + " SET "
+                                                         + TlmSchedulerColumn.MEMBER.getColumnName()
+                                                         + " = regexp_replace("
+                                                         + TlmSchedulerColumn.MEMBER.getColumnName()
+                                                         + ", E'^(.*"
+                                                         + TLM_SCH_SEPARATOR
+                                                         + ")"
+                                                         + orgVariablePath
+                                                         + ":"
+                                                         + oldBitLength
+                                                         + "$', E'\\\\1"
+                                                         + orgVariablePath
+                                                         + ":"
+                                                         + newBitLength
+                                                         + "'); ");
+                                    }
+                                    // The size increased
+                                    else
+                                    {
+                                        // Since the variable may no longer fit
+                                        // within any message in the telemetry
+                                        // scheduler table to which it's
+                                        // assigned remove all references to
+                                        // the variable
+                                        tlmModCmd.append("DELETE FROM "
+                                                         + InternalTable.TLM_SCHEDULER.getTableName()
+                                                         + " WHERE "
+                                                         + TlmSchedulerColumn.MEMBER.getColumnName()
+                                                         + " ~ E'^.*"
+                                                         + TLM_SCH_SEPARATOR
+                                                         + orgVariablePath
+                                                         + "(,|\\\\[|:|$)'; ");
+                                    }
                                 }
 
                                 // Check if (a) the variable name changed and
@@ -3080,20 +3176,52 @@ public class CcddDbTableCommandHandler
                                                        + newVariablePath
                                                        + "\\\\1'); ");
 
-                                    // Create the command to update the
-                                    // telemetry scheduler table for instances
-                                    // of variables of the prototype table
-                                    tlmModCmd.append("UPDATE "
-                                                     + InternalTable.TLM_SCHEDULER.getTableName()
-                                                     + " SET "
-                                                     + TlmSchedulerColumn.MEMBER.getColumnName()
-                                                     + " = regexp_replace("
-                                                     + TlmSchedulerColumn.MEMBER.getColumnName()
-                                                     + ", E'^(.*\\)"
-                                                     + orgVariablePath
-                                                     + "(,.*|\\\\[.*|:|$)', E'\\\\1"
-                                                     + newVariablePath
-                                                     + "\\\\2'); ");
+                                    // Get the original and new sizes of the
+                                    // variable
+                                    int oldLen = dataTypeHandler.getSizeInBits(oldDataType);
+                                    int newLen = dataTypeHandler.getSizeInBits(newDataType);
+
+                                    // Check if the new size is not greater
+                                    // than the original size
+                                    if (newLen <= oldLen)
+                                    {
+                                        // Since the variable still fits within
+                                        // the any message in the telemetry
+                                        // scheduler table to which it's
+                                        // assigned leave it in the message and
+                                        // update the instances of variables of
+                                        // the prototype table
+                                        tlmModCmd.append("UPDATE "
+                                                         + InternalTable.TLM_SCHEDULER.getTableName()
+                                                         + " SET "
+                                                         + TlmSchedulerColumn.MEMBER.getColumnName()
+                                                         + " = regexp_replace("
+                                                         + TlmSchedulerColumn.MEMBER.getColumnName()
+                                                         + ", E'^(.*"
+                                                         + TLM_SCH_SEPARATOR
+                                                         + ")"
+                                                         + orgVariablePath
+                                                         + "(,.*|\\\\[.*|:|$)', E'\\\\1"
+                                                         + newVariablePath
+                                                         + "\\\\2'); ");
+                                    }
+                                    // The size increased
+                                    else
+                                    {
+                                        // Since the variable may no longer fit
+                                        // within any message in the telemetry
+                                        // scheduler table to which it's
+                                        // assigned remove all references to
+                                        // the variable
+                                        tlmModCmd.append("DELETE FROM "
+                                                         + InternalTable.TLM_SCHEDULER.getTableName()
+                                                         + " WHERE "
+                                                         + TlmSchedulerColumn.MEMBER.getColumnName()
+                                                         + " ~ E'^.*"
+                                                         + TLM_SCH_SEPARATOR
+                                                         + orgVariablePath
+                                                         + "(,|\\\\[|:|$)'; ");
+                                    }
 
                                     // Check if the variable name changed. The
                                     // data type change doesn't apply since
@@ -3708,16 +3836,16 @@ public class CcddDbTableCommandHandler
                         case TLM_SCHEDULER:
                             // Build the command for storing the script
                             // configurations, groups, or links table
-                            command += storeNonTypesInfoTableCommand(intTable,
-                                                                     tableData,
-                                                                     tableComment,
-                                                                     parent);
+                            command += storeNonTableTypesInfoTableCommand(intTable,
+                                                                          tableData,
+                                                                          tableComment,
+                                                                          parent);
                             break;
 
                         case TABLE_TYPES:
                             // Build the command for storing the table type
                             // definitions table
-                            command = storeTypesInfoTableCommand();
+                            command = storeTableTypesInfoTableCommand();
                             break;
 
                         case VALUES:
@@ -3791,12 +3919,23 @@ public class CcddDbTableCommandHandler
                         break;
 
                     case APP_SCHEDULER:
+                    case TLM_SCHEDULER:
+                        // Check if the store request originated from the
+                        // application or telemetry scheduler dialogs
+                        if (parent instanceof CcddSchedulerDialogInterface)
+                        {
+                            // Perform the scheduler store command completion
+                            // steps
+                            ((CcddSchedulerDialogInterface) parent).doSchedulerUpdatesComplete(errorFlag);
+                        }
+
+                        break;
+
                     case DATA_TYPES:
                     case FIELDS:
                     case MACROS:
                     case ORDERS:
                     case SCRIPT:
-                    case TLM_SCHEDULER:
                     case TABLE_TYPES:
                     case VALUES:
                         break;
@@ -3823,10 +3962,10 @@ public class CcddDbTableCommandHandler
      * 
      * @return Command for building the specified table
      *************************************************************************/
-    private String storeNonTypesInfoTableCommand(InternalTable intTable,
-                                                 List<String[]> tableData,
-                                                 String tableComment,
-                                                 Component parent)
+    private String storeNonTableTypesInfoTableCommand(InternalTable intTable,
+                                                      List<String[]> tableData,
+                                                      String tableComment,
+                                                      Component parent)
     {
         // Get the internal table's name
         String tableName = intTable.getTableName(tableComment);
@@ -3930,7 +4069,7 @@ public class CcddDbTableCommandHandler
      * 
      * @return Command for building the specified table
      *************************************************************************/
-    private String storeTypesInfoTableCommand()
+    private String storeTableTypesInfoTableCommand()
     {
         // Build the command to delete the existing table type definitions
         // table and create the new one
@@ -4074,9 +4213,9 @@ public class CcddDbTableCommandHandler
      * @param typeDialog
      *            reference to the type manager dialog
      *************************************************************************/
-    protected void renameType(final String typeName,
-                              final String newName,
-                              final CcddTableTypeManagerDialog typeDialog)
+    protected void renameTableType(final String typeName,
+                                   final String newName,
+                                   final CcddTableTypeManagerDialog typeDialog)
     {
         // Execute the command in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
@@ -4093,7 +4232,7 @@ public class CcddDbTableCommandHandler
                 try
                 {
                     // Create the command to update the table definitions table
-                    StringBuilder command = new StringBuilder(storeTypesInfoTableCommand());
+                    StringBuilder command = new StringBuilder(storeTableTypesInfoTableCommand());
 
                     // Get an array containing tables of the specified type
                     String[] tableNames = queryTablesOfTypeList(typeName,
@@ -4183,9 +4322,9 @@ public class CcddDbTableCommandHandler
      * @param typeDialog
      *            reference to the type manager dialog
      *************************************************************************/
-    protected void copyType(final String typeName,
-                            final String copyName,
-                            final CcddTableTypeManagerDialog typeDialog)
+    protected void copyTableType(final String typeName,
+                                 final String copyName,
+                                 final CcddTableTypeManagerDialog typeDialog)
     {
         // Execute the command in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
@@ -4219,11 +4358,11 @@ public class CcddDbTableCommandHandler
 
                     // Create the command to rebuild the table types and fields
                     // tables
-                    String command = storeTypesInfoTableCommand()
-                                     + storeNonTypesInfoTableCommand(InternalTable.FIELDS,
-                                                                     fieldDefinitions,
-                                                                     null,
-                                                                     typeDialog);
+                    String command = storeTableTypesInfoTableCommand()
+                                     + storeNonTableTypesInfoTableCommand(InternalTable.FIELDS,
+                                                                          fieldDefinitions,
+                                                                          null,
+                                                                          typeDialog);
 
                     // Execute the command to change the table's type name
                     dbCommand.executeDbCommand(command, typeDialog);
@@ -4293,10 +4432,10 @@ public class CcddDbTableCommandHandler
      * @param parent
      *            GUI component calling this method
      *************************************************************************/
-    protected void deleteType(final String typeName,
-                              final boolean isStructure,
-                              final CcddTableTypeManagerDialog typeDialog,
-                              final Component parent)
+    protected void deleteTableType(final String typeName,
+                                   final boolean isStructure,
+                                   final CcddTableTypeManagerDialog typeDialog,
+                                   final Component parent)
     {
         // Execute the command in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
@@ -4314,8 +4453,12 @@ public class CcddDbTableCommandHandler
             {
                 try
                 {
+                    // Delete the table type definition from the table type
+                    // handler
+                    tableTypeHandler.getTypeDefinitions().remove(tableTypeHandler.getTypeDefinition(typeName));
+
                     // Create the command to update the table definitions table
-                    String command = storeTypesInfoTableCommand();
+                    String command = storeTableTypesInfoTableCommand();
 
                     // Get an array containing tables of the specified type
                     tableNames = queryTablesOfTypeList(typeName,
@@ -4409,17 +4552,28 @@ public class CcddDbTableCommandHandler
             @Override
             protected void complete()
             {
-                // Check if no error occurred when deleting the table type, if
-                // the deleted type represented a structure, and if the number
-                // of rate columns changed due to the type deletion
-                if (!errorFlag
-                    && isStructure
-                    && rateHandler.setRateInformation())
+                // Check if no error occurred when deleting the table type
+                if (!errorFlag)
                 {
-                    // Store the rate parameters in the project database
-                    storeRateParameters(ccddMain.getMainFrame());
+                    // Check if the deleted type represents a structure
+                    if (isStructure)
+                    {
+                        // Update the database functions that collect structure
+                        // table members and structure-defining column data
+                        dbControl.createStructureColumnFunctions();
+                    }
+
+                    // Check if the number of rate columns changed due to the
+                    // type deletion
+                    if (rateHandler.setRateInformation())
+                    {
+                        // Store the rate parameters in the project database
+                        storeRateParameters(ccddMain.getMainFrame());
+                    }
                 }
 
+                // Perform any remaining steps, based on if deleting the type
+                // was successful
                 typeDialog.doTypeOperationComplete(errorFlag,
                                                    null,
                                                    tableNames);
@@ -4459,17 +4613,30 @@ public class CcddDbTableCommandHandler
      *            an array containing: [0] column name (user), [1] column input
      *            type
      * 
+     * @param columnOrderChange
+     *            true if the table type's column order changed
+     * 
+     * @param originalDefn
+     *            reference to the table type definition prior to making any
+     *            changes
+     * 
      * @param editorDialog
      *            reference to the table type editor dialog
+     * 
+     * @param editor
+     *            reference to the table type editor where the change(s)
+     *            occurred
      *************************************************************************/
-    protected void modifyTypeInBackground(final String tableType,
-                                          final List<FieldInformation> fieldInformation,
-                                          final boolean overwriteFields,
-                                          final List<String[]> additions,
-                                          final List<String[]> modifications,
-                                          final List<String[]> deletions,
-                                          final boolean columnOrderChange,
-                                          final CcddTableTypeEditorDialog editorDialog)
+    protected void modifyTableTypeInBackground(final String tableType,
+                                               final List<FieldInformation> fieldInformation,
+                                               final boolean overwriteFields,
+                                               final List<String[]> additions,
+                                               final List<String[]> modifications,
+                                               final List<String[]> deletions,
+                                               final boolean columnOrderChange,
+                                               final TypeDefinition originalDefn,
+                                               final CcddTableTypeEditorDialog editorDialog,
+                                               final CcddTableTypeEditorHandler editor)
     {
         // Execute the command in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
@@ -4480,14 +4647,16 @@ public class CcddDbTableCommandHandler
             @Override
             protected void execute()
             {
-                modifyType(tableType,
-                           fieldInformation,
-                           overwriteFields,
-                           additions,
-                           modifications,
-                           deletions,
-                           columnOrderChange,
-                           editorDialog);
+                modifyTableType(tableType,
+                                fieldInformation,
+                                overwriteFields,
+                                additions,
+                                modifications,
+                                deletions,
+                                columnOrderChange,
+                                originalDefn,
+                                editorDialog,
+                                editor);
             }
         });
     }
@@ -4521,21 +4690,38 @@ public class CcddDbTableCommandHandler
      *            an array containing: [0] column name (user), [1] column input
      *            type
      * 
+     * @param columnOrderChange
+     *            true if the table type's column order changed
+     * 
+     * @param originalDefn
+     *            reference to the table type definition prior to making any
+     *            changes
+     * 
      * @param editorDialog
      *            reference to the table type editor dialog
+     * 
+     * @param editor
+     *            reference to the table type editor where the change(s)
+     *            occurred
      *************************************************************************/
-    protected void modifyType(final String typeName,
-                              final List<FieldInformation> fieldInformation,
-                              final boolean overwriteFields,
-                              final List<String[]> additions,
-                              final List<String[]> modifications,
-                              final List<String[]> deletions,
-                              final boolean columnOrderChange,
-                              final CcddTableTypeEditorDialog editorDialog)
+    protected void modifyTableType(String typeName,
+                                   List<FieldInformation> fieldInformation,
+                                   boolean overwriteFields,
+                                   List<String[]> additions,
+                                   List<String[]> modifications,
+                                   List<String[]> deletions,
+                                   boolean columnOrderChange,
+                                   TypeDefinition originalDefn,
+                                   CcddTableTypeEditorDialog editorDialog,
+                                   CcddTableTypeEditorHandler editor)
     {
         boolean errorFlag = false;
         String[] tableNames = null;
         String names = "";
+
+        // Set the flag that indicates if the table type definition represents
+        // a structure prior to making the updates
+        boolean wasStructure = originalDefn.isStructure();
 
         // Get the type definition based on the table type name
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(typeName);
@@ -4548,7 +4734,7 @@ public class CcddDbTableCommandHandler
                                                                  editorDialog);
 
             // Create the command to update the table definitions table
-            StringBuilder command = new StringBuilder(storeTypesInfoTableCommand());
+            StringBuilder command = new StringBuilder(storeTableTypesInfoTableCommand());
 
             // Get an array containing all of the prototype tables of the
             // specified type
@@ -4581,6 +4767,11 @@ public class CcddDbTableCommandHandler
                                                                       TableTreeType.PROTOTYPE_AND_INSTANCE,
                                                                       editorDialog);
 
+            // ////////////////////////////////////////////////////////////////
+            // All prototype tables of the affected table type have the columns
+            // added/renamed/deleted and the column order table updated
+            // ////////////////////////////////////////////////////////////////
+
             // Step through each prototype table of the specified type
             for (String protoName : protoTableNames)
             {
@@ -4610,13 +4801,11 @@ public class CcddDbTableCommandHandler
                 // Step through each modification
                 for (String[] mod : modifications)
                 {
-                    // Get the input data type, and the old and new column
-                    // names in database form
-                    InputDataType inputDataType = InputDataType.getInputTypeByName(mod[2]);
+                    // Get the old and new column names in database form
                     String oldDbName = DefaultColumn.convertVisibleToDatabase(mod[0],
-                                                                              inputDataType);
+                                                                              InputDataType.getInputTypeByName(mod[2]));
                     String newDbName = DefaultColumn.convertVisibleToDatabase(mod[1],
-                                                                              inputDataType);
+                                                                              InputDataType.getInputTypeByName(mod[3]));
 
                     // Check if the database form of the name changed
                     if (!oldDbName.equals(newDbName))
@@ -4649,6 +4838,7 @@ public class CcddDbTableCommandHandler
                                    + "; ");
                 }
 
+                // Check if the column order changed
                 if (columnOrder.length() != 0)
                 {
                     // Replace the column order for all tables matching this
@@ -4667,13 +4857,21 @@ public class CcddDbTableCommandHandler
                 }
             }
 
-            // Check if this table type represents a structure, there are
-            // modifications or deletions, and that there are tables of the
-            // affected type
-            if (typeDefn.isStructure() &&
-                (!modifications.isEmpty() || !deletions.isEmpty())
+            // ////////////////////////////////////////////////////////////////
+            // A modification or deletion indicates that a column name changed
+            // and/or that a rate column's input type changed
+            // ////////////////////////////////////////////////////////////////
+
+            // Check if there are modifications or deletions, and if any tables
+            // of this type exist
+            if ((!modifications.isEmpty() || !deletions.isEmpty())
                 && protoTableNames.length != 0)
             {
+                // ////////////////////////////////////////////////////////////
+                // Build the sub-command required to detect references to
+                // tables of the affected type in the custom values, links, and
+                // telemetry scheduler tables
+                // ////////////////////////////////////////////////////////////
                 StringBuilder valuesCmd = new StringBuilder("");
                 StringBuilder linksCmd = new StringBuilder("");
                 StringBuilder tlmSchCmd = new StringBuilder("");
@@ -4681,41 +4879,136 @@ public class CcddDbTableCommandHandler
                 // Step through each prototype table of the specified type
                 for (String protoName : protoTableNames)
                 {
-                    // Build the comparison command for each affected internal
-                    // table
+                    // Build the table name comparison command for the custom
+                    // values table
                     valuesCmd.append(ValuesColumn.TABLE_PATH.getColumnName()
-                                     + " ~ E'[^,]+,"
-                                     + protoName
-                                     + "\\.[^,]+,[^,]+$' OR ");
-                    linksCmd.append(LinksColumn.MEMBER.getColumnName()
-                                    + " ~ E'[^,]+,"
-                                    + protoName
-                                    + "\\.[^,]+,[^,]+$' OR ");
-                    tlmSchCmd.append(TlmSchedulerColumn.MEMBER.getColumnName()
                                      + " ~ E'[^,]+,"
                                      + protoName
                                      + "\\.[^,]+,[^,]+$' OR ");
                 }
 
-                // Remove the trailing 'OR" and prepend an 'AND' to complete
-                // the commands
+                // Remove the trailing 'OR' and prepend an 'AND' to complete
+                // the custom values command
                 valuesCmd = CcddUtilities.removeTrailer(valuesCmd, " OR ");
                 valuesCmd.insert(0, " AND (");
                 valuesCmd.append(")");
-                linksCmd = CcddUtilities.removeTrailer(linksCmd, " OR ");
-                linksCmd.insert(0, " AND (");
-                linksCmd.append(")");
-                tlmSchCmd = CcddUtilities.removeTrailer(tlmSchCmd, " OR ");
-                tlmSchCmd.insert(0, " AND (");
-                tlmSchCmd.append(")");
+
+                // Check if the table type represents a structure
+                if (typeDefn.isStructure() && wasStructure)
+                {
+                    // Step through each prototype table of the specified type
+                    for (String protoName : protoTableNames)
+                    {
+                        // Build the table name comparison command for the
+                        // links and telemetry scheduler tables
+                        linksCmd.append(LinksColumn.MEMBER.getColumnName()
+                                        + " ~ E'(?:"
+                                        + protoName
+                                        + ",|[^,]+,"
+                                        + protoName
+                                        + "\\.[^,]+,[^,]+$)' OR ");
+                        tlmSchCmd.append(TlmSchedulerColumn.MEMBER.getColumnName()
+                                         + " ~ E'(?:"
+                                         + "\\\\\\"
+                                         + TLM_SCH_SEPARATOR
+                                         + protoName
+                                         + ",|[^,]+,"
+                                         + protoName
+                                         + "\\.[^,]+,[^,]+$)' OR ");
+                    }
+
+                    // Remove the trailing 'OR' and prepend an 'AND' to
+                    // complete the links and telemetry scheduler table
+                    // commands
+                    linksCmd = CcddUtilities.removeTrailer(linksCmd, " OR ");
+                    linksCmd.insert(0, " AND (");
+                    linksCmd.append(")");
+                    tlmSchCmd = CcddUtilities.removeTrailer(tlmSchCmd, " OR ");
+                    tlmSchCmd.insert(0, " AND (");
+                    tlmSchCmd.append(")");
+                }
+
+                // ////////////////////////////////////////////////////////////
+                // If the table type no longer represents a structure then all
+                // references in the links and telemetry scheduler tables to
+                // tables of the affected type are removed
+                // ////////////////////////////////////////////////////////////
+
+                // Check if the table type changed from representing a
+                // structure to no longer doing so
+                if (!typeDefn.isStructure() && wasStructure)
+                {
+                    boolean hasSharedRate = false;
+
+                    // Step through each rate column in the table type
+                    // definition
+                    for (int column : originalDefn.getColumnIndicesByInputType(InputDataType.RATE))
+                    {
+                        // Get the rate column name (as seen by the user)
+                        String rateName = originalDefn.getColumnNamesUser()[column];
+
+                        // Check if this is the only table type using this rate
+                        // column name
+                        if (rateHandler.getRateInformationByRateName(rateName).getNumSharedTableTypes() == 1)
+                        {
+                            // Delete all entries in the links and telemetry
+                            // scheduler tables that reference this rate name
+                            command.append(deleteAllRateRefs(rateName));
+                        }
+                        // The rate is shared with another table type
+                        else
+                        {
+                            // Set the flag indicating the table type has a
+                            // shared rate
+                            hasSharedRate = true;
+                        }
+                    }
+
+                    // Check if the table type shares a rate column with
+                    // another table type. If not then all references in the
+                    // links and telemetry tables are eliminated by the command
+                    // built above; otherwise, commands must be built to remove
+                    // the specific table references in these internal tables
+                    if (hasSharedRate)
+                    {
+                        // Remove all references to tables of the changed type
+                        // in the links and telemetry scheduler tables
+                        command.append(deleteTableRateRefs(".+",
+                                                           linksCmd,
+                                                           tlmSchCmd));
+                    }
+                }
+
+                // ////////////////////////////////////////////////////////////
+                // For a column name change/deletion (of any input type),
+                // references to the column name in the custom values table are
+                // updated/removed
+                //
+                // The modifications and deletions must then be applied to the
+                // links and telemetry scheduler tables, but only if the table
+                // type remains a structure type after the change (if the table
+                // type no longer represents a structure then the code above
+                // addresses the links and telemetry scheduler tables, and if
+                // the table type becomes a structure no changes to these
+                // internal tables is needed). If a rate name is changed and
+                // it's not used by another table type then the rate name
+                // references are changed to the new name in the internal
+                // tables. Otherwise, a change to or removal of the rate name
+                // results in the references in the internal tables being
+                // removed (either just the affected table references or all
+                // references - tables as well as the link/rate definition rows
+                // - depending on if the rate name was/is unique to this table
+                // type)
+                // ////////////////////////////////////////////////////////////
 
                 // Step through each modification
                 for (String[] mod : modifications)
                 {
-                    // Check if this is a rate column
-                    if (mod[2].equals(InputDataType.RATE.getInputName()))
+                    // Check if the column name changed
+                    if (!mod[0].equals(mod[1]))
                     {
-                        // Append the modify command
+                        // Append the modify command for the custom values
+                        // table
                         command.append("UPDATE "
                                        + InternalTable.VALUES.getTableName()
                                        + " SET "
@@ -4728,66 +5021,130 @@ public class CcddDbTableCommandHandler
                                        + mod[0]
                                        + "'"
                                        + valuesCmd
-                                       + "; UPDATE "
-                                       + InternalTable.LINKS.getTableName()
-                                       + " SET "
-                                       + LinksColumn.RATE_NAME.getColumnName()
-                                       + " = '"
-                                       + mod[1]
-                                       + "' WHERE "
-                                       + LinksColumn.RATE_NAME.getColumnName()
-                                       + " = '"
-                                       + mod[0]
-                                       + "'"
-                                       + linksCmd
-                                       + "; UPDATE "
-                                       + InternalTable.TLM_SCHEDULER.getTableName()
-                                       + " SET "
-                                       + TlmSchedulerColumn.RATE_NAME.getColumnName()
-                                       + " = '"
-                                       + mod[1]
-                                       + "' WHERE "
-                                       + TlmSchedulerColumn.RATE_NAME.getColumnName()
-                                       + " = '"
-                                       + mod[0]
-                                       + "'"
-                                       + tlmSchCmd
                                        + "; ");
+                    }
+
+                    // Check if the table type represents a structure and the
+                    // column input type was a rate
+                    if (typeDefn.isStructure() && wasStructure
+                        && mod[2].equals(InputDataType.RATE.getInputName()))
+                    {
+                        // Check if the column changed from a rate column to
+                        // not being a rate column
+                        if (!mod[3].equals(InputDataType.RATE.getInputName()))
+                        {
+                            // Check if the rate name is used by another
+                            // structure table type
+                            if (rateHandler.getRateInformationByRateName(mod[0]).getNumSharedTableTypes() > 1)
+                            {
+                                // Remove all references to tables of the
+                                // changed type in the links and telemetry
+                                // scheduler tables
+                                command.append(deleteTableRateRefs(mod[0],
+                                                                   linksCmd,
+                                                                   tlmSchCmd));
+                            }
+                            // The rate name is unique to this table type
+                            else
+                            {
+                                // Remove all references to the original rate
+                                // column name in the links and telemetry
+                                // scheduler tables
+                                command.append(deleteAllRateRefs(mod[0]));
+                            }
+                        }
+                        // Check if the rate column name changed
+                        else if (!mod[0].equals(mod[1]))
+                        {
+                            // Check if the original rate name is used by
+                            // another structure table type
+                            if (rateHandler.getRateInformationByRateName(mod[0]).getNumSharedTableTypes() > 1)
+                            {
+                                // Remove all references to tables of the
+                                // changed type in the links and telemetry
+                                // scheduler tables
+                                command.append(deleteTableRateRefs(mod[0],
+                                                                   linksCmd,
+                                                                   tlmSchCmd));
+                            }
+                            // Check if the new rate name isn't used by another
+                            // structure table type (i.e., the rate name is
+                            // unique to this table type)
+                            else if (rateHandler.getRateInformationByRateName(mod[1]) == null)
+                            {
+                                // Append the modify command for the links and
+                                // telemetry scheduler table
+                                command.append("UPDATE "
+                                               + InternalTable.LINKS.getTableName()
+                                               + " SET "
+                                               + LinksColumn.RATE_NAME.getColumnName()
+                                               + " = '"
+                                               + mod[1]
+                                               + "' WHERE "
+                                               + LinksColumn.RATE_NAME.getColumnName()
+                                               + " = '"
+                                               + mod[0]
+                                               + "'; UPDATE "
+                                               + InternalTable.TLM_SCHEDULER.getTableName()
+                                               + " SET "
+                                               + TlmSchedulerColumn.RATE_NAME.getColumnName()
+                                               + " = '"
+                                               + mod[1]
+                                               + "' WHERE "
+                                               + TlmSchedulerColumn.RATE_NAME.getColumnName()
+                                               + " = '"
+                                               + mod[0]
+                                               + "'; ");
+                            }
+                            // The new rate name is already in use
+                            else
+                            {
+                                // Remove all references to the original rate
+                                // column name in the links and telemetry
+                                // scheduler tables
+                                command.append(deleteAllRateRefs(mod[0]));
+                            }
+                        }
                     }
                 }
 
                 // Step through each deletion
                 for (String[] del : deletions)
                 {
-                    // Check if this is a rate column
-                    if (del[1].equals(InputDataType.RATE.getInputName()))
+                    // Append the delete command for the custom values table
+                    command.append("DELETE FROM "
+                                   + InternalTable.VALUES.getTableName()
+                                   + " WHERE "
+                                   + ValuesColumn.COLUMN_NAME.getColumnName()
+                                   + " = '"
+                                   + del[0]
+                                   + "'"
+                                   + valuesCmd
+                                   + "; ");
+
+                    // Check if the table type represents a structure and a
+                    // rate column is deleted
+                    if (typeDefn.isStructure() && wasStructure
+                        && del[1].equals(InputDataType.RATE.getInputName()))
                     {
-                        // Append the delete command
-                        command.append("DELETE FROM "
-                                       + InternalTable.VALUES.getTableName()
-                                       + " WHERE "
-                                       + ValuesColumn.COLUMN_NAME.getColumnName()
-                                       + " = '"
-                                       + del[0]
-                                       + "'"
-                                       + valuesCmd
-                                       + "; DELETE FROM "
-                                       + InternalTable.LINKS.getTableName()
-                                       + " WHERE "
-                                       + LinksColumn.RATE_NAME.getColumnName()
-                                       + " = '"
-                                       + del[0]
-                                       + "'"
-                                       + linksCmd
-                                       + "; DELETE FROM "
-                                       + InternalTable.TLM_SCHEDULER.getTableName()
-                                       + " WHERE "
-                                       + TlmSchedulerColumn.RATE_NAME.getColumnName()
-                                       + " = '"
-                                       + del[0]
-                                       + "'"
-                                       + tlmSchCmd
-                                       + "; ");
+                        // Check if the rate name is used by another structure
+                        // table type
+                        if (rateHandler.getRateInformationByRateName(del[0]).getNumSharedTableTypes() > 1)
+                        {
+                            // Remove all references to tables of the changed
+                            // type in the links and telemetry scheduler tables
+                            command.append(deleteTableRateRefs(del[0],
+                                                               linksCmd,
+                                                               tlmSchCmd));
+                        }
+                        // The rate name is unique to this table type
+                        else
+                        {
+                            // Remove all references to the original rate
+                            // column name in the links and telemetry/
+                            // scheduler tables
+                            command.append(deleteAllRateRefs(del[0]));
+                        }
                     }
                 }
             }
@@ -4943,65 +5300,139 @@ public class CcddDbTableCommandHandler
             errorFlag = true;
         }
 
-        // Check that no errors occurred and that the table type is a structure
-        if (!errorFlag && typeDefn.isStructure())
+        // Check that no errors occurred and if the table type represents or
+        // represented a structure
+        if (!errorFlag && (typeDefn.isStructure() || wasStructure))
         {
-            boolean isRateChange = false;
-
             // Step through each column addition
             for (String add[] : additions)
             {
-                // Get the column index of the new column
-                int colIndex = typeDefn.getColumnIndexByUserName(add[0]);
-
-                // Check if the column exists, that it is a rate column, and
-                // that it is successfully added to the rate information
-                if (colIndex != -1
-                    && typeDefn.getInputTypes()[colIndex].equals(InputDataType.RATE)
-                    && rateHandler.addRateInformation(add[0]))
+                // Check if the column is a rate column
+                if (add[1].equals(InputDataType.RATE.getInputName()))
                 {
-                    // Set the flag to indicate the rate information changed
-                    isRateChange = true;
+                    // Add the rate column to the rate information
+                    rateHandler.addRateInformation(add[0]);
                 }
             }
 
             // Step through each column modification
             for (String[] mod : modifications)
             {
-                // Check if the rate column exists, and if so that it is
-                // successfully renamed (or added if the rate column is shared
-                // with another table type) in the rate information
+                // Check if the column changed from a rate column to not being
+                // a rate column
                 if (mod[2].equals(InputDataType.RATE.getInputName())
-                    && rateHandler.renameRateInformation(mod[0], mod[1]))
+                    && !mod[3].equals(InputDataType.RATE.getInputName()))
                 {
-                    // Set the flag to indicate the rate information changed
-                    isRateChange = true;
+                    // Delete the rate column from the rate information
+                    rateHandler.deleteRateInformation(mod[2]);
+                }
+                // Check if the column changed from not being a rate column to
+                // a rate column
+                else if (!mod[2].equals(InputDataType.RATE.getInputName())
+                         && mod[3].equals(InputDataType.RATE.getInputName()))
+                {
+                    // Add the rate column to the rate information
+                    rateHandler.addRateInformation(mod[3]);
+                }
+                // Check if the column is (and was) a rate column (i.e., the
+                // rate column name changed)
+                else if (mod[3].equals(InputDataType.RATE.getInputName()))
+                {
+                    // Rename (or add if the rate column is shared with another
+                    // table type) the rate column in the rate information
+                    rateHandler.renameRateInformation(mod[0], mod[1]);
                 }
             }
 
             // Step through each column deletion
             for (String[] del : deletions)
             {
-                // Check if this is a rate column and it exists, and if so that
-                // it is successfully deleted from the rate information
-                if (del[2].equals(InputDataType.RATE.getInputName())
-                    && rateHandler.deleteRateInformation(del[0]))
+                // Check if the column is a rate column
+                if (del[1].equals(InputDataType.RATE.getInputName()))
                 {
-                    // Set the flag to indicate the rate information changed
-                    isRateChange = true;
+                    // Delete the rate column from the rate information
+                    rateHandler.deleteRateInformation(del[0]);
                 }
             }
 
-            // Check if a rate was added, modified, or deleted
-            if (isRateChange)
-            {
-                // Update the rate information in the project database
-                storeRateParameters(editorDialog);
-            }
+            // Update the rate column information and store it in the project
+            // database
+            rateHandler.setRateInformation();
+            storeRateParameters(editorDialog);
+
+            // Update the database functions that collect structure table
+            // members and structure-defining column data
+            dbControl.createStructureColumnFunctions();
         }
 
         // Perform the type modification clean-up steps
-        editorDialog.doTypeModificationComplete(errorFlag, tableNames);
+        editorDialog.doTypeModificationComplete(errorFlag, editor, tableNames);
+    }
+
+    /**************************************************************************
+     * Remove all references to the specified rate column name in the links and
+     * telemetry scheduler tables
+     * 
+     * @param rateColName
+     *            rate column name
+     * 
+     * @return
+     *************************************************************************/
+    private String deleteAllRateRefs(String rateColName)
+    {
+        return "DELETE FROM "
+               + InternalTable.LINKS.getTableName()
+               + " WHERE "
+               + LinksColumn.RATE_NAME.getColumnName()
+               + " = '"
+               + rateColName
+               + "'; DELETE FROM "
+               + InternalTable.TLM_SCHEDULER.getTableName()
+               + " WHERE "
+               + TlmSchedulerColumn.RATE_NAME.getColumnName()
+               + " = '"
+               + rateColName
+               + "'; ";
+    }
+
+    /**************************************************************************
+     * Remove all references for the specified rate column name to tables of
+     * the changed table type in the links and telemetry scheduler tables
+     * 
+     * @param rateColName
+     *            rate column name
+     * 
+     * @param linksCmd
+     *            sub-command for references in the links table to tables of
+     *            the target type
+     * 
+     * @param tlmSchCmd
+     *            sub-command for references in the telemetry scheduler table
+     *            to tables of the target type
+     * 
+     * @return
+     *************************************************************************/
+    private String deleteTableRateRefs(String rateColName,
+                                       StringBuilder linksCmd,
+                                       StringBuilder tlmSchCmd)
+    {
+        return "DELETE FROM "
+               + InternalTable.LINKS.getTableName()
+               + " WHERE "
+               + LinksColumn.RATE_NAME.getColumnName()
+               + " = E'"
+               + rateColName
+               + "'"
+               + linksCmd
+               + "; DELETE FROM "
+               + InternalTable.TLM_SCHEDULER.getTableName()
+               + " WHERE "
+               + TlmSchedulerColumn.RATE_NAME.getColumnName()
+               + " = '"
+               + rateColName
+               + "'"
+               + tlmSchCmd
+               + "; ";
     }
 
     /**************************************************************************
@@ -5737,15 +6168,15 @@ public class CcddDbTableCommandHandler
                     }
 
                     // Store the data type or macro table
-                    dbCommand.executeDbUpdate(storeNonTypesInfoTableCommand((isDataType
-                                                                                       ? InternalTable.DATA_TYPES
-                                                                                       : InternalTable.MACROS),
-                                                                            CcddUtilities.removeArrayListColumn(updates,
-                                                                                                                (isDataType
-                                                                                                                           ? DataTypesColumn.OID.ordinal()
-                                                                                                                           : MacrosColumn.OID.ordinal())),
-                                                                            null,
-                                                                            dialog),
+                    dbCommand.executeDbUpdate(storeNonTableTypesInfoTableCommand((isDataType
+                                                                                            ? InternalTable.DATA_TYPES
+                                                                                            : InternalTable.MACROS),
+                                                                                 CcddUtilities.removeArrayListColumn(updates,
+                                                                                                                     (isDataType
+                                                                                                                                ? DataTypesColumn.OID.ordinal()
+                                                                                                                                : MacrosColumn.OID.ordinal())),
+                                                                                 null,
+                                                                                 dialog),
                                               dialog);
 
                     // Commit the change(s) to the database

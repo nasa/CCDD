@@ -293,6 +293,7 @@ public class CcddSearchDialog extends CcddDialogHandler
                                             SearchResultsColumnInfo.getColumnNames(searchDlgType),
                                             null,
                                             new Integer[0],
+                                            null,
                                             SearchResultsColumnInfo.getToolTips(searchDlgType),
                                             true,
                                             true,
@@ -431,7 +432,6 @@ public class CcddSearchDialog extends CcddDialogHandler
                                              false,
                                              true,
                                              LABEL_FONT_PLAIN,
-                                             null,
                                              true);
 
         // Define the panel to contain the table

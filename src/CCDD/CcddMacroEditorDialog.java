@@ -16,6 +16,7 @@ import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.REDO_ICON;
 import static CCDD.CcddConstants.STORE_ICON;
 import static CCDD.CcddConstants.TABLE_BACK_COLOR;
+import static CCDD.CcddConstants.TABLE_CHANGE_EVENT;
 import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
 import static CCDD.CcddConstants.UNDO_ICON;
 import static CCDD.CcddConstants.UP_ICON;
@@ -27,6 +28,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -88,6 +91,9 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
     // to avoid repeated searches for a the same macro
     private List<MacroReference> loadedReferences;
 
+    // Dialog title
+    private static final String DIALOG_TITLE = "Macro Editor";
+
     /**************************************************************************
      * Macro data table references class
      *************************************************************************/
@@ -146,8 +152,21 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
         dbTable = ccddMain.getDbTableCommandHandler();
         macroHandler = ccddMain.getMacroHandler();
 
+        // Set the reference to this dialog in main
+        ccddMain.setMacroEditor(this);
+
         // Create the macro editor dialog
         initialize();
+    }
+
+    /**************************************************************************
+     * Get the reference to the macro table
+     * 
+     * @return Reference to the macro table
+     *************************************************************************/
+    protected CcddJTableHandler getTable()
+    {
+        return macroTable;
     }
 
     /**************************************************************************
@@ -484,6 +503,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                                             MacroEditorColumnInfo.getColumnNames(),
                                             null,
                                             new Integer[] {MacrosColumn.OID.ordinal()},
+                                            null,
                                             MacroEditorColumnInfo.getToolTips(),
                                             true,
                                             true,
@@ -559,11 +579,32 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                                            true,
                                            true,
                                            CELL_FONT,
-                                           null,
                                            true);
 
         // Discard the edits created by adding the columns initially
         macroTable.getUndoManager().discardAllEdits();
+
+        // Add a listener for table content change events
+        macroTable.addPropertyChangeListener(new PropertyChangeListener()
+        {
+            /******************************************************************
+             * Handle a table content change event
+             *****************************************************************/
+            @Override
+            public void propertyChange(PropertyChangeEvent pce)
+            {
+                // Check if the event indicates a table content change
+                if (pce.getPropertyName().equals(TABLE_CHANGE_EVENT))
+                {
+                    // Add or remove the change indicator based on whether or
+                    // not any unstored changes exist
+                    setTitle(DIALOG_TITLE
+                             + (macroTable.isTableChanged(committedData)
+                                                                        ? "*"
+                                                                        : ""));
+                }
+            }
+        });
 
         // Define the editor panel to contain the table
         JPanel editorPanel = new JPanel();
@@ -592,7 +633,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
 
         // Set the undo manager in the keyboard handler while the macro editor
         // is active
-        ccddMain.getKeyboardHandler().setUndoManager(macroTable.getUndoManager());
+        ccddMain.getKeyboardHandler().setModalUndoManager(macroTable.getUndoManager());
 
         // Create the lower (button) panel
         JPanel buttonPanel = new JPanel();
@@ -810,7 +851,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
         showOptionsDialog(ccddMain.getMainFrame(),
                           outerPanel,
                           buttonPanel,
-                          "Macro Editor",
+                          DIALOG_TITLE,
                           true);
     }
 
@@ -835,7 +876,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
             closeDialog();
 
             // Clear the undo manager in the keyboard handler
-            ccddMain.getKeyboardHandler().setUndoManager(null);
+            ccddMain.getKeyboardHandler().setModalUndoManager(null);
         }
     }
 

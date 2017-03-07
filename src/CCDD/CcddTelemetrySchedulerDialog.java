@@ -12,7 +12,6 @@ import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.INSERT_ICON;
 import static CCDD.CcddConstants.LABEL_FONT_BOLD;
 import static CCDD.CcddConstants.OK_BUTTON;
-import static CCDD.CcddConstants.OK_ICON;
 import static CCDD.CcddConstants.STORE_ICON;
 import static CCDD.CcddConstants.UNDO_ICON;
 
@@ -50,12 +49,10 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
     private final CcddSchedulerDbIOHandler schedulerDb;
     private final List<CcddSchedulerHandler> schHandlers;
     private CcddSchedulerHandler activeSchHandler;
-    private final CcddSchedulerValidator validator;
 
     // Components references by multiple methods
     private JButton btnAutoFill;
     private JButton btnAssign;
-    private JButton btnValidate;
     private JButton btnClear;
     private JButton btnAddSubMessage;
     private JButton btnDeleteSubMessage;
@@ -79,7 +76,6 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
         schedulerDb = new CcddSchedulerDbIOHandler(ccddMain,
                                                    SchedulerType.TELEMETRY_SCHEDULER,
                                                    this);
-        validator = new CcddSchedulerValidator(ccddMain, this);
         schHandlers = new ArrayList<CcddSchedulerHandler>();
 
         // Create a tree containing all of the variables. This is used for
@@ -260,40 +256,6 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
             }
         });
 
-        // Validate button
-        btnValidate = CcddButtonPanelHandler.createButton("Validate",
-                                                          OK_ICON,
-                                                          KeyEvent.VK_V,
-                                                          "Remove any invalid variables from the messages and sub-messages");
-
-        // Add a listener for the Validate button
-        btnValidate.addActionListener(new ValidateCellActionListener()
-        {
-            /******************************************************************
-             * Validate the variables for all of the messages and sub-messages
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                // Check if any messages contain invalid entries
-                if (activeSchHandler.validateMessages())
-                {
-                    // Update the assigned variables tree
-                    activeSchHandler.getSchedulerEditor().updateAssignmentDefinitions();
-                    activeSchHandler.getSchedulerEditor().updateAssignmentList();
-                }
-            }
-
-            /******************************************************************
-             * Get the reference to the currently displayed table
-             *****************************************************************/
-            @Override
-            protected CcddJTableHandler getTable()
-            {
-                return activeSchHandler.getSchedulerEditor().getTable();
-            }
-        });
-
         // Store button
         btnStore = CcddButtonPanelHandler.createButton("Store",
                                                        STORE_ICON,
@@ -361,6 +323,13 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
             }
         });
 
+        // Invisible button for aligning the buttons in the button panel
+        JButton btnDummy = new JButton("");
+        btnDummy.setFocusable(false);
+        btnDummy.setOpaque(false);
+        btnDummy.setContentAreaFilled(false);
+        btnDummy.setBorderPainted(false);
+
         // Add buttons in the order in which they'll appear (left to right, top
         // to bottom)
         buttonPanel.add(btnAutoFill);
@@ -369,7 +338,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
         buttonPanel.add(btnStore);
         buttonPanel.add(btnClear);
         buttonPanel.add(btnDeleteSubMessage);
-        buttonPanel.add(btnValidate);
+        buttonPanel.add(btnDummy);
         buttonPanel.add(btnClose);
 
         // Create two rows of buttons
@@ -543,17 +512,6 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
     }
 
     /**************************************************************************
-     * Get the scheduler validator
-     * 
-     * @return Scheduler validator
-     *************************************************************************/
-    @Override
-    public CcddSchedulerValidator getSchedulerValidator()
-    {
-        return validator;
-    }
-
-    /**************************************************************************
      * Create and return a scheduler input object
      * 
      * @param rateName
@@ -580,5 +538,47 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
     public CcddSchedulerHandler getSchedulerHandler()
     {
         return activeSchHandler;
+    }
+
+    /**************************************************************************
+     * Update the change indicator for the scheduler handler
+     *************************************************************************/
+    @Override
+    public void updateChangeIndicator()
+    {
+        // Get the index of the currently displayed tab
+        int index = tabbedPane.getSelectedIndex();
+
+        // Check that a tab is displayed
+        if (index != -1)
+        {
+            // Replace the tab name, appending the change indicator if changes
+            // exist
+            tabbedPane.setTitleAt(index,
+                                  tabbedPane.getTitleAt(index).replaceAll("\\*", "")
+                                      + (schHandlers.get(index).getSchedulerEditor().isMessagesChanged()
+                                                                                                        ? "*"
+                                                                                                        : ""));
+        }
+    }
+
+    /**************************************************************************
+     * Steps to perform following storing of the scheduler data in the project
+     * database
+     *************************************************************************/
+    @Override
+    public void doSchedulerUpdatesComplete(boolean errorFlag)
+    {
+        // Check that no error occurred storing the telemetry scheduler table
+        if (!errorFlag)
+        {
+            // Step through each data stream tab
+            for (int index = 0; index < tabbedPane.getTabCount(); index++)
+            {
+                // Remove the change indicator from the tab title
+                tabbedPane.setTitleAt(index,
+                                      tabbedPane.getTitleAt(index).replaceAll("\\*", ""));
+            }
+        }
     }
 }

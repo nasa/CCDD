@@ -35,6 +35,7 @@ public class CcddTableTypeHandler
     // Class references
     private final CcddMain ccddMain;
     private final CcddDbTableCommandHandler dbTable;
+    private final CcddDbControlHandler dbControl;
 
     // Type definitions list
     private List<TypeDefinition> typeDefinitions;
@@ -834,6 +835,7 @@ public class CcddTableTypeHandler
     {
         this.ccddMain = ccddMain;
         dbTable = ccddMain.getDbTableCommandHandler();
+        dbControl = ccddMain.getDbControlHandler();
         typeDefinitions = new ArrayList<TypeDefinition>();
 
         // Create the table type from the definitions stored in the database
@@ -1255,15 +1257,24 @@ public class CcddTableTypeHandler
         // Clear the table type definitions since they have been incorporated
         tableTypeDefinitions.clear();
 
-        // Check if no mismatches occurred, at least one new table type was
-        // added, and that the number of rate columns changed
-        if (badType == null
-            && isNewStruct
-            && ccddMain.getRateParameterHandler().setRateInformation())
+        // Check if no mismatches occurred
+        if (badType == null)
         {
-            // Store the rate parameters in the project database and update the
-            // structure-related database functions
-            dbTable.storeRateParameters(ccddMain.getMainFrame());
+            // Check if the deleted type represents a structure
+            if (isNewStruct)
+            {
+                // Update the database functions that collect structure table
+                // members and structure-defining column data
+                dbControl.createStructureColumnFunctions();
+            }
+
+            // Check if the number of rate columns changed due to the type
+            // update
+            if (ccddMain.getRateParameterHandler().setRateInformation())
+            {
+                // Store the rate parameters in the project database
+                dbTable.storeRateParameters(ccddMain.getMainFrame());
+            }
         }
 
         return badType;
@@ -1316,15 +1327,24 @@ public class CcddTableTypeHandler
             }
 
             // Check if the database functions and rate parameters should be
-            // updated, the new type represents a structure, and that the
-            // number of rate columns changed
-            if (doUpdates
-                && getTypeDefinition(tableTypeDefn.getTypeName()).isStructure()
-                && ccddMain.getRateParameterHandler().setRateInformation())
+            // updated
+            if (doUpdates)
             {
-                // Store the rate parameters in the project database and update
-                // the structure-related database functions
-                dbTable.storeRateParameters(ccddMain.getMainFrame());
+                // Check if the deleted type represents a structure
+                if (getTypeDefinition(tableTypeDefn.getTypeName()).isStructure())
+                {
+                    // Update the database functions that collect structure
+                    // table members and structure-defining column data
+                    dbControl.createStructureColumnFunctions();
+                }
+
+                // Check if the number of rate columns changed due to the type
+                // update
+                if (ccddMain.getRateParameterHandler().setRateInformation())
+                {
+                    // Store the rate parameters in the project database
+                    dbTable.storeRateParameters(ccddMain.getMainFrame());
+                }
             }
         }
         // A table type with this name already exists

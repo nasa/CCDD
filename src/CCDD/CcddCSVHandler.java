@@ -373,7 +373,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                         // provided since the
                                                         // user chose this
                                                         // action
-                                                        throw new CCDDException("");
+                                                        throw new CCDDException();
                                                     }
                                                 }
                                             }
@@ -482,7 +482,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                         // provided since the
                                                         // user chose this
                                                         // action
-                                                        throw new CCDDException("");
+                                                        throw new CCDDException();
                                                     }
                                                 }
                                             }
@@ -541,7 +541,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                         // provided since the
                                                         // user chose this
                                                         // action
-                                                        throw new CCDDException("");
+                                                        throw new CCDDException();
                                                     }
                                                 }
                                             }
@@ -602,7 +602,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                         // provided since the
                                                         // user chose this
                                                         // action
-                                                        throw new CCDDException("");
+                                                        throw new CCDDException();
                                                     }
                                                 }
                                             }
@@ -754,7 +754,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                             // since
                                                             // the user chose
                                                             // this action
-                                                            throw new CCDDException("");
+                                                            throw new CCDDException();
                                                         }
                                                     }
                                                 }
@@ -867,7 +867,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                         // provided since the
                                                         // user chose this
                                                         // action
-                                                        throw new CCDDException("");
+                                                        throw new CCDDException();
                                                     }
                                                 }
                                             }

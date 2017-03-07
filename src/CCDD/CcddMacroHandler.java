@@ -733,7 +733,7 @@ public class CcddMacroHandler
     {
         return dbCommand.getList(DatabaseListCommand.SEARCH,
                                  new String[][] { {"_search_text_",
-                                                   Pattern.quote(macroName)},
+                                                   macroName},
                                                  {"_case_insensitive_",
                                                   "true"},
                                                  {"_selected_tables_",

@@ -18,6 +18,7 @@ import static CCDD.CcddConstants.REDO_ICON;
 import static CCDD.CcddConstants.SEPARATOR_ICON;
 import static CCDD.CcddConstants.STORE_ICON;
 import static CCDD.CcddConstants.TABLE_BACK_COLOR;
+import static CCDD.CcddConstants.TABLE_CHANGE_EVENT;
 import static CCDD.CcddConstants.UNDO_ICON;
 import static CCDD.CcddConstants.UP_ICON;
 
@@ -30,6 +31,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -100,6 +103,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     // exists in the table editor and is used to determine what changes have
     // been made to the table since the previous field editor update
     private Object[][] currentData;
+
+    // Dialog title
+    private static final String DIALOG_TITLE = "Data Field Editor";
 
     /**************************************************************************
      * Data field editor dialog class constructor
@@ -372,6 +378,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                                             FieldEditorColumnInfo.getColumnNames(),
                                             null,
                                             hiddenColumns.toArray(new Integer[0]),
+                                            new Integer[] {FieldEditorColumnInfo.REQUIRED.ordinal()},
                                             FieldEditorColumnInfo.getToolTips(),
                                             true,
                                             true,
@@ -474,7 +481,6 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                                            true,
                                            true,
                                            CELL_FONT,
-                                           new Integer[] {FieldEditorColumnInfo.REQUIRED.ordinal()},
                                            true);
 
         // Get the table model and undo manager to shorten later calls
@@ -490,6 +496,28 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
 
         // Discard the edits created by adding the columns initially
         fieldTable.getUndoManager().discardAllEdits();
+
+        // Add a listener for table content change events
+        fieldTable.addPropertyChangeListener(new PropertyChangeListener()
+        {
+            /******************************************************************
+             * Handle a table content change event
+             *****************************************************************/
+            @Override
+            public void propertyChange(PropertyChangeEvent pce)
+            {
+                // Check if the event indicates a table content change
+                if (pce.getPropertyName().equals(TABLE_CHANGE_EVENT))
+                {
+                    // Add or remove the change indicator based on whether or
+                    // not any unstored changes exist
+                    setTitle(DIALOG_TITLE + ": " + ownerName
+                             + (fieldTable.isTableChanged(currentData)
+                                                                      ? "*"
+                                                                      : ""));
+                }
+            }
+        });
 
         // Define the editor panel to contain the table
         JPanel editorPanel = new JPanel();
@@ -754,7 +782,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         showOptionsDialog(editorHandler.getTableEditor(),
                           outerPanel,
                           buttonPanel,
-                          "Data Field Editor: " + ownerName,
+                          DIALOG_TITLE + ": " + ownerName,
                           true);
     }
 
@@ -781,10 +809,16 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // subsequent changes are correctly identified
         currentData = editorData;
 
+        // Update the dialog title to remove the change indicator
+        setTitle(DIALOG_TITLE + ": " + ownerName);
+
         // Force the table editor to redraw in order for the field updates to
         // appear
         editorHandler.getTableEditor().validate();
         editorHandler.getTableEditor().repaint();
+
+        // Update the change indicator for the owner of this edit panel
+        editorHandler.updateOwnerChangeIndicator();
     }
 
     /**************************************************************************
@@ -910,10 +944,10 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             // Add a listener to the combo box for focus changes
             applicabilityCBox.addFocusListener(new FocusAdapter()
             {
-                /******************************************************************
+                /**************************************************************
                  * Handle a focus gained event so that the combo box
                  * automatically expands when selected
-                 *****************************************************************/
+                 *************************************************************/
                 @Override
                 public void focusGained(FocusEvent fe)
                 {

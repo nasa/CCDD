@@ -384,6 +384,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
                                                              EventColumns.getColumnNames(),
                                                              null,
                                                              new Integer[] {},
+                                                             null,
                                                              new String[] {"Event sequence number",
                                                                            "Server hosting the project database",
                                                                            "Project to which the event applies",
@@ -503,7 +504,6 @@ public class CcddEventLogDialog extends CcddFrameHandler
                                            false,
                                            false,
                                            LABEL_FONT_PLAIN,
-                                           null,
                                            true);
 
         // Store the event table model to simplify later references
@@ -521,9 +521,9 @@ public class CcddEventLogDialog extends CcddFrameHandler
             // type
             rowFilter = new RowFilter<TableModel, Object>()
             {
-                /******************************************************************
+                /**************************************************************
                  * Override method that determines if a row should be displayed
-                 *****************************************************************/
+                 *************************************************************/
                 @Override
                 public boolean include(Entry<? extends TableModel, ? extends Object> entry)
                 {
@@ -538,9 +538,9 @@ public class CcddEventLogDialog extends CcddFrameHandler
             // Create a listener for check box selection changes
             ActionListener filterListener = new ActionListener()
             {
-                /******************************************************************
+                /**************************************************************
                  * Handle check box selection changes
-                 *****************************************************************/
+                 *************************************************************/
                 @Override
                 public void actionPerformed(ActionEvent ae)
                 {
@@ -785,8 +785,13 @@ public class CcddEventLogDialog extends CcddFrameHandler
                 isOpen = true;
 
                 // Create the session log file using the date and time stamp as
-                // part of the name
-                logFile = new File("CCDD-"
+                // part of the name, and the log file path if set by command
+                // line command
+                logFile = new File((!ccddMain.getLogPath().isEmpty()
+                                                                    ? ccddMain.getLogPath()
+                                                                      + File.separator
+                                                                    : "")
+                                   + "CCDD-"
                                    + getDateTimeStamp("yyyyMMdd_HHmmss")
                                    + ".log");
 
@@ -1057,8 +1062,8 @@ public class CcddEventLogDialog extends CcddFrameHandler
     }
 
     /**************************************************************************
-     * Append a failure message to the event log window and file and display a
-     * corresponding error dialog
+     * Append a database failure message to the event log window and file and
+     * display a corresponding error dialog
      * 
      * @param parent
      *            window to center the dialog over; null if no dialog should be
@@ -1074,19 +1079,40 @@ public class CcddEventLogDialog extends CcddFrameHandler
                                 String logMessage,
                                 String dialogMessage)
     {
+        logFailEvent(parent, "Database Error", logMessage, dialogMessage);
+    }
+
+    /**************************************************************************
+     * Append a failure message to the event log window and file and display a
+     * corresponding error dialog
+     * 
+     * @param parent
+     *            window to center the dialog over; null if no dialog should be
+     *            displayed
+     * 
+     * @param dialogTitle
+     *            error dialog title
+     * 
+     * @param logMessage
+     *            new event's log message
+     * 
+     * @param dialogMessage
+     *            error dialog message
+     *************************************************************************/
+    protected void logFailEvent(Component parent,
+                                String dialogTitle,
+                                String logMessage,
+                                String dialogMessage)
+    {
         // Append the failure message to the event log
         logEvent(FAIL_MSG, logMessage);
 
-        // Check if a parent window is provided
-        if (parent != null)
-        {
-            // Display an error dialog
-            new CcddDialogHandler().showMessageDialog(parent,
-                                                      dialogMessage,
-                                                      "Database Error",
-                                                      JOptionPane.ERROR_MESSAGE,
-                                                      DialogOption.OK_OPTION);
-        }
+        // Display an error dialog
+        new CcddDialogHandler().showMessageDialog(parent,
+                                                  dialogMessage,
+                                                  dialogTitle,
+                                                  JOptionPane.ERROR_MESSAGE,
+                                                  DialogOption.OK_OPTION);
     }
 
     /**************************************************************************

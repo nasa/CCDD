@@ -683,7 +683,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                             {
                                 // No error message is provided since the user
                                 // chose this action
-                                throw new CCDDException("");
+                                throw new CCDDException();
                             }
                         }
                     }
@@ -1500,7 +1500,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
             {
                 // No error message is provided since the user chose this
                 // action
-                throw new CCDDException("");
+                throw new CCDDException();
             }
         }
 
@@ -1601,7 +1601,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                         {
                             // No error message is provided since the user
                             // chose this action
-                            throw new CCDDException("");
+                            throw new CCDDException();
                         }
                     }
                 }
@@ -1681,7 +1681,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                         {
                             // No error message is provided since the user
                             // chose this action
-                            throw new CCDDException("");
+                            throw new CCDDException();
                         }
                     }
                 }
@@ -1770,7 +1770,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                         {
                             // No error message is provided since the user
                             // chose this action
-                            throw new CCDDException("");
+                            throw new CCDDException();
                         }
                     }
                 }

@@ -30,14 +30,17 @@ import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JViewport;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import javax.swing.undo.UndoManager;
 
 import CCDD.CcddConstants.ArrowFocusOption;
 import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.DataTypeEditorColumnInfo;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.SearchDialogType;
+import CCDD.CcddEditorPanelHandler.UndoableCheckBox;
+import CCDD.CcddEditorPanelHandler.UndoableTextArea;
+import CCDD.CcddEditorPanelHandler.UndoableTextField;
 
 /******************************************************************************
  * CFS Command & Data Dictionary keyboard handler class
@@ -83,7 +86,7 @@ public class CcddKeyboardHandler
      * @param undoManager
      *            modal dialog undo manager; null to disable
      *************************************************************************/
-    protected void setUndoManager(CcddUndoManager undoManager)
+    protected void setModalUndoManager(CcddUndoManager undoManager)
     {
         modalUndoManager = undoManager;
     }
@@ -114,7 +117,7 @@ public class CcddKeyboardHandler
              * Tab and Shift+Tab respectively
              *****************************************************************/
             @Override
-            public boolean dispatchKeyEvent(KeyEvent ke)
+            public boolean dispatchKeyEvent(final KeyEvent ke)
             {
                 // Flag that indicates if the key event has been handled by
                 // this method (true) or that it still needs to be processed
@@ -335,43 +338,69 @@ public class CcddKeyboardHandler
                     // Check if the Ctrl+Z key is pressed
                     if (ke.getKeyCode() == KeyEvent.VK_Z)
                     {
-                        // Get the currently active table editor undo manager
-                        UndoManager undoManager = getActiveUndoManager();
+                        // Get the currently active undo manager
+                        final CcddUndoManager undoManager = getActiveUndoManager();
 
-                        // Check if an active table editor was found
+                        // Check if an active undo manager was found
                         if (undoManager != null)
                         {
-                            // Undo the previous edit action
-                            undoManager.undo();
+                            // Create a runnable object to be executed
+                            SwingUtilities.invokeLater(new Runnable()
+                            {
+                                /**********************************************
+                                 * Execute after all pending Swing events are
+                                 * finished so that the events occur in the
+                                 * desired order
+                                 *********************************************/
+                                @Override
+                                public void run()
+                                {
+                                    // Undo the previous edit action
+                                    undoManager.undo();
+
+                                    // Force the component to repaint so that
+                                    // the change is visible
+                                    ke.getComponent().repaint();
+                                }
+                            });
 
                             // Set the flag to indicate this key press was
                             // handled
                             handled = true;
-
-                            // Force the component to repaint so that the
-                            // change is visible
-                            ke.getComponent().repaint();
                         }
                     }
                     // Check if the Ctrl+Y key is pressed
                     else if (ke.getKeyCode() == KeyEvent.VK_Y)
                     {
-                        // Get the currently active table editor undo manager
-                        UndoManager undoManager = getActiveUndoManager();
+                        // Get the currently active undo manager
+                        final CcddUndoManager undoManager = getActiveUndoManager();
 
-                        // Check if an active table editor was found
+                        // Check if an active undo manager was found
                         if (undoManager != null)
                         {
-                            // Redo the previous undo action
-                            undoManager.redo();
+                            // Create a runnable object to be executed
+                            SwingUtilities.invokeLater(new Runnable()
+                            {
+                                /**********************************************
+                                 * Execute after all pending Swing events are
+                                 * finished so that the events occur in the
+                                 * desired order
+                                 *********************************************/
+                                @Override
+                                public void run()
+                                {
+                                    // Redo the previous undo action
+                                    undoManager.redo();
+
+                                    // Force the component to repaint so that
+                                    // the change is visible
+                                    ke.getComponent().repaint();
+                                }
+                            });
 
                             // Set the flag to indicate this key press was
                             // handled
                             handled = true;
-
-                            // Force the component to repaint so that the
-                            // change is visible
-                            ke.getComponent().repaint();
                         }
                     }
                     // Check if the Ctrl-S key is pressed while the main
@@ -579,18 +608,40 @@ public class CcddKeyboardHandler
      * @return The active undo manager; null if no undo manager is active or no
      *         editor has focus
      *************************************************************************/
-    private UndoManager getActiveUndoManager()
+    private CcddUndoManager getActiveUndoManager()
     {
         CellEditor cellEditor = null;
-        UndoManager undoManager = null;
+        CcddUndoManager undoManager = null;
 
         // Check if a modal dialog undo manager is in effect
         if (modalUndoManager != null)
         {
             // Set the undo manager to the modal dialog's undo manager
             undoManager = modalUndoManager;
+
+            // Get a reference to the data type editor dialog to shorten
+            // subsequent calls
+            CcddDataTypeEditorDialog dataTypeEditor = ccddMain.getDataTypeEditor();
+
+            // Check if the data type editor is open and the editor has focus
+            if (dataTypeEditor != null && dataTypeEditor.isFocused())
+            {
+                // Get the cell editor for the data type editor
+                cellEditor = dataTypeEditor.getTable().getCellEditor();
+            }
+
+            // Get a reference to the macro editor dialog to shorten subsequent
+            // calls
+            CcddMacroEditorDialog macroEditor = ccddMain.getMacroEditor();
+
+            // Check if the macro editor is open and the editor has focus
+            if (macroEditor != null && macroEditor.isFocused())
+            {
+                // Get the cell editor for the macro editor
+                cellEditor = macroEditor.getTable().getCellEditor();
+            }
         }
-        // No group undo manager is active
+        // No modal undo manager is active
         else
         {
             // Step through each open table editor dialog
@@ -602,15 +653,15 @@ public class CcddKeyboardHandler
                     && editorDialog.getFieldEditorDialog().isFocused())
                 {
                     // Get a reference to the table's field editor undo manager
-                    // and the cell being edited (if applicable)
+                    // and cell editor
                     undoManager = editorDialog.getFieldEditorDialog().getUndoManager();
                     cellEditor = editorDialog.getFieldEditorDialog().getTable().getCellEditor();
                 }
                 // Check if this editor dialog has the keyboard focus
                 else if (editorDialog.isFocused())
                 {
-                    // Get the undo manager for the active table editor and
-                    // stop searching and the cell being edited (if applicable)
+                    // Get the undo manager and cell editor for the active
+                    // table editor
                     undoManager = editorDialog.getTableEditor().getEditPanelUndoManager();
                     cellEditor = editorDialog.getTableEditor().getTable().getCellEditor();
                 }
@@ -637,13 +688,15 @@ public class CcddKeyboardHandler
                     && editorDialog.getFieldEditorDialog().isFocused())
                 {
                     // Get a reference to the table's field editor undo manager
+                    // and cell editor
                     undoManager = editorDialog.getFieldEditorDialog().getUndoManager();
                     cellEditor = editorDialog.getFieldEditorDialog().getTable().getCellEditor();
                 }
-                // Check if the type editor has the keyboard focus
+                // Check if the table type editor has the keyboard focus
                 else if (editorDialog.isFocused())
                 {
-                    // Get the undo manager for the active table type editor
+                    // Get the undo manager and cell editor for the active
+                    // table type editor
                     undoManager = editorDialog.getTypeEditor().getEditPanelUndoManager();
                     cellEditor = editorDialog.getTypeEditor().getTable().getCellEditor();
                 }
@@ -654,22 +707,40 @@ public class CcddKeyboardHandler
             CcddFieldTableEditorDialog fieldEditor = ccddMain.getFieldTableEditor();
 
             // Check if no table or table type undo manager is applicable,
-            // the data field table editor is open, and the field table editor
-            // has focus
+            // the data field table editor is open, and the editor has focus
             if (undoManager == null
                 && fieldEditor != null
                 && fieldEditor.isFocused())
             {
-                // Get the undo manager for the data field table editor
+                // Get the undo manager and cell editor for the data field
+                // table editor
                 undoManager = fieldEditor.getTable().getUndoManager();
                 cellEditor = fieldEditor.getTable().getCellEditor();
             }
+        }
 
-            // Check if a table cell is actively being edited
-            if (cellEditor != null)
+        // Check if a table cell is actively being edited
+        if (cellEditor != null)
+        {
+            // Incorporate any cell changes and terminate editing
+            cellEditor.stopCellEditing();
+        }
+        // No table cell is being edited
+        else
+        {
+            // Get the current owner of the keyboard focus
+            Component focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+
+            // Check if the focus is in an edit panel's description or data
+            // field
+            if (focusOwner != null &&
+                (focusOwner instanceof UndoableTextField
+                 || focusOwner instanceof UndoableTextArea
+                 || focusOwner instanceof UndoableCheckBox))
             {
-                // Incorporate any cell changes and terminate editing
-                cellEditor.stopCellEditing();
+                // Clear the keyboard focus so that the current data field
+                // value is registered as an edit
+                KeyboardFocusManager.getCurrentKeyboardFocusManager().clearGlobalFocusOwner();
             }
         }
 

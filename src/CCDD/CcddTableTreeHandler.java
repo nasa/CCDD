@@ -596,8 +596,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // Load all references to rate column values from the custom values
             // table that match the rate name and filter
             rateValues = dbTable.getCustomValues(rateName,
-                                               rateFilter,
-                                               parent);
+                                                 rateFilter,
+                                                 parent);
         }
 
         // Get the index into the table member rate array
@@ -1493,12 +1493,12 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**************************************************************************
-     * Get a list of the tables represented by the selected nodes. If a header
-     * node (i.e., a non-table node one level above a table node, such as a
-     * group or type node) is selected then all of its child tables at the next
-     * level down are added to the list
+     * Get a list of the tables (with their paths) represented by the selected
+     * nodes. If a header node (i.e., a non-table node one level above a table
+     * node, such as a group or type node) is selected then all of its child
+     * tables at the next level down are added to the list
      * 
-     * @return List containing the table names of the selected node(s)
+     * @return List containing the table path+names of the selected node(s)
      *************************************************************************/
     protected List<String> getSelectedTablesWithoutChildren()
     {
@@ -1524,8 +1524,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                     if (node.getChildCount() == 0
                         || path.getPathCount() > getTableNodeLevel())
                     {
-                        // Add the table name to the list
-                        tables.add(node.getUserObject().toString());
+                        // Add the table path+name to the list
+                        tables.add(getFullVariablePath(node.getPath()));
                     }
                     // The node is a header node (i.e., a node with tables
                     // nodes as children)
@@ -1534,8 +1534,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                         // Step through each child node
                         for (int index = 0; index < node.getChildCount(); index++)
                         {
-                            // Add the name of the child to the table list
-                            tables.add(((ToolTipTreeNode) node.getChildAt(index)).getUserObject().toString());
+                            // Add the path+name of the child to the table list
+                            tables.add(getFullVariablePath(((ToolTipTreeNode) node.getChildAt(index)).getPath()));
                         }
                     }
                 }

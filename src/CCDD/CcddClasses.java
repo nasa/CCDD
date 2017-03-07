@@ -11,6 +11,7 @@ import static CCDD.CcddConstants.CELL_VERTICAL_PADDING;
 import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
 import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
+import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
 import static CCDD.CcddConstants.TOOL_TIP_MAXIMUM_LENGTH;
 
 import java.awt.BorderLayout;
@@ -73,18 +74,6 @@ public class CcddClasses
         private final int messageType;
 
         /**********************************************************************
-         * CCDD exception class constructor for an error message type
-         *
-         * @param message
-         *            exception message
-         *********************************************************************/
-        CCDDException(String message)
-        {
-            this.message = message;
-            this.messageType = JOptionPane.ERROR_MESSAGE;
-        }
-
-        /**********************************************************************
          * CCDD exception class constructor for user-defined error message
          * types
          *
@@ -98,6 +87,25 @@ public class CcddClasses
         {
             this.message = message;
             this.messageType = messageType;
+        }
+
+        /**********************************************************************
+         * CCDD exception class constructor for an error message type
+         *
+         * @param message
+         *            exception message
+         *********************************************************************/
+        CCDDException(String message)
+        {
+            this(message, JOptionPane.ERROR_MESSAGE);
+        }
+
+        /**********************************************************************
+         * CCDD exception class constructor for empty error message
+         *********************************************************************/
+        CCDDException()
+        {
+            this("", JOptionPane.ERROR_MESSAGE);
         }
 
         /**********************************************************************
@@ -565,23 +573,6 @@ public class CcddClasses
         protected void setData(String[][] tableData)
         {
             this.tableData = tableData;
-        }
-
-        /**********************************************************************
-         * Set the value of a table cell
-         *
-         * @param value
-         *            cell value
-         *
-         * @param row
-         *            row index
-         *
-         * @param column
-         *            column index
-         *********************************************************************/
-        protected void setCell(String value, int row, int column)
-        {
-            tableData[row][column] = value;
         }
 
         /**********************************************************************
@@ -2732,7 +2723,7 @@ public class CcddClasses
          *********************************************************************/
         static Variable generateTelemetryData(String data)
         {
-            String[] varData = data.split("\\\\");
+            String[] varData = data.split("\\" + TLM_SCH_SEPARATOR, 2);
             String name = varData[1];
             Float rate = Float.valueOf(varData[0]);
             varData = varData[1].split(",");
@@ -4587,7 +4578,7 @@ public class CcddClasses
     {
         /**********************************************************************
          * Override the contains method. Compare the input object to each
-         * member of the list, ignoring case, and return true if a macth is
+         * member of the list, ignoring case, and return true if a match is
          * found
          *********************************************************************/
         @Override

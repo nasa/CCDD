@@ -9,6 +9,7 @@ package CCDD;
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_DATA_FIELD_IDENT;
+import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -34,13 +35,10 @@ import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.GroupInformation;
 import CCDD.CcddClasses.RateInformation;
 import CCDD.CcddClasses.TableInformation;
-import CCDD.CcddClasses.TableMembers;
 import CCDD.CcddConstants.CopyTableEntry;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.InputDataType;
-import CCDD.CcddConstants.InternalTable.ValuesColumn;
 import CCDD.CcddConstants.JSONTags;
-import CCDD.CcddConstants.TableMemberType;
 import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
@@ -56,13 +54,11 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     private CcddRateParameterHandler rateHandler;
     private CcddLinkHandler linkHandler;
     private TableTreeType tableTreeType;
-    private final CcddJSONHandler jsonHandler;
+    private CcddJSONHandler jsonHandler;
 
-    // List containing the table member information
-    private List<TableMembers> tableMembers;
-
-    // List for storing telemetered variable path and name pairs
-    private List<String[]> telemetryInformation;
+    // Flag that indicates if the macro name(s) in the table cells is to be
+    // replaced by the corresponding macro values
+    private boolean isReplaceMacro;
 
     // List for storing rate information from the custom values table
     private List<String[]> rateValues;
@@ -76,9 +72,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     // List of table names belonging to a group (or application)
     private List<String> groupTables;
 
-    // Telemetry command output
-    private JSONArray telemetryJA;
-
     /**************************************************************************
      * Web data access handler class constructor
      * 
@@ -90,15 +83,15 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         this.ccddMain = ccddMain;
         dbTable = ccddMain.getDbTableCommandHandler();
         eventLog = ccddMain.getSessionEventLog();
-        jsonHandler = new CcddJSONHandler(ccddMain, ccddMain.getMainFrame());
     }
 
     /**************************************************************************
-     * Set the reference to the rate parameter handler class
+     * Set the reference to the rate parameter and JSON handler classes
      *************************************************************************/
     protected void setHandlers()
     {
         rateHandler = ccddMain.getRateParameterHandler();
+        jsonHandler = new CcddJSONHandler(ccddMain, ccddMain.getMainFrame());
     }
 
     /**************************************************************************
@@ -163,6 +156,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         {
             // Inform the user that processing the web server request failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Web Server Error",
                                   "Cannot respond to web server request; cause '"
                                       + ioe.getMessage()
                                       + "'",
@@ -240,8 +234,17 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
         try
         {
+            // Separate the component/attribute/name from the flag to replace
+            // macros (if present)
+            String[] itemAndMacro = getParts(item, ";", 2);
+
+            // Set the flag if the text indicates the macro names (in place of
+            // macro values) should be displayed
+            isReplaceMacro = !itemAndMacro[1].equalsIgnoreCase("macro")
+                             && !itemAndMacro[1].equalsIgnoreCase("macros");
+
             // Extract the item's attribute and name
-            String[] attributeAndName = getParts(item, "=", 2);
+            String[] attributeAndName = getParts(itemAndMacro[0], "=", 2);
 
             // Check if this is a table-related request
             if (component.equals("table")
@@ -469,6 +472,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         {
             // Inform the user that the web server request is invalid
             eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Web Server Error",
                                   "Invalid web server request; cause '"
                                       + ce.getMessage()
                                       + "'",
@@ -510,72 +514,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     }
 
     /**************************************************************************
-     * Get the table name and show macros flag status
-     * 
-     * @param tableName
-     *            table name (blank if all tables are included), optionally
-     *            followed by the macro indicator in the format [table
-     *            name][;indicator]
-     * 
-     * @return String array where the first member is the table name (blank if
-     *         all tables are included) and the second member is the status of
-     *         the show macro names flag ('true' or 'false')
-     *************************************************************************/
-    private String[] getTableNameAndShowMacroStatus(String tableName)
-    {
-        // Initialize the flag that indicates if macro names should be
-        // displayed in place of the corresponding values
-        boolean showMacroNames = false;
-
-        // Separate the table name from the macro indicator
-        String[] nameAndMacro = tableName.split(";");
-
-        // Check if the macro indicator is present
-        if (nameAndMacro.length == 2)
-        {
-            // Remove any leading or trailing white space characters
-            nameAndMacro[1] = nameAndMacro[1].trim();
-
-            // Set the flag if the text indicates the macro names should be
-            // displayed
-            showMacroNames = nameAndMacro[1].equalsIgnoreCase("macro")
-                             || nameAndMacro[1].equalsIgnoreCase("macros");
-        }
-
-        return new String[] {nameAndMacro[0], String.valueOf(showMacroNames)};
-    }
-
-    /**************************************************************************
-     * Get the data for the specified data table, or for all data tables if no
-     * table name is provided. Extract the indicator for replacing the macro
-     * names with the corresponding macro values
-     * 
-     * @param tableName
-     *            table name and path in the format
-     *            rootTable[,dataType1.variable1[,...]]. Blank to return the
-     *            data for all tables
-     * 
-     * @param getDescription
-     *            true to get the table description when loading the table data
-     * 
-     * @return JSON encoded string containing the specified table cell data;
-     *         null if a table name is specified and the table doesn't exist or
-     *         if no data tables exist in the project database, or blank if the
-     *         specified table has no data or none of the tables have data.
-     *         Empty cells are included
-     *************************************************************************/
-    private String getTableData(String tableName,
-                                boolean getDescription) throws CCDDException
-    {
-        // Separate the show macros flag from the table name
-        String[] nameAndMacro = getTableNameAndShowMacroStatus(tableName);
-
-        return getTableData(nameAndMacro[0],
-                            getDescription,
-                            Boolean.valueOf(nameAndMacro[1]));
-    }
-
-    /**************************************************************************
      * Get the data for the specified data table, or for all data tables if no
      * table name is provided
      * 
@@ -587,10 +525,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * @param getDescription
      *            true to get the table description when loading the table data
      * 
-     * @param showMacroNames
-     *            false to display the macro values in place of the
-     *            corresponding macro names; true to display the macro names
-     * 
      * @return JSON encoded string containing the specified table cell data;
      *         null if a table name is specified and the table doesn't exist or
      *         if no data tables exist in the project database, or blank if the
@@ -599,8 +533,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *************************************************************************/
     @SuppressWarnings("unchecked")
     private String getTableData(String tableName,
-                                boolean getDescription,
-                                boolean showMacroNames) throws CCDDException
+                                boolean getDescription) throws CCDDException
     {
         String response = null;
 
@@ -627,9 +560,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // to the response array. This is needed to get the
                         // brackets and commas in the JSON formatted string
                         // correct
-                        responseJA.add(parser.parse(getTableData(name,
-                                                                 true,
-                                                                 showMacroNames)));
+                        responseJA.add(parser.parse(getTableData(name, true)));
                     }
                     catch (ParseException pe)
                     {
@@ -647,7 +578,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // Get the table data
             JSONObject tableNameAndData = jsonHandler.getTableData(tableName,
                                                                    getDescription,
-                                                                   showMacroNames,
+                                                                   isReplaceMacro,
                                                                    new JSONObject());
 
             // Check if the table data loaded successfully
@@ -859,16 +790,12 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     {
         String response = null;
 
-        // Get an array containing the data types and names for all prototype
-        // tables
-        String[][] tableTypesAndProtoNames = dbTable.queryTableAndTypeList(ccddMain.getMainFrame());
-        // TODO SHOULD THIS COMBINE STRUCTURE TYPES (AND COMMAND TYPES)? IF SO,
-        // USE dbTable.getTablesOfType(tableType) TO GET THE TABLE NAMES. WATCH
-        // FOR OTHER IMPACTS IF THIS IS DONE
+        // Get the list of table names and their associated table type
+        ArrayListMultiple protoNamesAndTableTypes = new ArrayListMultiple();
+        protoNamesAndTableTypes.addAll(dbTable.queryTableAndTypeList(ccddMain.getMainFrame()));
 
-        // Check that at least one data table exists, and that either all
-        // tables are requested or that the specified table type exists
-        if (tableTypesAndProtoNames.length != 0)
+        // Check that at least one data table exists
+        if (protoNamesAndTableTypes.size() != 0)
         {
             JSONArray responseJA = new JSONArray();
             JSONObject responseJO = null;
@@ -902,20 +829,17 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     // Step through each table name
                     for (String tableName : getTableList())
                     {
-                        // Step through each prototype table name/type
-                        for (int index = 0; index < tableTypesAndProtoNames.length; index++)
+                        // Locate the table's prototype in the list
+                        int index = protoNamesAndTableTypes.indexOf(tableName.replaceFirst(",.*$",
+                                                                                           ""));
+
+                        // Check if the root table name matches that in the
+                        // types list
+                        if (type.equalsIgnoreCase(protoNamesAndTableTypes.get(index)[2]))
                         {
-                            // Check if the root table name matches that in the
-                            // types list
-                            if (type.equalsIgnoreCase(tableTypesAndProtoNames[index][0])
-                                && tableName.matches("^"
-                                                     + tableTypesAndProtoNames[index][1]
-                                                     + "(,.*|$)"))
-                            {
-                                // Add the table to the list for this table
-                                // type
-                                namesJA.add(tableName);
-                            }
+                            // Add the table to the list for this table
+                            // type
+                            namesJA.add(tableName);
                         }
                     }
 
@@ -954,11 +878,11 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     }
 
     /**************************************************************************
-     * Get the number of bytes for the specified structure table, or for all
-     * structure tables if no table is specified
+     * Get the number of bytes for the prototype of the specified structure
+     * table, or for all prototype structure tables if no table is specified
      * 
      * @param tableName
-     *            structure table name
+     *            structure table name or path
      * 
      * @return JSON encoded string containing the structure table name(s) and
      *         corresponding size(s) in bytes; null if a table name is
@@ -972,22 +896,25 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         JSONObject responseJO = null;
         JSONArray responseJA = new JSONArray();
 
-        // Get an array containing the data types and names for all prototype
-        // tables
-        String[][] tableTypesAndProtoNames = dbTable.queryTableAndTypeList(ccddMain.getMainFrame());
+        // Get the list of table names and their associated table type
+        ArrayListMultiple protoNamesAndTableTypes = new ArrayListMultiple();
+        protoNamesAndTableTypes.addAll(dbTable.queryTableAndTypeList(ccddMain.getMainFrame()));
+
+        // Get the specified table's prototype table name
+        String prototypeName = TableInformation.getPrototypeName(tableName);
 
         // Flag indicating if a single table is requested
-        boolean isSingle = !tableName.isEmpty();
+        boolean isSingle = !prototypeName.isEmpty();
 
-        // Step through each prototype table
-        for (String[] table : tableTypesAndProtoNames)
+        // Step through each prototype table name/type
+        for (String[] namesAndType : protoNamesAndTableTypes)
         {
             // Check if all structure tables are requested or if the table name
             // matches the specified name
-            if (tableName.isEmpty() || tableName.equalsIgnoreCase(table[1]))
+            if (!isSingle || prototypeName.equalsIgnoreCase(namesAndType[0]))
             {
                 // Get the table's type definition
-                TypeDefinition typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(table[0]);
+                TypeDefinition typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(namesAndType[2]);
 
                 // Check if the table represents a structure
                 if (typeDefn.isStructure())
@@ -1002,9 +929,12 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     }
 
                     // Store the table name and its size in bytes
-                    responseJO.put(JSONTags.TABLE_NAME.getTag(), table[1]);
+                    responseJO.put(JSONTags.TABLE_NAME.getTag(),
+                                   (isSingle
+                                            ? tableName
+                                            : namesAndType[0]));
                     responseJO.put(JSONTags.TABLE_BYTE_SIZE.getTag(),
-                                   linkHandler.getDataTypeSizeInBytes(table[1]));
+                                   linkHandler.getDataTypeSizeInBytes(namesAndType[0]));
 
                     // Check if only one table is being processed
                     if (isSingle)
@@ -1038,34 +968,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
     /**************************************************************************
      * Get the type, description, size, data, and data fields for the specified
-     * data table. Extract the indicator for replacing the macro names with the
-     * corresponding macro values
-     * 
-     * @param tableName
-     *            table name and path in the format
-     *            rootTable[,dataType1.variable1[,...]]. Blank to return the
-     *            data for all tables
-     * 
-     * @param fieldHandler
-     *            data field handler
-     * 
-     * @return JSON encoded string containing the specified table information;
-     *         null if a table name is specified and the table doesn't exist or
-     *         if no data tables exist in the project database
-     *************************************************************************/
-    private String getTableInformation(String tableName,
-                                       CcddFieldHandler fieldHandler) throws CCDDException
-    {
-        // Separate the show macros flag from the table name
-        String[] nameAndMacro = getTableNameAndShowMacroStatus(tableName);
-
-        return getTableInformation(nameAndMacro[0],
-                                   fieldHandler,
-                                   Boolean.valueOf(nameAndMacro[1]));
-    }
-
-    /**************************************************************************
-     * Get the type, description, size, data, and data fields for the specified
      * data table
      * 
      * @param tableName
@@ -1076,18 +978,13 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * @param fieldHandler
      *            data field handler
      * 
-     * @param showMacroNames
-     *            false to display the macro values in place of the
-     *            corresponding macro names; true to display the macro names
-     * 
      * @return JSON encoded string containing the specified table information;
      *         null if a table name is specified and the table doesn't exist or
      *         if no data tables exist in the project database
      *************************************************************************/
     @SuppressWarnings("unchecked")
     private String getTableInformation(String tableName,
-                                       CcddFieldHandler fieldHandler,
-                                       boolean showMacroNames) throws CCDDException
+                                       CcddFieldHandler fieldHandler) throws CCDDException
     {
         JSONArray responseJA = new JSONArray();
         JSONParser parser = new JSONParser();
@@ -1116,8 +1013,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // brackets and commas in the JSON formatted string
                         // correct
                         responseJA.add(parser.parse(getTableInformation(name,
-                                                                        fieldHandler,
-                                                                        showMacroNames)));
+                                                                        fieldHandler)));
                     }
                     catch (ParseException pe)
                     {
@@ -1134,7 +1030,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // Get the tables information
             JSONObject tableInfoJO = jsonHandler.getTableInformation(tableName,
                                                                      fieldHandler,
-                                                                     showMacroNames);
+                                                                     isReplaceMacro);
 
             // Check if the table loaded successfully
             if (tableInfoJO != null)
@@ -1844,9 +1740,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     }
 
     /**************************************************************************
-     * Get the path, ITOS mnemonic, data type, bit length, data stream
-     * information, and enumeration information for each telemetered variable
-     * matching the specified filters
+     * Get the path, ITOS mnemonic, data type, bit length, description, units,
+     * data stream information, and enumeration information for each
+     * telemetered variable matching the specified filters
      * 
      * @param telemetryFilter
      *            group (or application) name, data stream name, and/or rate
@@ -1860,20 +1756,28 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *            regardless of the rate value
      * 
      * @return JSON encoded string containing the path, ITOS mnemonic, data
-     *         type, bit length, data stream name(s), and enumeration(s) for
-     *         each telemetered variable matching the specified filters; empty
-     *         array if no variables are telemetered
+     *         type, bit length, description, units, data stream name(s), and
+     *         enumeration(s) for each telemetered variable matching the
+     *         specified filters; empty array if no variables are telemetered
      *************************************************************************/
     @SuppressWarnings("unchecked")
     private String getTelemetryInformation(String telemetryFilter) throws CCDDException
     {
-        telemetryJA = new JSONArray();
-        telemetryInformation = new ArrayList<String[]>();
+        JSONArray telemetryJA = new JSONArray();
+        TypeDefinition typeDefn = null;
         rateValues = new ArrayListMultiple();
         enumerationValues = new ArrayListMultiple();
         String groupFilter = "";
         String streamFilter = "";
         String rateFilter = "";
+        int variableNameIndex = -1;
+        int dataTypeIndex = -1;
+        int bitLengthIndex = -1;
+        int descriptionIndex = -1;
+        int unitsIndex = -1;
+
+        // Table type name for the previous table type loaded
+        String lastType = "";
 
         // Get the array of data stream names
         String[] dataStreamNames = rateHandler.getDataStreamNames();
@@ -1956,251 +1860,137 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                                              ccddMain.getMainFrame()));
         }
 
-        // Get the table member information from the database
-        tableMembers = dbTable.loadTableMembers(TableMemberType.INCLUDE_PRIMITIVES,
-                                                true,
-                                                ccddMain.getMainFrame());
-
-        // Step through each table
-        for (TableMembers member : tableMembers)
+        // Step through each structure table
+        for (String structureTable : dbTable.getTablesOfType(TYPE_STRUCTURE))
         {
-            // Check if this is a structure type table
-            if (ccddMain.getTableTypeHandler().getTypeDefinition(member.getTableType()).isStructure())
+            // Check if all telemetered variables are to be returned, or if a
+            // specific group's telemetered variables are requested that the
+            // table is a member of the group
+            if (groupFilter.isEmpty()
+                || groupTables.contains(structureTable))
             {
-                // Get the telemetry variables for this table and its member
-                // tables
-                getTelemetry(member,
-                             member.getTableName(),
-                             groupFilter,
-                             streamFilter,
-                             rateFilter);
-            }
-        }
+                // Get the information from the database for the specified
+                // table
+                TableInformation tableInfo = dbTable.loadTableData(structureTable,
+                                                                   false,
+                                                                   false,
+                                                                   false,
+                                                                   false,
+                                                                   ccddMain.getMainFrame());
 
-        // Create the variable name conversion list
-        CcddVariableConversionHandler variableHandler = new CcddVariableConversionHandler(telemetryInformation,
-                                                                                          ccddMain.getMacroHandler());
-
-        // Step through each telemetered variable
-        for (String[] tlmInfo : telemetryInformation)
-        {
-            // Get the full variable name, removing the data types and using
-            // underscores to separate the variable path members
-            String path = variableHandler.getFullVariableName(tlmInfo[0].replaceAll(",[^\\.]*\\.", ","),
-                                                              tlmInfo[1].replaceAll("[^\\.]*\\.", ""),
-                                                              "_");
-
-            // Step through each telemetered variable JSON object
-            for (Object obj : telemetryJA)
-            {
-                JSONObject telemetryJO = (JSONObject) obj;
-
-                // Check if the JSON object matches the current variable
-                if (telemetryJO.get("Structure Table Name").toString().equals(tlmInfo[0])
-                    && (telemetryJO.get("Data Type").toString()
-                        + "."
-                        + telemetryJO.get("Variable Name").toString()).equals(tlmInfo[1]))
+                // Check if the table loaded successfully
+                if (!tableInfo.isErrorFlag())
                 {
-                    // Replace the original JSON object with one that includes
-                    // the ITOS mnemonic, and stop searching
-                    telemetryJA.remove(telemetryJO);
-                    telemetryJO.put("ITOS Mnemonic", path);
-                    telemetryJA.add(telemetryJO);
-                    break;
+                    // Check if the table type changed. This accounts for
+                    // multiple table types that represent structures, and
+                    // prevents reloading the table type information for every
+                    // table
+                    if (!tableInfo.getType().equals(lastType))
+                    {
+                        String descColName;
+                        String unitsColName;
+                        descriptionIndex = -1;
+                        unitsIndex = -1;
+
+                        // Store the table type name
+                        lastType = tableInfo.getType();
+
+                        // Get the table's type definition
+                        typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(tableInfo.getType());
+
+                        // Get the variable name column
+                        variableNameIndex = typeDefn.getColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.VARIABLE));
+
+                        // Get the data type column
+                        dataTypeIndex = typeDefn.getColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.PRIM_AND_STRUCT));
+
+                        // Get the bit length column
+                        bitLengthIndex = typeDefn.getColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.BIT_LENGTH));
+
+                        // Check if a description column exists
+                        if ((descColName = typeDefn.getColumnNameByInputType(InputDataType.DESCRIPTION)) != null)
+                        {
+                            // Get the description column
+                            descriptionIndex = typeDefn.getColumnIndexByUserName(descColName);
+                        }
+
+                        // Check if a units column exists
+                        if ((unitsColName = typeDefn.getColumnNameByInputType(InputDataType.UNITS)) != null)
+                        {
+                            // Get the units column
+                            unitsIndex = typeDefn.getColumnIndexByUserName(unitsColName);
+                        }
+                    }
+
+                    // Check if the macro names should be replaced with the
+                    // corresponding macro values
+                    if (isReplaceMacro)
+                    {
+                        // Replace all macros in the table
+                        tableInfo.setData(ccddMain.getMacroHandler().replaceAllMacros(tableInfo.getData()));
+                    }
+
+                    // Step through each variable in the structure table
+                    for (int row = 0; row < tableInfo.getData().length; row++)
+                    {
+                        JSONObject structureJO = new JSONObject();
+                        String cellValue;
+
+                        // Check if the variable name is present. If not then
+                        // all the variable data on this row is skipped
+                        if (!(cellValue = tableInfo.getData()[row][variableNameIndex]).isEmpty())
+                        {
+                            // Store the name of the structure table from which
+                            // this variable is taken
+                            structureJO.put("Structure Table Name", structureTable);
+
+                            // Store the variable name in the JSON output
+                            structureJO.put(typeDefn.getColumnNamesUser()[variableNameIndex],
+                                            cellValue);
+
+                            // Check if the data type is present
+                            if (!(cellValue = tableInfo.getData()[row][dataTypeIndex]).isEmpty())
+                            {
+                                // Store the data type in the JSON output
+                                structureJO.put(typeDefn.getColumnNamesUser()[dataTypeIndex],
+                                                cellValue);
+                            }
+
+                            // Check if the bit length is present
+                            if (!(cellValue = tableInfo.getData()[row][bitLengthIndex]).isEmpty())
+                            {
+                                // Store the bit length in the JSON output
+                                structureJO.put(typeDefn.getColumnNamesUser()[bitLengthIndex],
+                                                cellValue);
+                            }
+
+                            // Check if the description is present
+                            if (descriptionIndex != -1
+                                && !(cellValue = tableInfo.getData()[row][descriptionIndex]).isEmpty())
+                            {
+                                // Store the description in the JSON output
+                                structureJO.put(typeDefn.getColumnNamesUser()[descriptionIndex],
+                                                cellValue);
+                            }
+
+                            // Check if the units is present
+                            if (unitsIndex != -1
+                                && !(cellValue = tableInfo.getData()[row][unitsIndex]).isEmpty())
+                            {
+                                // Store the units in the JSON output
+                                structureJO.put(typeDefn.getColumnNamesUser()[descriptionIndex],
+                                                cellValue);
+                            }
+                        }
+
+                        // Add the variable to the JSON array
+                        telemetryJA.add(structureJO);
+                    }
                 }
             }
         }
 
         return telemetryJA.toString();
-    }
-
-    /**************************************************************************
-     * Get the JSON array containing the JSON objects that describe each
-     * telemetered variable. This is a recursive method
-     * 
-     * @param thisMember
-     *            TableMember class
-     * 
-     * @param fullTablePath
-     *            table path in the format
-     *            rootTable[,structureDataType1.variable1
-     *            [,structureDataType2.variable2[,...]]]
-     * 
-     * @param groupFilter
-     *            group (or application) name. A table must belong to the
-     *            specified group in order for its telemetered variables to be
-     *            returned; blank to get all telemetered variables (regardless
-     *            of group)
-     * 
-     * @param streamFilter
-     *            data stream filter name - a variable is output only if it is
-     *            in the specified stream; blank to include any stream name
-     * 
-     * @param rateFilter
-     *            sample rate value - - a variable is output only if it has the
-     *            specified sample rate; blank to include any sample rate
-     *************************************************************************/
-    @SuppressWarnings("unchecked")
-    private void getTelemetry(TableMembers thisMember,
-                              String fullTablePath,
-                              String groupFilter,
-                              String streamFilter,
-                              String rateFilter)
-    {
-        // Step through each data type referenced by the table member
-        for (int memberIndex = 0; memberIndex < thisMember.getDataTypes().size(); memberIndex++)
-        {
-            // Check if the data type is a primitive
-            if (ccddMain.getDataTypeHandler().isPrimitive(thisMember.getDataTypes().get(memberIndex)))
-            {
-                // Check if all tables' telemetered variables are to be
-                // returned, or if a specific group's tables are requested that
-                // the table is a member of the group
-                if (groupFilter.isEmpty()
-                    || groupTables.contains(thisMember.getTableName()))
-                {
-                    JSONArray streamsJA = new JSONArray();
-
-                    // Step through each data stream
-                    for (int rateIndex = 0; rateIndex < thisMember.getRates().get(memberIndex).length; rateIndex++)
-                    {
-                        // Check if no stream filter is in effect, of if one is
-                        // that the stream names match
-                        if (streamFilter.isEmpty()
-                            || rateHandler.getRateInformation().get(rateIndex).getStreamName().equals(streamFilter))
-                        {
-                            JSONObject rateJO = new JSONObject();
-
-                            // Get the rate for this parameter from the
-                            // prototype table
-                            String rate = thisMember.getRates().get(memberIndex)[rateIndex];
-
-                            // Check if this is a child table
-                            if (!fullTablePath.isEmpty())
-                            {
-                                int valuesIndex = rateValues.indexOf(fullTablePath
-                                                                     + ","
-                                                                     + thisMember.getFullVariableName(memberIndex));
-
-                                // Check if a custom rate value exists for this
-                                // variable
-                                if (valuesIndex != -1)
-                                {
-                                    // Get the custom rate value for this
-                                    // variable
-                                    rate = rateValues.get(valuesIndex)[ValuesColumn.VALUE.ordinal()];
-                                }
-                            }
-
-                            // Check if the variable has a sample rate for this
-                            // stream and, if a filter is in effect, that the
-                            // rates match
-                            if (!rate.isEmpty()
-                                && (rateFilter.isEmpty()
-                                || rate.equals(rateFilter)))
-                            {
-                                // Add the rate information to the JSON output
-                                rateJO.put("Stream Name",
-                                           rateHandler.getRateInformation().get(rateIndex).getStreamName());
-                                rateJO.put("Sample Rate", rate);
-                                streamsJA.add(rateJO);
-                            }
-                        }
-                    }
-
-                    // Check if the variable belongs to any stream (i.e., it's
-                    // telemetered)
-                    if (!streamsJA.isEmpty())
-                    {
-                        JSONObject telemetryJO = new JSONObject();
-                        JSONArray enumerationsJA = new JSONArray();
-
-                        // Add the variable path and name to the list of
-                        // telemetered variable information
-                        telemetryInformation.add(new String[] {fullTablePath,
-                                                               thisMember.getFullVariableName(memberIndex)});
-
-                        // Store the structure table name, variable name, data
-                        // type, and stream(s) in the JSON output
-                        telemetryJO.put("Structure Table Name", fullTablePath);
-                        telemetryJO.put("Variable Name",
-                                        thisMember.getVariableNames().get(memberIndex));
-                        telemetryJO.put("Data Type", thisMember.getDataTypes().get(memberIndex));
-                        telemetryJO.put("Data Streams", streamsJA);
-
-                        // Step through each enumeration
-                        for (int enumIndex = 0; enumIndex < thisMember.getEnumerations().get(memberIndex).length; enumIndex++)
-                        {
-                            JSONObject enumerationJO = new JSONObject();
-
-                            // Get the enumeration for this parameter from the
-                            // prototype table
-                            String enumeration = thisMember.getEnumerations().get(memberIndex)[enumIndex];
-
-                            // Check if this is a child table
-                            if (!fullTablePath.isEmpty())
-                            {
-                                int valuesIndex = enumerationValues.indexOf(fullTablePath
-                                                                            + ","
-                                                                            + thisMember.getFullVariableName(memberIndex));
-
-                                // Check if a custom enumeration value exists
-                                // for this variable
-                                if (valuesIndex != -1)
-                                {
-                                    // Get the custom enumeration value for
-                                    // this variable
-                                    enumeration = enumerationValues.get(valuesIndex)[ValuesColumn.VALUE.ordinal()];
-                                }
-                            }
-
-                            // Check if the variable has an enumeration
-                            if (!enumeration.isEmpty())
-                            {
-                                // Add the enumeration information to the JSON
-                                // output
-                                enumerationJO.put("Enumeration Name",
-                                                  enumColumnNames.get(enumIndex));
-                                enumerationJO.put("Enumeration Value", enumeration);
-                                enumerationsJA.add(enumerationJO);
-                            }
-                        }
-
-                        // Check if the variable has an enumeration
-                        if (!enumerationsJA.isEmpty())
-                        {
-                            // Store the enumerations in the JSON output
-                            telemetryJO.put("Enumerations", enumerationsJA);
-                        }
-
-                        // Add the variable to the JSON array
-                        telemetryJA.add(telemetryJO);
-                    }
-                }
-            }
-            // Data type is not a primitive (i.e., it's a structure)
-            else
-            {
-                // Step through the other tables
-                for (TableMembers member : tableMembers)
-                {
-                    // Check if the table is a member of the target table
-                    if (thisMember.getDataTypes().get(memberIndex).equals(member.getTableName()))
-                    {
-                        // Get the variables for this structure's members
-                        getTelemetry(member,
-                                     fullTablePath
-                                         + ","
-                                         + thisMember.getDataTypes().get(memberIndex)
-                                         + "."
-                                         + thisMember.getVariableNames().get(memberIndex),
-                                     groupFilter,
-                                     streamFilter,
-                                     rateFilter);
-                    }
-                }
-            }
-        }
     }
 
     /**************************************************************************
@@ -2299,6 +2089,14 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // Get the list containing command argument column
                         // indices for each argument grouping
                         commandArguments = typeDefn.getAssociatedCommandColumns(false);
+                    }
+
+                    // Check if the macro names should be replaced with the
+                    // corresponding macro values
+                    if (!isReplaceMacro)
+                    {
+                        // Replace all macros in the table
+                        tableInfo.setData(ccddMain.getMacroHandler().replaceAllMacros(tableInfo.getData()));
                     }
 
                     // Step through each command in the command table

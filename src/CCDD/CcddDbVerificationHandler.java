@@ -2009,12 +2009,12 @@ public class CcddDbVerificationHandler
                            || column == VerificationColumnInfo.ACTION.ordinal();
                 }
 
-                /******************************************************************
+                /**************************************************************
                  * Allow the fix column to be edited (enables toggling of the
                  * check box via the mouse) unless there is no command to
                  * correct to the issue (i.e., the issue must be corrected
                  * outside the application)
-                 *****************************************************************/
+                 *************************************************************/
                 @Override
                 public boolean isCellEditable(int row, int column)
                 {
@@ -2053,6 +2053,7 @@ public class CcddDbVerificationHandler
                                                 VerificationColumnInfo.getColumnNames(),
                                                 null,
                                                 new Integer[0],
+                                                new Integer[] {VerificationColumnInfo.FIX.ordinal()},
                                                 VerificationColumnInfo.getToolTips(),
                                                 true,
                                                 true,
@@ -2074,7 +2075,6 @@ public class CcddDbVerificationHandler
                                                 false,
                                                 true,
                                                 LABEL_FONT_PLAIN,
-                                                new Integer[] {VerificationColumnInfo.FIX.ordinal()},
                                                 true);
 
             // Define the panel to contain the table
