@@ -6,6 +6,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
 import static CCDD.CcddConstants.LABEL_FONT_BOLD;
 import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
 import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
@@ -933,6 +934,7 @@ public class CcddSchedulerHandler
      * 
      * @return Split pane containing the dual panels
      *************************************************************************/
+    @SuppressWarnings("serial")
     private JSplitPane createDualScrollPanelwithButtons()
     {
         // Create an empty border
@@ -1029,7 +1031,26 @@ public class CcddSchedulerHandler
 
         // Create the combo box that displays the variable rates
         rateFilter = new PaddedComboBox(schedulerInput.getAvailableRates(),
-                                        LABEL_FONT_PLAIN);
+                                        LABEL_FONT_PLAIN)
+        {
+            /******************************************************************
+             * Override so that items flagged as disabled (grayed out) can't be
+             * selected. Only the telemetry scheduler makes use of this; it has
+             * no effect on the application scheduler
+             *****************************************************************/
+            @Override
+            public void setSelectedItem(Object anObject)
+            {
+                // Check if the item isn't flagged as disabled
+                if (!anObject.toString().startsWith(DISABLED_TEXT_COLOR))
+                {
+                    // Set the selected item to the specified item, if it
+                    // exists in the list
+                    super.setSelectedItem(anObject);
+                }
+            }
+        };
+
         rateFilter.setBorder(emptyBorder);
         rateFilter.setSelectedItem(schedulerInput.getSelectedRate());
 

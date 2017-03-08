@@ -6,6 +6,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
 import static CCDD.CcddConstants.LABEL_FONT_BOLD;
 import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
 import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
@@ -192,6 +193,9 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
 
     /**************************************************************************
      * Create the variable link manager dialog
+     * 
+     * @param availableRates
+     *            array of sample rates available to this stream
      *************************************************************************/
     private void initialize(String[] availableRates)
     {
@@ -505,7 +509,25 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
 
         // Create the combo box that displays the variable rates and add it to
         // the dialog panel
-        rateFilter = new PaddedComboBox(availableRates, LABEL_FONT_PLAIN);
+        rateFilter = new PaddedComboBox(availableRates, LABEL_FONT_PLAIN)
+        {
+            /******************************************************************
+             * Override so that items flagged as disabled (grayed out) can't be
+             * selected
+             *****************************************************************/
+            @Override
+            public void setSelectedItem(Object anObject)
+            {
+                // Check if the item isn't flagged as disabled
+                if (!anObject.toString().startsWith(DISABLED_TEXT_COLOR))
+                {
+                    // Set the selected item to the specified item, if it
+                    // exists in the list
+                    super.setSelectedItem(anObject);
+                }
+            }
+        };
+
         gbc.fill = GridBagConstraints.NONE;
         gbc.gridx++;
         rateSelectPnl.add(rateFilter, gbc);
@@ -791,7 +813,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
      * Remove the selected variable(s) from the link and reenable them in the
      * variable tree
      *************************************************************************/
-    protected void removeVariableFromLink()
+    private void removeVariableFromLink()
     {
         // Remove the selected variable(s) from the links in the link tree
         linkTree.removeSelectedChildNodes(true);

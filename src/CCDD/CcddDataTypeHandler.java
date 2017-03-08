@@ -289,32 +289,6 @@ public class CcddDataTypeHandler
     }
 
     /**************************************************************************
-     * Check if the supplied data type name is already in use (case
-     * insensitive)
-     * 
-     * @param dataTypeName
-     *            data type name
-     * 
-     * @return true if the supplied data type name is already in use
-     *************************************************************************/
-    protected boolean isDataTypeExists(String dataTypeName)
-    {
-        boolean isExists = false;
-
-        // Get the data type information based on the type name
-        String[] dataType = getDataTypeInfo(dataTypeName);
-
-        // Check if the data type exists
-        if (dataType != null)
-        {
-            // Set the flag to indicate the data type name already exists
-            isExists = true;
-        }
-
-        return isExists;
-    }
-
-    /**************************************************************************
      * Determine if the specified data type is a signed or unsigned integer
      * 
      * @param dataTypeName
@@ -485,32 +459,6 @@ public class CcddDataTypeHandler
         }
 
         return maximum;
-    }
-
-    /**************************************************************************
-     * Get the OID value associated with the specified data type name
-     * 
-     * @param dataTypeName
-     *            data type name
-     * 
-     * @return OID value associated with the specified data type name; returns
-     *         null if the data type doesn't exist
-     *************************************************************************/
-    protected String getDataTypeIndex(String dataTypeName)
-    {
-        String dataTypeIndex = null;
-
-        // Get the data type information based on the type name
-        String[] dataType = getDataTypeInfo(dataTypeName);
-
-        // Check if the data type exists
-        if (dataType != null)
-        {
-            // Get the associated data type index
-            dataTypeIndex = dataType[DataTypesColumn.OID.ordinal()];
-        }
-
-        return dataTypeIndex;
     }
 
     /**************************************************************************

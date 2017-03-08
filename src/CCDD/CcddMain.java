@@ -352,7 +352,7 @@ public class CcddMain
         // Enable the web server check box menu item
         mntmEnableWebServer.setSelected(true);
 
-        // // Enable the server log message filter
+        // Enable the server log message filter
         CcddMain.this.getSessionEventLog().setServerFilterEnable(true);
 
         // Check if the user interface shouldn't be displayed

@@ -50,6 +50,7 @@ import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
+import CCDD.CcddConstants.InternalTable.ValuesColumn;
 import CCDD.CcddConstants.SearchType;
 import CCDD.CcddConstants.ServerPropertyDialogType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -929,7 +930,7 @@ public class CcddDbControlHandler
                                        + "information_schema.tables AS t ON "
                                        + "(t.table_name = c.table_name AND "
                                        + "t.table_schema = c.table_schema), "
-                                       + " pg_description AS d RIGHT JOIN pg_class "
+                                       + "pg_description AS d RIGHT JOIN pg_class "
                                        + "ON d.objoid = pg_class.oid RIGHT JOIN "
                                        + "pg_namespace ON pg_class.relnamespace = "
                                        + "pg_namespace.oid WHERE (selected_tables ~* '"
@@ -973,6 +974,64 @@ public class CcddDbControlHandler
                                                                + "text, no_case boolean, "
                                                                + "selected_tables text, "
                                                                + "all_schema name[])"),
+                                       ccddMain.getMainFrame());
+
+            // Create function to retrieve all rate values for the specified
+            // rate column name currently in use in the prototype tables of the
+            // specified structure table type(s). Each rate value only appears
+            // once in the results table
+            dbCommand.executeDbCommand(deleteFunction("find_prototype_rates_by_name")
+                                       + "CREATE OR REPLACE FUNCTION find_prototype_rates_by_name("
+                                       + "rate_name text, table_types text[]) RETURNS "
+                                       + "table(rates text) AS $$ BEGIN DECLARE row "
+                                       + "record; BEGIN DROP TABLE IF EXISTS "
+                                       + INTERNAL_TABLE_PREFIX
+                                       + "telemetry_tables; CREATE TEMP TABLE "
+                                       + INTERNAL_TABLE_PREFIX
+                                       + "telemetry_tables AS SELECT struct_name FROM "
+                                       + "(SELECT split_part(obj_description, ',', 1) AS "
+                                       + "struct_name, split_part(obj_description, ',', "
+                                       + "2) AS type FROM (SELECT obj_description(oid) "
+                                       + "FROM pg_class WHERE relkind = 'r' AND "
+                                       + "obj_description(oid) != '') alias1) alias2 WHERE "
+                                       + "table_types @> ARRAY[type] ORDER BY struct_name "
+                                       + "ASC; FOR row IN SELECT struct_name FROM "
+                                       + INTERNAL_TABLE_PREFIX
+                                       + "telemetry_tables LOOP IF EXISTS (SELECT 1 FROM "
+                                       + "information_schema.columns WHERE table_name = "
+                                       + "row.struct_name AND column_name = E'' || rate_name "
+                                       + "|| E'') THEN RETURN QUERY EXECUTE E'SELECT DISTINCT ' "
+                                       + "|| rate_name || E' FROM ' || row.struct_name || "
+                                       + "E' WHERE ' || rate_name || E' != '''''; END IF; "
+                                       + "END LOOP; END; END; $$ LANGUAGE plpgsql; "
+                                       + buildOwnerCommand(DatabaseObject.FUNCTION,
+                                                           "find_prototype_rates_by_name(rate_name "
+                                                               + "text, table_types text[])"),
+                                       ccddMain.getMainFrame());
+
+            // Create function to retrieve all rate values for the specified
+            // rate column name currently in use in the tables of the specified
+            // structure table type(s). Include rates from both the prototype
+            // and custom values tables. Each rate value only appears once in
+            // the results table
+            dbCommand.executeDbCommand(deleteFunction("find_rates_by_name")
+                                       + "CREATE OR REPLACE FUNCTION find_rates_by_name("
+                                       + "rate_name_user text, rate_name_db text, table_types "
+                                       + "text[]) RETURNS table(rates text) AS $$ BEGIN "
+                                       + "RETURN QUERY EXECUTE E'SELECT rates FROM (SELECT "
+                                       + "rates FROM find_prototype_rates_by_name(''' || "
+                                       + "rate_name_db || E''', ''' || table_types::text || "
+                                       + "E''') UNION (SELECT "
+                                       + ValuesColumn.VALUE.getColumnName()
+                                       + " FROM "
+                                       + InternalTable.VALUES.getTableName()
+                                       + " WHERE column_name = '' || rate_name_user || "
+                                       + "E'')) AS rates ORDER BY rates;'; END; $$ "
+                                       + "LANGUAGE plpgsql;"
+                                       + buildOwnerCommand(DatabaseObject.FUNCTION,
+                                                           "find_rates_by_name(rate_name_user "
+                                                               + "text, rate_name_db text, "
+                                                               + "table_types text[])"),
                                        ccddMain.getMainFrame());
 
             // TODO The function below isn't used but may eventually be useful

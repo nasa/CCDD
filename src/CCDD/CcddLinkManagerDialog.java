@@ -399,7 +399,8 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
             CcddLinkManagerHandler linkMgr = new CcddLinkManagerHandler(ccddMain,
                                                                         this,
                                                                         rateInfo.get(index).getRateName(),
-                                                                        rateInfo.get(index).getSampleRates());
+                                                                        rateHandler.getRatesInUse(rateInfo.get(index).getRateName(),
+                                                                                                  CcddLinkManagerDialog.this));
 
             // Add the link manager to the list of managers
             linkMgrs.add(linkMgr);
@@ -1037,7 +1038,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
      *            index for the tab containing the data stream to update; an
      *            invalid tab number causes the active tab to be selected
      *************************************************************************/
-    protected void updateChangeIndicator(int index)
+    private void updateChangeIndicator(int index)
     {
         // Check if the specified index is invalid
         if (index < 0 || index >= tabbedPane.getTabCount())

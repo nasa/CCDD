@@ -1219,7 +1219,7 @@ public class CcddScriptHandler
 
                                 // Search for the variable name in the parent
                                 // table
-                                List<String[]> result = dbTable.getDatabaseQuery("SELECT "
+                                List<String[]> result = dbTable.queryDatabase("SELECT "
                                                                                  + varColumn
                                                                                  + " FROM "
                                                                                  + parentTable

@@ -16,7 +16,6 @@ import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.REDO_ICON;
 import static CCDD.CcddConstants.STORE_ICON;
 import static CCDD.CcddConstants.TABLE_BACK_COLOR;
-import static CCDD.CcddConstants.TABLE_CHANGE_EVENT;
 import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
 import static CCDD.CcddConstants.UNDO_ICON;
 import static CCDD.CcddConstants.UP_ICON;
@@ -28,8 +27,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -564,6 +561,20 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
             {
                 return MacroEditorColumnInfo.getEmptyRow();
             }
+
+            /******************************************************************
+             * Handle a change to the table's content
+             *****************************************************************/
+            @Override
+            protected void processTableContentChange()
+            {
+                // Add or remove the change indicator based on whether or not
+                // any unstored changes exist
+                setTitle(DIALOG_TITLE
+                         + (macroTable.isTableChanged(committedData)
+                                                                    ? "*"
+                                                                    : ""));
+            }
         };
 
         // Place the table into a scroll pane
@@ -583,28 +594,6 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
 
         // Discard the edits created by adding the columns initially
         macroTable.getUndoManager().discardAllEdits();
-
-        // Add a listener for table content change events
-        macroTable.addPropertyChangeListener(new PropertyChangeListener()
-        {
-            /******************************************************************
-             * Handle a table content change event
-             *****************************************************************/
-            @Override
-            public void propertyChange(PropertyChangeEvent pce)
-            {
-                // Check if the event indicates a table content change
-                if (pce.getPropertyName().equals(TABLE_CHANGE_EVENT))
-                {
-                    // Add or remove the change indicator based on whether or
-                    // not any unstored changes exist
-                    setTitle(DIALOG_TITLE
-                             + (macroTable.isTableChanged(committedData)
-                                                                        ? "*"
-                                                                        : ""));
-                }
-            }
-        });
 
         // Define the editor panel to contain the table
         JPanel editorPanel = new JPanel();

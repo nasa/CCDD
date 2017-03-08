@@ -1454,7 +1454,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     /**************************************************************************
      * Update the change indicator for the group manager
      *************************************************************************/
-    protected void updateChangeIndicator()
+    private void updateChangeIndicator()
     {
         // Replace the dialog title, appending the change indicator if changes
         // exist

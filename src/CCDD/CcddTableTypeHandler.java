@@ -1170,6 +1170,29 @@ public class CcddTableTypeHandler
     }
 
     /**************************************************************************
+     * Get the list of structure table types
+     * 
+     * @return List of structure table types
+     *************************************************************************/
+    protected String[] getStructureTableTypes()
+    {
+        List<String> structureTypes = new ArrayList<String>();
+
+        // Step through each table type definition
+        for (TypeDefinition typeDefn : getTypeDefinitions())
+        {
+            // Check if the type represents a structure
+            if (typeDefn.isStructure())
+            {
+                // Add the table type name to the list
+                structureTypes.add(typeDefn.getName());
+            }
+        }
+
+        return structureTypes.toArray(new String[0]);
+    }
+
+    /**************************************************************************
      * Get the list of unique structure table enumeration column names
      * 
      * @param useDbName
@@ -1183,7 +1206,7 @@ public class CcddTableTypeHandler
         List<String> enumColumns = new ArrayList<String>();
 
         // Step through each table type definition
-        for (TypeDefinition typeDefn : ccddMain.getTableTypeHandler().getTypeDefinitions())
+        for (TypeDefinition typeDefn : getTypeDefinitions())
         {
             // Check if the type represents a structure
             if (typeDefn.isStructure())

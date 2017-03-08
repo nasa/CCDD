@@ -121,8 +121,7 @@ public class CcddConstants
     // table
     protected static final String TLM_SCH_SEPARATOR = "\\";
 
-    // Table property, radio button, and check box change event names
-    protected static final String TABLE_CHANGE_EVENT = "tableHasChanges";
+    // Radio button, and check box change event names
     protected static final String RADIO_BUTTON_CHANGE_EVENT = "radioButtonChanged";
     protected static final String CHECK_BOX_CHANGE_EVENT = "checkBoxChanged";
 

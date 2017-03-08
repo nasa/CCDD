@@ -602,13 +602,6 @@ public class CcddTableTypeEditorHandler extends CcddEditorPanelHandler
                                                     + newValueS
                                                     + "'");
                         }
-
-                        // Update the input type combo box item list, enabling
-                        // and/or disabling items based on those currently in
-                        // use, and if the change causes the table type to
-                        // change to/from a structure then show/hide the
-                        // structure table type specific columns
-                        updateForInputTypeChange();
                     }
                 }
                 catch (CCDDException ce)
@@ -803,21 +796,19 @@ public class CcddTableTypeEditorHandler extends CcddEditorPanelHandler
             }
 
             /******************************************************************
-             * Override the CcddJTableHandler method for performing extra steps
-             * following a cell edit so that the input type combo box items and
-             * displayed editor columns can be updated
+             * Handle a change to the table's content
              *****************************************************************/
             @Override
-            protected void doTableUpdatePick()
+            protected void processTableContentChange()
             {
-                // Check if the table is visible, indicating it has completed
-                // being set up
-                if (table.isShowing())
-                {
-                    // Update the input type combo box items and displayed
-                    // columns
-                    updateForInputTypeChange();
-                }
+                // Update the input type combo box item list, enabling and/or
+                // disabling items based on those currently in use, and if the
+                // change causes the table type to change to/from a structure
+                // then show/hide the structure table type specific columns
+                updateForInputTypeChange();
+
+                // Update the change indicator for the table
+                editorDialog.updateChangeIndicator();
             }
         };
 
@@ -984,7 +975,8 @@ public class CcddTableTypeEditorHandler extends CcddEditorPanelHandler
             {
                 // Check if the specified item with the disable tag prepended
                 // is in the combo box list
-                if (getIndexOfItem(DISABLED_TEXT_COLOR + anObject.toString()) != -1)
+                if (getIndexOfItem(DISABLED_TEXT_COLOR +
+                                   anObject.toString()) != -1)
                 {
                     // Update the specified item to include the disable tag
                     anObject = DISABLED_TEXT_COLOR + anObject;

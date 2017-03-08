@@ -294,7 +294,7 @@ public class CcddGroupHandler
      * @return Description for the specified group; blank if the group has no
      *         description or the group doesn't exist
      *************************************************************************/
-    public String getGroupDescription(String groupName)
+    protected String getGroupDescription(String groupName)
     {
         String description = "";
 

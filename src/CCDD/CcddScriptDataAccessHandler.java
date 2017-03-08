@@ -2489,7 +2489,7 @@ public class CcddScriptDataAccessHandler
      *************************************************************************/
     public String[][] getDatabaseQuery(String sqlCommand)
     {
-        return dbTable.getDatabaseQuery(sqlCommand,
+        return dbTable.queryDatabase(sqlCommand,
                                         ccddMain.getMainFrame()).toArray(new String[0][0]);
     }
 

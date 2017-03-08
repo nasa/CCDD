@@ -20,7 +20,6 @@ import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
 import static CCDD.CcddConstants.MAX_INITIAL_CELL_WIDTH;
 import static CCDD.CcddConstants.SELECTED_BACK_COLOR;
 import static CCDD.CcddConstants.SELECTED_TEXT_COLOR;
-import static CCDD.CcddConstants.TABLE_CHANGE_EVENT;
 import static CCDD.CcddConstants.TABLE_TEXT_COLOR;
 import static CCDD.CcddConstants.TOOL_TIP_MAXIMUM_LENGTH;
 
@@ -465,7 +464,7 @@ public abstract class CcddJTableHandler extends JTable
      *            -1 if the cells were moved left, +1 if the cells were moved
      *            right, 0 if the cell column position is unchanged
      *************************************************************************/
-    protected void adjustSelectedCells(int rowDelta, int columnDelta)
+    private void adjustSelectedCells(int rowDelta, int columnDelta)
     {
         // Step through each selected cell
         for (SelectedCell cell : selectedCells.getSelectedCells())
@@ -490,7 +489,7 @@ public abstract class CcddJTableHandler extends JTable
      * @param column
      *            cell column in view coordinates
      *************************************************************************/
-    protected void setFocusCell(int row, int column)
+    private void setFocusCell(int row, int column)
     {
         focusRow = row;
         focusColumn = column;
@@ -512,7 +511,7 @@ public abstract class CcddJTableHandler extends JTable
      * 
      * @return true if the cell has the focus
      *************************************************************************/
-    protected boolean isFocusCell(int row, int column)
+    private boolean isFocusCell(int row, int column)
     {
         return row == focusRow && column == focusColumn;
     }
@@ -1076,12 +1075,24 @@ public abstract class CcddJTableHandler extends JTable
         undoManager = new CcddUndoManager()
         {
             /******************************************************************
-             * Send a property change event indicating if the table has changed
+             * Perform any steps necessary following a table content change
              *****************************************************************/
             @Override
             protected void ownerHasChanged()
             {
-                firePropertyChange(TABLE_CHANGE_EVENT, false, true);
+                // Create a runnable object to be executed
+                SwingUtilities.invokeLater(new Runnable()
+                {
+                    /**********************************************************
+                     * Execute after all pending Swing events are finished
+                     *********************************************************/
+                    @Override
+                    public void run()
+                    {
+                        // Process the table content change
+                        processTableContentChange();
+                    }
+                });
 
                 // Update the row heights for the visible rows
                 tableChanged(null);
@@ -1151,6 +1162,14 @@ public abstract class CcddJTableHandler extends JTable
                 tableChanged(null);
             }
         });
+    }
+
+    /**************************************************************************
+     * Placeholder for any steps to perform when a change to the table's
+     * content occurs
+     *************************************************************************/
+    protected void processTableContentChange()
+    {
     }
 
     /**************************************************************************
@@ -1794,7 +1813,7 @@ public abstract class CcddJTableHandler extends JTable
      *            true if the table's rows can be altered by the user via key
      *            presses (e.g., row insertion)
      *************************************************************************/
-    protected void setEditorKeys(final boolean isRowsAlterable)
+    private void setEditorKeys(final boolean isRowsAlterable)
     {
         // Add a key press listener for the table cells to filter out invalid
         // editor initiation keys and to listen for user keyboard commands
@@ -3896,20 +3915,10 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**************************************************************************
-     * Placeholder for steps to perform following a table edit that alters the
-     * cell contents
-     *************************************************************************/
-    protected void doTableUpdatePick()
-    {
-    }
-
-    /**************************************************************************
      * Table model class for handling cell undo/redo edits
      *************************************************************************/
     protected class UndoableTableModel extends DefaultTableModel
     {
-        int index = 0;
-
         /**********************************************************************
          * Return the class of the column object
          *********************************************************************/
@@ -3978,9 +3987,6 @@ public abstract class CcddJTableHandler extends JTable
             {
                 // Update the cell's value
                 super.setValueAt(value, row, column);
-
-                // Perform any extra steps following setting the cell value
-                doTableUpdatePick();
 
                 // Check if this edit is undoable and that there is an edit
                 // listener registered
@@ -4056,9 +4062,6 @@ public abstract class CcddJTableHandler extends JTable
             }
 
             super.setDataVector(dataVector, columnIdentifiers);
-
-            // Perform any extra steps following setting the data vector
-            doTableUpdatePick();
         }
 
         /**********************************************************************
@@ -4121,9 +4124,6 @@ public abstract class CcddJTableHandler extends JTable
             }
 
             super.insertRow(row, values);
-
-            // Perform any extra steps following inserting the row
-            doTableUpdatePick();
 
             // Set the table sort capability in case the table had no rows
             // prior to the insert
@@ -4192,9 +4192,6 @@ public abstract class CcddJTableHandler extends JTable
             setRowSorter(null);
 
             super.removeRow(row);
-
-            // Perform any extra steps following removing the row
-            doTableUpdatePick();
 
             // Set the table sort capability in case the table still has rows
             setTableSortable();

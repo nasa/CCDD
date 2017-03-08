@@ -3028,6 +3028,16 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
 
                 return showMessage == null;
             }
+
+            /******************************************************************
+             * Handle a change to the table's content
+             *****************************************************************/
+            @Override
+            protected void processTableContentChange()
+            {
+                // Update the change indicator for the table
+                editorDialog.updateChangeIndicator();
+            }
         };
 
         // Place the table into a scroll pane

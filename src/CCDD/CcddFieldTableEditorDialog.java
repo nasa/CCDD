@@ -20,7 +20,6 @@ import static CCDD.CcddConstants.REDO_ICON;
 import static CCDD.CcddConstants.SELECTED_BACK_COLOR;
 import static CCDD.CcddConstants.STORE_ICON;
 import static CCDD.CcddConstants.TABLE_BACK_COLOR;
-import static CCDD.CcddConstants.TABLE_CHANGE_EVENT;
 import static CCDD.CcddConstants.TABLE_ICON;
 import static CCDD.CcddConstants.UNDO_ICON;
 
@@ -35,8 +34,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.print.PageFormat;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -628,6 +625,20 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
                 return comp;
             }
+
+            /******************************************************************
+             * Handle a change to the table's content
+             *****************************************************************/
+            @Override
+            protected void processTableContentChange()
+            {
+                // Add or remove the change indicator based on whether any
+                // unstored changes exist
+                setTitle(DIALOG_TITLE
+                         + (dataFieldTable.isTableChanged(committedData)
+                                                                        ? "*"
+                                                                        : ""));
+            }
         };
 
         // Place the table into a scroll pane
@@ -647,28 +658,6 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
         // Discard the edits created by adding the columns initially
         dataFieldTable.getUndoManager().discardAllEdits();
-
-        // Add a listener for table content change events
-        dataFieldTable.addPropertyChangeListener(new PropertyChangeListener()
-        {
-            /******************************************************************
-             * Handle a table content change event
-             *****************************************************************/
-            @Override
-            public void propertyChange(PropertyChangeEvent pce)
-            {
-                // Check if the event indicates a table content change
-                if (pce.getPropertyName().equals(TABLE_CHANGE_EVENT))
-                {
-                    // Add or remove the change indicator based on whether any
-                    // unstored changes exist
-                    setTitle(DIALOG_TITLE
-                             + (dataFieldTable.isTableChanged(committedData)
-                                                                            ? "*"
-                                                                            : ""));
-                }
-            }
-        });
 
         // Define the panel to contain the table
         JPanel tablePnl = new JPanel();

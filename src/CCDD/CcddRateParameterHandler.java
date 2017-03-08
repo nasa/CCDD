@@ -6,12 +6,15 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
 import static CCDD.CcddConstants.TRAILING_ZEROES;
 
 import java.awt.Component;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.RateInformation;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.InputDataType;
@@ -814,5 +817,55 @@ public class CcddRateParameterHandler
         }
 
         return columnNames.toArray(new String[0]);
+    }
+
+    /**************************************************************************
+     * Get the array of the sample rate values for the specified rate column
+     * name with those rates not assigned to any telemetry parameter in the
+     * structure tables grayed out
+     * 
+     * @param rateName
+     *            rate column name
+     * 
+     * @param parent
+     *            GUI component calling this method
+     * 
+     * @return Array of the sample rate values for the specified rate column
+     *         name with those rates not assigned to any telemetry parameter in
+     *         the structure tables grayed out
+     *************************************************************************/
+    protected String[] getRatesInUse(String rateName, Component parent)
+    {
+        ArrayListMultiple ratesInUse = new ArrayListMultiple();
+
+        // Get the array of sample rates for this rate
+        String[] availableRates = getRateInformationByRateName(rateName).getSampleRates();
+
+        // Query the database for those values of the specified rate that are
+        // in use in all tables with a table type representing a structure,
+        // including any references in the custom values table
+        ratesInUse.addAll(dbTable.queryDatabase("SELECT rates FROM find_rates_by_name('"
+                                                + rateName
+                                                + "', '"
+                                                + rateName.toLowerCase().replaceAll("[^a-z0-9_]", "_")
+                                                + "', '{"
+                                                +
+                                                Arrays.toString(tableTypeHandler.getStructureTableTypes()).replaceAll("[\\[\\]]",
+                                                                                                                      "")
+                                                + "}');",
+                                                parent));
+
+        // Step through the available sample rates
+        for (int index = 0; index < availableRates.length; index++)
+        {
+            // Check if the rate isn't used by any telemetry parameter
+            if (!ratesInUse.contains(availableRates[index]))
+            {
+                // Flag the rate as disabled
+                availableRates[index] = DISABLED_TEXT_COLOR + availableRates[index];
+            }
+        }
+
+        return availableRates;
     }
 }

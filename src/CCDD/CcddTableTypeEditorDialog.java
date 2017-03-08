@@ -14,7 +14,6 @@ import static CCDD.CcddConstants.LABEL_FONT_BOLD;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.REDO_ICON;
 import static CCDD.CcddConstants.STORE_ICON;
-import static CCDD.CcddConstants.TABLE_CHANGE_EVENT;
 import static CCDD.CcddConstants.UNDO_ICON;
 import static CCDD.CcddConstants.UP_ICON;
 
@@ -24,8 +23,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.print.PageFormat;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -1261,25 +1258,6 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                                                                                      fieldDefinitions.toArray(new Object[0][0]),
                                                                                      this);
             typeEditors.add(editor);
-
-            // Add a listener for table content change events
-            editor.getTable().addPropertyChangeListener(new PropertyChangeListener()
-            {
-                /**************************************************************
-                 * Handle a table content change event
-                 *************************************************************/
-                @Override
-                public void propertyChange(PropertyChangeEvent pce)
-                {
-                    // Check if the event indicates a table content change
-                    if (pce.getPropertyName().equals(TABLE_CHANGE_EVENT))
-                    {
-                        // Update the change indicator for the current table
-                        // type tab
-                        updateChangeIndicator();
-                    }
-                }
-            });
 
             // Create a tab for each table type
             tabbedPane.addTab(editor.getTypeName(),

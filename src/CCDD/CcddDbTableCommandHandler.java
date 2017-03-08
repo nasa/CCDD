@@ -375,7 +375,7 @@ public class CcddDbTableCommandHandler
      *         returned by the database query; returns null if the query
      *         produces an error, or an empty array if there are no results
      *************************************************************************/
-    protected List<String[]> getDatabaseQuery(String sqlCommand,
+    protected List<String[]> queryDatabase(String sqlCommand,
                                               Component parent)
     {
         List<String[]> queryResults = null;
