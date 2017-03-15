@@ -71,6 +71,10 @@ public interface CcddImportExportInterface
      *            true to replace any embedded macros with their corresponding
      *            values
      * 
+     * @param includeReservedMsgIDs
+     *            true to include the contents of the reserved message ID table
+     *            in the export file
+     * 
      * @param extraInfo
      *            extra parameters dependent on the export format
      * 
@@ -80,5 +84,6 @@ public interface CcddImportExportInterface
     abstract boolean exportToFile(File exportFile,
                                   String[] tableNames,
                                   boolean replaceMacros,
+                                  boolean includeReservedMsgIDs,
                                   String... extraInfo);
 }

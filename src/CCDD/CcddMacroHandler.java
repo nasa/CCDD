@@ -574,7 +574,7 @@ public class CcddMacroHandler
             // Check if the supplied name matches this macro's name
             if (macroName.equalsIgnoreCase(macro[MacrosColumn.MACRO_NAME.ordinal()]))
             {
-                // Get the associated macro value and stop searching
+                // Get the associated macro OID and stop searching
                 macroIndex = macro[MacrosColumn.OID.ordinal()];
                 break;
             }
@@ -603,7 +603,7 @@ public class CcddMacroHandler
     /**************************************************************************
      * Check if the supplied macro name is already in use (case insensitive)
      * 
-     * @param text
+     * @param macroName
      *            macro name
      * 
      * @return true if the supplied macro name is already in use

@@ -50,6 +50,7 @@ import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.JSONTags;
 import CCDD.CcddConstants.MacroEditorColumnInfo;
+import CCDD.CcddConstants.ReservedMsgIDEditorColumnInfo;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
@@ -65,6 +66,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
     private final CcddTableTypeHandler tableTypeHandler;
     private final CcddDataTypeHandler dataTypeHandler;
     private final CcddMacroHandler macroHandler;
+    private final CcddReservedMsgIDHandler msgIDHandler;
     private TableInformation tableInfo;
 
     // GUI component instantiating this class
@@ -92,6 +94,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
         tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
+        msgIDHandler = ccddMain.getReservedMsgIDHandler();
     }
 
     /**************************************************************************
@@ -282,6 +285,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
             boolean continueOnTableTypeError = false;
             boolean continueOnDataTypeError = false;
             boolean continueOnMacroError = false;
+            boolean continueOnReservedMsgIDError = false;
             boolean continueOnColumnError = false;
             boolean continueOnDataFieldError = false;
 
@@ -398,7 +402,8 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                 int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                     "<html><b>Table type '"
                                                                                                         + typeName
-                                                                                                        + "' definition has missing or extra input(s) in import file '</b>"
+                                                                                                        + "' definition has missing or extra "
+                                                                                                        + "input(s) in import file '</b>"
                                                                                                         + importFile.getAbsolutePath()
                                                                                                         + "<b>'; continue?",
                                                                                                     "Table Type Error",
@@ -446,8 +451,9 @@ public class CcddJSONHandler implements CcddImportExportInterface
             // Check if all definitions are to be loaded
             if (importType == ImportType.IMPORT_ALL)
             {
-                List<String[]> dataTypeDefinitions = new ArrayList<String[]>();
-                List<String[]> macroDefinitions = new ArrayList<String[]>();
+                List<String[]> dataTypeDefns = new ArrayList<String[]>();
+                List<String[]> macroDefns = new ArrayList<String[]>();
+                List<String[]> reservedMsgIDDefns = new ArrayList<String[]>();
 
                 // Get the data type definitions JSON object
                 defn = jsonObject.get(JSONTags.DATA_TYPE_DEFN.getTag());
@@ -476,11 +482,11 @@ public class CcddJSONHandler implements CcddImportExportInterface
                         {
                             // Add the data type definition (add a blank to
                             // represent the OID)
-                            dataTypeDefinitions.add(new String[] {userName,
-                                                                  cName,
-                                                                  size,
-                                                                  baseType,
-                                                                  ""});
+                            dataTypeDefns.add(new String[] {userName,
+                                                            cName,
+                                                            size,
+                                                            baseType,
+                                                            ""});
                         }
                         // Incorrect number of inputs. Check if the user
                         // hasn't already elected to ignore data type errors
@@ -489,7 +495,8 @@ public class CcddJSONHandler implements CcddImportExportInterface
                             // Inform the user that the data type inputs are
                             // incorrect
                             int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                "<html><b>Missing or extra data type definition input(s) in import file '</b>"
+                                                                                                "<html><b>Missing or extra data type definition "
+                                                                                                    + "input(s) in import file '</b>"
                                                                                                     + importFile.getAbsolutePath()
                                                                                                     + "<b>'; continue?",
                                                                                                 "Data Type Error",
@@ -536,7 +543,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
                         {
                             // Add the macro definition (add a blank to
                             // represent the OID)
-                            macroDefinitions.add(new String[] {name, value, ""});
+                            macroDefns.add(new String[] {name, value, ""});
                         }
                         // Incorrect number of inputs. Check if the user
                         // hasn't already elected to ignore macro errors
@@ -544,7 +551,8 @@ public class CcddJSONHandler implements CcddImportExportInterface
                         {
                             // Inform the user that the macro name is missing
                             int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                "<html><b>Missing or extra macro definition input(s) in import file '</b>"
+                                                                                                "<html><b>Missing or extra macro definition "
+                                                                                                    + "input(s) in import file '</b>"
                                                                                                     + importFile.getAbsolutePath()
                                                                                                     + "<b>'; continue?",
                                                                                                 "Macro Error",
@@ -570,9 +578,66 @@ public class CcddJSONHandler implements CcddImportExportInterface
                     }
                 }
 
+                // Get the reserved message ID definitions JSON object
+                defn = jsonObject.get(JSONTags.RESERVED_MSG_ID_DEFN.getTag());
+
+                // Check if the reserved message ID definitions exist
+                if (defn != null && defn instanceof JSONArray)
+                {
+                    // Step through each reserved message ID definition
+                    for (JSONObject reservedMsgIDJO : parseJSONArray(defn))
+                    {
+                        // Get the reserved message ID definition components
+                        String name = getString(reservedMsgIDJO,
+                                                ReservedMsgIDEditorColumnInfo.MSG_ID.getColumnName());
+                        String value = getString(reservedMsgIDJO,
+                                                 ReservedMsgIDEditorColumnInfo.DESCRIPTION.getColumnName());
+
+                        // Check if the expected inputs are present
+                        if (!name.isEmpty()
+                            && reservedMsgIDJO.keySet().size() < ReservedMsgIDEditorColumnInfo.values().length)
+                        {
+                            // Add the reserved message ID definition (add a
+                            // blank to represent the OID)
+                            reservedMsgIDDefns.add(new String[] {name, value, ""});
+                        }
+                        // Incorrect number of inputs. Check if the user hasn't
+                        // already elected to ignore reserved message ID errors
+                        else if (!continueOnReservedMsgIDError)
+                        {
+                            // Inform the user that the reserved message ID is
+                            // missing
+                            int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                "<html><b>Missing or extra reserved message ID "
+                                                                                                    + "definition input(s) in import file '</b>"
+                                                                                                    + importFile.getAbsolutePath()
+                                                                                                    + "<b>'; continue?",
+                                                                                                "Reserved Message ID Error",
+                                                                                                "Ignore this reserved message ID",
+                                                                                                "Ignore this and any remaining invalid reserved message IDs",
+                                                                                                "Stop importing");
+
+                            // Check if the Ignore All button was pressed
+                            if (buttonSelected == IGNORE_BUTTON)
+                            {
+                                // Set the flag to ignore subsequent reserved
+                                // message ID errors
+                                continueOnMacroError = true;
+                            }
+                            // Check if the Cancel button was pressed
+                            else if (buttonSelected == CANCEL_BUTTON)
+                            {
+                                // No error message is provided since the user
+                                // chose this action
+                                throw new CCDDException();
+                            }
+                        }
+                    }
+                }
+
                 // Add the data type if it's new or match it to an existing one
                 // with the same name if the type definitions are the same
-                badDefn = dataTypeHandler.updateDataTypes(dataTypeDefinitions);
+                badDefn = dataTypeHandler.updateDataTypes(dataTypeDefns);
 
                 // Check if a data type isn't new and doesn't match an
                 // existing one with the same name
@@ -585,7 +650,10 @@ public class CcddJSONHandler implements CcddImportExportInterface
 
                 // Add the macro if it's new or match it to an existing one
                 // with the same name if the values are the same
-                badDefn = macroHandler.updateMacros(macroDefinitions);
+                badDefn = macroHandler.updateMacros(macroDefns);
+
+                // Add the reserved message ID definition if it's new
+                msgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);
 
                 // Check if a macro isn't new and doesn't match an existing one
                 // with the same name
@@ -789,7 +857,8 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                     int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                         "<html><b>Table '</b>"
                                                                                                             + tableName
-                                                                                                            + "<b>' has missing or extra data field input(s) in import file '</b>"
+                                                                                                            + "<b>' has missing or extra data field "
+                                                                                                            + "input(s) in import file '</b>"
                                                                                                             + importFile.getAbsolutePath()
                                                                                                             + "<b>'; continue?",
                                                                                                         "Data Field Error",
@@ -881,6 +950,10 @@ public class CcddJSONHandler implements CcddImportExportInterface
      *            true to replace any embedded macros with their corresponding
      *            values
      * 
+     * @param includeReservedMsgIDs
+     *            true to include the contents of the reserved message ID table
+     *            in the export file
+     * 
      * @param extraInfo
      *            [0] name of the data field containing the system name
      * 
@@ -892,6 +965,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
     public boolean exportToFile(File exportFile,
                                 String[] tableNames,
                                 boolean replaceMacros,
+                                boolean includeReservedMsgIDs,
                                 String... extraInfo)
     {
         boolean errorFlag = false;
@@ -1032,9 +1106,16 @@ public class CcddJSONHandler implements CcddImportExportInterface
             // output
             outputJO = getDataTypeDefinitions(referencedDataTypes, outputJO);
 
-            // Add the referenced macro definition(s), if any, to the
-            // output
+            // Add the referenced macro definition(s), if any, to the output
             outputJO = getMacroDefinitions(referencedMacros, outputJO);
+
+            // Check if the user elected to store the reserved message IDs
+            if (includeReservedMsgIDs)
+            {
+                // Add the reserved message ID definition(s), if any, to the
+                // output
+                outputJO = getReservedMsgIDDefinitions(outputJO);
+            }
 
             // Create a JavaScript engine for use in formatting the JSON output
             ScriptEngineManager manager = new ScriptEngineManager();
@@ -1582,6 +1663,50 @@ public class CcddJSONHandler implements CcddImportExportInterface
             {
                 // Add the macro definition(s) to the JSON output
                 outputJO.put(JSONTags.MACRO_DEFN.getTag(), macroJA);
+            }
+        }
+
+        return outputJO;
+    }
+
+    /**************************************************************************
+     * Add the reserved message ID definition(s)
+     * 
+     * @param outputJO
+     *            JSON object to which the reserved message IDs are added
+     * 
+     * @return The supplied JSON object, with the reserved message ID
+     *         definitions added (if any)
+     *************************************************************************/
+    @SuppressWarnings("unchecked")
+    protected JSONObject getReservedMsgIDDefinitions(JSONObject outputJO)
+    {
+        JSONArray reservedMsgIDJA = null;
+
+        // Check if there are any reserved message IDs defined
+        if (!msgIDHandler.getReservedMsgIDData().isEmpty())
+        {
+            reservedMsgIDJA = new JSONArray();
+
+            // Step through each reserved message ID definition
+            for (String[] reservedMsgIDDefn : msgIDHandler.getReservedMsgIDData())
+            {
+                // Store the macro name and value
+                JSONObject macroJO = new JSONObject();
+                macroJO.put(ReservedMsgIDEditorColumnInfo.MSG_ID.getColumnName(),
+                            reservedMsgIDDefn[ReservedMsgIDEditorColumnInfo.MSG_ID.ordinal()]);
+                macroJO.put(ReservedMsgIDEditorColumnInfo.DESCRIPTION.getColumnName(),
+                            reservedMsgIDDefn[ReservedMsgIDEditorColumnInfo.DESCRIPTION.ordinal()]);
+
+                // Add the reserved message ID definition to the array
+                reservedMsgIDJA.add(macroJO);
+            }
+
+            // Check if a reserved message ID is defined
+            if (!reservedMsgIDJA.isEmpty())
+            {
+                // Add the reserved message ID definition(s) to the JSON output
+                outputJO.put(JSONTags.RESERVED_MSG_ID_DEFN.getTag(), reservedMsgIDJA);
             }
         }
 

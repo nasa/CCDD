@@ -299,6 +299,10 @@ public class CcddTableTypeEditorHandler extends CcddEditorPanelHandler
             committedDescription = getDescription();
             setCommittedInformation(fieldHandler);
 
+            // Send a change event so that the editor tab name reflects that
+            // the table has changed
+            table.getUndoManager().ownerHasChanged();
+
             // Clear the undo/redo cell edits stack
             table.getUndoManager().discardAllEdits();
         }

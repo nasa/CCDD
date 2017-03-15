@@ -704,7 +704,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                 setUpdatableCharacteristics(committedData,
                                             DataTypeEditorColumnInfo.getColumnNames(),
                                             null,
-                                            new Integer[] {DataTypesColumn.OID.ordinal()},
+                                            new Integer[] {DataTypeEditorColumnInfo.OID.ordinal()},
                                             null,
                                             DataTypeEditorColumnInfo.getToolTips(),
                                             true,

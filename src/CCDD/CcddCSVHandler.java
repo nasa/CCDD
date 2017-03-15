@@ -35,6 +35,7 @@ import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
+import CCDD.CcddConstants.InternalTable.ReservedMsgIDsColumn;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
@@ -49,6 +50,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
     private final CcddDataTypeHandler dataTypeHandler;
     private final CcddDbControlHandler dbControl;
     private final CcddMacroHandler macroHandler;
+    private final CcddReservedMsgIDHandler msgIDHandler;
 
     // GUI component instantiating this class
     private final Component parent;
@@ -72,7 +74,8 @@ public class CcddCSVHandler implements CcddImportExportInterface
         DATA_FIELD("_data_fields_"),
         MACRO("_macros_"),
         TABLE_TYPE("_table_type_"),
-        DATA_TYPE("_data_type_");
+        DATA_TYPE("_data_type_"),
+        RESERVED_MSG_IDS("_reserved_msg_ids_");
 
         private final String tag;
 
@@ -112,6 +115,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
         tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
+        msgIDHandler = ccddMain.getReservedMsgIDHandler();
     }
 
     /**************************************************************************
@@ -158,9 +162,10 @@ public class CcddCSVHandler implements CcddImportExportInterface
 
         try
         {
-            List<TableTypeDefinition> tableTypeDefinitions = new ArrayList<TableTypeDefinition>();
-            List<String[]> dataTypeDefinitions = new ArrayList<String[]>();
-            List<String[]> macroDefinitions = new ArrayList<String[]>();
+            List<TableTypeDefinition> tableTypeDefns = new ArrayList<TableTypeDefinition>();
+            List<String[]> dataTypeDefns = new ArrayList<String[]>();
+            List<String[]> macroDefns = new ArrayList<String[]>();
+            List<String[]> reservedMsgIDDefns = new ArrayList<String[]>();
             tableDefinitions = new ArrayList<TableDefinition>();
 
             // Make two passes through the file, first to get the table types,
@@ -180,6 +185,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                 boolean continueOnMacroError = false;
                 boolean continueOnColumnError = false;
                 boolean continueOnDataFieldError = false;
+                boolean continueOnReservedMsgIDError = false;
 
                 // Initialize the input tag
                 CSVTags importTag = null;
@@ -304,6 +310,13 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                 // Set the input type to look for the macro(s)
                                 importTag = CSVTags.MACRO;
                             }
+                            // Check if this is the reserved message IDs tag
+                            else if (columnValues[0].equalsIgnoreCase(CSVTags.RESERVED_MSG_IDS.getTag()))
+                            {
+                                // Set the input type to look for the reserved
+                                // IDs
+                                importTag = CSVTags.RESERVED_MSG_IDS;
+                            }
                             // Not a tag (or no table name and type are
                             // defined); read in the information based on the
                             // last tag read
@@ -337,7 +350,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                                                                                      ? columnValues[1]
                                                                                                                      : ""));
 
-                                                    tableTypeDefinitions.add(tableTypeDefn);
+                                                    tableTypeDefns.add(tableTypeDefn);
                                                 }
                                                 // Check if the user hasn't
                                                 // already elected to ignore
@@ -457,7 +470,8 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                     int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                                         "<html><b>Table type '"
                                                                                                                             + tableTypeDefn.getTypeName()
-                                                                                                                            + "' definition has missing or extra input(s) in import file '</b>"
+                                                                                                                            + "' definition has missing or extra "
+                                                                                                                            + "input(s) in import file '</b>"
                                                                                                                             + importFile.getAbsolutePath()
                                                                                                                             + "<b>'; continue?",
                                                                                                                         "Table Type Error",
@@ -501,11 +515,11 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                     // Add the data type
                                                     // definition (add a blank
                                                     // to represent the OID)
-                                                    dataTypeDefinitions.add(new String[] {columnValues[DataTypesColumn.USER_NAME.ordinal()],
-                                                                                          columnValues[DataTypesColumn.C_NAME.ordinal()],
-                                                                                          columnValues[DataTypesColumn.SIZE.ordinal()],
-                                                                                          columnValues[DataTypesColumn.BASE_TYPE.ordinal()],
-                                                                                          ""});
+                                                    dataTypeDefns.add(new String[] {columnValues[DataTypesColumn.USER_NAME.ordinal()],
+                                                                                    columnValues[DataTypesColumn.C_NAME.ordinal()],
+                                                                                    columnValues[DataTypesColumn.SIZE.ordinal()],
+                                                                                    columnValues[DataTypesColumn.BASE_TYPE.ordinal()],
+                                                                                    ""});
                                                 }
                                                 // Check if the user
                                                 // hasn't already elected to
@@ -516,7 +530,8 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                     // data type inputs are
                                                     // incorrect
                                                     int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                                        "<html><b>Missing or extra data type definition input(s) in import file '</b>"
+                                                                                                                        "<html><b>Missing or extra data type definition "
+                                                                                                                            + "input(s) in import file '</b>"
                                                                                                                             + importFile.getAbsolutePath()
                                                                                                                             + "<b>'; continue?",
                                                                                                                         "Data Type Error",
@@ -562,11 +577,11 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                     // Add the macro definition
                                                     // (add a blank to
                                                     // represent the OID)
-                                                    macroDefinitions.add(new String[] {columnValues[0],
-                                                                                       (columnValues.length == 2
-                                                                                                                ? columnValues[1]
-                                                                                                                : ""),
-                                                                                       ""});
+                                                    macroDefns.add(new String[] {columnValues[0],
+                                                                                 (columnValues.length == 2
+                                                                                                          ? columnValues[1]
+                                                                                                          : ""),
+                                                                                 ""});
                                                 }
                                                 // Check if the user
                                                 // hasn't already elected to
@@ -577,7 +592,8 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                     // macro inputs are
                                                     // incorrect
                                                     int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                                        "<html><b>Missing or extra macro definition input(s) in import file '</b>"
+                                                                                                                        "<html><b>Missing or extra macro definition "
+                                                                                                                            + "input(s) in import file '</b>"
                                                                                                                             + importFile.getAbsolutePath()
                                                                                                                             + "<b>'; continue?",
                                                                                                                         "Macro Error",
@@ -593,6 +609,67 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                         // ignore subsequent
                                                         // macro errors
                                                         continueOnMacroError = true;
+                                                    }
+                                                    // Check if the Cancel
+                                                    // button was pressed
+                                                    else if (buttonSelected == CANCEL_BUTTON)
+                                                    {
+                                                        // No error message is
+                                                        // provided since the
+                                                        // user chose this
+                                                        // action
+                                                        throw new CCDDException();
+                                                    }
+                                                }
+                                            }
+
+                                            break;
+
+                                        case RESERVED_MSG_IDS:
+                                            // Check if all definitions are to
+                                            // be loaded
+                                            if (importType == ImportType.IMPORT_ALL)
+                                            {
+                                                // Check if the expected number
+                                                // of inputs is present
+                                                if (columnValues.length == 2)
+                                                {
+                                                    // Add the reserved message
+                                                    // ID definition (add a
+                                                    // blank to represent the
+                                                    // OID)
+                                                    reservedMsgIDDefns.add(new String[] {columnValues[ReservedMsgIDsColumn.MSG_ID.ordinal()],
+                                                                                         columnValues[ReservedMsgIDsColumn.DESCRIPTION.ordinal()],
+                                                                                         ""});
+                                                }
+                                                // Check if the user
+                                                // hasn't already elected to
+                                                // ignore reserved message ID
+                                                // errors
+                                                else if (!continueOnReservedMsgIDError)
+                                                {
+                                                    // Inform the user that the
+                                                    // reserved message ID
+                                                    // inputs are incorrect
+                                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                                        "<html><b>Missing or extra reserved message ID "
+                                                                                                                            + "definition input(s) in import file '</b>"
+                                                                                                                            + importFile.getAbsolutePath()
+                                                                                                                            + "<b>'; continue?",
+                                                                                                                        "Reserved Message ID Error",
+                                                                                                                        "Ignore this data type",
+                                                                                                                        "Ignore this and any remaining invalid reserved message IDs",
+                                                                                                                        "Stop importing");
+
+                                                    // Check if the Ignore All
+                                                    // button was pressed
+                                                    if (buttonSelected == IGNORE_BUTTON)
+                                                    {
+                                                        // Set the flag to
+                                                        // ignore subsequent
+                                                        // reserved message ID
+                                                        // errors
+                                                        continueOnReservedMsgIDError = true;
                                                     }
                                                     // Check if the Cancel
                                                     // button was pressed
@@ -842,7 +919,8 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                     int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                                         "<html><b>Table '</b>"
                                                                                                                             + tableDefn.getName()
-                                                                                                                            + "<b>' has missing or extra data field input(s) in import file '</b>"
+                                                                                                                            + "<b>' has missing or extra data field "
+                                                                                                                            + "input(s) in import file '</b>"
                                                                                                                             + importFile.getAbsolutePath()
                                                                                                                             + "<b>'; continue?",
                                                                                                                         "Data Field Error",
@@ -877,6 +955,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                         case DATA_TYPE:
                                         case MACRO:
                                         case TABLE_TYPE:
+                                        case RESERVED_MSG_IDS:
                                             break;
 
                                         default:
@@ -917,7 +996,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                     // Add the table type if it's new or match it to an
                     // existing one with the same name if the type definitions
                     // are the same
-                    String badDefn = tableTypeHandler.updateTableTypes(tableTypeDefinitions);
+                    String badDefn = tableTypeHandler.updateTableTypes(tableTypeDefns);
 
                     // Check if a table type isn't new and doesn't match an
                     // existing one with the same name
@@ -934,7 +1013,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                         // Add the data type if it's new or match it to an
                         // existing one with the same name if the type
                         // definitions are the same
-                        badDefn = dataTypeHandler.updateDataTypes(dataTypeDefinitions);
+                        badDefn = dataTypeHandler.updateDataTypes(dataTypeDefns);
 
                         // Check if a data type isn't new and doesn't match an
                         // existing one with the same name
@@ -947,7 +1026,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
 
                         // Add the macro if it's new or match it to an existing
                         // one with the same name if the values are the same
-                        badDefn = macroHandler.updateMacros(macroDefinitions);
+                        badDefn = macroHandler.updateMacros(macroDefns);
 
                         // Check if a macro isn't new and doesn't match an
                         // existing one with the same name
@@ -957,6 +1036,9 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                     + badDefn
                                                     + "' doesn't match the existing definition");
                         }
+
+                        // Add the reserved message ID if it's new
+                        msgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);
                     }
                 }
             }
@@ -999,6 +1081,10 @@ public class CcddCSVHandler implements CcddImportExportInterface
      *            true to replace any embedded macros with their corresponding
      *            values
      * 
+     * @param includeReservedMsgIDs
+     *            true to include the contents of the reserved message ID table
+     *            in the export file
+     * 
      * @param extraInfo
      *            [0] name of the data field containing the system name
      * 
@@ -1009,6 +1095,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
     public boolean exportToFile(File exportFile,
                                 String[] tableNames,
                                 boolean replaceMacros,
+                                boolean includeReservedMsgIDs,
                                 String... extraInfo)
     {
         boolean errorFlag = false;
@@ -1255,7 +1342,6 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                   dataType[DataTypesColumn.C_NAME.ordinal()],
                                   dataType[DataTypesColumn.SIZE.ordinal()],
                                   dataType[DataTypesColumn.BASE_TYPE.ordinal()]);
-
                     }
                 }
             }
@@ -1273,8 +1359,28 @@ public class CcddCSVHandler implements CcddImportExportInterface
                     if (referencedMacros.contains(macro[MacrosColumn.MACRO_NAME.ordinal()]))
                     {
                         // Output the macro definition
-                        pw.printf("\"%s\",\"%s\"\n", macro[0], macro[1]);
+                        pw.printf("\"%s\",\"%s\"\n",
+                                  macro[MacrosColumn.MACRO_NAME.ordinal()],
+                                  macro[MacrosColumn.VALUE.ordinal()]);
                     }
+                }
+            }
+
+            // Check if the user elected to store the reserved message IDs and
+            // if there are any reserved message IDs defined
+            if (includeReservedMsgIDs && !msgIDHandler.getReservedMsgIDData().isEmpty())
+            {
+                // Output the reserved message ID marker
+                pw.printf("\n" + CSVTags.RESERVED_MSG_IDS.getTag() + "\n");
+
+                // Step through each reserved message ID
+                for (String[] reservedMsgID : msgIDHandler.getReservedMsgIDData())
+                {
+                    // Output the reserved message ID definition
+                    pw.printf("\"%s\",\"%s\"\n",
+                              reservedMsgID[ReservedMsgIDsColumn.MSG_ID.ordinal()],
+                              reservedMsgID[ReservedMsgIDsColumn.DESCRIPTION.ordinal()]);
+
                 }
             }
         }

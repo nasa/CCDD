@@ -53,6 +53,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
     // Components references by multiple methods
     private JButton btnAutoFill;
     private JButton btnAssign;
+    private JButton btnClearRate;
     private JButton btnClear;
     private JButton btnAddSubMessage;
     private JButton btnDeleteSubMessage;
@@ -141,6 +142,35 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
             }
         });
 
+        // Clear Rate button
+        btnClearRate = CcddButtonPanelHandler.createButton("Clear Rate",
+                                                           UNDO_ICON,
+                                                           KeyEvent.VK_R,
+                                                           "Remove the variables of the currently selected rate from all messages");
+
+        // Add a listener for the Clear Rate button
+        btnClearRate.addActionListener(new ValidateCellActionListener()
+        {
+            /******************************************************************
+             * Remove the variables of the currently selected rate from all
+             * messages in the currently selected data stream
+             *****************************************************************/
+            @Override
+            protected void performAction(ActionEvent ae)
+            {
+                activeSchHandler.getSchedulerEditor().clearVariablesFromMessages(activeSchHandler.getSchedulerInput().getSelectedRate());
+            }
+
+            /******************************************************************
+             * Get the reference to the currently displayed table
+             *****************************************************************/
+            @Override
+            protected CcddJTableHandler getTable()
+            {
+                return activeSchHandler.getSchedulerEditor().getTable();
+            }
+        });
+
         // Clear Msgs button
         btnClear = CcddButtonPanelHandler.createButton("Clear Msgs",
                                                        UNDO_ICON,
@@ -157,7 +187,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
             @Override
             protected void performAction(ActionEvent ae)
             {
-                activeSchHandler.getSchedulerEditor().clearMessages();
+                activeSchHandler.getSchedulerEditor().clearVariablesFromMessages(null);
             }
 
             /******************************************************************
@@ -236,14 +266,15 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
         btnAssign.addActionListener(new ValidateCellActionListener()
         {
             /******************************************************************
-             * Automatically assign message names and/or IDs to the messages
+             * Automatically assign names and/or IDs to the telemetry messages
              * and sub-messages
              *****************************************************************/
             @Override
             protected void performAction(ActionEvent ae)
             {
-                new CcddAssignTelemetryMsgIDDialog(activeSchHandler.getCurrentMessages(),
-                                                   CcddTelemetrySchedulerDialog.this);
+                new CcddAssignMessageIDDialog(ccddMain,
+                                              activeSchHandler.getCurrentMessages(),
+                                              CcddTelemetrySchedulerDialog.this);
             }
 
             /******************************************************************
@@ -323,22 +354,15 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
             }
         });
 
-        // Invisible button for aligning the buttons in the button panel
-        JButton btnDummy = new JButton("");
-        btnDummy.setFocusable(false);
-        btnDummy.setOpaque(false);
-        btnDummy.setContentAreaFilled(false);
-        btnDummy.setBorderPainted(false);
-
         // Add buttons in the order in which they'll appear (left to right, top
         // to bottom)
         buttonPanel.add(btnAutoFill);
+        buttonPanel.add(btnClearRate);
         buttonPanel.add(btnAddSubMessage);
-        buttonPanel.add(btnAssign);
         buttonPanel.add(btnStore);
+        buttonPanel.add(btnAssign);
         buttonPanel.add(btnClear);
         buttonPanel.add(btnDeleteSubMessage);
-        buttonPanel.add(btnDummy);
         buttonPanel.add(btnClose);
 
         // Create two rows of buttons

@@ -8,6 +8,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.BACKUP_FILE_EXTENSION;
 import static CCDD.CcddConstants.DATABASE;
+import static CCDD.CcddConstants.DATABASE_DRIVER;
 import static CCDD.CcddConstants.DATABASE_TYPE_IDENTIFIER;
 import static CCDD.CcddConstants.DEFAULT_DATABASE;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_HOST;
@@ -43,6 +44,7 @@ import java.util.Map;
 import javax.swing.JOptionPane;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
+import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddConstants.ConnectionType;
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.DatabaseObject;
@@ -861,9 +863,14 @@ public class CcddDbControlHandler
     /**************************************************************************
      * Create the reusable database functions and default tables. This does not
      * include the default column functions
+     * 
+     * @return true if an error occurs creating the database functions or
+     *         tables
      *************************************************************************/
-    private void createTablesAndFunctions()
+    private boolean createTablesAndFunctions()
     {
+        boolean errorFlag = false;
+
         try
         {
             // Send command to create the procedural language in the database
@@ -899,9 +906,14 @@ public class CcddDbControlHandler
                 // table is a special type for storing specific scripts
                 if (intTable != InternalTable.SCRIPT)
                 {
-                    // Create the default internal table
-                    dbCommand.executeDbCommand(buildInformationTableCommand(intTable),
-                                               ccddMain.getMainFrame());
+                    // Check if the internal table doesn't exist
+                    if (!ccddMain.getDbTableCommandHandler().isTableExists(intTable.getTableName(),
+                                                                           ccddMain.getMainFrame()))
+                    {
+                        // Create the default internal table
+                        dbCommand.executeDbCommand(buildInformationTableCommand(intTable),
+                                                   ccddMain.getMainFrame());
+                    }
                 }
             }
 
@@ -1045,30 +1057,41 @@ public class CcddDbControlHandler
             // + "END $$ LANGUAGE plpgsql; "
             // + buildOwnerCommand(DatabaseObject.FUNCTION,
             // "get_table_as_xml(tablename text)"));
+
+            // Inform the user that the database table function creation
+            // succeeded
+            eventLog.logEvent(SUCCESS_MSG, "Database tables and functions created");
         }
         catch (SQLException se)
         {
             // Inform the user that creating the database functions failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                  "Cannot create functions in project database '"
+                                  "Cannot create tables and functions in project database '"
                                       + activeDatabase
                                       + "' as user '"
                                       + activeUser
                                       + "'; cause '"
                                       + se.getMessage()
                                       + "'",
-                                  "<html><b>Cannot create functions in project database '</b>"
+                                  "<html><b>Cannot create tables and functions in project database '</b>"
                                       + activeDatabase
                                       + "<b>'");
+            errorFlag = true;
         }
+
+        return errorFlag;
     }
 
     /**************************************************************************
      * Create the reusable database functions for obtaining structure table
      * members and structure-defining column values
+     * 
+     * @return true if an error occurs creating the structure functions
      *************************************************************************/
-    protected void createStructureColumnFunctions()
+    protected boolean createStructureColumnFunctions()
     {
+        boolean errorFlag = false;
+
         // Check if connected to a project database
         if (connectionStatus == TO_DATABASE)
         {
@@ -1377,23 +1400,30 @@ public class CcddDbControlHandler
                                                                "update_data_type_names(oldType text,"
                                                                    + " newType text)"),
                                            ccddMain.getMainFrame());
+
+                // Inform the user that the database function creation
+                // succeeded
+                eventLog.logEvent(SUCCESS_MSG, "Database structure functions created");
             }
             catch (SQLException se)
             {
                 // Inform the user that creating the database functions failed
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                      "Cannot create functions in project database '"
+                                      "Cannot create structure functions in project database '"
                                           + activeDatabase
                                           + "' as user '"
                                           + activeUser
                                           + "'; cause '"
                                           + se.getMessage()
                                           + "'",
-                                      "<html><b>Cannot create functions in project database '</b>"
+                                      "<html><b>Cannot create structure functions in project database '</b>"
                                           + activeDatabase
                                           + "<b>'");
+                errorFlag = true;
             }
         }
+
+        return errorFlag;
     }
 
     /**************************************************************************
@@ -1424,27 +1454,12 @@ public class CcddDbControlHandler
      *************************************************************************/
     protected String buildInformationTableCommand(InternalTable intTable)
     {
-        // Create the default internal table
-        return deleteFunction("make" + intTable.getTableName())
-               + "CREATE FUNCTION make"
-               + intTable.getTableName()
-               + "() "
-               + "RETURNS VOID AS $$ BEGIN CREATE TABLE "
+        return "CREATE TABLE "
                + intTable.getTableName()
                + " "
                + intTable.getColumnCommand(true)
                + buildOwnerCommand(DatabaseObject.TABLE,
-                                   intTable.getTableName())
-               + "END $$ LANGUAGE plpgsql; "
-
-               + "SELECT CASE WHEN EXISTS(SELECT * "
-               + "FROM pg_tables WHERE tablename = '"
-               + intTable.getTableName()
-               + "') THEN NULL ELSE make"
-               + intTable.getTableName()
-               + "() END; DROP FUNCTION make"
-               + intTable.getTableName()
-               + "();";
+                                   intTable.getTableName());
     }
 
     /**************************************************************************
@@ -1657,120 +1672,87 @@ public class CcddDbControlHandler
                 && !serverHost.isEmpty()
                 && !activeUser.isEmpty())
             {
-                // Create the database driver class name
-                String databaseDriver = "org.postgresql.Driver";
-
                 try
                 {
                     // Register the JDBC driver
-                    Class.forName(databaseDriver);
+                    Class.forName(DATABASE_DRIVER);
 
                     // Check if the attempt to connect to the database fails
                     if (connectToDatabase(databaseName))
                     {
-                        // Set the flag indicating the connection attempt
-                        // failed
-                        errorFlag = true;
-
-                        // Check that the database isn't the default database
-                        // (server)
-                        if (!databaseName.equals(DEFAULT_DATABASE))
-                        {
-                            // Attempt to connect to the default database
-                            errorFlag = connectToDatabase(DEFAULT_DATABASE);
-                        }
+                        throw new CCDDException();
                     }
 
-                    // Check that no error occurred connecting to the database
-                    if (!errorFlag)
+                    // Check that the database isn't the default database
+                    // (server)
+                    if (!activeDatabase.equals(DEFAULT_DATABASE))
                     {
-                        // Check that the database isn't the default database
-                        // (server)
-                        if (!activeDatabase.equals(DEFAULT_DATABASE))
+                        // Check if the GUI is visible. If the application is
+                        // started with the GUI hidden (for command line script
+                        // execution or as a web server) then the project
+                        // database is left unlocked
+                        if (!ccddMain.isGUIHidden())
                         {
-                            // Check if the GUI is visible. If the application
-                            // is started with the GUI hidden (for command line
-                            // script execution or as a web server) then the
-                            // project database is left unlocked
-                            if (!ccddMain.isGUIHidden())
-                            {
-                                // Lock the database
-                                setDatabaseLockStatus(activeDatabase, true);
-                            }
-
-                            // Check if the internal tables and functions
-                            // should be created
-                            if (createFunctions)
-                            {
-                                // Create the internal tables (if not present)
-                                // and the reusable database functions
-                                createTablesAndFunctions();
-                            }
-
-                            // Read the table types, macros, and rate
-                            // parameters from the database
-                            ccddMain.setDbSpecificHandlers();
-
-                            // Initialize the application parameters using the
-                            // values stored in the database
-                            ccddMain.setApplicationParameterHandler();
-
-                            // Check if the functions should be created
-                            if (createFunctions)
-                            {
-                                // Create the database functions that collect
-                                // structure table members and
-                                // structure-defining column data
-                                createStructureColumnFunctions();
-                            }
-
-                            // Check if the web server is enabled
-                            if (ccddMain.isWebServer())
-                            {
-                                // Start the web server
-                                ccddMain.getWebServer().startServer();
-                            }
-
-                            // Perform any patches to update this project
-                            // database to the latest schema
-                            new CcddPatchHandler(ccddMain);
+                            // Lock the database
+                            setDatabaseLockStatus(activeDatabase, true);
                         }
 
+                        // Check if the database functions should be created;
+                        // if so create the internal tables and database
+                        // functions, and check if an error occurs creating
+                        // them
+                        if (createFunctions && createTablesAndFunctions())
+                        {
+                            throw new CCDDException();
+                        }
+
+                        // Read the table types, macros, and rate parameters
+                        // from the database
+                        ccddMain.setDbSpecificHandlers();
+
+                        // Check if the database functions should be created;
+                        // if so create the database functions that collect
+                        // structure table members and structure-defining
+                        // column data, and check if an error occurred creating
+                        // them
+                        if (createFunctions && createStructureColumnFunctions())
+                        {
+                            throw new CCDDException();
+                        }
+
+                        // Check if the web server is enabled
+                        if (ccddMain.isWebServer())
+                        {
+                            // Start the web server
+                            ccddMain.getWebServer().startServer();
+                        }
+
+                        // Perform any patches to update this project database
+                        // to the latest schema
+                        new CcddPatchHandler(ccddMain);
+
                         // Check if the reserved word list hasn't been
-                        // retrieved and that a database connection exists
-                        if (keyWords == null
-                            && connectionStatus != NO_CONNECTION)
+                        // retrieved
+                        if (keyWords == null)
                         {
                             // Get the array of reserved words
                             keyWords = dbCommand.getList(DatabaseListCommand.KEYWORDS,
                                                          null,
                                                          ccddMain.getMainFrame());
                         }
+                    }
+                }
+                catch (CCDDException ce)
+                {
+                    // Set the flag indicating the connection attempt failed
+                    errorFlag = true;
 
-                        try
-                        {
-                            // Store the database name, user name, server host,
-                            // and server port in the program preferences
-                            // backing store
-                            ccddMain.getProgPrefs().put(DATABASE, activeDatabase);
-                            ccddMain.getProgPrefs().put(USER, activeUser);
-                            ccddMain.getProgPrefs().put(POSTGRESQL_SERVER_HOST,
-                                                        serverHost);
-                            ccddMain.getProgPrefs().put(POSTGRESQL_SERVER_PORT,
-                                                        serverPort);
-                        }
-                        catch (Exception e)
-                        {
-                            // Inform the user that there the program
-                            // preferences can't be stored
-                            new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                                      "<html><b>Cannot store program preference values; cause '"
-                                                                          + e.getMessage()
-                                                                          + "'",
-                                                                      "File Warning",
-                                                                      JOptionPane.WARNING_MESSAGE,
-                                                                      DialogOption.OK_OPTION);
-                        }
+                    // Check that the database isn't the default database
+                    // (server)
+                    if (!databaseName.equals(DEFAULT_DATABASE))
+                    {
+                        // Attempt to connect to the default database
+                        errorFlag = connectToDatabase(DEFAULT_DATABASE);
                     }
                 }
                 catch (LinkageError | ClassNotFoundException le)
@@ -1779,7 +1761,7 @@ public class CcddDbControlHandler
                     // failed
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
                                           "Cannot register database driver '"
-                                              + databaseDriver
+                                              + DATABASE_DRIVER
                                               + "'; cause '"
                                               + le.getMessage()
                                               + "'",
@@ -1791,6 +1773,35 @@ public class CcddDbControlHandler
                     // Display a dialog providing details on the unanticipated
                     // error
                     CcddUtilities.displayException(e, ccddMain.getMainFrame());
+                    errorFlag = true;
+                }
+
+                // Check that no error occurred connecting to the database
+                if (!errorFlag)
+                {
+                    try
+                    {
+                        // Store the database name, user name, server host, and
+                        // server port in the program preferences backing store
+                        ccddMain.getProgPrefs().put(DATABASE, activeDatabase);
+                        ccddMain.getProgPrefs().put(USER, activeUser);
+                        ccddMain.getProgPrefs().put(POSTGRESQL_SERVER_HOST,
+                                                    serverHost);
+                        ccddMain.getProgPrefs().put(POSTGRESQL_SERVER_PORT,
+                                                    serverPort);
+                    }
+                    catch (Exception e)
+                    {
+                        // Inform the user that there the program preferences
+                        // can't be stored
+                        new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                                  "<html><b>Cannot store program preference values; cause '"
+                                                                      + e.getMessage()
+                                                                      + "'",
+                                                                  "File Warning",
+                                                                  JOptionPane.WARNING_MESSAGE,
+                                                                  DialogOption.OK_OPTION);
+                    }
                 }
             }
             // A required parameter is missing

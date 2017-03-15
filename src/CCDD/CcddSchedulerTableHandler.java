@@ -26,6 +26,7 @@ public class CcddSchedulerTableHandler
     // Class references
     private final CcddMain ccddMain;
     private final CcddSchedulerDbIOHandler schedulerDB;
+    private final CcddApplicationParameterHandler appHandler;
 
     private List<String[][]> entries;
     private List<Variable> appList;
@@ -52,9 +53,11 @@ public class CcddSchedulerTableHandler
         schedulerDB = new CcddSchedulerDbIOHandler(ccddMain,
                                                    SchedulerType.APPLICATION_SCHEDULER,
                                                    null);
+        appHandler = ccddMain.getApplicationParameterHandler();
 
-        // Generate the application parameters
-        ccddMain.getApplicationParameterHandler().generateApplicationParameters();
+        // Load the application scheduler information from the project database
+        schedulerDB.loadStoredData();
+
         schGroupDefines();
     }
 
@@ -64,7 +67,7 @@ public class CcddSchedulerTableHandler
     protected void createApplicationSchedulerTable()
     {
         entries = new ArrayList<String[][]>();
-        int slots = ccddMain.getApplicationParameterHandler().getNumberOfSlots();
+        int slots = appHandler.getNumberOfSlots();
         String[][] entry;
 
         for (Message message : getValidatedStoredData())
@@ -197,7 +200,7 @@ public class CcddSchedulerTableHandler
     {
         List<Variable> apps = new ArrayList<Variable>();
         apps.addAll(appList);
-        String[] scheduleCommands = new String[ccddMain.getApplicationParameterHandler().getCommandsPerTable()];
+        String[] scheduleCommands = new String[appHandler.getCommandsPerTable()];
         String command;
 
         for (int x = 0; x < scheduleCommands.length; x++)
@@ -240,7 +243,6 @@ public class CcddSchedulerTableHandler
      *************************************************************************/
     private List<Message> getValidatedStoredData()
     {
-        schedulerDB.loadStoredData();
         List<Message> messages = schedulerDB.getStoredData(0);
         appList = schedulerDB.getVariableList(0);
         validateTableData(appList, messages);

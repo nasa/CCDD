@@ -68,6 +68,7 @@ public class CcddSchedulerHandler
     private CcddSchedulerEditorHandler schedulerEditor;
     private CcddSchedulerInputInterface schedulerInput;
     private final CcddRateParameterHandler rateHandler;
+    private final CcddApplicationParameterHandler appHandler;
 
     // Components referenced by multiple methods
     private Border border;
@@ -112,6 +113,7 @@ public class CcddSchedulerHandler
         this.schedulerDlg = schedulerDlg;
         schedulerDb = schedulerDlg.getSchedulerDatabaseHandler();
         rateHandler = ccddMain.getRateParameterHandler();
+        appHandler = ccddMain.getApplicationParameterHandler();
 
         // Create the scheduler handler
         initialize();
@@ -218,7 +220,7 @@ public class CcddSchedulerHandler
     /**************************************************************************
      * Set the total bytes or time remaining field
      *************************************************************************/
-    private void setUnusedField()
+    protected void setUnusedField()
     {
         unusedFld.setText(String.valueOf(schedulerEditor.getTotalBytesRemaining()));
     }
@@ -871,34 +873,6 @@ public class CcddSchedulerHandler
     }
 
     /**************************************************************************
-     * Reset all the variables (applications) in the telemetry (application)
-     * table
-     *************************************************************************/
-    protected void resetTelemetryTable()
-    {
-        // Create an included variables (applications) list
-        List<String> includedVars = new ArrayList<String>();
-
-        // Step through each variable (application) in the removed variable
-        // (application) list
-        for (Variable variable : schedulerEditor.removeAll())
-        {
-            // Add each name to the list of included variables (applications)
-            includedVars.add(variable.getFullName());
-        }
-
-        // Include the variables (applications) back in the variable
-        // (application) tree
-        makeVariableAvailable(includedVars);
-
-        // Set the unused bytes field
-        setUnusedField();
-
-        // Update the scheduler dialog's change indicator
-        getSchedulerDialog().updateChangeIndicator();
-    }
-
-    /**************************************************************************
      * Update the options list with all possible options for the selected
      * variable at the currently selected rate
      *************************************************************************/
@@ -981,11 +955,11 @@ public class CcddSchedulerHandler
         else if (option == SchedulerType.APPLICATION_SCHEDULER)
         {
             // Set the total number of messages to the largest rate
-            totalMsgs = ccddMain.getApplicationParameterHandler().getMsgsPerCycle();
+            totalMsgs = appHandler.getMsgsPerCycle();
 
             // Set messages per second to highest to ensure the cycle time is 1
             // second
-            msgsPerSec = ccddMain.getApplicationParameterHandler().getMaxMsgsPerSecond();
+            msgsPerSec = appHandler.getMaxMsgsPerSecond();
             totalBytes = (int) ((Float.valueOf(totalMsgs) / Float.valueOf(msgsPerSec)) * 1000);
         }
 
@@ -1457,7 +1431,7 @@ public class CcddSchedulerHandler
         if (getSchedulerOption() == SchedulerType.APPLICATION_SCHEDULER)
         {
             // Get the number of slots from the application parameters
-            int slots = ccddMain.getApplicationParameterHandler().getNumberOfSlots();
+            int slots = appHandler.getNumberOfSlots();
 
             // Step through each message
             for (int index = 0; index < indices.length; index++)
@@ -1486,13 +1460,13 @@ public class CcddSchedulerHandler
      * @param msgIndex
      *            index of the message from which to remove the variable(s)
      *************************************************************************/
-    protected void removeVariables(List<Variable> varList, int msgIndex)
+    protected void removeVariablesFromMessage(List<Variable> varList, int msgIndex)
     {
         // Check if the variable list is provided
         if (varList != null)
         {
             // Remove the variables from the given message
-            List<String> names = schedulerEditor.removeVariableFromMessages(varList,
+            List<String> names = schedulerEditor.removeVariablesFromMessages(varList,
                                                                             msgIndex);
 
             // Set the variable(s) to be available

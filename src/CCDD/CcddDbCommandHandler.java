@@ -8,7 +8,6 @@ package CCDD;
 
 import static CCDD.CcddConstants.DB_SAVE_POINT_NAME;
 import static CCDD.CcddConstants.EventLogMessageType.COMMAND_MSG;
-import static CCDD.CcddConstants.EventLogMessageType.SUCCESS_MSG;
 
 import java.awt.Component;
 import java.sql.Connection;
@@ -329,10 +328,6 @@ public class CcddDbCommandHandler
             }
 
             resultSet.close();
-
-            // Update the event log
-            eventLog.logEvent(SUCCESS_MSG,
-                              "'" + listType + "' list retrieved");
         }
         catch (SQLException se)
         {

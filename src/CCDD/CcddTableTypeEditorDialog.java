@@ -295,43 +295,43 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         setJMenuBar(menuBar);
 
         // Create the File menu and menu items
-        mnFile = ccddMain.createMenu(menuBar, "File", KeyEvent.VK_F, null);
-        mntmNewType = ccddMain.createMenuItem(mnFile, "New type", KeyEvent.VK_N, "Create a new table type");
-        mntmCopyType = ccddMain.createMenuItem(mnFile, "Copy type", KeyEvent.VK_P, "Copy the current table type");
-        mntmRenameType = ccddMain.createMenuItem(mnFile, "Rename type", KeyEvent.VK_R, "Rename the current table type");
-        mntmDeleteType = ccddMain.createMenuItem(mnFile, "Delete type", KeyEvent.VK_D, "Delete the current table type");
+        mnFile = ccddMain.createMenu(menuBar, "File", KeyEvent.VK_F, 1, null);
+        mntmNewType = ccddMain.createMenuItem(mnFile, "New type", KeyEvent.VK_N, 1, "Create a new table type");
+        mntmCopyType = ccddMain.createMenuItem(mnFile, "Copy type", KeyEvent.VK_O, 1, "Copy the current table type");
+        mntmRenameType = ccddMain.createMenuItem(mnFile, "Rename type", KeyEvent.VK_R, 1, "Rename the current table type");
+        mntmDeleteType = ccddMain.createMenuItem(mnFile, "Delete type", KeyEvent.VK_D, 1, "Delete the current table type");
         mnFile.addSeparator();
-        mntmStore = ccddMain.createMenuItem(mnFile, "Store current", KeyEvent.VK_S, "Store changes to the curent table type in the database");
-        mntmStoreAll = ccddMain.createMenuItem(mnFile, "Store all", KeyEvent.VK_L, "Store changes to all table types in the database");
+        mntmStore = ccddMain.createMenuItem(mnFile, "Store current", KeyEvent.VK_U, 1, "Store changes to the curent table type in the database");
+        mntmStoreAll = ccddMain.createMenuItem(mnFile, "Store all", KeyEvent.VK_L, 1, "Store changes to all table types in the database");
         mnFile.addSeparator();
-        mntmPrint = ccddMain.createMenuItem(mnFile, "Print current", KeyEvent.VK_P, "Print the current table type information");
+        mntmPrint = ccddMain.createMenuItem(mnFile, "Print current", KeyEvent.VK_P, 1, "Print the current table type information");
         mnFile.addSeparator();
-        mntmClose = ccddMain.createMenuItem(mnFile, "Close", KeyEvent.VK_C, "Close the table type editor");
+        mntmClose = ccddMain.createMenuItem(mnFile, "Close", KeyEvent.VK_C, 1, "Close the table type editor");
 
         // Create the Edit menu and menu items
-        JMenu mnEdit = ccddMain.createMenu(menuBar, "Edit", KeyEvent.VK_E, null);
-        mntmCopy = ccddMain.createMenuItem(mnEdit, "Copy", KeyEvent.VK_C, "Copy the currently selected cell(s) to the clipboard");
-        mntmPaste = ccddMain.createMenuItem(mnEdit, "Paste", KeyEvent.VK_V, "Paste the clipboard contents at the current focus location");
-        mntmInsert = ccddMain.createMenuItem(mnEdit, "Insert", KeyEvent.VK_I, "Insert the clipboard contents at the current focus location");
+        JMenu mnEdit = ccddMain.createMenu(menuBar, "Edit", 1, KeyEvent.VK_E, null);
+        mntmCopy = ccddMain.createMenuItem(mnEdit, "Copy", KeyEvent.VK_O, 1, "Copy the currently selected cell(s) to the clipboard");
+        mntmPaste = ccddMain.createMenuItem(mnEdit, "Paste", KeyEvent.VK_V, 1, "Paste the clipboard contents at the current focus location");
+        mntmInsert = ccddMain.createMenuItem(mnEdit, "Insert", KeyEvent.VK_I, 1, "Insert the clipboard contents at the current focus location");
         mnEdit.addSeparator();
-        mntmUndo = ccddMain.createMenuItem(mnEdit, "Undo", KeyEvent.VK_Z, "Undo the last edit operation");
-        mntmRedo = ccddMain.createMenuItem(mnEdit, "Redo", KeyEvent.VK_Y, "Redo the last undone edit operation");
+        mntmUndo = ccddMain.createMenuItem(mnEdit, "Undo", KeyEvent.VK_Z, 1, "Undo the last edit operation");
+        mntmRedo = ccddMain.createMenuItem(mnEdit, "Redo", KeyEvent.VK_Y, 1, "Redo the last undone edit operation");
         mnEdit.addSeparator();
-        mntmClear = ccddMain.createMenuItem(mnEdit, "Clear data", KeyEvent.VK_L, "Clear the current table type contents");
+        mntmClear = ccddMain.createMenuItem(mnEdit, "Clear data", KeyEvent.VK_L, 1, "Clear the current table type contents");
 
         // Create the Row menu and menu items
-        JMenu mnRow = ccddMain.createMenu(menuBar, "Row", KeyEvent.VK_R, null);
-        mntmInsertRow = ccddMain.createMenuItem(mnRow, "Insert row", KeyEvent.VK_I, "Insert a row at the current focus location");
-        mntmDeleteRow = ccddMain.createMenuItem(mnRow, "Delete row", KeyEvent.VK_D, "Delete the currently selected row(s)");
+        JMenu mnRow = ccddMain.createMenu(menuBar, "Row", KeyEvent.VK_R, 1, null);
+        mntmInsertRow = ccddMain.createMenuItem(mnRow, "Insert row", KeyEvent.VK_I, 1, "Insert a row at the current focus location");
+        mntmDeleteRow = ccddMain.createMenuItem(mnRow, "Delete row", KeyEvent.VK_D, 1, "Delete the currently selected row(s)");
         mnRow.addSeparator();
-        mntmMoveUp = ccddMain.createMenuItem(mnRow, "Move row(s) up", KeyEvent.VK_U, "Move the currently selected row(s) up one row");
-        mntmMoveDown = ccddMain.createMenuItem(mnRow, "Move row(s) down", KeyEvent.VK_W, "Move the currently selected row(s) down one row");
+        mntmMoveUp = ccddMain.createMenuItem(mnRow, "Move row(s) up", KeyEvent.VK_U, 1, "Move the currently selected row(s) up one row");
+        mntmMoveDown = ccddMain.createMenuItem(mnRow, "Move row(s) down", KeyEvent.VK_N, 1, "Move the currently selected row(s) down one row");
 
         // Create the Field menu and menu items
-        JMenu mnField = ccddMain.createMenu(menuBar, "Field", KeyEvent.VK_F, null);
-        mntmManageFields = ccddMain.createMenuItem(mnField, "Manage fields", KeyEvent.VK_M, "Open the data field manager");
-        mntmClearValues = ccddMain.createMenuItem(mnField, "Clear values", KeyEvent.VK_C, "Clear the data field values");
-        mntmOverwrite = ccddMain.createCheckBoxMenuItem(mnField, "Overwrite values", KeyEvent.VK_O, "Overwrite/don't overwrite existing data field values", false);
+        JMenu mnField = ccddMain.createMenu(menuBar, "Field", KeyEvent.VK_L, 1, null);
+        mntmManageFields = ccddMain.createMenuItem(mnField, "Manage fields", KeyEvent.VK_M, 1, "Open the data field manager");
+        mntmClearValues = ccddMain.createMenuItem(mnField, "Clear values", KeyEvent.VK_C, 1, "Clear the data field values");
+        mntmOverwrite = ccddMain.createCheckBoxMenuItem(mnField, "Overwrite values", KeyEvent.VK_O, 1, "Overwrite/don't overwrite existing data field values", false);
 
         // Add a listener for the New Type command
         mntmNewType.addActionListener(new ValidateCellActionListener()

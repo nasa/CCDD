@@ -536,9 +536,6 @@ public class CcddSchedulerDbIOHandler
         List<String[]> storedData = dbTable.retrieveInformationTable(InternalTable.APP_SCHEDULER,
                                                                      ccddMain.getMainFrame());
 
-        // Load the application parameters from the database
-        appHandler.generateApplicationParameters();
-
         // Check if any stored data exists
         if (!storedData.isEmpty())
         {

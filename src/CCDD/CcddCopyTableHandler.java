@@ -40,7 +40,7 @@ public class CcddCopyTableHandler
                                                    SchedulerType.TELEMETRY_SCHEDULER,
                                                    null);
 
-        // Get a list of the current messages
+        // Load the telemetry scheduler information from the project database
         schedulerDb.loadStoredData();
 
         copyTable = new ArrayList<String[]>();

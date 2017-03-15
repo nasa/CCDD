@@ -376,7 +376,7 @@ public class CcddDbTableCommandHandler
      *         produces an error, or an empty array if there are no results
      *************************************************************************/
     protected List<String[]> queryDatabase(String sqlCommand,
-                                              Component parent)
+                                           Component parent)
     {
         List<String[]> queryResults = null;
 
@@ -410,9 +410,6 @@ public class CcddDbTableCommandHandler
 
             // Store the list
             queryResults = tableData;
-
-            // Log that the query succeeded
-            eventLog.logEvent(SUCCESS_MSG, "Database query completed");
         }
         catch (SQLException se)
         {
@@ -2138,12 +2135,6 @@ public class CcddDbTableCommandHandler
 
                     rowData.close();
                 }
-
-                // Log that loading the table succeeded
-                eventLog.logEvent(SUCCESS_MSG,
-                                  "Table '"
-                                      + tableInfo.getProtoVariableName()
-                                      + "' loaded");
             }
             catch (SQLException se)
             {
@@ -2463,9 +2454,6 @@ public class CcddDbTableCommandHandler
                     return mem1.getTableName().toLowerCase().compareTo(mem2.getTableName().toLowerCase());
                 }
             });
-
-            // Log that loading the table members succeeded
-            eventLog.logEvent(SUCCESS_MSG, "Table members loaded");
         }
         catch (SQLException se)
         {
@@ -3697,9 +3685,6 @@ public class CcddDbTableCommandHandler
                 }
 
                 infoData.close();
-
-                // Log that the internal table retrieval succeeded
-                eventLog.logEvent(SUCCESS_MSG, intTableName + " retrieved");
             }
         }
         catch (SQLException se)
@@ -3832,6 +3817,7 @@ public class CcddDbTableCommandHandler
                         case LINKS:
                         case MACROS:
                         case ORDERS:
+                        case RESERVED_MSG_IDS:
                         case SCRIPT:
                         case TLM_SCHEDULER:
                             // Build the command for storing the script
@@ -3931,6 +3917,18 @@ public class CcddDbTableCommandHandler
 
                         break;
 
+                    case RESERVED_MSG_IDS:
+                        // Check if the store request originated from the
+                        // reserved message ID editor dialog
+                        if (parent instanceof CcddReservedMsgIDEditorDialog)
+                        {
+                            // Perform the reserved message ID store command
+                            // completion steps
+                            ((CcddReservedMsgIDEditorDialog) parent).doMsgIDUpdatesComplete(errorFlag);
+                        }
+
+                        break;
+
                     case DATA_TYPES:
                     case FIELDS:
                     case MACROS:
@@ -3978,7 +3976,6 @@ public class CcddDbTableCommandHandler
                                                   + tableName
                                                   + " "
                                                   + intTable.getColumnCommand(false)
-                                                  + " "
                                                   + dbControl.buildOwnerCommand(DatabaseObject.TABLE,
                                                                                 tableName));
 
@@ -4069,7 +4066,7 @@ public class CcddDbTableCommandHandler
      * 
      * @return Command for building the specified table
      *************************************************************************/
-    private String storeTableTypesInfoTableCommand()
+    protected String storeTableTypesInfoTableCommand()
     {
         // Build the command to delete the existing table type definitions
         // table and create the new one
@@ -6240,10 +6237,12 @@ public class CcddDbTableCommandHandler
             @Override
             protected void complete()
             {
+                // Check if this is a data type change
                 if (isDataType)
                 {
                     ((CcddDataTypeEditorDialog) dialog).doDataTypeUpdatesComplete(errorFlag);
                 }
+                // This is a macro change
                 else
                 {
                     ((CcddMacroEditorDialog) dialog).doMacroUpdatesComplete(errorFlag);

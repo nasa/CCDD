@@ -221,20 +221,18 @@ public class CcddPatchHandler
                 }
 
                 // Store the updated table type definitions in the project
-                // database
-                dbTable.storeInformationTable(InternalTable.TABLE_TYPES,
-                                              null,
-                                              null,
-                                              ccddMain.getMainFrame());
-
-                // Change the old table types table name so that the conversion
-                // doesn't take place again
-                dbCommand.executeDbCommand("ALTER TABLE __types RENAME TO __types_backup;",
+                // database and change the old table types table name so that
+                // the conversion doesn't take place again
+                dbCommand.executeDbCommand(dbTable.storeTableTypesInfoTableCommand()
+                                           + "ALTER TABLE __types RENAME TO __types_backup;",
                                            ccddMain.getMainFrame());
 
                 // Inform the user that converting the table types completed
                 eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
                                   "Table types conversion complete");
+
+                // Reopen the database
+                dbControl.openDatabase(dbControl.getDatabase());
             }
             catch (Exception e)
             {

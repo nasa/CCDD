@@ -41,11 +41,14 @@ public class CcddConstants
     protected static final String DEFAULT_SERVER = "PostgreSQL";
     protected static final String DEFAULT_WEB_SERVER_PORT = "7070";
 
+    // Create the database driver class name
+    protected static final String DATABASE_DRIVER = "org.postgresql.Driver";
+
     // Maximum database, table, and column name length, characters
     protected static final int MAX_SQL_NAME_LENGTH = 64;
 
     // Maximum number of characters to display for an event log message entry
-    protected static final int MAX_LOG_MESSAGE_LENGTH = 1000;
+    protected static final int MAX_LOG_MESSAGE_LENGTH = 250;
 
     // String used as a comment on the database to identify it as a CCDD
     // project
@@ -471,6 +474,13 @@ public class CcddConstants
         SCRIPT
     }
 
+    // Message ID assignment dialog type
+    protected static enum MessageIDType
+    {
+        TABLE_DATA_FIELD,
+        TELEMETRY
+    }
+
     // Rate parameters
     protected static enum RateParameter
     {
@@ -819,6 +829,31 @@ public class CcddConstants
                     "enumeration",
                     "Text, including alphabetic, numeric, and special characters"),
 
+        FLOAT("Floating point",
+              "^[\\+-]??\\s*0*(\\.0*)??\\d+\\d*(\\.\\d*)??",
+              "float",
+              "Floating point value consisting of one or more of the numerals "
+                  + "0 - 9 and a single optional decimal point (leading '+' or "
+                  + "'-' is optional)"),
+
+        FLOAT_POSITIVE("Positive float",
+                       "^\\+??\\s*0*\\.??0*[1-9]+\\d*(\\.\\d*)??",
+                       "float",
+                       "Floating point value > 0.0 (leading '+' is optional; "
+                           + "see Floating point)"),
+
+        FLOAT_NON_NEGATIVE("Non-negative float",
+                           "^\\+??\\s*0*(\\.0*)??\\d+\\d*(\\.\\d*)??",
+                           "float",
+                           "Floating point value >= 0.0 (leading '+' is "
+                               + "optional; see Floating point)"),
+
+        FLOAT_NEGATIVE("Negative float",
+                       "^-\\s*0*(\\.0*)??\\d+\\d*(\\.\\d*)??",
+                       "float",
+                       "Floating point value < 0.0 (leading '-' is required; "
+                           + "see Floating point)"),
+
         INTEGER("Integer",
                 "^[\\+-]??\\s*\\d*",
                 "integer",
@@ -845,37 +880,25 @@ public class CcddConstants
                      "integer",
                      "Integer value < 0 (leading '-' is required; see Integer)"),
 
-        FLOAT("Floating point",
-              "^[\\+-]??\\s*0*(\\.0*)??\\d+\\d*(\\.\\d*)??",
-              "float",
-              "Floating point value consisting of one or more of the numerals "
-                  + "0 - 9 and a single optional decimal point (leading '+' or "
-                  + "'-' is optional)"),
-
-        FLOAT_POSITIVE("Positive float",
-                       "^\\+??\\s*0*\\.??0*[1-9]+\\d*(\\.\\d*)??",
-                       "float",
-                       "Floating point value > 0.0 (leading '+' is optional; "
-                           + "see Floating point)"),
-
-        FLOAT_NON_NEGATIVE("Non-negative float",
-                           "^\\+??\\s*0*(\\.0*)??\\d+\\d*(\\.\\d*)??",
-                           "float",
-                           "Floating point value >= 0.0 (leading '+' is "
-                               + "optional; see Floating point)"),
-
-        FLOAT_NEGATIVE("Negative float",
-                       "^-\\s*0*(\\.0*)??\\d+\\d*(\\.\\d*)??",
-                       "float",
-                       "Floating point value < 0.0 (leading '-' is required; "
-                           + "see Floating point)"),
-
         HEXADECIMAL("Hexadecimal",
                     "^(?:0x)?[a-fA-F0-9]*",
                     "hexadecimal",
                     "Hexadecimal number; optional initial '0x' or '0X' "
-                        + "followed by one or more hexadeciaml digits (0 - 9, "
+                        + "followed by one or more hexadecimal digits (0 - 9, "
                         + "a - f (case insensitive))"),
+
+        HEXADECIMAL_RANGE("Hexadecimal range",
+                          "^(?:$|(?:0x)?([a-fA-F0-9]+)(?:\\s*-\\s*(?:0x)?([a-fA-F0-9]*)|$))",
+                          "hexadecimal",
+                          "Hexadecimal range; hexadecimal value followed optionally by a "
+                              + "hyphen and a second hexadecimal value (see Hexadecimal)"),
+
+        MESSAGE_ID("Message ID",
+                   "^(?:0x)?[a-fA-F0-9]*",
+                   "hexadecimal",
+                   "Message ID: hexadecimal; optional initial '0x' or '0X' "
+                       + "followed by one or more hexadecimal digits (0 - 9, "
+                       + "a - f (case insensitive))"),
 
         MINIMUM("Minimum",
                 "(" + BOOLEAN.getInputMatch() + ")|("
@@ -2023,6 +2046,22 @@ public class CcddConstants
                "WITH OIDS",
                ""),
 
+        // Reserved message IDs
+        RESERVED_MSG_IDS("reserved_msg_ids",
+                         new String[][] { {ReservedMsgIDsColumn.MSG_ID.columnName,
+                                           ReservedMsgIDsColumn.MSG_ID.dataType},
+                                         {ReservedMsgIDsColumn.DESCRIPTION.columnName,
+                                          ReservedMsgIDsColumn.DESCRIPTION.dataType}},
+                         "WITH OIDS",
+                         "INSERT INTO "
+                             + INTERNAL_TABLE_PREFIX
+                             + "reserved_msg_ids ("
+                             + ReservedMsgIDsColumn.MSG_ID.columnName
+                             + ", "
+                             + ReservedMsgIDsColumn.DESCRIPTION.columnName
+                             + ") VALUES ('0x0800 - 0x08FF', 'CFS telemetry IDs'), "
+                             + "('0x1800 - 0x18FF', 'CFE command IDs')"),
+
         // Script files
         SCRIPT("script_",
                new String[][] { {ScriptColumn.LINE_NUM.columnName,
@@ -2409,6 +2448,44 @@ public class CcddConstants
         }
 
         /**********************************************************************
+         * Reserved message ID table columns
+         *********************************************************************/
+        protected static enum ReservedMsgIDsColumn
+        {
+            MSG_ID("msg_id", "text"),
+            DESCRIPTION("description", "text"),
+            OID("index", "text");
+
+            private final String columnName;
+            private final String dataType;
+
+            /******************************************************************
+             * Reserved message IDs table columns constructor
+             * 
+             * @param columnName
+             *            reserved message IDs table column name
+             * 
+             * @param dataType
+             *            reserved message IDs table column data type
+             *****************************************************************/
+            ReservedMsgIDsColumn(String columnName, String dataType)
+            {
+                this.columnName = columnName;
+                this.dataType = dataType;
+            }
+
+            /******************************************************************
+             * Get the reserved message IDs table column name
+             * 
+             * @return Reserved message IDs table column name
+             *****************************************************************/
+            protected String getColumnName()
+            {
+                return columnName;
+            }
+        }
+
+        /**********************************************************************
          * Script table columns
          *********************************************************************/
         protected static enum ScriptColumn
@@ -2423,10 +2500,10 @@ public class CcddConstants
              * Script table columns constructor
              * 
              * @param columnName
-             *            groups table column name
+             *            scripts table column name
              * 
              * @param dataType
-             *            groups table column data type
+             *            scripts table column data type
              *****************************************************************/
             ScriptColumn(String columnName, String dataType)
             {
@@ -2708,10 +2785,11 @@ public class CcddConstants
          *********************************************************************/
         protected String getColumnCommand(boolean includeInitCmd)
         {
-            return command + (includeInitCmd
-                              && !initCommand.isEmpty()
-                                                       ? " " + initCommand + ";"
-                                                       : "");
+            return command
+                   + (includeInitCmd
+                      && !initCommand.isEmpty()
+                                               ? " " + initCommand + "; "
+                                               : " ");
         }
     }
 
@@ -3460,6 +3538,133 @@ public class CcddConstants
     }
 
     /**************************************************************************
+     * Reserved message ID editor column information
+     *************************************************************************/
+    protected static enum ReservedMsgIDEditorColumnInfo
+    {
+        MSG_ID("Message ID(s)", "Message ID or range of IDs", "", true),
+        DESCRIPTION("Description", "Description", "", false),
+        OID("OID", "Reserved message ID index", "", false);
+
+        private final String columnName;
+        private final String toolTip;
+        private final String initialValue;
+        private final boolean isRequired;
+
+        /**********************************************************************
+         * Reserved message ID editor column information constructor
+         * 
+         * @param columnName
+         *            text to display for the reserved message ID editor column
+         *            header
+         * 
+         * @param toolTip
+         *            tool tip text to display for the column
+         * 
+         * @param initialValue
+         *            initial column value
+         * 
+         * @param isRequired
+         *            true if a value is required in this column
+         *********************************************************************/
+        ReservedMsgIDEditorColumnInfo(String columnName,
+                                      String toolTip,
+                                      String initialValue,
+                                      boolean isRequired)
+        {
+            this.columnName = columnName;
+            this.toolTip = toolTip;
+            this.initialValue = initialValue;
+            this.isRequired = isRequired;
+        }
+
+        /**********************************************************************
+         * Get the reserved message ID editor column name
+         * 
+         * @return Reserved message ID editor column name
+         *********************************************************************/
+        protected String getColumnName()
+        {
+            return columnName;
+        }
+
+        /**********************************************************************
+         * Get the reserved message ID editor column required flag
+         * 
+         * @return Reserved message ID editor column required flag
+         *********************************************************************/
+        protected boolean isRequired()
+        {
+            return isRequired;
+        }
+
+        /**********************************************************************
+         * Get the reserved message ID editor column names
+         * 
+         * @return Array containing the reserved message ID editor column names
+         *********************************************************************/
+        protected static String[] getColumnNames()
+        {
+            String[] names = new String[ReservedMsgIDEditorColumnInfo.values().length];
+            int index = 0;
+
+            // Step through each column
+            for (ReservedMsgIDEditorColumnInfo type : ReservedMsgIDEditorColumnInfo.values())
+            {
+                // Store the column name
+                names[index] = type.columnName;
+                index++;
+            }
+
+            return names;
+        }
+
+        /**********************************************************************
+         * Get the reserved message ID editor column tool tips
+         * 
+         * @return Array containing the reserved message ID editor column tool
+         *         tips
+         *********************************************************************/
+        protected static String[] getToolTips()
+        {
+            String[] toolTips = new String[ReservedMsgIDEditorColumnInfo.values().length];
+            int index = 0;
+
+            // Step through each column
+            for (ReservedMsgIDEditorColumnInfo type : ReservedMsgIDEditorColumnInfo.values())
+            {
+                // Get the tool tip text
+                toolTips[index] = type.toolTip;
+                index++;
+            }
+
+            return toolTips;
+        }
+
+        /**********************************************************************
+         * Get a row with initialized values for the reserved message ID editor
+         * 
+         * @return Array containing initial values for a row in the reserved
+         *         message ID editor
+         *********************************************************************/
+        protected static String[] getEmptyRow()
+        {
+            String[] emptyRow = new String[ReservedMsgIDEditorColumnInfo.values().length];
+            int index = 0;
+
+            // Step through each column
+            for (ReservedMsgIDEditorColumnInfo type : ReservedMsgIDEditorColumnInfo.values())
+            {
+                // Initialize the column value
+                emptyRow[index] = type.initialValue;
+                index++;
+            }
+
+            return emptyRow;
+        }
+    }
+
+    /**************************************************************************
      * Search results table column information
      *************************************************************************/
     protected static enum SearchResultsColumnInfo
@@ -3850,6 +4055,7 @@ public class CcddConstants
         TABLE_TYPE_DESCRIPTION("Table Type Description"),
         TABLE_TYPE_COLUMN("Table Type Column"),
         MACRO_DEFN("Macro Definition"),
+        RESERVED_MSG_ID_DEFN("Reserved Message ID Definition"),
         TABLE_DEFN("Table Definition"),
         TABLE_NAMES("Table Names"),
         TABLE_NAME("Table Name"),

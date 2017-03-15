@@ -79,6 +79,7 @@ import CCDD.CcddConstants.FieldEditorColumnInfo;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
+import CCDD.CcddConstants.InternalTable.ReservedMsgIDsColumn;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 import CCDD.CcddConstants.TableTypeUpdate;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -96,6 +97,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
     private final CcddDataTypeHandler dataTypeHandler;
     private TypeDefinition typeDefn;
     private final CcddMacroHandler macroHandler;
+    private final CcddReservedMsgIDHandler msgIDHandler;
 
     // GUI component instantiating this class
     private final Component parent;
@@ -153,7 +155,8 @@ public class CcddXTCEHandler implements CcddImportExportInterface
         DATA_FIELD("Data field"),
         ENUMERATION("Enumeration"),
         DATA_TYPE("Data type"),
-        MACRO("Macro");
+        MACRO("Macro"),
+        RESERVED_MSG_ID("Reserved Message ID");
 
         private String tag;
 
@@ -240,6 +243,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
         tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
+        msgIDHandler = ccddMain.getReservedMsgIDHandler();
 
         errorFlag = false;
 
@@ -332,6 +336,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                 // Import the data type and macro definitions, if present
                 importDataTypeDefinitions(rootSystem, importFile.getAbsolutePath());
                 importMacroDefinitions(rootSystem, importFile.getAbsolutePath());
+                importReservedMsgIDDefinitions(rootSystem, importFile.getAbsolutePath());
             }
 
             tableDefinitions = new ArrayList<TableDefinition>();
@@ -383,6 +388,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
      *            true to replace any embedded macros with their corresponding
      *            values
      * 
+     * @param includeReservedMsgIDs
+     *            true to include the contents of the reserved message ID table
+     *            in the export file
+     * 
      * @param extraInfo
      *            [0] name of the data field containing the system name <br>
      *            [1] version attribute <br>
@@ -398,6 +407,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
     public boolean exportToFile(File exportFile,
                                 String[] tableNames,
                                 boolean replaceMacros,
+                                boolean includeReservedMsgIDs,
                                 String... extraInfo)
     {
         boolean errorFlag = false;
@@ -407,6 +417,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
             // Convert the table data into XTCE XML format
             convertTablesToXTCE(tableNames,
                                 replaceMacros,
+                                includeReservedMsgIDs,
                                 extraInfo[0],
                                 extraInfo[1],
                                 extraInfo[2],
@@ -471,6 +482,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
      *            true to replace any embedded macros with their corresponding
      *            values
      * 
+     * @param includeReservedMsgIDs
+     *            true to include the contents of the reserved message ID table
+     *            in the export file
+     * 
      * @param system
      *            name of the data field containing the system name
      * 
@@ -491,6 +506,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
      *************************************************************************/
     private void convertTablesToXTCE(String[] tableNames,
                                      boolean replaceMacros,
+                                     boolean includeReservedMsgIDs,
                                      String system,
                                      String version,
                                      String validationStatus,
@@ -535,6 +551,13 @@ public class CcddXTCEHandler implements CcddImportExportInterface
         {
             // Add the macro definitions to the list
             otherAttrs.addAll(exportMacroDefinitions());
+        }
+
+        // Check if the user elected to store the reserved message IDs
+        if (includeReservedMsgIDs)
+        {
+            // Add the reserved message ID definitions to the list
+            otherAttrs.addAll(exportReservedMsgIDDefinitions());
         }
 
         // Check if other attributes exist
@@ -663,7 +686,8 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                             int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                 "<html><b>Table '</b>"
                                                                                                     + tableDefn.getName()
-                                                                                                    + "<b>' has missing or extra data field input(s) in import file '</b>"
+                                                                                                    + "<b>' has missing or extra data "
+                                                                                                    + "field input(s) in import file '</b>"
                                                                                                     + importFileName
                                                                                                     + "<b>'; continue?",
                                                                                                 "Data Field Error",
@@ -1540,7 +1564,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                     String[] definition = CcddUtilities.splitAndRemoveQuotes(ancillaryData.getValue());
 
                     // Check if the expected number of inputs is present
-                    if ((definition.length - 2) % TableTypeEditorColumnInfo.values().length == 0)
+                    if ((definition.length - 2) % TableTypeEditorColumnInfo.values().length != 0)
                     {
                         // Create the table type definition, supplying the name
                         // and description
@@ -1592,7 +1616,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                         // Check if the Ignore All button was pressed
                         if (buttonSelected == IGNORE_BUTTON)
                         {
-                            // Set the flag to ignore subsequent column name
+                            // Set the flag to ignore subsequent table type
                             // errors
                             continueOnTableTypeError = true;
                         }
@@ -1622,7 +1646,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
     private void importDataTypeDefinitions(SpaceSystemType spaceSystem,
                                            String importFileName) throws CCDDException
     {
-        List<String[]> dataTypeDefinitions = new ArrayList<String[]>();
+        List<String[]> dataTypeDefns = new ArrayList<String[]>();
 
         // Get the data type definitions
         AncillaryDataSet ancillarySet = spaceSystem.getAncillaryDataSet();
@@ -1648,11 +1672,11 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                     {
                         // Add the data type definition to the list (add a
                         // blank for the OID column)
-                        dataTypeDefinitions.add(new String[] {definition[DataTypesColumn.USER_NAME.ordinal()],
-                                                              definition[DataTypesColumn.C_NAME.ordinal()],
-                                                              definition[DataTypesColumn.SIZE.ordinal()],
-                                                              definition[DataTypesColumn.BASE_TYPE.ordinal()],
-                                                              ""});
+                        dataTypeDefns.add(new String[] {definition[DataTypesColumn.USER_NAME.ordinal()],
+                                                        definition[DataTypesColumn.C_NAME.ordinal()],
+                                                        definition[DataTypesColumn.SIZE.ordinal()],
+                                                        definition[DataTypesColumn.BASE_TYPE.ordinal()],
+                                                        ""});
                     }
                     // Incorrect number of inputs. Check if the user hasn't
                     // already elected to ignore data type errors
@@ -1661,7 +1685,8 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                         // Inform the user that the data type inputs are
                         // incorrect
                         int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                            "<html><b>Missing or extra data type definition input(s) in import file '</b>"
+                                                                                            "<html><b>Missing or extra data type definition "
+                                                                                                + "input(s) in import file '</b>"
                                                                                                 + importFileName
                                                                                                 + "<b>'; continue?",
                                                                                             "Data Type Error",
@@ -1672,7 +1697,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                         // Check if the Ignore All button was pressed
                         if (buttonSelected == IGNORE_BUTTON)
                         {
-                            // Set the flag to ignore subsequent column name
+                            // Set the flag to ignore subsequent data type
                             // errors
                             continueOnDataTypeError = true;
                         }
@@ -1689,7 +1714,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
             // Add the data type if it's new or match it to an existing one
             // with the same name if the type definitions are the same
-            String badDefn = dataTypeHandler.updateDataTypes(dataTypeDefinitions);
+            String badDefn = dataTypeHandler.updateDataTypes(dataTypeDefns);
 
             // Check if a data type isn't new and doesn't match an existing one
             // with the same name
@@ -1714,7 +1739,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
     private void importMacroDefinitions(SpaceSystemType spaceSystem,
                                         String importFileName) throws CCDDException
     {
-        List<String[]> macroDefinitions = new ArrayList<String[]>();
+        List<String[]> macroDefns = new ArrayList<String[]>();
 
         // Get the macro definitions
         AncillaryDataSet ancillarySet = spaceSystem.getAncillaryDataSet();
@@ -1740,9 +1765,9 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                     {
                         // Add the macro definition to the list (add a blank
                         // for the OID column)
-                        macroDefinitions.add(new String[] {definition[MacrosColumn.MACRO_NAME.ordinal()],
-                                                           definition[MacrosColumn.VALUE.ordinal()],
-                                                           ""});
+                        macroDefns.add(new String[] {definition[MacrosColumn.MACRO_NAME.ordinal()],
+                                                     definition[MacrosColumn.VALUE.ordinal()],
+                                                     ""});
                     }
                     // Incorrect number of inputs. Check if the user hasn't
                     // already elected to ignore macro errors
@@ -1750,7 +1775,8 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                     {
                         // Inform the user that the macro inputs are incorrect
                         int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                            "<html><b>Missing or extra macro definition input(s) in import file '</b>"
+                                                                                            "<html><b>Missing or extra macro definition "
+                                                                                                + "input(s) in import file '</b>"
                                                                                                 + importFileName
                                                                                                 + "<b>'; continue?",
                                                                                             "Macro Error",
@@ -1761,8 +1787,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                         // Check if the Ignore All button was pressed
                         if (buttonSelected == IGNORE_BUTTON)
                         {
-                            // Set the flag to ignore subsequent column name
-                            // errors
+                            // Set the flag to ignore subsequent macro errors
                             continueOnMacroError = true;
                         }
                         // Check if the Cancel button was pressed
@@ -1778,7 +1803,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
             // Add the macro if it's new or match it to an existing one with
             // the same name if the values are the same
-            String badDefn = macroHandler.updateMacros(macroDefinitions);
+            String badDefn = macroHandler.updateMacros(macroDefns);
 
             // Check if a macro isn't new and doesn't match an existing one
             // with the same name
@@ -1792,7 +1817,89 @@ public class CcddXTCEHandler implements CcddImportExportInterface
     }
 
     /**************************************************************************
-     * Get a list of the existing table type definitions
+     * Extract the reserved message ID definitions, if present, from the
+     * imported root system
+     * 
+     * @param spaceSystem
+     *            top-level space system
+     * 
+     * @param importFileName
+     *            import file name
+     *************************************************************************/
+    private void importReservedMsgIDDefinitions(SpaceSystemType spaceSystem,
+                                                String importFileName) throws CCDDException
+    {
+        List<String[]> reservedMsgIDDefns = new ArrayList<String[]>();
+
+        // Get the macro definitions
+        AncillaryDataSet ancillarySet = spaceSystem.getAncillaryDataSet();
+
+        // Check if any extra data exists
+        if (ancillarySet != null)
+        {
+            // Flag indicating if importing should continue after an input
+            // error is detected
+            boolean continueOnReservedMsgIDError = false;
+
+            // Step through the extra data
+            for (AncillaryData ancillaryData : ancillarySet.getAncillaryData())
+            {
+                // Check if this is a reserved message ID definition
+                if (ancillaryData.getName().startsWith(XTCETags.RESERVED_MSG_ID.getTag()))
+                {
+                    // Extract the reserved message ID information
+                    String[] definition = ancillaryData.getValue().split(",", 2);
+
+                    // Check if the number of expected inputs is present
+                    if (definition.length == ReservedMsgIDsColumn.values().length - 1)
+                    {
+                        // Add the reserved message ID definition to the list
+                        // (add a blank for the OID column)
+                        reservedMsgIDDefns.add(new String[] {definition[ReservedMsgIDsColumn.MSG_ID.ordinal()],
+                                                          definition[ReservedMsgIDsColumn.DESCRIPTION.ordinal()],
+                                                          ""});
+                    }
+                    // Incorrect number of inputs. Check if the user hasn't
+                    // already elected to ignore reserved message ID errors
+                    else if (!continueOnReservedMsgIDError)
+                    {
+                        // Inform the user that the reserved message ID inputs
+                        // are incorrect
+                        int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                            "<html><b>Missing or extra reserved message ID "
+                                                                                                + "definition input(s) in import file '</b>"
+                                                                                                + importFileName
+                                                                                                + "<b>'; continue?",
+                                                                                            "Reserved Message ID Error",
+                                                                                            "Ignore this reserved message ID",
+                                                                                            "Ignore this and any remaining invalid reserved message IDs",
+                                                                                            "Stop importing");
+
+                        // Check if the Ignore All button was pressed
+                        if (buttonSelected == IGNORE_BUTTON)
+                        {
+                            // Set the flag to ignore subsequent reserved
+                            // message ID errors
+                            continueOnReservedMsgIDError = true;
+                        }
+                        // Check if the Cancel button was pressed
+                        else if (buttonSelected == CANCEL_BUTTON)
+                        {
+                            // No error message is provided since the user
+                            // chose this action
+                            throw new CCDDException();
+                        }
+                    }
+                }
+            }
+
+            // Add the reserved message ID definition if it's new
+            msgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);
+        }
+    }
+
+    /**************************************************************************
+     * Get a list of the referenced table type definitions
      * 
      * @return List of the table type definitions
      *************************************************************************/
@@ -1850,7 +1957,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
     }
 
     /**************************************************************************
-     * Get a list of the existing data type definitions
+     * Get a list of the referenced data type definitions
      * 
      * @return List of the data type definitions
      *************************************************************************/
@@ -1883,7 +1990,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
     }
 
     /**************************************************************************
-     * Get a list of the existing macro definitions
+     * Get a list of the referenced macro definitions
      * 
      * @return List of the macro definitions
      *************************************************************************/
@@ -1907,6 +2014,28 @@ public class CcddXTCEHandler implements CcddImportExportInterface
         }
 
         return macros;
+    }
+
+    /**************************************************************************
+     * Get a list of the reserved message ID definitions
+     * 
+     * @return List of the reserved message ID definitions
+     *************************************************************************/
+    private List<String[]> exportReservedMsgIDDefinitions()
+    {
+        List<String[]> reservedMsgIDs = new ArrayList<String[]>();
+
+        // Step through each reserved message ID definition
+        for (String[] reservedMsgIDDefn : msgIDHandler.getReservedMsgIDData())
+        {
+            // Add the reserved message ID definition to the list
+            reservedMsgIDs.add(new String[] {XTCETags.RESERVED_MSG_ID.getTag(),
+                                          reservedMsgIDDefn[ReservedMsgIDsColumn.MSG_ID.ordinal()]
+                                              + ","
+                                              + reservedMsgIDDefn[ReservedMsgIDsColumn.DESCRIPTION.ordinal()]});
+        }
+
+        return reservedMsgIDs;
     }
 
     /**************************************************************************

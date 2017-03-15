@@ -119,7 +119,7 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
             @Override
             protected void performAction(ActionEvent ae)
             {
-                schedulerHndlr.getSchedulerEditor().clearMessages();
+                schedulerHndlr.getSchedulerEditor().clearVariablesFromMessages(null);
             }
         });
 

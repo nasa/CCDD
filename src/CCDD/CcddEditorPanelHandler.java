@@ -508,6 +508,7 @@ public abstract class CcddEditorPanelHandler
                             inputFld.setToolTipText(fieldInfo.getDescription());
                         }
 
+                        // Add the data field to the single field panel
                         singleFldPnl.add(inputFld);
 
                         // And the single field to the field panel

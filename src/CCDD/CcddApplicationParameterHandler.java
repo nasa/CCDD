@@ -36,6 +36,9 @@ public class CcddApplicationParameterHandler
     {
         this.ccddMain = ccddMain;
         dbTable = ccddMain.getDbTableCommandHandler();
+
+        // Get the application parameters from the project database
+        generateApplicationParameters();
     }
 
     /**************************************************************************

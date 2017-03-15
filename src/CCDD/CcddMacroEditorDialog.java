@@ -499,7 +499,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                 setUpdatableCharacteristics(committedData,
                                             MacroEditorColumnInfo.getColumnNames(),
                                             null,
-                                            new Integer[] {MacrosColumn.OID.ordinal()},
+                                            new Integer[] {MacroEditorColumnInfo.OID.ordinal()},
                                             null,
                                             MacroEditorColumnInfo.getToolTips(),
                                             true,

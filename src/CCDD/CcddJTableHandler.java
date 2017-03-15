@@ -1089,7 +1089,8 @@ public abstract class CcddJTableHandler extends JTable
                     @Override
                     public void run()
                     {
-                        // Process the table content change
+                        // Perform any table-specific steps following the table
+                        // content change
                         processTableContentChange();
                     }
                 });

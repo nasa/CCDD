@@ -63,6 +63,7 @@ public class CcddScriptDataAccessHandler
     private final CcddFieldHandler fieldHandler;
     private final CcddGroupHandler groupHandler;
     private final CcddRateParameterHandler rateHandler;
+    private final CcddApplicationParameterHandler appHandler;
     private final CcddMacroHandler macroHandler;
     private CcddTableTreeHandler tableTree;
     private CcddSchedulerTableHandler schTable;
@@ -126,6 +127,7 @@ public class CcddScriptDataAccessHandler
         dataTypeHandler = ccddMain.getDataTypeHandler();
         fileIOHandler = ccddMain.getFileIOHandler();
         rateHandler = ccddMain.getRateParameterHandler();
+        appHandler = ccddMain.getApplicationParameterHandler();
         macroHandler = ccddMain.getMacroHandler();
         tableTree = null;
         copyHandler = null;
@@ -2490,7 +2492,7 @@ public class CcddScriptDataAccessHandler
     public String[][] getDatabaseQuery(String sqlCommand)
     {
         return dbTable.queryDatabase(sqlCommand,
-                                        ccddMain.getMainFrame()).toArray(new String[0][0]);
+                                     ccddMain.getMainFrame()).toArray(new String[0][0]);
     }
 
     /**************************************************************************
@@ -3032,7 +3034,7 @@ public class CcddScriptDataAccessHandler
      *************************************************************************/
     public int getNumberOfSlots()
     {
-        return ccddMain.getApplicationParameterHandler().getNumberOfSlots();
+        return appHandler.getNumberOfSlots();
     }
 
     // end TODO

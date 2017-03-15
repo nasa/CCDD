@@ -83,6 +83,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
     private final CcddDataTypeHandler dataTypeHandler;
     private TypeDefinition typeDefn;
     private final CcddMacroHandler macroHandler;
+    private final CcddReservedMsgIDHandler msgIDHandler;
 
     // GUI component instantiating this class
     private final Component parent;
@@ -128,7 +129,8 @@ public class CcddEDSHandler implements CcddImportExportInterface
         PRIMITIVE("Primitive"),
         STRUCTURE("Structure"),
         DATA_TYPE("Data type"),
-        MACRO("Macro");
+        MACRO("Macro"),
+        RESERVED_MSG_ID("Reserved Message ID");
 
         private String tag;
 
@@ -211,6 +213,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
         tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
+        msgIDHandler = ccddMain.getReservedMsgIDHandler();
 
         errorFlag = false;
 
@@ -331,6 +334,10 @@ public class CcddEDSHandler implements CcddImportExportInterface
      *            true to replace any embedded macros with their corresponding
      *            values
      * 
+     * @param includeReservedMsgIDs
+     *            true to include the contents of the reserved message ID table
+     *            in the export file
+     * 
      * @param extraInfo
      *            [0] name of the data field containing the system name
      * 
@@ -341,6 +348,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
     public boolean exportToFile(File exportFile,
                                 String[] tableNames,
                                 boolean replaceMacros,
+                                boolean includeReservedMsgIDs,
                                 String... extraInfo)
     {
         boolean errorFlag = false;
@@ -348,7 +356,10 @@ public class CcddEDSHandler implements CcddImportExportInterface
         try
         {
             // Convert the table data into EDS format
-            convertTablesToEDS(tableNames, replaceMacros, extraInfo[0]);
+            convertTablesToEDS(tableNames,
+                               replaceMacros,
+                               includeReservedMsgIDs,
+                               extraInfo[0]);
 
             try
             {
@@ -407,11 +418,16 @@ public class CcddEDSHandler implements CcddImportExportInterface
      *            true to replace any embedded macros with their corresponding
      *            values
      * 
+     * @param includeReservedMsgIDs
+     *            true to include the contents of the reserved message ID table
+     *            in the export file
+     * 
      * @param system
      *            name of the data field containing the system name
      *************************************************************************/
     private void convertTablesToEDS(String[] tableNames,
                                     boolean replaceMacros,
+                                    boolean includeReservedMsgIDs,
                                     String system)
     {
         referencedTableTypes = new ArrayList<String>();
@@ -445,6 +461,13 @@ public class CcddEDSHandler implements CcddImportExportInterface
             // Create a name space and populate it with the macro definitions
             buildMacrosNameSpace();
         }
+
+        // Check if the user elected to store the reserved message IDs
+        if (includeReservedMsgIDs)
+        {
+            // Build a name space for the reserved message IDs
+            buildReservedMsgIDNameSpace();
+        }
     }
 
     /**************************************************************************
@@ -474,12 +497,14 @@ public class CcddEDSHandler implements CcddImportExportInterface
         tableDefinitions = new ArrayList<TableDefinition>();
         List<String[]> dataTypeDefns = new ArrayList<String[]>();
         List<String[]> macroDefns = new ArrayList<String[]>();
+        List<String[]> reservedMsgIDDefns = new ArrayList<String[]>();
 
         // Flags indicating if importing should continue after an input
         // error is detected
         boolean continueOnTableTypeError = false;
         boolean continueOnDataTypeError = false;
         boolean continueOnMacroError = false;
+        boolean continueOnReservedMsgIDError = false;
         boolean continueOnColumnError = false;
         boolean continueOnDataFieldError = false;
 
@@ -528,7 +553,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
                                     // Check if the expected number of inputs
                                     // is present
-                                    if ((definition.length) - 2 % TableTypeEditorColumnInfo.values().length != 0)
+                                    if ((definition.length - 2) % TableTypeEditorColumnInfo.values().length != 0)
                                     {
                                         // Create the table type definition,
                                         // supplying the name and description
@@ -571,7 +596,8 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                         int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                             "<html><b>Table type '"
                                                                                                                 + genType.getName()
-                                                                                                                + "' definition has missing or extra input(s) in import file '</b>"
+                                                                                                                + "' definition has missing or extra "
+                                                                                                                + "input(s) in import file '</b>"
                                                                                                                 + importFileName
                                                                                                                 + "<b>'; continue?",
                                                                                                             "Table Type Error",
@@ -604,7 +630,8 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                     // Inform the user that the table type name
                                     // is missing
                                     int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                        "<html><b>Missing table type name in import file '</b>"
+                                                                                                        "<html><b>Missing table type "
+                                                                                                            + "name in import file '</b>"
                                                                                                             + importFileName
                                                                                                             + "<b>'; continue?",
                                                                                                         "Table Type Error",
@@ -867,7 +894,8 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                     // Inform the user that the macro inputs
                                     // are incorrect
                                     int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                        "<html><b>Missing or extra macro definition input(s) in import file '</b>"
+                                                                                                        "<html><b>Missing or extra macro definition "
+                                                                                                            + "input(s) in import file '</b>"
                                                                                                             + importFileName
                                                                                                             + "<b>'; continue?",
                                                                                                         "Macro Error",
@@ -880,8 +908,77 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                     if (buttonSelected == IGNORE_BUTTON)
                                     {
                                         // Set the flag to ignore subsequent
-                                        // column name errors
+                                        // macro errors
                                         continueOnMacroError = true;
+                                    }
+                                    // Check if the Cancel button was pressed
+                                    else if (buttonSelected == CANCEL_BUTTON)
+                                    {
+                                        // No error message is provided since
+                                        // the user chose this action
+                                        throw new CCDDException();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                // Check if all definitions are to be loaded, this is the
+                // reserved message ID definitions name space, and an interface
+                // set exists
+                else if (importType == ImportType.IMPORT_ALL
+                         && nameSpace.getName().equals(EDSTags.RESERVED_MSG_ID.getTag())
+                         && nameSpace.getDeclaredInterfaceSet() != null)
+                {
+                    // Step through the interfaces in order to locate the name
+                    // space's parameter and command sets
+                    for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
+                    {
+                        // Check if this interface contains a generic type set
+                        if (intfcDecType.getGenericTypeSet() != null
+                            && !intfcDecType.getGenericTypeSet().getGenericType().isEmpty()
+                            && intfcDecType.getName().startsWith(EDSTags.RESERVED_MSG_ID.getTag()))
+                        {
+                            // Step through each generic type data
+                            for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
+                            {
+                                // Check that the reserved message ID is
+                                // present
+                                if (genType.getName() != null)
+                                {
+                                    // Add the reserved message ID definition
+                                    // to the list (add a blank for the OID
+                                    // column)
+                                    reservedMsgIDDefns.add(new String[] {genType.getName(),
+                                                                      (genType.getShortDescription() != null
+                                                                                                            ? genType.getShortDescription()
+                                                                                                            : ""),
+                                                                      ""});
+                                }
+                                // Incorrect number of inputs. Check if the
+                                // user hasn't already elected to ignore
+                                // reserved message ID errors
+                                else if (!continueOnReservedMsgIDError)
+                                {
+                                    // Inform the user that the reserved
+                                    // message ID inputs are incorrect
+                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                        "<html><b>Missing or extra reserved message ID "
+                                                                                                            + "definition input(s) in import file '</b>"
+                                                                                                            + importFileName
+                                                                                                            + "<b>'; continue?",
+                                                                                                        "Reserved Message ID Error",
+                                                                                                        "Ignore this reserved message ID",
+                                                                                                        "Ignore this and any remaining invalid reserved message IDs",
+                                                                                                        "Stop importing");
+
+                                    // Check if the Ignore All button was
+                                    // pressed
+                                    if (buttonSelected == IGNORE_BUTTON)
+                                    {
+                                        // Set the flag to ignore subsequent
+                                        // reserved message ID errors
+                                        continueOnReservedMsgIDError = true;
                                     }
                                     // Check if the Cancel button was pressed
                                     else if (buttonSelected == CANCEL_BUTTON)
@@ -1409,7 +1506,8 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                                 int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                                     "<html><b>Table '</b>"
                                                                                                                         + tableDefn.getName()
-                                                                                                                        + "<b>' has missing or extra data field input(s) in import file '</b>"
+                                                                                                                        + "<b>' has missing or extra data field "
+                                                                                                                        + "input(s) in import file '</b>"
                                                                                                                         + importFileName
                                                                                                                         + "<b>'; continue?",
                                                                                                                     "Data Field Error",
@@ -1565,12 +1663,15 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                             + badDefn
                                             + "' already exists and doesn't match the import definition");
                 }
+
+                // Add the reserved message ID definition if it's new
+                msgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);
             }
         }
     }
 
     /**************************************************************************
-     * Create a name space to contain all table type definitions
+     * Create a name space to contain the referenced table type definitions
      *************************************************************************/
     private void buildTableTypesNameSpace()
     {
@@ -1620,7 +1721,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
         }
 
         // Check if a table type is defined
-        if (tableTypeDefinitions.size() != 0)
+        if (!tableTypeDefinitions.isEmpty())
         {
             // Create a name space to contain the table type definitions
             NamespaceType tableTypesNameSpace = addNameSpace("",
@@ -1636,12 +1737,12 @@ public class CcddEDSHandler implements CcddImportExportInterface
     }
 
     /**************************************************************************
-     * Create a name space to contain all primitive data types
+     * Create a name space to contain the referenced primitive data types
      *************************************************************************/
     private void buildDataTypesNameSpace()
     {
         // Check if any data types are referenced
-        if (referencedDataTypes.size() != 0)
+        if (!referencedDataTypes.isEmpty())
         {
             List<String[]> dataTypeDefinitions = new ArrayList<String[]>();
 
@@ -1719,7 +1820,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
             }
 
             // Check if a data type is defined
-            if (dataTypeDefinitions.size() != 0)
+            if (!dataTypeDefinitions.isEmpty())
             {
                 // Store the data type definitions as ancillary data
                 storeOtherAttributes(dataTypeNameSpace,
@@ -1730,7 +1831,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
     }
 
     /**************************************************************************
-     * Create a name space to contain all macro definitions
+     * Create a name space to contain the referenced macro definitions
      *************************************************************************/
     private void buildMacrosNameSpace()
     {
@@ -1750,8 +1851,8 @@ public class CcddEDSHandler implements CcddImportExportInterface
             }
         }
 
-        // Check if a macros is defined
-        if (macroDefinitions.size() != 0)
+        // Check if a macro is defined
+        if (!macroDefinitions.isEmpty())
         {
             // Create a name space to contain the macro definitions
             NamespaceType macroNameSpace = addNameSpace("",
@@ -1763,6 +1864,28 @@ public class CcddEDSHandler implements CcddImportExportInterface
             storeOtherAttributes(macroNameSpace,
                                  EDSTags.MACRO,
                                  macroDefinitions);
+        }
+    }
+
+    /**************************************************************************
+     * Create a name space to contain all reserved message IDs
+     *************************************************************************/
+    private void buildReservedMsgIDNameSpace()
+    {
+        // Check if a reserved message ID is defined
+        if (!msgIDHandler.getReservedMsgIDData().isEmpty())
+        {
+            // Create a name space to contain the reserved message ID
+            // definitions
+            NamespaceType reservedMsgIDNameSpace = addNameSpace("",
+                                                             "",
+                                                             EDSTags.RESERVED_MSG_ID.getTag(),
+                                                             "Reserved message ID definitions");
+
+            // Store the reserved message ID definitions as ancillary data
+            storeOtherAttributes(reservedMsgIDNameSpace,
+                                 EDSTags.RESERVED_MSG_ID,
+                                 msgIDHandler.getReservedMsgIDData());
         }
     }
 

@@ -86,6 +86,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     private JCheckBox singleFileCb;
     private JCheckBox backupFirstCb;
     private JCheckBox replaceMacrosCb;
+    private JCheckBox includeReservedMsgIDsCb;
     private JLabel exportLbl;
     private JTextField versionFld;
     private JTextField validStatFld;
@@ -599,6 +600,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                        overwriteFileCb.isSelected(),
                                                        singleFileCb.isSelected(),
                                                        replaceMacrosCb.isSelected(),
+                                                       includeReservedMsgIDsCb.isSelected(),
                                                        fileExtn,
                                                        systemFld.getText(),
                                                        versionFld.getText(),
@@ -972,6 +974,18 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                            + "with the exported table(s)");
             gbc.gridy++;
             dialogPnl.add(replaceMacrosCb, gbc);
+
+            // TODO
+            // Create the reserved message ID inclusion check box
+            includeReservedMsgIDsCb = new JCheckBox("Include reserved message IDs");
+            includeReservedMsgIDsCb.setFont(LABEL_FONT_BOLD);
+            includeReservedMsgIDsCb.setBorder(emptyBorder);
+            includeReservedMsgIDsCb.setToolTipText("If checked, the contents of the reserved "
+                                                + "message ID table (IDs or ID ranges, and "
+                                                + "their corresponding descriptions) is "
+                                                + "included in each export file ");
+            gbc.gridy++;
+            dialogPnl.add(includeReservedMsgIDsCb, gbc);
 
             // Create the XTCE and EDS input fields with their default
             // values. XTCE uses all of these fields; CSV and EDS use only the

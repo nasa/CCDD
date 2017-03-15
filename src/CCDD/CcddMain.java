@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
@@ -82,6 +83,7 @@ public class CcddMain
     private CcddTableTypeEditorDialog tableTypeEditorDialog;
     private CcddDataTypeEditorDialog dataTypeEditorDialog;
     private CcddMacroEditorDialog macroEditorDialog;
+    private CcddReservedMsgIDEditorDialog msgIDEditorDialog;
     private final CcddFileIOHandler fileIOHandler;
     private final CcddScriptHandler scriptHandler;
     private CcddScriptManagerDialog scriptAssnDlg;
@@ -90,6 +92,7 @@ public class CcddMain
     private CcddApplicationParameterHandler appHandler;
     private final CcddKeyboardHandler keyboardHandler;
     private CcddMacroHandler macroHandler;
+    private CcddReservedMsgIDHandler msgIDHandler;
     private CcddWebServer webServer;
 
     // List of open log files
@@ -132,6 +135,7 @@ public class CcddMain
     private JMenuItem mntmManageGroups;
     private JMenuItem mntmManageMacros;
     private JMenuItem mntmAssignMsgID;
+    private JMenuItem mntmReserveMsgID;
     private JMenuItem mntmEditDataField;
     private JMenuItem mntmSearchTable;
     private JMenuItem mntmManageLinks;
@@ -459,11 +463,17 @@ public class CcddMain
         // Read the macro definitions from the database
         macroHandler = new CcddMacroHandler(CcddMain.this);
 
-        // Read the data types definitions form the database
+        // Read the data types definitions from the database
         dataTypeHandler = new CcddDataTypeHandler(CcddMain.this);
 
         // Read the rate parameters from the project database
         rateHandler = new CcddRateParameterHandler(CcddMain.this);
+
+        // Read the application parameters from the project database
+        appHandler = new CcddApplicationParameterHandler(CcddMain.this);
+
+        // Read the reserved message IDs from the project database
+        msgIDHandler = new CcddReservedMsgIDHandler(CcddMain.this);
 
         // Now that the handlers exist, store its reference in the other
         // persistent classes that use them
@@ -521,6 +531,16 @@ public class CcddMain
     }
 
     /**************************************************************************
+     * Get the reserved message ID handler
+     * 
+     * @return Reserved message ID handler
+     *************************************************************************/
+    protected CcddReservedMsgIDHandler getReservedMsgIDHandler()
+    {
+        return msgIDHandler;
+    }
+
+    /**************************************************************************
      * Get the script handler
      * 
      * @return Script handler
@@ -548,15 +568,6 @@ public class CcddMain
     protected CcddApplicationParameterHandler getApplicationParameterHandler()
     {
         return appHandler;
-    }
-
-    /**************************************************************************
-     * Set the application parameter handler
-     *************************************************************************/
-    protected void setApplicationParameterHandler()
-    {
-        // Read the application parameters from the project database
-        appHandler = new CcddApplicationParameterHandler(CcddMain.this);
     }
 
     /**************************************************************************
@@ -632,6 +643,27 @@ public class CcddMain
     }
 
     /**************************************************************************
+     * Get the reference to the reserved message ID editor dialog
+     * 
+     * @return Reference to the reserved message ID editor dialog
+     *************************************************************************/
+    protected CcddReservedMsgIDEditorDialog getReservedMsgIDEditor()
+    {
+        return msgIDEditorDialog;
+    }
+
+    /**************************************************************************
+     * Set the reference to the reserved message ID editor dialog
+     * 
+     * @param msgIDEditorDialog
+     *            reference to the reserved message ID editor dialog
+     *************************************************************************/
+    protected void setReservedMsgIDEditor(CcddReservedMsgIDEditorDialog msgIDEditorDialog)
+    {
+        this.msgIDEditorDialog = msgIDEditorDialog;
+    }
+
+    /**************************************************************************
      * Activate/deactivate the main menu by setting the component enable flags
      * appropriately. While disabled these components are grayed out and do not
      * respond to inputs
@@ -676,6 +708,7 @@ public class CcddMain
         mntmManageDataTypes.setEnabled(dbControl.isDatabaseConnected());
         mntmManageMacros.setEnabled(dbControl.isDatabaseConnected());
         mntmAssignMsgID.setEnabled(dbControl.isDatabaseConnected());
+        mntmReserveMsgID.setEnabled(dbControl.isDatabaseConnected());
         mntmEditDataField.setEnabled(dbControl.isDatabaseConnected());
         mntmSearchTable.setEnabled(dbControl.isDatabaseConnected());
         mntmManageLinks.setEnabled(dbControl.isDatabaseConnected());
@@ -748,6 +781,10 @@ public class CcddMain
      * @param key
      *            key mnemonic for the menu
      * 
+     * @param occurrence
+     *            specifies which occurrence of the character in the item name
+     *            to highlight; set to < 2 to use the first occurrence
+     * 
      * @param toolTip
      *            tool tip text
      * 
@@ -756,11 +793,12 @@ public class CcddMain
     protected JMenu createMenu(JMenuBar menuBar,
                                String name,
                                int key,
+                               int occurrence,
                                String toolTip)
     {
         JMenu menu = new JMenu(name);
         menu.setFont(LABEL_FONT_PLAIN);
-        menu.setMnemonic(key);
+        setMnemonic(menu, name, key, occurrence);
         menu.setToolTipText(toolTip);
         menuBar.add(menu);
         return menu;
@@ -778,6 +816,10 @@ public class CcddMain
      * @param key
      *            key mnemonic for the sub-menu
      * 
+     * @param occurrence
+     *            specifies which occurrence of the character in the item name
+     *            to highlight; set to < 2 to use the first occurrence
+     * 
      * @param toolTip
      *            tool tip text
      * 
@@ -786,18 +828,20 @@ public class CcddMain
     protected JMenu createSubMenu(JMenu menu,
                                   String name,
                                   int key,
+                                  int occurrence,
                                   String toolTip)
     {
         JMenu subMenu = new JMenu(name);
         subMenu.setFont(LABEL_FONT_PLAIN);
-        subMenu.setMnemonic(key);
+        setMnemonic(subMenu, name, key, occurrence);
         subMenu.setToolTipText(toolTip);
         menu.add(subMenu);
         return subMenu;
     }
 
     /**************************************************************************
-     * Create a menu item and add it to a menu
+     * Create a menu item and add it to a menu. Specify the occurrence of the
+     * key character in the menu item name to highlight
      * 
      * @param menu
      *            menu to add the item to
@@ -807,6 +851,10 @@ public class CcddMain
      * 
      * @param key
      *            key mnemonic for the menu item
+     * 
+     * @param occurrence
+     *            specifies which occurrence of the character in the item name
+     *            to highlight; set to < 2 to use the first occurrence
      * 
      * @param toolTip
      *            tool tip text
@@ -816,18 +864,20 @@ public class CcddMain
     protected JMenuItem createMenuItem(JMenu menu,
                                        String name,
                                        int key,
+                                       int occurrence,
                                        String toolTip)
     {
         JMenuItem menuItem = new JMenuItem(name);
         menuItem.setFont(LABEL_FONT_PLAIN);
-        menuItem.setMnemonic(key);
+        setMnemonic(menuItem, name, key, occurrence);
         menuItem.setToolTipText(toolTip);
         menu.add(menuItem);
         return menuItem;
     }
 
     /**************************************************************************
-     * Create a check box menu item and add it to a menu
+     * Create a check box menu item and add it to a menu. Specify the
+     * occurrence of the key character in the menu item name to highlight
      * 
      * @param menu
      *            menu to add the item to
@@ -837,6 +887,10 @@ public class CcddMain
      * 
      * @param key
      *            key mnemonic for the menu item
+     * 
+     * @param occurrence
+     *            specifies which occurrence of the character in the item name
+     *            to highlight; set to < 2 to use the first occurrence
      * 
      * @param toolTip
      *            tool tip text
@@ -849,12 +903,13 @@ public class CcddMain
     protected JCheckBoxMenuItem createCheckBoxMenuItem(JMenu menu,
                                                        String name,
                                                        int key,
+                                                       int occurrence,
                                                        String toolTip,
                                                        boolean isSelected)
     {
         JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(name);
         menuItem.setFont(LABEL_FONT_PLAIN);
-        menuItem.setMnemonic(key);
+        setMnemonic(menuItem, name, key, occurrence);
         menuItem.setToolTipText(toolTip);
         menuItem.setSelected(isSelected);
         menu.add(menuItem);
@@ -862,7 +917,8 @@ public class CcddMain
     }
 
     /**************************************************************************
-     * Create a radio button menu item and add it to a menu
+     * Create a radio button menu item and add it to a menu. Specify the
+     * occurrence of the key character in the menu item name to highlight
      * 
      * @param menu
      *            menu to add the item to
@@ -872,6 +928,10 @@ public class CcddMain
      * 
      * @param key
      *            key mnemonic for the menu item
+     * 
+     * @param occurrence
+     *            specifies which occurrence of the character in the item name
+     *            to highlight; set to < 2 to use the first occurrence
      * 
      * @param toolTip
      *            tool tip text
@@ -884,16 +944,76 @@ public class CcddMain
     protected JRadioButtonMenuItem createRadioButtonMenuItem(JMenu menu,
                                                              String name,
                                                              int key,
+                                                             int occurrence,
                                                              String toolTip,
                                                              boolean isSelected)
     {
         JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(name);
         menuItem.setFont(LABEL_FONT_PLAIN);
-        menuItem.setMnemonic(key);
+        setMnemonic(menuItem, name, key, occurrence);
         menuItem.setToolTipText(toolTip);
         menuItem.setSelected(isSelected);
         menu.add(menuItem);
         return menuItem;
+    }
+
+    /**************************************************************************
+     * Set the key mnemonic for the supplied menu item. Specify the occurrence
+     * of the key character in the menu item name to highlight
+     * 
+     * @param menuItem
+     *            menu item for which to set the mnemonic
+     * 
+     * @param name
+     *            menu item name
+     * 
+     * @param key
+     *            key mnemonic for the menu item
+     * 
+     * @param occurrence
+     *            specifies which occurrence of the character in the item name
+     *            to highlight; set to < 2 to use the first occurrence
+     *************************************************************************/
+    private void setMnemonic(AbstractButton menuItem,
+                             String name,
+                             int key,
+                             int occurrence)
+    {
+        // Convert the menu item name and key character to lower case to make
+        // the match case insensitive
+        name = name.toLowerCase();
+        String keyChar = KeyEvent.getKeyText(key).toLowerCase();
+
+        int position = -1;
+
+        do
+        {
+            // Get the position of the key character in the item name starting
+            // at the beginning of the name (first pass) or the last occurrence
+            // of the key character (subsequent passes)
+            position = name.indexOf(keyChar, position + 1);
+
+            // Decrement the occurrence counter each pass
+            occurrence--;
+        } while (occurrence > 0 && position != -1);
+        // Continue until the specified occurrence is reached or if the key
+        // character can't be found in the remaining portion of the name
+
+        // Check if the specified occurrence of the key character was located
+        if (position != -1)
+        {
+            // Highlight the specified occurrence of the key character in the
+            // menu item name
+            menuItem.setDisplayedMnemonicIndex(position);
+        }
+        // The key character isn't in the item name or there are fewer
+        // occurrences of the key character than are specified
+        else
+        {
+            // Highlight the first occurrence of the key character (if present)
+            // in the menu item name
+            menuItem.setMnemonic(key);
+        }
     }
 
     /**************************************************************************
@@ -952,87 +1072,88 @@ public class CcddMain
         frameCCDD.setJMenuBar(menuBar);
 
         // Create the File menu and menu items
-        JMenu mnFile = createMenu(menuBar, "File", KeyEvent.VK_F, null);
-        mntmUser = createMenuItem(mnFile, "Select user", KeyEvent.VK_U, "Change user name and/or password");
-        mntmDbServer = createMenuItem(mnFile, "Database server", KeyEvent.VK_S, "Change PostgreSQL database server address and port");
+        JMenu mnFile = createMenu(menuBar, "File", KeyEvent.VK_F, 1, null);
+        mntmUser = createMenuItem(mnFile, "Select user", KeyEvent.VK_U, 1, "Change user name and/or password");
+        mntmDbServer = createMenuItem(mnFile, "Database server", KeyEvent.VK_D, 1, "Change PostgreSQL database server address and port");
         mnFile.addSeparator();
-        mntmReadLog = createMenuItem(mnFile, "Read log", KeyEvent.VK_R, "Open an event log");
-        mntmPrintLog = createMenuItem(mnFile, "Print log", KeyEvent.VK_P, "Print the current session event log");
-        mntmSearchLog = createMenuItem(mnFile, "Search log", KeyEvent.VK_C, "Search the current session event log");
+        mntmReadLog = createMenuItem(mnFile, "Read log", KeyEvent.VK_R, 1, "Open an event log");
+        mntmPrintLog = createMenuItem(mnFile, "Print log", KeyEvent.VK_P, 1, "Print the current session event log");
+        mntmSearchLog = createMenuItem(mnFile, "Search log", KeyEvent.VK_S, 1, "Search the current session event log");
         mnFile.addSeparator();
-        JMenu mnWebServer = createSubMenu(mnFile, "Web server", KeyEvent.VK_W, null);
-        mntmEnableWebServer = createCheckBoxMenuItem(mnWebServer, "Enable server", KeyEvent.VK_E, "Start or stop the web server", false);
-        mntmWebServerPort = createMenuItem(mnWebServer, "Select port", KeyEvent.VK_T, "Select the web server port");
+        JMenu mnWebServer = createSubMenu(mnFile, "Web server", KeyEvent.VK_W, 1, null);
+        mntmEnableWebServer = createCheckBoxMenuItem(mnWebServer, "Enable server", KeyEvent.VK_E, 1, "Start or stop the web server", false);
+        mntmWebServerPort = createMenuItem(mnWebServer, "Select port", KeyEvent.VK_O, 1, "Select the web server port");
         mnFile.addSeparator();
-        JMenuItem mntmAppearance = createMenuItem(mnFile, "Appearance", KeyEvent.VK_A, "Change the application look & feel");
-        mntmExit = createMenuItem(mnFile, "Exit", KeyEvent.VK_X, "Exit the application");
+        JMenuItem mntmAppearance = createMenuItem(mnFile, "Appearance", KeyEvent.VK_A, 1, "Change the application look & feel");
+        mntmExit = createMenuItem(mnFile, "Exit", KeyEvent.VK_X, 1, "Exit the application");
 
         // Create the Project menu and menu items
-        JMenu mnProject = createMenu(menuBar, "Project", KeyEvent.VK_P, null);
-        mntmOpenDb = createMenuItem(mnProject, "Open", KeyEvent.VK_O, "Open an existing project database");
-        mntmCloseDb = createMenuItem(mnProject, "Close", KeyEvent.VK_C, "Close the currently open project database");
+        JMenu mnProject = createMenu(menuBar, "Project", KeyEvent.VK_P, 1, null);
+        mntmOpenDb = createMenuItem(mnProject, "Open", KeyEvent.VK_O, 1, "Open an existing project database");
+        mntmCloseDb = createMenuItem(mnProject, "Close", KeyEvent.VK_C, 1, "Close the currently open project database");
         mnProject.addSeparator();
-        mntmNewDb = createMenuItem(mnProject, "New", KeyEvent.VK_N, "Create a new project database");
-        mntmRenameDb = createMenuItem(mnProject, "Rename", KeyEvent.VK_R, "Rename an existing project database");
-        mntmCopyDb = createMenuItem(mnProject, "Copy", KeyEvent.VK_Y, "Copy an existing project database");
-        mntmDeleteDb = createMenuItem(mnProject, "Delete", KeyEvent.VK_L, "Delete an existing project database");
+        mntmNewDb = createMenuItem(mnProject, "New", KeyEvent.VK_N, 1, "Create a new project database");
+        mntmRenameDb = createMenuItem(mnProject, "Rename", KeyEvent.VK_R, 1, "Rename an existing project database");
+        mntmCopyDb = createMenuItem(mnProject, "Copy", KeyEvent.VK_Y, 1, "Copy an existing project database");
+        mntmDeleteDb = createMenuItem(mnProject, "Delete", KeyEvent.VK_L, 1, "Delete an existing project database");
         mnProject.addSeparator();
-        mntmBackupDb = createMenuItem(mnProject, "Backup", KeyEvent.VK_B, "Backup the currently open project database");
-        mntmRestoreDb = createMenuItem(mnProject, "Restore", KeyEvent.VK_S, "Restore a previously backed-up project database");
+        mntmBackupDb = createMenuItem(mnProject, "Backup", KeyEvent.VK_B, 1, "Backup the currently open project database");
+        mntmRestoreDb = createMenuItem(mnProject, "Restore", KeyEvent.VK_S, 1, "Restore a previously backed-up project database");
         mnProject.addSeparator();
-        mntmUnlock = createMenuItem(mnProject, "Unlock", KeyEvent.VK_U, "Unlock project database(s)");
+        mntmUnlock = createMenuItem(mnProject, "Unlock", KeyEvent.VK_U, 1, "Unlock project database(s)");
         mnProject.addSeparator();
-        mntmVerifyDatabase = createMenuItem(mnProject, "Verify", KeyEvent.VK_V, "Perform a project database consistency check");
+        mntmVerifyDatabase = createMenuItem(mnProject, "Verify", KeyEvent.VK_V, 1, "Perform a project database consistency check");
 
         // Create the Data menu and menu items
-        JMenu mnData = createMenu(menuBar, "Data", KeyEvent.VK_D, null);
-        mntmNewTable = createMenuItem(mnData, "New table(s)", KeyEvent.VK_N, "Create new data table(s)");
-        mntmEditTable = createMenuItem(mnData, "Edit table(s)", KeyEvent.VK_E, "Edit selected table(s)");
-        mntmRenameTable = createMenuItem(mnData, "Rename table", KeyEvent.VK_R, "Rename selected data table");
-        mntmCopyTable = createMenuItem(mnData, "Copy table", KeyEvent.VK_C, "Copy selected data table");
-        mntmDeleteTable = createMenuItem(mnData, "Delete table(s)", KeyEvent.VK_L, "Delete selected data table(s)");
+        JMenu mnData = createMenu(menuBar, "Data", KeyEvent.VK_D, 1, null);
+        mntmNewTable = createMenuItem(mnData, "New table(s)", KeyEvent.VK_N, 1, "Create new data table(s)");
+        mntmEditTable = createMenuItem(mnData, "Edit table(s)", KeyEvent.VK_E, 1, "Edit selected table(s)");
+        mntmRenameTable = createMenuItem(mnData, "Rename table", KeyEvent.VK_R, 1, "Rename selected data table");
+        mntmCopyTable = createMenuItem(mnData, "Copy table", KeyEvent.VK_C, 1, "Copy selected data table");
+        mntmDeleteTable = createMenuItem(mnData, "Delete table(s)", KeyEvent.VK_L, 1, "Delete selected data table(s)");
         mnData.addSeparator();
-        mntmImportTable = createMenuItem(mnData, "Import table(s)", KeyEvent.VK_I, "Import selected CSV or XTCE/EDS XML file(s) to data table(s)");
-        JMenu mnExport = createSubMenu(mnData, "Export table(s)", KeyEvent.VK_X, null);
-        mntmExportCSV = createMenuItem(mnExport, "CSV", KeyEvent.VK_C, "Export selected data table(s) in CSV format");
-        mntmExportEDS = createMenuItem(mnExport, "EDS", KeyEvent.VK_E, "Export selected data table(s) in EDS XML format");
-        mntmExportJSON = createMenuItem(mnExport, "JSON", KeyEvent.VK_E, "Export selected data table(s) in JSON format");
-        mntmExportXTCE = createMenuItem(mnExport, "XTCE", KeyEvent.VK_X, "Export selected data table(s) in XTCE XML format");
+        mntmImportTable = createMenuItem(mnData, "Import table(s)", KeyEvent.VK_I, 1, "Import selected CSV or XTCE/EDS XML file(s) to data table(s)");
+        JMenu mnExport = createSubMenu(mnData, "Export table(s)", KeyEvent.VK_X, 1, null);
+        mntmExportCSV = createMenuItem(mnExport, "CSV", KeyEvent.VK_C, 1, "Export selected data table(s) in CSV format");
+        mntmExportEDS = createMenuItem(mnExport, "EDS", KeyEvent.VK_E, 1, "Export selected data table(s) in EDS XML format");
+        mntmExportJSON = createMenuItem(mnExport, "JSON", KeyEvent.VK_J, 1, "Export selected data table(s) in JSON format");
+        mntmExportXTCE = createMenuItem(mnExport, "XTCE", KeyEvent.VK_X, 1, "Export selected data table(s) in XTCE XML format");
         mnData.addSeparator();
-        mntmManageGroups = createMenuItem(mnData, "Manage groups", KeyEvent.VK_G, "Open the table group manager");
-        mntmManageTableTypes = createMenuItem(mnData, "Manage table types", KeyEvent.VK_T, "Open the table type manager");
-        mntmManageDataTypes = createMenuItem(mnData, "Manage data types", KeyEvent.VK_D, "Open the data type manager");
-        mntmManageMacros = createMenuItem(mnData, "Manage macros", KeyEvent.VK_O, "Open the macro editor");
+        mntmManageGroups = createMenuItem(mnData, "Manage groups", KeyEvent.VK_G, 2, "Open the table group manager");
+        mntmManageTableTypes = createMenuItem(mnData, "Manage table types", KeyEvent.VK_T, 1, "Open the table type manager");
+        mntmManageDataTypes = createMenuItem(mnData, "Manage data types", KeyEvent.VK_D, 1, "Open the data type manager");
+        mntmManageMacros = createMenuItem(mnData, "Manage macros", KeyEvent.VK_M, 2, "Open the macro editor");
         mnData.addSeparator();
-        mntmAssignMsgID = createMenuItem(mnData, "Assign message IDs", KeyEvent.VK_M, "Auto-assign message ID numbers");
-        mntmEditDataField = createMenuItem(mnData, "Show/edit fields", KeyEvent.VK_F, "Open the data field table editor");
+        mntmAssignMsgID = createMenuItem(mnData, "Assign message IDs", KeyEvent.VK_A, 1, "Auto-assign message ID numbers");
+        mntmReserveMsgID = createMenuItem(mnData, "Reserve message IDs", KeyEvent.VK_V, 1, "Reserve message ID numbers");
+        mntmEditDataField = createMenuItem(mnData, "Show/edit fields", KeyEvent.VK_F, 1, "Open the data field table editor");
         mnData.addSeparator();
-        mntmSearchTable = createMenuItem(mnData, "Search tables", KeyEvent.VK_S, "Search the project database tables");
+        mntmSearchTable = createMenuItem(mnData, "Search tables", KeyEvent.VK_S, 1, "Search the project database tables");
 
         // Create the Scheduling menu and menu items
-        JMenu mnScheduling = createMenu(menuBar, "Scheduling", KeyEvent.VK_C, null);
-        mntmManageLinks = createMenuItem(mnScheduling, "Manage links", KeyEvent.VK_L, "Open the variable link manager");
-        mntmManageTlm = createMenuItem(mnScheduling, "Telemetry", KeyEvent.VK_T, "Open the telemetry message scheduler");
-        mntmManageApps = createMenuItem(mnScheduling, "Applications", KeyEvent.VK_A, "Open the application scheduler");
+        JMenu mnScheduling = createMenu(menuBar, "Scheduling", KeyEvent.VK_C, 1, null);
+        mntmManageLinks = createMenuItem(mnScheduling, "Manage links", KeyEvent.VK_L, 1, "Open the variable link manager");
+        mntmManageTlm = createMenuItem(mnScheduling, "Telemetry", KeyEvent.VK_T, 1, "Open the telemetry message scheduler");
+        mntmManageApps = createMenuItem(mnScheduling, "Applications", KeyEvent.VK_A, 1, "Open the application scheduler");
         mnScheduling.addSeparator();
-        mntmRateParameters = createMenuItem(mnScheduling, "Rate parameters", KeyEvent.VK_A, "Change telemetry rate parameters");
-        mntmAppParameters = createMenuItem(mnScheduling, "App parameters", KeyEvent.VK_U, "Change application scheduler parameters");
+        mntmRateParameters = createMenuItem(mnScheduling, "Rate parameters", KeyEvent.VK_R, 1, "Change telemetry rate parameters");
+        mntmAppParameters = createMenuItem(mnScheduling, "App parameters", KeyEvent.VK_P, 1, "Change application scheduler parameters");
 
         // Create the Script menu and menu items
-        JMenu mnScript = createMenu(menuBar, "Script", KeyEvent.VK_S, null);
-        mntmManageScripts = createMenuItem(mnScript, "Manage", KeyEvent.VK_M, "Open the script association manager");
-        mntmExecuteScripts = createMenuItem(mnScript, "Execute", KeyEvent.VK_E, "Open the script association executive");
+        JMenu mnScript = createMenu(menuBar, "Script", KeyEvent.VK_S, 1, null);
+        mntmManageScripts = createMenuItem(mnScript, "Manage", KeyEvent.VK_M, 1, "Open the script association manager");
+        mntmExecuteScripts = createMenuItem(mnScript, "Execute", KeyEvent.VK_E, 1, "Open the script association executive");
         mnScript.addSeparator();
-        mntmStoreScripts = createMenuItem(mnScript, "Store", KeyEvent.VK_T, "Store selected script(s) in the project database");
-        mntmRetrieveScripts = createMenuItem(mnScript, "Retrieve", KeyEvent.VK_R, "Retrieve selected script(s) from the project database");
-        mntmDeleteScripts = createMenuItem(mnScript, "Delete", KeyEvent.VK_D, "Delete selected script(s) from the project database");
+        mntmStoreScripts = createMenuItem(mnScript, "Store", KeyEvent.VK_T, 1, "Store selected script(s) in the project database");
+        mntmRetrieveScripts = createMenuItem(mnScript, "Retrieve", KeyEvent.VK_R, 1, "Retrieve selected script(s) from the project database");
+        mntmDeleteScripts = createMenuItem(mnScript, "Delete", KeyEvent.VK_D, 1, "Delete selected script(s) from the project database");
         mnScript.addSeparator();
-        mntmSearchScripts = createMenuItem(mnScript, "Search", KeyEvent.VK_S, "Search the scripts stored in the project database");
+        mntmSearchScripts = createMenuItem(mnScript, "Search", KeyEvent.VK_S, 1, "Search the scripts stored in the project database");
 
         // Create the Help menu and menu items
-        JMenu mnHelp = createMenu(menuBar, "Help", KeyEvent.VK_H, null);
-        JMenuItem mntmGuide = createMenuItem(mnHelp, "Guide", KeyEvent.VK_G, "Open the application user's guide");
-        JMenuItem mntmAbout = createMenuItem(mnHelp, "About", KeyEvent.VK_A, null);
+        JMenu mnHelp = createMenu(menuBar, "Help", KeyEvent.VK_H, 1, null);
+        JMenuItem mntmGuide = createMenuItem(mnHelp, "Guide", KeyEvent.VK_G, 1, "Open the application user's guide");
+        JMenuItem mntmAbout = createMenuItem(mnHelp, "About", KeyEvent.VK_A, 1, null);
 
         // Add a listener for the Select user menu item
         mntmUser.addActionListener(new ActionListener()
@@ -1625,12 +1746,25 @@ public class CcddMain
         mntmAssignMsgID.addActionListener(new ActionListener()
         {
             /******************************************************************
-             * Show the table message ID assignment dialog
+             * Show the structure and command message ID assignment dialog
              *****************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddAssignTableMsgIDDialog(CcddMain.this);
+                new CcddAssignMessageIDDialog(CcddMain.this);
+            }
+        });
+
+        // Add a listener for the Reserve Message IDs menu item
+        mntmReserveMsgID.addActionListener(new ActionListener()
+        {
+            /******************************************************************
+             * Show the table message ID reserve dialog
+             *****************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                new CcddReservedMsgIDEditorDialog(CcddMain.this);
             }
         });
 

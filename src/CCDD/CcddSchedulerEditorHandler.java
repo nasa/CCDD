@@ -1523,7 +1523,7 @@ public class CcddSchedulerEditorHandler
             }
 
             // Remove the variables in the list from the message
-            removedVarNames = removeVariableFromMessages(removedVars, row);
+            removedVarNames = removeVariablesFromMessages(removedVars, row);
 
             // Check if this is a telemetry scheduler
             if (schedulerHndlr.getSchedulerOption() == TELEMETRY_SCHEDULER)
@@ -1558,8 +1558,8 @@ public class CcddSchedulerEditorHandler
      * 
      * @return List of the variable names removed
      *************************************************************************/
-    protected List<String> removeVariableFromMessages(List<Variable> variables,
-                                                      int row)
+    protected List<String> removeVariablesFromMessages(List<Variable> variables,
+                                                       int row)
     {
         List<Integer> msgIndices;
         List<String> removedVarNames = new ArrayList<String>();
@@ -1567,6 +1567,7 @@ public class CcddSchedulerEditorHandler
         // Step through the variable list
         for (Variable variable : variables)
         {
+            // Add the variable path and name to the list of those removed
             removedVarNames.add(variable.getFullName());
 
             // Check if the variable is in a sub-message
@@ -1873,64 +1874,35 @@ public class CcddSchedulerEditorHandler
     }
 
     /**************************************************************************
-     * Remove all variables
-     * 
-     * @return List of all the variables removed
-     *************************************************************************/
-    protected List<Variable> removeAll()
-    {
-        // Create lists for the variables and the variables that are removed
-        List<Variable> variables = new ArrayList<Variable>();
-        List<Variable> removedVars = new ArrayList<Variable>();
-
-        // Step through each message
-        for (int msgIndex = 0; msgIndex < messages.size(); msgIndex++)
-        {
-            // Add the message's variables to the list of removed variables
-            removedVars.addAll(messages.get(msgIndex).getAllVariables());
-
-            // Remove the variables from the messages
-            removeVariableFromMessages(removedVars, msgIndex);
-
-            // Add the message's removed variables to the list of all removed
-            // variables
-            variables.addAll(removedVars);
-
-            // Clear the removed variables list for the next pass
-            removedVars.clear();
-        }
-
-        // Check if this is a telemetry scheduler
-        if (schedulerHndlr.getSchedulerOption() == TELEMETRY_SCHEDULER)
-        {
-            // Update the assignment definition list for when the assignment
-            // tree is rebuilt
-            assignmentTree.updateAssignmentDefinitions(messages,
-                                                       schedulerHndlr.getRateName());
-        }
-
-        // Calculate the bytes remaining in the messages
-        calculateTotalBytesRemaining();
-
-        // Update the remaining bytes column values
-        updateRemainingBytesColumn();
-
-        // Update the assignment tree/list
-        updateAssignmentList();
-
-        return variables;
-    }
-
-    /**************************************************************************
      * Remove the variables (applications) assigned to the messages (time
      * slots)
+     * 
+     * @param rateFilter
+     *            rate of the variables to removed from the telemetry messages;
+     *            null to remove all variables. Not used for the application
+     *            scheduler
      *************************************************************************/
-    protected void clearMessages()
+    protected void clearVariablesFromMessages(String rateFilter)
     {
-        // Get the scheduler type text based on the scheduler type
-        String type = schedulerHndlr.getSchedulerOption() == TELEMETRY_SCHEDULER
-                                                                                ? "Messages"
-                                                                                : "Time Slots";
+        String type;
+        String text;
+
+        // Check if this is the telemetry scheduler
+        if (schedulerHndlr.getSchedulerOption() == TELEMETRY_SCHEDULER)
+        {
+            type = "Variables";
+            text = rateFilter == null
+                                     ? "all variables from messages"
+                                     : "variables of rate "
+                                       + rateFilter
+                                       + " from messages";
+        }
+        // This is the application scheduler
+        else
+        {
+            type = "Applications";
+            text = "all applications from time slots";
+        }
 
         boolean isVariable = false;
 
@@ -1951,15 +1923,94 @@ public class CcddSchedulerEditorHandler
         // that the user confirms resetting the messages (time slots)
         if (isVariable
             && new CcddDialogHandler().showMessageDialog(schedulerHndlr.getSchedulerDialog().getDialog(),
-                                                         "<html><b>Clear "
-                                                             + type.toLowerCase(),
-                                                         "Clear "
+                                                         "<html><b>Remove "
+                                                             + text
+                                                             + "?",
+                                                         "Remove "
                                                              + type,
                                                          JOptionPane.QUESTION_MESSAGE,
                                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
         {
-            // Reset the telemetry (application) scheduler table
-            schedulerHndlr.resetTelemetryTable();
+            // Create lists for the variables and the variables that are
+            // removed
+            List<Variable> allVarsRemoved = new ArrayList<Variable>();
+            List<Variable> msgVarsRemoved = new ArrayList<Variable>();
+
+            float rate = 0;
+
+            // Check if a rate filter is to be applied
+            if (rateFilter != null)
+            {
+                // Convert the rate to a floating point value
+                rate = CcddUtilities.convertStringToFloat(rateFilter);
+            }
+
+            // Step through each message
+            for (int msgIndex = 0; msgIndex < messages.size(); msgIndex++)
+            {
+                // Step through each variable assigned to this message
+                for (Variable variable : messages.get(msgIndex).getAllVariables())
+                {
+                    // Check if no rate filter is in effect, or if a filter is
+                    // applied that the variable's rate matches the rate filter
+                    if (rateFilter == null || rate == variable.getRate())
+                    {
+                        // Add the variable to the list of those to be removed
+                        // from the message
+                        msgVarsRemoved.add(variable);
+                    }
+                }
+
+                // Remove the variables from the messages
+                removeVariablesFromMessages(msgVarsRemoved, msgIndex);
+
+                // Add the message's removed variables to the list of all
+                // removed variables
+                allVarsRemoved.addAll(msgVarsRemoved);
+
+                // Clear the removed variables list for the next pass
+                msgVarsRemoved.clear();
+            }
+
+            // Check if this is a telemetry scheduler
+            if (schedulerHndlr.getSchedulerOption() == TELEMETRY_SCHEDULER)
+            {
+                // Update the assignment definition list for when the
+                // assignment tree is rebuilt
+                assignmentTree.updateAssignmentDefinitions(messages,
+                                                           schedulerHndlr.getRateName());
+            }
+
+            // Calculate the bytes remaining in the messages
+            calculateTotalBytesRemaining();
+
+            // Update the remaining bytes column values
+            updateRemainingBytesColumn();
+
+            // Update the assignment tree/list
+            updateAssignmentList();
+
+            // Create an included variables (applications) list
+            List<String> includedVars = new ArrayList<String>();
+
+            // Step through each variable (application) in the removed variable
+            // (application) list
+            for (Variable variable : allVarsRemoved)
+            {
+                // Add each name to the list of included variables
+                // (applications)
+                includedVars.add(variable.getFullName());
+            }
+
+            // Include the variables (applications) back in the variable
+            // (application) tree
+            schedulerHndlr.makeVariableAvailable(includedVars);
+
+            // Set the unused bytes field
+            schedulerHndlr.setUnusedField();
+
+            // Update the scheduler dialog's change indicator
+            schedulerHndlr.getSchedulerDialog().updateChangeIndicator();
         }
     }
 

@@ -55,6 +55,7 @@ import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
+import CCDD.CcddConstants.InternalTable.ReservedMsgIDsColumn;
 import CCDD.CcddImportExportInterface.ImportType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
@@ -70,6 +71,7 @@ public class CcddFileIOHandler
     private CcddTableTypeHandler tableTypeHandler;
     private CcddDataTypeHandler dataTypeHandler;
     private CcddMacroHandler macroHandler;
+    private CcddReservedMsgIDHandler msgIDHandler;
     private CcddTableEditorDialog tableEditorDlg;
     private final CcddEventLogDialog eventLog;
 
@@ -100,6 +102,7 @@ public class CcddFileIOHandler
         tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
+        msgIDHandler = ccddMain.getReservedMsgIDHandler();
     }
 
     /**************************************************************************
@@ -523,11 +526,12 @@ public class CcddFileIOHandler
                               final boolean useExistingFields,
                               final Component parent)
     {
-        // Store the current table type, data type, and macro information in
-        // case it needs to be restored
+        // Store the current table type, data type, macro, and reserved message
+        // ID information in case it needs to be restored
         final List<String[]> originalDataTypes = dataTypeHandler.getDataTypeData();
         final List<String[]> originalMacros = macroHandler.getMacroData();
         final List<TypeDefinition> originalTableTypes = tableTypeHandler.getTypeDefinitions();
+        final List<String[]> originalReservedMsgIDs = msgIDHandler.getReservedMsgIDData();
 
         // Execute the import operation in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
@@ -743,11 +747,13 @@ public class CcddFileIOHandler
                 // An error occurred while importing the table(s)
                 else
                 {
-                    // Restore the table types, data types, and macros to the
-                    // values prior to the import operation
+                    // Restore the table types, data types, macros, and
+                    // reserved message IDs to the values prior to the import
+                    // operation
                     tableTypeHandler.setTypeDefinitions(originalTableTypes);
                     dataTypeHandler.setDataTypeData(originalDataTypes);
                     macroHandler.setMacroData(originalMacros);
+                    msgIDHandler.setReservedMsgIDData(originalReservedMsgIDs);
 
                     eventLog.logFailEvent(parent,
                                           "Import Error",
@@ -983,6 +989,18 @@ public class CcddFileIOHandler
             dbTable.storeInformationTable(InternalTable.MACROS,
                                           CcddUtilities.removeArrayListColumn(macroHandler.getMacroData(),
                                                                               MacrosColumn.OID.ordinal()),
+                                          null,
+                                          parent);
+
+        }
+
+        // Check if any reserved message IDs are defined
+        if (!msgIDHandler.getReservedMsgIDData().isEmpty())
+        {
+            // Store the reserved message IDs in the database
+            dbTable.storeInformationTable(InternalTable.RESERVED_MSG_IDS,
+                                          CcddUtilities.removeArrayListColumn(msgIDHandler.getReservedMsgIDData(),
+                                                                              ReservedMsgIDsColumn.OID.ordinal()),
                                           null,
                                           parent);
 
@@ -1375,6 +1393,10 @@ public class CcddFileIOHandler
      *            true to replace macros with their corresponding values; false
      *            to leave the macros intact
      * 
+     * @param includeReservedMsgIDs
+     *            true to include the contents of the reserved message ID table
+     *            in the export file
+     * 
      * @param fileExtn
      *            file extension type
      * 
@@ -1405,6 +1427,7 @@ public class CcddFileIOHandler
                                         final boolean overwriteFile,
                                         final boolean singleFile,
                                         final boolean replaceMacros,
+                                        final boolean includeReservedMsgIDs,
                                         final FileExtension fileExtn,
                                         final String system,
                                         final String version,
@@ -1499,6 +1522,7 @@ public class CcddFileIOHandler
                             if (ioHandler.exportToFile(file,
                                                        tablePaths,
                                                        replaceMacros,
+                                                       includeReservedMsgIDs,
                                                        system,
                                                        version,
                                                        validationStatus,
@@ -1538,6 +1562,7 @@ public class CcddFileIOHandler
                                 if (ioHandler.exportToFile(file,
                                                            new String[] {tblName},
                                                            replaceMacros,
+                                                           includeReservedMsgIDs,
                                                            system,
                                                            version,
                                                            validationStatus,
