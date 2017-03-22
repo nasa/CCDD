@@ -885,7 +885,7 @@ public class CcddSchedulerHandler
         if (rateFilter.getSelectedItem() != null)
         {
             // Get the options from the telemetry scheduler
-            List<String> options = schedulerEditor.getMessageAvailability(CcddUtilities.convertStringToFloat(rateFilter.getSelectedItem().toString()));
+            List<String> options = schedulerEditor.getMessageAvailability(CcddUtilities.convertStringToFloat(CcddUtilities.removeHTMLTags(rateFilter.getSelectedItem().toString())));
 
             // Step through each option
             for (String option : options)
