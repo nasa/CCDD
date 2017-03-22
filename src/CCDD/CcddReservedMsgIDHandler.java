@@ -85,7 +85,7 @@ public class CcddReservedMsgIDHandler
         {
             // Convert the ID string into the lower and upper (if present)
             // value(s)
-            Integer[] lowHigh = parseReservedMsgIDs(reservedMsgID[ReservedMsgIDsColumn.MSG_ID.ordinal()]);
+            int[] lowHigh = parseReservedMsgIDs(reservedMsgID[ReservedMsgIDsColumn.MSG_ID.ordinal()]);
 
             // Store the first reserved message ID value in the range (or only
             // value if not a range)
@@ -114,9 +114,9 @@ public class CcddReservedMsgIDHandler
      *         and the second value is the upper ID (if a range; -1 if not a
      *         range)
      *************************************************************************/
-    protected Integer[] parseReservedMsgIDs(String reservedMsgIDs)
+    protected int[] parseReservedMsgIDs(String reservedMsgIDs)
     {
-        Integer[] lowHigh = new Integer[2];
+        int[] lowHigh = new int[2];
 
         // Convert the (lower) ID into an integer value
         String[] range = reservedMsgIDs.split("\\s*+-\\s*+");
@@ -144,10 +144,10 @@ public class CcddReservedMsgIDHandler
      * 
      * @return true if the IDs or ID ranges overlap
      *************************************************************************/
-    protected boolean isWithinRange(Integer[] idA, String otherID)
+    protected boolean isWithinRange(int[] idA, String otherID)
     {
         // Convert the other lower and upper (if present) values into integers
-        Integer[] idB = parseReservedMsgIDs(otherID);
+        int[] idB = parseReservedMsgIDs(otherID);
 
         return ((
                 // Check if the new and other IDs are single values (not
@@ -188,7 +188,7 @@ public class CcddReservedMsgIDHandler
         boolean isExists = false;
 
         // Convert the lower and upper (if present) values into integers
-        Integer[] lowHigh = parseReservedMsgIDs(msgID);
+        int[] lowHigh = parseReservedMsgIDs(msgID);
 
         // Step through each defined reserved message ID
         for (String[] reservedMsgID : reservedMsgIDData)

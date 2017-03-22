@@ -203,6 +203,48 @@ public class CcddUtilities
     }
 
     /**************************************************************************
+     * Repeat any embedded double quotes, then bound the supplied text with
+     * double quotes
+     * 
+     * @param text
+     *            text string for which to add double quotes
+     * 
+     * @return The supplied text string with any embedded double quotes
+     *         repeated, and bounded with double quotes
+     *************************************************************************/
+    protected static String addEmbeddedQuotes(String text)
+    {
+        return "\"" + text.replaceAll("\"", "\"\"") + "\"";
+    }
+
+    /**************************************************************************
+     * For each of the supplied text strings repeat any embedded double quotes,
+     * then bound with double quotes and separate each result with a comma
+     * 
+     * @param texts
+     *            text string(s) for which to add double quotes and
+     *            comma-separate
+     * 
+     * @return Each of the supplied text strings with any embedded double
+     *         quotes repeated, then bound with double quotes and separate each
+     *         result with a comma
+     *************************************************************************/
+    protected static String addEmbeddedQuotesAndCommas(String... texts)
+    {
+        String output = "";
+
+        // Step through each supplied text string
+        for (String text : texts)
+        {
+            // Repeat any double quotes, bound the result in double quotes, and
+            // append a comma
+            output += addEmbeddedQuotes(text) + ",";
+        }
+
+        return removeTrailer(output, ",");
+    }
+
+    /**************************************************************************
      * Split the supplied text string into an array, divided at commas,
      * ignoring commas within quotes. Remove the excess double quotes from the
      * array members
@@ -246,10 +288,10 @@ public class CcddUtilities
         String separator = null;
 
         // Check if the enumeration is in the expected format
-        if (enumeration.matches("^\\d+.+$"))
+        if (enumeration.matches("^\\s*\\d+\\s*.+$"))
         {
             // Extract the enumerated value separator character
-            separator = enumeration.replaceFirst("^\\d+", "").substring(0, 1);
+            separator = enumeration.replaceFirst("^\\s*\\d+\\s*", "").substring(0, 1);
         }
 
         return separator;
@@ -275,23 +317,21 @@ public class CcddUtilities
         String separator = null;
 
         // Check if the enumeration is in the expected format
-        if (enumeration.matches("^\\d+"
+        if (enumeration.matches("^\\s*\\d+\\s*"
                                 + enumValueSeparator
-                                + ".+\\d+"
+                                + "\\s*.+\\d+\\s*"
                                 + enumValueSeparator
-                                + ".+$"))
+                                + "\\s*.+$"))
         {
             // Separate the enumeration at the value+enumerated value separator
             // characters
-            String[] parts = enumeration.split("\\d+"
+            String[] parts = enumeration.split("\\s*\\d+\\s*"
                                                + Pattern.quote(enumValueSeparator));
 
-            // Remove any leading and trailing white space characters, then
-            // determine the length of the second array member. This consists
+            // Determine the length of the second array member. This consists
             // of the first enumerated value followed by the enumerated pair
             // separator character. Extract the ending character which is the
             // enumerated pair separator
-            parts[1] = parts[1].trim();
             int index = parts[1].length();
             separator = parts[1].substring(index - 1, index);
         }

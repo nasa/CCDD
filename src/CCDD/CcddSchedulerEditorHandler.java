@@ -477,7 +477,7 @@ public class CcddSchedulerEditorHandler
                 setUpdatableCharacteristics(currentData,
                                             getColumnNames(),
                                             null,
-                                            new Integer[] {},
+                                            null,
                                             null,
                                             null,
                                             true,
@@ -613,7 +613,7 @@ public class CcddSchedulerEditorHandler
 
         // Set the scheduler panel size so that the panel can't be resized in
         // width less than that needed to display the default columns
-        Integer[] colWidths = schedulerTable.getColumnWidths();
+        int[] colWidths = schedulerTable.getColumnWidths();
         int prefWidth = 8 + colWidths[0] + colWidths[1] +
                         (schedulerHndlr.getSchedulerOption() == TELEMETRY_SCHEDULER
                                                                                    ? colWidths[2]
@@ -1386,7 +1386,7 @@ public class CcddSchedulerEditorHandler
                                         int messageIndex,
                                         int subMsgIndex)
     {
-        Integer index = -1;
+        int index = -1;
         Message targetMsg;
 
         // Check if the variable should be assigned to a sub-message
@@ -1408,7 +1408,7 @@ public class CcddSchedulerEditorHandler
                                                                             targetMsg.getVariables());
 
         // Check that the variable isn't already in the message
-        if (index != null)
+        if (index != -2)
         {
             // Add the variable to the (sub-)message
             targetMsg.addVariable(variable, index);
@@ -1583,7 +1583,7 @@ public class CcddSchedulerEditorHandler
                 msgIndices = variable.getMessageIndices();
 
                 // Step through all the messages the variable is contained in
-                for (Integer msgIndex : msgIndices)
+                for (int msgIndex : msgIndices)
                 {
                     // Remove it from a general message
                     messages.get(msgIndex).removeVariable(variable.getFullName());

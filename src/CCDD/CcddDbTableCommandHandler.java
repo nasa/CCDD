@@ -15,6 +15,7 @@ import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
 import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
 import static CCDD.CcddConstants.TYPE_COMMAND;
+import static CCDD.CcddConstants.TYPE_OTHER;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import static CCDD.CcddConstants.EventLogMessageType.SUCCESS_MSG;
 
@@ -2874,7 +2875,7 @@ public class CcddDbTableCommandHandler
                         if (mod.getRateColumn() != null)
                         {
                             // Step through each rate index
-                            for (Integer rateIndex : mod.getRateColumn())
+                            for (int rateIndex : mod.getRateColumn())
                             {
                                 // Get the old and new rate values
                                 String oldRate = mod.getOriginalRowData()[rateIndex].toString();
@@ -3723,17 +3724,17 @@ public class CcddDbTableCommandHandler
      * @param parent
      *            GUI component calling this method
      *************************************************************************/
-    protected void storeInformationTable(final InternalTable intTable,
-                                         final List<String[]> tableData,
-                                         final String tableComment,
-                                         final Component parent)
+    protected void storeInformationTableInBackground(final InternalTable intTable,
+                                                     final List<String[]> tableData,
+                                                     final String tableComment,
+                                                     final Component parent)
     {
-        storeInformationTable(intTable,
-                              tableData,
-                              null,
-                              null,
-                              tableComment,
-                              parent);
+        storeInformationTableInBackground(intTable,
+                                          tableData,
+                                          null,
+                                          null,
+                                          tableComment,
+                                          parent);
     }
 
     /**************************************************************************
@@ -3763,183 +3764,237 @@ public class CcddDbTableCommandHandler
      * @param parent
      *            GUI component calling this method
      *************************************************************************/
-    protected void storeInformationTable(final InternalTable intTable,
-                                         final List<String[]> tableData,
-                                         final List<List<FieldInformation>> fieldInformationList,
-                                         final List<String> deletedGroups,
-                                         final String tableComment,
-                                         final Component parent)
+    protected void storeInformationTableInBackground(final InternalTable intTable,
+                                                     final List<String[]> tableData,
+                                                     final List<List<FieldInformation>> fieldInformationList,
+                                                     final List<String> deletedGroups,
+                                                     final String tableComment,
+                                                     final Component parent)
     {
         // Execute the command in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, parent, new BackgroundCommand()
         {
-            boolean errorFlag = false;
-
-            // Get the internal table name
-            String intTableName = intTable.getTableName(tableComment);
-
             /******************************************************************
              * Database internal table store command
              *****************************************************************/
             @Override
             protected void execute()
             {
-                try
-                {
-                    String command = "";
-
-                    switch (intTable)
-                    {
-                        case GROUPS:
-                            // Step through each deleted group
-                            for (String groupName : deletedGroups)
-                            {
-                                // Build the command to delete the group's data
-                                // fields
-                                command += modifyFieldsCommand(CcddFieldHandler.getFieldGroupName(groupName),
-                                                               null);
-                            }
-
-                            // Step through each group's data field information
-                            // list
-                            for (List<FieldInformation> fieldInformation : fieldInformationList)
-                            {
-                                // Build the command to modify the data fields
-                                // for the group
-                                command += modifyFieldsCommand(fieldInformation.get(0).getOwnerName(),
-                                                               fieldInformation);
-                            }
-
-                        case APP_SCHEDULER:
-                        case ASSOCIATIONS:
-                        case DATA_TYPES:
-                        case FIELDS:
-                        case LINKS:
-                        case MACROS:
-                        case ORDERS:
-                        case RESERVED_MSG_IDS:
-                        case SCRIPT:
-                        case TLM_SCHEDULER:
-                            // Build the command for storing the script
-                            // configurations, groups, or links table
-                            command += storeNonTableTypesInfoTableCommand(intTable,
-                                                                          tableData,
-                                                                          tableComment,
-                                                                          parent);
-                            break;
-
-                        case TABLE_TYPES:
-                            // Build the command for storing the table type
-                            // definitions table
-                            command = storeTableTypesInfoTableCommand();
-                            break;
-
-                        case VALUES:
-                            break;
-                    }
-
-                    // Execute the database update
-                    dbCommand.executeDbUpdate(command, parent);
-
-                    // Inform the user that the update succeeded
-                    eventLog.logEvent(SUCCESS_MSG,
-                                      intTableName + " stored");
-                }
-                catch (SQLException se)
-                {
-                    // Inform the user that the database command failed
-                    eventLog.logFailEvent(parent,
-                                          "Cannot store internal table '"
-                                              + intTableName
-                                              + "'; cause '"
-                                              + se.getMessage()
-                                              + "'",
-                                          "<html><b>Cannot store internal table '</b>"
-                                              + intTableName
-                                              + "<b>'");
-                    errorFlag = true;
-                }
-            }
-
-            /******************************************************************
-             * Internal table store command complete
-             *****************************************************************/
-            @Override
-            protected void complete()
-            {
-                switch (intTable)
-                {
-                    case ASSOCIATIONS:
-                        // Check if the store request originated from the
-                        // script manager dialog
-                        if (parent instanceof CcddScriptManagerDialog)
-                        {
-                            // Perform the script associations command
-                            // completion steps
-                            ((CcddScriptManagerDialog) parent).doAssnUpdatesComplete(errorFlag);
-                        }
-
-                        break;
-
-                    case GROUPS:
-                        // Check if the store request originated from the group
-                        // manager dialog
-                        if (parent instanceof CcddGroupManagerDialog)
-                        {
-                            // Perform the groups store command completion
-                            // steps
-                            ((CcddGroupManagerDialog) parent).doGroupUpdatesComplete(errorFlag);
-                        }
-
-                        break;
-
-                    case LINKS:
-                        // Check if the store request originated from the link
-                        // manager dialog
-                        if (parent instanceof CcddLinkManagerDialog)
-                        {
-                            // Perform the links store command completion steps
-                            ((CcddLinkManagerDialog) parent).doLinkUpdatesComplete(errorFlag);
-                        }
-
-                        break;
-
-                    case APP_SCHEDULER:
-                    case TLM_SCHEDULER:
-                        // Check if the store request originated from the
-                        // application or telemetry scheduler dialogs
-                        if (parent instanceof CcddSchedulerDialogInterface)
-                        {
-                            // Perform the scheduler store command completion
-                            // steps
-                            ((CcddSchedulerDialogInterface) parent).doSchedulerUpdatesComplete(errorFlag);
-                        }
-
-                        break;
-
-                    case RESERVED_MSG_IDS:
-                        // Check if the store request originated from the
-                        // reserved message ID editor dialog
-                        if (parent instanceof CcddReservedMsgIDEditorDialog)
-                        {
-                            // Perform the reserved message ID store command
-                            // completion steps
-                            ((CcddReservedMsgIDEditorDialog) parent).doMsgIDUpdatesComplete(errorFlag);
-                        }
-
-                        break;
-
-                    case DATA_TYPES:
-                    case FIELDS:
-                    case MACROS:
-                    case ORDERS:
-                    case SCRIPT:
-                    case TABLE_TYPES:
-                    case VALUES:
-                        break;
-                }
+                storeInformationTable(intTable,
+                                      tableData,
+                                      fieldInformationList,
+                                      deletedGroups,
+                                      tableComment,
+                                      parent);
             }
         });
+    }
+
+    /**************************************************************************
+     * Store the internal table into the database
+     * 
+     * @param intTable
+     *            type of internal table to store
+     * 
+     * @param tableData
+     *            array containing the table data to store
+     * 
+     * @param tableComment
+     *            table comment; null if unchanged
+     * 
+     * @param parent
+     *            GUI component calling this method
+     *************************************************************************/
+    protected void storeInformationTable(InternalTable intTable,
+                                         List<String[]> tableData,
+                                         String tableComment,
+                                         Component parent)
+    {
+        storeInformationTable(intTable,
+                              tableData,
+                              null,
+                              null,
+                              tableComment,
+                              parent);
+    }
+
+    /**************************************************************************
+     * Store the internal table into the database
+     * 
+     * @param intTable
+     *            type of internal table to store
+     * 
+     * @param tableData
+     *            list containing the table data to store
+     * 
+     * @param fieldInformationList
+     *            list containing the list of data field information for each
+     *            group with a data field update (only applicable to the groups
+     *            table); null if none
+     * 
+     * @param deletedGroups
+     *            list containing the names of groups that have been deleted
+     * 
+     * @param tableComment
+     *            table comment; null if unchanged
+     * 
+     * @param parent
+     *            GUI component calling this method
+     *************************************************************************/
+    protected void storeInformationTable(InternalTable intTable,
+                                         List<String[]> tableData,
+                                         List<List<FieldInformation>> fieldInformationList,
+                                         List<String> deletedGroups,
+                                         String tableComment,
+                                         Component parent)
+    {
+        boolean errorFlag = false;
+
+        // Get the internal table name
+        String intTableName = intTable.getTableName(tableComment);
+
+        try
+        {
+            String command = "";
+
+            switch (intTable)
+            {
+                case GROUPS:
+                    // Step through each deleted group
+                    for (String groupName : deletedGroups)
+                    {
+                        // Build the command to delete the group's data fields
+                        command += modifyFieldsCommand(CcddFieldHandler.getFieldGroupName(groupName),
+                                                       null);
+                    }
+
+                    // Step through each group's data field information list
+                    for (List<FieldInformation> fieldInformation : fieldInformationList)
+                    {
+                        // Build the command to modify the data fields for the
+                        // group
+                        command += modifyFieldsCommand(fieldInformation.get(0).getOwnerName(),
+                                                       fieldInformation);
+                    }
+
+                case APP_SCHEDULER:
+                case ASSOCIATIONS:
+                case DATA_TYPES:
+                case FIELDS:
+                case LINKS:
+                case MACROS:
+                case ORDERS:
+                case RESERVED_MSG_IDS:
+                case SCRIPT:
+                case TLM_SCHEDULER:
+                    // Build the command for storing the script configurations,
+                    // groups, or links table
+                    command += storeNonTableTypesInfoTableCommand(intTable,
+                                                                  tableData,
+                                                                  tableComment,
+                                                                  parent);
+                    break;
+
+                case TABLE_TYPES:
+                    // Build the command for storing the table type definitions
+                    // table
+                    command = storeTableTypesInfoTableCommand();
+                    break;
+
+                case VALUES:
+                    break;
+            }
+
+            // Execute the database update
+            dbCommand.executeDbUpdate(command, parent);
+
+            // Inform the user that the update succeeded
+            eventLog.logEvent(SUCCESS_MSG,
+                              intTableName + " stored");
+        }
+        catch (SQLException se)
+        {
+            // Inform the user that the database command failed
+            eventLog.logFailEvent(parent,
+                                  "Cannot store internal table '"
+                                      + intTableName
+                                      + "'; cause '"
+                                      + se.getMessage()
+                                      + "'",
+                                  "<html><b>Cannot store internal table '</b>"
+                                      + intTableName
+                                      + "<b>'");
+            errorFlag = true;
+        }
+
+        switch (intTable)
+        {
+            case ASSOCIATIONS:
+                // Check if the store request originated from the script
+                // manager dialog
+                if (parent instanceof CcddScriptManagerDialog)
+                {
+                    // Perform the script associations command completion steps
+                    ((CcddScriptManagerDialog) parent).doAssnUpdatesComplete(errorFlag);
+                }
+
+                break;
+
+            case GROUPS:
+                // Check if the store request originated from the group manager
+                // dialog
+                if (parent instanceof CcddGroupManagerDialog)
+                {
+                    // Perform the groups store command completion steps
+                    ((CcddGroupManagerDialog) parent).doGroupUpdatesComplete(errorFlag);
+                }
+
+                break;
+
+            case LINKS:
+                // Check if the store request originated from the link manager
+                // dialog
+                if (parent instanceof CcddLinkManagerDialog)
+                {
+                    // Perform the links store command completion steps
+                    ((CcddLinkManagerDialog) parent).doLinkUpdatesComplete(errorFlag);
+                }
+
+                break;
+
+            case APP_SCHEDULER:
+            case TLM_SCHEDULER:
+                // Check if the store request originated from the application
+                // or telemetry scheduler dialogs
+                if (parent instanceof CcddSchedulerDialogInterface)
+                {
+                    // Perform the scheduler store command completion steps
+                    ((CcddSchedulerDialogInterface) parent).doSchedulerUpdatesComplete(errorFlag);
+                }
+
+                break;
+
+            case RESERVED_MSG_IDS:
+                // Check if the store request originated from the reserved
+                // message ID editor dialog
+                if (parent instanceof CcddReservedMsgIDEditorDialog)
+                {
+                    // Perform the reserved message ID store command completion
+                    // steps
+                    ((CcddReservedMsgIDEditorDialog) parent).doMsgIDUpdatesComplete(errorFlag);
+                }
+
+                break;
+
+            case DATA_TYPES:
+            case FIELDS:
+            case MACROS:
+            case ORDERS:
+            case SCRIPT:
+            case TABLE_TYPES:
+            case VALUES:
+                break;
+        }
     }
 
     /**************************************************************************
@@ -6257,8 +6312,9 @@ public class CcddDbTableCommandHandler
      * @param tableType
      *            TYPE_STRUCTURE to get all tables for any type that represents
      *            a structure, TYPE_COMMAND to get all tables for any type that
-     *            represents a command, or the table type name to get all
-     *            tables for the specified type
+     *            represents a command, TYPE_OTHER to get all tables that are
+     *            neither a structure or command table, or the table type name
+     *            to get all tables for the specified type
      * 
      * @return Array containing all tables that represent the specified type
      *************************************************************************/
@@ -6269,13 +6325,32 @@ public class CcddDbTableCommandHandler
         // Step through each table type
         for (String type : tableTypeHandler.getTypes())
         {
+            boolean isOfType;
+
             // Check if the table type matches the one specified. Note that all
-            // structure types are handled as one, as are all command types
-            if (tableType.equals(TYPE_STRUCTURE)
-                                                ? tableTypeHandler.getTypeDefinition(type).isStructure()
-                                                : tableType.equals(TYPE_COMMAND)
-                                                                                ? tableTypeHandler.getTypeDefinition(type).isCommand()
-                                                                                : tableType.equals(type))
+            // structure types are handled as one, as are all command types and
+            // all 'other' types
+            switch (tableType)
+            {
+                case TYPE_STRUCTURE:
+                    isOfType = tableTypeHandler.getTypeDefinition(type).isStructure();
+                    break;
+
+                case TYPE_COMMAND:
+                    isOfType = tableTypeHandler.getTypeDefinition(type).isCommand();
+                    break;
+
+                case TYPE_OTHER:
+                    isOfType = !tableTypeHandler.getTypeDefinition(type).isStructure()
+                               && !tableTypeHandler.getTypeDefinition(type).isCommand();
+                    break;
+
+                default:
+                    isOfType = tableType.equals(type);
+            }
+
+            // Check if the table type matches the one specified
+            if (isOfType)
             {
                 // Append the table name(s) of this type to the array of names
                 tablesOfType = CcddUtilities.concatenateArrays(tablesOfType,

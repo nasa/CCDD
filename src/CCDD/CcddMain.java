@@ -8,9 +8,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.CCDD_AUTHOR;
-import static CCDD.CcddConstants.CCDD_DATE;
 import static CCDD.CcddConstants.CCDD_ICON;
-import static CCDD.CcddConstants.CCDD_VERSION;
 import static CCDD.CcddConstants.DATABASE;
 import static CCDD.CcddConstants.DEFAULT_DATABASE;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_HOST;
@@ -37,8 +35,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -60,7 +61,6 @@ import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
-import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddConstants.DbManagerDialogType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
@@ -92,7 +92,7 @@ public class CcddMain
     private CcddApplicationParameterHandler appHandler;
     private final CcddKeyboardHandler keyboardHandler;
     private CcddMacroHandler macroHandler;
-    private CcddReservedMsgIDHandler msgIDHandler;
+    private CcddReservedMsgIDHandler rsvMsgIDHandler;
     private CcddWebServer webServer;
 
     // List of open log files
@@ -136,6 +136,7 @@ public class CcddMain
     private JMenuItem mntmManageMacros;
     private JMenuItem mntmAssignMsgID;
     private JMenuItem mntmReserveMsgID;
+    private JMenuItem mntmDuplicateMsgID;
     private JMenuItem mntmEditDataField;
     private JMenuItem mntmSearchTable;
     private JMenuItem mntmManageLinks;
@@ -150,6 +151,10 @@ public class CcddMain
     private JMenuItem mntmDeleteScripts;
     private JMenuItem mntmSearchScripts;
     private JMenuItem mntmExit;
+
+    // Build information
+    private String implementationVersion;
+    private String buildDate;
 
     // Label containing the currently open database name for display in the
     // main application window above the session event log
@@ -473,7 +478,7 @@ public class CcddMain
         appHandler = new CcddApplicationParameterHandler(CcddMain.this);
 
         // Read the reserved message IDs from the project database
-        msgIDHandler = new CcddReservedMsgIDHandler(CcddMain.this);
+        rsvMsgIDHandler = new CcddReservedMsgIDHandler(CcddMain.this);
 
         // Now that the handlers exist, store its reference in the other
         // persistent classes that use them
@@ -537,7 +542,7 @@ public class CcddMain
      *************************************************************************/
     protected CcddReservedMsgIDHandler getReservedMsgIDHandler()
     {
-        return msgIDHandler;
+        return rsvMsgIDHandler;
     }
 
     /**************************************************************************
@@ -709,6 +714,7 @@ public class CcddMain
         mntmManageMacros.setEnabled(dbControl.isDatabaseConnected());
         mntmAssignMsgID.setEnabled(dbControl.isDatabaseConnected());
         mntmReserveMsgID.setEnabled(dbControl.isDatabaseConnected());
+        mntmDuplicateMsgID.setEnabled(dbControl.isDatabaseConnected());
         mntmEditDataField.setEnabled(dbControl.isDatabaseConnected());
         mntmSearchTable.setEnabled(dbControl.isDatabaseConnected());
         mntmManageLinks.setEnabled(dbControl.isDatabaseConnected());
@@ -1026,9 +1032,39 @@ public class CcddMain
         uiDefs.put("ToolTip.font", LABEL_FONT_PLAIN);
         uiDefs.put("ToolTip.background", TOOL_TIP_TEXT_COLOR);
 
+        implementationVersion = null;
+
+        try
+        {
+            // Get the version number, build number, and build date from the
+            // manifest. This returns null values when CCDD is executed from
+            // within the IDE
+            InputStream stream = getClass().getResourceAsStream("/META-INF/MANIFEST.MF");;
+            Manifest manifest = new Manifest(stream);
+            Attributes attributes = manifest.getMainAttributes();
+            implementationVersion = attributes.getValue("Implementation-Version");
+            buildDate = attributes.getValue("Build-Date");
+            stream.close();
+        }
+        catch (Exception e)
+        {
+            // Ignore the exception if the version number and build date can't
+            // be obtained
+        }
+
+        // Check if no version number was found
+        if (implementationVersion == null)
+        {
+            // Set the version number and build date values to indicate this
+            // information isn't available
+            implementationVersion = "*unknown*";
+            buildDate = "*unknown*";
+        }
+
         // Create the main application frame and set its characteristics
         frameCCDD = new JFrame();
-        frameCCDD.setTitle("CFS Command & Data Dictionary  " + CCDD_VERSION);
+        frameCCDD.setTitle("CFS Command & Data Dictionary  "
+                           + implementationVersion);
         frameCCDD.setBounds(100, 100, MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT);
         frameCCDD.setMinimumSize(new Dimension(MIN_WINDOW_WIDTH,
                                                MIN_WINDOW_HEIGHT));
@@ -1122,10 +1158,12 @@ public class CcddMain
         mntmManageGroups = createMenuItem(mnData, "Manage groups", KeyEvent.VK_G, 2, "Open the table group manager");
         mntmManageTableTypes = createMenuItem(mnData, "Manage table types", KeyEvent.VK_T, 1, "Open the table type manager");
         mntmManageDataTypes = createMenuItem(mnData, "Manage data types", KeyEvent.VK_D, 1, "Open the data type manager");
-        mntmManageMacros = createMenuItem(mnData, "Manage macros", KeyEvent.VK_M, 2, "Open the macro editor");
+        mntmManageMacros = createMenuItem(mnData, "Manage macros", KeyEvent.VK_O, 1, "Open the macro editor");
         mnData.addSeparator();
-        mntmAssignMsgID = createMenuItem(mnData, "Assign message IDs", KeyEvent.VK_A, 1, "Auto-assign message ID numbers");
-        mntmReserveMsgID = createMenuItem(mnData, "Reserve message IDs", KeyEvent.VK_V, 1, "Reserve message ID numbers");
+        JMenu mnMessageID = createSubMenu(mnData, "Message IDs", KeyEvent.VK_M, 1, null);
+        mntmAssignMsgID = createMenuItem(mnMessageID, "Assign IDs", KeyEvent.VK_A, 1, "Auto-assign message ID numbers");
+        mntmReserveMsgID = createMenuItem(mnMessageID, "Reserve IDs", KeyEvent.VK_R, 1, "Reserve message ID numbers");
+        mntmDuplicateMsgID = createMenuItem(mnMessageID, "Find duplicates", KeyEvent.VK_F, 1, "Detect duplicate message ID numbers");
         mntmEditDataField = createMenuItem(mnData, "Show/edit fields", KeyEvent.VK_F, 1, "Open the data field table editor");
         mnData.addSeparator();
         mntmSearchTable = createMenuItem(mnData, "Search tables", KeyEvent.VK_S, 1, "Search the project database tables");
@@ -1402,7 +1440,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                fileIOHandler.backupDatabaseToFile();
+                fileIOHandler.backupDatabaseToFile(true);
             }
         });
 
@@ -1677,18 +1715,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                // Execute the command in the background
-                CcddBackgroundCommand.executeInBackground(CcddMain.this, new BackgroundCommand()
-                {
-                    /**********************************************************
-                     * Display the telemetry scheduler dialog
-                     *********************************************************/
-                    @Override
-                    protected void execute()
-                    {
-                        new CcddTelemetrySchedulerDialog(CcddMain.this);
-                    }
-                });
+                new CcddTelemetrySchedulerDialog(CcddMain.this);
             }
         });
 
@@ -1701,18 +1728,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                // Execute the command in the background
-                CcddBackgroundCommand.executeInBackground(CcddMain.this, new BackgroundCommand()
-                {
-                    /**********************************************************
-                     * Display the application scheduler dialog
-                     *********************************************************/
-                    @Override
-                    protected void execute()
-                    {
-                        new CcddApplicationSchedulerDialog(CcddMain.this);
-                    }
-                });
+                new CcddApplicationSchedulerDialog(CcddMain.this);
             }
         });
 
@@ -1742,11 +1758,11 @@ public class CcddMain
             }
         });
 
-        // Add a listener for the Assign Message IDs menu item
+        // Add a listener for the Assign IDs menu item
         mntmAssignMsgID.addActionListener(new ActionListener()
         {
             /******************************************************************
-             * Show the structure and command message ID assignment dialog
+             * Show the message ID assignment dialog
              *****************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
@@ -1755,16 +1771,29 @@ public class CcddMain
             }
         });
 
-        // Add a listener for the Reserve Message IDs menu item
+        // Add a listener for the Reserve IDs menu item
         mntmReserveMsgID.addActionListener(new ActionListener()
         {
             /******************************************************************
-             * Show the table message ID reserve dialog
+             * Show the message ID reservation dialog
              *****************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
                 new CcddReservedMsgIDEditorDialog(CcddMain.this);
+            }
+        });
+
+        // Add a listener for the Find Duplicates menu item
+        mntmDuplicateMsgID.addActionListener(new ActionListener()
+        {
+            /******************************************************************
+             * Show the duplicate message ID dialog
+             *****************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                new CcddMessageIDHandler(CcddMain.this).displayDuplicates(getMainFrame());
             }
         });
 
@@ -1989,9 +2018,9 @@ public class CcddMain
                                                           "<html><b>Core Flight System<br>Command & Data Dictionary</b><br>"
                                                               + CCDD_AUTHOR
                                                               + "<br>Version "
-                                                              + CCDD_VERSION
+                                                              + implementationVersion
                                                               + "&#160;&#160;&#160;"
-                                                              + CCDD_DATE
+                                                              + buildDate
                                                               + "<br><br><b>Supporting software versions:</b><br>&#160;&#160;&#160;Java: "
                                                               + System.getProperty("java.version")
                                                               + "<br>&#160;&#160;&#160;"

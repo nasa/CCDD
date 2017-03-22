@@ -630,7 +630,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 )
                 {
                     // Store the group list into the database
-                    dbTable.storeInformationTable(InternalTable.GROUPS,
+                    dbTable.storeInformationTableInBackground(InternalTable.GROUPS,
                                                   currentGroups,
                                                   updateFields,
                                                   deletedGroups,

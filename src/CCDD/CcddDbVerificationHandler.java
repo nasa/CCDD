@@ -2024,8 +2024,8 @@ public class CcddDbVerificationHandler
                 }
 
                 /**************************************************************
-                 * Load the data field data into the table and format the table
-                 * cells
+                 * Load the verification data into the table and format the
+                 * table cells
                  *************************************************************/
                 @Override
                 protected void loadAndFormatData()
@@ -2052,7 +2052,7 @@ public class CcddDbVerificationHandler
                     setUpdatableCharacteristics(tableData,
                                                 VerificationColumnInfo.getColumnNames(),
                                                 null,
-                                                new Integer[0],
+                                                null,
                                                 new Integer[] {VerificationColumnInfo.FIX.ordinal()},
                                                 VerificationColumnInfo.getToolTips(),
                                                 true,

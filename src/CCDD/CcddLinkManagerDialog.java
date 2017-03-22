@@ -303,7 +303,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                     }
 
                     // Store the link list into the database
-                    dbTable.storeInformationTable(InternalTable.LINKS,
+                    dbTable.storeInformationTableInBackground(InternalTable.LINKS,
                                                   currentLinks,
                                                   null,
                                                   CcddLinkManagerDialog.this);

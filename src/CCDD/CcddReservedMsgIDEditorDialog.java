@@ -58,7 +58,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
     // Class references
     private final CcddMain ccddMain;
     private final CcddDbTableCommandHandler dbTable;
-    private final CcddReservedMsgIDHandler msgIDHandler;
+    private final CcddReservedMsgIDHandler rsvMsgIDHandler;
     private CcddJTableHandler msgIDTable;
 
     // Components referenced by multiple methods
@@ -92,7 +92,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
 
         // Create references to shorten subsequent calls
         dbTable = ccddMain.getDbTableCommandHandler();
-        msgIDHandler = ccddMain.getReservedMsgIDHandler();
+        rsvMsgIDHandler = ccddMain.getReservedMsgIDHandler();
 
         // Set the reference to this dialog in main
         ccddMain.setReservedMsgIDEditor(this);
@@ -125,7 +125,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
         if (!commandError)
         {
             // Update the reserved message ID handler with the changes
-            msgIDHandler.setReservedMsgIDData(getUpdatedData());
+            rsvMsgIDHandler.setReservedMsgIDData(getUpdatedData());
 
             // Update the copy of the reserved message ID data so it can be
             // used to determine if changes are made
@@ -143,10 +143,10 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
     protected void storeCurrentData()
     {
         // Check if the table has fields
-        if (!msgIDHandler.getReservedMsgIDData().isEmpty())
+        if (!rsvMsgIDHandler.getReservedMsgIDData().isEmpty())
         {
             // Store the reserved message ID information
-            committedData = msgIDHandler.getReservedMsgIDData().toArray(new String[0][0]);
+            committedData = rsvMsgIDHandler.getReservedMsgIDData().toArray(new String[0][0]);
         }
         // The table has no reserved message IDs
         else
@@ -263,7 +263,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
 
                             // Convert the lower and upper (if present) values
                             // into integers
-                            Integer[] lowHigh = msgIDHandler.parseReservedMsgIDs(newValueS);
+                            int[] lowHigh = rsvMsgIDHandler.parseReservedMsgIDs(newValueS);
 
                             // Check if this is a range and if the lower value
                             // is greater than the upper value
@@ -288,8 +288,8 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                                     // if if matches or falls within the range
                                     // of this row's ID(s)
                                     if (!otherValue.isEmpty()
-                                        && msgIDHandler.isWithinRange(lowHigh,
-                                                                      otherValue))
+                                        && rsvMsgIDHandler.isWithinRange(lowHigh,
+                                                                         otherValue))
                                     {
                                         // Inform the user that the new ID
                                         // matches or falls within the range of
@@ -630,7 +630,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                                                                  DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                 {
                     // Store the updated reserved message IDs table
-                    dbTable.storeInformationTable(InternalTable.RESERVED_MSG_IDS,
+                    dbTable.storeInformationTableInBackground(InternalTable.RESERVED_MSG_IDS,
                                                   CcddUtilities.removeArrayListColumn(getUpdatedData(),
                                                                                       ReservedMsgIDsColumn.OID.ordinal()),
                                                   null,

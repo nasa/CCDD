@@ -17,11 +17,11 @@ import static CCDD.CcddConstants.LABEL_FONT_BOLD;
 import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
 import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
 import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
-import static CCDD.CcddConstants.LAST_SCRIPT_FILE;
 import static CCDD.CcddConstants.LIST_TABLE_DESC_SEPARATOR;
 import static CCDD.CcddConstants.LIST_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.SCRIPTS_ICON;
+import static CCDD.CcddConstants.SCRIPT_PATH;
 import static CCDD.CcddConstants.STORE_ICON;
 import static CCDD.CcddConstants.UP_ICON;
 
@@ -68,6 +68,7 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
     private final CcddDbTableCommandHandler dbTable;
     private final CcddDbControlHandler dbControl;
     private final CcddScriptHandler scriptHandler;
+    private final CcddFileIOHandler fileIOHandler;
     private CcddTableTreeHandler tableTree;
 
     // Components referenced by multiple methods
@@ -97,6 +98,7 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
         dbTable = ccddMain.getDbTableCommandHandler();
         dbControl = ccddMain.getDbControlHandler();
         scriptHandler = ccddMain.getScriptHandler();
+        fileIOHandler = ccddMain.getFileIOHandler();
 
         // Create the file output selection dialog
         initialize();
@@ -330,7 +332,7 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
                         setControlsEnabled(false);
 
                         // Store the script associations list into the database
-                        dbTable.storeInformationTable(InternalTable.ASSOCIATIONS,
+                        dbTable.storeInformationTableInBackground(InternalTable.ASSOCIATIONS,
                                                       createAssociationsFromList(),
                                                       null,
                                                       CcddScriptManagerDialog.this);
@@ -453,20 +455,22 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
                 File[] scriptFile = new CcddDialogHandler().choosePathFile(ccddMain,
                                                                            CcddScriptManagerDialog.this,
                                                                            null,
+                                                                           "script",
                                                                            scriptHandler.getExtensions(),
                                                                            false,
                                                                            false,
                                                                            "Select Script",
-                                                                           LAST_SCRIPT_FILE,
+                                                                           SCRIPT_PATH,
                                                                            DialogOption.OK_CANCEL_OPTION);
 
                 // Check if a script file is selected
                 if (scriptFile != null && scriptFile[0] != null)
                 {
-                    // Store the script file name in the program preferences
+                    // Store the script file path in the program preferences
                     // backing store
-                    ccddMain.getProgPrefs().put(LAST_SCRIPT_FILE,
-                                                scriptFile[0].getAbsolutePath());
+                    fileIOHandler.storePath(scriptFile[0].getAbsolutePath(),
+                                            true,
+                                            SCRIPT_PATH);
 
                     // Display the file name in the script name field
                     scriptFld.setText(scriptFile[0].getAbsolutePath());

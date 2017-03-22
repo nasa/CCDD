@@ -629,7 +629,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         instance = new ToolTipTreeNode("Parents & Children",
                                        treeType == INSTANCE_ONLY
                                                                 ? "Parent and children tables"
-                                                                : "Parent and children tables and variables");
+                                                                : "Parent and children tables, and variables");
 
         // Add the prototype and instance nodes to the root node
         root.add(prototype);
@@ -1207,7 +1207,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *************************************************************************/
     protected List<String> getTableTreePathList(String searchName)
     {
-        return getTableTreePathList(searchName, root);
+        return getTableTreePathList(searchName, root, -1);
     }
 
     /**************************************************************************
@@ -1223,14 +1223,20 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      * @param startNode
      *            starting node
      * 
+     * @param maxLevel
+     *            only paths that are at a level less than or equal to this
+     *            value can be added to the list; -1 to to ignore the path
+     *            level
+     * 
      * @return List of paths to the nodes matching the search table's name, or
      *         all nodes if the search name is null
      *************************************************************************/
     protected List<String> getTableTreePathList(String searchName,
-                                                ToolTipTreeNode startNode)
+                                                ToolTipTreeNode startNode,
+                                                int maxLevel)
     {
         // Get the paths from the tree matching the search criteria
-        tablePathList = getTableTreePathArray(searchName, startNode);
+        tablePathList = getTableTreePathArray(searchName, startNode, maxLevel);
 
         List<String> variablePaths = new ArrayList<String>();
 
@@ -1269,7 +1275,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *************************************************************************/
     protected List<Object[]> getTableTreePathArray(String searchName)
     {
-        return getTableTreePathArray(searchName, root);
+        return getTableTreePathArray(searchName, root, -1);
     }
 
     /**************************************************************************
@@ -1285,11 +1291,17 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      * @param startNode
      *            starting node
      * 
+     * @param maxLevel
+     *            only paths that are at a level less than or equal to this
+     *            value can be added to the list; -1 to to ignore the path
+     *            level
+     * 
      * @return List of paths to the nodes matching the search table's name, or
      *         all nodes if the search name is null
      *************************************************************************/
     protected List<Object[]> getTableTreePathArray(String searchName,
-                                                   ToolTipTreeNode startNode)
+                                                   ToolTipTreeNode startNode,
+                                                   int maxLevel)
     {
         // Initialize the path list
         tablePathList = new ArrayList<Object[]>();
@@ -1304,7 +1316,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // and that the node name isn't empty
             if ((searchName == null
                 || searchName.equals(getTableFromNodeName(node.getUserObject().toString())))
-                && node.getUserObjectPath().length != 0)
+                && node.getUserObjectPath().length != 0
+                && (maxLevel == -1 || node.getLevel() <= maxLevel))
             {
                 // Add the table's path to the list
                 tablePathList.add(node.getUserObjectPath());

@@ -30,8 +30,6 @@ import CCDD.CcddConstants.InternalTable.ValuesColumn;
 public class CcddConstants
 {
     // CCDD version number and version date
-    protected static final String CCDD_VERSION = "1.0.0";
-    protected static final String CCDD_DATE = "March 2016";
     protected static final String CCDD_AUTHOR = "NASA JSC: ER6/Kevin McCluney";
 
     // Default server information
@@ -63,17 +61,11 @@ public class CcddConstants
     protected static final String DATABASE = "Database";
     protected static final String USER = "User";
     protected static final String LOG_FILE_PATH = "LogFilePath";
-    protected static final String LAST_SAVED_DATA_FILE = "LastSavedDataFile";
-    protected static final String LAST_SAVED_DATA_PATH = "LastSavedDataPath";
-    protected static final String LAST_DATABASE_BACKUP_FILE = "LastDatabaseBackupFile";
-    protected static final String LAST_DATABASE_EXPORT_FILE = "LastDatabaseExportFile";
-    protected static final String LAST_SCRIPT_FILE = "LastScriptFile";
-    protected static final String LAST_SCRIPT_PATH = "LastScriptPath";
+    protected static final String DATABASE_BACKUP_PATH = "DatabaseBackupPath";
+    protected static final String TABLE_EXPORT_PATH = "TableExportPath";
+    protected static final String SCRIPT_PATH = "ScriptPath";
     protected static final String LOOK_AND_FEEL = "LookAndFeel";
     protected static final String WEB_SERVER_PORT = "WebServerPort";
-
-    // Database backup file extension
-    protected static final String BACKUP_FILE_EXTENSION = "dbu";
 
     // Prefix assigned to internally created CCDD database tables
     protected static final String INTERNAL_TABLE_PREFIX = "__";
@@ -100,6 +92,7 @@ public class CcddConstants
     // Default table type names
     protected static final String TYPE_STRUCTURE = "Structure";
     protected static final String TYPE_COMMAND = "Command";
+    protected static final String TYPE_OTHER = "Other";
 
     // Column names/prefixes
     protected static final String COL_ARGUMENT = "Arg";
@@ -532,7 +525,7 @@ public class CcddConstants
     protected static enum FileExtension
     {
         LOG("log", "CCDD project event logs"),
-        DBU(BACKUP_FILE_EXTENSION, "database backup files"),
+        DBU("dbu", "database backup files"),
         CSV("csv", "comma-separated values"),
         XTCE("xtce", "extensible markup language telemetric and command exchange XML"),
         EDS("eds", "electronic data sheet XML"),
@@ -1025,7 +1018,9 @@ public class CcddConstants
         /**********************************************************************
          * Reformat the input value for numeric types. This adds a leading zero
          * to floating point values if the first character is a decimal, and
-         * removes '+' signs and unneeded leading zeroes
+         * removes '+' signs and unneeded leading zeroes from integer and
+         * floating point values. Leading zeroes are preserved for hexadecimal
+         * values
          * 
          * @param valueS
          *            value, represented as a string, to reformat
@@ -1033,6 +1028,28 @@ public class CcddConstants
          * @return Input value reformatted based on its input type
          *********************************************************************/
         protected String formatInput(String valueS)
+        {
+            return formatInput(valueS, true);
+        }
+
+        /**********************************************************************
+         * Reformat the input value for numeric types. This adds a leading zero
+         * to floating point values if the first character is a decimal, and
+         * removes '+' signs and unneeded leading zeroes from integer and
+         * floating point values
+         * 
+         * @param valueS
+         *            value, represented as a string, to reformat
+         * 
+         * @param preserveZeroes
+         *            true to preserve leading zeroes in hexadecimal values;
+         *            false to eliminate the extra zeroes (this is useful when
+         *            comparing the text representation of two hexadecimal
+         *            values)
+         * 
+         * @return Input value reformatted based on its input type
+         *********************************************************************/
+        protected String formatInput(String valueS, boolean preserveZeroes)
         {
             // Check that the value is not blank
             if (!valueS.isEmpty())
@@ -1066,14 +1083,17 @@ public class CcddConstants
                         // Remove the first leading zero so it isn't
                         // duplicated, but retain any extra zeroes added by the
                         // user so these can be restored
-                        leadZeroes = leadZeroes.substring(0, leadZeroes.length()
-                                                          - 1);
+                        leadZeroes = leadZeroes.substring(0, leadZeroes.length() - 1);
                     }
 
                     // Format the string as a hexadecimal, adding the
                     // hexadecimal identifier, if needed, and preserving any
                     // leading zeroes
-                    valueS = String.format("0x%s%x", leadZeroes, value);
+                    valueS = String.format("0x%s%x",
+                                           (preserveZeroes
+                                                          ? leadZeroes
+                                                          : ""),
+                                           value);
                 }
                 // Check if the value is a boolean
                 else if (inputFormat.equals("boolean"))
@@ -3711,6 +3731,14 @@ public class CcddConstants
          * @param scriptToolTip
          *            tool tip text to display for the script search results
          *            column
+         * 
+         * @param logColumnName
+         *            text to display for the event log search results column
+         *            name
+         * 
+         * @param logToolTip
+         *            tool tip text to display for the event log search results
+         *            column
          *********************************************************************/
         SearchResultsColumnInfo(String tableColumnName,
                                 String tableToolTip,
@@ -3790,13 +3818,13 @@ public class CcddConstants
         }
 
         /**********************************************************************
-         * Get the search results column names for the specified search dialog
-         * type
+         * Get the search results table column names for the specified search
+         * dialog type
          * 
          * @param searchType
          *            search dialog type: TABLES, SCRIPTS, or LOG
          * 
-         * @return Array containing the search results column names
+         * @return Array containing the search results table column names
          *********************************************************************/
         protected static String[] getColumnNames(SearchDialogType searchType)
         {
@@ -3867,6 +3895,97 @@ public class CcddConstants
     }
 
     /**************************************************************************
+     * Duplicate message ID table column information
+     *************************************************************************/
+    protected static enum DuplicateMsgIDColumnInfo
+    {
+        OWNERS("Owners", "Message ID owners (tables and telemetry messages)"),
+        MESSAGE_ID("Message ID", "Message ID");
+
+        private final String columnName;
+        private final String toolTip;
+
+        /**********************************************************************
+         * Duplicate message ID table column information constructor
+         * 
+         * @param columnName
+         *            text to display for the duplicate message ID table column
+         * 
+         * @param toolTip
+         *            tool tip text to display for the duplicate message ID
+         *            table column
+         *********************************************************************/
+        DuplicateMsgIDColumnInfo(String columnName, String toolTip)
+        {
+            this.columnName = columnName;
+            this.toolTip = toolTip;
+        }
+
+        /**********************************************************************
+         * Get the duplicate message ID table column header
+         * 
+         * @return Duplicate message ID table column name
+         *********************************************************************/
+        protected String getColumnName()
+        {
+            return columnName;
+        }
+
+        /**********************************************************************
+         * Get the duplicate message ID table column tool tip
+         * 
+         * @return Duplicate message ID table column tool tip
+         *********************************************************************/
+        protected String getToolTip()
+        {
+            return toolTip;
+        }
+
+        /**********************************************************************
+         * Get the duplicate message ID table column names
+         * 
+         * @return Array containing the duplicate message ID table column names
+         *********************************************************************/
+        protected static String[] getColumnNames()
+        {
+            String[] names = new String[DuplicateMsgIDColumnInfo.values().length];
+            int index = 0;
+
+            // Step through each column
+            for (DuplicateMsgIDColumnInfo type : DuplicateMsgIDColumnInfo.values())
+            {
+                // Store the column name
+                names[index] = type.columnName;
+                index++;
+            }
+
+            return names;
+        }
+
+        /**********************************************************************
+         * Get the duplicate message ID table column tool tips
+         * 
+         * @return Array containing the duplicate message ID table column tool
+         *         tips
+         *********************************************************************/
+        protected static String[] getToolTips()
+        {
+            String[] toolTips = new String[DuplicateMsgIDColumnInfo.values().length];
+            int index = 0;
+
+            // Step through each column
+            for (DuplicateMsgIDColumnInfo type : DuplicateMsgIDColumnInfo.values())
+            {
+                // Get the tool tip text
+                toolTips[index] = type.toolTip;
+                index++;
+            }
+
+            return toolTips;
+        }
+    }
+
+    /**************************************************************************
      * Database verification table column information
      *************************************************************************/
     protected static enum VerificationColumnInfo
@@ -3906,9 +4025,9 @@ public class CcddConstants
         }
 
         /**********************************************************************
-         * Get the search results table column tool tip
+         * Get the verification table column tool tip
          * 
-         * @return Search results table column tool tip
+         * @return Verification table column tool tip
          *********************************************************************/
         protected String getToolTip()
         {
@@ -3916,9 +4035,9 @@ public class CcddConstants
         }
 
         /**********************************************************************
-         * Get the verification column names
+         * Get the verification table column names
          * 
-         * @return Array containing the verification column names
+         * @return Array containing the verification table column names
          *********************************************************************/
         protected static String[] getColumnNames()
         {
@@ -3937,9 +4056,9 @@ public class CcddConstants
         }
 
         /**********************************************************************
-         * Get the verification column tool tips
+         * Get the verification table column tool tips
          * 
-         * @return Array containing the verification column tool tips
+         * @return Array containing the verification table column tool tips
          *********************************************************************/
         protected static String[] getToolTips()
         {

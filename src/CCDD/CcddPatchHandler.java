@@ -6,7 +6,6 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.BACKUP_FILE_EXTENSION;
 import static CCDD.CcddConstants.EventLogMessageType.SUCCESS_MSG;
 
 import java.io.File;
@@ -18,6 +17,7 @@ import java.util.List;
 
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.EventLogMessageType;
+import CCDD.CcddConstants.FileExtension;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.TableTypesColumn;
@@ -75,8 +75,7 @@ public class CcddPatchHandler
                                          new File(dbControl.getDatabase()
                                                   + "_"
                                                   + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
-                                                  + "."
-                                                  + BACKUP_FILE_EXTENSION));
+                                                  + FileExtension.DBU.getExtension()));
 
                 // Create lists to contain the old and new table types table
                 // items

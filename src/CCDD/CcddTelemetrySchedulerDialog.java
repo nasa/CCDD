@@ -70,7 +70,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
      * @param ccddMain
      *            main class
      *************************************************************************/
-    CcddTelemetrySchedulerDialog(CcddMain ccddMain)
+    CcddTelemetrySchedulerDialog(final CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
         rateHandler = ccddMain.getRateParameterHandler();
@@ -91,10 +91,12 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
         allVariableTreePaths = new ArrayList<String>();
 
         // Step through all of the nodes in the variable tree
-        for (Enumeration<?> element = allVariableTree.getRootNode().preorderEnumeration(); element.hasMoreElements();)
+        for (Enumeration<?> element =
+            allVariableTree.getRootNode().preorderEnumeration(); element.hasMoreElements();)
         {
             // Convert the variable path to a string and add it to the list
-            allVariableTreePaths.add(allVariableTree.getFullVariablePath(((ToolTipTreeNode) element.nextElement()).getPath()));
+            allVariableTreePaths.add(allVariableTree.getFullVariablePath(((ToolTipTreeNode)
+                                                    element.nextElement()).getPath()));
         }
 
         // Create he telemetry scheduler dialog

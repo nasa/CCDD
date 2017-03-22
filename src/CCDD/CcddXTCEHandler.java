@@ -97,7 +97,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
     private final CcddDataTypeHandler dataTypeHandler;
     private TypeDefinition typeDefn;
     private final CcddMacroHandler macroHandler;
-    private final CcddReservedMsgIDHandler msgIDHandler;
+    private final CcddReservedMsgIDHandler rsvMsgIDHandler;
 
     // GUI component instantiating this class
     private final Component parent;
@@ -243,7 +243,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
         tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
-        msgIDHandler = ccddMain.getReservedMsgIDHandler();
+        rsvMsgIDHandler = ccddMain.getReservedMsgIDHandler();
 
         errorFlag = false;
 
@@ -1368,7 +1368,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
                                 // Step through the other command argument
                                 // columns for this command
-                                for (Integer cmdArgCol : cmdArg.getOther())
+                                for (int cmdArgCol : cmdArg.getOther())
                                 {
                                     // Check if a command argument description
                                     // exists and the column name references
@@ -1856,8 +1856,8 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                         // Add the reserved message ID definition to the list
                         // (add a blank for the OID column)
                         reservedMsgIDDefns.add(new String[] {definition[ReservedMsgIDsColumn.MSG_ID.ordinal()],
-                                                          definition[ReservedMsgIDsColumn.DESCRIPTION.ordinal()],
-                                                          ""});
+                                                             definition[ReservedMsgIDsColumn.DESCRIPTION.ordinal()],
+                                                             ""});
                     }
                     // Incorrect number of inputs. Check if the user hasn't
                     // already elected to ignore reserved message ID errors
@@ -1894,7 +1894,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
             }
 
             // Add the reserved message ID definition if it's new
-            msgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);
+            rsvMsgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);
         }
     }
 
@@ -2026,13 +2026,13 @@ public class CcddXTCEHandler implements CcddImportExportInterface
         List<String[]> reservedMsgIDs = new ArrayList<String[]>();
 
         // Step through each reserved message ID definition
-        for (String[] reservedMsgIDDefn : msgIDHandler.getReservedMsgIDData())
+        for (String[] reservedMsgIDDefn : rsvMsgIDHandler.getReservedMsgIDData())
         {
             // Add the reserved message ID definition to the list
             reservedMsgIDs.add(new String[] {XTCETags.RESERVED_MSG_ID.getTag(),
-                                          reservedMsgIDDefn[ReservedMsgIDsColumn.MSG_ID.ordinal()]
-                                              + ","
-                                              + reservedMsgIDDefn[ReservedMsgIDsColumn.DESCRIPTION.ordinal()]});
+                                             reservedMsgIDDefn[ReservedMsgIDsColumn.MSG_ID.ordinal()]
+                                                 + ","
+                                                 + reservedMsgIDDefn[ReservedMsgIDsColumn.DESCRIPTION.ordinal()]});
         }
 
         return reservedMsgIDs;
@@ -3569,8 +3569,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                 String[] enumParts = enumDefn[index].split(Pattern.quote(enumValSep), 2);
 
                 // Create a new enumeration value type and add the enumerated
-                // name
-                // and value to the enumeration list
+                // name and value to the enumeration list
                 ValueEnumerationType valueEnum = factory.createValueEnumerationType();
                 valueEnum.setLabel(enumParts[1].trim());
                 valueEnum.setValue(BigInteger.valueOf(Integer.valueOf(enumParts[0].trim())));

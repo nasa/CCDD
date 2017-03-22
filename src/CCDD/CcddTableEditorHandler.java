@@ -974,10 +974,10 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
             if (isLinkChange)
             {
                 // Update the links table in the database
-                dbTable.storeInformationTable(InternalTable.LINKS,
-                                              linkHandler.getLinkDefinitions(),
-                                              null,
-                                              editorDialog);
+                dbTable.storeInformationTableInBackground(InternalTable.LINKS,
+                                                          linkHandler.getLinkDefinitions(),
+                                                          null,
+                                                          editorDialog);
             }
         }
     }
@@ -3012,9 +3012,10 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                     if (isIgnoreRow)
                     {
                         // Inform the user how many rows were skipped
-                        new CcddDialogHandler().showMessageDialog(editorDialog, "<html><b>"
-                                                                                + skippedRows
-                                                                                + " array member row(s) ignored due to missing array definition(s)",
+                        new CcddDialogHandler().showMessageDialog(editorDialog,
+                                                                  "<html><b>"
+                                                                      + skippedRows
+                                                                      + " array member row(s) ignored due to missing array definition(s)",
                                                                   "Rows Ignored",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);
@@ -3447,7 +3448,7 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
             PaddedComboBox comboBox = new PaddedComboBox(table.getFont());
 
             // Step through each enumeration column
-            for (Integer enumIndex : enumerationIndex)
+            for (int enumIndex : enumerationIndex)
             {
                 // Add the data type and enumeration column index pair to the
                 // list

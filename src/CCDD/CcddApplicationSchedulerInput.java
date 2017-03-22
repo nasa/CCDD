@@ -164,10 +164,10 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
      * @return Index at which to insert the target application
      *************************************************************************/
     @Override
-    public Integer getVariableRelativeIndex(Variable application,
-                                            List<Variable> applications)
+    public int getVariableRelativeIndex(Variable application,
+                                        List<Variable> applications)
     {
-        Integer insertIndex = -1;
+        int insertIndex = -1;
 
         // Check if any applications are in the list
         if (!applications.isEmpty())

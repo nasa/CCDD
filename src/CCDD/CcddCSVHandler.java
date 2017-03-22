@@ -50,7 +50,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
     private final CcddDataTypeHandler dataTypeHandler;
     private final CcddDbControlHandler dbControl;
     private final CcddMacroHandler macroHandler;
-    private final CcddReservedMsgIDHandler msgIDHandler;
+    private final CcddReservedMsgIDHandler rsvMsgIDHandler;
 
     // GUI component instantiating this class
     private final Component parent;
@@ -115,7 +115,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
         tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
-        msgIDHandler = ccddMain.getReservedMsgIDHandler();
+        rsvMsgIDHandler = ccddMain.getReservedMsgIDHandler();
     }
 
     /**************************************************************************
@@ -876,10 +876,8 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                 {
                                                     // Store the cell data in
                                                     // the column matching the
-                                                    // one in the target table.
-                                                    // Remove any surrounding
-                                                    // double quotes
-                                                    rowData[columnIndex[index]] = columnValues[index].replaceAll("^\"(.*)\"$", "$1");
+                                                    // one in the target table
+                                                    rowData[columnIndex[index]] = columnValues[index];
                                                 }
                                             }
 
@@ -1038,7 +1036,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                         }
 
                         // Add the reserved message ID if it's new
-                        msgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);
+                        rsvMsgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);
                     }
                 }
             }
@@ -1159,7 +1157,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                     }
 
                     // Get the visible column names based on the table's type
-                    String[] columnNames = typeDefn.getColumnNamesUser();
+                    String[] columnNames = typeDefn.getColumnNamesVisible();
 
                     // Check if the flag is set that indicates macros should be
                     // replaced
@@ -1186,82 +1184,65 @@ public class CcddCSVHandler implements CcddImportExportInterface
 
                     // Output the table path (if applicable) and name, table
                     // type, and system name (if provided)
-                    pw.printf(CSVTags.NAME_TYPE.getTag()
-                              + "\n\"%s\",\"%s\",\"%s\"\n",
-                              tableInfo.getTablePath(),
-                              tableInfo.getType(),
-                              systemName);
+                    pw.printf(CSVTags.NAME_TYPE.getTag() + "\n%s\n",
+                              CcddUtilities.addEmbeddedQuotesAndCommas(tableInfo.getTablePath(),
+                                                                       tableInfo.getType(),
+                                                                       systemName));
 
                     // Check if the table has a description
                     if (!tableInfo.getDescription().isEmpty())
                     {
-                        // Output the table description header and description
-                        pw.printf(CSVTags.DESCRIPTION.getTag() + "\n\"%s\"\n",
-                                  tableInfo.getDescription());
+                        // Output the table description tag and description
+                        pw.printf(CSVTags.DESCRIPTION.getTag() + "\n%s\n",
+                                  CcddUtilities.addEmbeddedQuotes(tableInfo.getDescription()));
                     }
 
-                    // Output the column data tag
-                    pw.printf(CSVTags.COLUMN_NAMES.getTag() + "\n");
+                    // Output the column data tag and column names
+                    pw.printf(CSVTags.COLUMN_NAMES.getTag() + "\n%s\n",
+                              CcddUtilities.addEmbeddedQuotesAndCommas(columnNames));
 
                     // Step through each row in the table
-                    for (int row = -1; row < tableInfo.getData().length; row++)
+                    for (int row = 0; row < tableInfo.getData().length; row++)
                     {
-                        // Step through each column in the row
+                        // Output the table row data, skipping the hidden
+                        // columns
+                        pw.printf("%s\n",
+                                  CcddUtilities.addEmbeddedQuotesAndCommas(Arrays.copyOfRange(tableInfo.getData()[row],
+                                                                                              NUM_HIDDEN_COLUMNS,
+                                                                                              tableInfo.getData()[row].length)));
+
+                        // Step through each column in the row, skipping the
+                        // hidden columns
                         for (int column = NUM_HIDDEN_COLUMNS; column < columnNames.length; column++)
                         {
-                            // Check if this isn't the first column
-                            if (column != NUM_HIDDEN_COLUMNS)
+                            List<Integer> dataTypeColumns = new ArrayList<Integer>();
+
+                            // Get the column indices for all columns that can
+                            // contain a primitive data type
+                            dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(InputDataType.PRIM_AND_STRUCT));
+                            dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(InputDataType.PRIMITIVE));
+
+                            // Step through each data type column
+                            for (int dataTypeColumn : dataTypeColumns)
                             {
-                                // Append a comma to separate the data
-                                // values
-                                pw.printf(",");
-                            }
+                                // Get the value in the data type column
+                                String dataTypeName = tableInfo.getData()[row][dataTypeColumn].toString();
 
-                            // Store the column name (if the first row) or
-                            // data value (subsequent rows). Surround the
-                            // text with quotes; during file import the
-                            // quotes are necessary in the event the text
-                            // contains a comma
-                            pw.printf("\"%s\"",
-                                      (row == -1)
-                                                 ? columnNames[column]
-                                                 : tableInfo.getData()[row][column]);
-
-                            // Check if this is not the column name row
-                            if (row != -1)
-                            {
-                                List<Integer> dataTypeColumns = new ArrayList<Integer>();
-
-                                // Get the column indices for all columns that
-                                // can contain a primitive data type
-                                dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(InputDataType.PRIM_AND_STRUCT));
-                                dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(InputDataType.PRIMITIVE));
-
-                                // Step through each data type column
-                                for (int dataTypeColumn : dataTypeColumns)
+                                // Check if the data type is a primitive and
+                                // isn't already in the list
+                                if (dataTypeHandler.isPrimitive(dataTypeName)
+                                    && !referencedDataTypes.contains(dataTypeName))
                                 {
-                                    // Get the value in the data type column
-                                    String dataTypeName = tableInfo.getData()[row][dataTypeColumn].toString();
-
-                                    // Check if the data type is a primitive
-                                    // and isn't already in the list
-                                    if (dataTypeHandler.isPrimitive(dataTypeName)
-                                        && !referencedDataTypes.contains(dataTypeName))
-                                    {
-                                        // Add the data type name to the list
-                                        // of references data types
-                                        referencedDataTypes.add(dataTypeName);
-                                    }
+                                    // Add the data type name to the list of
+                                    // references data types
+                                    referencedDataTypes.add(dataTypeName);
                                 }
-
-                                // Get the names of the macros referenced in
-                                // the cell and add them to the list
-                                referencedMacros.addAll(macroHandler.getReferencedMacros(tableInfo.getData()[row][column].toString()));
                             }
-                        }
 
-                        // Append a line feed to end the row
-                        pw.println();
+                            // Get the names of the macros referenced in the
+                            // cell and add them to the list
+                            referencedMacros.addAll(macroHandler.getReferencedMacros(tableInfo.getData()[row][column].toString()));
+                        }
                     }
 
                     // Get the table's data field information
@@ -1277,14 +1258,14 @@ public class CcddCSVHandler implements CcddImportExportInterface
                         for (FieldInformation fieldInfo : fieldInformation)
                         {
                             // Output the field information
-                            pw.printf("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
-                                      fieldInfo.getFieldName(),
-                                      fieldInfo.getDescription(),
-                                      fieldInfo.getSize(),
-                                      fieldInfo.getInputType().getInputName(),
-                                      fieldInfo.isRequired(),
-                                      fieldInfo.getApplicabilityType(),
-                                      fieldInfo.getValue());
+                            pw.printf("%s\n",
+                                      CcddUtilities.addEmbeddedQuotesAndCommas(fieldInfo.getFieldName(),
+                                                                               fieldInfo.getDescription(),
+                                                                               Integer.toString(fieldInfo.getSize()),
+                                                                               fieldInfo.getInputType().getInputName(),
+                                                                               Boolean.toString(fieldInfo.isRequired()),
+                                                                               fieldInfo.getApplicabilityType().getApplicabilityName(),
+                                                                               fieldInfo.getValue()));
                         }
                     }
 
@@ -1303,23 +1284,23 @@ public class CcddCSVHandler implements CcddImportExportInterface
 
                     // Output the table type tag, and the type name and
                     // description
-                    pw.printf("\n" + CSVTags.TABLE_TYPE.getTag() + "\n\"%s\",\"%s\"\n",
-                              tableTypeDefn.getName(),
-                              tableTypeDefn.getDescription());
+                    pw.printf("\n" + CSVTags.TABLE_TYPE.getTag() + "\n%s\n",
+                              CcddUtilities.addEmbeddedQuotesAndCommas(tableTypeDefn.getName(),
+                                                                       tableTypeDefn.getDescription()));
 
                     // Step through each column defined for the table type,
                     // skipping the primary key and row index columns
                     for (int column = NUM_HIDDEN_COLUMNS; column < tableTypeDefn.getColumnCountDatabase(); column++)
                     {
                         // Output the column definition
-                        pw.printf("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
-                                  tableTypeDefn.getColumnNamesUser()[column],
-                                  tableTypeDefn.getColumnToolTips()[column],
-                                  tableTypeDefn.getInputTypes()[column].getInputName(),
-                                  tableTypeDefn.isRowValueUnique()[column],
-                                  tableTypeDefn.isRequired()[column],
-                                  tableTypeDefn.isStructureAllowed()[column],
-                                  tableTypeDefn.isPointerAllowed()[column]);
+                        pw.printf("%s\n",
+                                  CcddUtilities.addEmbeddedQuotesAndCommas(tableTypeDefn.getColumnNamesUser()[column],
+                                                                           tableTypeDefn.getColumnToolTips()[column],
+                                                                           tableTypeDefn.getInputTypes()[column].getInputName(),
+                                                                           tableTypeDefn.isRowValueUnique()[column].toString(),
+                                                                           tableTypeDefn.isRequired()[column].toString(),
+                                                                           tableTypeDefn.isStructureAllowed()[column].toString(),
+                                                                           tableTypeDefn.isPointerAllowed()[column].toString()));
                     }
                 }
             }
@@ -1337,11 +1318,11 @@ public class CcddCSVHandler implements CcddImportExportInterface
                     if (referencedDataTypes.contains(CcddDataTypeHandler.getDataTypeName(dataType)))
                     {
                         // Output the data type definition
-                        pw.printf("\"%s\",\"%s\",\"%s\",\"%s\"\n",
-                                  dataType[DataTypesColumn.USER_NAME.ordinal()],
-                                  dataType[DataTypesColumn.C_NAME.ordinal()],
-                                  dataType[DataTypesColumn.SIZE.ordinal()],
-                                  dataType[DataTypesColumn.BASE_TYPE.ordinal()]);
+                        pw.printf("%s\n",
+                                  CcddUtilities.addEmbeddedQuotesAndCommas(dataType[DataTypesColumn.USER_NAME.ordinal()],
+                                                                           dataType[DataTypesColumn.C_NAME.ordinal()],
+                                                                           dataType[DataTypesColumn.SIZE.ordinal()],
+                                                                           dataType[DataTypesColumn.BASE_TYPE.ordinal()]));
                     }
                 }
             }
@@ -1359,27 +1340,27 @@ public class CcddCSVHandler implements CcddImportExportInterface
                     if (referencedMacros.contains(macro[MacrosColumn.MACRO_NAME.ordinal()]))
                     {
                         // Output the macro definition
-                        pw.printf("\"%s\",\"%s\"\n",
-                                  macro[MacrosColumn.MACRO_NAME.ordinal()],
-                                  macro[MacrosColumn.VALUE.ordinal()]);
+                        pw.printf("%s\n",
+                                  CcddUtilities.addEmbeddedQuotesAndCommas(macro[MacrosColumn.MACRO_NAME.ordinal()],
+                                                                           macro[MacrosColumn.VALUE.ordinal()]));
                     }
                 }
             }
 
             // Check if the user elected to store the reserved message IDs and
             // if there are any reserved message IDs defined
-            if (includeReservedMsgIDs && !msgIDHandler.getReservedMsgIDData().isEmpty())
+            if (includeReservedMsgIDs && !rsvMsgIDHandler.getReservedMsgIDData().isEmpty())
             {
                 // Output the reserved message ID marker
                 pw.printf("\n" + CSVTags.RESERVED_MSG_IDS.getTag() + "\n");
 
                 // Step through each reserved message ID
-                for (String[] reservedMsgID : msgIDHandler.getReservedMsgIDData())
+                for (String[] reservedMsgID : rsvMsgIDHandler.getReservedMsgIDData())
                 {
                     // Output the reserved message ID definition
-                    pw.printf("\"%s\",\"%s\"\n",
-                              reservedMsgID[ReservedMsgIDsColumn.MSG_ID.ordinal()],
-                              reservedMsgID[ReservedMsgIDsColumn.DESCRIPTION.ordinal()]);
+                    pw.printf("%s\n",
+                              CcddUtilities.addEmbeddedQuotesAndCommas(reservedMsgID[ReservedMsgIDsColumn.MSG_ID.ordinal()],
+                                                                       reservedMsgID[ReservedMsgIDsColumn.DESCRIPTION.ordinal()]));
 
                 }
             }

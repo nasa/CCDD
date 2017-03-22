@@ -325,13 +325,13 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
      *            inserted
      *
      * @return Index at which to insert the target variable; -1 if the provided
-     *         list is empty and null if the variable is already in the list
+     *         list is empty and -2 if the variable is already in the list
      *************************************************************************/
     @Override
-    public Integer getVariableRelativeIndex(Variable newVariable,
-                                            List<Variable> existingVariables)
+    public int getVariableRelativeIndex(Variable newVariable,
+                                        List<Variable> existingVariables)
     {
-        Integer insertIndex = -1;
+        int insertIndex = -1;
 
         // Check if any variables are in the list
         if (!existingVariables.isEmpty())
@@ -364,7 +364,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                 {
                     // Set the index to null to indicate the variable shouldn't
                     // be added to the message
-                    insertIndex = null;
+                    insertIndex = -2;
                 }
             }
         }

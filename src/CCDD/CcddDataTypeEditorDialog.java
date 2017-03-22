@@ -614,7 +614,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
                                                 // Step through each
                                                 // enumeration column
-                                                for (Integer enumIndex : enumerationIndices)
+                                                for (int enumIndex : enumerationIndices)
                                                 {
                                                     // Check if the referenced
                                                     // table's enumeration

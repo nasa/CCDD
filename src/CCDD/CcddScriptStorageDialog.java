@@ -10,9 +10,9 @@ import static CCDD.CcddConstants.LABEL_FONT_BOLD;
 import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
 import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
 import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
-import static CCDD.CcddConstants.LAST_SCRIPT_PATH;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.SCRIPTS_ICON;
+import static CCDD.CcddConstants.SCRIPT_PATH;
 
 import java.awt.Color;
 import java.awt.GridBagConstraints;
@@ -98,11 +98,12 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                 scriptFile = new CcddDialogHandler().choosePathFile(ccddMain,
                                                                     ccddMain.getMainFrame(),
                                                                     null,
+                                                                    "script",
                                                                     scriptHandler.getExtensions(),
                                                                     false,
                                                                     true,
                                                                     "Select Script(s) to Store",
-                                                                    LAST_SCRIPT_PATH,
+                                                                    SCRIPT_PATH,
                                                                     DialogOption.STORE_OPTION);
 
                 // Check if the Cancel button wasn't selected
@@ -116,9 +117,7 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
 
                         // Remove the script file name and store the script
                         // file path in the program preferences backing store
-                        fileIOHandler.storePath(pathName.substring(0, pathName.lastIndexOf(File.separator)),
-                                                true,
-                                                LAST_SCRIPT_PATH);
+                        fileIOHandler.storePath(pathName, true, SCRIPT_PATH);
 
                         // Step through each selected script
                         for (File file : scriptFile)
@@ -245,7 +244,7 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                             {
                                 // Get a file reference using the last accessed
                                 // file path
-                                scriptFile = new File[] {new File(ccddMain.getProgPrefs().get(LAST_SCRIPT_PATH,
+                                scriptFile = new File[] {new File(ccddMain.getProgPrefs().get(SCRIPT_PATH,
                                                                                               ""))};
                             }
                             // A script file path is selected
@@ -254,8 +253,8 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                                 // Store the script file path in the program
                                 // preferences backing store
                                 fileIOHandler.storePath(scriptFile[0].getAbsolutePath(),
-                                                        true,
-                                                        LAST_SCRIPT_PATH);
+                                                        false,
+                                                        SCRIPT_PATH);
 
                             }
 
@@ -357,8 +356,10 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
         pathPnl.add(scriptLbl, gbc);
 
         // Create a text field for entering & displaying the script path
-        pathFld = new JTextField(ccddMain.getProgPrefs().get(LAST_SCRIPT_PATH,
-                                                             "").replaceAll("\\" + File.separator + "\\.$", ""));
+        pathFld = new JTextField(ccddMain.getProgPrefs().get(SCRIPT_PATH,
+                                                             "").replaceAll("\\"
+                                                                            + File.separator
+                                                                            + "\\.$", ""));
         pathFld.setFont(LABEL_FONT_PLAIN);
         pathFld.setEditable(true);
         pathFld.setForeground(Color.BLACK);
@@ -391,10 +392,11 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                                                                     CcddScriptStorageDialog.this,
                                                                     null,
                                                                     null,
+                                                                    null,
                                                                     true,
                                                                     false,
                                                                     "Select Location for Script(s)",
-                                                                    LAST_SCRIPT_PATH,
+                                                                    SCRIPT_PATH,
                                                                     DialogOption.OK_CANCEL_OPTION);
 
                 // Check if a script path is selected

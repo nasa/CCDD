@@ -6,8 +6,8 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.BACKUP_FILE_EXTENSION;
 import static CCDD.CcddConstants.DATABASE;
+import static CCDD.CcddConstants.DATABASE_BACKUP_PATH;
 import static CCDD.CcddConstants.DATABASE_DRIVER;
 import static CCDD.CcddConstants.DATABASE_TYPE_IDENTIFIER;
 import static CCDD.CcddConstants.DEFAULT_DATABASE;
@@ -15,7 +15,6 @@ import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_HOST;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_PORT;
 import static CCDD.CcddConstants.ENUMERATION_SEPARATOR;
 import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
-import static CCDD.CcddConstants.LAST_DATABASE_BACKUP_FILE;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.POSTGRESQL_SERVER_HOST;
 import static CCDD.CcddConstants.POSTGRESQL_SERVER_PORT;
@@ -50,6 +49,7 @@ import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.DatabaseObject;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.FileExtension;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
@@ -889,14 +889,16 @@ public class CcddDbControlHandler
 
             // Create function to delete functions whether or not the input
             // parameters match
-            dbCommand.executeDbCommand("CREATE OR REPLACE FUNCTION delete_function(name text) "
-                                       + " RETURNS VOID AS $$ BEGIN EXECUTE (SELECT "
-                                       + "'DROP FUNCTION ' || oid::regproc || '(' || "
+            dbCommand.executeDbCommand("CREATE OR REPLACE FUNCTION delete_function("
+                                       + "function_name text) RETURNS VOID AS $$ "
+                                       + "BEGIN EXECUTE (SELECT 'DROP FUNCTION ' "
+                                       + "|| oid::regproc || '(' || "
                                        + "pg_get_function_identity_arguments(oid) "
-                                       + "|| ');' || E'\n' FROM pg_proc WHERE proname = name "
-                                       + "AND pg_function_is_visible(oid)); END $$ LANGUAGE plpgsql; "
+                                       + "|| ');' || E'\n' FROM pg_proc WHERE "
+                                       + "proname = function_name AND "
+                                       + "pg_function_is_visible(oid)); END $$ LANGUAGE plpgsql; "
                                        + buildOwnerCommand(DatabaseObject.FUNCTION,
-                                                           "delete_function(name text)"),
+                                                           "delete_function(function_name text)"),
                                        ccddMain.getMainFrame());
 
             // Step through each internal table type
@@ -980,7 +982,7 @@ public class CcddDbControlHandler
                                        + " SELECT * FROM regexp_replace(the_row::text, "
                                        + "E'^\\\\(|(\\\\)$)', '', 'g') INTO "
                                        + "column_value; RETURN NEXT; END LOOP; END; "
-                                       + "END LOOP; END; $$ language plpgsql; "
+                                       + "END LOOP; END; $$ LANGUAGE plpgsql; "
                                        + buildOwnerCommand(DatabaseObject.FUNCTION,
                                                            "search_tables(search_text "
                                                                + "text, no_case boolean, "
@@ -988,61 +990,67 @@ public class CcddDbControlHandler
                                                                + "all_schema name[])"),
                                        ccddMain.getMainFrame());
 
-            // Create function to retrieve all rate values for the specified
-            // rate column name currently in use in the prototype tables of the
-            // specified structure table type(s). Each rate value only appears
-            // once in the results table
-            dbCommand.executeDbCommand(deleteFunction("find_prototype_rates_by_name")
-                                       + "CREATE OR REPLACE FUNCTION find_prototype_rates_by_name("
-                                       + "rate_name text, table_types text[]) RETURNS "
-                                       + "table(rates text) AS $$ BEGIN DECLARE row "
-                                       + "record; BEGIN DROP TABLE IF EXISTS "
+            // Create function to retrieve all table names and column values
+            // for the tables with the specified column name currently in use
+            // (i.e., blank column values are ignored) in the tables of the
+            // specified table type(s)
+            dbCommand.executeDbCommand(deleteFunction("find_prototype_columns_by_name")
+                                       + "CREATE OR REPLACE FUNCTION find_prototype_columns_by_name("
+                                       + "column_name_db text, table_types text[]) RETURNS "
+                                       + "table(owner_name text, column_value text) AS $$ "
+                                       + "BEGIN DECLARE row record; BEGIN DROP TABLE IF EXISTS "
                                        + INTERNAL_TABLE_PREFIX
-                                       + "telemetry_tables; CREATE TEMP TABLE "
+                                       + "temp_tables; CREATE TEMP TABLE "
                                        + INTERNAL_TABLE_PREFIX
-                                       + "telemetry_tables AS SELECT struct_name FROM "
+                                       + "temp_tables AS SELECT tbl_name FROM "
                                        + "(SELECT split_part(obj_description, ',', 1) AS "
-                                       + "struct_name, split_part(obj_description, ',', "
-                                       + "2) AS type FROM (SELECT obj_description(oid) "
+                                       + "tbl_name, split_part(obj_description, ',', "
+                                       + "2) AS tbl_type FROM (SELECT obj_description(oid) "
                                        + "FROM pg_class WHERE relkind = 'r' AND "
-                                       + "obj_description(oid) != '') alias1) alias2 WHERE "
-                                       + "table_types @> ARRAY[type] ORDER BY struct_name "
-                                       + "ASC; FOR row IN SELECT struct_name FROM "
+                                       + "obj_description(oid) != '') AS tbl_desc) AS tbl_name WHERE "
+                                       + "table_types @> ARRAY[tbl_type] ORDER BY tbl_name "
+                                       + "ASC; FOR row IN SELECT tbl_name FROM "
                                        + INTERNAL_TABLE_PREFIX
-                                       + "telemetry_tables LOOP IF EXISTS (SELECT 1 FROM "
+                                       + "temp_tables LOOP IF EXISTS (SELECT 1 FROM "
                                        + "information_schema.columns WHERE table_name = "
-                                       + "row.struct_name AND column_name = E'' || rate_name "
-                                       + "|| E'') THEN RETURN QUERY EXECUTE E'SELECT DISTINCT ' "
-                                       + "|| rate_name || E' FROM ' || row.struct_name || "
-                                       + "E' WHERE ' || rate_name || E' != '''''; END IF; "
-                                       + "END LOOP; END; END; $$ LANGUAGE plpgsql; "
+                                       + "row.tbl_name AND column_name = E'' || "
+                                       + "column_name_db || E'') THEN RETURN QUERY EXECUTE "
+                                       + "E'SELECT ''' || row.tbl_name || '''::text, ' || "
+                                       + "column_name_db || E' FROM ' || row.tbl_name || "
+                                       + "E' WHERE ' || column_name_db || E' != '''''; "
+                                       + "END IF; END LOOP; END; END; $$ LANGUAGE plpgsql; "
                                        + buildOwnerCommand(DatabaseObject.FUNCTION,
-                                                           "find_prototype_rates_by_name(rate_name "
+                                                           "find_prototype_columns_by_name(column_name_db "
                                                                + "text, table_types text[])"),
                                        ccddMain.getMainFrame());
 
-            // Create function to retrieve all rate values for the specified
-            // rate column name currently in use in the tables of the specified
-            // structure table type(s). Include rates from both the prototype
-            // and custom values tables. Each rate value only appears once in
-            // the results table
-            dbCommand.executeDbCommand(deleteFunction("find_rates_by_name")
-                                       + "CREATE OR REPLACE FUNCTION find_rates_by_name("
-                                       + "rate_name_user text, rate_name_db text, table_types "
-                                       + "text[]) RETURNS table(rates text) AS $$ BEGIN "
-                                       + "RETURN QUERY EXECUTE E'SELECT rates FROM (SELECT "
-                                       + "rates FROM find_prototype_rates_by_name(''' || "
-                                       + "rate_name_db || E''', ''' || table_types::text || "
-                                       + "E''') UNION (SELECT "
+            // Create function to retrieve all table names and column values
+            // for the tables with the specified column name currently in use
+            // (i.e., blank column values are ignored) in the tables of the
+            // specified table type(s). Include columns from both the prototype
+            // and custom values tables. Use SELECT DISTINCT on the results to
+            // eliminate duplicate table names and/or column values
+            dbCommand.executeDbCommand(deleteFunction("find_columns_by_name")
+                                       + "CREATE OR REPLACE FUNCTION find_columns_by_name("
+                                       + "column_name_user text, column_name_db text, "
+                                       + "table_types text[]) RETURNS table(owner_name "
+                                       + "text, column_value text) AS $$ BEGIN RETURN "
+                                       + "QUERY EXECUTE E'SELECT owner_name, column_value "
+                                       + "FROM (SELECT owner_name, column_value FROM "
+                                       + "find_prototype_columns_by_name(''' || "
+                                       + "column_name_db || E''', ''' || "
+                                       + "table_types::text || E''') UNION ALL (SELECT "
+                                       + ValuesColumn.TABLE_PATH
+                                       + ", "
                                        + ValuesColumn.VALUE.getColumnName()
                                        + " FROM "
                                        + InternalTable.VALUES.getTableName()
-                                       + " WHERE column_name = '' || rate_name_user || "
-                                       + "E'')) AS rates ORDER BY rates;'; END; $$ "
-                                       + "LANGUAGE plpgsql;"
+                                       + " WHERE column_name = '' || column_name_user || "
+                                       + "E'')) AS name_and_value ORDER BY owner_name;'; END; $$ "
+                                       + "LANGUAGE plpgsql; "
                                        + buildOwnerCommand(DatabaseObject.FUNCTION,
-                                                           "find_rates_by_name(rate_name_user "
-                                                               + "text, rate_name_db text, "
+                                                           "find_columns_by_name(column_name_user "
+                                                               + "text, column_name_db text, "
                                                                + "table_types text[])"),
                                        ccddMain.getMainFrame());
 
@@ -1376,9 +1384,9 @@ public class CcddDbControlHandler
                                            + "newType text) RETURNS VOID AS $$ BEGIN DECLARE row "
                                            + "record; BEGIN DROP TABLE IF EXISTS "
                                            + INTERNAL_TABLE_PREFIX
-                                           + "telemetry_tables; CREATE TEMP TABLE "
+                                           + "temp_tables; CREATE TEMP TABLE "
                                            + INTERNAL_TABLE_PREFIX
-                                           + "telemetry_tables AS SELECT t.tablename AS real_name "
+                                           + "temp_tables AS SELECT t.tablename AS real_name "
                                            + "FROM pg_tables AS t WHERE t.schemaname = 'public' "
                                            + "AND substr(t.tablename, 1, "
                                            + INTERNAL_TABLE_PREFIX.length()
@@ -1386,7 +1394,7 @@ public class CcddDbControlHandler
                                            + INTERNAL_TABLE_PREFIX
                                            + "'; FOR row IN SELECT * FROM "
                                            + INTERNAL_TABLE_PREFIX
-                                           + "telemetry_tables LOOP IF EXISTS (SELECT 1 FROM "
+                                           + "temp_tables LOOP IF EXISTS (SELECT 1 FROM "
                                            + "information_schema.columns WHERE table_name = "
                                            + "row.real_name AND column_name = '"
                                            + dbDataType
@@ -1563,11 +1571,11 @@ public class CcddDbControlHandler
                     {
                         // Check if the backup file name is missing the correct
                         // extension
-                        if (!backupFileName.endsWith("." + BACKUP_FILE_EXTENSION))
+                        if (!backupFileName.endsWith(FileExtension.DBU.getExtension()))
                         {
                             // Append the backup file extension to the file
                             // name
-                            backupFileName += "." + BACKUP_FILE_EXTENSION;
+                            backupFileName += FileExtension.DBU.getExtension();
                         }
 
                         // Backup the database
@@ -2308,10 +2316,11 @@ public class CcddDbControlHandler
         // Check if no error occurred
         if (errorType.isEmpty())
         {
-            // Store the backup file name in the program preferences backing
+            // Store the backup file path in the program preferences backing
             // store
-            ccddMain.getProgPrefs().put(LAST_DATABASE_BACKUP_FILE,
-                                        backupFile.getAbsolutePath());
+            ccddMain.getFileIOHandler().storePath(backupFile.getAbsolutePath(),
+                                                  true,
+                                                  DATABASE_BACKUP_PATH);
 
             // Log that backing up the database succeeded
             eventLog.logEvent(SUCCESS_MSG,

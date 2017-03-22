@@ -83,7 +83,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
     private final CcddDataTypeHandler dataTypeHandler;
     private TypeDefinition typeDefn;
     private final CcddMacroHandler macroHandler;
-    private final CcddReservedMsgIDHandler msgIDHandler;
+    private final CcddReservedMsgIDHandler rsvMsgIDHandler;
 
     // GUI component instantiating this class
     private final Component parent;
@@ -213,7 +213,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
         tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
-        msgIDHandler = ccddMain.getReservedMsgIDHandler();
+        rsvMsgIDHandler = ccddMain.getReservedMsgIDHandler();
 
         errorFlag = false;
 
@@ -950,10 +950,10 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                     // to the list (add a blank for the OID
                                     // column)
                                     reservedMsgIDDefns.add(new String[] {genType.getName(),
-                                                                      (genType.getShortDescription() != null
-                                                                                                            ? genType.getShortDescription()
-                                                                                                            : ""),
-                                                                      ""});
+                                                                         (genType.getShortDescription() != null
+                                                                                                               ? genType.getShortDescription()
+                                                                                                               : ""),
+                                                                         ""});
                                 }
                                 // Incorrect number of inputs. Check if the
                                 // user hasn't already elected to ignore
@@ -1227,7 +1227,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                                 // Step through the other
                                                 // associated command argument
                                                 // columns
-                                                for (Integer column : commandArguments.get(index).getOther())
+                                                for (int column : commandArguments.get(index).getOther())
                                                 {
                                                     // Check if a command
                                                     // argument description
@@ -1665,7 +1665,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
                 }
 
                 // Add the reserved message ID definition if it's new
-                msgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);
+                rsvMsgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);
             }
         }
     }
@@ -1873,19 +1873,19 @@ public class CcddEDSHandler implements CcddImportExportInterface
     private void buildReservedMsgIDNameSpace()
     {
         // Check if a reserved message ID is defined
-        if (!msgIDHandler.getReservedMsgIDData().isEmpty())
+        if (!rsvMsgIDHandler.getReservedMsgIDData().isEmpty())
         {
             // Create a name space to contain the reserved message ID
             // definitions
             NamespaceType reservedMsgIDNameSpace = addNameSpace("",
-                                                             "",
-                                                             EDSTags.RESERVED_MSG_ID.getTag(),
-                                                             "Reserved message ID definitions");
+                                                                "",
+                                                                EDSTags.RESERVED_MSG_ID.getTag(),
+                                                                "Reserved message ID definitions");
 
             // Store the reserved message ID definitions as ancillary data
             storeOtherAttributes(reservedMsgIDNameSpace,
                                  EDSTags.RESERVED_MSG_ID,
-                                 msgIDHandler.getReservedMsgIDData());
+                                 rsvMsgIDHandler.getReservedMsgIDData());
         }
     }
 

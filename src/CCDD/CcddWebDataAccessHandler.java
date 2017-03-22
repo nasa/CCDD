@@ -35,6 +35,7 @@ import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.GroupInformation;
 import CCDD.CcddClasses.RateInformation;
 import CCDD.CcddClasses.TableInformation;
+import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.CopyTableEntry;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.InputDataType;
@@ -59,6 +60,11 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     // Flag that indicates if the macro name(s) in the table cells is to be
     // replaced by the corresponding macro values
     private boolean isReplaceMacro;
+
+    // Flag that indicates if the table tree path list should only include
+    // table names to a specified level in the tree. This is used to get the
+    // root tables
+    boolean isMaxLevel;
 
     // List for storing rate information from the custom values table
     private List<String[]> rateValues;
@@ -249,6 +255,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // Check if this is a table-related request
             if (component.equals("table")
                 || component.equals("proto_table")
+                || component.equals("root_table")
                 || component.equals("instance_table"))
             {
                 // Set the tree type (instance, prototype, or both) based on
@@ -258,6 +265,10 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                                          : (component.equals("proto_table")
                                                                                            ? TableTreeType.PROTOTYPE_ONLY
                                                                                            : TableTreeType.INSTANCE_ONLY);
+
+                // Set the maximum level flag if only root table information is
+                // requested
+                isMaxLevel = component.equals("root_table");
 
                 // Use the attribute to determine the request
                 switch (attributeAndName[0])
@@ -498,7 +509,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
     /**************************************************************************
      * Get a list containing the names and paths of every data table. The tree
-     * type (prototype only or instances only) is determined by the command
+     * type (prototype only or instances only) is determined by the server
+     * command
      *
      * @return List containing the names and paths of every data table
      *************************************************************************/
@@ -510,7 +522,11 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                                                      ccddMain.getMainFrame());
 
         // Convert the table tree to a list of table paths
-        return allTableTree.getTableTreePathList(null);
+        return allTableTree.getTableTreePathList(null,
+                                                 (ToolTipTreeNode) allTableTree.getRootNode(),
+                                                 isMaxLevel
+                                                           ? allTableTree.getTableNodeLevel()
+                                                           : -1);
     }
 
     /**************************************************************************
@@ -2195,7 +2211,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
                                     // Step through any other columns
                                     // associated with this command argument
-                                    for (Integer otherArg : cmdArgument.getOther())
+                                    for (int otherArg : cmdArgument.getOther())
                                     {
                                         // Check if the other argument column
                                         // has a value

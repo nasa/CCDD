@@ -80,7 +80,7 @@ public class CcddSchedulerDbIOHandler
         {
             // Store the telemetry scheduler information in the project
             // database
-            dbTable.storeInformationTable(InternalTable.TLM_SCHEDULER,
+            dbTable.storeInformationTableInBackground(InternalTable.TLM_SCHEDULER,
                                           getTelemetryData(streams),
                                           null,
                                           dialog);
@@ -90,7 +90,7 @@ public class CcddSchedulerDbIOHandler
         {
             // Store the application scheduler information in the project
             // database
-            dbTable.storeInformationTable(InternalTable.APP_SCHEDULER,
+            dbTable.storeInformationTableInBackground(InternalTable.APP_SCHEDULER,
                                           getApplicationData(streams.get(0).getMessages()),
                                           null,
                                           dialog);

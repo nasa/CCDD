@@ -54,7 +54,6 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FieldEditorColumnInfo;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.TableSelectionMode;
-import CCDD.CcddJTableHandler.UndoableTableModel;
 
 /******************************************************************************
  * CFS Command & Data Dictionary data field editor dialog class
@@ -65,7 +64,6 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     // Class reference
     private final CcddEditorPanelHandler editorHandler;
     private CcddJTableHandler fieldTable;
-    private UndoableTableModel tableModel;
 
     // Components referenced by multiple methods
     private JPanel outerPanel;
@@ -92,9 +90,6 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
 
     // Index for the data field editor's input type column
     private int inputTypeIndex;
-
-    // Index for the data field editor's applicability column
-    private int applicabilityIndex;
 
     // Table instance model data. Current copy is the table information as it
     // exists in the table editor and is used to determine what changes have
@@ -190,7 +185,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                 if (fieldTable.getRowCount() != 0)
                 {
                     // Get the text in the input type column
-                    String cellValue = fieldTable.getValueAt(row, inputTypeIndex).toString();
+                    String cellValue = fieldTable.getValueAt(row,
+                                                             inputTypeIndex).toString();
 
                     // Check if the row represents a separator or line break
                     if (cellValue.equals(InputDataType.SEPARATOR.getInputName())
@@ -493,9 +489,6 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                                            true,
                                            CELL_FONT,
                                            true);
-
-        // Get the table model and undo manager to shorten later calls
-        tableModel = (UndoableTableModel) fieldTable.getModel();
 
         // Create a drop-down combo box to display the available field input
         // data types
@@ -869,7 +862,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     private void setUpInputTypeColumn()
     {
         // Step through each column in the editor
-        for (inputTypeIndex = 0; inputTypeIndex < tableModel.getColumnCount(); inputTypeIndex++)
+        for (inputTypeIndex = 0; inputTypeIndex < fieldTable.getColumnCount(); inputTypeIndex++)
         {
             // Check if the column name matches that for the field input type
             if (fieldTable.getColumnName(inputTypeIndex).equals(FieldEditorColumnInfo.INPUT_TYPE.getColumnName()))
@@ -914,8 +907,10 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Check if the applicability column is to be displayed
         if (includeApplicability)
         {
+            int applicabilityIndex;
+
             // Step through each column in the editor
-            for (applicabilityIndex = 0; applicabilityIndex < tableModel.getColumnCount(); applicabilityIndex++)
+            for (applicabilityIndex = 0; applicabilityIndex < fieldTable.getColumnCount(); applicabilityIndex++)
             {
                 // Check if the column name matches that for the field
                 // applicability

@@ -66,7 +66,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
     private final CcddTableTypeHandler tableTypeHandler;
     private final CcddDataTypeHandler dataTypeHandler;
     private final CcddMacroHandler macroHandler;
-    private final CcddReservedMsgIDHandler msgIDHandler;
+    private final CcddReservedMsgIDHandler rsvMsgIDHandler;
     private TableInformation tableInfo;
 
     // GUI component instantiating this class
@@ -94,7 +94,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
         tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
-        msgIDHandler = ccddMain.getReservedMsgIDHandler();
+        rsvMsgIDHandler = ccddMain.getReservedMsgIDHandler();
     }
 
     /**************************************************************************
@@ -653,7 +653,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
                 badDefn = macroHandler.updateMacros(macroDefns);
 
                 // Add the reserved message ID definition if it's new
-                msgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);
+                rsvMsgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);
 
                 // Check if a macro isn't new and doesn't match an existing one
                 // with the same name
@@ -1684,12 +1684,12 @@ public class CcddJSONHandler implements CcddImportExportInterface
         JSONArray reservedMsgIDJA = null;
 
         // Check if there are any reserved message IDs defined
-        if (!msgIDHandler.getReservedMsgIDData().isEmpty())
+        if (!rsvMsgIDHandler.getReservedMsgIDData().isEmpty())
         {
             reservedMsgIDJA = new JSONArray();
 
             // Step through each reserved message ID definition
-            for (String[] reservedMsgIDDefn : msgIDHandler.getReservedMsgIDData())
+            for (String[] reservedMsgIDDefn : rsvMsgIDHandler.getReservedMsgIDData())
             {
                 // Store the macro name and value
                 JSONObject macroJO = new JSONObject();

@@ -502,7 +502,7 @@ public class CcddTableTypeHandler
          * @param isPointer
          *            true if the the column applies to pointer data types
          *********************************************************************/
-        protected void addColumn(Integer index,
+        protected void addColumn(int index,
                                  String databaseName,
                                  String visibleName,
                                  String comment,
@@ -1118,8 +1118,7 @@ public class CcddTableTypeHandler
             index++;
         }
 
-        // Sort the type information array based on the type name (first
-        // column)
+        // Sort the type information array
         Arrays.sort(typeInfo, new Comparator<String[]>()
         {
             /******************************************************************

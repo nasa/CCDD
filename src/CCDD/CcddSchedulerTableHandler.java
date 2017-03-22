@@ -442,7 +442,7 @@ public class CcddSchedulerTableHandler
             indices = var.getMessageIndices();
 
             // Step through the messages in which the variable is contained
-            for (Integer index : indices)
+            for (int index : indices)
             {
                 // Remove the variable from the general message
                 timeSlots.get(index).removeVariable(var.getFullName());

@@ -28,10 +28,10 @@ public interface CcddSchedulerInputInterface
      *            list of variables into which the variable is to be inserted
      * 
      * @return Index at which to insert the target variable; -1 if the provided
-     *         list is empty and null if the variable is already in the list
+     *         list is empty and -2 if the variable is already in the list
      *************************************************************************/
-    abstract Integer getVariableRelativeIndex(Variable variable,
-                                              List<Variable> variables);
+    abstract int getVariableRelativeIndex(Variable variable,
+                                          List<Variable> variables);
 
     /**************************************************************************
      * Get the size of the variable or link that is selected

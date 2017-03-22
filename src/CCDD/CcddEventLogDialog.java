@@ -383,7 +383,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
                 int totalWidth = setUpdatableCharacteristics(eventLogList.toArray(new Object[0][0]),
                                                              EventColumns.getColumnNames(),
                                                              null,
-                                                             new Integer[] {},
+                                                             null,
                                                              null,
                                                              new String[] {"Event sequence number",
                                                                            "Server hosting the project database",
@@ -837,6 +837,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
             File[] file = new CcddDialogHandler().choosePathFile(ccddMain,
                                                                  ccddMain.getMainFrame(),
                                                                  null,
+                                                                 null,
                                                                  new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.LOG.getDescription(),
                                                                                                                             FileExtension.LOG.getExtensionName())},
                                                                  false,
@@ -1011,19 +1012,30 @@ public class CcddEventLogDialog extends CcddFrameHandler
         // parsing when reading the log files
         final String message = logMessage.replaceAll("\n", "");
 
-        // Create a runnable object to be executed
-        SwingUtilities.invokeLater(new Runnable()
+        // Check if the log event call is made on the event dispatch thread
+        if (SwingUtilities.isEventDispatchThread())
         {
-            /******************************************************************
-             * Execute after all pending Swing events are finished
-             *****************************************************************/
-            @Override
-            public void run()
+            // Add the message to the event log
+            addMessageToLog(type, timestamp, message);
+        }
+        // The log event call is made from a background thread
+        else
+        {
+            // Create a runnable object to be executed
+            SwingUtilities.invokeLater(new Runnable()
             {
-                // Add the message to the event log
-                addMessageToLog(type, timestamp, message);
-            }
-        });
+                /**************************************************************
+                 * Since the log addition involves a GUI update use invokeLater
+                 * to execute the call on the event dispatch thread
+                 *************************************************************/
+                @Override
+                public void run()
+                {
+                    // Add the message to the event log
+                    addMessageToLog(type, timestamp, message);
+                }
+            });
+        }
 
         // Check if the event log file exists
         if (isLogWrite)

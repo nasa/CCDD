@@ -279,7 +279,7 @@ public class CcddSearchDialog extends CcddDialogHandler
             }
 
             /******************************************************************
-             * Load the data field data into the table and format the table
+             * Load the search results data into the table and format the table
              * cells
              *****************************************************************/
             @Override
@@ -292,7 +292,7 @@ public class CcddSearchDialog extends CcddDialogHandler
                 setUpdatableCharacteristics(resultsData,
                                             SearchResultsColumnInfo.getColumnNames(searchDlgType),
                                             null,
-                                            new Integer[0],
+                                            null,
                                             null,
                                             SearchResultsColumnInfo.getToolTips(searchDlgType),
                                             true,

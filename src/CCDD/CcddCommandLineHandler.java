@@ -735,7 +735,7 @@ public class CcddCommandLineHandler
             Collections.sort(priorities);
 
             // Step through each valid priority value
-            for (Integer priority : priorities)
+            for (int priority : priorities)
             {
                 // Step through the command line arguments
                 for (int index = 0; index < args.length; index += 2)
@@ -916,17 +916,17 @@ public class CcddCommandLineHandler
                                 Integer.parseInt(parts[1]));
 
             // Check if the width is below the minimum allowed
-            if (val.width < (Integer) min[0])
+            if (val.width < (int) min[0])
             {
                 // Set the width to the minimum
-                val.width = (Integer) min[0];
+                val.width = (int) min[0];
             }
 
             // Check if the height is below the minimum allowed
-            if (val.height < (Integer) min[1])
+            if (val.height < (int) min[1])
             {
                 // Set the height to the minimum
-                val.height = (Integer) min[1];
+                val.height = (int) min[1];
             }
         }
         // Width or height string contains a non-numeral or the wrong number of
@@ -966,7 +966,7 @@ public class CcddCommandLineHandler
             val = Integer.parseInt(parm);
 
             // Check if the value falls outside the limits
-            if (val < (Integer) limit[0] || val > (Integer) limit[1])
+            if (val < (int) limit[0] || val > (int) limit[1])
             {
                 errorMessage = arg
                                + " must be >= "

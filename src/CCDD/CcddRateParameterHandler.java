@@ -836,22 +836,24 @@ public class CcddRateParameterHandler
      *************************************************************************/
     protected String[] getRatesInUse(String rateName, Component parent)
     {
-        ArrayListMultiple ratesInUse = new ArrayListMultiple();
+        // Create the string array list using the second column (rate values)
+        // for comparison purposes
+        ArrayListMultiple ratesInUse = new ArrayListMultiple(1);
 
         // Get the array of sample rates for this rate
         String[] availableRates = getRateInformationByRateName(rateName).getSampleRates();
 
         // Query the database for those values of the specified rate that are
         // in use in all tables with a table type representing a structure,
-        // including any references in the custom values table
-        ratesInUse.addAll(dbTable.queryDatabase("SELECT rates FROM find_rates_by_name('"
+        // including any references in the custom values table. Only unique
+        // rate values are returned
+        ratesInUse.addAll(dbTable.queryDatabase("SELECT DISTINCT ON (2) * FROM find_columns_by_name('"
                                                 + rateName
                                                 + "', '"
                                                 + rateName.toLowerCase().replaceAll("[^a-z0-9_]", "_")
                                                 + "', '{"
-                                                +
-                                                Arrays.toString(tableTypeHandler.getStructureTableTypes()).replaceAll("[\\[\\]]",
-                                                                                                                      "")
+                                                + Arrays.toString(tableTypeHandler.getStructureTableTypes()).replaceAll("[\\[\\]]",
+                                                                                                                        "")
                                                 + "}');",
                                                 parent));
 

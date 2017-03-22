@@ -45,6 +45,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -742,10 +743,16 @@ public class CcddDialogHandler extends JDialog
      *            window to center the dialog over
      * 
      * @param fileName
-     *            file name to display in the input field chosen; null to use
-     *            the name extracted by the fileKey (if any)
+     *            file name to display in the input field chosen; null if no
+     *            file name is initially displayed. Ignored if folderOnly is
+     *            true
      * 
      * @param fileType
+     *            describes the type of files when more than one file extension
+     *            is supplied; null if only one (or no) file extension is
+     *            provided. Ignored if folderOnly is true
+     * 
+     * @param fileExtensions
      *            valid file extensions with description. Use null to allow any
      *            extension. Ignored if folderOnly is true
      * 
@@ -758,9 +765,9 @@ public class CcddDialogHandler extends JDialog
      * @param fileTitle
      *            title to display in the dialog window frame
      * 
-     * @param fileKey
-     *            key to extract the file name(s) from the program preferences
-     *            backing store
+     * @param filePathKey
+     *            key to extract the file path name from the program
+     *            preferences backing store
      * 
      * @param optionType
      *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION,
@@ -774,21 +781,23 @@ public class CcddDialogHandler extends JDialog
     protected File[] choosePathFile(CcddMain main,
                                     Component parent,
                                     String fileName,
+                                    String fileType,
                                     FileNameExtensionFilter[] fileExtensions,
                                     boolean folderOnly,
                                     boolean multipleFiles,
                                     String fileTitle,
-                                    String fileKey,
+                                    String filePathKey,
                                     DialogOption optionType)
     {
         return choosePathFile(main,
                               parent,
                               fileName,
+                              fileType,
                               fileExtensions,
                               folderOnly,
                               multipleFiles,
                               fileTitle,
-                              fileKey,
+                              filePathKey,
                               optionType,
                               null);
     }
@@ -805,8 +814,14 @@ public class CcddDialogHandler extends JDialog
      *            window to center the dialog over
      * 
      * @param fileName
-     *            file name to display in the input field chosen; null to use
-     *            the name extracted by the fileKey (if any)
+     *            file name to display in the input field chosen; null if no
+     *            file name is initially displayed. Ignored if folderOnly is
+     *            true
+     * 
+     * @param fileType
+     *            describes the type of files when more than one file extension
+     *            is supplied; null if only one (or no) file extension is
+     *            provided. Ignored if folderOnly is true
      * 
      * @param fileExtensions
      *            valid file extensions with description. Use null to allow any
@@ -821,8 +836,8 @@ public class CcddDialogHandler extends JDialog
      * @param fileTitle
      *            title to display in the dialog window frame
      * 
-     * @param fileKey
-     *            key to extract the file name(s) from the program preferences
+     * @param filePathKey
+     *            key to extract the file path from the program preferences
      *            backing store
      * 
      * @param optionType
@@ -842,128 +857,24 @@ public class CcddDialogHandler extends JDialog
     protected File[] choosePathFile(CcddMain main,
                                     Component parent,
                                     String fileName,
+                                    String fileType,
                                     FileNameExtensionFilter[] fileExtensions,
                                     boolean folderOnly,
                                     boolean multipleFiles,
                                     String fileTitle,
-                                    String fileKey,
+                                    String filePathKey,
                                     DialogOption optionType,
                                     JPanel lowerPanel)
     {
         File[] file = new File[1];
-        String nameList = "";
-        int extensionIndex = 0;
 
-        // Create the file chooser. Assume the default path initially; if a
-        // path is provided it's set below
-        final JFileChooser chooser = new JFileChooser();
-
-        // Read the file/path from the program preferences backing store (each
-        // file name is initialized to "" in case it isn't found in the backing
-        // store; this prevents sending a null string to the split method). In
-        // case this is a multiple file string, use 'split' to break up the
-        // files and use the first file for the path. This has no effect if
-        // only a single file/path is found, and returns "" if the file name
-        // entry isn't found in the backing store
-        String[] filePath = main.getProgPrefs().get(fileKey, "").split(";");
+        // Create the file chooser. Set the path to the one from the back store
+        // per the provided key; if no entry exists for the key then use the
+        // default path (the default location is operating system dependent)
+        final JFileChooser chooser = new JFileChooser(main.getProgPrefs().get(filePathKey, null));
 
         // True to allow multiple files to be selected
         chooser.setMultiSelectionEnabled(multipleFiles);
-
-        // Check if the program preferences backing store has a specified
-        // file/path for the key provided
-        if (!filePath[0].isEmpty())
-        {
-            // Create an array of file handles for the current file/path list
-            File[] tempFile = new File[filePath.length];
-
-            // Step through the current file/path list
-            for (int index = 0; index < filePath.length; index++)
-            {
-                // Create a file handle for each file
-                tempFile[index] = new File(filePath[index]);
-
-                // Check that this is not the path to the current folder
-                if (!filePath[0].endsWith("."))
-                {
-                    // Append the folder name if folder-only is allowed, else
-                    // the file name without the path, to the name list,
-                    // bounded by quotes
-                    nameList += "\""
-                                + (folderOnly
-                                             ? tempFile[index].getAbsolutePath()
-                                             : tempFile[index].getName())
-                                + "\" ";
-                }
-            }
-
-            // Remove the trailing space, if present
-            nameList = nameList.trim();
-
-            // Set dialog's the starting path to that of the first file
-            chooser.setCurrentDirectory(tempFile[0]);
-
-            // Use the file handles to initialize the list of files shown
-            // selected in the file chooser. This does not highlight the files
-            // in all look & feels or operating systems
-            chooser.setSelectedFiles(tempFile);
-        }
-
-        // Check if no file name is associated with the file key and a name is
-        // specified
-        if (nameList.isEmpty() && fileName != null)
-        {
-            // Use the specified name, bounded by quotes
-            nameList = "\"" + fileName + "\"";
-        }
-
-        // Check if a single file name is in the file name string
-        if (!folderOnly
-            && (filePath[0].isEmpty() || filePath.length == 1)
-            && !nameList.isEmpty())
-        {
-            // Get the index of the period, if a file extension is present
-            int dotIndex = nameList.indexOf(".");
-
-            // Check if an extension is present and one or more file extensions
-            // are specified
-            if (dotIndex != -1 && fileExtensions != null)
-            {
-                // Extract the file extension from the file name and remove the
-                // trailing quote
-                String extension = nameList.substring(dotIndex + 1).replaceAll("\"", "");
-
-                // Step through each file extension
-                for (int extIndex = 0; extIndex < fileExtensions.length; extIndex++)
-                {
-                    // Check if the specified file's extension match the
-                    // extension in the array
-                    if (extension.equals(CcddUtilities.convertArrayToString(fileExtensions[extIndex].getExtensions())))
-                    {
-                        // Store the extension index and stop searching. The
-                        // index is incremented in order to skip the 'all
-                        // files' selection
-                        extensionIndex = extIndex + 1;
-                        break;
-                    }
-                }
-            }
-
-            // Check if the file's extension doesn't match one of the ones
-            // specified
-            if (extensionIndex == 0)
-            {
-                // Check if at least one file extension is specified
-                if (fileExtensions != null && fileExtensions.length != 0)
-                {
-                    // Set the index to the first specified extension and blank
-                    // the file name
-                    extensionIndex = 1;
-                }
-
-                nameList = "";
-            }
-        }
 
         // Locate the file name input field in the file chooser dialog. In
         // order to use custom buttons in the file chooser dialog, the file
@@ -978,16 +889,61 @@ public class CcddDialogHandler extends JDialog
         {
             // Allow only the selection of a folder (not a file)
             chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+            // Get the path to initially display
+            fileName = chooser.getCurrentDirectory().getAbsolutePath();
         }
         // Not folder-only
         else
         {
+            // Check if no name is specified
+            if (fileName == null)
+            {
+                // Set the file name to blank
+                fileName = "";
+            }
+            // Check if the file name is present
+            else if (!fileName.isEmpty())
+            {
+                // Bound the file name with quotes
+                fileName = "\"" + fileName + "\"";
+            }
+
             // Allow only the selection of files
             chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
-            // Check if a file type is specified
+            // Check if one or more file extensions are specified
             if (fileExtensions != null)
             {
+                // Check if more than one file extension is provided
+                if (fileExtensions.length > 1)
+                {
+                    String extensions = "";
+                    List<String> extensionList = new ArrayList<String>();
+
+                    // Step through each file extension
+                    for (FileNameExtensionFilter fileExtension : fileExtensions)
+                    {
+                        // Build the extension names string and append the
+                        // extension(s) to the list
+                        extensions += "*."
+                                      + CcddUtilities.convertArrayToString(fileExtension.getExtensions())
+                                      + ", ";
+                        extensionList.addAll(Arrays.asList(fileExtension.getExtensions()));
+                    }
+
+                    // Set the filter to the list of all applicable extensions
+                    // so that initially all files of the acceptable types are
+                    // displayed
+                    chooser.setFileFilter(new FileNameExtensionFilter("All "
+                                                                      + fileType
+                                                                      + " files ("
+                                                                      + CcddUtilities.removeTrailer(extensions,
+                                                                                                    ", ")
+                                                                      + ")",
+                                                                      extensionList.toArray(new String[0])));
+                }
+
                 // Step through each file extension
                 for (FileNameExtensionFilter fileExtension : fileExtensions)
                 {
@@ -1002,10 +958,13 @@ public class CcddDialogHandler extends JDialog
                                                                            + ")"));
                 }
 
-                // Set the file filter to show only files with the desired
-                // extension. If multiple types are specified then show those
-                // with the first extension defined
-                chooser.setFileFilter(chooser.getChoosableFileFilters()[extensionIndex]);
+                // Check if only a single file extension is applicable
+                if (fileExtensions.length == 1)
+                {
+                    // Set the file filter to show only files with the desired
+                    // extension
+                    chooser.setFileFilter(chooser.getChoosableFileFilters()[1]);
+                }
             }
 
             // Add a listener for changes to the selected file(s)
@@ -1045,10 +1004,9 @@ public class CcddDialogHandler extends JDialog
             });
         }
 
-        // Insert the file name list into the file chooser's file name text
-        // field. Most look & feels do this automatically, but not all (e.g.,
-        // GTK+)
-        nameField.setText(nameList);
+        // Insert the file name into the file chooser's file name text field.
+        // Most look & feels do this automatically, but not all (e.g., GTK+)
+        nameField.setText(fileName);
 
         // Hide the file chooser's default buttons
         chooser.setControlButtonsAreShown(false);

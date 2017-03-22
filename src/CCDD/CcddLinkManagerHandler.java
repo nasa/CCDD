@@ -571,7 +571,8 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
                 // transfers to the links tree so that the correct variable
                 // order is maintained
                 linkTree.setTreePathOrder(variableTree.getTableTreePathList(null,
-                                                                            variableTree.getNodeFromNodeName("Structures & Variables")));
+                                                                            variableTree.getNodeFromNodeName("Structures & Variables"),
+                                                                            -1));
             }
         });
 

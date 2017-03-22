@@ -139,10 +139,11 @@ public class CcddBackgroundCommand
 
         // Create a SwingWorker in which to perform the command on a separate
         // thread
-        SwingWorker<?, ?> backCommandWorker = new SwingWorker<Void, Integer>()
+        SwingWorker<?, ?> backCommandWorker = new SwingWorker<Void, Object>()
         {
             /******************************************************************
-             * Execute command
+             * Execute command steps. These are performed on a newly spawned
+             * background thread
              *****************************************************************/
             @Override
             protected Void doInBackground()
@@ -154,7 +155,8 @@ public class CcddBackgroundCommand
             }
 
             /******************************************************************
-             * Command completed steps
+             * Command completed steps. These are performed on the Event
+             * Dispatch Thread
              *****************************************************************/
             @Override
             protected void done()

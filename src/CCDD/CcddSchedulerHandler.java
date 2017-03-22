@@ -1159,7 +1159,7 @@ public class CcddSchedulerHandler
                 // Check if this is a parent message
                 if (parentIndex == -1)
                 {
-                    Integer[] indices = (Integer[]) parsedIndices[1];
+                    int[] indices = (int[]) parsedIndices[1];
 
                     // Set smallest to the smallest number of bytes out of the
                     // sub-messages
@@ -1197,7 +1197,7 @@ public class CcddSchedulerHandler
      * 
      * @return Smallest number of bytes
      *************************************************************************/
-    private int getSmallestByteSize(Integer[] indices, int parentIndex)
+    private int getSmallestByteSize(int[] indices, int parentIndex)
     {
         int smallest = Integer.MAX_VALUE;
 
@@ -1467,7 +1467,7 @@ public class CcddSchedulerHandler
         {
             // Remove the variables from the given message
             List<String> names = schedulerEditor.removeVariablesFromMessages(varList,
-                                                                            msgIndex);
+                                                                             msgIndex);
 
             // Set the variable(s) to be available
             makeVariableAvailable(names);

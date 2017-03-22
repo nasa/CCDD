@@ -7,15 +7,15 @@
 package CCDD;
 
 import static CCDD.CcddConstants.EXPORT_ICON;
+import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
 import static CCDD.CcddConstants.LABEL_FONT_BOLD;
 import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
 import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
 import static CCDD.CcddConstants.LABEL_TEXT_COLOR;
 import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
-import static CCDD.CcddConstants.LAST_SAVED_DATA_FILE;
-import static CCDD.CcddConstants.LAST_SAVED_DATA_PATH;
 import static CCDD.CcddConstants.MAX_SQL_NAME_LENGTH;
 import static CCDD.CcddConstants.OK_BUTTON;
+import static CCDD.CcddConstants.TABLE_EXPORT_PATH;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -496,6 +496,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 File[] filePath = choosePathFile(ccddMain,
                                                  caller,
                                                  null,
+                                                 "export",
                                                  new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.CSV.getDescription(),
                                                                                                             FileExtension.CSV.getExtensionName()),
                                                                                 new FileNameExtensionFilter(FileExtension.EDS.getDescription(),
@@ -507,7 +508,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                  false,
                                                  true,
                                                  "Import Table(s)",
-                                                 LAST_SAVED_DATA_FILE,
+                                                 TABLE_EXPORT_PATH,
                                                  DialogOption.IMPORT_OPTION,
                                                  createImportPanel(gbc));
 
@@ -876,24 +877,22 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         // Check if the export command originated from the main menu
         if (callingEditorDialog == null)
         {
-            // Create a panel containing a table tree for the dialog
-            // components
+            // Create a panel containing a table tree for the dialog components
             dialogPnl = createSelectionPanel("Select table(s) to export",
                                              gbc,
                                              TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
                                              TableTreeType.PROTOTYPE_AND_INSTANCE);
             gbc.insets.top = LABEL_VERTICAL_SPACING * 2;
         }
-        // The export command originated from a table editor dialog
-        // menu
+        // The export command originated from a table editor dialog menu
         else
         {
             // Create an empty panel for the dialog components
             dialogPnl = new JPanel(new GridBagLayout());
         }
 
-        // Check that the panel was created; i.e., that there are
-        // tables available for exporting
+        // Check that the panel was created; i.e., that there are tables
+        // available for exporting
         if (dialogPnl != null)
         {
             // Add the export storage path components to the dialog
@@ -930,32 +929,34 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 @Override
                 public void actionPerformed(ActionEvent ae)
                 {
+                    // Get the path of the last file saved
+                    String filePath = ccddMain.getProgPrefs().get(TABLE_EXPORT_PATH, "");
+
+                    // Check if the single file check box is selected
                     if (singleFileCb.isSelected())
                     {
-                        // Get the name of the last file saved
-                        String fileName = ccddMain.getProgPrefs().get(LAST_SAVED_DATA_FILE, "");
-
                         // Get the location of the file extension
-                        int index = fileName.lastIndexOf(".");
+                        int index = filePath.lastIndexOf(".");
 
                         // Check if the file extension is present
                         if (index != -1)
                         {
                             // Remove the original file extension and append
                             // the current one
-                            fileName = fileName.substring(0, index)
+                            filePath = filePath.substring(0, index)
                                        + fileExtn.getExtension();
                         }
 
                         // Set the export label text and path field
                         exportLbl.setText("Enter or select an export file");
-                        pathFld.setText(fileName);
+                        pathFld.setText(filePath);
                     }
+                    // The single file check box isn't selected
                     else
                     {
                         // Set the export label text and path field
                         exportLbl.setText("Enter or select an export path");
-                        pathFld.setText(ccddMain.getProgPrefs().get(LAST_SAVED_DATA_PATH, ""));
+                        pathFld.setText(filePath);
                     }
                 }
             });
@@ -975,15 +976,14 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             gbc.gridy++;
             dialogPnl.add(replaceMacrosCb, gbc);
 
-            // TODO
             // Create the reserved message ID inclusion check box
             includeReservedMsgIDsCb = new JCheckBox("Include reserved message IDs");
             includeReservedMsgIDsCb.setFont(LABEL_FONT_BOLD);
             includeReservedMsgIDsCb.setBorder(emptyBorder);
             includeReservedMsgIDsCb.setToolTipText("If checked, the contents of the reserved "
-                                                + "message ID table (IDs or ID ranges, and "
-                                                + "their corresponding descriptions) is "
-                                                + "included in each export file ");
+                                                   + "message ID table (IDs or ID ranges, and "
+                                                   + "their corresponding descriptions) is "
+                                                   + "included in each export file ");
             gbc.gridy++;
             dialogPnl.add(includeReservedMsgIDsCb, gbc);
 
@@ -1293,7 +1293,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         pathPnl.add(exportLbl, gbc);
 
         // Create a text field for entering & displaying the path
-        pathFld = new JTextField(ccddMain.getProgPrefs().get(LAST_SAVED_DATA_PATH,
+        pathFld = new JTextField(ccddMain.getProgPrefs().get(TABLE_EXPORT_PATH,
                                                              ""));
         pathFld.setFont(LABEL_FONT_PLAIN);
         pathFld.setEditable(true);
@@ -1328,12 +1328,13 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                     filePath = new CcddDialogHandler().choosePathFile(ccddMain,
                                                                       CcddTableManagerDialog.this,
                                                                       null,
+                                                                      null,
                                                                       new FileNameExtensionFilter[] {new FileNameExtensionFilter(fileExtn.getDescription(),
                                                                                                                                  fileExtn.getExtensionName())},
                                                                       false,
                                                                       false,
                                                                       "Select File for Exported Table(s)",
-                                                                      LAST_SAVED_DATA_FILE,
+                                                                      TABLE_EXPORT_PATH,
                                                                       DialogOption.OK_CANCEL_OPTION);
                 }
                 // Export tables to individual files
@@ -1344,10 +1345,11 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                       CcddTableManagerDialog.this,
                                                                       null,
                                                                       null,
+                                                                      null,
                                                                       true,
                                                                       false,
                                                                       "Select Location for Exported Table(s)",
-                                                                      LAST_SAVED_DATA_PATH,
+                                                                      TABLE_EXPORT_PATH,
                                                                       DialogOption.OK_CANCEL_OPTION);
                 }
 
@@ -1424,6 +1426,19 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                         + tableName
                                         + "' matches a reserved word");
             }
+        }
+
+        // Check if the table starts with the characters designating an
+        // internal table
+        if (tableName.startsWith(INTERNAL_TABLE_PREFIX))
+        {
+            // Inform the user that the table name can't begin with the
+            // internal table prefix
+            throw new CCDDException("Table name '"
+                                    + tableName
+                                    + "' cannot begin with '"
+                                    + INTERNAL_TABLE_PREFIX
+                                    + "'");
         }
 
         // Get the list of available tables

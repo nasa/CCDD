@@ -1381,7 +1381,7 @@ public class CcddClasses
                 this.other = new ArrayList<Integer>();
 
                 // Step through each associated column
-                for (Integer column : other)
+                for (int column : other)
                 {
                     // Store the column index. Adjust to view coordinates based
                     // on the input flag
@@ -4609,6 +4609,29 @@ public class CcddClasses
     @SuppressWarnings("serial")
     protected static class ArrayListMultiple extends ArrayList<String[]>
     {
+        private final int compareColumn;
+
+        /**********************************************************************
+         * Array list class constructor with string arrays; sets the comparison
+         * column
+         * 
+         * @param compareColumn
+         *            index of the column for indexOf and contains comparisons
+         **********************************************************************/
+        ArrayListMultiple(int compareColumn)
+        {
+            this.compareColumn = compareColumn;
+        }
+
+        /**********************************************************************
+         * Array list class constructor with string arrays; assumes the first
+         * column is the comparison column
+         **********************************************************************/
+        ArrayListMultiple()
+        {
+            this(0);
+        }
+
         /**********************************************************************
          * Override the contains method. Compare the input object to the first
          * string in each array member in the list and return true is a match
@@ -4636,7 +4659,7 @@ public class CcddClasses
             for (String[] listString : this)
             {
                 // Check if the input string matches the first one in the array
-                if (checkString.equals(listString[0]))
+                if (checkString.equals(listString[compareColumn]))
                 {
                     // Set the index to the matching one and stop searching
                     matchIndex = index;

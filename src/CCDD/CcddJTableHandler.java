@@ -135,8 +135,8 @@ public abstract class CcddJTableHandler extends JTable
 
     // Minimum pixel widths needed to display the column headers and column
     // contents
-    private Integer[] minHeaderWidth;
-    private Integer[] minDataWidth;
+    private int[] minHeaderWidth;
+    private int[] minDataWidth;
 
     // Table cell font
     private Font cellFont;
@@ -651,19 +651,6 @@ public abstract class CcddJTableHandler extends JTable
      *************************************************************************/
     protected boolean isTableChanged(Object[][] previousData)
     {
-        // TODO THIS PREVENTS THE ADDITION/REMOVAL OF THE ASTERISK (INDICATING
-        // A CHANGE TO THE TABLE). UNSURE OF WHY THE stopCellEditing CALL IS
-        // NEEDED HERE - IT'S BEEN HERE FOR MORE THAN A YEAR PER THE REPOSITORY
-        // (NO RECORDS BEFORE THAT POINT). THE INCORPORATION OF
-        // ValidateCellActionListener MAY HAVE/ MADE THIS CALL UNNECESSARY.
-        // COMMENTED IT OUT ~3/1/17 AND HAVEN'T SEEN ANY ISSUES BECAUSE OF IT
-        // // Check if a cell is currently being edited
-        // if (getCellEditor() != null)
-        // {
-        // // Incorporate any cell changes and terminate editing
-        // getCellEditor().stopCellEditing();
-        // }
-
         // Get the data for the type as it exists in the database and the table
         // editor
         Object[][] currentData = getTableData(true);
@@ -922,6 +909,28 @@ public abstract class CcddJTableHandler extends JTable
                 headerSize.height += HEADER_VERTICAL_PADDING;
 
                 return headerSize;
+            }
+
+            @Override
+            /******************************************************************
+             * Override the column drag to end the edit sequence
+             *****************************************************************/
+            public void setDraggedColumn(TableColumn column)
+            {
+                // Set the flag indicating if the column move sequence is
+                // complete
+                boolean finished = getDraggedColumn() != null && column == null;
+
+                // Perform the column drag operation
+                super.setDraggedColumn(column);
+
+                // CHeck if the column drag operation is complete
+                if (finished)
+                {
+                    // End the edit sequence and flag that a change occurred
+                    undoManager.endEditSequence();
+                    undoManager.ownerHasChanged();
+                }
             }
         };
     }
@@ -1221,10 +1230,10 @@ public abstract class CcddJTableHandler extends JTable
                                               Integer[] hiddenColumnIndices,
                                               Integer[] checkBoxColumnIndices,
                                               String[] toolTips,
-                                              Boolean centerText,
-                                              Boolean showScrollBar,
-                                              Boolean calcTotalWidth,
-                                              Boolean showGrid)
+                                              boolean centerText,
+                                              boolean showScrollBar,
+                                              boolean calcTotalWidth,
+                                              boolean showGrid)
     {
         // Initialize the hidden column and check box column indices lists.
         // These lists remain empty if there is no hidden column(s) and/or no
@@ -1260,6 +1269,9 @@ public abstract class CcddJTableHandler extends JTable
             createDefaultColumnsFromModel();
         }
 
+        // Arrange the columns in the order specified
+        arrangeColumns(columnOrder);
+
         // Check if any columns are to be displayed as check boxes
         if (checkBoxColumnIndices != null)
         {
@@ -1289,9 +1301,6 @@ public abstract class CcddJTableHandler extends JTable
             // Hide the specified columns
             showHiddenColumns(false, hiddenColumnIndices);
         }
-
-        // Arrange the columns in the order specified
-        arrangeColumns(columnOrder);
 
         // Step through each column displayed as a check box
         for (int index = 0; index < checkBoxColumnModel.size(); index++)
@@ -1335,7 +1344,7 @@ public abstract class CcddJTableHandler extends JTable
         if (isShow)
         {
             // Step through each column to show
-            for (Integer column : columns)
+            for (int column : columns)
             {
                 // Step through the columns currently hidden
                 for (TableColumn hiddenColumn : hiddenColumns)
@@ -1357,7 +1366,7 @@ public abstract class CcddJTableHandler extends JTable
         else
         {
             // Step through each column to hide
-            for (Integer column : columns)
+            for (int column : columns)
             {
                 boolean isFound = false;
 
@@ -1553,7 +1562,7 @@ public abstract class CcddJTableHandler extends JTable
         ((DefaultTableCellRenderer) getTableHeader().getDefaultRenderer()).setHorizontalAlignment(JLabel.CENTER);
 
         // Set the table's column size
-        for (int column = 0; column < getColumnModel().getColumnCount(); column++)
+        for (int column = 0; column < getColumnCount(); column++)
         {
             // Get the table column to shorten the calls below
             TableColumn tableColumn = getColumnModel().getColumn(column);
@@ -1566,9 +1575,9 @@ public abstract class CcddJTableHandler extends JTable
             {
                 // Set the cell renderer based on if the column is displayed in
                 // multiple lines, and if the column allows HTML formatting
-                tableColumn.setCellRenderer(isColumnMultiLine(column)
-                                                                     ? multiLineRenderer
-                                                                     : singleLineRenderer);
+                tableColumn.setCellRenderer(isColumnMultiLine(convertColumnIndexToModel(column))
+                                                                                                ? multiLineRenderer
+                                                                                                : singleLineRenderer);
             }
             // This column displays check boxes
             else
@@ -1592,11 +1601,11 @@ public abstract class CcddJTableHandler extends JTable
     private int calcColumnWidths(boolean showScrollBar)
     {
         // Create storage for the minimum header and data column widths
-        minHeaderWidth = new Integer[getColumnModel().getColumnCount()];
-        minDataWidth = new Integer[getColumnModel().getColumnCount()];
+        minHeaderWidth = new int[getColumnCount()];
+        minDataWidth = new int[getColumnCount()];
 
         // Set the table's column sizes
-        for (int column = 0; column < getColumnModel().getColumnCount(); column++)
+        for (int column = 0; column < getColumnCount(); column++)
         {
             // Get the table column to shorten the calls below
             TableColumn tableColumn = getColumnModel().getColumn(column);
@@ -1654,9 +1663,9 @@ public abstract class CcddJTableHandler extends JTable
      * @return Widths of the visible table columns using the larger of the
      *         column's minimum header and data widths
      *************************************************************************/
-    protected Integer[] getColumnWidths()
+    protected int[] getColumnWidths()
     {
-        Integer[] maxMinWidth = new Integer[minHeaderWidth.length];
+        int[] maxMinWidth = new int[minHeaderWidth.length];
 
         // Step through each visible column
         for (int column = 0; column < minHeaderWidth.length; column++)
@@ -1767,8 +1776,9 @@ public abstract class CcddJTableHandler extends JTable
                     // Get the index of the column in view coordinates
                     int viewColumn = convertColumnIndexToView(Integer.parseInt(columnIndex[column]));
 
-                    // Check if the column is visible
-                    if (viewColumn != -1)
+                    // Check if the column is visible and that its position
+                    // changed
+                    if (viewColumn != -1 && viewColumn != column - numHiddenColumns)
                     {
                         // Move the column to its location in the new order,
                         // skipping any hidden column(s)
@@ -2113,7 +2123,8 @@ public abstract class CcddJTableHandler extends JTable
      *            table
      * 
      * @param data
-     *            data with which to populate the inserted row
+     *            data with which to populate the inserted row; null to insert
+     *            an empty row
      *************************************************************************/
     protected void insertRow(boolean endEdit,
                              boolean insertAtEnd,
@@ -2121,6 +2132,7 @@ public abstract class CcddJTableHandler extends JTable
     {
         // Storage for the indices of the row below which to insert the new
         // row, in view and model coordinates
+        // int viewRow;
         int viewRow;
         int modelRow;
 
@@ -2162,11 +2174,11 @@ public abstract class CcddJTableHandler extends JTable
             // Select the new row
             setRowSelectionInterval(viewRow, viewRow);
 
-            // Scroll the window to keep the inserted row visible
-            scrollRectToVisible(getCellRect(viewRow, 0, true));
-
             // Adjust the cell focus to the inserted row
             setFocusCell(viewRow, focusColumn);
+
+            // Scroll the window to keep the inserted row visible
+            scrollToRow(viewRow);
         }
 
         // Set the table sort capability in case this is the table's only row
@@ -2181,6 +2193,29 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**************************************************************************
+     * Scroll the table so that the specified row is visible
+     * 
+     * @param row
+     *            row index to which to scroll, view coordinates
+     *************************************************************************/
+    private void scrollToRow(final int row)
+    {
+        // Create a runnable object to be executed
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            /******************************************************************
+             * Execute after all pending Swing events are finished
+             *****************************************************************/
+            @Override
+            public void run()
+            {
+                // Scroll the window to keep the inserted row visible
+                scrollRectToVisible(getCellRect(row, 0, true));
+            }
+        });
+    }
+
+    /**************************************************************************
      * Insert data into a new row inserted below the specified row
      * 
      * @param targetRow
@@ -2188,7 +2223,8 @@ public abstract class CcddJTableHandler extends JTable
      *            the new row
      * 
      * @param data
-     *            data to place in the inserted row
+     *            data to place in the inserted row; null to insert an empty
+     *            row
      * 
      * @return The index of the newly inserted row in view coordinates; -1 if
      *         the specified row isn't visible
@@ -2740,10 +2776,7 @@ public abstract class CcddJTableHandler extends JTable
         selected.moveCellSelection(rowDelta, 0);
 
         // Scroll the window to keep the moved row(s) visible
-        scrollRectToVisible(getCellRect(convertRowIndexToView(startRow
-                                                              + rowDelta),
-                                        0,
-                                        true));
+        scrollToRow(convertRowIndexToView(startRow + rowDelta));
 
         // Flag the end of the editing sequence for undo/redo purposes
         undoManager.endEditSequence();
@@ -2848,7 +2881,7 @@ public abstract class CcddJTableHandler extends JTable
 
         // Check if a valid column is selected: can't move the first column to
         // the left
-        if (selected.getStartColumn() != 0)
+        if (selected.getStartColumn() != -1 && selected.getStartColumn() != 0)
         {
             // Flag the end of the editing sequence for undo/redo purposes
             undoManager.endEditSequence();
@@ -2878,7 +2911,8 @@ public abstract class CcddJTableHandler extends JTable
 
         // Check if a valid column is selected: can't move the last column
         // further to the right
-        if (selected.getEndColumn() < getColumnCount() - 1)
+        if (selected.getEndColumn() != -1
+            && selected.getEndColumn() < getColumnCount() - 1)
         {
             // Flag the end of the editing sequence for undo/redo purposes
             undoManager.endEditSequence();
@@ -2948,9 +2982,9 @@ public abstract class CcddJTableHandler extends JTable
                 // Set the editor so that the contents can be modified within
                 // the table cell. Use the editor appropriate for the number of
                 // cell display lines
-                getColumnModel().getColumn(column).setCellEditor(isColumnMultiLine(column)
-                                                                                          ? dceMulti
-                                                                                          : dceSingle);
+                getColumnModel().getColumn(column).setCellEditor(isColumnMultiLine(convertColumnIndexToModel(column))
+                                                                                                                     ? dceMulti
+                                                                                                                     : dceSingle);
             }
         }
     }
@@ -3275,8 +3309,8 @@ public abstract class CcddJTableHandler extends JTable
             // Step through each visible column in the row
             for (int column = 0; column < getColumnCount(); column++)
             {
-                // Use the prepareRenderer() to calculate the height
-                // required to display the cell's contents
+                // Use the prepareRenderer() to calculate the height required
+                // to display the cell's contents
                 Component comp = super.prepareRenderer(getCellRenderer(row,
                                                                        column),
                                                        row,

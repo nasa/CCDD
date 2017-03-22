@@ -440,10 +440,21 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     // Check that the data field was found
                     if (fieldInfo != null)
                     {
-                        // Check if the value entered doesn't match the pattern
+                        // Check if the value entered matches the pattern
                         // selected by the user for this data field
-                        if (!fieldInfo.getInputType().getInputMatch().isEmpty()
-                            && !newValueS.matches(fieldInfo.getInputType().getInputMatch()))
+                        if (fieldInfo.getInputType().getInputMatch().isEmpty()
+                            || newValueS.matches(fieldInfo.getInputType().getInputMatch()))
+                        {
+                            // Store the new value in the table data array
+                            // after formatting the cell value per its input
+                            // type. This is needed primarily to clean up
+                            // numeric formatting
+                            newValueS = fieldInfo.getInputType().formatInput(newValueS);
+                            tableData.get(row)[column] = newValueS;
+                        }
+                        // The value doesn't match the pattern for this data
+                        // field
+                        else
                         {
                             // Set the flag that indicates the last edited
                             // cell's content is invalid
@@ -584,13 +595,22 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                             comp.setForeground(Color.GRAY);
                             comp.setBackground(Color.RED);
                         }
-                        // The cell isn't selected for removal
-                        else
+                        // The cell isn't selected for removal. Check if the
+                        // cell doesn't represent a boolean value (these are
+                        // not compared for duplicate values)
+                        else if (!checkBoxColumns.contains(columnModel))
                         {
+                            // Get the input data type for this data field
+                            InputDataType inputType = fieldHandler.getFieldInformationByName(getOwnerWithPath(ownerValue,
+                                                                                                              pathValue),
+                                                                                             columnNames[columnModel]).getInputType();
 
-                            // Get the text in the cell
-                            String value = tableModel.getValueAt(rowModel,
-                                                                 columnModel).toString();
+                            // Get the text in the cell, formatted per its
+                            // input type, but without preserving the leading
+                            // zeroes for hexadecimal values
+                            String value = inputType.formatInput(tableModel.getValueAt(rowModel,
+                                                                                       columnModel).toString(),
+                                                                 false);
 
                             // Step through each row in the table
                             for (int checkRow = 0; checkRow < tableModel.getRowCount(); checkRow++)
@@ -601,8 +621,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                 // row of the same column
                                 if (rowModel != checkRow
                                     && !value.isEmpty()
-                                    && tableModel.getValueAt(checkRow,
-                                                             columnModel).toString().equals(value))
+                                    && inputType.formatInput(tableModel.getValueAt(checkRow,
+                                                                                   columnModel).toString(),
+                                                             false).equals(value))
                                 {
                                     // Change the cell's background color to
                                     // indicate it has the same value as
@@ -1236,16 +1257,16 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         // Since all of the check box columns are now determined, step through
         // each of them so that any that have a blank value can be set to false
         // (a legal boolean value)
-        for (Integer c : checkBoxColumns)
+        for (int cbxCol : checkBoxColumns)
         {
             // Set through each row in the table
             for (Object[] ownerDataField : ownerDataFields)
             {
                 // Check if the check box value is blank
-                if (ownerDataField[c] == "")
+                if (ownerDataField[cbxCol] == "")
                 {
                     // Set the check box value to false
-                    ownerDataField[c] = false;
+                    ownerDataField[cbxCol] = false;
                 }
             }
         }
