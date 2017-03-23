@@ -42,6 +42,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.TableCellRenderer;
 
+import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddClasses.TableModification;
 import CCDD.CcddClasses.ValidateCellActionListener;
@@ -64,17 +65,6 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
     private final CcddDbTableCommandHandler dbTable;
     private final CcddMacroHandler macroHandler;
     private CcddJTableHandler macroTable;
-
-    // Components referenced by multiple methods
-    private JButton btnInsertRow;
-    private JButton btnDeleteRow;
-    private JButton btnMoveUp;
-    private JButton btnMoveDown;
-    private JButton btnUndo;
-    private JButton btnRedo;
-    private JButton btnStore;
-    private JButton btnClose;
-    private JPanel outerPanel;
 
     // Table instance model data. Current copy is the table information as it
     // exists in the table editor and is used to determine what changes have
@@ -223,17 +213,295 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
     }
 
     /**************************************************************************
-     * Create the macro editor dialog
+     * Create the macro editor dialog. This is executed in a separate thread
+     * since it can take a noticeable amount time to complete, and by using a
+     * separate thread the GUI is allowed to continue to update. The GUI menu
+     * commands, however, are disabled until the telemetry scheduler
+     * initialization completes execution
      *************************************************************************/
     private void initialize()
     {
-        modifications = new ArrayList<TableModification>();
-        loadedReferences = new ArrayList<MacroReference>();
+        // Build the macro editor dialog in the background
+        CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
+        {
+            // Create panels to hold the components of the dialog
+            JPanel editorPnl = new JPanel(new GridBagLayout());
+            JPanel buttonPnl = new JPanel();
 
-        // Create a copy of the macro data so it can be used to determine if
-        // changes are made
-        storeCurrentData();
+            /******************************************************************
+             * Build the macro editor dialog
+             *****************************************************************/
+            @Override
+            protected void execute()
+            {
+                modifications = new ArrayList<TableModification>();
+                loadedReferences = new ArrayList<MacroReference>();
 
+                // Set the initial layout manager characteristics
+                GridBagConstraints gbc = new GridBagConstraints(0,
+                                                                0,
+                                                                1,
+                                                                1,
+                                                                1.0,
+                                                                1.0,
+                                                                GridBagConstraints.LINE_START,
+                                                                GridBagConstraints.BOTH,
+                                                                new Insets(0, 0, 0, 0),
+                                                                0,
+                                                                0);
+
+                // Create a copy of the macro data so it can be used to
+                // determine if changes are made
+                storeCurrentData();
+
+                // Define the panel to contain the table and place it in the
+                // editor
+                JPanel tablePnl = new JPanel();
+                tablePnl.setLayout(new BoxLayout(tablePnl, BoxLayout.X_AXIS));
+                tablePnl.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+                tablePnl.add(createMacroTable());
+                editorPnl.add(tablePnl, gbc);
+                editorPnl.setBorder(BorderFactory.createEmptyBorder());
+
+                // Set the undo manager in the keyboard handler while the macro
+                // editor is active
+                ccddMain.getKeyboardHandler().setModalUndoManager(macroTable.getUndoManager());
+
+                // New button
+                JButton btnInsertRow = CcddButtonPanelHandler.createButton("Ins Row",
+                                                                           INSERT_ICON,
+                                                                           KeyEvent.VK_I,
+                                                                           "Insert a new row into the table");
+
+                // Create a listener for the Insert Row button
+                btnInsertRow.addActionListener(new ValidateCellActionListener(macroTable)
+                {
+                    /**********************************************************
+                     * Insert a new row into the table at the selected location
+                     *********************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        macroTable.insertEmptyRow(true);
+                    }
+                });
+
+                // Delete button
+                JButton btnDeleteRow = CcddButtonPanelHandler.createButton("Del Row",
+                                                                           DELETE_ICON,
+                                                                           KeyEvent.VK_D,
+                                                                           "Delete the selected row(s) from the table");
+
+                // Create a listener for the Delete row button
+                btnDeleteRow.addActionListener(new ValidateCellActionListener(macroTable)
+                {
+                    /**********************************************************
+                     * Delete the selected row(s) from the table
+                     *********************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        // Step through each row selected for deletion
+                        for (int row : macroTable.getSelectedRows())
+                        {
+                            // Get the macro name
+                            String name = macroTable.getValueAt(row, MacrosColumn.MACRO_NAME.ordinal()).toString();
+
+                            // Check if the macro is used in any of the data
+                            // tables
+                            if (macroHandler.getMacroReferences(name, CcddMacroEditorDialog.this).length != 0)
+                            {
+                                // Deselect the macro
+                                macroTable.removeRowSelectionInterval(row, row);
+
+                                // Inform the user that the macro can't be
+                                // deleted
+                                new CcddDialogHandler().showMessageDialog(CcddMacroEditorDialog.this,
+                                                                          "<html><b>Cannot delete macro '"
+                                                                              + name
+                                                                              + "'; macro is referenced by a data table",
+                                                                          "Delete Macro",
+                                                                          JOptionPane.QUESTION_MESSAGE,
+                                                                          DialogOption.OK_OPTION);
+                            }
+                        }
+
+                        macroTable.deleteRow(true);
+                    }
+                });
+
+                // Move Up button
+                JButton btnMoveUp = CcddButtonPanelHandler.createButton("Up",
+                                                                        UP_ICON,
+                                                                        KeyEvent.VK_U,
+                                                                        "Move the selected row(s) up");
+
+                // Create a listener for the Move Up button
+                btnMoveUp.addActionListener(new ValidateCellActionListener(macroTable)
+                {
+                    /**********************************************************
+                     * Move the selected row(s) up in the table
+                     *********************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        macroTable.moveRowUp();
+                    }
+                });
+
+                // Move Down button
+                JButton btnMoveDown = CcddButtonPanelHandler.createButton("Down",
+                                                                          DOWN_ICON,
+                                                                          KeyEvent.VK_W,
+                                                                          "Move the selected row(s) down");
+
+                // Create a listener for the Move Down button
+                btnMoveDown.addActionListener(new ValidateCellActionListener(macroTable)
+                {
+                    /**********************************************************
+                     * Move the selected row(s) down in the table
+                     *********************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        macroTable.moveRowDown();
+                    }
+                });
+
+                // Undo button
+                JButton btnUndo = CcddButtonPanelHandler.createButton("Undo",
+                                                                      UNDO_ICON,
+                                                                      KeyEvent.VK_Z,
+                                                                      "Undo the last edit");
+
+                // Create a listener for the Undo button
+                btnUndo.addActionListener(new ValidateCellActionListener(macroTable)
+                {
+                    /**********************************************************
+                     * Undo the last cell edit
+                     *********************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        macroTable.getUndoManager().undo();
+                    }
+                });
+
+                // Redo button
+                JButton btnRedo = CcddButtonPanelHandler.createButton("Redo",
+                                                                      REDO_ICON,
+                                                                      KeyEvent.VK_Y,
+                                                                      "Redo the last undone edit");
+
+                // Create a listener for the Redo button
+                btnRedo.addActionListener(new ValidateCellActionListener(macroTable)
+                {
+                    /**********************************************************
+                     * Redo the last cell edit that was undone
+                     *********************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        macroTable.getUndoManager().redo();
+                    }
+                });
+
+                // Store the macros button
+                JButton btnStore = CcddButtonPanelHandler.createButton("Store",
+                                                                       STORE_ICON,
+                                                                       KeyEvent.VK_S,
+                                                                       "Store the macro(s)");
+
+                // Create a listener for the Store button
+                btnStore.addActionListener(new ValidateCellActionListener(macroTable)
+                {
+                    /**********************************************************
+                     * Store the macros
+                     *********************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        // Only update the table in the database if a cell's
+                        // content has changed, none of the required columns is
+                        // missing a value, and the user confirms the action
+                        if (macroTable.isTableChanged(committedData)
+                            && !checkForMissingColumns()
+                            && new CcddDialogHandler().showMessageDialog(CcddMacroEditorDialog.this,
+                                                                         "<html><b>Store changes in database?",
+                                                                         "Store Changes",
+                                                                         JOptionPane.QUESTION_MESSAGE,
+                                                                         DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                        {
+                            // Get a list of the macro modifications
+                            buildUpdates();
+
+                            // Update the tables affected by the changes to the
+                            // macro(s)
+                            dbTable.modifyTablePerDataTypeOrMacroChanges(modifications,
+                                                                         getUpdatedData(),
+                                                                         CcddMacroEditorDialog.this);
+                        }
+                    }
+                });
+
+                // Close button
+                JButton btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                                       CLOSE_ICON,
+                                                                       KeyEvent.VK_C,
+                                                                       "Close the macro editor");
+
+                // Create a listener for the Close button
+                btnClose.addActionListener(new ValidateCellActionListener(macroTable)
+                {
+                    /**********************************************************
+                     * Close the macro editor dialog
+                     *********************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        windowCloseButtonAction();
+                    }
+                });
+
+                // Add buttons in the order in which they'll appear (left to
+                // right, top
+                // to bottom)
+                buttonPnl.add(btnInsertRow);
+                buttonPnl.add(btnMoveUp);
+                buttonPnl.add(btnUndo);
+                buttonPnl.add(btnStore);
+                buttonPnl.add(btnDeleteRow);
+                buttonPnl.add(btnMoveDown);
+                buttonPnl.add(btnRedo);
+                buttonPnl.add(btnClose);
+
+                // Distribute the buttons across two rows
+                setButtonRows(2);
+            }
+
+            /******************************************************************
+             * Macro editor dialog creation complete
+             *****************************************************************/
+            @Override
+            protected void complete()
+            {
+                // Display the macro editor dialog
+                showOptionsDialog(ccddMain.getMainFrame(),
+                                  editorPnl,
+                                  buttonPnl,
+                                  DIALOG_TITLE,
+                                  true);
+            }
+        });
+    }
+
+    /**************************************************************************
+     * Create the macro table
+     *
+     * @return Reference to the scroll pane in which the table is placed
+     *************************************************************************/
+    private JScrollPane createMacroTable()
+    {
         // Define the macro editor JTable
         macroTable = new CcddJTableHandler()
         {
@@ -595,253 +863,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
         // Discard the edits created by adding the columns initially
         macroTable.getUndoManager().discardAllEdits();
 
-        // Define the editor panel to contain the table
-        JPanel editorPanel = new JPanel();
-        editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.X_AXIS));
-        editorPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-        editorPanel.add(scrollPane);
-
-        // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        1.0,
-                                                        1.0,
-                                                        GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.BOTH,
-                                                        new Insets(0, 0, 0, 0),
-                                                        0,
-                                                        0);
-
-        // Create an outer panel to put the editor panel in (the border doesn't
-        // appear without this)
-        outerPanel = new JPanel(new GridBagLayout());
-        outerPanel.add(editorPanel, gbc);
-        outerPanel.setBorder(BorderFactory.createEmptyBorder());
-
-        // Set the undo manager in the keyboard handler while the macro editor
-        // is active
-        ccddMain.getKeyboardHandler().setModalUndoManager(macroTable.getUndoManager());
-
-        // Create the lower (button) panel
-        JPanel buttonPanel = new JPanel();
-
-        // Define the buttons for the lower panel: ////////////////////////////
-        // New button
-        btnInsertRow = CcddButtonPanelHandler.createButton("Ins Row",
-                                                           INSERT_ICON,
-                                                           KeyEvent.VK_I,
-                                                           "Insert a new row into the table");
-
-        // Create a listener for the Insert Row button
-        btnInsertRow.addActionListener(new ValidateCellActionListener(macroTable)
-        {
-            /******************************************************************
-             * Insert a new row into the table at the selected location
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                macroTable.insertEmptyRow(true);
-            }
-        });
-
-        // Delete button
-        btnDeleteRow = CcddButtonPanelHandler.createButton("Del Row",
-                                                           DELETE_ICON,
-                                                           KeyEvent.VK_D,
-                                                           "Delete the selected row(s) from the table");
-
-        // Create a listener for the Delete row button
-        btnDeleteRow.addActionListener(new ValidateCellActionListener(macroTable)
-        {
-            /******************************************************************
-             * Delete the selected row(s) from the table
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                // Step through each row selected for deletion
-                for (int row : macroTable.getSelectedRows())
-                {
-                    // Get the macro name
-                    String name = macroTable.getValueAt(row, MacrosColumn.MACRO_NAME.ordinal()).toString();
-
-                    // Check if the macro is used in any of the data tables
-                    if (macroHandler.getMacroReferences(name, CcddMacroEditorDialog.this).length != 0)
-                    {
-                        // Deselect the macro
-                        macroTable.removeRowSelectionInterval(row, row);
-
-                        // Inform the user that the macro can't be deleted
-                        new CcddDialogHandler().showMessageDialog(CcddMacroEditorDialog.this,
-                                                                  "<html><b>Cannot delete macro '"
-                                                                      + name
-                                                                      + "'; macro is referenced by a data table",
-                                                                  "Delete Macro",
-                                                                  JOptionPane.QUESTION_MESSAGE,
-                                                                  DialogOption.OK_OPTION);
-                    }
-                }
-
-                macroTable.deleteRow(true);
-            }
-        });
-
-        // Move Up button
-        btnMoveUp = CcddButtonPanelHandler.createButton("Up",
-                                                        UP_ICON,
-                                                        KeyEvent.VK_U,
-                                                        "Move the selected row(s) up");
-
-        // Create a listener for the Move Up button
-        btnMoveUp.addActionListener(new ValidateCellActionListener(macroTable)
-        {
-            /******************************************************************
-             * Move the selected row(s) up in the table
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                macroTable.moveRowUp();
-            }
-        });
-
-        // Move Down button
-        btnMoveDown = CcddButtonPanelHandler.createButton("Down",
-                                                          DOWN_ICON,
-                                                          KeyEvent.VK_W,
-                                                          "Move the selected row(s) down");
-
-        // Create a listener for the Move Down button
-        btnMoveDown.addActionListener(new ValidateCellActionListener(macroTable)
-        {
-            /******************************************************************
-             * Move the selected row(s) down in the table
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                macroTable.moveRowDown();
-            }
-        });
-
-        // Undo button
-        btnUndo = CcddButtonPanelHandler.createButton("Undo",
-                                                      UNDO_ICON,
-                                                      KeyEvent.VK_Z,
-                                                      "Undo the last edit");
-
-        // Create a listener for the Undo button
-        btnUndo.addActionListener(new ValidateCellActionListener(macroTable)
-        {
-            /******************************************************************
-             * Undo the last cell edit
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                macroTable.getUndoManager().undo();
-            }
-        });
-
-        // Redo button
-        btnRedo = CcddButtonPanelHandler.createButton("Redo",
-                                                      REDO_ICON,
-                                                      KeyEvent.VK_Y,
-                                                      "Redo the last undone edit");
-
-        // Create a listener for the Redo button
-        btnRedo.addActionListener(new ValidateCellActionListener(macroTable)
-        {
-            /******************************************************************
-             * Redo the last cell edit that was undone
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                macroTable.getUndoManager().redo();
-            }
-        });
-
-        // Store the macros button
-        btnStore = CcddButtonPanelHandler.createButton("Store",
-                                                       STORE_ICON,
-                                                       KeyEvent.VK_S,
-                                                       "Store the macro(s)");
-
-        // Create a listener for the Store button
-        btnStore.addActionListener(new ValidateCellActionListener(macroTable)
-        {
-            /******************************************************************
-             * Store the macros
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                // Only update the table in the database if a cell's content
-                // has changed, none of the required columns is missing a
-                // value, and the user confirms the action
-                if (macroTable.isTableChanged(committedData)
-                    && !checkForMissingColumns()
-                    && new CcddDialogHandler().showMessageDialog(CcddMacroEditorDialog.this,
-                                                                 "<html><b>Store changes in database?",
-                                                                 "Store Changes",
-                                                                 JOptionPane.QUESTION_MESSAGE,
-                                                                 DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-                {
-                    // Get a list of the macro modifications
-                    buildUpdates();
-
-                    // Update the tables affected by the changes to the
-                    // macro(s)
-                    dbTable.modifyTablePerDataTypeOrMacroChanges(modifications,
-                                                                 getUpdatedData(),
-                                                                 CcddMacroEditorDialog.this);
-                }
-            }
-        });
-
-        // Close button
-        btnClose = CcddButtonPanelHandler.createButton("Close",
-                                                       CLOSE_ICON,
-                                                       KeyEvent.VK_C,
-                                                       "Close the macro editor");
-
-        // Create a listener for the Close button
-        btnClose.addActionListener(new ValidateCellActionListener(macroTable)
-        {
-            /******************************************************************
-             * Close the macro editor dialog
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                windowCloseButtonAction();
-            }
-        });
-
-        // Add buttons in the order in which they'll appear (left to right, top
-        // to bottom)
-        buttonPanel.add(btnInsertRow);
-        buttonPanel.add(btnMoveUp);
-        buttonPanel.add(btnUndo);
-        buttonPanel.add(btnStore);
-        buttonPanel.add(btnDeleteRow);
-        buttonPanel.add(btnMoveDown);
-        buttonPanel.add(btnRedo);
-        buttonPanel.add(btnClose);
-
-        // Distribute the buttons across two rows
-        setButtonRows(2);
-
-        // Display the macro editor dialog
-        showOptionsDialog(ccddMain.getMainFrame(),
-                          outerPanel,
-                          buttonPanel,
-                          DIALOG_TITLE,
-                          true);
+        return scrollPane;
     }
 
     /**************************************************************************

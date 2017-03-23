@@ -403,9 +403,9 @@ public class CcddKeyboardHandler
                             handled = true;
                         }
                     }
-                    // Check if the Ctrl-S key is pressed while the main
+                    // Check if the Ctrl-F key is pressed while the main
                     // application window has the focus
-                    else if (ke.getKeyCode() == KeyEvent.VK_S
+                    else if (ke.getKeyCode() == KeyEvent.VK_F
                              && ccddMain.getMainFrame().isFocused())
                     {
                         // Open the event log search dialog

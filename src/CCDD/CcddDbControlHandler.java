@@ -98,6 +98,9 @@ public class CcddDbControlHandler
     // PostgreSQL function parameters
     private final String[][] functionParameters;
 
+    // Temporary data storage table
+    private static final String TEMP_TABLES = INTERNAL_TABLE_PREFIX + "temp_table";
+
     /**************************************************************************
      * Database control handler class constructor
      * 
@@ -999,21 +1002,20 @@ public class CcddDbControlHandler
                                        + "column_name_db text, table_types text[]) RETURNS "
                                        + "table(owner_name text, column_value text) AS $$ "
                                        + "BEGIN DECLARE row record; BEGIN DROP TABLE IF EXISTS "
-                                       + INTERNAL_TABLE_PREFIX
-                                       + "temp_tables; CREATE TEMP TABLE "
-                                       + INTERNAL_TABLE_PREFIX
-                                       + "temp_tables AS SELECT tbl_name FROM "
-                                       + "(SELECT split_part(obj_description, ',', 1) AS "
-                                       + "tbl_name, split_part(obj_description, ',', "
-                                       + "2) AS tbl_type FROM (SELECT obj_description(oid) "
-                                       + "FROM pg_class WHERE relkind = 'r' AND "
-                                       + "obj_description(oid) != '') AS tbl_desc) AS tbl_name WHERE "
-                                       + "table_types @> ARRAY[tbl_type] ORDER BY tbl_name "
-                                       + "ASC; FOR row IN SELECT tbl_name FROM "
-                                       + INTERNAL_TABLE_PREFIX
-                                       + "temp_tables LOOP IF EXISTS (SELECT 1 FROM "
+                                       + TEMP_TABLES
+                                       + "; CREATE TEMP TABLE "
+                                       + TEMP_TABLES
+                                       + " AS SELECT tbl_name FROM (SELECT split_part("
+                                       + "obj_description, ',', 1) AS tbl_name, split_part("
+                                       + "obj_description, ',', 2) AS tbl_type FROM (SELECT "
+                                       + "obj_description(oid) FROM pg_class WHERE relkind = "
+                                       + "'r' AND obj_description(oid) != '') AS tbl_desc) AS "
+                                       + "tbl_name WHERE table_types @> ARRAY[tbl_type] ORDER "
+                                       + "BY tbl_name ASC; FOR row IN SELECT tbl_name FROM "
+                                       + TEMP_TABLES
+                                       + " LOOP IF EXISTS (SELECT 1 FROM "
                                        + "information_schema.columns WHERE table_name = "
-                                       + "row.tbl_name AND column_name = E'' || "
+                                       + "lower(row.tbl_name) AND column_name = E'' || "
                                        + "column_name_db || E'') THEN RETURN QUERY EXECUTE "
                                        + "E'SELECT ''' || row.tbl_name || '''::text, ' || "
                                        + "column_name_db || E' FROM ' || row.tbl_name || "
@@ -1040,7 +1042,7 @@ public class CcddDbControlHandler
                                        + "find_prototype_columns_by_name(''' || "
                                        + "column_name_db || E''', ''' || "
                                        + "table_types::text || E''') UNION ALL (SELECT "
-                                       + ValuesColumn.TABLE_PATH
+                                       + ValuesColumn.TABLE_PATH.getColumnName()
                                        + ", "
                                        + ValuesColumn.VALUE.getColumnName()
                                        + " FROM "
@@ -1053,18 +1055,6 @@ public class CcddDbControlHandler
                                                                + "text, column_name_db text, "
                                                                + "table_types text[])"),
                                        ccddMain.getMainFrame());
-
-            // TODO The function below isn't used but may eventually be useful
-            // Create function to convert a table into its XML representation
-            // dbCommand.executeDbCommand("CREATE OR REPLACE FUNCTION get_table_as_xml(tablename text) "
-            // + "RETURNS TABLE(xmloutput xml) AS $$ BEGIN RETURN QUERY "
-            // + "SELECT * FROM cast(regexp_replace(cast(table_to_xml("
-            // + "tablename, false, false, '') AS text), E'\\\\s+<_key_>\\\\d+"
-            // +
-            // "</_key_>\\n\\\\s+<_index_>(\\\\d+)</_index_>', E'', 'g') AS xml); "
-            // + "END $$ LANGUAGE plpgsql; "
-            // + buildOwnerCommand(DatabaseObject.FUNCTION,
-            // "get_table_as_xml(tablename text)"));
 
             // Inform the user that the database table function creation
             // succeeded
@@ -1189,9 +1179,6 @@ public class CcddDbControlHandler
                     compareColumns = CcddUtilities.removeTrailer(compareColumns, " OR ");
                 }
 
-                // Temporary data storage table
-                String tempTable = INTERNAL_TABLE_PREFIX + "temp_table";
-
                 // Create functions for gathering the structure table member
                 // information sorted alphabetically by name or numerically by
                 // row index
@@ -1211,15 +1198,15 @@ public class CcddDbControlHandler
                                                + "text, variable_name text, bit_length text, "
                                                + "rate text, enumeration text) AS $$ BEGIN "
                                                + "DECLARE row record; BEGIN DROP TABLE IF EXISTS "
-                                               + tempTable
+                                               + TEMP_TABLES
                                                + "; CREATE TEMP TABLE "
-                                               + tempTable
+                                               + TEMP_TABLES
                                                + " AS SELECT t.tablename AS real_name FROM "
                                                + "pg_tables AS t WHERE t.schemaname = 'public' "
                                                + "AND substr(t.tablename, 1, 2) != '"
                                                + INTERNAL_TABLE_PREFIX
                                                + "' ORDER BY real_name ASC; FOR row IN SELECT * FROM "
-                                               + tempTable
+                                               + TEMP_TABLES
                                                + " LOOP IF EXISTS (SELECT * FROM "
                                                + "(SELECT COUNT(*) FROM information_schema.columns "
                                                + "WHERE table_name = row.real_name AND ("
@@ -1231,7 +1218,7 @@ public class CcddDbControlHandler
                                                + functionParm[0]
                                                + "(''' || row.real_name || ''')'; END IF; "
                                                + "END LOOP; END; DROP TABLE IF EXISTS "
-                                               + tempTable
+                                               + TEMP_TABLES
                                                + "; END; $$ LANGUAGE plpgsql; "
                                                + buildOwnerCommand(DatabaseObject.FUNCTION,
                                                                    "get_table_members_by_"
@@ -1383,18 +1370,18 @@ public class CcddDbControlHandler
                                            + "CREATE FUNCTION update_data_type_names(oldType text, "
                                            + "newType text) RETURNS VOID AS $$ BEGIN DECLARE row "
                                            + "record; BEGIN DROP TABLE IF EXISTS "
-                                           + INTERNAL_TABLE_PREFIX
-                                           + "temp_tables; CREATE TEMP TABLE "
-                                           + INTERNAL_TABLE_PREFIX
-                                           + "temp_tables AS SELECT t.tablename AS real_name "
+                                           + TEMP_TABLES
+                                           + "; CREATE TEMP TABLE "
+                                           + TEMP_TABLES
+                                           + " AS SELECT t.tablename AS real_name "
                                            + "FROM pg_tables AS t WHERE t.schemaname = 'public' "
                                            + "AND substr(t.tablename, 1, "
                                            + INTERNAL_TABLE_PREFIX.length()
                                            + ") != '"
                                            + INTERNAL_TABLE_PREFIX
                                            + "'; FOR row IN SELECT * FROM "
-                                           + INTERNAL_TABLE_PREFIX
-                                           + "temp_tables LOOP IF EXISTS (SELECT 1 FROM "
+                                           + TEMP_TABLES
+                                           + " LOOP IF EXISTS (SELECT 1 FROM "
                                            + "information_schema.columns WHERE table_name = "
                                            + "row.real_name AND column_name = '"
                                            + dbDataType

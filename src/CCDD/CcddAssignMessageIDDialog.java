@@ -36,6 +36,7 @@ import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 
+import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.Message;
@@ -358,189 +359,216 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
      *************************************************************************/
     private void initialize()
     {
-        dbTable = ccddMain.getDbTableCommandHandler();
-        tableTypeHandler = ccddMain.getTableTypeHandler();
-        CcddMessageIDHandler msgIDHandler = new CcddMessageIDHandler(ccddMain);
-
-        // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        1.0,
-                                                        0.0,
-                                                        GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.NONE,
-                                                        new Insets(0,
-                                                                   LABEL_HORIZONTAL_SPACING / 2,
-                                                                   0,
-                                                                   LABEL_HORIZONTAL_SPACING / 2),
-                                                        0,
-                                                        0);
-
-        // Create borders for the input fields and assignment panels
-        border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
-                                                                                    Color.LIGHT_GRAY,
-                                                                                    Color.GRAY),
-                                                    BorderFactory.createEmptyBorder(2, 2, 2, 2));
-        etchBorder = BorderFactory.createEtchedBorder();
-
-        // Create a panel to contain the dialog components
-        JPanel dialogPnl = new JPanel(new GridBagLayout());
-        dialogPnl.setBorder(etchBorder);
-
-        // Create a tabbed pane to contain the message name/ID parameters
-        tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-        tabbedPane.setFont(LABEL_FONT_BOLD);
-
-        // Check if this is the structure, command, and other table type
-        // message ID assignment dialog
-        if (msgIDDialogType == MessageIDType.TABLE_DATA_FIELD)
+        // Build the message ID assignment dialog in the background
+        CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
         {
-            // Create the information for each table type tab
-            msgTabs = new MsgTabInfo[] {new MsgTabInfo(TYPE_STRUCTURE,
-                                                       "structure",
-                                                       "Structure message ID assignment"),
-                                        new MsgTabInfo(TYPE_COMMAND,
-                                                       "command",
-                                                       "Command message ID assignment"),
-                                        new MsgTabInfo(TYPE_OTHER,
-                                                       "other",
-                                                       "Other message ID assignment")};
+            CcddMessageIDHandler msgIDHandler = new CcddMessageIDHandler(ccddMain);
 
-            // Step through each tab information
-            for (MsgTabInfo tabInfo : msgTabs)
+            // Create a panel to contain the dialog components
+            JPanel dialogPnl = new JPanel(new GridBagLayout());
+
+            /******************************************************************
+             * Build the message ID assignment dialog
+             *****************************************************************/
+            @Override
+            protected void execute()
             {
-                // Add a tab for the table type
-                addMessageIDTab(tabInfo, false);
-            }
+                dbTable = ccddMain.getDbTableCommandHandler();
+                tableTypeHandler = ccddMain.getTableTypeHandler();
 
-            // Add the tabbed pane to the dialog
-            dialogPnl.add(tabbedPane, gbc);
+                // Set the initial layout manager characteristics
+                GridBagConstraints gbc = new GridBagConstraints(0,
+                                                                0,
+                                                                1,
+                                                                1,
+                                                                1.0,
+                                                                0.0,
+                                                                GridBagConstraints.LINE_START,
+                                                                GridBagConstraints.NONE,
+                                                                new Insets(0,
+                                                                           LABEL_HORIZONTAL_SPACING / 2,
+                                                                           0,
+                                                                           LABEL_HORIZONTAL_SPACING / 2),
+                                                                0,
+                                                                0);
 
-            // Get the user's input and check if at least one of assignment
-            // check boxes is selected
-            if (showOptionsDialog(ccddMain.getMainFrame(),
-                                  dialogPnl,
-                                  "Assign Message IDs",
-                                  DialogOption.OK_CANCEL_OPTION) == OK_BUTTON
-                && isAssignTypeSelected())
-            {
-                // Get the list of message IDs that are reserved or already in
-                // use
-                idsInUse = msgIDHandler.getMessageIDsInUse(!msgTabs[0].getOverwriteCbx().isSelected(),
-                                                           !msgTabs[1].getOverwriteCbx().isSelected(),
-                                                           !msgTabs[2].getOverwriteCbx().isSelected(),
-                                                           true,
-                                                           false,
-                                                           CcddAssignMessageIDDialog.this);
+                // Create borders for the input fields and assignment panels
+                border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                            Color.LIGHT_GRAY,
+                                                                                            Color.GRAY),
+                                                            BorderFactory.createEmptyBorder(2, 2, 2, 2));
+                etchBorder = BorderFactory.createEtchedBorder();
 
-                // Create a field handler and populate it with the field
-                // definitions for all of the tables in the database
-                CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain,
-                                                                     null,
-                                                                     CcddAssignMessageIDDialog.this);
-                List<FieldInformation> fieldInformation = fieldHandler.getFieldInformation();
+                // Create a tabbed pane to contain the message name/ID
+                // parameters and add it to the dialog
+                tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+                tabbedPane.setFont(LABEL_FONT_BOLD);
+                dialogPnl.add(tabbedPane, gbc);
+                dialogPnl.setBorder(etchBorder);
 
-                // Sort the field information by table name so that sequence
-                // order of the message ID values is applied to the tables'
-                // alphabetical order
-                Collections.sort(fieldInformation, new Comparator<FieldInformation>()
+                // Check if this is the structure, command, and other table
+                // type message ID assignment dialog
+                if (msgIDDialogType == MessageIDType.TABLE_DATA_FIELD)
                 {
-                    /**********************************************************
-                     * Compare the table names of two field definitions. Force
-                     * lower case to eliminate case differences in the
-                     * comparison
-                     *********************************************************/
-                    @Override
-                    public int compare(FieldInformation fld1, FieldInformation fld2)
+                    // Create the information for each table type tab
+                    msgTabs = new MsgTabInfo[] {new MsgTabInfo(TYPE_STRUCTURE,
+                                                               "structure",
+                                                               "Structure message ID assignment"),
+                                                new MsgTabInfo(TYPE_COMMAND,
+                                                               "command",
+                                                               "Command message ID assignment"),
+                                                new MsgTabInfo(TYPE_OTHER,
+                                                               "other",
+                                                               "Other message ID assignment")};
+
+                    // Step through each tab information
+                    for (MsgTabInfo tabInfo : msgTabs)
                     {
-                        return fld1.getOwnerName().toLowerCase().compareTo(fld2.getOwnerName().toLowerCase());
+                        // Add a tab for the table type
+                        addMessageIDTab(tabInfo, false);
                     }
-                });
-
-                // Assign the structure, command, and other table type column
-                // and data field message IDs, skipping any that are in the
-                // reserved message IDs list
-                boolean structMsgChanged = assignTableMessageIDs(msgTabs[0],
-                                                                 msgIDHandler.getStructureTables(),
-                                                                 fieldInformation);
-                boolean cmdMsgChanged = assignTableMessageIDs(msgTabs[1],
-                                                              msgIDHandler.getCommandTables(),
-                                                              fieldInformation);
-                boolean otherMsgChanged = assignTableMessageIDs(msgTabs[2],
-                                                                msgIDHandler.getOtherTables(),
-                                                                fieldInformation);
-
-                // Check if a structure, command, or other table type telemetry
-                // message ID column or data field value changed
-                if (structMsgChanged || cmdMsgChanged || otherMsgChanged)
+                }
+                // This is the telemetry message ID assignment dialog
+                else
                 {
-                    // Store the updated data fields table
-                    dbTable.storeInformationTableInBackground(InternalTable.FIELDS,
-                                                  fieldHandler.getFieldDefinitionList(),
-                                                  null,
-                                                  CcddAssignMessageIDDialog.this);
+                    // Create the information for the telemetry message name
+                    // and ID assignment
+                    msgTabs = new MsgTabInfo[] {new MsgTabInfo("Message Name",
+                                                               "telemetry",
+                                                               "Telemetry message name assignment"),
+                                                new MsgTabInfo("Message ID",
+                                                               "telemetry",
+                                                               "Telemetry message ID assignment")};
+
+                    // Add the telemetry message name and ID tabs
+                    addMessageIDTab(msgTabs[0], true);
+                    addMessageIDTab(msgTabs[1], false);
                 }
             }
-        }
-        // This is the telemetry message ID assignment dialog
-        else
-        {
-            // Create the information for the telemetry message name and ID
-            // assignment
-            msgTabs = new MsgTabInfo[] {new MsgTabInfo("Message Name",
-                                                       "telemetry",
-                                                       "Telemetry message name assignment"),
-                                        new MsgTabInfo("Message ID",
-                                                       "telemetry",
-                                                       "Telemetry message ID assignment")};
 
-            // Add the telemetry message name and ID tabs
-            addMessageIDTab(msgTabs[0], true);
-            addMessageIDTab(msgTabs[1], false);
-
-            // Add the tabbed pane to the dialog
-            dialogPnl.add(tabbedPane, gbc);
-
-            // Get the user's input and check if at least one of assignment
-            // check boxes is selected
-            if (showOptionsDialog(ccddMain.getMainFrame(),
-                                  dialogPnl,
-                                  "Assign Message Names and IDs",
-                                  DialogOption.OK_CANCEL_OPTION) == OK_BUTTON
-                && isAssignTypeSelected())
+            /******************************************************************
+             * Message ID assignment dialog creation complete
+             *****************************************************************/
+            @Override
+            protected void complete()
             {
-                // Get the list of message IDs that are reserved or already in
-                // use
-                idsInUse = msgIDHandler.getMessageIDsInUse(true,
-                                                           true,
-                                                           true,
-                                                           !msgTabs[0].getOverwriteCbx().isSelected(),
-                                                           false,
-                                                           CcddAssignMessageIDDialog.this);
-
-                // Check if the message names should be assigned
-                if (msgTabs[0].getAssignCbx().isSelected())
+                // Check if this is the structure, command, and other table
+                // type message ID assignment dialog
+                if (msgIDDialogType == MessageIDType.TABLE_DATA_FIELD)
                 {
-                    // Update the telemetry message names
-                    assignTelemetryMessageNames(msgTabs[0]);
+                    // Get the user's input and check if at least one of
+                    // assignment check boxes is selected
+                    if (showOptionsDialog(ccddMain.getMainFrame(),
+                                          dialogPnl,
+                                          "Assign Message IDs",
+                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON
+                        && isAssignTypeSelected())
+                    {
+                        // Get the list of message IDs that are reserved or
+                        // already in use
+                        idsInUse = msgIDHandler.getMessageIDsInUse(!msgTabs[0].getOverwriteCbx().isSelected(),
+                                                                   !msgTabs[1].getOverwriteCbx().isSelected(),
+                                                                   !msgTabs[2].getOverwriteCbx().isSelected(),
+                                                                   true,
+                                                                   false,
+                                                                   CcddAssignMessageIDDialog.this);
 
-                    // Update the options list with the new message names
-                    schedulerDlg.getSchedulerHandler().getTelemetryOptions();
+                        // Create a field handler and populate it with the
+                        // field definitions for all of the tables in the
+                        // database
+                        CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain,
+                                                                             null,
+                                                                             CcddAssignMessageIDDialog.this);
+                        List<FieldInformation> fieldInformation = fieldHandler.getFieldInformation();
+
+                        // Sort the field information by table name so that
+                        // sequence order of the message ID values is applied
+                        // to the tables' alphabetical order
+                        Collections.sort(fieldInformation, new Comparator<FieldInformation>()
+                        {
+                            /**********************************************************
+                             * Compare the table names of two field
+                             * definitions. Force lower case to eliminate case
+                             * differences in the comparison
+                             *********************************************************/
+                            @Override
+                            public int compare(FieldInformation fld1, FieldInformation fld2)
+                            {
+                                return fld1.getOwnerName().toLowerCase().compareTo(fld2.getOwnerName().toLowerCase());
+                            }
+                        });
+
+                        // Assign the structure, command, and other table type
+                        // column and data field message IDs, skipping any that
+                        // are in the reserved message IDs list
+                        boolean structMsgChanged = assignTableMessageIDs(msgTabs[0],
+                                                                         msgIDHandler.getStructureTables(),
+                                                                         fieldInformation);
+                        boolean cmdMsgChanged = assignTableMessageIDs(msgTabs[1],
+                                                                      msgIDHandler.getCommandTables(),
+                                                                      fieldInformation);
+                        boolean otherMsgChanged = assignTableMessageIDs(msgTabs[2],
+                                                                        msgIDHandler.getOtherTables(),
+                                                                        fieldInformation);
+
+                        // Check if a structure, command, or other table type
+                        // telemetry message ID column or data field value
+                        // changed
+                        if (structMsgChanged || cmdMsgChanged || otherMsgChanged)
+                        {
+                            // Store the updated data fields table
+                            dbTable.storeInformationTableInBackground(InternalTable.FIELDS,
+                                                                      fieldHandler.getFieldDefinitionList(),
+                                                                      null,
+                                                                      CcddAssignMessageIDDialog.this);
+                        }
+                    }
                 }
-
-                // Check if the telemetry message IDs should be assigned
-                if (msgTabs[1].getAssignCbx().isSelected())
+                // This is the telemetry message ID assignment dialog
+                else
                 {
-                    // Update the telemetry message IDs
-                    assignTelemetryMessageIDs(msgTabs[1]);
-                }
+                    // Get the user's input and check if at least one of
+                    // assignment check boxes is selected
+                    if (showOptionsDialog(ccddMain.getMainFrame(),
+                                          dialogPnl,
+                                          "Assign Message Names and IDs",
+                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON
+                        && isAssignTypeSelected())
+                    {
+                        // Get the list of message IDs that are reserved or
+                        // already in use
+                        idsInUse = msgIDHandler.getMessageIDsInUse(true,
+                                                                   true,
+                                                                   true,
+                                                                   !msgTabs[0].getOverwriteCbx().isSelected(),
+                                                                   false,
+                                                                   CcddAssignMessageIDDialog.this);
 
-                // Update the scheduler table
-                schedulerDlg.getSchedulerHandler().getSchedulerEditor().updateSchedulerTable(true);
+                        // Check if the message names should be assigned
+                        if (msgTabs[0].getAssignCbx().isSelected())
+                        {
+                            // Update the telemetry message names
+                            assignTelemetryMessageNames(msgTabs[0]);
+
+                            // Update the options list with the new message
+                            // names
+                            schedulerDlg.getSchedulerHandler().getTelemetryOptions();
+                        }
+
+                        // Check if the telemetry message IDs should be
+                        // assigned
+                        if (msgTabs[1].getAssignCbx().isSelected())
+                        {
+                            // Update the telemetry message IDs
+                            assignTelemetryMessageIDs(msgTabs[1]);
+                        }
+
+                        // Update the scheduler table
+                        schedulerDlg.getSchedulerHandler().getSchedulerEditor().updateSchedulerTable(true);
+                    }
+                }
             }
-        }
+        });
     }
 
     /**************************************************************************

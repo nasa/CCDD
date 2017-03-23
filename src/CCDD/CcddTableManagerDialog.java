@@ -48,6 +48,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FileExtension;
@@ -155,7 +156,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
         isNodeSelectionChanging = false;
 
-        // Create the table selection dialog
+        // Create the table manager dialog
         initialize();
     }
 
@@ -222,398 +223,492 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     }
 
     /**************************************************************************
-     * Create the table select dialog
+     * Create the table manager dialog. This is executed in a separate thread
+     * since it can take a noticeable amount time to complete, and by using a
+     * separate thread the GUI is allowed to continue to update. The GUI menu
+     * commands, however, are disabled until the telemetry scheduler
+     * initialization completes execution
      *************************************************************************/
     private void initialize()
     {
-        // Create an empty border
-        emptyBorder = BorderFactory.createEmptyBorder();
-
-        // Create a border for the input fields
-        border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
-                                                                                    Color.LIGHT_GRAY,
-                                                                                    Color.GRAY),
-                                                    BorderFactory.createEmptyBorder(2, 2, 2, 2));
-
-        // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        1.0,
-                                                        0.0,
-                                                        GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.BOTH,
-                                                        new Insets(LABEL_VERTICAL_SPACING / 2,
-                                                                   LABEL_HORIZONTAL_SPACING / 2,
-                                                                   0,
-                                                                   0),
-                                                        0,
-                                                        0);
-
-        JPanel dialogPnl;
-
-        // Create dialog based on supplied dialog type
-        switch (dialogType)
+        // Build the table manager dialog in the background
+        CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
         {
-            case NEW:
-                // Create a panel to contain the dialog components
-                dialogPnl = new JPanel(new GridBagLayout());
-                dialogPnl.setBorder(emptyBorder);
+            boolean errorFlag = false;
+            JPanel dialogPnl;
+            FileExtension fileExtn;
 
-                // Create a panel containing a grid of radio buttons
-                // representing the table types from which to choose
-                if (addRadioButtons(null,
-                                    false,
-                                    tableTypeHandler.getTypeInformation(),
-                                    null,
-                                    "Select table type",
-                                    dialogPnl,
-                                    gbc))
+            // Set the initial layout manager characteristics
+            GridBagConstraints gbc = new GridBagConstraints(0,
+                                                            0,
+                                                            1,
+                                                            1,
+                                                            1.0,
+                                                            0.0,
+                                                            GridBagConstraints.LINE_START,
+                                                            GridBagConstraints.BOTH,
+                                                            new Insets(LABEL_VERTICAL_SPACING / 2,
+                                                                       LABEL_HORIZONTAL_SPACING / 2,
+                                                                       0,
+                                                                       0),
+                                                            0,
+                                                            0);
+
+            /******************************************************************
+             * Build the table manager dialog
+             *****************************************************************/
+            @Override
+            protected void execute()
+            {
+                // Create an empty border
+                emptyBorder = BorderFactory.createEmptyBorder();
+
+                // Create a border for the input fields
+                border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                            Color.LIGHT_GRAY,
+                                                                                            Color.GRAY),
+                                                            BorderFactory.createEmptyBorder(2, 2, 2, 2));
+
+                // Create dialog based on supplied dialog type
+                switch (dialogType)
                 {
-                    // Create the table creation dialog label and field, and
-                    // add them to the dialog panel
-                    addTableInputFields("Table name(s)", dialogPnl, true, gbc);
-                    nameFld.setToolTipText("Delimit multiple names using commas");
+                    case NEW:
+                        // Create a panel to contain the dialog components
+                        dialogPnl = new JPanel(new GridBagLayout());
+                        dialogPnl.setBorder(emptyBorder);
 
-                    // Check if the Okay button was selected
-                    if (showOptionsDialog(caller,
-                                          dialogPnl,
-                                          "New Table",
-                                          DialogOption.CREATE_OPTION,
-                                          true) == OK_BUTTON)
-                    {
-                        // Create the table(s)
-                        dbTable.createTableInBackground(tableNames,
-                                                        descriptionFld.getText(),
-                                                        getRadioButtonSelected(),
-                                                        CcddTableManagerDialog.this);
-                    }
-                }
-                // No table type exists to choose
-                else
-                {
-                    // Inform the user that no table type exists in the
-                    // database
-                    new CcddDialogHandler().showMessageDialog(caller,
-                                                              "<html><b>Project '"
-                                                                  + dbControl.getDatabase()
-                                                                  + "' has no table type defined",
-                                                              "New Table",
-                                                              JOptionPane.WARNING_MESSAGE,
-                                                              DialogOption.OK_OPTION);
-                }
-
-                break;
-
-            case EDIT:
-                // Create a panel to contain the dialog components
-                dialogPnl = createSelectionPanel("Select table(s) to edit",
-                                                 gbc,
-                                                 TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
-                                                 TableTreeType.PROTOTYPE_AND_INSTANCE);
-
-                // Check that the panel was created; i.e., that there are
-                // tables available for editing
-                if (dialogPnl != null)
-                {
-                    // Add a listener to the table tree for mouse events
-                    tableTree.addMouseListener(new MouseAdapter()
-                    {
-                        /******************************************************
-                         * Handle mouse press events
-                         *****************************************************/
-                        @Override
-                        public void mousePressed(MouseEvent me)
+                        // Create a panel containing a grid of radio buttons
+                        // representing the table types from which to choose
+                        if (addRadioButtons(null,
+                                            false,
+                                            tableTypeHandler.getTypeInformation(),
+                                            null,
+                                            "Select table type",
+                                            dialogPnl,
+                                            gbc))
                         {
-                            // Check if the right mouse button is double
-                            // clicked
-                            if (me.getClickCount() == 2
-                                && SwingUtilities.isRightMouseButton(me))
+                            // Create the table creation dialog label and
+                            // field, and add them to the dialog panel
+                            addTableInputFields("Table name(s)", dialogPnl, true, gbc);
+                            nameFld.setToolTipText("Delimit multiple names using commas");
+                        }
+                        // There are no table type available from which to
+                        // choose
+                        else
+                        {
+                            // Inform the user that no table type exists in the
+                            // database
+                            new CcddDialogHandler().showMessageDialog(caller,
+                                                                      "<html><b>Project '"
+                                                                          + dbControl.getDatabase()
+                                                                          + "' has no table type defined",
+                                                                      "New Table",
+                                                                      JOptionPane.WARNING_MESSAGE,
+                                                                      DialogOption.OK_OPTION);
+                            errorFlag = true;
+                        }
+
+                        break;
+
+                    case EDIT:
+                        // Create a panel to contain the dialog components
+                        dialogPnl = createSelectionPanel("Select table(s) to edit",
+                                                         gbc,
+                                                         TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
+                                                         TableTreeType.PROTOTYPE_AND_INSTANCE);
+
+                        // Check that the panel was created; i.e., that there
+                        // are tables available for editing
+                        if (dialogPnl != null)
+                        {
+                            // Add a listener to the table tree for mouse
+                            // events
+                            tableTree.addMouseListener(new MouseAdapter()
                             {
-                                // Get the selected row in the tree
-                                int rowIndex = tableTree.getClosestRowForLocation(me.getX(),
-                                                                                  me.getY());
-
-                                // Check if a valid row was selected
-                                if (rowIndex != -1)
+                                /******************************************************
+                                 * Handle mouse press events
+                                 *****************************************************/
+                                @Override
+                                public void mousePressed(MouseEvent me)
                                 {
-                                    // Get the path for the selected row
-                                    TreePath path = tableTree.getPathForRow(rowIndex);
-
-                                    // Check that a table was selected
-                                    if (path.getPathCount() > tableTree.getTableNodeLevel())
+                                    // Check if the right mouse button is
+                                    // double
+                                    // clicked
+                                    if (me.getClickCount() == 2
+                                        && SwingUtilities.isRightMouseButton(me))
                                     {
-                                        // Load the selected table's data into
-                                        // a table editor and close this dialog
-                                        dbTable.loadTableDataInBackground(tableTree.getFullVariablePath(path.getPath()),
-                                                                          callingEditorDialog);
-                                        closeDialog();
+                                        // Get the selected row in the tree
+                                        int rowIndex = tableTree.getClosestRowForLocation(me.getX(),
+                                                                                          me.getY());
+
+                                        // Check if a valid row was selected
+                                        if (rowIndex != -1)
+                                        {
+                                            // Get the path for the selected
+                                            // row
+                                            TreePath path = tableTree.getPathForRow(rowIndex);
+
+                                            // Check that a table was selected
+                                            if (path.getPathCount() > tableTree.getTableNodeLevel())
+                                            {
+                                                // Load the selected table's
+                                                // data into
+                                                // a table editor and close
+                                                // this dialog
+                                                dbTable.loadTableDataInBackground(tableTree.getFullVariablePath(path.getPath()),
+                                                                                  callingEditorDialog);
+                                                closeDialog();
+                                            }
+                                        }
                                     }
                                 }
-                            }
+                            });
                         }
-                    });
-
-                    // Display the table selection dialog
-                    if (showOptionsDialog(caller,
-                                          dialogPnl,
-                                          "Edit Table",
-                                          DialogOption.OPEN_OPTION,
-                                          true) == OK_BUTTON)
-                    {
-                        // Create store for the list of table paths and the
-                        // root table names
-                        List<String> tablePaths = new ArrayList<String>();
-
-                        // Step through each selected table in the tree
-                        for (TreePath path : tableTree.getSelectionPaths())
+                        // There are no tables available for editing
+                        else
                         {
-                            // Add the table path to the list
-                            tablePaths.add(tableTree.getFullVariablePath(path.getPath()));
+                            errorFlag = true;
                         }
 
-                        // Load the selected table's data into a table editor
-                        dbTable.loadTableDataInBackground(tablePaths.toArray(new String[0]),
-                                                          callingEditorDialog);
-                    }
-                }
+                        break;
 
-                break;
+                    case RENAME:
+                        // Create a panel to contain the dialog components
+                        dialogPnl = createSelectionPanel("Select a table to rename",
+                                                         gbc,
+                                                         TreeSelectionModel.SINGLE_TREE_SELECTION,
+                                                         TableTreeType.PROTOTYPE_ONLY);
 
-            case RENAME:
-                // Create a panel to contain the dialog components
-                dialogPnl = createSelectionPanel("Select a table to rename",
-                                                 gbc,
-                                                 TreeSelectionModel.SINGLE_TREE_SELECTION,
-                                                 TableTreeType.PROTOTYPE_ONLY);
-
-                // Check that the panel was created; i.e., that there are
-                // tables available for renaming
-                if (dialogPnl != null)
-                {
-                    // Create the table renaming dialog label and field
-                    addTableInputFields("New name", dialogPnl, false, gbc);
-
-                    // Display the table renaming dialog
-                    if (showOptionsDialog(caller,
-                                          dialogPnl,
-                                          "Rename Table",
-                                          DialogOption.RENAME_OPTION,
-                                          true) == OK_BUTTON)
-                    {
-                        // Rename the table
-                        dbTable.renameTable(tableTree.getSelectionPath().getLastPathComponent().toString(),
-                                            nameFld.getText(),
-                                            descriptionFld.getText(),
-                                            CcddTableManagerDialog.this);
-                    }
-                }
-
-                break;
-
-            case COPY:
-                // Create a panel to contain the dialog components
-                dialogPnl = createSelectionPanel("Select a table to copy",
-                                                 gbc,
-                                                 TreeSelectionModel.SINGLE_TREE_SELECTION,
-                                                 TableTreeType.PROTOTYPE_ONLY);
-
-                // Check that the panel was created; i.e., that there are
-                // tables available for copying
-                if (dialogPnl != null)
-                {
-                    // Create the table copying dialog label and field
-                    addTableInputFields("Copy name", dialogPnl, false, gbc);
-
-                    // Display the table copying dialog
-                    if (showOptionsDialog(caller,
-                                          dialogPnl,
-                                          "Copy Table",
-                                          DialogOption.COPY_OPTION,
-                                          true) == OK_BUTTON)
-                    {
-                        // Copy the table
-                        dbTable.copyTable(tableTree.getSelectionPath().getLastPathComponent().toString(),
-                                          nameFld.getText(),
-                                          descriptionFld.getText(),
-                                          CcddTableManagerDialog.this);
-                    }
-                }
-
-                break;
-
-            case DELETE:
-                // Create a panel to contain the dialog components
-                dialogPnl = createSelectionPanel("Select table(s) to delete",
-                                                 gbc,
-                                                 TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
-                                                 TableTreeType.PROTOTYPE_ONLY);
-
-                // Check that the panel was created; i.e., that there are
-                // tables available for deleting
-                if (dialogPnl != null)
-                {
-                    // Display the table deletion dialog
-                    if (showOptionsDialog(caller,
-                                          dialogPnl,
-                                          "Delete Table",
-                                          DialogOption.DELETE_OPTION,
-                                          true) == OK_BUTTON)
-                    {
-                        // Create storage for the list of table names
-                        List<String> tableNames = new ArrayList<String>();
-                        invalidatedEditors = new ArrayList<String[]>();
-
-                        // Step through each selected table in the tree
-                        for (TreePath path : tableTree.getSelectionPaths())
+                        // Check that the panel was created; i.e., that there
+                        // are tables available for renaming
+                        if (dialogPnl != null)
                         {
-                            // Add the table name to the list
-                            tableNames.add(path.getLastPathComponent().toString());
-
-                            // Add the pattern for the data type path of tables
-                            // matching the deleted prototype table
-                            invalidatedEditors.add(new String[] {path.getLastPathComponent().toString(),
-                                                                 null});
+                            // Create the table renaming dialog label and field
+                            addTableInputFields("New name", dialogPnl, false, gbc);
+                        }
+                        // There are no tables available for renaming
+                        else
+                        {
+                            errorFlag = true;
                         }
 
-                        // Check if a table is selected
-                        if (!tableNames.isEmpty())
+                        break;
+
+                    case COPY:
+                        // Create a panel to contain the dialog components
+                        dialogPnl = createSelectionPanel("Select a table to copy",
+                                                         gbc,
+                                                         TreeSelectionModel.SINGLE_TREE_SELECTION,
+                                                         TableTreeType.PROTOTYPE_ONLY);
+
+                        // Check that the panel was created; i.e., that there
+                        // are tables available for copying
+                        if (dialogPnl != null)
                         {
-                            // Delete the table(s)
-                            dbTable.deleteTableInBackground(tableNames.toArray(new String[0]),
-                                                            CcddTableManagerDialog.this,
-                                                            caller);
+                            // Create the table copying dialog label and field
+                            addTableInputFields("Copy name", dialogPnl, false, gbc);
                         }
-                    }
-                }
-
-                break;
-
-            case IMPORT:
-                // Allow the user to select the data file path + name(s) from
-                // which to import, and the import options
-                File[] filePath = choosePathFile(ccddMain,
-                                                 caller,
-                                                 null,
-                                                 "export",
-                                                 new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.CSV.getDescription(),
-                                                                                                            FileExtension.CSV.getExtensionName()),
-                                                                                new FileNameExtensionFilter(FileExtension.EDS.getDescription(),
-                                                                                                            FileExtension.EDS.getExtensionName()),
-                                                                                new FileNameExtensionFilter(FileExtension.JSON.getDescription(),
-                                                                                                            FileExtension.JSON.getExtensionName()),
-                                                                                new FileNameExtensionFilter(FileExtension.XTCE.getDescription(),
-                                                                                                            FileExtension.XTCE.getExtensionName())},
-                                                 false,
-                                                 true,
-                                                 "Import Table(s)",
-                                                 TABLE_EXPORT_PATH,
-                                                 DialogOption.IMPORT_OPTION,
-                                                 createImportPanel(gbc));
-
-                // Check if a file was chosen
-                if (filePath != null)
-                {
-                    // Export the contents of the selected table(s) in the
-                    // specified format
-                    fileIOHandler.importFile(filePath,
-                                             backupFirstCb.isSelected(),
-                                             replaceExistingTablesCb.isSelected(),
-                                             appendExistingFieldsCb.isSelected(),
-                                             useExistingFieldsCb.isSelected(),
-                                             this);
-                }
-
-                break;
-
-            case EXPORT_CSV:
-            case EXPORT_XTCE:
-            case EXPORT_EDS:
-            case EXPORT_JSON:
-                // Assume the file extension type is CSV
-                FileExtension fileExtn = FileExtension.CSV;
-
-                // Set the file extension based on the dialog type
-                if (dialogType == ManagerDialogType.EXPORT_EDS)
-                {
-                    fileExtn = FileExtension.EDS;
-                }
-                else if (dialogType == ManagerDialogType.EXPORT_XTCE)
-                {
-                    fileExtn = FileExtension.XTCE;
-                }
-                else if (dialogType == ManagerDialogType.EXPORT_JSON)
-                {
-                    fileExtn = FileExtension.JSON;
-                }
-
-                // Create the export dialog
-                dialogPnl = createExportPanel(fileExtn, gbc);
-
-                // Check if the export panel exists; if so display the dialog
-                if (dialogPnl != null
-                    && showOptionsDialog(caller,
-                                         dialogPnl,
-                                         "Export Table(s) in "
-                                             + fileExtn.getExtensionName().toUpperCase()
-                                             + " Format",
-                                         DialogOption.EXPORT_OPTION,
-                                         true) == OK_BUTTON)
-                {
-                    // Create storage for the list of table+variable names,
-                    // table paths, and the parent table names
-                    List<String> protoVarNames = new ArrayList<String>();
-                    List<String> tablePaths = new ArrayList<String>();
-
-                    // Check if the export command originated from the main
-                    // menu
-                    if (callingEditorDialog == null)
-                    {
-                        // Step through each selected table in the tree
-                        for (TreePath path : tableTree.getSelectionPaths())
+                        // There are no tables available for copying
+                        else
                         {
-                            // Check if the table isn't already in the list
-                            if (!protoVarNames.contains(path.getLastPathComponent().toString()))
+                            errorFlag = true;
+                        }
+
+                        break;
+
+                    case DELETE:
+                        // Create a panel to contain the dialog components
+                        dialogPnl = createSelectionPanel("Select table(s) to delete",
+                                                         gbc,
+                                                         TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
+                                                         TableTreeType.PROTOTYPE_ONLY);
+
+                        // Check if the no panel was created; i.e., that there
+                        // are no tables available for deleting
+                        if (dialogPnl == null)
+                        {
+                            errorFlag = true;
+                        }
+
+                        break;
+
+                    case IMPORT:
+                        break;
+
+                    case EXPORT_CSV:
+                    case EXPORT_XTCE:
+                    case EXPORT_EDS:
+                    case EXPORT_JSON:
+                        // Set the file extension based on the dialog type
+                        if (dialogType == ManagerDialogType.EXPORT_CSV)
+                        {
+                            fileExtn = FileExtension.CSV;
+                        }
+                        else if (dialogType == ManagerDialogType.EXPORT_EDS)
+                        {
+                            fileExtn = FileExtension.EDS;
+                        }
+                        else if (dialogType == ManagerDialogType.EXPORT_XTCE)
+                        {
+                            fileExtn = FileExtension.XTCE;
+                        }
+                        else if (dialogType == ManagerDialogType.EXPORT_JSON)
+                        {
+                            fileExtn = FileExtension.JSON;
+                        }
+
+                        // Create the export dialog
+                        dialogPnl = createExportPanel(fileExtn, gbc);
+
+                        // Check if the export panel doesn't exist
+                        if (dialogPnl == null)
+                        {
+                            errorFlag = true;
+                        }
+
+                        break;
+                }
+            }
+
+            /******************************************************************
+             * Table manager dialog creation complete
+             *****************************************************************/
+            @Override
+            protected void complete()
+            {
+                // Check that no error occurred creating the dialog
+                if (!errorFlag)
+                {
+                    // Display the dialog based on supplied dialog type
+                    switch (dialogType)
+                    {
+                        case NEW:
+                            // Check if the Okay button was selected
+                            if (showOptionsDialog(caller,
+                                                  dialogPnl,
+                                                  "New Table",
+                                                  DialogOption.CREATE_OPTION,
+                                                  true) == OK_BUTTON)
                             {
-                                // Add the table variable name and variable
-                                // path to the lists
-                                protoVarNames.add(path.getLastPathComponent().toString());
-                                tablePaths.add(tableTree.getFullVariablePath(path.getPath()));
+                                // Create the table(s)
+                                dbTable.createTableInBackground(tableNames,
+                                                                descriptionFld.getText(),
+                                                                getRadioButtonSelected(),
+                                                                CcddTableManagerDialog.this);
                             }
-                        }
-                    }
-                    // The export command originated from a table editor dialog
-                    // menu
-                    else
-                    {
-                        // Add the table editor's table variable name and
-                        // variable path to the lists
-                        protoVarNames.add(callingEditorDialog.getTableEditor().getTableInformation().getProtoVariableName());
-                        tablePaths.add(callingEditorDialog.getTableEditor().getTableInformation().getTablePath());
-                    }
 
-                    // Export the contents of the selected table(s) in the
-                    // specified format
-                    fileIOHandler.exportSelectedTables(pathFld.getText(),
-                                                       protoVarNames.toArray(new String[0]),
-                                                       tablePaths.toArray(new String[0]),
-                                                       overwriteFileCb.isSelected(),
-                                                       singleFileCb.isSelected(),
-                                                       replaceMacrosCb.isSelected(),
-                                                       includeReservedMsgIDsCb.isSelected(),
-                                                       fileExtn,
-                                                       systemFld.getText(),
-                                                       versionFld.getText(),
-                                                       validStatFld.getText(),
-                                                       class1Fld.getText(),
-                                                       class2Fld.getText(),
-                                                       class3Fld.getText(),
-                                                       CcddTableManagerDialog.this);
+                            break;
+
+                        case EDIT:
+                            // Display the table selection dialog
+                            if (showOptionsDialog(caller,
+                                                  dialogPnl,
+                                                  "Edit Table",
+                                                  DialogOption.OPEN_OPTION,
+                                                  true) == OK_BUTTON)
+                            {
+                                // Create store for the list of table paths and
+                                // the root table names
+                                List<String> tablePaths = new ArrayList<String>();
+
+                                // Step through each selected table in the tree
+                                for (TreePath path : tableTree.getSelectionPaths())
+                                {
+                                    // Add the table path to the list
+                                    tablePaths.add(tableTree.getFullVariablePath(path.getPath()));
+                                }
+
+                                // Load the selected table's data into a table
+                                // editor
+                                dbTable.loadTableDataInBackground(tablePaths.toArray(new String[0]),
+                                                                  callingEditorDialog);
+                            }
+
+                            break;
+
+                        case RENAME:
+                            // Display the table renaming dialog
+                            if (showOptionsDialog(caller,
+                                                  dialogPnl,
+                                                  "Rename Table",
+                                                  DialogOption.RENAME_OPTION,
+                                                  true) == OK_BUTTON)
+                            {
+                                // Rename the table
+                                dbTable.renameTable(tableTree.getSelectionPath().getLastPathComponent().toString(),
+                                                    nameFld.getText(),
+                                                    descriptionFld.getText(),
+                                                    CcddTableManagerDialog.this);
+                            }
+
+                            break;
+
+                        case COPY:
+                            // Display the table copying dialog
+                            if (showOptionsDialog(caller,
+                                                  dialogPnl,
+                                                  "Copy Table",
+                                                  DialogOption.COPY_OPTION,
+                                                  true) == OK_BUTTON)
+                            {
+                                // Copy the table
+                                dbTable.copyTable(tableTree.getSelectionPath().getLastPathComponent().toString(),
+                                                  nameFld.getText(),
+                                                  descriptionFld.getText(),
+                                                  CcddTableManagerDialog.this);
+                            }
+
+                            break;
+
+                        case DELETE:
+                            // Create a panel to contain the dialog components
+                            // Display the table deletion dialog
+                            if (showOptionsDialog(caller,
+                                                  dialogPnl,
+                                                  "Delete Table",
+                                                  DialogOption.DELETE_OPTION,
+                                                  true) == OK_BUTTON)
+                            {
+                                // Create storage for the list of table names
+                                List<String> tableNames = new ArrayList<String>();
+                                invalidatedEditors = new ArrayList<String[]>();
+
+                                // Step through each selected table in the tree
+                                for (TreePath path : tableTree.getSelectionPaths())
+                                {
+                                    // Add the table name to the list
+                                    tableNames.add(path.getLastPathComponent().toString());
+
+                                    // Add the pattern for the data type path
+                                    // of tables matching the deleted prototype
+                                    // table
+                                    invalidatedEditors.add(new String[] {path.getLastPathComponent().toString(),
+                                                                         null});
+                                }
+
+                                // Check if a table is selected
+                                if (!tableNames.isEmpty())
+                                {
+                                    // Delete the table(s)
+                                    dbTable.deleteTableInBackground(tableNames.toArray(new String[0]),
+                                                                    CcddTableManagerDialog.this,
+                                                                    caller);
+                                }
+                            }
+
+                            break;
+
+                        case IMPORT:
+                            // Allow the user to select the data file path +
+                            // name(s) from which to import, and the import
+                            // options
+                            File[] filePath = choosePathFile(ccddMain,
+                                                             caller,
+                                                             null,
+                                                             "export",
+                                                             new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.CSV.getDescription(),
+                                                                                                                        FileExtension.CSV.getExtensionName()),
+                                                                                            new FileNameExtensionFilter(FileExtension.EDS.getDescription(),
+                                                                                                                        FileExtension.EDS.getExtensionName()),
+                                                                                            new FileNameExtensionFilter(FileExtension.JSON.getDescription(),
+                                                                                                                        FileExtension.JSON.getExtensionName()),
+                                                                                            new FileNameExtensionFilter(FileExtension.XTCE.getDescription(),
+                                                                                                                        FileExtension.XTCE.getExtensionName())},
+                                                             false,
+                                                             true,
+                                                             "Import Table(s)",
+                                                             TABLE_EXPORT_PATH,
+                                                             DialogOption.IMPORT_OPTION,
+                                                             createImportPanel(gbc));
+
+                            // Check if a file was chosen
+                            if (filePath != null)
+                            {
+                                // Export the contents of the selected table(s)
+                                // in the specified format
+                                fileIOHandler.importFile(filePath,
+                                                         backupFirstCb.isSelected(),
+                                                         replaceExistingTablesCb.isSelected(),
+                                                         appendExistingFieldsCb.isSelected(),
+                                                         useExistingFieldsCb.isSelected(),
+                                                         CcddTableManagerDialog.this);
+                            }
+
+                            break;
+
+                        case EXPORT_CSV:
+                        case EXPORT_XTCE:
+                        case EXPORT_EDS:
+                        case EXPORT_JSON:
+                            // Check if the export panel exists; if so display
+                            // the dialog
+                            if (showOptionsDialog(caller,
+                                                  dialogPnl,
+                                                  "Export Table(s) in "
+                                                      + fileExtn.getExtensionName().toUpperCase()
+                                                      + " Format",
+                                                  DialogOption.EXPORT_OPTION,
+                                                  true) == OK_BUTTON)
+                            {
+                                // Create storage for the list of
+                                // table+variable names, table paths, and the
+                                // parent table names
+                                List<String> protoVarNames = new ArrayList<String>();
+                                List<String> tablePaths = new ArrayList<String>();
+
+                                // Check if the export command originated from
+                                // the main menu
+                                if (callingEditorDialog == null)
+                                {
+                                    // Step through each selected table in the
+                                    // tree
+                                    for (TreePath path : tableTree.getSelectionPaths())
+                                    {
+                                        // Check if the table isn't already in
+                                        // the list
+                                        if (!protoVarNames.contains(path.getLastPathComponent().toString()))
+                                        {
+                                            // Add the table variable name and
+                                            // variable path to the lists
+                                            protoVarNames.add(path.getLastPathComponent().toString());
+                                            tablePaths.add(tableTree.getFullVariablePath(path.getPath()));
+                                        }
+                                    }
+                                }
+                                // The export command originated from a table
+                                // editor dialog menu
+                                else
+                                {
+                                    // Add the table editor's table variable
+                                    // name and variable path to the lists
+                                    protoVarNames.add(callingEditorDialog.getTableEditor().getTableInformation().getProtoVariableName());
+                                    tablePaths.add(callingEditorDialog.getTableEditor().getTableInformation().getTablePath());
+                                }
+
+                                // Export the contents of the selected table(s)
+                                // in the specified format
+                                fileIOHandler.exportSelectedTables(pathFld.getText(),
+                                                                   protoVarNames.toArray(new String[0]),
+                                                                   tablePaths.toArray(new String[0]),
+                                                                   overwriteFileCb.isSelected(),
+                                                                   singleFileCb.isSelected(),
+                                                                   replaceMacrosCb.isSelected(),
+                                                                   includeReservedMsgIDsCb.isSelected(),
+                                                                   fileExtn,
+                                                                   systemFld.getText(),
+                                                                   versionFld.getText(),
+                                                                   validStatFld.getText(),
+                                                                   class1Fld.getText(),
+                                                                   class2Fld.getText(),
+                                                                   class3Fld.getText(),
+                                                                   CcddTableManagerDialog.this);
+                            }
+
+                            break;
+                    }
                 }
-
-                break;
-        }
+            }
+        });
     }
 
     /**************************************************************************

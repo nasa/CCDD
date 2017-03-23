@@ -51,6 +51,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
@@ -134,7 +135,11 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
     }
 
     /**************************************************************************
-     * Create the script association manager dialog
+     * Create the script association manager dialog. This is executed in a
+     * separate thread since it can take a noticeable amount time to complete,
+     * and by using a separate thread the GUI is allowed to continue to update.
+     * The GUI menu commands, however, are disabled until the telemetry
+     * scheduler initialization completes execution
      *************************************************************************/
     private void initialize()
     {
@@ -146,248 +151,269 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
                                               null,
                                               CcddScriptManagerDialog.this))
         {
-            // Set the initial layout manager characteristics
-            GridBagConstraints gbc = new GridBagConstraints(0,
-                                                            0,
-                                                            1,
-                                                            1,
-                                                            1.0,
-                                                            0.0,
-                                                            GridBagConstraints.LINE_START,
-                                                            GridBagConstraints.BOTH,
-                                                            new Insets(LABEL_VERTICAL_SPACING / 2,
-                                                                       LABEL_HORIZONTAL_SPACING,
-                                                                       LABEL_VERTICAL_SPACING / 2,
-                                                                       LABEL_HORIZONTAL_SPACING),
-                                                            0,
-                                                            0);
-
-            // Create a panel to hold the components of the dialog
-            JPanel dialogPnl = new JPanel(new GridBagLayout());
-            dialogPnl.setBorder(BorderFactory.createEmptyBorder());
-
-            // Add the script selection components to the dialog
-            dialogPnl.add(createScriptSelectionPanel(), gbc);
-
-            // Add the table selection panel components to the dialog
-            gbc.weighty = 1.0;
-            gbc.insets.top = LABEL_VERTICAL_SPACING;
-            gbc.gridy++;
-            dialogPnl.add(createSelectionPanel("Select one or more tables",
-                                               TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION),
-                          gbc);
-
-            // Add the script association list components to the dialog
-            gbc.insets.left = LABEL_HORIZONTAL_SPACING;
-            gbc.insets.bottom = 0;
-            gbc.gridy++;
-            dialogPnl.add(createScriptAssnPanelWithButtons(), gbc);
-
-            // Create the button panel
-            JPanel buttonPnl = new JPanel();
-
-            // Define the buttons for the lower panel:
-            // Add association button
-            btnAddAssn = CcddButtonPanelHandler.createButton("Add",
-                                                             INSERT_ICON,
-                                                             KeyEvent.VK_A,
-                                                             "Add the currently defined script association");
-
-            // Add a listener for the Add button
-            btnAddAssn.addActionListener(new ActionListener()
+            // Build the script association manager dialog in the background
+            CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
             {
+                // Create panels to hold the components of the dialog
+                JPanel dialogPnl = new JPanel(new GridBagLayout());
+                JPanel buttonPnl = new JPanel();
+
                 /**************************************************************
-                 * Add a new script association
+                 * Build the script association manager dialog
                  *************************************************************/
                 @Override
-                public void actionPerformed(ActionEvent ae)
+                protected void execute()
                 {
-                    // Check that a script is specified
-                    if (!scriptFld.getText().trim().isEmpty())
+                    // Set the initial layout manager characteristics
+                    GridBagConstraints gbc = new GridBagConstraints(0,
+                                                                    0,
+                                                                    1,
+                                                                    1,
+                                                                    1.0,
+                                                                    0.0,
+                                                                    GridBagConstraints.LINE_START,
+                                                                    GridBagConstraints.BOTH,
+                                                                    new Insets(LABEL_VERTICAL_SPACING / 2,
+                                                                               LABEL_HORIZONTAL_SPACING,
+                                                                               LABEL_VERTICAL_SPACING / 2,
+                                                                               LABEL_HORIZONTAL_SPACING),
+                                                                    0,
+                                                                    0);
+
+                    // Add the script selection components to the dialog
+                    dialogPnl.setBorder(BorderFactory.createEmptyBorder());
+                    dialogPnl.add(createScriptSelectionPanel(), gbc);
+
+                    // Add the table selection panel components to the dialog
+                    gbc.weighty = 1.0;
+                    gbc.insets.top = LABEL_VERTICAL_SPACING;
+                    gbc.gridy++;
+                    dialogPnl.add(createSelectionPanel("Select one or more tables",
+                                                       TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION),
+                                  gbc);
+
+                    // Add the script association list components to the dialog
+                    gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+                    gbc.insets.bottom = 0;
+                    gbc.gridy++;
+                    dialogPnl.add(createScriptAssnPanelWithButtons(), gbc);
+
+                    // Define the buttons for the lower panel:
+                    // Add association button
+                    btnAddAssn = CcddButtonPanelHandler.createButton("Add",
+                                                                     INSERT_ICON,
+                                                                     KeyEvent.VK_A,
+                                                                     "Add the currently defined script association");
+
+                    // Add a listener for the Add button
+                    btnAddAssn.addActionListener(new ActionListener()
                     {
-                        addAssociation();
-                    }
-                    // The script file field is blank
-                    else
+                        /******************************************************
+                         * Add a new script association
+                         *****************************************************/
+                        @Override
+                        public void actionPerformed(ActionEvent ae)
+                        {
+                            // Check that a script is specified
+                            if (!scriptFld.getText().trim().isEmpty())
+                            {
+                                addAssociation();
+                            }
+                            // The script file field is blank
+                            else
+                            {
+                                // Inform the user that a script must be
+                                // selected
+                                new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                                          "<html><b>Must enter or select a script",
+                                                                          "Script Missing",
+                                                                          JOptionPane.WARNING_MESSAGE,
+                                                                          DialogOption.OK_OPTION);
+                            }
+                        }
+                    });
+
+                    // Remove script association(s) button
+                    btnRemoveAssn = CcddButtonPanelHandler.createButton("Remove",
+                                                                        DELETE_ICON,
+                                                                        KeyEvent.VK_R,
+                                                                        "Remove the selected script association(s)");
+
+                    // Add a listener for the Remove button
+                    btnRemoveAssn.addActionListener(new ActionListener()
                     {
-                        // Inform the user that a script must be selected
-                        new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                                  "<html><b>Must enter or select a script",
-                                                                  "Script Missing",
-                                                                  JOptionPane.WARNING_MESSAGE,
-                                                                  DialogOption.OK_OPTION);
-                    }
+                        /******************************************************
+                         * Remove the selected script association(s)
+                         *****************************************************/
+                        @Override
+                        public void actionPerformed(ActionEvent ae)
+                        {
+                            // Check if at least one script association is
+                            // selected
+                            if (!scriptHandler.getAssociationsList().isSelectionEmpty())
+                            {
+                                removeAssociations();
+                            }
+                        }
+                    });
+
+                    // Script execution button
+                    btnExecute = CcddButtonPanelHandler.createButton("Execute",
+                                                                     EXECUTE_ICON,
+                                                                     KeyEvent.VK_E,
+                                                                     "Execute the selected script association(s)");
+
+                    // Add a listener for the Execute button
+                    btnExecute.addActionListener(new ActionListener()
+                    {
+                        /******************************************************
+                         * Execute the selected script association(s)
+                         *****************************************************/
+                        @Override
+                        public void actionPerformed(ActionEvent ae)
+                        {
+                            // Check if at least one script association is
+                            // selected
+                            if (!scriptHandler.getAssociationsList().isSelectionEmpty())
+                            {
+                                scriptHandler.executeScriptAssociations(CcddScriptManagerDialog.this,
+                                                                        tableTree);
+                            }
+                        }
+                    });
+
+                    // Execute all script associations button
+                    btnExecuteAll = CcddButtonPanelHandler.createButton("Execute All",
+                                                                        EXECUTE_ALL_ICON,
+                                                                        KeyEvent.VK_A,
+                                                                        "Execute all of the script associations");
+
+                    // Add a listener for the Execute All button
+                    btnExecuteAll.addActionListener(new ActionListener()
+                    {
+                        /******************************************************
+                         * Execute all of the script associations
+                         *****************************************************/
+                        @Override
+                        public void actionPerformed(ActionEvent ae)
+                        {
+                            // Check if at least one script association exists
+                            if (!scriptHandler.getAssociationsModel().isEmpty()
+                                && new CcddDialogHandler().showMessageDialog(CcddScriptManagerDialog.this,
+                                                                             "<html><b>Execute all script associations?",
+                                                                             "Execute All",
+                                                                             JOptionPane.QUESTION_MESSAGE,
+                                                                             DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                            {
+                                // Select all script associations
+                                scriptHandler.getAssociationsList().setSelectionInterval(0,
+                                                                                         scriptHandler.getAssociationsModel().size()
+                                                                                         - 1);
+
+                                // Execute all script associations
+                                scriptHandler.executeScriptAssociations(CcddScriptManagerDialog.this,
+                                                                        tableTree);
+                            }
+                        }
+                    });
+
+                    // Store script associations button
+                    btnStoreAssns = CcddButtonPanelHandler.createButton("Store",
+                                                                        STORE_ICON,
+                                                                        KeyEvent.VK_S,
+                                                                        "Store the updated script associations to the database");
+
+                    // Add a listener for the Store button
+                    btnStoreAssns.addActionListener(new ActionListener()
+                    {
+                        /******************************************************
+                         * Store the script associations in the database
+                         *****************************************************/
+                        @Override
+                        public void actionPerformed(ActionEvent ae)
+                        {
+                            // Check if the script associations have changed
+                            // since the last database commit and that the user
+                            // confirms storing the script associations
+                            if (isAssociationsChanged()
+                                && new CcddDialogHandler().showMessageDialog(CcddScriptManagerDialog.this,
+                                                                             "<html><b>Store script associations?",
+                                                                             "Store Associations",
+                                                                             JOptionPane.QUESTION_MESSAGE,
+                                                                             DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                            {
+                                // Disable the dialog buttons until the updates
+                                // complete
+                                setControlsEnabled(false);
+
+                                // Store the script associations list into the
+                                // database
+                                dbTable.storeInformationTableInBackground(InternalTable.ASSOCIATIONS,
+                                                                          createAssociationsFromList(),
+                                                                          null,
+                                                                          CcddScriptManagerDialog.this);
+                            }
+                        }
+                    });
+
+                    // Close button
+                    btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                                   CLOSE_ICON,
+                                                                   KeyEvent.VK_C,
+                                                                   "Close the script association manager");
+
+                    // Add a listener for the Close button
+                    btnClose.addActionListener(new ActionListener()
+                    {
+                        /******************************************************
+                         * Close the script association dialog
+                         *****************************************************/
+                        @Override
+                        public void actionPerformed(ActionEvent ae)
+                        {
+                            // Check if there are no changes to the script
+                            // associations or if the user elects to discard
+                            // the changes
+                            if (!isAssociationsChanged()
+                                || new CcddDialogHandler().showMessageDialog(CcddScriptManagerDialog.this,
+                                                                             "<html><b>Discard changes?",
+                                                                             "Discard Changes",
+                                                                             JOptionPane.QUESTION_MESSAGE,
+                                                                             DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                            {
+                                // Close the dialog
+                                closeDialog();
+                            }
+                        }
+                    });
+
+                    // Add buttons in the order in which they'll appear (left
+                    // to right, top to bottom)
+                    buttonPnl.add(btnAddAssn);
+                    buttonPnl.add(btnExecute);
+                    buttonPnl.add(btnStoreAssns);
+                    buttonPnl.add(btnRemoveAssn);
+                    buttonPnl.add(btnExecuteAll);
+                    buttonPnl.add(btnClose);
+
+                    // Distribute the buttons across two rows
+                    setButtonRows(2);
                 }
-            });
 
-            // Remove script association(s) button
-            btnRemoveAssn = CcddButtonPanelHandler.createButton("Remove",
-                                                                DELETE_ICON,
-                                                                KeyEvent.VK_R,
-                                                                "Remove the selected script association(s)");
-
-            // Add a listener for the Remove button
-            btnRemoveAssn.addActionListener(new ActionListener()
-            {
                 /**************************************************************
-                 * Remove the selected script association(s)
+                 * Script association manager dialog creation complete
                  *************************************************************/
                 @Override
-                public void actionPerformed(ActionEvent ae)
+                protected void complete()
                 {
-                    // Check if at least one script association is selected
-                    if (!scriptHandler.getAssociationsList().isSelectionEmpty())
-                    {
-                        removeAssociations();
-                    }
+                    // Display the script association management dialog
+                    showOptionsDialog(ccddMain.getMainFrame(),
+                                      dialogPnl,
+                                      buttonPnl,
+                                      "Manage Script Associations",
+                                      true);
                 }
             });
-
-            // Script execution button
-            btnExecute = CcddButtonPanelHandler.createButton("Execute",
-                                                             EXECUTE_ICON,
-                                                             KeyEvent.VK_E,
-                                                             "Execute the selected script association(s)");
-
-            // Add a listener for the Execute button
-            btnExecute.addActionListener(new ActionListener()
-            {
-                /**************************************************************
-                 * Execute the selected script association(s)
-                 *************************************************************/
-                @Override
-                public void actionPerformed(ActionEvent ae)
-                {
-                    // Check if at least one script association is selected
-                    if (!scriptHandler.getAssociationsList().isSelectionEmpty())
-                    {
-                        scriptHandler.executeScriptAssociations(CcddScriptManagerDialog.this,
-                                                                tableTree);
-                    }
-                }
-            });
-
-            // Execute all script associations button
-            btnExecuteAll = CcddButtonPanelHandler.createButton("Execute All",
-                                                                EXECUTE_ALL_ICON,
-                                                                KeyEvent.VK_A,
-                                                                "Execute all of the script associations");
-
-            // Add a listener for the Execute All button
-            btnExecuteAll.addActionListener(new ActionListener()
-            {
-                /**************************************************************
-                 * Execute all of the script associations
-                 *************************************************************/
-                @Override
-                public void actionPerformed(ActionEvent ae)
-                {
-                    // Check if at least one script association exists
-                    if (!scriptHandler.getAssociationsModel().isEmpty()
-                        && new CcddDialogHandler().showMessageDialog(CcddScriptManagerDialog.this,
-                                                                     "<html><b>Execute all script associations?",
-                                                                     "Execute All",
-                                                                     JOptionPane.QUESTION_MESSAGE,
-                                                                     DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-                    {
-                        // Select all script associations
-                        scriptHandler.getAssociationsList().setSelectionInterval(0,
-                                                                                 scriptHandler.getAssociationsModel().size()
-                                                                                 - 1);
-
-                        // Execute all script associations
-                        scriptHandler.executeScriptAssociations(CcddScriptManagerDialog.this,
-                                                                tableTree);
-                    }
-                }
-            });
-
-            // Store script associations button
-            btnStoreAssns = CcddButtonPanelHandler.createButton("Store",
-                                                                STORE_ICON,
-                                                                KeyEvent.VK_S,
-                                                                "Store the updated script associations to the database");
-
-            // Add a listener for the Store button
-            btnStoreAssns.addActionListener(new ActionListener()
-            {
-                /**************************************************************
-                 * Store the script associations in the database
-                 *************************************************************/
-                @Override
-                public void actionPerformed(ActionEvent ae)
-                {
-                    // Check if the script associations have changed since the
-                    // last database commit and that the user confirms storing
-                    // the script associations
-                    if (isAssociationsChanged()
-                        && new CcddDialogHandler().showMessageDialog(CcddScriptManagerDialog.this,
-                                                                     "<html><b>Store script associations?",
-                                                                     "Store Associations",
-                                                                     JOptionPane.QUESTION_MESSAGE,
-                                                                     DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-                    {
-                        // Disable the dialog buttons until the updates
-                        // complete
-                        setControlsEnabled(false);
-
-                        // Store the script associations list into the database
-                        dbTable.storeInformationTableInBackground(InternalTable.ASSOCIATIONS,
-                                                      createAssociationsFromList(),
-                                                      null,
-                                                      CcddScriptManagerDialog.this);
-                    }
-                }
-            });
-
-            // Close button
-            btnClose = CcddButtonPanelHandler.createButton("Close",
-                                                           CLOSE_ICON,
-                                                           KeyEvent.VK_C,
-                                                           "Close the script association manager");
-
-            // Add a listener for the Close button
-            btnClose.addActionListener(new ActionListener()
-            {
-                /**************************************************************
-                 * Close the script association dialog
-                 *************************************************************/
-                @Override
-                public void actionPerformed(ActionEvent ae)
-                {
-                    // Check if there are no changes to the script associations
-                    // or if the user elects to discard the changes
-                    if (!isAssociationsChanged()
-                        || new CcddDialogHandler().showMessageDialog(CcddScriptManagerDialog.this,
-                                                                     "<html><b>Discard changes?",
-                                                                     "Discard Changes",
-                                                                     JOptionPane.QUESTION_MESSAGE,
-                                                                     DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-                    {
-                        // Close the dialog
-                        closeDialog();
-                    }
-                }
-            });
-
-            // Add buttons in the order in which they'll appear (left to right,
-            // top to bottom)
-            buttonPnl.add(btnAddAssn);
-            buttonPnl.add(btnExecute);
-            buttonPnl.add(btnStoreAssns);
-            buttonPnl.add(btnRemoveAssn);
-            buttonPnl.add(btnExecuteAll);
-            buttonPnl.add(btnClose);
-
-            // Distribute the buttons across two rows
-            setButtonRows(2);
-
-            // Display the script association management dialog
-            showOptionsDialog(ccddMain.getMainFrame(),
-                              dialogPnl,
-                              buttonPnl,
-                              "Manage Script Associations",
-                              true);
         }
     }
 

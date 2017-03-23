@@ -150,7 +150,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
         selectedRate = availableRates.contains("1")
                                                    ? "1"
                                                    : (!availableRates.isEmpty()
-                                                                               ? availableRates.get(0)
+                                                                               ? CcddUtilities.removeHTMLTags(availableRates.get(0))
                                                                                : "0");
 
         // Build a link tree

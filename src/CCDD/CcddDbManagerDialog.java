@@ -35,6 +35,7 @@ import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 
+import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddConstants.DbManagerDialogType;
 import CCDD.CcddConstants.DialogOption;
@@ -87,300 +88,354 @@ public class CcddDbManagerDialog extends CcddDialogHandler
     }
 
     /**************************************************************************
-     * Create the project database manager dialog
+     * Create the project database manager dialog. This is executed in a
+     * separate thread since it can take a noticeable amount time to complete,
+     * and by using a separate thread the GUI is allowed to continue to update.
+     * The GUI menu commands, however, are disabled until the telemetry
+     * scheduler initialization completes execution
      *************************************************************************/
     private void initialize()
     {
-        // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        1.0,
-                                                        0.0,
-                                                        GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.BOTH,
-                                                        new Insets(LABEL_VERTICAL_SPACING,
-                                                                   LABEL_HORIZONTAL_SPACING,
-                                                                   LABEL_VERTICAL_SPACING,
-                                                                   LABEL_HORIZONTAL_SPACING),
-                                                        0,
-                                                        0);
-
-        // Create a panel to hold the components of the dialog
-        JPanel selectPnl = new JPanel(new GridBagLayout());
-        selectPnl.setBorder(BorderFactory.createEmptyBorder());
-
-        // Create dialog based on supplied dialog type
-        switch (dialogType)
+        // Build the project database manager dialog in the background
+        CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
         {
-            case CREATE:
-                // Get the array containing the roles
-                String[] roles = dbControl.queryRoleList(CcddDbManagerDialog.this);
-                String[][] roleInfo = new String[roles.length][2];
+            boolean errorFlag = false;
 
-                // Step through each role
-                for (int index = 0; index < roles.length; index++)
+            // Create panels to hold the components of the dialog
+            JPanel selectPnl = new JPanel(new GridBagLayout());
+
+            // Set the initial layout manager characteristics
+            GridBagConstraints gbc = new GridBagConstraints(0,
+                                                            0,
+                                                            1,
+                                                            1,
+                                                            1.0,
+                                                            0.0,
+                                                            GridBagConstraints.LINE_START,
+                                                            GridBagConstraints.BOTH,
+                                                            new Insets(LABEL_VERTICAL_SPACING,
+                                                                       LABEL_HORIZONTAL_SPACING,
+                                                                       LABEL_VERTICAL_SPACING,
+                                                                       LABEL_HORIZONTAL_SPACING),
+                                                            0,
+                                                            0);
+
+            /******************************************************************
+             * Build the project database manager dialog
+             *****************************************************************/
+            @Override
+            protected void execute()
+            {
+                // Create a panel to hold the components of the dialog
+                selectPnl.setBorder(BorderFactory.createEmptyBorder());
+
+                // Create dialog based on supplied dialog type
+                switch (dialogType)
                 {
-                    // Store the role name
-                    roleInfo[index][0] = roles[index];
-                }
+                    case CREATE:
+                        // Get the array containing the roles
+                        String[] roles = dbControl.queryRoleList(CcddDbManagerDialog.this);
+                        String[][] roleInfo = new String[roles.length][2];
 
-                // Create a panel containing a grid of radio buttons
-                // representing the roles from which to choose
-                if (addRadioButtons(null,
-                                    false,
-                                    roleInfo,
-                                    null,
-                                    "Select project owner",
-                                    selectPnl,
-                                    gbc))
-                {
-                    // Create the database name and description labels and
-                    // fields
-                    addDatabaseInputFields("New project name",
-                                           selectPnl,
-                                           true,
-                                           gbc);
-
-                    // Display the database creation dialog
-                    if (showOptionsDialog(ccddMain.getMainFrame(),
-                                          selectPnl,
-                                          "Create Project",
-                                          DialogOption.CREATE_OPTION) == OK_BUTTON)
-                    {
-                        // Create the database
-                        dbControl.createDatabaseInBackground(nameFld.getText(),
-                                                             getRadioButtonSelected(),
-                                                             descriptionFld.getText());
-                    }
-                }
-                // No role exists to choose
-                else
-                {
-                    // Inform the user that no roles exist on the server
-                    new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                              "<html><b>No role exists",
-                                                              "Create Project",
-                                                              JOptionPane.WARNING_MESSAGE,
-                                                              DialogOption.OK_OPTION);
-                }
-
-                break;
-
-            case OPEN:
-                // Get the database names and descriptions
-                getDatabaseInformation(true, false, null);
-
-                // Create a panel containing a grid of radio buttons
-                // representing the databases from which to choose
-                if (addRadioButtons((dbControl.getDatabase() == DEFAULT_DATABASE
-                                                                                ? null
-                                                                                : dbControl.getDatabase()),
-                                    false,
-                                    arrayItemData,
-                                    disabledItems,
-                                    "Select a project to open",
-                                    selectPnl,
-                                    gbc))
-                {
-                    // Display the database selection dialog. If the currently
-                    // open database has uncommitted changes then confirm
-                    // discarding the changes before proceeding
-                    if (showOptionsDialog(ccddMain.getMainFrame(),
-                                          selectPnl,
-                                          "Open Project",
-                                          DialogOption.OPEN_OPTION,
-                                          true) == OK_BUTTON
-                        && ccddMain.ignoreUncommittedChanges("Open Project",
-                                                             "Discard changes?",
-                                                             true,
-                                                             null,
-                                                             CcddDbManagerDialog.this))
-                    {
-                        // Open the selected database
-                        dbControl.openDatabaseInBackground(getRadioButtonSelected());
-                    }
-                }
-                // No database exists to choose
-                else
-                {
-                    // Inform the user that no database exists on the server
-                    // for which the current user has access
-                    displayDatabaseError("Open");
-                }
-
-                break;
-
-            case RENAME:
-                // Get the database names and descriptions
-                getDatabaseInformation(true, false, dbControl.getDatabase());
-
-                // Create a panel containing a grid of radio buttons
-                // representing the databases from which to choose
-                if (addRadioButtons(null,
-                                    false,
-                                    arrayItemData,
-                                    disabledItems,
-                                    "Select a project to rename",
-                                    selectPnl,
-                                    gbc))
-                {
-                    // Create the rename database name and description labels
-                    // and fields
-                    addDatabaseInputFields("New project name",
-                                           selectPnl,
-                                           false,
-                                           gbc);
-
-                    // Display the rename database dialog. Only the description
-                    // can be altered for the currently open database
-                    if (showOptionsDialog(ccddMain.getMainFrame(),
-                                          selectPnl,
-                                          "Rename Project",
-                                          DialogOption.RENAME_OPTION,
-                                          true) == OK_BUTTON)
-                    {
-                        // Rename the database
-                        dbControl.renameDatabaseInBackground(getRadioButtonSelected(),
-                                                             nameFld.getText(),
-                                                             descriptionFld.getText());
-                    }
-                }
-                // No database exists to choose
-                else
-                {
-                    // Inform the user that no database exists on the server
-                    displayDatabaseError("Rename");
-                }
-
-                break;
-
-            case COPY:
-                // Get the database names and descriptions
-                getDatabaseInformation(false, false, null);
-
-                // Create a panel containing a grid of radio buttons
-                // representing the databases from which to choose
-                if (addRadioButtons(null,
-                                    false,
-                                    arrayItemData,
-                                    disabledItems,
-                                    "Select a project to copy",
-                                    selectPnl,
-                                    gbc))
-                {
-                    // Create the copy database name and description labels and
-                    // fields
-                    addDatabaseInputFields("Project copy name",
-                                           selectPnl,
-                                           false,
-                                           gbc);
-
-                    // Display the copy database dialog. If the currently open
-                    // database is being renamed and there are uncommitted
-                    // changes then confirm discarding the changes before
-                    // proceeding
-                    if (showOptionsDialog(ccddMain.getMainFrame(),
-                                          selectPnl,
-                                          "Copy Project",
-                                          DialogOption.COPY_OPTION,
-                                          true) == OK_BUTTON
-                        && (!getRadioButtonSelected().equals(dbControl.getDatabase())
-                        || (getRadioButtonSelected().equals(dbControl.getDatabase())
-                        && ccddMain.ignoreUncommittedChanges("Rename Project",
-                                                             "Discard changes?",
-                                                             true,
-                                                             null,
-                                                             CcddDbManagerDialog.this))))
-                    {
-                        // Copy the database
-                        dbControl.copyDatabaseInBackground(getRadioButtonSelected(),
-                                                           nameFld.getText(),
-                                                           descriptionFld.getText());
-                    }
-                }
-                // No database exists to choose
-                else
-                {
-                    // Inform the user that no database exists on the server
-                    displayDatabaseError("Copy");
-                }
-
-                break;
-
-            case DELETE:
-                // Get the database names and descriptions
-                getDatabaseInformation(true, false, null);
-
-                // Create a panel containing a grid of check boxes
-                // representing the databases from which to choose
-                if (addCheckBoxes(null,
-                                  arrayItemData,
-                                  disabledItems,
-                                  "Select a project to delete",
-                                  selectPnl))
-                {
-                    // Display the database deletion dialog
-                    if (showOptionsDialog(ccddMain.getMainFrame(),
-                                          selectPnl,
-                                          "Delete Project(s)",
-                                          DialogOption.DELETE_OPTION,
-                                          true) == OK_BUTTON)
-                    {
-                        // Step through each selected database name
-                        for (String name : getCheckBoxSelected())
+                        // Step through each role
+                        for (int index = 0; index < roles.length; index++)
                         {
-                            // Delete the database
-                            dbControl.deleteDatabaseInBackground(name);
+                            // Store the role name
+                            roleInfo[index][0] = roles[index];
                         }
-                    }
-                }
-                // No database exists to choose
-                else
-                {
-                    // Inform the user that no database exists on the server
-                    displayDatabaseError("Delete");
-                }
 
-                break;
-
-            case UNLOCK:
-                // Get the database names and descriptions
-                getDatabaseInformation(false, true, null);
-
-                // Create a panel containing a grid of check boxes
-                // representing the databases from which to choose
-                if (addCheckBoxes(null,
-                                  arrayItemData,
-                                  disabledItems,
-                                  "Select a project to unlock",
-                                  selectPnl))
-                {
-                    // Display the database unlock dialog
-                    if (showOptionsDialog(ccddMain.getMainFrame(),
-                                          selectPnl,
-                                          "Unlock Project(s)",
-                                          DialogOption.UNLOCK_OPTION,
-                                          true) == OK_BUTTON)
-                    {
-                        // Step through each selected database name
-                        for (String name : getCheckBoxSelected())
+                        // Create a panel containing a grid of radio buttons
+                        // representing the roles from which to choose
+                        if (!addRadioButtons(null,
+                                             false,
+                                             roleInfo,
+                                             null,
+                                             "Select project owner",
+                                             selectPnl,
+                                             gbc))
                         {
-                            // Unlock the database
-                            dbControl.setDatabaseLockStatus(name, false);
+                            // Inform the user that no roles exist on the
+                            // server
+                            new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                                      "<html><b>No role exists",
+                                                                      "Create Project",
+                                                                      JOptionPane.WARNING_MESSAGE,
+                                                                      DialogOption.OK_OPTION);
+                            errorFlag = true;
                         }
+
+                        break;
+
+                    case OPEN:
+                        // Get the database names and descriptions
+                        getDatabaseInformation(true, false, null);
+
+                        // Create a panel containing a grid of radio buttons
+                        // representing the databases from which to choose
+                        if (!addRadioButtons((dbControl.getDatabase() == DEFAULT_DATABASE
+                                                                                         ? null
+                                                                                         : dbControl.getDatabase()),
+                                             false,
+                                             arrayItemData,
+                                             disabledItems,
+                                             "Select a project to open",
+                                             selectPnl,
+                                             gbc))
+                        {
+                            // Inform the user that no database exists on the
+                            // server for which the current user has access
+                            displayDatabaseError("Open");
+                            errorFlag = true;
+                        }
+
+                        break;
+
+                    case RENAME:
+                        // Get the database names and descriptions
+                        getDatabaseInformation(true, false, dbControl.getDatabase());
+
+                        // Create a panel containing a grid of radio buttons
+                        // representing the databases from which to choose
+                        if (addRadioButtons(null,
+                                            false,
+                                            arrayItemData,
+                                            disabledItems,
+                                            "Select a project to rename",
+                                            selectPnl,
+                                            gbc))
+                        {
+                            // Create the rename database name and description
+                            // labels and fields
+                            addDatabaseInputFields("New project name",
+                                                   selectPnl,
+                                                   false,
+                                                   gbc);
+
+                        }
+                        // No database exists to choose
+                        else
+                        {
+                            // Inform the user that no database exists on the
+                            // server
+                            displayDatabaseError("Rename");
+                            errorFlag = true;
+                        }
+
+                        break;
+
+                    case COPY:
+                        // Get the database names and descriptions
+                        getDatabaseInformation(false, false, null);
+
+                        // Create a panel containing a grid of radio buttons
+                        // representing the databases from which to choose
+                        if (addRadioButtons(null,
+                                            false,
+                                            arrayItemData,
+                                            disabledItems,
+                                            "Select a project to copy",
+                                            selectPnl,
+                                            gbc))
+                        {
+                            // Create the copy database name and description
+                            // labels and fields
+                            addDatabaseInputFields("Project copy name",
+                                                   selectPnl,
+                                                   false,
+                                                   gbc);
+                        }
+                        // No database exists to choose
+                        else
+                        {
+                            // Inform the user that no database exists on the
+                            // server
+                            displayDatabaseError("Copy");
+                            errorFlag = true;
+                        }
+
+                        break;
+
+                    case DELETE:
+                        // Get the database names and descriptions
+                        getDatabaseInformation(true, false, null);
+
+                        // Create a panel containing a grid of check boxes
+                        // representing the databases from which to choose
+                        if (!addCheckBoxes(null,
+                                           arrayItemData,
+                                           disabledItems,
+                                           "Select a project to delete",
+                                           selectPnl))
+                        {
+                            // Inform the user that no database exists on the
+                            // server
+                            displayDatabaseError("Delete");
+                            errorFlag = true;
+                        }
+
+                        break;
+
+                    case UNLOCK:
+                        // Get the database names and descriptions
+                        getDatabaseInformation(false, true, null);
+
+                        // Create a panel containing a grid of check boxes
+                        // representing the databases from which to choose
+                        if (!addCheckBoxes(null,
+                                           arrayItemData,
+                                           disabledItems,
+                                           "Select a project to unlock",
+                                           selectPnl))
+                        {
+                            // Inform the user that no database exists on the
+                            // server
+                            displayDatabaseError("Unlock");
+                            errorFlag = true;
+                        }
+
+                        break;
+                }
+            }
+
+            /******************************************************************
+             * Project database manager dialog creation complete
+             *****************************************************************/
+            @Override
+            protected void complete()
+            {
+                // Check that no error occurred creating the dialog
+                if (!errorFlag)
+                {
+                    // Display the dialog based on supplied dialog type
+                    switch (dialogType)
+                    {
+                        case CREATE:
+                            // Create the database name and description labels
+                            // and fields
+                            addDatabaseInputFields("New project name",
+                                                   selectPnl,
+                                                   true,
+                                                   gbc);
+
+                            // Display the database creation dialog
+                            if (showOptionsDialog(ccddMain.getMainFrame(),
+                                                  selectPnl,
+                                                  "Create Project",
+                                                  DialogOption.CREATE_OPTION) == OK_BUTTON)
+                            {
+                                // Create the database
+                                dbControl.createDatabaseInBackground(nameFld.getText(),
+                                                                     getRadioButtonSelected(),
+                                                                     descriptionFld.getText());
+                            }
+
+                            break;
+
+                        case OPEN:
+                            // Display the database selection dialog. If the
+                            // currently open database has uncommitted changes
+                            // then confirm discarding the changes before
+                            // proceeding
+                            if (showOptionsDialog(ccddMain.getMainFrame(),
+                                                  selectPnl,
+                                                  "Open Project",
+                                                  DialogOption.OPEN_OPTION,
+                                                  true) == OK_BUTTON
+                                && ccddMain.ignoreUncommittedChanges("Open Project",
+                                                                     "Discard changes?",
+                                                                     true,
+                                                                     null,
+                                                                     CcddDbManagerDialog.this))
+                            {
+                                // Open the selected database
+                                dbControl.openDatabaseInBackground(getRadioButtonSelected());
+                            }
+
+                            break;
+
+                        case RENAME:
+                            // Display the rename database dialog. Only the
+                            // description can be altered for the currently
+                            // open database
+                            if (showOptionsDialog(ccddMain.getMainFrame(),
+                                                  selectPnl,
+                                                  "Rename Project",
+                                                  DialogOption.RENAME_OPTION,
+                                                  true) == OK_BUTTON)
+                            {
+                                // Rename the database
+                                dbControl.renameDatabaseInBackground(getRadioButtonSelected(),
+                                                                     nameFld.getText(),
+                                                                     descriptionFld.getText());
+                            }
+
+                            break;
+
+                        case COPY:
+                            // Display the copy database dialog. If the
+                            // currently open database is being renamed and
+                            // there are uncommitted changes then confirm
+                            // discarding the changes before proceeding
+                            if (showOptionsDialog(ccddMain.getMainFrame(),
+                                                  selectPnl,
+                                                  "Copy Project",
+                                                  DialogOption.COPY_OPTION,
+                                                  true) == OK_BUTTON
+                                && (!getRadioButtonSelected().equals(dbControl.getDatabase())
+                                || (getRadioButtonSelected().equals(dbControl.getDatabase())
+                                && ccddMain.ignoreUncommittedChanges("Rename Project",
+                                                                     "Discard changes?",
+                                                                     true,
+                                                                     null,
+                                                                     CcddDbManagerDialog.this))))
+                            {
+                                // Copy the database
+                                dbControl.copyDatabaseInBackground(getRadioButtonSelected(),
+                                                                   nameFld.getText(),
+                                                                   descriptionFld.getText());
+                            }
+
+                            break;
+
+                        case DELETE:
+                            // Display the database deletion dialog
+                            if (showOptionsDialog(ccddMain.getMainFrame(),
+                                                  selectPnl,
+                                                  "Delete Project(s)",
+                                                  DialogOption.DELETE_OPTION,
+                                                  true) == OK_BUTTON)
+                            {
+                                // Step through each selected database name
+                                for (String name : getCheckBoxSelected())
+                                {
+                                    // Delete the database
+                                    dbControl.deleteDatabaseInBackground(name);
+                                }
+                            }
+
+                            break;
+
+                        case UNLOCK:
+                            // Display the database unlock dialog
+                            if (showOptionsDialog(ccddMain.getMainFrame(),
+                                                  selectPnl,
+                                                  "Unlock Project(s)",
+                                                  DialogOption.UNLOCK_OPTION,
+                                                  true) == OK_BUTTON)
+                            {
+                                // Step through each selected database name
+                                for (String name : getCheckBoxSelected())
+                                {
+                                    // Unlock the database
+                                    dbControl.setDatabaseLockStatus(name, false);
+                                }
+                            }
+
+                            break;
                     }
                 }
-                // No database exists to choose
-                else
-                {
-                    // Inform the user that no database exists on the server
-                    displayDatabaseError("Unlock");
-                }
-
-                break;
-        }
+            }
+        });
     }
 
     /**************************************************************************

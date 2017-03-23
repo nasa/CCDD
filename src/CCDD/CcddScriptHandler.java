@@ -214,8 +214,8 @@ public class CcddScriptHandler
             }
 
             // Add the information for this engine to the list
-            engineInfo.add(name
-                           + ": "
+            engineInfo.add(CcddUtilities.colorHTMLText(name + ": ",
+                                                       LABEL_TEXT_COLOR)
                            + factory.getLanguageVersion().replaceAll("[a-zA-Z ]",
                                                                      "")
                            + " ("
@@ -1220,15 +1220,15 @@ public class CcddScriptHandler
                                 // Search for the variable name in the parent
                                 // table
                                 List<String[]> result = dbTable.queryDatabase("SELECT "
-                                                                                 + varColumn
-                                                                                 + " FROM "
-                                                                                 + parentTable
-                                                                                 + " WHERE "
-                                                                                 + varColumn
-                                                                                 + " = '"
-                                                                                 + typeAndVar[1]
-                                                                                 + "';",
-                                                                                 parent);
+                                                                              + varColumn
+                                                                              + " FROM "
+                                                                              + parentTable
+                                                                              + " WHERE "
+                                                                              + varColumn
+                                                                              + " = '"
+                                                                              + typeAndVar[1]
+                                                                              + "';",
+                                                                              parent);
 
                                 // Check if no variable by this name exists in
                                 // the parent table

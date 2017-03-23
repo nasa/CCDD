@@ -40,6 +40,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.TableCellRenderer;
 
+import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddClasses.ValidateCellActionListener;
 import CCDD.CcddConstants.DialogOption;
@@ -60,17 +61,6 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
     private final CcddDbTableCommandHandler dbTable;
     private final CcddReservedMsgIDHandler rsvMsgIDHandler;
     private CcddJTableHandler msgIDTable;
-
-    // Components referenced by multiple methods
-    private JButton btnInsertRow;
-    private JButton btnDeleteRow;
-    private JButton btnMoveUp;
-    private JButton btnMoveDown;
-    private JButton btnUndo;
-    private JButton btnRedo;
-    private JButton btnStore;
-    private JButton btnClose;
-    private JPanel outerPanel;
 
     // Table instance model data. Current copy is the table information as it
     // exists in the table editor and is used to determine what changes have
@@ -157,14 +147,264 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
     }
 
     /**************************************************************************
-     * Create the reserved message ID editor dialog
+     * Create the reserved message ID editor dialog. This is executed in a
+     * separate thread since it can take a noticeable amount time to complete,
+     * and by using a separate thread the GUI is allowed to continue to update.
+     * The GUI menu commands, however, are disabled until the telemetry
+     * scheduler initialization completes execution
      *************************************************************************/
     private void initialize()
     {
-        // Create a copy of the reserved message ID data so it can be used to
-        // determine if changes are made
-        storeCurrentData();
+        // Build the data type editor dialog in the background
+        CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
+        {
+            // Create panels to hold the components of the dialog
+            JPanel editorPnl = new JPanel(new GridBagLayout());
+            JPanel buttonPnl = new JPanel();
 
+            /******************************************************************
+             * Build the data type editor dialog
+             *****************************************************************/
+            @Override
+            protected void execute()
+            {
+                // Set the initial layout manager characteristics
+                GridBagConstraints gbc = new GridBagConstraints(0,
+                                                                0,
+                                                                1,
+                                                                1,
+                                                                1.0,
+                                                                1.0,
+                                                                GridBagConstraints.LINE_START,
+                                                                GridBagConstraints.BOTH,
+                                                                new Insets(0, 0, 0, 0),
+                                                                0,
+                                                                0);
+
+                // Create a copy of the reserved message ID data so it can be
+                // used to determine if changes are made
+                storeCurrentData();
+
+                // Define the panel to contain the table and place it in the
+                // editor
+                JPanel tablePnl = new JPanel();
+                tablePnl.setLayout(new BoxLayout(tablePnl, BoxLayout.X_AXIS));
+                tablePnl.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+                tablePnl.add(createReservedMsgIDTable());
+                editorPnl.add(tablePnl, gbc);
+                editorPnl.setBorder(BorderFactory.createEmptyBorder());
+
+                // Set the undo manager in the keyboard handler while the
+                // reserved message ID editor is active
+                ccddMain.getKeyboardHandler().setModalUndoManager(msgIDTable.getUndoManager());
+
+                // New button
+                JButton btnInsertRow = CcddButtonPanelHandler.createButton("Ins Row",
+                                                                           INSERT_ICON,
+                                                                           KeyEvent.VK_I,
+                                                                           "Insert a new row into the table");
+
+                // Create a listener for the Insert Row button
+                btnInsertRow.addActionListener(new ValidateCellActionListener(msgIDTable)
+                {
+                    /**********************************************************
+                     * Insert a new row into the table at the selected location
+                     *********************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        msgIDTable.insertEmptyRow(true);
+                    }
+                });
+
+                // Delete button
+                JButton btnDeleteRow = CcddButtonPanelHandler.createButton("Del Row",
+                                                                           DELETE_ICON,
+                                                                           KeyEvent.VK_D,
+                                                                           "Delete the selected row(s) from the table");
+
+                // Create a listener for the Delete row button
+                btnDeleteRow.addActionListener(new ValidateCellActionListener(msgIDTable)
+                {
+                    /**********************************************************
+                     * Delete the selected row(s) from the table
+                     *********************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        msgIDTable.deleteRow(true);
+                    }
+                });
+
+                // Move Up button
+                JButton btnMoveUp = CcddButtonPanelHandler.createButton("Up",
+                                                                        UP_ICON,
+                                                                        KeyEvent.VK_U,
+                                                                        "Move the selected row(s) up");
+
+                // Create a listener for the Move Up button
+                btnMoveUp.addActionListener(new ValidateCellActionListener(msgIDTable)
+                {
+                    /**********************************************************
+                     * Move the selected row(s) up in the table
+                     *********************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        msgIDTable.moveRowUp();
+                    }
+                });
+
+                // Move Down button
+                JButton btnMoveDown = CcddButtonPanelHandler.createButton("Down",
+                                                                          DOWN_ICON,
+                                                                          KeyEvent.VK_W,
+                                                                          "Move the selected row(s) down");
+
+                // Create a listener for the Move Down button
+                btnMoveDown.addActionListener(new ValidateCellActionListener(msgIDTable)
+                {
+                    /**********************************************************
+                     * Move the selected row(s) down in the table
+                     *********************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        msgIDTable.moveRowDown();
+                    }
+                });
+
+                // Undo button
+                JButton btnUndo = CcddButtonPanelHandler.createButton("Undo",
+                                                                      UNDO_ICON,
+                                                                      KeyEvent.VK_Z,
+                                                                      "Undo the last edit");
+
+                // Create a listener for the Undo button
+                btnUndo.addActionListener(new ValidateCellActionListener(msgIDTable)
+                {
+                    /**********************************************************
+                     * Undo the last cell edit
+                     *********************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        msgIDTable.getUndoManager().undo();
+                    }
+                });
+
+                // Redo button
+                JButton btnRedo = CcddButtonPanelHandler.createButton("Redo",
+                                                                      REDO_ICON,
+                                                                      KeyEvent.VK_Y,
+                                                                      "Redo the last undone edit");
+
+                // Create a listener for the Redo button
+                btnRedo.addActionListener(new ValidateCellActionListener(msgIDTable)
+                {
+                    /**********************************************************
+                     * Redo the last cell edit that was undone
+                     *********************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        msgIDTable.getUndoManager().redo();
+                    }
+                });
+
+                // Store the reserved message IDs button
+                JButton btnStore = CcddButtonPanelHandler.createButton("Store",
+                                                                       STORE_ICON,
+                                                                       KeyEvent.VK_S,
+                                                                       "Store the reserved message ID(s)");
+
+                // Create a listener for the Store button
+                btnStore.addActionListener(new ValidateCellActionListener(msgIDTable)
+                {
+                    /**********************************************************
+                     * Store the reserved message IDs
+                     *********************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        // Only update the table in the database if a cell's
+                        // content has changed, none of the required columns is
+                        // missing a value, and the user confirms the action
+                        if (msgIDTable.isTableChanged(committedData)
+                            && !checkForMissingColumns()
+                            && new CcddDialogHandler().showMessageDialog(CcddReservedMsgIDEditorDialog.this,
+                                                                         "<html><b>Store changes in database?",
+                                                                         "Store Changes",
+                                                                         JOptionPane.QUESTION_MESSAGE,
+                                                                         DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                        {
+                            // Store the updated reserved message IDs table
+                            dbTable.storeInformationTableInBackground(InternalTable.RESERVED_MSG_IDS,
+                                                                      CcddUtilities.removeArrayListColumn(getUpdatedData(),
+                                                                                                          ReservedMsgIDsColumn.OID.ordinal()),
+                                                                      null,
+                                                                      CcddReservedMsgIDEditorDialog.this);
+                        }
+                    }
+                });
+
+                // Close button
+                JButton btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                                       CLOSE_ICON,
+                                                                       KeyEvent.VK_C,
+                                                                       "Close the reserved message ID editor");
+
+                // Create a listener for the Close button
+                btnClose.addActionListener(new ValidateCellActionListener(msgIDTable)
+                {
+                    /**********************************************************
+                     * Close the reserved message ID editor dialog
+                     *********************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        windowCloseButtonAction();
+                    }
+                });
+
+                // Add buttons in the order in which they'll appear (left to
+                // right, top to bottom)
+                buttonPnl.add(btnInsertRow);
+                buttonPnl.add(btnMoveUp);
+                buttonPnl.add(btnUndo);
+                buttonPnl.add(btnStore);
+                buttonPnl.add(btnDeleteRow);
+                buttonPnl.add(btnMoveDown);
+                buttonPnl.add(btnRedo);
+                buttonPnl.add(btnClose);
+
+                // Distribute the buttons across two rows
+                setButtonRows(2);
+            }
+
+            /******************************************************************
+             * Reserved message ID editor dialog creation complete
+             *****************************************************************/
+            @Override
+            protected void complete()
+            {
+                // Display the reserved message ID editor dialog
+                showOptionsDialog(ccddMain.getMainFrame(),
+                                  editorPnl,
+                                  buttonPnl,
+                                  DIALOG_TITLE,
+                                  true);
+            }
+        });
+    }
+
+    /**************************************************************************
+     * Create the reserved message ID table
+     *
+     * @return Reference to the scroll pane in which the table is placed
+     *************************************************************************/
+    private JScrollPane createReservedMsgIDTable()
+    {
         // Define the reserved message ID editor JTable
         msgIDTable = new CcddJTableHandler()
         {
@@ -455,229 +695,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
         // Discard the edits created by adding the columns initially
         msgIDTable.getUndoManager().discardAllEdits();
 
-        // Define the editor panel to contain the table
-        JPanel editorPanel = new JPanel();
-        editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.X_AXIS));
-        editorPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-        editorPanel.add(scrollPane);
-
-        // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        1.0,
-                                                        1.0,
-                                                        GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.BOTH,
-                                                        new Insets(0, 0, 0, 0),
-                                                        0,
-                                                        0);
-
-        // Create an outer panel to put the editor panel in (the border doesn't
-        // appear without this)
-        outerPanel = new JPanel(new GridBagLayout());
-        outerPanel.add(editorPanel, gbc);
-        outerPanel.setBorder(BorderFactory.createEmptyBorder());
-
-        // Set the undo manager in the keyboard handler while the reserved
-        // message ID editor
-        // is active
-        ccddMain.getKeyboardHandler().setModalUndoManager(msgIDTable.getUndoManager());
-
-        // Create the lower (button) panel
-        JPanel buttonPanel = new JPanel();
-
-        // Define the buttons for the lower panel: ////////////////////////////
-        // New button
-        btnInsertRow = CcddButtonPanelHandler.createButton("Ins Row",
-                                                           INSERT_ICON,
-                                                           KeyEvent.VK_I,
-                                                           "Insert a new row into the table");
-
-        // Create a listener for the Insert Row button
-        btnInsertRow.addActionListener(new ValidateCellActionListener(msgIDTable)
-        {
-            /******************************************************************
-             * Insert a new row into the table at the selected location
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                msgIDTable.insertEmptyRow(true);
-            }
-        });
-
-        // Delete button
-        btnDeleteRow = CcddButtonPanelHandler.createButton("Del Row",
-                                                           DELETE_ICON,
-                                                           KeyEvent.VK_D,
-                                                           "Delete the selected row(s) from the table");
-
-        // Create a listener for the Delete row button
-        btnDeleteRow.addActionListener(new ValidateCellActionListener(msgIDTable)
-        {
-            /******************************************************************
-             * Delete the selected row(s) from the table
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                msgIDTable.deleteRow(true);
-            }
-        });
-
-        // Move Up button
-        btnMoveUp = CcddButtonPanelHandler.createButton("Up",
-                                                        UP_ICON,
-                                                        KeyEvent.VK_U,
-                                                        "Move the selected row(s) up");
-
-        // Create a listener for the Move Up button
-        btnMoveUp.addActionListener(new ValidateCellActionListener(msgIDTable)
-        {
-            /******************************************************************
-             * Move the selected row(s) up in the table
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                msgIDTable.moveRowUp();
-            }
-        });
-
-        // Move Down button
-        btnMoveDown = CcddButtonPanelHandler.createButton("Down",
-                                                          DOWN_ICON,
-                                                          KeyEvent.VK_W,
-                                                          "Move the selected row(s) down");
-
-        // Create a listener for the Move Down button
-        btnMoveDown.addActionListener(new ValidateCellActionListener(msgIDTable)
-        {
-            /******************************************************************
-             * Move the selected row(s) down in the table
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                msgIDTable.moveRowDown();
-            }
-        });
-
-        // Undo button
-        btnUndo = CcddButtonPanelHandler.createButton("Undo",
-                                                      UNDO_ICON,
-                                                      KeyEvent.VK_Z,
-                                                      "Undo the last edit");
-
-        // Create a listener for the Undo button
-        btnUndo.addActionListener(new ValidateCellActionListener(msgIDTable)
-        {
-            /******************************************************************
-             * Undo the last cell edit
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                msgIDTable.getUndoManager().undo();
-            }
-        });
-
-        // Redo button
-        btnRedo = CcddButtonPanelHandler.createButton("Redo",
-                                                      REDO_ICON,
-                                                      KeyEvent.VK_Y,
-                                                      "Redo the last undone edit");
-
-        // Create a listener for the Redo button
-        btnRedo.addActionListener(new ValidateCellActionListener(msgIDTable)
-        {
-            /******************************************************************
-             * Redo the last cell edit that was undone
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                msgIDTable.getUndoManager().redo();
-            }
-        });
-
-        // Store the reserved message IDs button
-        btnStore = CcddButtonPanelHandler.createButton("Store",
-                                                       STORE_ICON,
-                                                       KeyEvent.VK_S,
-                                                       "Store the reserved message ID(s)");
-
-        // Create a listener for the Store button
-        btnStore.addActionListener(new ValidateCellActionListener(msgIDTable)
-        {
-            /******************************************************************
-             * Store the reserved message IDs
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                // Only update the table in the database if a cell's content
-                // has changed, none of the required columns is missing a
-                // value, and the user confirms the action
-                if (msgIDTable.isTableChanged(committedData)
-                    && !checkForMissingColumns()
-                    && new CcddDialogHandler().showMessageDialog(CcddReservedMsgIDEditorDialog.this,
-                                                                 "<html><b>Store changes in database?",
-                                                                 "Store Changes",
-                                                                 JOptionPane.QUESTION_MESSAGE,
-                                                                 DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-                {
-                    // Store the updated reserved message IDs table
-                    dbTable.storeInformationTableInBackground(InternalTable.RESERVED_MSG_IDS,
-                                                  CcddUtilities.removeArrayListColumn(getUpdatedData(),
-                                                                                      ReservedMsgIDsColumn.OID.ordinal()),
-                                                  null,
-                                                  CcddReservedMsgIDEditorDialog.this);
-                }
-            }
-        });
-
-        // Close button
-        btnClose = CcddButtonPanelHandler.createButton("Close",
-                                                       CLOSE_ICON,
-                                                       KeyEvent.VK_C,
-                                                       "Close the reserved message ID editor");
-
-        // Create a listener for the Close button
-        btnClose.addActionListener(new ValidateCellActionListener(msgIDTable)
-        {
-            /******************************************************************
-             * Close the reserved message ID editor dialog
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                windowCloseButtonAction();
-            }
-        });
-
-        // Add buttons in the order in which they'll appear (left to right, top
-        // to bottom)
-        buttonPanel.add(btnInsertRow);
-        buttonPanel.add(btnMoveUp);
-        buttonPanel.add(btnUndo);
-        buttonPanel.add(btnStore);
-        buttonPanel.add(btnDeleteRow);
-        buttonPanel.add(btnMoveDown);
-        buttonPanel.add(btnRedo);
-        buttonPanel.add(btnClose);
-
-        // Distribute the buttons across two rows
-        setButtonRows(2);
-
-        // Display the reserved message ID editor dialog
-        showOptionsDialog(ccddMain.getMainFrame(),
-                          outerPanel,
-                          buttonPanel,
-                          DIALOG_TITLE,
-                          true);
+        return scrollPane;
     }
 
     /**************************************************************************

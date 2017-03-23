@@ -777,7 +777,7 @@ public abstract class CcddEditorPanelHandler
         private void setSelectedCheckBox(final boolean selected)
         {
             // Update the check box selection state
-            checkBox.setSelected(selected);;
+            checkBox.setSelected(selected);
 
             // Check that the check box field is still visible
             if (checkBox.isVisible())

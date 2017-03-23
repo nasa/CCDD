@@ -47,6 +47,7 @@ import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddClasses.LinkInformation;
 import CCDD.CcddClasses.RateInformation;
@@ -130,238 +131,260 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     }
 
     /**************************************************************************
-     * Create the variable link manager dialog
+     * Create the variable link manager dialog. This is executed in a separate
+     * thread since it can take a noticeable amount time to complete, and by
+     * using a separate thread the GUI is allowed to continue to update. The
+     * GUI menu commands, however, are disabled until the telemetry scheduler
+     * initialization completes execution
      *************************************************************************/
     private void initialize()
     {
-        // Create a border for the dialog components
-        border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
-                                                                                    Color.LIGHT_GRAY,
-                                                                                    Color.GRAY),
-                                                    BorderFactory.createEmptyBorder(2, 2, 2, 2));
-
-        // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        1.0,
-                                                        1.0,
-                                                        GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.BOTH,
-                                                        new Insets(0, 0, 0, 0),
-                                                        0,
-                                                        0);
-
-        // Create panels to hold the components of the dialog
-        JPanel dialogPnl = new JPanel(new GridBagLayout());
-
-        // Create a tabbed pane to contain the rate parameters that are
-        // stream-specific
-        tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-        tabbedPane.setFont(LABEL_FONT_BOLD);
-
-        // Listen for tab selection changes
-        tabbedPane.addChangeListener(new ChangeListener()
+        // Build the variable link manager dialog in the background
+        CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
         {
+            // Create panels to hold the components of the dialog
+            JPanel dialogPnl = new JPanel(new GridBagLayout());
+            JPanel buttonPnl = new JPanel();
+
             /******************************************************************
-             * Update the handler to the one associated with the selected tab
+             * Build the variable link manager dialog
              *****************************************************************/
             @Override
-            public void stateChanged(ChangeEvent ce)
+            protected void execute()
             {
-                // Set the active handler to the one indicated by the currently
-                // selected tab
-                activeHandler = linkMgrs.get(tabbedPane.getSelectedIndex());
+                // Create a border for the dialog components
+                border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                            Color.LIGHT_GRAY,
+                                                                                            Color.GRAY),
+                                                            BorderFactory.createEmptyBorder(2, 2, 2, 2));
 
-                // Get the number of selected links
-                int numSelectedLinks = activeHandler.getLinkTree().getSelectionCount();
+                // Set the initial layout manager characteristics
+                GridBagConstraints gbc = new GridBagConstraints(0,
+                                                                0,
+                                                                1,
+                                                                1,
+                                                                1.0,
+                                                                1.0,
+                                                                GridBagConstraints.LINE_START,
+                                                                GridBagConstraints.BOTH,
+                                                                new Insets(0, 0, 0, 0),
+                                                                0,
+                                                                0);
 
-                // Update the manager controls state
-                setLinkButtonsEnabled(numSelectedLinks == 1, numSelectedLinks != 0);
-            }
-        });
+                // Create a tabbed pane to contain the rate parameters that are
+                // stream-specific
+                tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+                tabbedPane.setFont(LABEL_FONT_BOLD);
 
-        gbc.gridwidth = 2;
-        gbc.gridx = 0;
-        gbc.gridy++;
-        dialogPnl.add(tabbedPane, gbc);
-
-        // Create the button panel
-        JPanel buttonPanel = new JPanel();
-
-        // Define the buttons for the lower panel:
-        // New link button
-        JButton btnNewLink = CcddButtonPanelHandler.createButton("New",
-                                                                 INSERT_ICON,
-                                                                 KeyEvent.VK_N,
-                                                                 "Create a new link");
-
-        // Add a listener for the New button
-        btnNewLink.addActionListener(new ActionListener()
-        {
-            /******************************************************************
-             * Add a new link
-             *****************************************************************/
-            @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                createLink();
-            }
-        });
-
-        // Delete link button
-        JButton btnDeleteLink = CcddButtonPanelHandler.createButton("Delete",
-                                                                    DELETE_ICON,
-                                                                    KeyEvent.VK_D,
-                                                                    "Delete an existing link");
-
-        // Add a listener for the Delete button
-        btnDeleteLink.addActionListener(new ActionListener()
-        {
-            /******************************************************************
-             * Delete the selected link(s)
-             *****************************************************************/
-            @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                deleteLink();
-            }
-        });
-
-        // Rename link button
-        btnRenameLink = CcddButtonPanelHandler.createButton("Rename",
-                                                            RENAME_ICON,
-                                                            KeyEvent.VK_D,
-                                                            "Rename an existing link");
-
-        // Add a listener for the Rename button
-        btnRenameLink.addActionListener(new ActionListener()
-        {
-            /******************************************************************
-             * Rename the selected link
-             *****************************************************************/
-            @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                renameLink();
-            }
-        });
-
-        // Copy link button
-        btnCopyLink = CcddButtonPanelHandler.createButton("Copy",
-                                                          COPY_ICON,
-                                                          KeyEvent.VK_P,
-                                                          "Copy an existing link");
-
-        // Add a listener for the Copy button
-        btnCopyLink.addActionListener(new ActionListener()
-        {
-            /******************************************************************
-             * Copy the selected link
-             *****************************************************************/
-            @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                copyLink();
-            }
-        });
-
-        // Store links button
-        JButton btnStoreLinks = CcddButtonPanelHandler.createButton("Store",
-                                                                    STORE_ICON,
-                                                                    KeyEvent.VK_S,
-                                                                    "Store the link updates in the database");
-
-        // Add a listener for the Store button
-        btnStoreLinks.addActionListener(new ActionListener()
-        {
-            /******************************************************************
-             * Store the links in the database
-             *****************************************************************/
-            @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                // Check if the links have changed since the last database
-                // commit and that the user confirms storing the links
-                if (isLinksChanged()
-                    && new CcddDialogHandler().showMessageDialog(CcddLinkManagerDialog.this,
-                                                                 "<html><b>Store links?",
-                                                                 "Store Links",
-                                                                 JOptionPane.QUESTION_MESSAGE,
-                                                                 DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                // Listen for tab selection changes
+                tabbedPane.addChangeListener(new ChangeListener()
                 {
-                    // Current link definitions
-                    List<String[]> currentLinks = new ArrayList<String[]>();
-
-                    // Step through each data stream
-                    for (CcddLinkManagerHandler linkHandler : linkMgrs)
+                    /**********************************************************
+                     * Update the handler to the one associated with the
+                     * selected tab
+                     *********************************************************/
+                    @Override
+                    public void stateChanged(ChangeEvent ce)
                     {
-                        // Add the links for this stream to the list containing
-                        // the links for all data streams
-                        currentLinks.addAll(linkHandler.getCurrentLinks());
+                        // Set the active handler to the one indicated by the
+                        // currently selected tab
+                        activeHandler = linkMgrs.get(tabbedPane.getSelectedIndex());
+
+                        // Get the number of selected links
+                        int numSelectedLinks = activeHandler.getLinkTree().getSelectionCount();
+
+                        // Update the manager controls state
+                        setLinkButtonsEnabled(numSelectedLinks == 1, numSelectedLinks != 0);
                     }
+                });
 
-                    // Store the link list into the database
-                    dbTable.storeInformationTableInBackground(InternalTable.LINKS,
-                                                  currentLinks,
-                                                  null,
-                                                  CcddLinkManagerDialog.this);
-                }
+                gbc.gridwidth = 2;
+                gbc.gridx = 0;
+                gbc.gridy++;
+                dialogPnl.add(tabbedPane, gbc);
+
+                // Define the buttons for the lower panel:
+                // New link button
+                JButton btnNewLink = CcddButtonPanelHandler.createButton("New",
+                                                                         INSERT_ICON,
+                                                                         KeyEvent.VK_N,
+                                                                         "Create a new link");
+
+                // Add a listener for the New button
+                btnNewLink.addActionListener(new ActionListener()
+                {
+                    /**********************************************************
+                     * Add a new link
+                     *********************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        createLink();
+                    }
+                });
+
+                // Delete link button
+                JButton btnDeleteLink = CcddButtonPanelHandler.createButton("Delete",
+                                                                            DELETE_ICON,
+                                                                            KeyEvent.VK_D,
+                                                                            "Delete an existing link");
+
+                // Add a listener for the Delete button
+                btnDeleteLink.addActionListener(new ActionListener()
+                {
+                    /**********************************************************
+                     * Delete the selected link(s)
+                     *********************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        deleteLink();
+                    }
+                });
+
+                // Rename link button
+                btnRenameLink = CcddButtonPanelHandler.createButton("Rename",
+                                                                    RENAME_ICON,
+                                                                    KeyEvent.VK_D,
+                                                                    "Rename an existing link");
+
+                // Add a listener for the Rename button
+                btnRenameLink.addActionListener(new ActionListener()
+                {
+                    /**********************************************************
+                     * Rename the selected link
+                     *********************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        renameLink();
+                    }
+                });
+
+                // Copy link button
+                btnCopyLink = CcddButtonPanelHandler.createButton("Copy",
+                                                                  COPY_ICON,
+                                                                  KeyEvent.VK_P,
+                                                                  "Copy an existing link");
+
+                // Add a listener for the Copy button
+                btnCopyLink.addActionListener(new ActionListener()
+                {
+                    /**********************************************************
+                     * Copy the selected link
+                     *********************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        copyLink();
+                    }
+                });
+
+                // Store links button
+                JButton btnStoreLinks = CcddButtonPanelHandler.createButton("Store",
+                                                                            STORE_ICON,
+                                                                            KeyEvent.VK_S,
+                                                                            "Store the link updates in the database");
+
+                // Add a listener for the Store button
+                btnStoreLinks.addActionListener(new ActionListener()
+                {
+                    /**********************************************************
+                     * Store the links in the database
+                     *********************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        // Check if the links have changed since the last
+                        // database commit and that the user confirms storing
+                        // the links
+                        if (isLinksChanged()
+                            && new CcddDialogHandler().showMessageDialog(CcddLinkManagerDialog.this,
+                                                                         "<html><b>Store links?",
+                                                                         "Store Links",
+                                                                         JOptionPane.QUESTION_MESSAGE,
+                                                                         DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                        {
+                            // Current link definitions
+                            List<String[]> currentLinks = new ArrayList<String[]>();
+
+                            // Step through each data stream
+                            for (CcddLinkManagerHandler linkHandler : linkMgrs)
+                            {
+                                // Add the links for this stream to the list
+                                // containing the links for all data streams
+                                currentLinks.addAll(linkHandler.getCurrentLinks());
+                            }
+
+                            // Store the link list into the database
+                            dbTable.storeInformationTableInBackground(InternalTable.LINKS,
+                                                                      currentLinks,
+                                                                      null,
+                                                                      CcddLinkManagerDialog.this);
+                        }
+                    }
+                });
+
+                // Close button
+                JButton btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                                       CLOSE_ICON,
+                                                                       KeyEvent.VK_C,
+                                                                       "Close the link manager");
+
+                // Add a listener for the Close button
+                btnClose.addActionListener(new ActionListener()
+                {
+                    /**********************************************************
+                     * Close the link selection dialog
+                     *********************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        // Check if there are no changes to the links or if the
+                        // user elects to discard the changes
+                        if (!isLinksChanged()
+                            || new CcddDialogHandler().showMessageDialog(CcddLinkManagerDialog.this,
+                                                                         "<html><b>Discard changes?",
+                                                                         "Discard Changes",
+                                                                         JOptionPane.QUESTION_MESSAGE,
+                                                                         DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                        {
+                            // Close the dialog
+                            closeDialog();
+                        }
+                    }
+                });
+
+                // Add buttons in the order in which they'll appear (left to
+                // right, top to bottom)
+                buttonPnl.add(btnNewLink);
+                buttonPnl.add(btnRenameLink);
+                buttonPnl.add(btnStoreLinks);
+                buttonPnl.add(btnDeleteLink);
+                buttonPnl.add(btnCopyLink);
+                buttonPnl.add(btnClose);
+
+                // Distribute the buttons across two rows
+                setButtonRows(2);
+
+                // Add the data stream link handlers
+                addLinkHandlerPanes();
             }
-        });
 
-        // Close button
-        JButton btnClose = CcddButtonPanelHandler.createButton("Close",
-                                                               CLOSE_ICON,
-                                                               KeyEvent.VK_C,
-                                                               "Close the link manager");
-
-        // Add a listener for the Close button
-        btnClose.addActionListener(new ActionListener()
-        {
             /******************************************************************
-             * Close the link selection dialog
+             * Variable link manager dialog creation complete
              *****************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae)
+            protected void complete()
             {
-                // Check if there are no changes to the links or if the user
-                // elects to discard the changes
-                if (!isLinksChanged()
-                    || new CcddDialogHandler().showMessageDialog(CcddLinkManagerDialog.this,
-                                                                 "<html><b>Discard changes?",
-                                                                 "Discard Changes",
-                                                                 JOptionPane.QUESTION_MESSAGE,
-                                                                 DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-                {
-                    // Close the dialog
-                    closeDialog();
-                }
+                // Display the link management dialog
+                showOptionsDialog(ccddMain.getMainFrame(),
+                                  dialogPnl,
+                                  buttonPnl,
+                                  "Manage Links",
+                                  true);
             }
         });
-
-        // Add buttons in the order in which they'll appear (left to right, top
-        // to bottom)
-        buttonPanel.add(btnNewLink);
-        buttonPanel.add(btnRenameLink);
-        buttonPanel.add(btnStoreLinks);
-        buttonPanel.add(btnDeleteLink);
-        buttonPanel.add(btnCopyLink);
-        buttonPanel.add(btnClose);
-
-        // Distribute the buttons across two rows
-        setButtonRows(2);
-
-        // Add the data stream link handlers
-        addLinkHandlerPanes();
-
-        // Display the link management dialog
-        showOptionsDialog(ccddMain.getMainFrame(),
-                          dialogPnl,
-                          buttonPanel,
-                          "Manage Links",
-                          true);
     }
 
     /**************************************************************************

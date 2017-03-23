@@ -15,6 +15,7 @@ import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_HOST;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_PORT;
 import static CCDD.CcddConstants.DEFAULT_SERVER;
 import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
+import static CCDD.CcddConstants.LABEL_TEXT_COLOR;
 import static CCDD.CcddConstants.LOOK_AND_FEEL;
 import static CCDD.CcddConstants.MIN_WINDOW_HEIGHT;
 import static CCDD.CcddConstants.MIN_WINDOW_WIDTH;
@@ -35,9 +36,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.FileInputStream;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.prefs.BackingStoreException;
@@ -1037,9 +1042,9 @@ public class CcddMain
         try
         {
             // Get the version number, build number, and build date from the
-            // manifest. This returns null values when CCDD is executed from
-            // within the IDE
-            InputStream stream = getClass().getResourceAsStream("/META-INF/MANIFEST.MF");;
+            // manifest. This returns null values when the application is
+            // executed from within the IDE
+            InputStream stream = getClass().getResourceAsStream("/META-INF/MANIFEST.MF");
             Manifest manifest = new Manifest(stream);
             Attributes attributes = manifest.getMainAttributes();
             implementationVersion = attributes.getValue("Implementation-Version");
@@ -1049,16 +1054,39 @@ public class CcddMain
         catch (Exception e)
         {
             // Ignore the exception if the version number and build date can't
-            // be obtained
+            // be obtained from the manifest
         }
 
-        // Check if no version number was found
+        // Check if no version number was found in the manifest
         if (implementationVersion == null)
         {
-            // Set the version number and build date values to indicate this
-            // information isn't available
-            implementationVersion = "*unknown*";
-            buildDate = "*unknown*";
+            try
+            {
+                // Read the version and number from the build property files
+                // and set the date to today's date. This is for when the
+                // application is executed from within the IDE
+                Properties properties = new Properties();
+                properties.load(new FileInputStream("./ccdd.build.version"));
+                implementationVersion = properties.getProperty("build.version");
+                properties.load(new FileInputStream("./ccdd.build.number"));
+                implementationVersion += "." + properties.getProperty("build.number");
+                buildDate = new SimpleDateFormat("M-d-yyyy").format(Calendar.getInstance().getTime());
+            }
+            catch (Exception e)
+            {
+                // Ignore the exception if the version number and build date
+                // can't be obtained from the build property files
+            }
+
+            // Check if no version number was found in the manifest or the
+            // build property files
+            if (implementationVersion == null)
+            {
+                // Set the version number and build date to indicate this
+                // information isn't available
+                implementationVersion = "*unknown*";
+                buildDate = "*unknown";
+            }
         }
 
         // Create the main application frame and set its characteristics
@@ -2017,18 +2045,28 @@ public class CcddMain
                 new CcddDialogHandler().showMessageDialog(frameCCDD,
                                                           "<html><b>Core Flight System<br>Command & Data Dictionary</b><br>"
                                                               + CCDD_AUTHOR
-                                                              + "<br>Version "
+                                                              + "<br>"
+                                                              + CcddUtilities.colorHTMLText("Version: ",
+                                                                                            LABEL_TEXT_COLOR)
                                                               + implementationVersion
                                                               + "&#160;&#160;&#160;"
                                                               + buildDate
-                                                              + "<br><br><b>Supporting software versions:</b><br>&#160;&#160;&#160;Java: "
+                                                              + "<br><br><b>Supporting software versions:</b><br>&#160;&#160;&#160;"
+                                                              + CcddUtilities.colorHTMLText("Java: ",
+                                                                                            LABEL_TEXT_COLOR)
                                                               + System.getProperty("java.version")
                                                               + "<br>&#160;&#160;&#160;"
-                                                              + DEFAULT_SERVER
-                                                              + ": "
+                                                              + CcddUtilities.colorHTMLText(DEFAULT_SERVER + ": ",
+                                                                                            LABEL_TEXT_COLOR)
                                                               + dbControl.getDatabaseVersion()
-                                                              + "<br>&#160;&#160;&#160;JDBC: "
+                                                              + "<br>&#160;&#160;&#160;"
+                                                              + CcddUtilities.colorHTMLText("JDBC: ",
+                                                                                            LABEL_TEXT_COLOR)
                                                               + dbControl.getJDBCVersion()
+                                                              + "<br>&#160;&#160;&#160;"
+                                                              + CcddUtilities.colorHTMLText("Jetty: ",
+                                                                                            LABEL_TEXT_COLOR)
+                                                              + org.eclipse.jetty.util.Jetty.VERSION
                                                               + "<br><br><b>Scripting language versions:</b>"
                                                               + scriptHandler.getEngineInformation()
                                                               + "<br><br>Copyright 2017 United States Government "

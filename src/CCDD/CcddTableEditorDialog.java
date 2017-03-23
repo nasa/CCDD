@@ -1093,7 +1093,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         });
 
         // Create the lower (button) panel
-        JPanel buttonPanel = new JPanel();
+        JPanel buttonPnl = new JPanel();
 
         // Define the buttons for the lower panel:
         // New button
@@ -1491,16 +1491,16 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
         // Add buttons in the order in which they'll appear (left to right, top
         // to bottom)
-        buttonPanel.add(btnInsertRow);
-        buttonPanel.add(btnMoveUp);
-        buttonPanel.add(btnMoveLeft);
-        buttonPanel.add(btnUndo);
-        buttonPanel.add(btnStore);
-        buttonPanel.add(btnDeleteRow);
-        buttonPanel.add(btnMoveDown);
-        buttonPanel.add(btnMoveRight);
-        buttonPanel.add(btnRedo);
-        buttonPanel.add(btnCloseActive);
+        buttonPnl.add(btnInsertRow);
+        buttonPnl.add(btnMoveUp);
+        buttonPnl.add(btnMoveLeft);
+        buttonPnl.add(btnUndo);
+        buttonPnl.add(btnStore);
+        buttonPnl.add(btnDeleteRow);
+        buttonPnl.add(btnMoveDown);
+        buttonPnl.add(btnMoveRight);
+        buttonPnl.add(btnRedo);
+        buttonPnl.add(btnCloseActive);
 
         // Distribute the buttons across two rows
         setButtonRows(2);
@@ -1541,7 +1541,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         // Display the table editor dialog
         createFrame(ccddMain.getMainFrame(),
                     tabbedPane,
-                    buttonPanel,
+                    buttonPnl,
                     activeEditor.getTableEditorOwnerName(),
                     null);
 

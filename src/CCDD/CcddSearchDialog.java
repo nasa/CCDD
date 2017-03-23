@@ -727,7 +727,7 @@ public class CcddSearchDialog extends CcddDialogHandler
                                 {
                                     // Extract the variable from the path, then
                                     // remove it from the variable path
-                                    location += "', variable '"
+                                    location += ", variable '"
                                                 + tablePath.substring(index + 1).replaceFirst("^.+\\.", "")
                                                 + "'";
                                     tablePath = tablePath.substring(0, index).replaceFirst(",", ":");

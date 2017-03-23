@@ -608,14 +608,14 @@ public class CcddDialogHandler extends JDialog
 
         // Create the panel for the dialog buttons and add the dialog buttons
         // to the panel
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(btnIgnore);
-        buttonPanel.add(btnIgnoreAll);
-        buttonPanel.add(btnCancel);
+        JPanel buttonPnl = new JPanel();
+        buttonPnl.add(btnIgnore);
+        buttonPnl.add(btnIgnoreAll);
+        buttonPnl.add(btnCancel);
 
         return showMessageDialog(parent,
                                  message,
-                                 buttonPanel,
+                                 buttonPnl,
                                  title,
                                  JOptionPane.QUESTION_MESSAGE);
     }
@@ -1682,7 +1682,7 @@ public class CcddDialogHandler extends JDialog
      * @param upperObject
      *            object containing the dialog components or message
      * 
-     * @param buttonPanel
+     * @param buttonPnl
      *            panel containing the dialog buttons
      * 
      * @param title
@@ -1707,7 +1707,7 @@ public class CcddDialogHandler extends JDialog
      *************************************************************************/
     protected int createDialog(Component parent,
                                Object upperObject,
-                               JPanel buttonPanel,
+                               JPanel buttonPnl,
                                String title,
                                DialogOption optionType,
                                Icon icon,
@@ -1797,7 +1797,7 @@ public class CcddDialogHandler extends JDialog
 
             // Set up button panel related items and combine the button and
             // upper panels
-            buttonHandler.assembleWindowComponents(buttonPanel,
+            buttonHandler.assembleWindowComponents(buttonPnl,
                                                    upperComponent,
                                                    optionType,
                                                    getContentPane(),

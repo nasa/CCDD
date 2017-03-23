@@ -52,6 +52,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.tree.TreeSelectionModel;
 
+import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddClasses.CustomSplitPane;
 import CCDD.CcddClasses.FieldInformation;
@@ -213,489 +214,520 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     }
 
     /**************************************************************************
-     * Create the group manager dialog
+     * Create the group manager dialog. This is executed in a separate thread
+     * since it can take a noticeable amount time to complete, and by using a
+     * separate thread the GUI is allowed to continue to update. The GUI menu
+     * commands, however, are disabled until the telemetry scheduler
+     * initialization completes execution
      *************************************************************************/
     private void initialize()
     {
-        // Create borders for the dialog components
-        border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
-                                                                                    Color.LIGHT_GRAY,
-                                                                                    Color.GRAY),
-                                                    BorderFactory.createEmptyBorder(2, 2, 2, 2));
-        emptyBorder = BorderFactory.createEmptyBorder();
-
-        selectedGroup = null;
-        deletedGroups = new ArrayList<String>();
-
-        // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        1.0,
-                                                        0.0,
-                                                        GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.BOTH,
-                                                        new Insets(LABEL_VERTICAL_SPACING / 2,
-                                                                   LABEL_HORIZONTAL_SPACING / 2,
-                                                                   0,
-                                                                   0),
-                                                        0,
-                                                        0);
-
-        // Build the group tree
-        groupTree = new CcddGroupTreeHandler(ccddMain, ccddMain.getMainFrame())
+        // Build the variable group manager dialog in the background
+        CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
         {
+            // Create panels to hold the components of the dialog
+            JPanel dialogPnl = new JPanel(new GridBagLayout());
+            JPanel buttonPnl = new JPanel();
+
             /******************************************************************
-             * Respond to changes in selection of a node in the group tree.
-             * This replaces the placeholder method in CcddTableTreeHandler
+             * Build the variable link manager dialog
              *****************************************************************/
             @Override
-            protected void updateTableSelection()
+            protected void execute()
             {
-                // Needed for the group manager dialog's size to be adjusted
-                // for the data fields
-                CcddGroupManagerDialog.this.setPreferredSize(null);
+                // Create borders for the dialog components
+                border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                            Color.LIGHT_GRAY,
+                                                                                            Color.GRAY),
+                                                            BorderFactory.createEmptyBorder(2, 2, 2, 2));
+                emptyBorder = BorderFactory.createEmptyBorder();
 
-                // Store any changes to the currently selected group, if
-                // applicable
-                updateSelectedGroupInformation();
+                selectedGroup = null;
+                deletedGroups = new ArrayList<String>();
 
-                // Get the name of the selected group(s)
-                String[] selected = getSelectedNode();
+                // Set the initial layout manager characteristics
+                GridBagConstraints gbc = new GridBagConstraints(0,
+                                                                0,
+                                                                1,
+                                                                1,
+                                                                1.0,
+                                                                0.0,
+                                                                GridBagConstraints.LINE_START,
+                                                                GridBagConstraints.BOTH,
+                                                                new Insets(LABEL_VERTICAL_SPACING / 2,
+                                                                           LABEL_HORIZONTAL_SPACING / 2,
+                                                                           0,
+                                                                           0),
+                                                                0,
+                                                                0);
 
-                // If a single group is selected then set the selected group,
-                // enable and populate the description field, and display the
-                // group's data fields; otherwise clear the selected group,
-                // disable and clear the description field, and remove any data
-                // fields
-                setGroupAndFields(selected.length == 1
-                                                      ? selected[0]
-                                                      : null);
-
-                // Validate the dialog to redraw the description and field area
-                // correctly
-                CcddGroupManagerDialog.this.validate();
-
-                // Needed so that any dialogs spawned from this one are
-                // positioned relative to the group manager dialog
-                CcddGroupManagerDialog.this.setPreferredSize(CcddGroupManagerDialog.this.getPreferredSize());
-            }
-        };
-
-        // Store the initial group information
-        copyGroupInformation();
-
-        // Create panels to hold the components of the dialog
-        JPanel managerPnl = new JPanel(new GridBagLayout());
-        JPanel titlePnl = new JPanel(new GridBagLayout());
-        JPanel treePnl = new JPanel(new GridBagLayout());
-        managerPnl.setBorder(emptyBorder);
-        titlePnl.setBorder(emptyBorder);
-        treePnl.setBorder(emptyBorder);
-
-        // Create the group manager dialog labels and fields
-        JLabel dlgLabel = new JLabel("Assign tables to groups");
-        dlgLabel.setFont(LABEL_FONT_BOLD);
-        titlePnl.add(dlgLabel, gbc);
-
-        // Add the upper panel components to the dialog panel
-        managerPnl.add(titlePnl, gbc);
-
-        // Build the table tree showing both table prototypes and table
-        // instances; i.e., parent tables with their child tables (i.e.,
-        // parents with children)
-        tableTree = new CcddTableTreeHandler(ccddMain,
-                                             null,
-                                             TableTreeType.PROTOTYPE_AND_INSTANCE,
-                                             false,
-                                             true,
-                                             ccddMain.getMainFrame())
-        {
-            /******************************************************************
-             * Respond to changes in selection of a node in the table tree
-             *****************************************************************/
-            @Override
-            protected void updateTableSelection()
-            {
-                // Check that a node selection change is not in progress
-                if (!isNodeSelectionChanging)
+                // Build the group tree
+                groupTree = new CcddGroupTreeHandler(ccddMain, ccddMain.getMainFrame())
                 {
-                    // Set the flag to prevent variable tree updates
-                    isNodeSelectionChanging = true;
-
-                    // Deselect any nodes that don't represent a table or the
-                    // level immediately above the table level
-                    clearNonTableNodes(1);
-
-                    // Reset the flag to allow variable tree updates
-                    isNodeSelectionChanging = false;
-                }
-            }
-        };
-
-        // Create a table tree panel and add it to another panel (in order to
-        // control spacing)
-        gbc.insets.top = 0;
-        gbc.insets.bottom = LABEL_VERTICAL_SPACING / 2;
-        gbc.weighty = 1.0;
-        treePnl.add(tableTree.createTreePanel("Tables",
-                                              TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
-                                              ccddMain.getMainFrame()),
-                    gbc);
-        gbc.insets.top = LABEL_VERTICAL_SPACING / 2;
-        gbc.insets.bottom = 0;
-
-        // Create a split pane containing the table tree in the left pane and
-        // the group tree in the right pane and add it to the panel. The arrow
-        // button panel is used as the split pane divider
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING;
-        gbc.insets.right = LABEL_HORIZONTAL_SPACING;
-        gbc.gridy++;
-        managerPnl.add(new CustomSplitPane(treePnl,
-                                           groupTree.createTreePanel("Groups",
-                                                                     TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
-                                                                     false,
-                                                                     ccddMain.getMainFrame()),
-                                           createArrowButtonPanel()),
-                       gbc);
-
-        // Create the field panel for the description and data fields
-        fieldPnl = new FieldPanel();
-        fieldPnl.createEditorPanel(CcddGroupManagerDialog.this,
-                                   null,
-                                   null,
-                                   "",
-                                   groupTree.getFieldHandler());
-
-        // Add an undo edit manager and add it as a listener for undo/redo
-        // changes
-        undoManager = new CcddUndoManager()
-        {
-            /******************************************************************
-             * Update the change indicator if the editor panel has changed
-             *****************************************************************/
-            @Override
-            protected void ownerHasChanged()
-            {
-                updateChangeIndicator();
-            }
-        };
-
-        // Set the undo/redo manager for the description and data field values
-        fieldPnl.setEditPanelUndoManager(undoManager);
-
-        // Set the undo manager in the keyboard handler while the group manager
-        // is active
-        ccddMain.getKeyboardHandler().setModalUndoManager(undoManager);
-
-        // Add the field panel to the dialog
-        gbc.insets.top = LABEL_VERTICAL_SPACING / 2;
-        gbc.insets.left = 0;
-        gbc.insets.bottom = 0;
-        gbc.insets.right = 0;
-        gbc.weighty = 0.0;
-        gbc.gridy++;
-        managerPnl.add(fieldPnl.getEditorPanel(), gbc);
-
-        // Create a check box for showing/changing the group CFS application
-        // status
-        applicationCb = new JCheckBox("Group represents a CFS application");
-        applicationCb.setFont(LABEL_FONT_BOLD);
-        applicationCb.setBorder(emptyBorder);
-        applicationCb.setEnabled(false);
-        gbc.insets.top = LABEL_VERTICAL_SPACING;
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING;
-        gbc.gridy = 0;
-        fieldPnl.getEditorPanel().add(applicationCb, gbc, 0);
-
-        // Add a listener for the application check box
-        applicationCb.addActionListener(new ActionListener()
-        {
-            /******************************************************************
-             * Handle a change in the application check box status
-             *****************************************************************/
-            @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                // Check if the application check box is selected and a group
-                // is selected
-                if (((JCheckBox) ae.getSource()).isSelected()
-                    && selectedGroup != null)
-                {
-                    // Get the field information for the group
-                    GroupInformation groupInfo = groupTree.getGroupHandler().getGroupInformationByName(selectedGroup.getName());
-                    List<FieldInformation> fieldInformation = groupInfo.getFieldInformation();
-
-                    // Step through each default application data field
-                    for (DefaultApplicationField field : DefaultApplicationField.values())
+                    /**********************************************************
+                     * Respond to changes in selection of a node in the group
+                     * tree. This replaces the placeholder method in
+                     * CcddTableTreeHandler
+                     *********************************************************/
+                    @Override
+                    protected void updateTableSelection()
                     {
-                        // Create a new data field
-                        FieldInformation newField = field.createFieldInformation(CcddFieldHandler.getFieldGroupName(selectedGroup.getName()));
+                        // Needed for the group manager dialog's size to be
+                        // adjusted for the data fields
+                        CcddGroupManagerDialog.this.setPreferredSize(null);
 
-                        boolean isExists = false;
+                        // Store any changes to the currently selected group,
+                        // if applicable
+                        updateSelectedGroupInformation();
 
-                        // Step through the group's existing data fields
-                        for (FieldInformation fieldInfo : fieldInformation)
+                        // Get the name of the selected group(s)
+                        String[] selected = getSelectedNode();
+
+                        // If a single group is selected then set the selected
+                        // group, enable and populate the description field,
+                        // and display the group's data fields; otherwise clear
+                        // the selected group, disable and clear the
+                        // description field, and remove any data fields
+                        setGroupAndFields(selected.length == 1
+                                                              ? selected[0]
+                                                              : null);
+
+                        // Validate the dialog to redraw the description and
+                        // field area correctly
+                        CcddGroupManagerDialog.this.validate();
+
+                        // Needed so that any dialogs spawned from this one are
+                        // positioned relative to the group manager dialog
+                        CcddGroupManagerDialog.this.setPreferredSize(CcddGroupManagerDialog.this.getPreferredSize());
+                    }
+                };
+
+                // Store the initial group information
+                copyGroupInformation();
+
+                // Create panels to hold the components of the dialog
+                JPanel titlePnl = new JPanel(new GridBagLayout());
+                JPanel treePnl = new JPanel(new GridBagLayout());
+                dialogPnl.setBorder(emptyBorder);
+                titlePnl.setBorder(emptyBorder);
+                treePnl.setBorder(emptyBorder);
+
+                // Create the group manager dialog labels and fields
+                JLabel dlgLabel = new JLabel("Assign tables to groups");
+                dlgLabel.setFont(LABEL_FONT_BOLD);
+                titlePnl.add(dlgLabel, gbc);
+
+                // Add the upper panel components to the dialog panel
+                dialogPnl.add(titlePnl, gbc);
+
+                // Build the table tree showing both table prototypes and table
+                // instances; i.e., parent tables with their child tables
+                // (i.e., parents with children)
+                tableTree = new CcddTableTreeHandler(ccddMain,
+                                                     null,
+                                                     TableTreeType.PROTOTYPE_AND_INSTANCE,
+                                                     false,
+                                                     true,
+                                                     ccddMain.getMainFrame())
+                {
+                    /**********************************************************
+                     * Respond to changes in selection of a node in the table
+                     * tree
+                     *********************************************************/
+                    @Override
+                    protected void updateTableSelection()
+                    {
+                        // Check that a node selection change is not in
+                        // progress
+                        if (!isNodeSelectionChanging)
                         {
-                            // Check if the data field already exists
-                            if (newField.getFieldName().equals(fieldInfo.getFieldName()))
+                            // Set the flag to prevent variable tree updates
+                            isNodeSelectionChanging = true;
+
+                            // Deselect any nodes that don't represent a table
+                            // or the level immediately above the table level
+                            clearNonTableNodes(1);
+
+                            // Reset the flag to allow variable tree updates
+                            isNodeSelectionChanging = false;
+                        }
+                    }
+                };
+
+                // Create a table tree panel and add it to another panel (in
+                // order to control spacing)
+                gbc.insets.top = 0;
+                gbc.insets.bottom = LABEL_VERTICAL_SPACING / 2;
+                gbc.weighty = 1.0;
+                treePnl.add(tableTree.createTreePanel("Tables",
+                                                      TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
+                                                      ccddMain.getMainFrame()),
+                            gbc);
+                gbc.insets.top = LABEL_VERTICAL_SPACING / 2;
+                gbc.insets.bottom = 0;
+
+                // Create a split pane containing the table tree in the left
+                // pane and the group tree in the right pane and add it to the
+                // panel. The arrow button panel is used as the split pane
+                // divider
+                gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+                gbc.insets.right = LABEL_HORIZONTAL_SPACING;
+                gbc.gridy++;
+                dialogPnl.add(new CustomSplitPane(treePnl,
+                                                  groupTree.createTreePanel("Groups",
+                                                                            TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
+                                                                            false,
+                                                                            ccddMain.getMainFrame()),
+                                                  createArrowButtonPanel()),
+                              gbc);
+
+                // Create the field panel for the description and data fields
+                fieldPnl = new FieldPanel();
+                fieldPnl.createEditorPanel(CcddGroupManagerDialog.this,
+                                           null,
+                                           null,
+                                           "",
+                                           groupTree.getFieldHandler());
+
+                // Add an undo edit manager and add it as a listener for
+                // undo/redo changes
+                undoManager = new CcddUndoManager()
+                {
+                    /**********************************************************
+                     * Update the change indicator if the editor panel has
+                     * changed
+                     *********************************************************/
+                    @Override
+                    protected void ownerHasChanged()
+                    {
+                        updateChangeIndicator();
+                    }
+                };
+
+                // Set the undo/redo manager for the description and data field
+                // values
+                fieldPnl.setEditPanelUndoManager(undoManager);
+
+                // Set the undo manager in the keyboard handler while the group
+                // manager is active
+                ccddMain.getKeyboardHandler().setModalUndoManager(undoManager);
+
+                // Add the field panel to the dialog
+                gbc.insets.top = LABEL_VERTICAL_SPACING / 2;
+                gbc.insets.left = 0;
+                gbc.insets.bottom = 0;
+                gbc.insets.right = 0;
+                gbc.weighty = 0.0;
+                gbc.gridy++;
+                dialogPnl.add(fieldPnl.getEditorPanel(), gbc);
+
+                // Create a check box for showing/changing the group CFS
+                // application status
+                applicationCb = new JCheckBox("Group represents a CFS application");
+                applicationCb.setFont(LABEL_FONT_BOLD);
+                applicationCb.setBorder(emptyBorder);
+                applicationCb.setEnabled(false);
+                gbc.insets.top = LABEL_VERTICAL_SPACING;
+                gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+                gbc.gridy = 0;
+                fieldPnl.getEditorPanel().add(applicationCb, gbc, 0);
+
+                // Add a listener for the application check box
+                applicationCb.addActionListener(new ActionListener()
+                {
+                    /**********************************************************
+                     * Handle a change in the application check box status
+                     *********************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        // Check if the application check box is selected and a
+                        // group is selected
+                        if (((JCheckBox) ae.getSource()).isSelected()
+                            && selectedGroup != null)
+                        {
+                            // Get the field information for the group
+                            GroupInformation groupInfo = groupTree.getGroupHandler().getGroupInformationByName(selectedGroup.getName());
+                            List<FieldInformation> fieldInformation = groupInfo.getFieldInformation();
+
+                            // Step through each default application data field
+                            for (DefaultApplicationField field : DefaultApplicationField.values())
                             {
-                                // Set the flag indicating the field exists and
-                                // stop searching
-                                isExists = true;
-                                break;
+                                // Create a new data field
+                                FieldInformation newField = field.createFieldInformation(CcddFieldHandler.getFieldGroupName(selectedGroup.getName()));
+
+                                boolean isExists = false;
+
+                                // Step through the group's existing data
+                                // fields
+                                for (FieldInformation fieldInfo : fieldInformation)
+                                {
+                                    // Check if the data field already exists
+                                    if (newField.getFieldName().equals(fieldInfo.getFieldName()))
+                                    {
+                                        // Set the flag indicating the field
+                                        // exists and stop searching
+                                        isExists = true;
+                                        break;
+                                    }
+                                }
+
+                                // Check if the field doesn't exists
+                                if (!isExists)
+                                {
+                                    // Add the field to the group
+                                    fieldInformation.add(newField);
+                                }
+                            }
+
+                            // Build the data field panel
+                            fieldPnl.createDataFieldPanel();
+
+                            // Force the table editor to redraw in order for
+                            // the field updates to appear
+                            fieldPnl.getTableEditor().validate();
+                            fieldPnl.getTableEditor().repaint();
+                        }
+                    }
+                });
+
+                // Define the buttons for the lower panel:
+                // New group button
+                JButton btnNewGroup = CcddButtonPanelHandler.createButton("New",
+                                                                          INSERT_ICON,
+                                                                          KeyEvent.VK_N,
+                                                                          "Create a new group");
+
+                // Add a listener for the New button
+                btnNewGroup.addActionListener(new ActionListener()
+                {
+                    /**********************************************************
+                     * Add a new group
+                     *********************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        newGroup();
+                    }
+                });
+
+                // Delete group button
+                JButton btnDeleteGroup = CcddButtonPanelHandler.createButton("Delete",
+                                                                             DELETE_ICON,
+                                                                             KeyEvent.VK_D,
+                                                                             "Delete an existing group");
+
+                // Add a listener for the Delete button
+                btnDeleteGroup.addActionListener(new ActionListener()
+                {
+                    /**********************************************************
+                     * Delete the selected group(s)
+                     *********************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        deleteGroup();
+                    }
+                });
+
+                // Rename group button
+                btnRenameGroup = CcddButtonPanelHandler.createButton("Rename",
+                                                                     RENAME_ICON,
+                                                                     KeyEvent.VK_D,
+                                                                     "Rename an existing group");
+
+                // Add a listener for the Rename button
+                btnRenameGroup.addActionListener(new ActionListener()
+                {
+                    /**********************************************************
+                     * Rename the selected group
+                     *********************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        renameGroup();
+                    }
+                });
+
+                // Copy group button
+                btnCopyGroup = CcddButtonPanelHandler.createButton("Copy",
+                                                                   COPY_ICON,
+                                                                   KeyEvent.VK_P,
+                                                                   "Copy an existing group");
+
+                // Add a listener for the Copy button
+                btnCopyGroup.addActionListener(new ActionListener()
+                {
+                    /**********************************************************
+                     * Copy the selected group
+                     *********************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        copyGroup();
+                    }
+                });
+
+                // Manage fields button
+                btnManageFields = CcddButtonPanelHandler.createButton("Fields",
+                                                                      FIELD_ICON,
+                                                                      KeyEvent.VK_F,
+                                                                      "Manage the data fields");
+
+                // Add a listener for the Manage Fields command
+                btnManageFields.addActionListener(new ActionListener()
+                {
+                    /**********************************************************
+                     * Manage the data fields
+                     *********************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        // Create the field editor dialog showing the fields
+                        // for this group
+                        new CcddFieldEditorDialog(fieldPnl,
+                                                  CcddFieldHandler.getFieldGroupName(selectedGroup.getName()),
+                                                  false);
+                    }
+                });
+
+                // Clear fields button
+                btnClearValues = CcddButtonPanelHandler.createButton("Clear",
+                                                                     CLEAR_ICON,
+                                                                     KeyEvent.VK_C,
+                                                                     "Clear the data fields");
+                // Add a listener for the Clear values command
+                btnClearValues.addActionListener(new ActionListener()
+                {
+                    /**********************************************************
+                     * Clear the table data field values
+                     *********************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        // Check if there are any data fields to clear
+                        if (!fieldPnl.getFieldHandler().getFieldInformation().isEmpty())
+                        {
+                            // Confirm clearing the data field values
+                            if (new CcddDialogHandler().showMessageDialog(CcddGroupManagerDialog.this,
+                                                                          "<html><b>Clear the data field values?",
+                                                                          "Clear Field Values",
+                                                                          JOptionPane.QUESTION_MESSAGE,
+                                                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                            {
+                                // Clear all of the data field values for the
+                                // group
+                                fieldPnl.getFieldHandler().clearFieldValues();
                             }
                         }
+                    }
+                });
 
-                        // Check if the field doesn't exists
-                        if (!isExists)
+                // Store groups button
+                JButton btnStoreGroups = CcddButtonPanelHandler.createButton("Store",
+                                                                             STORE_ICON,
+                                                                             KeyEvent.VK_S,
+                                                                             "Store group updates in the database");
+
+                // Add a listener for the Store button
+                btnStoreGroups.addActionListener(new ActionListener()
+                {
+                    /**********************************************************
+                     * Store the groups in the database
+                     *********************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        // Check if the groups have changed since the last
+                        // database commit, that the user confirms storing the
+                        // groups, and, if the data field table editor is open
+                        // and has changes that the user confirms discarding
+                        // them
+                        if (isGroupsChanged()
+                            && new CcddDialogHandler().showMessageDialog(CcddGroupManagerDialog.this,
+                                                                         "<html><b>Store groups?",
+                                                                         "Store Groups",
+                                                                         JOptionPane.QUESTION_MESSAGE,
+                                                                         DialogOption.OK_CANCEL_OPTION) == OK_BUTTON
+                            && ignoreFieldTableChanges()
+                        )
                         {
-                            // Add the field to the group
-                            fieldInformation.add(newField);
+                            // Store the group list into the database
+                            dbTable.storeInformationTableInBackground(InternalTable.GROUPS,
+                                                                      currentGroups,
+                                                                      updateFields,
+                                                                      deletedGroups,
+                                                                      null,
+                                                                      CcddGroupManagerDialog.this);
                         }
                     }
+                });
 
-                    // Build the data field panel
-                    fieldPnl.createDataFieldPanel();
+                // Close button
+                JButton btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                                       CLOSE_ICON,
+                                                                       KeyEvent.VK_C,
+                                                                       "Close the group manager");
 
-                    // Force the table editor to redraw in order for the field
-                    // updates to appear
-                    fieldPnl.getTableEditor().validate();
-                    fieldPnl.getTableEditor().repaint();
-                }
-            }
-        });
-
-        // Create the button panel
-        JPanel buttonPnl = new JPanel();
-
-        // Define the buttons for the lower panel:
-        // New group button
-        JButton btnNewGroup = CcddButtonPanelHandler.createButton("New",
-                                                                  INSERT_ICON,
-                                                                  KeyEvent.VK_N,
-                                                                  "Create a new group");
-
-        // Add a listener for the New button
-        btnNewGroup.addActionListener(new ActionListener()
-        {
-            /******************************************************************
-             * Add a new group
-             *****************************************************************/
-            @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                newGroup();
-            }
-        });
-
-        // Delete group button
-        JButton btnDeleteGroup = CcddButtonPanelHandler.createButton("Delete",
-                                                                     DELETE_ICON,
-                                                                     KeyEvent.VK_D,
-                                                                     "Delete an existing group");
-
-        // Add a listener for the Delete button
-        btnDeleteGroup.addActionListener(new ActionListener()
-        {
-            /******************************************************************
-             * Delete the selected group(s)
-             *****************************************************************/
-            @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                deleteGroup();
-            }
-        });
-
-        // Rename group button
-        btnRenameGroup = CcddButtonPanelHandler.createButton("Rename",
-                                                             RENAME_ICON,
-                                                             KeyEvent.VK_D,
-                                                             "Rename an existing group");
-
-        // Add a listener for the Rename button
-        btnRenameGroup.addActionListener(new ActionListener()
-        {
-            /******************************************************************
-             * Rename the selected group
-             *****************************************************************/
-            @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                renameGroup();
-            }
-        });
-
-        // Copy group button
-        btnCopyGroup = CcddButtonPanelHandler.createButton("Copy",
-                                                           COPY_ICON,
-                                                           KeyEvent.VK_P,
-                                                           "Copy an existing group");
-
-        // Add a listener for the Copy button
-        btnCopyGroup.addActionListener(new ActionListener()
-        {
-            /******************************************************************
-             * Copy the selected group
-             *****************************************************************/
-            @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                copyGroup();
-            }
-        });
-
-        // Manage fields button
-        btnManageFields = CcddButtonPanelHandler.createButton("Fields",
-                                                              FIELD_ICON,
-                                                              KeyEvent.VK_F,
-                                                              "Manage the data fields");
-
-        // Add a listener for the Manage Fields command
-        btnManageFields.addActionListener(new ActionListener()
-        {
-            /******************************************************************
-             * Manage the data fields
-             *****************************************************************/
-            @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                // Create the field editor dialog showing the fields for this
-                // group
-                new CcddFieldEditorDialog(fieldPnl,
-                                          CcddFieldHandler.getFieldGroupName(selectedGroup.getName()),
-                                          false);
-            }
-        });
-
-        // Clear fields button
-        btnClearValues = CcddButtonPanelHandler.createButton("Clear",
-                                                             CLEAR_ICON,
-                                                             KeyEvent.VK_C,
-                                                             "Clear the data fields");
-        // Add a listener for the Clear values command
-        btnClearValues.addActionListener(new ActionListener()
-        {
-            /******************************************************************
-             * Clear the table data field values
-             *****************************************************************/
-            @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                // Check if there are any data fields to clear
-                if (!fieldPnl.getFieldHandler().getFieldInformation().isEmpty())
+                // Add a listener for the Close button
+                btnClose.addActionListener(new ActionListener()
                 {
-                    // Confirm clearing the data field values
-                    if (new CcddDialogHandler().showMessageDialog(CcddGroupManagerDialog.this,
-                                                                  "<html><b>Clear the data field values?",
-                                                                  "Clear Field Values",
-                                                                  JOptionPane.QUESTION_MESSAGE,
-                                                                  DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                    /**********************************************************
+                     * Close the group selection dialog
+                     *********************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
                     {
-                        // Clear all of the data field values for the group
-                        fieldPnl.getFieldHandler().clearFieldValues();
+                        // Check if there are no changes to the groups or if
+                        // the user elects to discard the changes
+                        if (!isGroupsChanged()
+                            || new CcddDialogHandler().showMessageDialog(CcddGroupManagerDialog.this,
+                                                                         "<html><b>Discard changes?",
+                                                                         "Discard Changes",
+                                                                         JOptionPane.QUESTION_MESSAGE,
+                                                                         DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                        {
+                            // Close the dialog
+                            closeDialog();
+
+                            // Clear the undo manager in the keyboard handler
+                            ccddMain.getKeyboardHandler().setModalUndoManager(null);
+                        }
                     }
-                }
+                });
+
+                // Set the initial enable status of the buttons
+                setGroupButtonsEnabled(false);
+
+                // Add buttons in the order in which they'll appear (left to
+                // right, top to bottom)
+                buttonPnl.add(btnNewGroup);
+                buttonPnl.add(btnRenameGroup);
+                buttonPnl.add(btnManageFields);
+                buttonPnl.add(btnStoreGroups);
+                buttonPnl.add(btnDeleteGroup);
+                buttonPnl.add(btnCopyGroup);
+                buttonPnl.add(btnClearValues);
+                buttonPnl.add(btnClose);
+
+                // Distribute the buttons across two rows
+                setButtonRows(2);
             }
-        });
 
-        // Store groups button
-        JButton btnStoreGroups = CcddButtonPanelHandler.createButton("Store",
-                                                                     STORE_ICON,
-                                                                     KeyEvent.VK_S,
-                                                                     "Store group updates in the database");
-
-        // Add a listener for the Store button
-        btnStoreGroups.addActionListener(new ActionListener()
-        {
             /******************************************************************
-             * Store the groups in the database
+             * Group manager dialog creation complete
              *****************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae)
+            protected void complete()
             {
-                // Check if the groups have changed since the last database
-                // commit, that the user confirms storing the groups, and, if
-                // the data field table editor is open and has changes that the
-                // user confirms discarding them
-                if (isGroupsChanged()
-                    && new CcddDialogHandler().showMessageDialog(CcddGroupManagerDialog.this,
-                                                                 "<html><b>Store groups?",
-                                                                 "Store Groups",
-                                                                 JOptionPane.QUESTION_MESSAGE,
-                                                                 DialogOption.OK_CANCEL_OPTION) == OK_BUTTON
-                    && ignoreFieldTableChanges()
-                )
-                {
-                    // Store the group list into the database
-                    dbTable.storeInformationTableInBackground(InternalTable.GROUPS,
-                                                  currentGroups,
-                                                  updateFields,
-                                                  deletedGroups,
-                                                  null,
-                                                  CcddGroupManagerDialog.this);
-                }
+                // Display the group management dialog
+                showOptionsDialog(ccddMain.getMainFrame(),
+                                  dialogPnl,
+                                  buttonPnl,
+                                  DIALOG_TITLE,
+                                  true);
             }
         });
-
-        // Close button
-        JButton btnClose = CcddButtonPanelHandler.createButton("Close",
-                                                               CLOSE_ICON,
-                                                               KeyEvent.VK_C,
-                                                               "Close the group manager");
-
-        // Add a listener for the Close button
-        btnClose.addActionListener(new ActionListener()
-        {
-            /******************************************************************
-             * Close the group selection dialog
-             *****************************************************************/
-            @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                // Check if there are no changes to the groups or if the user
-                // elects to discard the changes
-                if (!isGroupsChanged()
-                    || new CcddDialogHandler().showMessageDialog(CcddGroupManagerDialog.this,
-                                                                 "<html><b>Discard changes?",
-                                                                 "Discard Changes",
-                                                                 JOptionPane.QUESTION_MESSAGE,
-                                                                 DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-                {
-                    // Close the dialog
-                    closeDialog();
-
-                    // Clear the undo manager in the keyboard handler
-                    ccddMain.getKeyboardHandler().setModalUndoManager(null);
-                }
-            }
-        });
-
-        // Set the initial enable status of the buttons
-        setGroupButtonsEnabled(false);
-
-        // Add buttons in the order in which they'll appear (left to right, top
-        // to bottom)
-        buttonPnl.add(btnNewGroup);
-        buttonPnl.add(btnRenameGroup);
-        buttonPnl.add(btnManageFields);
-        buttonPnl.add(btnStoreGroups);
-        buttonPnl.add(btnDeleteGroup);
-        buttonPnl.add(btnCopyGroup);
-        buttonPnl.add(btnClearValues);
-        buttonPnl.add(btnClose);
-
-        // Distribute the buttons across two rows
-        setButtonRows(2);
-
-        // Display the group management dialog
-        showOptionsDialog(ccddMain.getMainFrame(),
-                          managerPnl,
-                          buttonPnl,
-                          DIALOG_TITLE,
-                          true);
     }
 
     /**************************************************************************

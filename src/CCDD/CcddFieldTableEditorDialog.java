@@ -60,6 +60,7 @@ import javax.swing.tree.TreeSelectionModel;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotUndoException;
 
+import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.CellSelectionHandler;
 import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.ValidateCellActionListener;
@@ -148,14 +149,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         getDataFieldInformation();
 
         // Allow the user to select the data fields to display in the table
-        if (selectDataFields())
-        {
-            // Create the cell selection container
-            selectedCells = new CellSelectionHandler();
-
-            // Create the data field editor dialog
-            initialize();
-        }
+        selectDataFields();
     }
 
     /**************************************************************************
@@ -303,30 +297,672 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     }
 
     /**************************************************************************
-     * Create the data field editor dialog
+     * Display a dialog for the user to select the data fields to display in
+     * the editor table. This is executed in a separate thread since it can
+     * take a noticeable amount time to complete, and by using a separate
+     * thread the GUI is allowed to continue to update. The GUI menu commands,
+     * however, are disabled until the telemetry scheduler initialization
+     * completes execution
      *************************************************************************/
-    private void initialize()
+    private void selectDataFields()
     {
-        // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        1.0,
-                                                        1.0,
-                                                        GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.HORIZONTAL,
-                                                        new Insets(LABEL_VERTICAL_SPACING,
-                                                                   0,
-                                                                   0,
-                                                                   0),
-                                                        LABEL_HORIZONTAL_SPACING,
-                                                        0);
+        // Build the data field selection dialog in the background
+        CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
+        {
+            // Create panels to hold the components of the dialog
+            JPanel selectPnl = new JPanel(new GridBagLayout());
 
-        // Create a panel to contain the dialog components
-        JPanel dialogPnl = new JPanel(new GridBagLayout());
-        dialogPnl.setBorder(BorderFactory.createEmptyBorder());
+            /******************************************************************
+             * Build the data field selection dialog
+             *****************************************************************/
+            @Override
+            protected void execute()
+            {
+                // Create an empty border to surround the panels
+                Border emptyBorder = BorderFactory.createEmptyBorder();
 
+                // Set the initial layout manager characteristics
+                GridBagConstraints gbc = new GridBagConstraints(0,
+                                                                1,
+                                                                1,
+                                                                1,
+                                                                1.0,
+                                                                0.0,
+                                                                GridBagConstraints.LINE_START,
+                                                                GridBagConstraints.BOTH,
+                                                                new Insets(LABEL_VERTICAL_SPACING / 2,
+                                                                           LABEL_HORIZONTAL_SPACING,
+                                                                           0,
+                                                                           0),
+                                                                0,
+                                                                0);
+
+                // Create a selection dialog, a panel for the table
+                // selection tree, and a panel to contain a check box for each
+                // unique data field name
+                selectDlg = new CcddDialogHandler()
+                {
+                    /**********************************************************
+                     * Verify input fields
+                     * 
+                     * @return true if the dialog input is valid
+                     *********************************************************/
+                    @Override
+                    protected boolean verifySelection()
+                    {
+                        // Assume the dialog input is valid
+                        boolean isValid = true;
+
+                        // Check if no data field check box is selected
+                        if (selectDlg.getCheckBoxSelected().length == 0)
+                        {
+                            // Inform the user that a field must be selected
+                            new CcddDialogHandler().showMessageDialog(this,
+                                                                      "<html><b>Must select at least one data field",
+                                                                      "No Data Field Selected",
+                                                                      JOptionPane.WARNING_MESSAGE,
+                                                                      DialogOption.OK_OPTION);
+                            isValid = false;
+                        }
+
+                        return isValid;
+                    }
+                };
+
+                JPanel fieldPnl = new JPanel(new GridBagLayout());
+                selectPnl.setBorder(emptyBorder);
+                fieldPnl.setBorder(emptyBorder);
+
+                // Create a panel containing a grid of check boxes
+                // representing the data fields from which to choose
+                if (selectDlg.addCheckBoxes(null,
+                                            getDataFieldNames(),
+                                            null,
+                                            "Select data fields to display/edit",
+                                            fieldPnl))
+                {
+                    // Check if more than one data field name check box
+                    // exists
+                    if (selectDlg.getCheckBoxes().length > 2)
+                    {
+                        // Create a Select All check box
+                        final JCheckBox selectAllCb = new JCheckBox("Select all data fields",
+                                                                    false);
+                        selectAllCb.setFont(LABEL_FONT_BOLD);
+                        selectAllCb.setBorder(emptyBorder);
+
+                        // Create a listener for changes to the Select All
+                        // check box selection status
+                        selectAllCb.addActionListener(new ActionListener()
+                        {
+                            /**************************************************
+                             * Handle a change to the Select All check box
+                             * selection status
+                             *************************************************/
+                            @Override
+                            public void actionPerformed(ActionEvent ae)
+                            {
+                                // Step through each data field name check
+                                // box
+                                for (JCheckBox fieldCb : selectDlg.getCheckBoxes())
+                                {
+                                    // Set the check box selection status
+                                    // to match the Select All check box
+                                    // selection status
+                                    fieldCb.setSelected(selectAllCb.isSelected());
+                                }
+                            }
+                        });
+
+                        // Add the Select All checkbox to the field name
+                        // panel
+                        gbc.gridy++;
+                        fieldPnl.add(selectAllCb, gbc);
+                    }
+
+                    // Check if data fields are selected already (i.e.,
+                    // this method is called via the Select button)
+                    if (columnNames != null)
+                    {
+                        // Step through the list of check boxes
+                        // representing the data fields
+                        for (JCheckBox cb : selectDlg.getCheckBoxes())
+                        {
+                            // Select the data field check box if the field
+                            // was displayed when the Select button was pressed
+                            cb.setSelected(Arrays.asList(columnNames).contains(cb.getText()));
+                        }
+                    }
+
+                    // Build the table tree showing both table prototypes and
+                    // table instances; i.e., parent tables with their child
+                    // tables (i.e., parents with children)
+                    tableTree = new CcddTableTreeHandler(ccddMain,
+                                                         new CcddGroupHandler(ccddMain,
+                                                                              CcddFieldTableEditorDialog.this),
+                                                         TableTreeType.PROTOTYPE_AND_INSTANCE,
+                                                         true,
+                                                         false,
+                                                         CcddFieldTableEditorDialog.this)
+                    {
+                        /******************************************************
+                         * Respond to changes in selection of a node in the
+                         * table tree
+                         *****************************************************/
+                        @Override
+                        protected void updateTableSelection()
+                        {
+                            // Check that a node selection change is not in
+                            // progress
+                            if (!isNodeSelectionChanging)
+                            {
+                                // Set the flag to prevent variable tree
+                                // updates
+                                isNodeSelectionChanging = true;
+
+                                // Deselect any nodes that don't represent
+                                // a table or the level immediately above the
+                                // table level
+                                clearNonTableNodes(1);
+
+                                // Reset the flag to allow variable tree
+                                // updates
+                                isNodeSelectionChanging = false;
+                            }
+                        }
+                    };
+
+                    // Add the tree to the selection panel
+                    gbc.insets.top = LABEL_VERTICAL_SPACING;
+                    gbc.weighty = 1.0;
+                    gbc.gridy = 0;
+                    selectPnl.add(tableTree.createTreePanel("Tables",
+                                                            TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
+                                                            ccddMain.getMainFrame()),
+                                  gbc);
+
+                    // Add the field panel to the selection panel
+                    gbc.insets.top = 0;
+                    gbc.insets.left = 0;
+                    gbc.weightx = 0.0;
+                    gbc.weighty = 0.0;
+                    gbc.gridx++;
+                    selectPnl.add(fieldPnl, gbc);
+                }
+                // No data field exists to choose
+                else
+                {
+                    // Inform the user that no data field is defined
+                    new CcddDialogHandler().showMessageDialog((isVisible()
+                                                                          ? CcddFieldTableEditorDialog.this
+                                                                          : ccddMain.getMainFrame()),
+                                                              "<html><b>No data field exists",
+                                                              "No Data Field",
+                                                              JOptionPane.WARNING_MESSAGE,
+                                                              DialogOption.OK_OPTION);
+                }
+            }
+
+            /******************************************************************
+             * Data field selection dialog creation complete
+             *****************************************************************/
+            @Override
+            protected void complete()
+            {
+                // Display the data field selection dialog
+                if (selectDlg.showOptionsDialog((isVisible()
+                                                            ? CcddFieldTableEditorDialog.this
+                                                            : ccddMain.getMainFrame()),
+                                                selectPnl,
+                                                "Select Data Field(s)",
+                                                DialogOption.OK_CANCEL_OPTION,
+                                                true) == OK_BUTTON)
+                {
+                    // Create a list for the column names. Add the default
+                    // columns (table name and path)
+                    List<String> columnNamesList = new ArrayList<String>();
+                    columnNamesList.add(FieldTableEditorColumnInfo.OWNER.getColumnName());
+                    columnNamesList.add(FieldTableEditorColumnInfo.PATH.getColumnName());
+
+                    // Step through each selected data field name
+                    for (String name : selectDlg.getCheckBoxSelected())
+                    {
+                        // Add the data field name to the column name list
+                        columnNamesList.add(name);
+                    }
+
+                    // Convert the list of column names to an array
+                    columnNames = columnNamesList.toArray(new String[0]);
+
+                    // Create the cell selection container
+                    selectedCells = new CellSelectionHandler();
+
+                    // Clear any removal selections
+                    selectedCells.clear();
+
+                    // Check if this is the initial display of the selection
+                    // dialog
+                    if (dataFieldTable == null)
+                    {
+                        // Create the data field editor dialog
+                        displayDataFieldTableEditor();
+                    }
+                    // The selection dialog is spawned from the data field
+                    // table editor
+                    else
+                    {
+                        // Reload the data field table
+                        dataFieldTable.loadAndFormatData();
+
+                        // Check if the field table editor dialog is already
+                        // open
+                        if (CcddFieldTableEditorDialog.this.isVisible())
+                        {
+                            // Reposition the field table editor dialog
+                            positionFieldEditorDialog();
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /**************************************************************************
+     * Create the data field table editor dialog. This is executed in a
+     * separate thread since it can take a noticeable amount time to complete,
+     * and by using a separate thread the GUI is allowed to continue to update.
+     * The GUI menu commands, however, are disabled until the telemetry
+     * scheduler initialization completes execution
+     *************************************************************************/
+    private void displayDataFieldTableEditor()
+    {
+        // Build the data field editor table dialog in the background
+        CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
+        {
+            // Create panels to hold the components of the dialog
+            JPanel dialogPnl = new JPanel(new GridBagLayout());
+            JPanel buttonPnl = new JPanel();
+
+            /******************************************************************
+             * Build the data field table editor dialog
+             *****************************************************************/
+            @Override
+            protected void execute()
+            {
+                // Set the initial layout manager characteristics
+                GridBagConstraints gbc = new GridBagConstraints(0,
+                                                                0,
+                                                                1,
+                                                                1,
+                                                                1.0,
+                                                                1.0,
+                                                                GridBagConstraints.LINE_START,
+                                                                GridBagConstraints.HORIZONTAL,
+                                                                new Insets(LABEL_VERTICAL_SPACING,
+                                                                           0,
+                                                                           0,
+                                                                           0),
+                                                                LABEL_HORIZONTAL_SPACING,
+                                                                0);
+
+                // Define the panel to contain the table
+                JPanel tablePnl = new JPanel();
+                tablePnl.setLayout(new BoxLayout(tablePnl, BoxLayout.X_AXIS));
+                tablePnl.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+                tablePnl.add(createDataFieldTableEditorTable());
+
+                // Add the table to the dialog
+                gbc.gridx = 0;
+                gbc.gridy++;
+                gbc.gridwidth = GridBagConstraints.REMAINDER;
+                gbc.fill = GridBagConstraints.BOTH;
+                gbc.weighty = 1.0;
+                dialogPnl.add(tablePnl, gbc);
+                dialogPnl.setBorder(BorderFactory.createEmptyBorder());
+
+                // Define the buttons for the lower panel:
+                // Select data fields button
+                JButton btnSelect = CcddButtonPanelHandler.createButton("Select",
+                                                                        OK_ICON,
+                                                                        KeyEvent.VK_L,
+                                                                        "Select new data fields");
+
+                // Add a listener for the Select button
+                btnSelect.addActionListener(new ValidateCellActionListener(dataFieldTable)
+                {
+                    /**********************************************************
+                     * Select the data fields and update the data field editor
+                     * table
+                     *********************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        // Confirm discarding pending changes if any exist
+                        if ((!isFieldTableChanged()
+                        || new CcddDialogHandler().showMessageDialog(CcddFieldTableEditorDialog.this,
+                                                                     "<html><b>Discard changes?",
+                                                                     "Discard Changes",
+                                                                     JOptionPane.QUESTION_MESSAGE,
+                                                                     DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
+                        {
+                            // Allow the user to select the data fields to
+                            // display
+                            selectDataFields();
+                        }
+                    }
+                });
+
+                // Delete data fields button
+                JButton btnRemove = CcddButtonPanelHandler.createButton("Remove",
+                                                                        DELETE_ICON,
+                                                                        KeyEvent.VK_R,
+                                                                        "Remove the selected data field(s) from their table(s)");
+
+                // Add a listener for the Remove button
+                btnRemove.addActionListener(new ValidateCellActionListener(dataFieldTable)
+                {
+                    /**********************************************************
+                     * Toggle the removal state of the selected data field(s)
+                     *********************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        toggleRemoveFields();
+                    }
+                });
+
+                // Open tables button
+                JButton btnOpen = CcddButtonPanelHandler.createButton("Open",
+                                                                      TABLE_ICON,
+                                                                      KeyEvent.VK_O,
+                                                                      "Open the table(s) associated with the selected data field(s)");
+
+                // Add a listener for the Open button
+                btnOpen.addActionListener(new ValidateCellActionListener(dataFieldTable)
+                {
+                    /**********************************************************
+                     * Open the table(s) associated with the selected data
+                     * field(s)
+                     *********************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        openTables();
+                    }
+                });
+
+                // Print data field editor table button
+                JButton btnPrint = CcddButtonPanelHandler.createButton("Print",
+                                                                       PRINT_ICON,
+                                                                       KeyEvent.VK_P,
+                                                                       "Print the data field editor table");
+
+                // Add a listener for the Print button
+                btnPrint.addActionListener(new ValidateCellActionListener(dataFieldTable)
+                {
+                    /**********************************************************
+                     * Print the data field editor table
+                     *********************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        dataFieldTable.printTable("Data Field Contents",
+                                                  null,
+                                                  CcddFieldTableEditorDialog.this,
+                                                  PageFormat.LANDSCAPE);
+                    }
+                });
+
+                // Undo button
+                JButton btnUndo = CcddButtonPanelHandler.createButton("Undo",
+                                                                      UNDO_ICON,
+                                                                      KeyEvent.VK_Z,
+                                                                      "Undo the last edit action");
+
+                // Create a listener for the Undo command
+                btnUndo.addActionListener(new ValidateCellActionListener(dataFieldTable)
+                {
+                    /**********************************************************
+                     * Undo the last cell edit
+                     *********************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        dataFieldTable.getUndoManager().undo();
+                    }
+                });
+
+                // Redo button
+                JButton btnRedo = CcddButtonPanelHandler.createButton("Redo",
+                                                                      REDO_ICON,
+                                                                      KeyEvent.VK_Y,
+                                                                      "Redo the last undone edit action");
+
+                // Create a listener for the Redo command
+                btnRedo.addActionListener(new ValidateCellActionListener(dataFieldTable)
+                {
+                    /**********************************************************
+                     * Redo the last cell edit that was undone
+                     *********************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        dataFieldTable.getUndoManager().redo();
+                    }
+                });
+
+                // Store data field values button
+                JButton btnStore = CcddButtonPanelHandler.createButton("Store",
+                                                                       STORE_ICON,
+                                                                       KeyEvent.VK_S,
+                                                                       "Store data field changes");
+
+                // Add a listener for the Store button
+                btnStore.addActionListener(new ValidateCellActionListener(dataFieldTable)
+                {
+                    /**********************************************************
+                     * Store changes to the data field values
+                     *********************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        // Only update the table in the database if a cell's
+                        // content has changed and the user confirms the action
+                        if (isFieldTableChanged()
+                            && new CcddDialogHandler().showMessageDialog(CcddFieldTableEditorDialog.this,
+                                                                         "<html><b>Store changes in database?",
+                                                                         "Store Changes",
+                                                                         JOptionPane.QUESTION_MESSAGE,
+                                                                         DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                        {
+                            // Build the update lists
+                            buildUpdates();
+
+                            // Store the changes to the data fields in the
+                            // database
+                            dbTable.modifyDataFields(fieldModifications,
+                                                     fieldDeletions,
+                                                     CcddFieldTableEditorDialog.this);
+                        }
+                    }
+                });
+
+                // Close button
+                JButton btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                                       CLOSE_ICON,
+                                                                       KeyEvent.VK_C,
+                                                                       "Close the data field editor dialog");
+
+                // Add a listener for the Close button
+                btnClose.addActionListener(new ValidateCellActionListener(dataFieldTable)
+                {
+                    /**********************************************************
+                     * Close the data field editor dialog
+                     *********************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        windowCloseButtonAction();
+                    }
+                });
+
+                // Add the buttons to the panel
+                buttonPnl.add(btnSelect);
+                buttonPnl.add(btnOpen);
+                buttonPnl.add(btnUndo);
+                buttonPnl.add(btnStore);
+                buttonPnl.add(btnRemove);
+                buttonPnl.add(btnPrint);
+                buttonPnl.add(btnRedo);
+                buttonPnl.add(btnClose);
+
+                // Distribute the buttons across two rows
+                setButtonRows(2);
+            }
+
+            /******************************************************************
+             * Data field table editor dialog creation complete
+             *****************************************************************/
+            @Override
+            protected void complete()
+            {
+                // Display the data field table editor dialog
+                createFrame(ccddMain.getMainFrame(),
+                            dialogPnl,
+                            buttonPnl,
+                            DIALOG_TITLE,
+                            null);
+
+                // Reposition the field table editor dialog
+                positionFieldEditorDialog();
+            }
+        });
+    }
+
+    /**************************************************************************
+     * Handle the frame close button press event
+     *************************************************************************/
+    @Override
+    protected void windowCloseButtonAction()
+    {
+        // Check if the contents of the last cell edited in the editor table is
+        // validated and that the table has no uncommitted changes. If changes
+        // exist then confirm discarding the changes
+        if (dataFieldTable.isLastCellValid()
+            && (!isFieldTableChanged()
+            || new CcddDialogHandler().showMessageDialog(CcddFieldTableEditorDialog.this,
+                                                         "<html><b>Discard changes?",
+                                                         "Discard Changes",
+                                                         JOptionPane.QUESTION_MESSAGE,
+                                                         DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
+        {
+            // Close the dialog
+            closeFrame();
+        }
+    }
+
+    /**************************************************************************
+     * Reposition the field table editor dialog relative to the location of the
+     * (now invisible) field selection dialog
+     *************************************************************************/
+    private void positionFieldEditorDialog()
+    {
+        // Get the location of the field selection dialog
+        Point p1 = selectDlg.getLocation();
+
+        // Get the sizes of the editor and selection dialogs
+        Dimension d1 = selectDlg.getSize();
+        Dimension d2 = CcddFieldTableEditorDialog.this.getSize();
+
+        // Move the editor dialog so that it's centered over the selection
+        // dialog's last location
+        CcddFieldTableEditorDialog.this.setLocation(new Point(p1.x + d1.width / 2 - d2.width / 2,
+                                                              p1.y + d1.height / 2 - d2.height / 2));
+    }
+
+    /**************************************************************************
+     * Toggle the removal state of the selected data field cells in the editor
+     * table
+     *************************************************************************/
+    private void toggleRemoveFields()
+    {
+        // Step through each row in the table
+        for (int row = 0; row < dataFieldTable.getRowCount(); row++)
+        {
+            // Step through each column in the table
+            for (int column = 0; column < dataFieldTable.getModel().getColumnCount(); column++)
+            {
+                // Check if this is not the table name or path column
+                if (column != FieldTableEditorColumnInfo.OWNER.ordinal()
+                    && column != FieldTableEditorColumnInfo.PATH.ordinal())
+                {
+                    // Check if the cell at these coordinates is selected
+                    if (dataFieldTable.isCellSelected(row,
+                                                      dataFieldTable.convertColumnIndexToView(column)))
+                    {
+                        // Flag to indicate if a selection or deselection
+                        // occurred
+                        boolean isSelected;
+
+                        // Check if the cell wasn't already selected
+                        if (!selectedCells.contains(row, column))
+                        {
+                            // Flag the data field represented by these
+                            // coordinates for removal
+                            selectedCells.add(row, column);
+
+                            isSelected = true;
+                        }
+                        // The cell was already selected
+                        else
+                        {
+                            // Remove the data field represented by these
+                            // coordinates from the list
+                            selectedCells.remove(row, column);
+
+                            isSelected = false;
+                        }
+
+                        // Update the undo manager with this event. Get the
+                        // listeners for this event
+                        UndoableEditListener listeners[] = getListeners(UndoableEditListener.class);
+
+                        // Check if there is an edit listener registered
+                        if (listeners != null)
+                        {
+                            // Create the edit event to be passed to the
+                            // listeners
+                            UndoableEditEvent editEvent = new UndoableEditEvent(this,
+                                                                                new CellSelectEdit(row,
+                                                                                                   column,
+                                                                                                   isSelected));
+
+                            // Step through the registered listeners
+                            for (UndoableEditListener listener : listeners)
+                            {
+                                // Inform the listener that an update occurred
+                                listener.undoableEditHappened(editEvent);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // End the editing sequence
+        dataFieldTable.getUndoManager().endEditSequence();
+
+        // Clear the cell selection so that the remove highlight is visible
+        dataFieldTable.clearSelection();
+    }
+
+    /**************************************************************************
+     * Create the data field table editor table
+     *
+     * @return Reference to the scroll pane in which the table is placed
+     *************************************************************************/
+    private JScrollPane createDataFieldTableEditorTable()
+    {
         // Create the table to display the structure tables and their
         // corresponding user-selected data fields
         dataFieldTable = new CcddJTableHandler()
@@ -680,357 +1316,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         // Discard the edits created by adding the columns initially
         dataFieldTable.getUndoManager().discardAllEdits();
 
-        // Define the panel to contain the table
-        JPanel tablePnl = new JPanel();
-        tablePnl.setLayout(new BoxLayout(tablePnl, BoxLayout.X_AXIS));
-        tablePnl.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-        tablePnl.add(scrollPane);
-
-        // Add the table to the dialog
-        gbc.gridx = 0;
-        gbc.gridy++;
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.weighty = 1.0;
-        dialogPnl.add(tablePnl, gbc);
-
-        // Create the button panel
-        JPanel buttonPnl = new JPanel();
-
-        // Define the buttons for the lower panel:
-        // Select data fields button
-        JButton btnSelect = CcddButtonPanelHandler.createButton("Select",
-                                                                OK_ICON,
-                                                                KeyEvent.VK_L,
-                                                                "Select new data fields");
-
-        // Add a listener for the Select button
-        btnSelect.addActionListener(new ValidateCellActionListener(dataFieldTable)
-        {
-            /******************************************************************
-             * Select the data fields and update the data field editor table
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                // Allow the user to select new data fields. Confirm discarding
-                // pending changes if any exist
-                if ((!isFieldTableChanged()
-                    || new CcddDialogHandler().showMessageDialog(CcddFieldTableEditorDialog.this,
-                                                                 "<html><b>Discard changes?",
-                                                                 "Discard Changes",
-                                                                 JOptionPane.QUESTION_MESSAGE,
-                                                                 DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-                    && selectDataFields())
-                {
-                    // Clear any removal selections
-                    selectedCells.clear();
-
-                    // Reload the data field table
-                    dataFieldTable.loadAndFormatData();
-
-                    // Check if the field table editor dialog is already open
-                    if (CcddFieldTableEditorDialog.this.isVisible())
-                    {
-                        // Reposition the field table editor dialog
-                        positionFieldEditorDialog();
-                    }
-                }
-            }
-        });
-
-        // Delete data fields button
-        JButton btnRemove = CcddButtonPanelHandler.createButton("Remove",
-                                                                DELETE_ICON,
-                                                                KeyEvent.VK_R,
-                                                                "Remove the selected data field(s) from their table(s)");
-
-        // Add a listener for the Remove button
-        btnRemove.addActionListener(new ValidateCellActionListener(dataFieldTable)
-        {
-            /******************************************************************
-             * Toggle the removal state of the selected data field(s)
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                toggleRemoveFields();
-            }
-        });
-
-        // Open tables button
-        JButton btnOpen = CcddButtonPanelHandler.createButton("Open",
-                                                              TABLE_ICON,
-                                                              KeyEvent.VK_O,
-                                                              "Open the table(s) associated with the selected data field(s)");
-
-        // Add a listener for the Open button
-        btnOpen.addActionListener(new ValidateCellActionListener(dataFieldTable)
-        {
-            /******************************************************************
-             * Open the table(s) associated with the selected data field(s)
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                openTables();
-            }
-        });
-
-        // Print data field editor table button
-        JButton btnPrint = CcddButtonPanelHandler.createButton("Print",
-                                                               PRINT_ICON,
-                                                               KeyEvent.VK_P,
-                                                               "Print the data field editor table");
-
-        // Add a listener for the Print button
-        btnPrint.addActionListener(new ValidateCellActionListener(dataFieldTable)
-        {
-            /******************************************************************
-             * Print the data field editor table
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                dataFieldTable.printTable("Data Field Contents",
-                                          null,
-                                          CcddFieldTableEditorDialog.this,
-                                          PageFormat.LANDSCAPE);
-            }
-        });
-
-        // Undo button
-        JButton btnUndo = CcddButtonPanelHandler.createButton("Undo",
-                                                              UNDO_ICON,
-                                                              KeyEvent.VK_Z,
-                                                              "Undo the last edit action");
-
-        // Create a listener for the Undo command
-        btnUndo.addActionListener(new ValidateCellActionListener(dataFieldTable)
-        {
-            /******************************************************************
-             * Undo the last cell edit
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                dataFieldTable.getUndoManager().undo();
-            }
-        });
-
-        // Redo button
-        JButton btnRedo = CcddButtonPanelHandler.createButton("Redo",
-                                                              REDO_ICON,
-                                                              KeyEvent.VK_Y,
-                                                              "Redo the last undone edit action");
-
-        // Create a listener for the Redo command
-        btnRedo.addActionListener(new ValidateCellActionListener(dataFieldTable)
-        {
-            /******************************************************************
-             * Redo the last cell edit that was undone
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                dataFieldTable.getUndoManager().redo();
-            }
-        });
-
-        // Define the buttons for the lower panel:
-        // Store data field values button
-        JButton btnStore = CcddButtonPanelHandler.createButton("Store",
-                                                               STORE_ICON,
-                                                               KeyEvent.VK_S,
-                                                               "Store data field changes");
-
-        // Add a listener for the Store button
-        btnStore.addActionListener(new ValidateCellActionListener(dataFieldTable)
-        {
-            /******************************************************************
-             * Store changes to the data field values
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                // Only update the table in the database if a cell's content
-                // has changed and the user confirms the action
-                if (isFieldTableChanged()
-                    && new CcddDialogHandler().showMessageDialog(CcddFieldTableEditorDialog.this,
-                                                                 "<html><b>Store changes in database?",
-                                                                 "Store Changes",
-                                                                 JOptionPane.QUESTION_MESSAGE,
-                                                                 DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-                {
-                    // Build the update lists
-                    buildUpdates();
-
-                    // Store the changes to the data fields in the database
-                    dbTable.modifyDataFields(fieldModifications,
-                                             fieldDeletions,
-                                             CcddFieldTableEditorDialog.this);
-                }
-            }
-        });
-
-        // Close button
-        JButton btnClose = CcddButtonPanelHandler.createButton("Close",
-                                                               CLOSE_ICON,
-                                                               KeyEvent.VK_C,
-                                                               "Close the data field editor dialog");
-
-        // Add a listener for the Close button
-        btnClose.addActionListener(new ValidateCellActionListener(dataFieldTable)
-        {
-            /******************************************************************
-             * Close the data field editor dialog
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                windowCloseButtonAction();
-            }
-        });
-
-        // Add the buttons to the panel
-        buttonPnl.add(btnSelect);
-        buttonPnl.add(btnOpen);
-        buttonPnl.add(btnUndo);
-        buttonPnl.add(btnStore);
-        buttonPnl.add(btnRemove);
-        buttonPnl.add(btnPrint);
-        buttonPnl.add(btnRedo);
-        buttonPnl.add(btnClose);
-
-        // Distribute the buttons across two rows
-        setButtonRows(2);
-
-        // Display the data field editor table dialog
-        createFrame(ccddMain.getMainFrame(),
-                    dialogPnl,
-                    buttonPnl,
-                    DIALOG_TITLE,
-                    null);
-
-        // Reposition the field table editor dialog
-        positionFieldEditorDialog();
-    }
-
-    /**************************************************************************
-     * Handle the frame close button press event
-     *************************************************************************/
-    @Override
-    protected void windowCloseButtonAction()
-    {
-        // Check if the contents of the last cell edited in the editor table is
-        // validated and that the table has no uncommitted changes. If changes
-        // exist then confirm discarding the changes
-        if (dataFieldTable.isLastCellValid()
-            && (!isFieldTableChanged()
-            || new CcddDialogHandler().showMessageDialog(CcddFieldTableEditorDialog.this,
-                                                         "<html><b>Discard changes?",
-                                                         "Discard Changes",
-                                                         JOptionPane.QUESTION_MESSAGE,
-                                                         DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
-        {
-            // Close the dialog
-            closeFrame();
-        }
-    }
-
-    /**************************************************************************
-     * Reposition the field table editor dialog relative to the location of the
-     * (now invisible) field selection dialog
-     *************************************************************************/
-    private void positionFieldEditorDialog()
-    {
-        // Get the location of the field selection dialog
-        Point p1 = selectDlg.getLocation();
-
-        // Get the sizes of the editor and selection dialogs
-        Dimension d1 = selectDlg.getSize();
-        Dimension d2 = CcddFieldTableEditorDialog.this.getSize();
-
-        // Move the editor dialog so that it's centered over the selection
-        // dialog's last location
-        CcddFieldTableEditorDialog.this.setLocation(new Point(p1.x + d1.width / 2 - d2.width / 2,
-                                                              p1.y + d1.height / 2 - d2.height / 2));
-    }
-
-    /**************************************************************************
-     * Toggle the removal state of the selected data field cells in the editor
-     * table
-     *************************************************************************/
-    private void toggleRemoveFields()
-    {
-        // Step through each row in the table
-        for (int row = 0; row < dataFieldTable.getRowCount(); row++)
-        {
-            // Step through each column in the table
-            for (int column = 0; column < dataFieldTable.getModel().getColumnCount(); column++)
-            {
-                // Check if this is not the table name or path column
-                if (column != FieldTableEditorColumnInfo.OWNER.ordinal()
-                    && column != FieldTableEditorColumnInfo.PATH.ordinal())
-                {
-                    // Check if the cell at these coordinates is selected
-                    if (dataFieldTable.isCellSelected(row,
-                                                      dataFieldTable.convertColumnIndexToView(column)))
-                    {
-                        // Flag to indicate if a selection or deselection
-                        // occurred
-                        boolean isSelected;
-
-                        // Check if the cell wasn't already selected
-                        if (!selectedCells.contains(row, column))
-                        {
-                            // Flag the data field represented by these
-                            // coordinates for removal
-                            selectedCells.add(row, column);
-
-                            isSelected = true;
-                        }
-                        // The cell was already selected
-                        else
-                        {
-                            // Remove the data field represented by these
-                            // coordinates from the list
-                            selectedCells.remove(row, column);
-
-                            isSelected = false;
-                        }
-
-                        // Update the undo manager with this event. Get the
-                        // listeners for this event
-                        UndoableEditListener listeners[] = getListeners(UndoableEditListener.class);
-
-                        // Check if there is an edit listener registered
-                        if (listeners != null)
-                        {
-                            // Create the edit event to be passed to the
-                            // listeners
-                            UndoableEditEvent editEvent = new UndoableEditEvent(this,
-                                                                                new CellSelectEdit(row,
-                                                                                                   column,
-                                                                                                   isSelected));
-
-                            // Step through the registered listeners
-                            for (UndoableEditListener listener : listeners)
-                            {
-                                // Inform the listener that an update occurred
-                                listener.undoableEditHappened(editEvent);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // End the editing sequence
-        dataFieldTable.getUndoManager().endEditSequence();
-
-        // Clear the cell selection so that the remove highlight is visible
-        dataFieldTable.clearSelection();
+        return scrollPane;
     }
 
     /**************************************************************************
@@ -1331,211 +1617,6 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     protected boolean verifySelection()
     {
         return false;
-    }
-
-    /**************************************************************************
-     * Display a dialog for the user to select the data fields to display in
-     * the editor table
-     * 
-     * @return true if the user presses the selection dialog Okay button with
-     *         at least one field selected; false otherwise
-     *************************************************************************/
-    private boolean selectDataFields()
-    {
-        boolean isSelected = false;
-
-        // Create an empty border to surround the panels
-        Border emptyBorder = BorderFactory.createEmptyBorder();
-
-        // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        1,
-                                                        1,
-                                                        1,
-                                                        1.0,
-                                                        0.0,
-                                                        GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.BOTH,
-                                                        new Insets(LABEL_VERTICAL_SPACING / 2,
-                                                                   LABEL_HORIZONTAL_SPACING,
-                                                                   0,
-                                                                   0),
-                                                        0,
-                                                        0);
-
-        // Create a selection dialog, a panel for the table selection tree, and
-        // a panel to contain a check box for each unique data field name
-        selectDlg = new CcddDialogHandler();
-        JPanel selectPnl = new JPanel(new GridBagLayout());
-        JPanel fieldPnl = new JPanel(new GridBagLayout());
-        selectPnl.setBorder(emptyBorder);
-        fieldPnl.setBorder(emptyBorder);
-
-        // Create a panel containing a grid of check boxes representing the
-        // data fields from which to choose
-        if (selectDlg.addCheckBoxes(null,
-                                    getDataFieldNames(),
-                                    null,
-                                    "Select data fields to display/edit",
-                                    fieldPnl))
-        {
-            // Check if more than one data field name check box exists
-            if (selectDlg.getCheckBoxes().length > 2)
-            {
-                // Create a Select All check box
-                final JCheckBox selectAllCb = new JCheckBox("Select all data fields",
-                                                            false);
-                selectAllCb.setFont(LABEL_FONT_BOLD);
-                selectAllCb.setBorder(emptyBorder);
-
-                // Create a listener for changes to the Select All check box
-                // selection status
-                selectAllCb.addActionListener(new ActionListener()
-                {
-                    /**********************************************************
-                     * Handle a change to the Select All check box selection
-                     * status
-                     *********************************************************/
-                    @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
-                        // Step through each data field name check box
-                        for (JCheckBox fieldCb : selectDlg.getCheckBoxes())
-                        {
-                            // Set the check box selection status to match the
-                            // Select All check box selection status
-                            fieldCb.setSelected(selectAllCb.isSelected());
-                        }
-                    }
-                });
-
-                // Add the Select All checkbox to the field name panel
-                gbc.gridy++;
-                fieldPnl.add(selectAllCb, gbc);
-            }
-
-            // Check if data fields are selected already (i.e., this method is
-            // called via the Select button)
-            if (columnNames != null)
-            {
-                // Step through the list of check boxes representing the data
-                // fields
-                for (JCheckBox cb : selectDlg.getCheckBoxes())
-                {
-                    // Select the data field check box if the field was
-                    // displayed when the Select button was pressed
-                    cb.setSelected(Arrays.asList(columnNames).contains(cb.getText()));
-                }
-            }
-
-            // Build the table tree showing both table prototypes and table
-            // instances; i.e., parent tables with their child tables (i.e.,
-            // parents with children)
-            tableTree = new CcddTableTreeHandler(ccddMain,
-                                                 new CcddGroupHandler(ccddMain,
-                                                                      CcddFieldTableEditorDialog.this),
-                                                 TableTreeType.PROTOTYPE_AND_INSTANCE,
-                                                 true,
-                                                 false,
-                                                 CcddFieldTableEditorDialog.this)
-            {
-                /**************************************************************
-                 * Respond to changes in selection of a node in the table tree
-                 *************************************************************/
-                @Override
-                protected void updateTableSelection()
-                {
-                    // Check that a node selection change is not in progress
-                    if (!isNodeSelectionChanging)
-                    {
-                        // Set the flag to prevent variable tree updates
-                        isNodeSelectionChanging = true;
-
-                        // Deselect any nodes that don't represent a table or
-                        // the level immediately above the table level
-                        clearNonTableNodes(1);
-
-                        // Reset the flag to allow variable tree updates
-                        isNodeSelectionChanging = false;
-                    }
-                }
-            };
-
-            // Add the tree to the selection panel
-            gbc.insets.top = LABEL_VERTICAL_SPACING;
-            gbc.weighty = 1.0;
-            gbc.gridy = 0;
-            selectPnl.add(tableTree.createTreePanel("Tables",
-                                                    TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
-                                                    ccddMain.getMainFrame()),
-                          gbc);
-
-            // Add the field panel to the selection panel
-            gbc.insets.top = 0;
-            gbc.insets.left = 0;
-            gbc.weightx = 0.0;
-            gbc.weighty = 0.0;
-            gbc.gridx++;
-            selectPnl.add(fieldPnl, gbc);
-
-            // Display the data field selection dialog
-            if (selectDlg.showOptionsDialog((isVisible()
-                                                        ? CcddFieldTableEditorDialog.this
-                                                        : ccddMain.getMainFrame()),
-                                            selectPnl,
-                                            "Select Data Field(s)",
-                                            DialogOption.OK_CANCEL_OPTION,
-                                            true) == OK_BUTTON)
-            {
-                // Check that at least one field check box is selected
-                if (selectDlg.getCheckBoxSelected().length != 0)
-                {
-                    isSelected = true;
-
-                    // Create a list for the column names. Add the default
-                    // columns (table name and path)
-                    List<String> columnNamesList = new ArrayList<String>();
-                    columnNamesList.add(FieldTableEditorColumnInfo.OWNER.getColumnName());
-                    columnNamesList.add(FieldTableEditorColumnInfo.PATH.getColumnName());
-
-                    // Step through each selected data field name
-                    for (String name : selectDlg.getCheckBoxSelected())
-                    {
-                        // Add the data field name to the column name list
-                        columnNamesList.add(name);
-                    }
-
-                    // Convert the list of column names to an array
-                    columnNames = columnNamesList.toArray(new String[0]);
-                }
-                // No check box is selected
-                else
-                {
-                    // Inform the user that a field must be selected
-                    new CcddDialogHandler().showMessageDialog((isVisible()
-                                                                          ? CcddFieldTableEditorDialog.this
-                                                                          : ccddMain.getMainFrame()),
-                                                              "<html><b>Must select at least one data field",
-                                                              "No Data Field Selected",
-                                                              JOptionPane.WARNING_MESSAGE,
-                                                              DialogOption.OK_OPTION);
-                }
-            }
-        }
-        // No data field exists to choose
-        else
-        {
-            // Inform the user that no data field is defined
-            new CcddDialogHandler().showMessageDialog((isVisible()
-                                                                  ? CcddFieldTableEditorDialog.this
-                                                                  : ccddMain.getMainFrame()),
-                                                      "<html><b>No data field exists",
-                                                      "No Data Field",
-                                                      JOptionPane.WARNING_MESSAGE,
-                                                      DialogOption.OK_OPTION);
-        }
-
-        return isSelected;
     }
 
     /**************************************************************************

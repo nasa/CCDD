@@ -531,7 +531,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         editorHandler.setFieldEditorDialog(this);
 
         // Create the lower (button) panel
-        JPanel buttonPanel = new JPanel();
+        JPanel buttonPnl = new JPanel();
 
         // Define the buttons for the lower panel: ////////////////////////////
         // New button
@@ -746,16 +746,16 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
 
         // Add buttons in the order in which they'll appear (left to right, top
         // to bottom)
-        buttonPanel.add(btnInsertRow);
-        buttonPanel.add(btnMoveUp);
-        buttonPanel.add(btnSeparator);
-        buttonPanel.add(btnUndo);
-        buttonPanel.add(btnUpdate);
-        buttonPanel.add(btnDeleteRow);
-        buttonPanel.add(btnMoveDown);
-        buttonPanel.add(btnBreak);
-        buttonPanel.add(btnRedo);
-        buttonPanel.add(btnClose);
+        buttonPnl.add(btnInsertRow);
+        buttonPnl.add(btnMoveUp);
+        buttonPnl.add(btnSeparator);
+        buttonPnl.add(btnUndo);
+        buttonPnl.add(btnUpdate);
+        buttonPnl.add(btnDeleteRow);
+        buttonPnl.add(btnMoveDown);
+        buttonPnl.add(btnBreak);
+        buttonPnl.add(btnRedo);
+        buttonPnl.add(btnClose);
 
         // Distribute the buttons across two rows
         setButtonRows(2);
@@ -763,7 +763,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Display the table data field editor dialog
         showOptionsDialog(editorHandler.getTableEditor(),
                           outerPanel,
-                          buttonPanel,
+                          buttonPnl,
                           DIALOG_TITLE + ": " + ownerName,
                           true);
     }

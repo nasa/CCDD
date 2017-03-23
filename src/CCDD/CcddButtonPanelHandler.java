@@ -41,7 +41,7 @@ import CCDD.CcddConstants.DialogOption;
 public class CcddButtonPanelHandler
 {
     // Panel containing the buttons
-    private JPanel buttonPanel;
+    private JPanel buttonPnl;
 
     // Number of rows on which to arrange the buttons
     private int buttonRows;
@@ -52,9 +52,9 @@ public class CcddButtonPanelHandler
     protected CcddButtonPanelHandler()
     {
         // Initialize the button panel and set the button spacing
-        buttonPanel = new JPanel();
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder());
-        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER,
+        buttonPnl = new JPanel();
+        buttonPnl.setBorder(BorderFactory.createEmptyBorder());
+        buttonPnl.setLayout(new FlowLayout(FlowLayout.CENTER,
                                              BUTTON_GAP,
                                              BUTTON_GAP));
         buttonRows = 1;
@@ -79,7 +79,7 @@ public class CcddButtonPanelHandler
      *************************************************************************/
     protected JButton getExitButton()
     {
-        return (JButton) buttonPanel.getComponent(buttonPanel.getComponentCount() - 1);
+        return (JButton) buttonPnl.getComponent(buttonPnl.getComponentCount() - 1);
     }
 
     /**************************************************************************
@@ -101,13 +101,13 @@ public class CcddButtonPanelHandler
     protected void setButtonsEnabled(boolean enable)
     {
         // Get the number of buttons in the panel
-        int numButtons = buttonPanel.getComponentCount();
+        int numButtons = buttonPnl.getComponentCount();
 
         // Step through each button
         for (int index = 0; index < numButtons; index++)
         {
             // Create a pointer to the individual button for easier reference
-            JButton button = (JButton) buttonPanel.getComponent(index);
+            JButton button = (JButton) buttonPnl.getComponent(index);
 
             // Set the button enable state based on the input flag
             button.setEnabled(enable);
@@ -125,13 +125,13 @@ public class CcddButtonPanelHandler
         int maxHeight = 0;
 
         // Get the number of buttons in the panel
-        int numButtons = buttonPanel.getComponentCount();
+        int numButtons = buttonPnl.getComponentCount();
 
         // Step through each button
         for (int index = 0; index < numButtons; index++)
         {
             // Create a pointer to the individual button for easier reference
-            JButton button = (JButton) buttonPanel.getComponent(index);
+            JButton button = (JButton) buttonPnl.getComponent(index);
 
             // Check if the button has no text (i.e., this is a placeholder
             // button used for positioning the other buttons)
@@ -195,8 +195,8 @@ public class CcddButtonPanelHandler
         for (int index = 0; index < numButtons; index++)
         {
             // Set the size of the button(s)
-            ((JButton) buttonPanel.getComponent(index)).setSize(maxWidth, maxHeight);
-            ((JButton) buttonPanel.getComponent(index)).setPreferredSize(new Dimension(maxWidth, maxHeight));
+            ((JButton) buttonPnl.getComponent(index)).setSize(maxWidth, maxHeight);
+            ((JButton) buttonPnl.getComponent(index)).setPreferredSize(new Dimension(maxWidth, maxHeight));
         }
 
         // Calculate the number of columns to display the buttons
@@ -204,7 +204,7 @@ public class CcddButtonPanelHandler
 
         // Size the panel containing the buttons based on the buttons' widths
         // and heights
-        Dimension buttonPanelCoord = new Dimension(maxWidth * numColumns
+        Dimension buttonPnlCoord = new Dimension(maxWidth * numColumns
                                                    + (BUTTON_GAP + 1)
                                                    * (numColumns + 1),
                                                    maxHeight * buttonRows
@@ -213,9 +213,9 @@ public class CcddButtonPanelHandler
 
         // Set the button panel to a fixed size so that the buttons stay
         // positioned correctly relative to each other
-        buttonPanel.setPreferredSize(buttonPanelCoord);
-        buttonPanel.setMaximumSize(buttonPanelCoord);
-        buttonPanel.setMinimumSize(buttonPanelCoord);
+        buttonPnl.setPreferredSize(buttonPnlCoord);
+        buttonPnl.setMaximumSize(buttonPnlCoord);
+        buttonPnl.setMinimumSize(buttonPnlCoord);
     }
 
     /**************************************************************************
@@ -285,7 +285,7 @@ public class CcddButtonPanelHandler
                                           new ImageIcon(getClass().getResource(optionType.getButtonIcon())));
         btnOkButton.setFont(BUTTON_FONT);
         btnOkButton.setMnemonic(optionType.getButtonMnemonic());
-        buttonPanel.add(btnOkButton);
+        buttonPnl.add(btnOkButton);
 
         // Add a listener for the Okay button
         btnOkButton.addActionListener(new ActionListener()
@@ -308,7 +308,7 @@ public class CcddButtonPanelHandler
                                                   new ImageIcon(getClass().getResource(CANCEL_ICON)));
             btnCancelButton.setFont(BUTTON_FONT);
             btnCancelButton.setMnemonic(KeyEvent.VK_C);
-            buttonPanel.add(btnCancelButton);
+            buttonPnl.add(btnCancelButton);
 
             // Add a listener for the Cancel button
             btnCancelButton.addActionListener(new ActionListener()
@@ -325,7 +325,7 @@ public class CcddButtonPanelHandler
             });
         }
 
-        return buttonPanel;
+        return buttonPnl;
     }
 
     /**************************************************************************
@@ -363,19 +363,19 @@ public class CcddButtonPanelHandler
         // Remove any existing content from the dialog. This is necessary if
         // the dialog content is altered.
         contentPane.removeAll();
-        buttonPanel.removeAll();
+        buttonPnl.removeAll();
 
         // Check if no buttons were provided
         if (btnPanel == null)
         {
             // Create the button panel based on the option type provided
-            buttonPanel = createButtonPanel(optionType);
+            buttonPnl = createButtonPanel(optionType);
         }
         // A button panel was provided
         else
         {
             // Store the button panel in the button handler
-            buttonPanel = btnPanel;
+            buttonPnl = btnPanel;
         }
 
         // Size and position the window's button(s)
@@ -422,7 +422,7 @@ public class CcddButtonPanelHandler
         // Create a panel to contain the button panel. This is necessary so
         // that the button panel remains centered as the window is resized
         JPanel bpPanel = new JPanel();
-        bpPanel.add(buttonPanel);
+        bpPanel.add(buttonPnl);
 
         // Add padding to the bottom of the button panel
         bpPanel.setBorder(BorderFactory.createEmptyBorder(0,
@@ -442,6 +442,6 @@ public class CcddButtonPanelHandler
         contentPane.add(upperComponent, BorderLayout.CENTER);
         contentPane.add(bpPanel, BorderLayout.PAGE_END);
 
-        return buttonPanel;
+        return buttonPnl;
     }
 }

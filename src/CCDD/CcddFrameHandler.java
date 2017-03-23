@@ -189,7 +189,7 @@ public class CcddFrameHandler extends JFrame
      * @param upperComponent
      *            upper window components
      * 
-     * @param buttonPanel
+     * @param buttonPnl
      *            panel containing the window's buttons; null if a defined
      *            option type is used
      * 
@@ -199,17 +199,17 @@ public class CcddFrameHandler extends JFrame
      * @param optionType
      *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION,
      *            READ_OPTION, PRINT_OPTION, CLOSE_OPTION, OK_OPTION, or
-     *            OK_CANCEL_OPTION; ignored if buttonPanel isn't null
+     *            OK_CANCEL_OPTION; ignored if buttonPnl isn't null
      *************************************************************************/
     protected void createFrame(Component parent,
                                JComponent upperComponent,
-                               JPanel buttonPanel,
+                               JPanel buttonPnl,
                                String title,
                                DialogOption optionType)
     {
         // Set up button panel related items and combine the button and upper
         // panels
-        buttonPanel = buttonHandler.assembleWindowComponents(buttonPanel,
+        buttonPnl = buttonHandler.assembleWindowComponents(buttonPnl,
                                                              upperComponent,
                                                              optionType,
                                                              getContentPane(),
@@ -269,7 +269,7 @@ public class CcddFrameHandler extends JFrame
                                        Math.min(Math.max(getHeight(), MIN_WINDOW_HEIGHT),
                                                 java.awt.Toolkit.getDefaultToolkit().getScreenSize().height)));
         setMinimumSize(new Dimension(Math.max(frameMinimumWidth,
-                                              buttonPanel.getWidth()),
+                                              buttonPnl.getWidth()),
                                      MIN_WINDOW_HEIGHT));
         setSize(getPreferredSize());
 

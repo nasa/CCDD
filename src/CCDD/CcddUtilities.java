@@ -8,6 +8,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.COMMAS_AND_QUOTES;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -667,6 +668,22 @@ public class CcddUtilities
     protected static String removeHTMLTags(String text)
     {
         return text.replaceAll("<br>", " ").replaceAll("<[^>]*>", "");
+    }
+
+    /**************************************************************************
+     * Add the HTML tags to the supplied text to change the font color to the
+     * one specified
+     * 
+     * @param text
+     *            string to which to apply the HTML tags
+     *
+     * @return Input string with the HTML tags to alter the color to the one
+     *         supplied
+     *************************************************************************/
+    protected static String colorHTMLText(String text, Color color)
+    {
+        return String.format("<font color=\"#%06x\">" + text + "</font>",
+                             (0xFFFFFF & color.getRGB()));
     }
 
     /**************************************************************************
