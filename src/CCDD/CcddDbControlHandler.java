@@ -1217,9 +1217,7 @@ public class CcddDbControlHandler
                                                + "row.real_name || '''::text, * FROM get_def_columns_by_"
                                                + functionParm[0]
                                                + "(''' || row.real_name || ''')'; END IF; "
-                                               + "END LOOP; END; DROP TABLE IF EXISTS "
-                                               + TEMP_TABLES
-                                               + "; END; $$ LANGUAGE plpgsql; "
+                                               + "END LOOP; END; END; $$ LANGUAGE plpgsql; "
                                                + buildOwnerCommand(DatabaseObject.FUNCTION,
                                                                    "get_table_members_by_"
                                                                        + functionParm[0]

@@ -2079,8 +2079,8 @@ public class CcddConstants
                              + ReservedMsgIDsColumn.MSG_ID.columnName
                              + ", "
                              + ReservedMsgIDsColumn.DESCRIPTION.columnName
-                             + ") VALUES ('0x0800 - 0x08FF', 'CFS telemetry IDs'), "
-                             + "('0x1800 - 0x18FF', 'CFE command IDs')"),
+                             + ") VALUES ('0x0800 - 0x08FF', 'cFE telemetry IDs'), "
+                             + "('0x1800 - 0x18FF', 'cFE command IDs')"),
 
         // Script files
         SCRIPT("script_",

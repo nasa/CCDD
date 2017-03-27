@@ -4073,15 +4073,14 @@ public abstract class CcddJTableHandler extends JTable
                                    Object[] columnIdentifiers,
                                    boolean undoable)
         {
-            // Check if this row deletion is undoable
+            // Check if this data vector update is undoable
             if (allowUndo && undoable)
             {
                 // Get the listeners for this event
                 UndoableEditListener listeners[] = getListeners(UndoableEditListener.class);
 
-                // Check if there is an edit listener registered and that the
-                // table data has changed
-                if (listeners != null && isTableChanged(dataVector))
+                // Check if there is an edit listener registered
+                if (listeners != null)
                 {
                     // Create the edit event to be passed to the listeners
                     UndoableEditEvent editEvent = new UndoableEditEvent(this,

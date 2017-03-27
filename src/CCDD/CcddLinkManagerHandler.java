@@ -300,11 +300,14 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         // Add the upper panel components to the dialog panel
         managerPnl.add(titlePnl, gbc);
 
-        // Initialize the currently selected rate to a 1 Hz if present in the
-        // list of available rates; otherwise set to a dummy value
+        // Initialize the currently selected rate to 1 Hz if present in the
+        // list of available rates; otherwise choose the first rate if any
+        // rates exist, and if none exist set the rate to a dummy value
         selectedRate = Arrays.asList(availableRates).contains("1")
                                                                   ? "1"
-                                                                  : "0";
+                                                                  : (availableRates.length != 0
+                                                                                               ? CcddUtilities.removeHTMLTags(availableRates[0])
+                                                                                               : "0");
 
         // Get the list off all linked variables
         List<String> linkedVars = linkTree.getLinkVariables(null);
