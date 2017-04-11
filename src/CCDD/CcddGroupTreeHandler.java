@@ -521,7 +521,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     protected void adjustNodeText(ToolTipTreeNode startNode, List<String> excludes)
     {
         // Step through the node's children, if any
-        for (Enumeration<?> element = startNode.depthFirstEnumeration(); element.hasMoreElements();)
+        for (Enumeration<?> element = startNode.preorderEnumeration(); element.hasMoreElements();)
         {
             // Get the node reference
             ToolTipTreeNode node = (ToolTipTreeNode) element.nextElement();

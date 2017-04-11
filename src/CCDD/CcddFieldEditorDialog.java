@@ -774,22 +774,19 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     private void recreateDataFieldPanel()
     {
         // Get the data field information as it is currently displayed in the
-        // table editor
-        Object[][] editorData = getUpdatedData();
+        // table editor and update the current data array to reflect the
+        // updates so that subsequent changes are correctly identified
+        currentData = getUpdatedData();
 
         // Build the field definitions from the editor table data, then use
         // the definitions to build the field information
-        editorHandler.getFieldHandler().buildFieldInformation(editorHandler.getFieldHandler().buildFieldDefinition(editorData,
+        editorHandler.getFieldHandler().buildFieldInformation(editorHandler.getFieldHandler().buildFieldDefinition(currentData,
                                                                                                                    ownerName),
                                                               ownerName);
 
         // Rebuild the data field panel in the table editor using the current
         // text field contents
         editorHandler.createDataFieldPanel();
-
-        // Update the current data array to reflect the updates so that
-        // subsequent changes are correctly identified
-        currentData = editorData;
 
         // Update the dialog title to remove the change indicator
         setTitle(DIALOG_TITLE + ": " + ownerName);

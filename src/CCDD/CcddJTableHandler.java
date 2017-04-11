@@ -85,6 +85,7 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
+import javax.swing.text.JTextComponent;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotUndoException;
 
@@ -184,6 +185,11 @@ public abstract class CcddJTableHandler extends JTable
     // Flag to indicate is the contents of the last cell edited is valid
     private boolean lastCellValid;
 
+    // Start and end position of the selected text within the last text cell
+    // edited
+    private int lastSelectionStart;
+    private int lastSelectionEnd;
+
     // Row and column edit types
     private enum TableEditType
     {
@@ -231,8 +237,38 @@ public abstract class CcddJTableHandler extends JTable
         controlKey = false;
         shiftKey = false;
         lastCellValid = true;
+        lastSelectionStart = -1;
+        lastSelectionEnd = -1;
     }
 
+    /**************************************************************************
+     * Get the start position of the selected text in the last cell edited
+     * 
+     * @return Start position of the selected text in the last cell edited; -1
+     *         if no text cell being edited when the method is called
+     *************************************************************************/
+    protected int getLastSelectionStart()
+    {
+        return lastSelectionStart;
+    }
+
+    /**************************************************************************
+     * Get the end position of the selected text in the last cell edited
+     * 
+     * @return End position of the selected text in the last cell edited; -1 if
+     *         no text cell being edited when the method is called
+     *************************************************************************/
+    protected int getLastSelectionEnd()
+    {
+        return lastSelectionEnd;
+    }
+
+    /**************************************************************************
+     * Get the position of the text cursor in the last cell edited
+     * 
+     * @return Position of the text cursor in the last cell edited; -1 until a
+     *         text cell is edited
+     *************************************************************************/
     /**************************************************************************
      * Override the method so that the a selected cell's row and column
      * coordinates can be stored
@@ -2307,9 +2343,22 @@ public abstract class CcddJTableHandler extends JTable
             // Get the table data array
             List<Object[]> tableData = getTableDataList(false);
 
-            // Step through each selected cell
-            for (SelectedCell cell : selectedCells.getSelectedCells())
+            // Copy the selected cell information. The deletion process clears
+            // the global selectedCells list so copy the selected cell
+            // information in case cells in multiple rows are selected for
+            // deletion
+            List<SelectedCell> sc = new ArrayList<SelectedCell>();
+            sc.addAll(selectedCells.getSelectedCells());
+
+            // Step through each selected cell in reverse order. This is
+            // necessary in case arrays are deleted (removing the array members
+            // changes the row indices)
+            for (int index = sc.size() - 1; index >= 0; index--)
             {
+                // Get the reference to the selected cell to make subsequent
+                // calls shorter
+                SelectedCell cell = sc.get(index);
+
                 // Check if the cell's contents are allowed to be changed to a
                 // blank
                 if (isCellEditable(cell.getRow(), cell.getColumn())
@@ -2319,6 +2368,7 @@ public abstract class CcddJTableHandler extends JTable
                     int modelRow = convertRowIndexToModel(cell.getRow());
                     int modelColumn = convertColumnIndexToModel(cell.getColumn());
 
+                    // Get the current cell value
                     Object oldValue = tableData.get(modelRow)[modelColumn];
 
                     // Check if the cell isn't already empty
@@ -2937,6 +2987,41 @@ public abstract class CcddJTableHandler extends JTable
      *************************************************************************/
     private void setCellEditors()
     {
+        // Create a focus listener to track the text cursor position when the
+        // cell loses focus
+        FocusListener focusListener = new FocusListener()
+        {
+            /******************************************************************
+             * Handle loss of keyboard focus for the cell
+             *****************************************************************/
+            @Override
+            public void focusLost(FocusEvent fe)
+            {
+                // Check if editing is active in the cell
+                if (table.isEditing())
+                {
+                    // Store the start and end positions of the selected text
+                    lastSelectionStart = ((JTextComponent) fe.getComponent()).getSelectionStart();
+                    lastSelectionEnd = ((JTextComponent) fe.getComponent()).getSelectionEnd();
+                }
+                // Editing is inactive
+                else
+                {
+                    // Reset the text selection positions
+                    lastSelectionStart = -1;
+                    lastSelectionEnd = -1;
+                }
+            }
+
+            /******************************************************************
+             * Handle gain of keyboard focus for the cell
+             *****************************************************************/
+            @Override
+            public void focusGained(FocusEvent fe)
+            {
+            }
+        };
+
         // Create a text field so that its properties can be set and then used
         // to create a default editor for cells containing one or more lines of
         // text
@@ -2955,6 +3040,9 @@ public abstract class CcddJTableHandler extends JTable
                                                                                                     CELL_VERTICAL_PADDING - 3,
                                                                                                     CELL_HORIZONTAL_PADDING - 1)));
 
+        // Add a listener for cell focus changes
+        textFieldMulti.addFocusListener(focusListener);
+
         // Create the cell editor for multi-line cells
         DefaultCellEditor dceMulti = new DefaultCellEditor(textFieldMulti);
 
@@ -2969,6 +3057,9 @@ public abstract class CcddJTableHandler extends JTable
                                                                                                      CELL_HORIZONTAL_PADDING - 1,
                                                                                                      CELL_VERTICAL_PADDING - 3,
                                                                                                      CELL_HORIZONTAL_PADDING - 1)));
+
+        // Add a listener for cell focus changes
+        textFieldSingle.addFocusListener(focusListener);
 
         // Create the cell editor
         DefaultCellEditor dceSingle = new DefaultCellEditor(textFieldSingle);

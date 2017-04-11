@@ -57,6 +57,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.GroupInformation;
 import CCDD.CcddClasses.TableMembers;
 import CCDD.CcddClasses.ToolTipTreeNode;
@@ -69,6 +70,7 @@ import CCDD.CcddConstants.TableTreeType;
 @SuppressWarnings("serial")
 public class CcddTableTreeHandler extends CcddCommonTreeHandler
 {
+    // Class references
     private final CcddMain ccddMain;
     private final CcddGroupHandler groupHandler;
     private final CcddTableTypeHandler tableTypeHandler;
@@ -134,7 +136,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
 
     // List containing variable paths from the custom values table that match
     // the current rate column name and rate value
-    private List<String[]> rateValues;
+    private ArrayListMultiple rateValues;
 
     /**************************************************************************
      * Tree cell renderer with link size display handling class
@@ -594,10 +596,11 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         if (rateFilter != null)
         {
             // Load all references to rate column values from the custom values
-            // table that match the rate name and filter
-            rateValues = dbTable.getCustomValues(rateName,
-                                                 rateFilter,
-                                                 parent);
+            // table that match the rate name
+            rateValues = new ArrayListMultiple();
+            rateValues.addAll(dbTable.getCustomValues(rateName,
+                                                      null,
+                                                      parent));
         }
 
         // Get the index into the table member rate array
@@ -977,11 +980,11 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // Get the parent table and variable path for this variable
             String fullTablePath = getFullVariablePath(childNode.getPath());
 
-            // Step through each data type referenced by the table member
-            for (int index = 0; index < thisMember.getDataTypes().size(); index++)
+            // Step through each table/variable referenced by the table member
+            for (int memIndex = 0; memIndex < thisMember.getDataTypes().size(); memIndex++)
             {
                 // Check if this data type is a primitive
-                if (dataTypeHandler.isPrimitive(thisMember.getDataTypes().get(index)))
+                if (dataTypeHandler.isPrimitive(thisMember.getDataTypes().get(memIndex)))
                 {
                     String tablePath = fullTablePath;
 
@@ -995,9 +998,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                         // Add the data type and variable name to the variable
                         // path
                         tablePath += ","
-                                     + thisMember.getDataTypes().get(index)
+                                     + thisMember.getDataTypes().get(memIndex)
                                      + "."
-                                     + thisMember.getVariableNames().get(index);
+                                     + thisMember.getVariableNames().get(memIndex);
                     }
 
                     String rate = null;
@@ -1008,10 +1011,11 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                         // Get the rate value for this variable. Use the
                         // prototype's value if the variable doesn't have a
                         // specific rate assigned
+                        int index = rateValues.indexOf(tablePath);
                         rate = isChildVariable
-                               && rateValues.contains(tablePath)
-                                                                ? rateFilter
-                                                                : thisMember.getRates().get(index)[rateIndex];
+                               && index != -1
+                                             ? rateValues.get(index)[2]
+                                             : thisMember.getRates().get(memIndex)[rateIndex];
                     }
 
                     // Check if no rate filter is in effect or, if not, that
@@ -1020,7 +1024,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                     {
                         // Get the full variable name in the form
                         // data_type.variable_name[:bit_length]
-                        String variable = thisMember.getFullVariableNameWithBits(index);
+                        String variable = thisMember.getFullVariableNameWithBits(memIndex);
 
                         // Check that no exclusion list is supplied, or if one
                         // is in effect that the variable, using its full path
@@ -1035,9 +1039,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                         else
                         {
                             // Add the variable with the node text grayed out
-                            childNode.add(new ToolTipTreeNode(DISABLED_TEXT_COLOR
-                                                              + variable,
-                                                              ""));
+                            childNode.add(new
+                                     ToolTipTreeNode(DISABLED_TEXT_COLOR
+                                                     + variable,
+                                                     ""));
                         }
                     }
                 }
@@ -1048,13 +1053,13 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                     for (TableMembers member : tableMembers)
                     {
                         // Check if the table is a member of the target table
-                        if (thisMember.getDataTypes().get(index).equals(member.getTableName()))
+                        if (thisMember.getDataTypes().get(memIndex).equals(member.getTableName()))
                         {
                             // Build the node name from the prototype and
                             // variable names
-                            String nodeName = thisMember.getDataTypes().get(index)
+                            String nodeName = thisMember.getDataTypes().get(memIndex)
                                               + "."
-                                              + thisMember.getVariableNames().get(index);
+                                              + thisMember.getVariableNames().get(memIndex);
 
                             // Get the variable name path to this node
                             String tablePath = fullTablePath + "," + nodeName;
@@ -1069,7 +1074,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                                        childNode,
                                        new ToolTipTreeNode(nodeName,
                                                            getTableDescription(tablePath,
-                                                                               thisMember.getDataTypes().get(index))));
+                                                                               thisMember.getDataTypes().get(memIndex))));
                         }
                     }
                 }
@@ -1159,7 +1164,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         boolean isInPath = false;
 
         // Step through the root node's children, if any
-        for (Enumeration<?> element = root.depthFirstEnumeration(); element.hasMoreElements();)
+        for (Enumeration<?> element = root.preorderEnumeration(); element.hasMoreElements();)
         {
             // Get the node referenced
             ToolTipTreeNode tableNode = (ToolTipTreeNode) element.nextElement();
@@ -1307,7 +1312,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         tablePathList = new ArrayList<Object[]>();
 
         // Step through each element and child of this node
-        for (Enumeration<?> element = startNode.depthFirstEnumeration(); element.hasMoreElements();)
+        for (Enumeration<?> element = startNode.preorderEnumeration(); element.hasMoreElements();)
         {
             // Get the node reference
             ToolTipTreeNode node = (ToolTipTreeNode) element.nextElement();
@@ -1341,7 +1346,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         boolean isInTree = false;
 
         // Step through the table tree
-        for (Enumeration<?> element = getRootNode().depthFirstEnumeration(); element.hasMoreElements();)
+        for (Enumeration<?> element = getRootNode().preorderEnumeration(); element.hasMoreElements();)
         {
             // Get the referenced node
             ToolTipTreeNode tableNode = (ToolTipTreeNode) element.nextElement();
@@ -1376,7 +1381,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         ToolTipTreeNode node = null;
 
         // Step through the root node's children, if any
-        for (Enumeration<?> element = root.depthFirstEnumeration(); element.hasMoreElements();)
+        for (Enumeration<?> element = root.preorderEnumeration(); element.hasMoreElements();)
         {
             // Get the referenced node
             ToolTipTreeNode tableNode = (ToolTipTreeNode) element.nextElement();
@@ -1625,13 +1630,13 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         allPrimitivePaths = new ArrayList<String>();
 
         // Step through each element and child of this node
-        for (Enumeration<?> element = startNode.depthFirstEnumeration(); element.hasMoreElements();)
+        for (Enumeration<?> element = startNode.preorderEnumeration(); element.hasMoreElements();)
         {
             // Get the node
             ToolTipTreeNode node = (ToolTipTreeNode) element.nextElement();
 
             // Get the data type for this node
-            String dataType = getTableFromNodeName(node.getUserObject().toString());
+            String dataType = getTableFromNodeName(removeExtraText(node.getUserObject().toString()));
 
             // Check if the data type is a primitive (versus a structure)
             if (dataTypeHandler.isPrimitive(dataType))
@@ -1661,7 +1666,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     private void setNodeEnableByExcludeList()
     {
         // Step through elements and children of this node
-        for (Enumeration<?> element = root.depthFirstEnumeration(); element.hasMoreElements();)
+        for (Enumeration<?> element = root.preorderEnumeration(); element.hasMoreElements();)
         {
             // Get the node reference
             ToolTipTreeNode node = (ToolTipTreeNode) element.nextElement();

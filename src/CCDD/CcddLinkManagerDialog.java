@@ -305,22 +305,8 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                                                                          JOptionPane.QUESTION_MESSAGE,
                                                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                         {
-                            // Current link definitions
-                            List<String[]> currentLinks = new ArrayList<String[]>();
-
-                            // Step through each data stream
-                            for (CcddLinkManagerHandler linkHandler : linkMgrs)
-                            {
-                                // Add the links for this stream to the list
-                                // containing the links for all data streams
-                                currentLinks.addAll(linkHandler.getCurrentLinks());
-                            }
-
-                            // Store the link list into the database
-                            dbTable.storeInformationTableInBackground(InternalTable.LINKS,
-                                                                      currentLinks,
-                                                                      null,
-                                                                      CcddLinkManagerDialog.this);
+                            // Store the links in the project database
+                            storeLinks();
                         }
                     }
                 });
@@ -761,7 +747,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
 
                                         // Step through each member of the new
                                         // link
-                                        for (Enumeration<?> element = newLinkNode.depthFirstEnumeration(); element.hasMoreElements();)
+                                        for (Enumeration<?> element = newLinkNode.preorderEnumeration(); element.hasMoreElements();)
                                         {
                                             // Get the node for this variable
                                             // and convert it to a string,
@@ -884,6 +870,29 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                 }
             }
         }
+    }
+
+    /**************************************************************************
+     * Store the link definitions in the project database
+     *************************************************************************/
+    private void storeLinks()
+    {
+        // Current link definitions
+        List<String[]> currentLinks = new ArrayList<String[]>();
+
+        // Step through each data stream
+        for (CcddLinkManagerHandler linkHandler : linkMgrs)
+        {
+            // Add the links for this stream to the list
+            // containing the links for all data streams
+            currentLinks.addAll(linkHandler.getCurrentLinks());
+        }
+
+        // Store the link list into the database
+        dbTable.storeInformationTableInBackground(InternalTable.LINKS,
+                                                  currentLinks,
+                                                  null,
+                                                  CcddLinkManagerDialog.this);
     }
 
     /**************************************************************************

@@ -505,7 +505,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                     associatedVars.add(variables.get(index));
                 }
             }
-            // More associated variable were detected than were provided. This
+            // More associated variables were detected than were provided. This
             // can only occur if the rates for associated variables don't match
             // - this shouldn't be possible
             else
@@ -538,8 +538,11 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
         List<Variable> varList = new ArrayList<Variable>();
         List<String> pathList = new ArrayList<String>();
 
+        // Convert the rate string to a float
+        float rateVal = CcddUtilities.convertStringToFloat(rate);
+
         // Update the tree to have the variables of the given rate
-        updateVariableTree(String.valueOf(rate));
+        updateVariableTree(rate);
 
         // Get all the paths of the variables in the current variable tree
         pathList.addAll(variableTree.getPrimitiveVariablePaths(variableTree.getRootNode()));
@@ -557,7 +560,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                 varList.add(VariableGenerator.generateTelemetryData(Arrays.copyOfRange(pathParts,
                                                                                        3,
                                                                                        pathParts.length),
-                                                                    CcddUtilities.convertStringToFloat(rate)));
+                                                                    rateVal));
             }
             // Not linked
             else
@@ -566,7 +569,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                 varList.add(VariableGenerator.generateTelemetryData(Arrays.copyOfRange(pathParts,
                                                                                        variableTree.getTableNodeLevel(),
                                                                                        pathParts.length),
-                                                                    CcddUtilities.convertStringToFloat(rate)));
+                                                                    rateVal));
             }
         }
 

@@ -7,37 +7,129 @@
 package CCDD;
 
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
+
+import CCDD.CcddClasses.ToolTipTreeNode;
+import CCDD.CcddConstants.TableTreeType;
 
 /******************************************************************************
  * CFS Command & Data Dictionary variable conversion handler class
  *****************************************************************************/
 public class CcddVariableConversionHandler
 {
-    private final CcddMacroHandler macroHandler;
-
-    // Lists that show a variable's full name before and after converting any
+    // Lists that show all the original variables' full names, and the
+    // variable's full name before and after converting any
     // commas and brackets to underscores. Only variable's where the converted
-    // name matches another variable's are saved in the lists
+    // name matches another variable's are saved in the latter two lists
+    private final List<String> allVariableNameList;
     private List<String> originalVariableNameList;
     private List<String> convertedVariableNameList;
 
     /**************************************************************************
-     * Variable conversion handler class constructor
+     * Variable conversion handler class constructor for a list of supplied
+     * variables
      * 
      * @param variableInformation
      *            list containing variable path and name pairs
      * 
-     * @param macroHandler
-     *            macro handler class reference
+     * @param allVariableNameList
+     *            list of variable names to process
      *************************************************************************/
-    CcddVariableConversionHandler(List<String[]> variableInformation,
-                                  CcddMacroHandler macroHandler)
+    CcddVariableConversionHandler(List<String> allVariableNameList)
     {
-        this.macroHandler = macroHandler;
+        this.allVariableNameList = allVariableNameList;
 
         // Create the conversion list
-        createConvertedVariableNameList(variableInformation);
+        createConvertedVariableNameList(allVariableNameList);
+    }
+
+    /**************************************************************************
+     * Variable conversion handler class constructor for all variables in the
+     * project database
+     * 
+     * @param variableInformation
+     *            list containing variable path and name pairs
+     *************************************************************************/
+    CcddVariableConversionHandler(CcddMain ccddMain)
+    {
+        allVariableNameList = new ArrayList<String>();
+
+        // Create a tree containing all of the variables. This is used for
+        // determining bit-packing and variable relative position
+        CcddTableTreeHandler allVariableTree = new CcddTableTreeHandler(ccddMain,
+                                                                        TableTreeType.INSTANCE_WITH_PRIMITIVES,
+                                                                        ccddMain.getMainFrame());
+
+        // Expand the tree so that all nodes are 'visible'
+        allVariableTree.setTreeExpansion(true);
+
+        // TODO THIS IS INCLUDING BIT LENGTHS WITH THE VARIABLES< WHICH AREN'T
+        // NEEDED
+
+        // Step through all of the nodes in the variable tree
+        for (Enumeration<?> element = allVariableTree.getRootNode().preorderEnumeration(); element.hasMoreElements();)
+        {
+            // Get the variable name from the node
+            String variable = allVariableTree.getFullVariablePath(((ToolTipTreeNode) element.nextElement()).getPath());
+
+            // Check if a variable name exists at this node
+            if (!variable.isEmpty())
+            {
+                // Convert the variable path to a string and add it to the
+                // list, expanding any macro(s) in the variable name
+                allVariableNameList.add(ccddMain.getMacroHandler().getMacroExpansion(variable));
+            }
+        }
+
+        // Create the conversion list
+        createConvertedVariableNameList(allVariableNameList);
+    }
+
+    /**************************************************************************
+     * Get the list of all variable names
+     * 
+     * @return List of all variable names
+     *************************************************************************/
+    protected List<String> getAllVariableNameList()
+    {
+        return allVariableNameList;
+    }
+
+    /**************************************************************************
+     * Remove the data types in the supplied variable path + name, replace the
+     * commas in the (which separate each structure variable in the path) with
+     * the specified separator character, and replace any left brackets with
+     * underscores and right brackets with blanks (in case there are any array
+     * members in the path)
+     * 
+     * @param fullName
+     *            variable path + name
+     * 
+     * @param separator
+     *            character(s) to replace commas in the variable path + name
+     * 
+     * @param excludeDataTypes
+     *            true to remove the data types from the variable path + name
+     * 
+     * @return Variable path + name with the data types removed, commas
+     *         replaced by the separator character(s), left brackets replaced
+     *         by underscores, and right brackets removed
+     *************************************************************************/
+    private String convertVariableName(String fullName,
+                                       String separator,
+                                       boolean excludeDataTypes)
+    {
+        // Check if data types are to be excluded
+        if (excludeDataTypes)
+        {
+            // Remove the data types from the variable path + name
+            fullName = fullName.replaceAll(",[^\\.]*\\.", ".");
+        }
+
+        return fullName.replaceAll("[,]", separator)
+                       .replaceAll("[\\[]", "_")
+                       .replaceAll("\\]", "");
     }
 
     /**************************************************************************
@@ -47,36 +139,29 @@ public class CcddVariableConversionHandler
      * square brackets with # underscores and remove right square brackets
      * (example: a[0],b[2] becomes a_0separatorb_2)
      * 
-     * @param variablePath
-     *            variable path in the format
+     * @param fullName
+     *            variable path + name in the format
      *            rootTable[,structureDataType1.variable1
-     *            [,structureDataType2.variable2[,...]]]
-     * 
-     * @param variableName
-     *            variableName in the format primitiveDataType.variable
+     *            [,structureDataType2.variable2
+     *            [,...]]],primitiveDataType.variable
      * 
      * @param separator
      *            character(s) to place between variables names
+     * 
+     * @param excludeDataTypes
+     *            true to remove the data types from the variable path + name
      * 
      * @return The variable's full path and name with each variable in the path
      *         separated by the specified separator character(s); returns a
      *         blank is the row is invalid
      *************************************************************************/
-    public String getFullVariableName(String variablePath,
-                                      String variableName,
-                                      String separator)
+    protected String getFullVariableName(String fullName,
+                                         String separator,
+                                         boolean excludeDataTypes)
     {
-        String fullName = "";
-
-        // Check that the path and name are not blank
-        if (!variablePath.isEmpty()
-            && variableName != null
-            && !variableName.isEmpty())
+        // Check if the full variable name is provided
+        if (fullName != null && !fullName.isEmpty())
         {
-            // Create the full name by prepending the path to the variable
-            // name
-            fullName = variablePath + "," + variableName;
-
             int index = -1;
 
             // Check if the separator character is an underscore
@@ -99,13 +184,11 @@ public class CcddVariableConversionHandler
             // name isn't in the list
             else
             {
-                // Replace the commas in the path, which separate each
-                // structure variable in the path, with underscores.
-                // Replace any left brackets with underscores and right
-                // brackets with blanks (in case there are any array
-                // members in the path)
-                fullName = fullName.replaceAll("[,\\[]",
-                                               separator).replaceAll("\\]", "");
+                // Convert the variable path + name using the separator
+                // character(s) to separate the variables in the path
+                fullName = convertVariableName(fullName,
+                                               separator,
+                                               excludeDataTypes);
             }
         }
 
@@ -120,70 +203,52 @@ public class CcddVariableConversionHandler
      * are processed trim the list to include only those variables that are
      * modified to prevent a duplicate. These lists are used by
      * getFullVariableName() so that it always returns a unique name
+     * 
+     * @param allVariableNameList
+     *            list of variable names to process
      *************************************************************************/
-    private void createConvertedVariableNameList(List<String[]> variableInformation)
+    private void createConvertedVariableNameList(List<String> allVariableNameList)
     {
-        // Check if the lists aren't already created
-        if (convertedVariableNameList == null)
+        originalVariableNameList = new ArrayList<String>();
+        convertedVariableNameList = new ArrayList<String>();
+
+        // Step through each variable
+        for (String variableName : allVariableNameList)
         {
-            originalVariableNameList = new ArrayList<String>();
-            convertedVariableNameList = new ArrayList<String>();
+            // Convert the variable path + name using underscores to separate
+            // the variables in the path, and retain the data types
+            String fullName = convertVariableName(variableName, "_", false);
 
-            // Step through each variable
-            for (String[] variableInfo : variableInformation)
+            // Compare the converted variable name to those already added to
+            // the list
+            while (convertedVariableNameList.contains(fullName))
             {
-                // Get the variable path and name for this row
-                String variablePath = variableInfo[0];
-                String variableName = macroHandler.getMacroExpansion(variableInfo[1]);
-
-                // Check that the path and name are not null or blank
-                if (variablePath != null
-                    && !variablePath.isEmpty()
-                    && variableName != null
-                    && !variableName.isEmpty())
-                {
-                    // Create the full name by prepending the path to the
-                    // variable name
-                    String fullName = variablePath + "," + variableName;
-
-                    // Add the full variable name to the original variable name
-                    // list
-                    originalVariableNameList.add(fullName);
-
-                    // Replace the commas in the path, which separate each
-                    // structure variable in the path, with underscores.
-                    // Replace any left brackets with underscores and right
-                    // brackets with blanks (in case there are any array
-                    // members in the path)
-                    fullName = fullName.replaceAll("[,\\[]", "_").replaceAll("\\]", "");
-
-                    // Compare the converted variable name to those already
-                    // added to the list
-                    while (convertedVariableNameList.contains(fullName))
-                    {
-                        // A matching name already exists; append an underscore
-                        // to this variable's name
-                        fullName += "_";
-                    }
-
-                    // Add the variable name to the converted variable name
-                    // list
-                    convertedVariableNameList.add(fullName);
-                }
+                // A matching name already exists; append an underscore to this
+                // variable's name
+                fullName += "_";
             }
 
-            // Step through the converted variable name list
-            for (int index = convertedVariableNameList.size() - 1; index >= 0; index--)
+            // Add the variable name to the converted variable name list
+            convertedVariableNameList.add(fullName);
+        }
+
+        // Step through the converted variable name list
+        for (int index = convertedVariableNameList.size() - 1; index >= 0; index--)
+        {
+            // Check if this variable isn't one that is modified
+            if (!convertedVariableNameList.get(index).endsWith("_"))
             {
-                // Check if this variable isn't one that is modified
-                if (!convertedVariableNameList.get(index).endsWith("_"))
-                {
-                    // Remove the variable from the list. This shortens the
-                    // list and allows all other variables to have their full
-                    // name built "on-the-fly"
-                    originalVariableNameList.remove(index);
-                    convertedVariableNameList.remove(index);
-                }
+                // Remove the variable from the list. This shortens the list
+                // and allows all other variables to have their full name built
+                // "on-the-fly"
+                convertedVariableNameList.remove(index);
+            }
+            // This variable was modified
+            else
+            {
+                // Add the variable to the list (add at the beginning to keep
+                // the order consistent with the converted list)
+                originalVariableNameList.add(0, convertedVariableNameList.get(index));
             }
         }
     }

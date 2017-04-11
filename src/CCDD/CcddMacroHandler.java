@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
@@ -287,16 +287,16 @@ public class CcddMacroHandler
 
     /**************************************************************************
      * Display a pop-up combo box containing the names of the defined macros.
-     * When the user selects a macro insert it into the supplied text field
+     * When the user selects a macro insert it into the supplied text component
      * 
-     * @param textField
-     *            text field over which to display the pop-up combo box and
+     * @param textComp
+     *            text component over which to display the pop-up combo box and
      *            insert the selected macro name
      * 
      * @param inputType
-     *            input data type of the text field
+     *            input data type of the text component
      *************************************************************************/
-    protected void insertMacroName(final JTextField textField,
+    protected void insertMacroName(final JTextComponent textComp,
                                    InputDataType inputType)
     {
         comboDlg = new JDialog();
@@ -310,14 +310,14 @@ public class CcddMacroHandler
             // Step through each macro
             for (String[] macro : macros)
             {
-                // Get the text field's text with the macro value replacing the
-                // macro name
+                // Get the text component's text with the macro value replacing
+                // the macro name
                 String text = getInsertedMacro(macro[MacrosColumn.VALUE.ordinal()],
-                                               textField);
+                                               textComp);
 
-                // Check if the text field's text, with the macro's value
-                // inserted, is allowed in the target text field based on the
-                // field's input type
+                // Check if the text component's text, with the macro's value
+                // inserted, is allowed in the target text component based on
+                // the component's input type
                 if (text.isEmpty() || text.matches(inputType.getInputMatch()))
                 {
                     // Add the macro name to the list with its value as the
@@ -328,7 +328,7 @@ public class CcddMacroHandler
             }
 
             // Check if any of the macro's are applicable to the target text
-            // field
+            // component
             if (!validMacros.isEmpty())
             {
                 // Create the pop-up combo box
@@ -360,17 +360,17 @@ public class CcddMacroHandler
                         String macroName = getFullMacroName(((JComboBox<?>) ae.getSource()).getSelectedItem().toString().trim());
 
                         // Get the starting index of the selected text in the
-                        // field
-                        int start = textField.getSelectionStart();
+                        // component
+                        int start = textComp.getSelectionStart();
 
-                        // Insert the macro into the text field's existing
-                        // text,
-                        // overwriting any of the text that is highlighted
-                        textField.setText(getInsertedMacro(macroName, textField));
-                        textField.setSelectionStart(start);
+                        // Insert the macro into the text component's existing
+                        // text, overwriting any of the text that is
+                        // highlighted
+                        textComp.setText(getInsertedMacro(macroName, textComp));
+                        textComp.setSelectionStart(start);
 
                         // Select the macro name that was inserted
-                        textField.setSelectionEnd(start + macroName.length());
+                        textComp.setSelectionEnd(start + macroName.length());
 
                         // Remove the macro pop-up and return to the caller.
                         // Get the selected macro's name and enclose it in the
@@ -447,8 +447,20 @@ public class CcddMacroHandler
                     @Override
                     public void windowGainedFocus(WindowEvent we)
                     {
-                        // Expand the combo box when it appears
-                        macroCbox.showPopup();
+                        // Create a runnable object to be executed
+                        SwingUtilities.invokeLater(new Runnable()
+                        {
+                            /**************************************************
+                             * Delay showing the pop-up; if this isn't done
+                             * then the pop-up isn't expanded consistently
+                             *************************************************/
+                            @Override
+                            public void run()
+                            {
+                                // Expand the combo box when it appears
+                                macroCbox.showPopup();
+                            }
+                        });
                     }
 
                     /**********************************************************
@@ -463,7 +475,7 @@ public class CcddMacroHandler
                 });
 
                 // Position and display the pop-up
-                positionMacroPopup(textField);
+                positionMacroPopup(textComp);
                 comboDlg.setVisible(true);
             }
         }
@@ -471,51 +483,48 @@ public class CcddMacroHandler
 
     /**************************************************************************
      * Position the dialog containing the macro pop-up combo box at the text
-     * cursor position in the text field
+     * cursor position in the text component
      * 
-     * @param textField
-     *            text field over which to display the pop-up combo box
+     * @param textComp
+     *            text component over which to display the pop-up combo box
      *************************************************************************/
-    private void positionMacroPopup(JTextField textField)
+    private void positionMacroPopup(JTextComponent textComp)
     {
         try
         {
-            // Get the position of the text cursor within the text field
-            Rectangle popUp = textField.modelToView(textField.getCaretPosition());
+            // Get the position of the text cursor within the text component
+            Rectangle popUp = textComp.modelToView(textComp.getCaretPosition());
 
             // Position the pop-up at the text cursor position
-            comboDlg.setLocation(textField.getLocationOnScreen().x + popUp.x,
-                                 textField.getLocationOnScreen().y);
+            comboDlg.setLocation(textComp.getLocationOnScreen().x + popUp.x,
+                                 textComp.getLocationOnScreen().y);
         }
         catch (BadLocationException ble)
         {
-            // Position the pop-up at the left end of the text field
-            comboDlg.setLocation(textField.getLocationOnScreen().x,
-                                 textField.getLocationOnScreen().y);
+            // Position the pop-up at the left end of the text component
+            comboDlg.setLocation(textComp.getLocationOnScreen().x,
+                                 textComp.getLocationOnScreen().y);
         }
     }
 
     /**************************************************************************
-     * Get the text of the specified text field with the macro name or value
-     * inserted at the current selection point
+     * Get the text of the specified text component with the macro name or
+     * value inserted at the current selection point
      * 
      * @param text
      *            macro name or value
      * 
-     * @param textField
-     *            text field over which the pop-up combo box is displayed
+     * @param textComp
+     *            text component over which the pop-up combo box is displayed
      * 
-     * @return Text of the specified text field with the macro name or value
-     *         inserted at the current selection point
+     * @return Text of the specified text component with the macro name or
+     *         value inserted at the current selection point
      *************************************************************************/
-    private String getInsertedMacro(String text, JTextField textField)
+    private String getInsertedMacro(String text, JTextComponent textComp)
     {
-        // Insert the text into the text field at the selection start position,
-        // replacing any characters between the selection start and end
-        // positions
-        return textField.getText().substring(0, textField.getSelectionStart())
+        return textComp.getText().substring(0, textComp.getSelectionStart())
                + text
-               + textField.getText().substring(textField.getSelectionEnd());
+               + textComp.getText().substring(textComp.getSelectionEnd());
     }
 
     /**************************************************************************

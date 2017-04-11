@@ -20,6 +20,8 @@ import static CCDD.CcddConstants.UNDO_ICON;
 import static CCDD.CcddConstants.UP_ICON;
 
 import java.awt.AWTException;
+import java.awt.Component;
+import java.awt.EventQueue;
 import java.awt.Robot;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -40,6 +42,7 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.text.JTextComponent;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.TableAddition;
@@ -60,6 +63,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     // Class references
     private final CcddMain ccddMain;
     private final CcddDbTableCommandHandler dbTable;
+    private final CcddTableTypeHandler tableTypeHandler;
     private final CcddFileIOHandler fileIOHandler;
     private CcddTableEditorHandler activeEditor;
     private final List<CcddTableEditorHandler> tableEditors;
@@ -82,6 +86,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     private JMenuItem mntmRedo;
     private JMenuItem mntmCopy;
     private JMenuItem mntmPaste;
+    private JMenuItem mntmInsertMacro;
+    private JCheckBoxMenuItem mntmShowMacros;
+    private JMenuItem mntmClearData;
     private JMenuItem mntmInsert;
     private JMenuItem mntmInsertRow;
     private JMenuItem mntmDeleteRow;
@@ -94,7 +101,6 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     private JMenuItem mntmMoveLeft;
     private JMenuItem mntmMoveRight;
     private JMenuItem mntmResetOrder;
-    private JMenuItem mntmClearData;
     private JMenuItem mntmManageFields;
     private JMenuItem mntmClearValues;
     private JButton btnInsertRow;
@@ -125,6 +131,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
         // Create references to shorten subsequent calls
         dbTable = ccddMain.getDbTableCommandHandler();
+        tableTypeHandler = ccddMain.getTableTypeHandler();
         fileIOHandler = ccddMain.getFileIOHandler();
         tableEditors = new ArrayList<CcddTableEditorHandler>();
 
@@ -245,6 +252,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         boolean enableChild = enable
                               && !activeEditor.getTableInformation().isPrototype();
 
+        // Set the menu item enable status
         mntmOpen.setEnabled(enable);
         mntmOpenPrototype.setEnabled(enableChild);
         mntmStore.setEnabled(enable);
@@ -256,12 +264,14 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmExportXTCE.setEnabled(enable);
         mntmPrint.setEnabled(enable);
         mntmSearchTable.setEnabled(enable);
-        mntmCloseActive.setEnabled(enable);
-        mntmCloseAll.setEnabled(enable);
+        mntmCloseActive.setEnabled(enable || mntmShowMacros.isSelected());
+        mntmCloseAll.setEnabled(enable || mntmShowMacros.isSelected());
         mntmUndo.setEnabled(enable);
         mntmRedo.setEnabled(enable);
         mntmCopy.setEnabled(enable);
         mntmPaste.setEnabled(enableParent);
+        mntmInsertMacro.setEnabled(enable);
+        mntmShowMacros.setEnabled(enable || mntmShowMacros.isSelected());
         mntmInsert.setEnabled(enable);
         mntmInsertRow.setEnabled(enableParent);
         mntmDeleteRow.setEnabled(enableParent);
@@ -271,23 +281,25 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmOverwriteNone.setEnabled(enable && activeEditor.isCanHaveArrays());
         mntmMoveUp.setEnabled(enableParent);
         mntmMoveDown.setEnabled(enableParent);
-        mntmMoveLeft.setEnabled(enable);
-        mntmMoveRight.setEnabled(enable);
-        mntmResetOrder.setEnabled(enable);
+        mntmMoveLeft.setEnabled(enable || mntmShowMacros.isSelected());
+        mntmMoveRight.setEnabled(enable || mntmShowMacros.isSelected());
+        mntmResetOrder.setEnabled(enable || mntmShowMacros.isSelected());
         mntmClearData.setEnabled(enable);
+        mntmManageFields.setEnabled(enable);
         mntmClearValues.setEnabled(enable
                                    && !activeEditor.getFieldHandler().getFieldInformation().isEmpty());
 
+        // Set the button enable status
         btnInsertRow.setEnabled(enableParent);
         btnDeleteRow.setEnabled(enableParent);
         btnMoveUp.setEnabled(enableParent);
         btnMoveDown.setEnabled(enableParent);
-        btnMoveLeft.setEnabled(enable);
-        btnMoveRight.setEnabled(enable);
+        btnMoveLeft.setEnabled(enable || mntmShowMacros.isSelected());
+        btnMoveRight.setEnabled(enable || mntmShowMacros.isSelected());
         btnUndo.setEnabled(enable);
         btnRedo.setEnabled(enable);
         btnStore.setEnabled(enable);
-        btnCloseActive.setEnabled(enable);
+        btnCloseActive.setEnabled(enable || mntmShowMacros.isSelected());
     }
 
     /**************************************************************************
@@ -615,6 +627,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mnEdit.addSeparator();
         mntmUndo = ccddMain.createMenuItem(mnEdit, "Undo", KeyEvent.VK_Z, 1, "Undo the last edit operation");
         mntmRedo = ccddMain.createMenuItem(mnEdit, "Redo", KeyEvent.VK_Y, 1, "Redo the last undone edit operation");
+        mnEdit.addSeparator();
+        mntmInsertMacro = ccddMain.createMenuItem(mnEdit, "Insert macro", KeyEvent.VK_M, 1, "Insert a macro selected from the pop-up list");
+        mntmShowMacros = ccddMain.createCheckBoxMenuItem(mnEdit, "Show macros", KeyEvent.VK_S, 1, "Temporarily replace macro(s) with the corresponding value(s)", false);
         mnEdit.addSeparator();
         mntmClearData = ccddMain.createMenuItem(mnEdit, "Clear data", KeyEvent.VK_D, 1, "Clear the selected data in the current editor table");
 
@@ -959,6 +974,106 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                     // Clear the selected cell(s)
                     activeEditor.getTable().deleteCell();
                 }
+            }
+
+            /******************************************************************
+             * Get the reference to the currently displayed table
+             *****************************************************************/
+            @Override
+            protected CcddJTableHandler getTable()
+            {
+                return activeEditor.getTable();
+            }
+        });
+
+        // Add a listener for the insert macro command
+        mntmInsertMacro.addActionListener(new ValidateCellActionListener()
+        {
+            /******************************************************************
+             * Insert the macro chosen from the pop-up list into the current
+             * cell
+             *****************************************************************/
+            @Override
+            protected void performAction(ActionEvent ae)
+            {
+                // Check if a cell is being edited in the table by checking if
+                // the selection start and end values are valid
+                if (getTable().getLastSelectionStart() != -1
+                    && getTable().getLastSelectionEnd() != -1)
+                {
+                    // Initiate editing in the selected cell
+                    getTable().editCellAt(getTable().getSelectedRow(),
+                                          getTable().getSelectedColumn());
+
+                    // Get the cell's component
+                    final Component comp = getTable().getEditorComponent();
+
+                    // Check if the cell represents a text component (text
+                    // area, text field, etc.)
+                    if (comp instanceof JTextComponent)
+                    {
+                        // Set the focus to the cell
+                        comp.requestFocusInWindow();
+
+                        // Execute the event after any pending events
+                        EventQueue.invokeLater(new Runnable()
+                        {
+                            /**************************************************
+                             * Set the selected text start and end positions
+                             *************************************************/
+                            @Override
+                            public void run()
+                            {
+                                // Set the text selected text to the last
+                                // known positions
+                                ((JTextComponent) comp).setSelectionStart(getTable().getLastSelectionStart());
+                                ((JTextComponent) comp).setSelectionEnd(getTable().getLastSelectionEnd());
+                            }
+                        });
+                    }
+
+                    // Send a Ctrl-M key press to display the insert macro
+                    // pop-up
+                    controlKeyAction(KeyEvent.VK_M);
+                }
+            }
+
+            /******************************************************************
+             * Get the reference to the currently displayed table
+             *****************************************************************/
+            @Override
+            protected CcddJTableHandler getTable()
+            {
+                return activeEditor.getTable();
+            }
+        });
+
+        // Add a listener for the Show macros command
+        mntmShowMacros.addActionListener(new ValidateCellActionListener()
+        {
+            /******************************************************************
+             * Temporarily replace any macros with the corresponding values
+             *****************************************************************/
+            @Override
+            protected void performAction(ActionEvent ae)
+            {
+                // If the check box is selected then disable the controls that
+                // are not allowed while macros are shown, else enable the
+                // controls
+                setControlsEnabled(!mntmShowMacros.isSelected());
+
+                // Step through each table opened in the editor dialog
+                for (CcddTableEditorHandler editor : tableEditors)
+                {
+                    // Expand all macros in the table if the check box is
+                    // selected and disable editing for the table, else restore
+                    // all macros and enable editing
+                    editor.expandMacros(mntmShowMacros.isSelected(), false);
+                    editor.setTableEditEnable(!mntmShowMacros.isSelected());
+                }
+
+                // Redraw the visible table
+                activeEditor.getTable().repaint();
             }
 
             /******************************************************************
@@ -1527,8 +1642,12 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 // Update the expand/collapse arrays check box
                 updateExpandArrayCheckBox();
 
-                // Update the editor controls state
-                setControlsEnabled(true);
+                // Check if the Show macros command is not in effect
+                if (!mntmShowMacros.isSelected())
+                {
+                    // Update the editor controls state
+                    setControlsEnabled(true);
+                }
             }
         });
 
@@ -1636,6 +1755,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                                             editor.getDeletions(),
                                             false,
                                             null,
+                                            null,
                                             CcddTableEditorDialog.this);
     }
 
@@ -1673,6 +1793,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                                                 editor.getModifications(),
                                                 editor.getDeletions(),
                                                 false,
+                                                null,
                                                 null,
                                                 CcddTableEditorDialog.this);
                     }

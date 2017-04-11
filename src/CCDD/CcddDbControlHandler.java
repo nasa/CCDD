@@ -189,6 +189,23 @@ public class CcddDbControlHandler
     }
 
     /**************************************************************************
+     * Get the PostgreSQL project database name
+     * 
+     * @return Name of the active PostgreSQL project database; returns
+     *         '*server*' if no project database is open, but a connection to
+     *         the PostgreSQL server is active, or '*none*' if no connection to
+     *         the server is active
+     *************************************************************************/
+    protected String getProject()
+    {
+        return isDatabaseConnected()
+                                    ? getDatabase()
+                                    : (isServerConnected()
+                                                          ? "*server*"
+                                                          : "*none*");
+    }
+
+    /**************************************************************************
      * Get the PostgreSQL server host
      * 
      * @return PostgreSQL server host
@@ -506,7 +523,7 @@ public class CcddDbControlHandler
      * @return Database comment without the CFS project identifier; null if the
      *         comment cannot be retrieved
      *************************************************************************/
-    protected String getDatabaseComment(String databaseName)
+    private String getDatabaseComment(String databaseName)
     {
         String comment = null;
 
@@ -514,12 +531,11 @@ public class CcddDbControlHandler
         {
             // Get the comment for the database
             ResultSet resultSet = dbCommand.executeDbQuery("SELECT description FROM pg_shdescription "
-                                                           + "JOIN pg_database ON objoid = pg_database.oid "
-                                                           + "WHERE datname = '"
+                                                           + "JOIN pg_database ON objoid = "
+                                                           + "pg_database.oid WHERE datname = '"
                                                            + databaseName
                                                            + "';",
                                                            ccddMain.getMainFrame());
-
             resultSet.next();
 
             // Split the comment to remove the CFS project identifier
@@ -1047,8 +1063,8 @@ public class CcddDbControlHandler
                                        + ValuesColumn.VALUE.getColumnName()
                                        + " FROM "
                                        + InternalTable.VALUES.getTableName()
-                                       + " WHERE column_name = '' || column_name_user || "
-                                       + "E'')) AS name_and_value ORDER BY owner_name;'; END; $$ "
+                                       + " WHERE column_name = ''' || column_name_user || "
+                                       + "E''')) AS name_and_value ORDER BY owner_name;'; END; $$ "
                                        + "LANGUAGE plpgsql; "
                                        + buildOwnerCommand(DatabaseObject.FUNCTION,
                                                            "find_columns_by_name(column_name_user "
@@ -1091,7 +1107,7 @@ public class CcddDbControlHandler
         boolean errorFlag = false;
 
         // Check if connected to a project database
-        if (connectionStatus == TO_DATABASE)
+        if (isDatabaseConnected())
         {
             try
             {
@@ -1512,15 +1528,17 @@ public class CcddDbControlHandler
             // A database other than the default is selected
             else
             {
+                // The connection to the server must exist in order to reach
+                // this point, so set the connection status to indicate the
+                // server is connected. Once the project connection is
+                // completed the flag is updated accordingly
+                connectionStatus = TO_SERVER_ONLY;
+
                 // Check if the database is locked
                 if (getDatabaseLockStatus(databaseName))
                 {
                     throw new SQLException("database is locked");
                 }
-
-                // Set the connection status to indicate a database is
-                // connected
-                connectionStatus = TO_DATABASE;
 
                 boolean isAllowed = false;
 
@@ -1549,6 +1567,10 @@ public class CcddDbControlHandler
                     // Get the database owner
                     activeOwner = queryDatabaseOwner(databaseName,
                                                      ccddMain.getMainFrame())[0];
+
+                    // Set the connection status to indicate a database is
+                    // connected
+                    connectionStatus = TO_DATABASE;
 
                     // Check if an automatic backup was scheduled via the
                     // command line argument
@@ -1598,22 +1620,22 @@ public class CcddDbControlHandler
                 // Inform the user that the database connection failed
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
                                       "Cannot connect to "
-                                          + (connectionStatus == TO_SERVER_ONLY
-                                                                               ? "server"
-                                                                               : "project database '"
-                                                                                 + getServerAndDatabase(databaseName)
-                                                                                 + "'")
+                                          + (activeDatabase.equals(DEFAULT_DATABASE)
+                                                                                    ? "server"
+                                                                                    : "project database '"
+                                                                                      + getServerAndDatabase(databaseName)
+                                                                                      + "'")
                                           + " as user '"
                                           + activeUser
                                           + "'; cause '"
                                           + se.getMessage()
                                           + "'",
                                       "<html><b>Cannot connect to "
-                                          + (connectionStatus == TO_SERVER_ONLY
-                                                                               ? "server"
-                                                                               : "project database '</b>"
-                                                                                 + getServerAndDatabase(databaseName)
-                                                                                 + "<b>'"));
+                                          + (activeDatabase.equals(DEFAULT_DATABASE)
+                                                                                    ? "server"
+                                                                                    : "project database '</b>"
+                                                                                      + getServerAndDatabase(databaseName)
+                                                                                      + "<b>'"));
             }
 
             errorFlag = true;
@@ -1676,9 +1698,9 @@ public class CcddDbControlHandler
                         throw new CCDDException();
                     }
 
-                    // Check that the database isn't the default database
-                    // (server)
-                    if (!activeDatabase.equals(DEFAULT_DATABASE))
+                    // Check that the connection is to a project database and
+                    // not just the server (default database)
+                    if (isDatabaseConnected())
                     {
                         // Check if the GUI is visible. If the application is
                         // started with the GUI hidden (for command line script
@@ -2155,13 +2177,13 @@ public class CcddDbControlHandler
      *************************************************************************/
     protected boolean closeDatabase()
     {
-        // Check if a database is open
-        if (connectionStatus != NO_CONNECTION)
+        // Check if a database (including the default) is open
+        if (isServerConnected())
         {
             try
             {
                 // Check that the database isn't the default database (server)
-                if (!activeDatabase.equals(DEFAULT_DATABASE))
+                if (isDatabaseConnected())
                 {
                     // Unlock the database
                     setDatabaseLockStatus(activeDatabase, false);
@@ -2176,29 +2198,37 @@ public class CcddDbControlHandler
 
                 // Close the database
                 connection.close();
-                connectionStatus = NO_CONNECTION;
 
-                // Inform the user that closing the database succeeded
+                // Inform the user that closing the database succeeded and
+                // update the connection status
                 eventLog.logEvent(SUCCESS_MSG,
                                   (activeDatabase.equals(DEFAULT_DATABASE)
-                                                                          ? "Default database"
-                                                                          : "Database")
-                                      + " '"
-                                      + activeDatabase
-                                      + "' closed");
+                                                                          ? "Server connection"
+                                                                          : "Project database '"
+                                                                            + activeDatabase
+                                                                            + "'")
+                                      + " closed");
+                connectionStatus = NO_CONNECTION;
             }
             catch (SQLException se)
             {
                 // Inform the user that the database failed to close
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                      "Cannot close project database '"
-                                          + getServerAndDatabase(activeDatabase)
-                                          + "'; cause '"
+                                      "Cannot close "
+                                          + (activeDatabase.equals(DEFAULT_DATABASE)
+                                                                                    ? "server connection"
+                                                                                    : "project database '"
+                                                                                      + getServerAndDatabase(activeDatabase)
+                                                                                      + "'")
+                                          + "; cause '"
                                           + se.getMessage()
                                           + "'",
-                                      "<html><b>Cannot close project database '</b>"
-                                          + activeDatabase
-                                          + "<b>'");
+                                      "<html><b>Cannot close "
+                                          + (activeDatabase.equals(DEFAULT_DATABASE)
+                                                                                    ? "server connection"
+                                                                                    : "project database '</b>"
+                                                                                      + activeDatabase
+                                                                                      + "<b>'"));
             }
         }
 
@@ -2283,7 +2313,7 @@ public class CcddDbControlHandler
         String command = "pg_dump "
                          + getUserHostAndPort()
                          + databaseName
-                         + " -f ";
+                         + " -o -f ";
 
         // Get the number of command line arguments
         int numArgs = command.split(" ").length + 1;

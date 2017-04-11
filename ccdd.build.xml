@@ -11,14 +11,16 @@
         <jar destfile="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD.jar">
             <manifest>
                 <attribute name="Main-Class" value="CCDD.CcddMain"/>
-                <attribute name="Class-Path" value=". CCDD_lib/EDS.jar CCDD_lib/XTCE.jar CCDD_lib/json-simple-1.1.1.jar CCDD_lib/jetty-http-9.2.18.v20160721.jar CCDD_lib/jetty-io-9.2.18.v20160721.jar CCDD_lib/jetty-security-9.2.18.v20160721.jar CCDD_lib/jetty-server-9.2.18.v20160721.jar CCDD_lib/jetty-servlet-9.2.18.v20160721.jar CCDD_lib/jetty-util-9.2.18.v20160721.jar CCDD_lib/servlet-api-3.1.jar CCDD_lib/postgresql-9.4.1207.jre7.jar CCDD_lib/jruby.jar CCDD_lib/jython.jar CCDD_lib/jython.jar CCDD_lib/groovy-jsr223-2.4.4.jar CCDD_lib/groovy-2.4.4.jar"/>
-                <attribute name="Implementation-Version" value="${build.version}.${build.number}"/>
-                <attribute name="Build-Date" value="${TODAY}" />                   
-           </manifest>
+                <attribute name="Class-Path" value=". CCDD_lib/postgresql-9.4.1207.jre7.jar CCDD_lib/EDS.jar CCDD_lib/XTCE.jar CCDD_lib/json-simple-1.1.1.jar CCDD_lib/jetty-http-9.2.18.v20160721.jar CCDD_lib/jetty-io-9.2.18.v20160721.jar CCDD_lib/jetty-security-9.2.18.v20160721.jar CCDD_lib/jetty-server-9.2.18.v20160721.jar CCDD_lib/jetty-servlet-9.2.18.v20160721.jar CCDD_lib/jetty-util-9.2.18.v20160721.jar CCDD_lib/servlet-api-3.1.jar CCDD_lib/jruby.jar CCDD_lib/jython.jar CCDD_lib/jython.jar CCDD_lib/groovy-jsr223-2.4.4.jar CCDD_lib/groovy-2.4.4.jar"/>
+                <attribute name="CCDD-Version" value="${build.version}.${build.number}"/>
+                <attribute name="Build-Date" value="${TODAY}"/>
+                <attribute name="Created-By" value="NASA JSC: ER6/Kevin McCluney"/>
+          </manifest>
             <fileset dir="/home/rmcclune/COP_CFS_Workspace/CFS_CDD/bin"/>
         </jar>
         <delete dir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
         <mkdir dir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
+        <copy file="/opt/JDBC/postgresql-9.4.1207.jre7.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
         <copy file="/home/rmcclune/COP_CFS_Workspace/CFS_CDD/EDS.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
         <copy file="/home/rmcclune/COP_CFS_Workspace/CFS_CDD/XTCE.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
         <copy file="/opt/json-simple-1.1.1/json-simple-1.1.1.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
@@ -29,12 +31,6 @@
         <copy file="/opt/jetty-distribution-9.2.18.v20160721/lib/jetty-servlet-9.2.18.v20160721.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
         <copy file="/opt/jetty-distribution-9.2.18.v20160721/lib/jetty-util-9.2.18.v20160721.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
         <copy file="/opt/jetty-distribution-9.2.18.v20160721/lib/servlet-api-3.1.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
-        <copy file="/opt/JDBC/postgresql-9.4.1207.jre7.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
-        <copy file="/opt/jruby-9.0.1.0/lib/jruby.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
-        <copy file="/opt/jython2.7.0/jython.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
-        <copy file="/opt/PyDev/plugins/org.python.pydev.jython_4.3.0.201508182223/jython.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
-        <copy file="/opt/groovy-2.4.4/lib/groovy-jsr223-2.4.4.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
-        <copy file="/opt/groovy-2.4.4/lib/groovy-2.4.4.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
     </target>
 </project>
 

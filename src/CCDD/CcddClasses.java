@@ -55,13 +55,22 @@ public class CcddClasses
 {
     // Data type handler reference
     private static CcddDataTypeHandler dataTypeHandler;
+    private static CcddMacroHandler macroHandler;
 
     /**************************************************************************
-     * Set the data type handler reference
+     * Set the data type and macro handler references
+     * 
+     * @param dtHandler
+     *            reference to the data type handler
+     * 
+     * @param mHandler
+     *            reference to the macro handler
      *************************************************************************/
-    protected static void setHandlers(CcddDataTypeHandler dtHandler)
+    protected static void setHandlers(CcddDataTypeHandler dtHandler,
+                                      CcddMacroHandler mHandler)
     {
         dataTypeHandler = dtHandler;
+        macroHandler = mHandler;
     }
 
     /**************************************************************************
@@ -1541,6 +1550,24 @@ public class CcddClasses
         protected ToolTipTreeNode(String nodeName, String toolTipText)
         {
             super(nodeName);
+
+            // Get the node name with any macro(s) expanded
+            String expanded = macroHandler.getMacroExpansion(nodeName);
+
+            // Check if a node name contains a macro
+            if (!expanded.equals(nodeName))
+            {
+                // Amend the tool tip text to include the macro expansion of
+                // the node name
+                toolTipText = toolTipText == null
+                              || toolTipText.isEmpty()
+                                                      ? expanded
+                                                      : "("
+                                                        + expanded
+                                                        + ") "
+                                                        + toolTipText;
+            }
+
             this.toolTipText = CcddUtilities.wrapText(toolTipText,
                                                       TOOL_TIP_MAXIMUM_LENGTH);
         }
@@ -4099,6 +4126,8 @@ public class CcddClasses
     @SuppressWarnings("serial")
     public static class PaddedComboBox extends JComboBox<String>
     {
+        private boolean inLayOut = false;
+
         /**********************************************************************
          * Padded combo box constructor with an empty list
          * 
@@ -4148,6 +4177,41 @@ public class CcddClasses
         }
 
         /**********************************************************************
+         * Override in order to set the flag indicating a layout is in progress
+         * for when getSize() is called
+         *********************************************************************/
+        @Override
+        public void doLayout()
+        {
+            inLayOut = true;
+            super.doLayout();
+            inLayOut = false;
+        }
+
+        /**********************************************************************
+         * Override in order to set the combo box width to that of the longest
+         * list item
+         * 
+         * @return Combo box size
+         *********************************************************************/
+        @Override
+        public Dimension getSize()
+        {
+            Dimension dim = super.getSize();
+
+            // Check that the call to this method didn't originate during a
+            // layout operation
+            if (!inLayOut)
+            {
+                // Get the maximum of the width returned by the call to the
+                // default getSize() and the preferred width
+                dim.width = Math.max(dim.width, getPreferredSize().width);
+            }
+
+            return dim;
+        }
+
+        /**********************************************************************
          * Set up list item characteristics
          * 
          * @param toolTips
@@ -4159,11 +4223,12 @@ public class CcddClasses
         private void setListItemCharacteristics(final String[] toolTips,
                                                 Font font)
         {
-            // Set the foreground and background color and font for the list
-            // items
+            // Set the foreground color, background color, and font for the
+            // list items, and the maximum number of items to display
             setForeground(Color.BLACK);
             setBackground(Color.WHITE);
             setFont(font);
+            setMaximumRowCount(15);
 
             // Set the renderer
             setRenderer(new DefaultListCellRenderer()

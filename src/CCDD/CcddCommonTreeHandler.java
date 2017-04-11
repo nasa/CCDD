@@ -36,8 +36,9 @@ import CCDD.CcddClasses.ToolTipTreeNode;
 @SuppressWarnings("serial")
 public class CcddCommonTreeHandler extends JTree
 {
-    // Class reference
+    // Class references
     private final CcddDataTypeHandler dataTypeHandler;
+    private final CcddMacroHandler macroHandler;
 
     // Tree icons depicting variables
     private final Icon variableIcon;
@@ -59,6 +60,7 @@ public class CcddCommonTreeHandler extends JTree
         super();
 
         dataTypeHandler = ccddMain.getDataTypeHandler();
+        macroHandler = ccddMain.getMacroHandler();
 
         // Create the tree icons depicting variables
         variableIcon = new ImageIcon(getClass().getResource(VARIABLE_ICON));
@@ -616,7 +618,7 @@ public class CcddCommonTreeHandler extends JTree
 
             // Add the number of bits occupied by this variable to the running
             // count
-            int bitLength = Integer.valueOf(varName.substring(varName.indexOf(":") + 1));
+            int bitLength = Integer.valueOf(macroHandler.getMacroExpansion(varName.substring(varName.indexOf(":") + 1)));
             bitCount += bitLength;
 
             // Check if the bit count rolled over the maximum allowed

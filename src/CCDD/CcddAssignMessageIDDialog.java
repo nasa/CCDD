@@ -471,6 +471,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                                                    !msgTabs[2].getOverwriteCbx().isSelected(),
                                                                    true,
                                                                    false,
+                                                                   null,
+                                                                   false,
                                                                    CcddAssignMessageIDDialog.this);
 
                         // Create a field handler and populate it with the
@@ -486,11 +488,11 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         // to the tables' alphabetical order
                         Collections.sort(fieldInformation, new Comparator<FieldInformation>()
                         {
-                            /**********************************************************
+                            /**************************************************
                              * Compare the table names of two field
                              * definitions. Force lower case to eliminate case
                              * differences in the comparison
-                             *********************************************************/
+                             *************************************************/
                             @Override
                             public int compare(FieldInformation fld1, FieldInformation fld2)
                             {
@@ -540,7 +542,9 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         idsInUse = msgIDHandler.getMessageIDsInUse(true,
                                                                    true,
                                                                    true,
-                                                                   !msgTabs[0].getOverwriteCbx().isSelected(),
+                                                                   false,
+                                                                   msgTabs[1].getOverwriteCbx().isSelected(),
+                                                                   schedulerDlg,
                                                                    false,
                                                                    CcddAssignMessageIDDialog.this);
 
@@ -897,6 +901,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                                         editor.getDeletions(),
                                                         true,
                                                         null,
+                                                        null,
                                                         CcddAssignMessageIDDialog.this);
                             }
                         }
@@ -1033,32 +1038,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         int startID = Integer.decode(tlmID.getStartFld().getText());
         int interval = Integer.valueOf(tlmID.getIntervalFld().getText());
 
-        // Check if the overwrite check box is not selected
-        if (!tlmID.getOverwriteCbx().isSelected())
-        {
-            // Step through each message
-            for (Message message : messages)
-            {
-                // Check if the message has an ID
-                if (!message.getID().isEmpty())
-                {
-                    // Add the message ID to the list of existing ID values
-                    idsInUse.add(Integer.decode(message.getID()));
-                }
-
-                // Step through each of the message's sub-messages
-                for (Message subMessage : message.getSubMessages())
-                {
-                    // Check if the sub-message has an ID
-                    if (!subMessage.getID().isEmpty())
-                    {
-                        // Add the sub-message ID to the list of existing ID
-                        // values
-                        idsInUse.add(Integer.decode(subMessage.getID()));
-                    }
-                }
-            }
-        }
+        // Get the first unused message ID, beginning with the ID provided
+        startID = getNextMessageID(startID, interval);
 
         // Step through each message
         for (Message message : messages)
@@ -1135,6 +1116,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
      *************************************************************************/
     private int getNextMessageID(int idValue, int interval)
     {
+
         // Continue to loop as long as the ID value matches a reserved or
         // existing one. This prevents assigning a duplicate ID
         while (idsInUse.contains(idValue))

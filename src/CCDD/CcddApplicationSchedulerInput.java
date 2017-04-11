@@ -176,7 +176,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
 
             // Step through the application tree's root node's children, if
             // any
-            for (Enumeration<?> element = applicationTree.getRootNode().depthFirstEnumeration(); element.hasMoreElements();)
+            for (Enumeration<?> element = applicationTree.getRootNode().preorderEnumeration(); element.hasMoreElements();)
             {
                 // Get the referenced node and its path
                 ToolTipTreeNode tableNode = (ToolTipTreeNode) element.nextElement();
@@ -199,7 +199,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
 
                 // Step through the application tree's root node's children,
                 // if any
-                for (Enumeration<?> element = applicationTree.getRootNode().depthFirstEnumeration(); element.hasMoreElements();)
+                for (Enumeration<?> element = applicationTree.getRootNode().preorderEnumeration(); element.hasMoreElements();)
                 {
                     // Get the referenced node and its path
                     ToolTipTreeNode tableNode = (ToolTipTreeNode) element.nextElement();

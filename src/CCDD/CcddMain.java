@@ -36,14 +36,15 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
 import java.util.jar.Attributes;
+import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -143,6 +144,7 @@ public class CcddMain
     private JMenuItem mntmReserveMsgID;
     private JMenuItem mntmDuplicateMsgID;
     private JMenuItem mntmEditDataField;
+    private JMenuItem mntmShowITOSNames;
     private JMenuItem mntmSearchTable;
     private JMenuItem mntmManageLinks;
     private JMenuItem mntmManageTlm;
@@ -158,7 +160,7 @@ public class CcddMain
     private JMenuItem mntmExit;
 
     // Build information
-    private String implementationVersion;
+    private String ccddVersion;
     private String buildDate;
 
     // Label containing the currently open database name for display in the
@@ -470,11 +472,11 @@ public class CcddMain
         // Read the table type definitions from the database
         tableTypeHandler = new CcddTableTypeHandler(CcddMain.this);
 
-        // Read the macro definitions from the database
-        macroHandler = new CcddMacroHandler(CcddMain.this);
-
         // Read the data types definitions from the database
         dataTypeHandler = new CcddDataTypeHandler(CcddMain.this);
+
+        // Read the macro definitions from the database
+        macroHandler = new CcddMacroHandler(CcddMain.this);
 
         // Read the rate parameters from the project database
         rateHandler = new CcddRateParameterHandler(CcddMain.this);
@@ -487,7 +489,7 @@ public class CcddMain
 
         // Now that the handlers exist, store its reference in the other
         // persistent classes that use them
-        CcddClasses.setHandlers(dataTypeHandler);
+        CcddClasses.setHandlers(dataTypeHandler, macroHandler);
         dbTable.setHandlers();
         fileIOHandler.setHandlers();
         scriptHandler.setHandlers();
@@ -699,6 +701,7 @@ public class CcddMain
         mntmCopyDb.setEnabled(dbControl.isServerConnected());
         mntmDeleteDb.setEnabled(dbControl.isServerConnected());
         mntmBackupDb.setEnabled(dbControl.isDatabaseConnected());
+        mntmRestoreDb.setEnabled(dbControl.isServerConnected());
         mntmNewTable.setEnabled(dbControl.isDatabaseConnected()
                                 && tableTypeHandler != null
                                 && tableTypeHandler.getTypes() != null);
@@ -721,6 +724,7 @@ public class CcddMain
         mntmReserveMsgID.setEnabled(dbControl.isDatabaseConnected());
         mntmDuplicateMsgID.setEnabled(dbControl.isDatabaseConnected());
         mntmEditDataField.setEnabled(dbControl.isDatabaseConnected());
+        mntmShowITOSNames.setEnabled(dbControl.isDatabaseConnected());
         mntmSearchTable.setEnabled(dbControl.isDatabaseConnected());
         mntmManageLinks.setEnabled(dbControl.isDatabaseConnected());
         mntmManageTlm.setEnabled(dbControl.isDatabaseConnected());
@@ -1037,28 +1041,43 @@ public class CcddMain
         uiDefs.put("ToolTip.font", LABEL_FONT_PLAIN);
         uiDefs.put("ToolTip.background", TOOL_TIP_TEXT_COLOR);
 
-        implementationVersion = null;
+        ccddVersion = null;
+        buildDate = null;
 
         try
         {
-            // Get the version number, build number, and build date from the
-            // manifest. This returns null values when the application is
-            // executed from within the IDE
-            InputStream stream = getClass().getResourceAsStream("/META-INF/MANIFEST.MF");
-            Manifest manifest = new Manifest(stream);
-            Attributes attributes = manifest.getMainAttributes();
-            implementationVersion = attributes.getValue("Implementation-Version");
-            buildDate = attributes.getValue("Build-Date");
-            stream.close();
+            // Get the name of the .jar file
+            String jarFileName = new File(CcddMain.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getName();
+
+            // Check if the .jar file name exists. This is false if the
+            // application is executed from within the IDE
+            if (jarFileName != null && jarFileName.endsWith(".jar"))
+            {
+                // Get the manifest in the .jar file
+                JarFile jar = new JarFile(jarFileName);
+                Manifest manifest = jar.getManifest();
+
+                // Check if the manifest exists
+                if (manifest != null)
+                {
+                    // Get the version number, build number, and build date
+                    // from the manifest
+                    Attributes attributes = manifest.getMainAttributes();
+                    ccddVersion = attributes.getValue("CCDD-Version");
+                    buildDate = attributes.getValue("Build-Date");
+                }
+
+                jar.close();
+            }
         }
         catch (Exception e)
         {
-            // Ignore the exception if the version number and build date can't
-            // be obtained from the manifest
+            // Ignore the exception if an I/O exception occurs accessing the
+            // manifest in the .jar file
         }
 
-        // Check if no version number was found in the manifest
-        if (implementationVersion == null)
+        // Check if no version number or build date was found in the manifest
+        if (ccddVersion == null || buildDate == null)
         {
             try
             {
@@ -1067,9 +1086,9 @@ public class CcddMain
                 // application is executed from within the IDE
                 Properties properties = new Properties();
                 properties.load(new FileInputStream("./ccdd.build.version"));
-                implementationVersion = properties.getProperty("build.version");
+                ccddVersion = properties.getProperty("build.version");
                 properties.load(new FileInputStream("./ccdd.build.number"));
-                implementationVersion += "." + properties.getProperty("build.number");
+                ccddVersion += "." + properties.getProperty("build.number");
                 buildDate = new SimpleDateFormat("M-d-yyyy").format(Calendar.getInstance().getTime());
             }
             catch (Exception e)
@@ -1080,19 +1099,19 @@ public class CcddMain
 
             // Check if no version number was found in the manifest or the
             // build property files
-            if (implementationVersion == null)
+            if (ccddVersion == null)
             {
                 // Set the version number and build date to indicate this
                 // information isn't available
-                implementationVersion = "*unknown*";
-                buildDate = "*unknown";
+                ccddVersion = "*unknown*";
+                buildDate = "*unknown*";
             }
         }
 
         // Create the main application frame and set its characteristics
         frameCCDD = new JFrame();
         frameCCDD.setTitle("CFS Command & Data Dictionary  "
-                           + implementationVersion);
+                           + ccddVersion);
         frameCCDD.setBounds(100, 100, MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT);
         frameCCDD.setMinimumSize(new Dimension(MIN_WINDOW_WIDTH,
                                                MIN_WINDOW_HEIGHT));
@@ -1193,6 +1212,8 @@ public class CcddMain
         mntmReserveMsgID = createMenuItem(mnMessageID, "Reserve IDs", KeyEvent.VK_R, 1, "Reserve message ID numbers");
         mntmDuplicateMsgID = createMenuItem(mnMessageID, "Find duplicates", KeyEvent.VK_F, 1, "Detect duplicate message ID numbers");
         mntmEditDataField = createMenuItem(mnData, "Show/edit fields", KeyEvent.VK_F, 1, "Open the data field table editor");
+        mnData.addSeparator();
+        mntmShowITOSNames = createMenuItem(mnData, "Show ITOS names", KeyEvent.VK_W, 1, "Display the variable paths + names in the current editor table formatted for ITOS record files");
         mnData.addSeparator();
         mntmSearchTable = createMenuItem(mnData, "Search tables", KeyEvent.VK_S, 1, "Search the project database tables");
 
@@ -1851,6 +1872,21 @@ public class CcddMain
             }
         });
 
+        // Add a listener for the Show ITOS Names command
+        mntmShowITOSNames.addActionListener(new ActionListener()
+        {
+            /******************************************************************
+             * Display a dialog showing all of the variable paths + names in
+             * the currently selected structure table converted to their
+             * equivalents for use in an ITOS record file
+             *****************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                new CcddITOSNameDialog(CcddMain.this);
+            }
+        });
+
         // Add a listener for the Search tables menu item
         mntmSearchTable.addActionListener(new ActionListener()
         {
@@ -2048,14 +2084,16 @@ public class CcddMain
                                                               + "<br>"
                                                               + CcddUtilities.colorHTMLText("Version: ",
                                                                                             LABEL_TEXT_COLOR)
-                                                              + implementationVersion
+                                                              + ccddVersion
                                                               + "&#160;&#160;&#160;"
                                                               + buildDate
                                                               + "<br><br><b>Supporting software versions:</b><br>&#160;&#160;&#160;"
                                                               + CcddUtilities.colorHTMLText("Java: ",
                                                                                             LABEL_TEXT_COLOR)
                                                               + System.getProperty("java.version")
-                                                              + "<br>&#160;&#160;&#160;"
+                                                              + " ("
+                                                              + System.getProperty("sun.arch.data.model")
+                                                              + "-bit)<br>&#160;&#160;&#160;"
                                                               + CcddUtilities.colorHTMLText(DEFAULT_SERVER + ": ",
                                                                                             LABEL_TEXT_COLOR)
                                                               + dbControl.getDatabaseVersion()

@@ -317,13 +317,17 @@ public class CcddLinkHandler
                 && linkName.equals(name)
                 && !linkMember.matches("\\d.*"))
             {
+                // linkMember =
+                // ccddMain.getMacroHandler().getMacroExpansion(linkMember);
+                // TODO
+
                 // Get the data type from the variable name
                 String dataType = linkMember.substring(linkMember.lastIndexOf(",") + 1,
                                                        linkMember.lastIndexOf("."));
 
                 // Get the offset of this variable relative to its root
                 // structure. A variable's bit length is ignored if provided
-                int index = structureAndVariablePaths.indexOf(linkMember.replaceFirst(":\\d+$", ""));
+                int index = structureAndVariablePaths.indexOf(linkMember.replaceFirst(":.+$", ""));
                 int offset = structureAndVariableOffsets.get(index);
 
                 // Check if this variable is not bit-packed with the previous
@@ -567,7 +571,7 @@ public class CcddLinkHandler
 
         // Get the index into the variable path list for the specified
         // structure/variable. A variable's bit length is ignored if present
-        int index = structureAndVariablePaths.indexOf(targetVariable.replaceFirst(":\\d+$", ""));
+        int index = structureAndVariablePaths.indexOf(targetVariable.replaceFirst(":.+$", ""));
 
         // Check that the structure/variable exists
         if (index != -1)
@@ -656,7 +660,7 @@ public class CcddLinkHandler
                         if (bitIndex != -1)
                         {
                             // Extract the bit length from the variable path
-                            bitLength = varPath.substring(bitIndex + 1);
+                            bitLength = ccddMain.getMacroHandler().getMacroExpansion(varPath.substring(bitIndex + 1));// TODO
 
                             // Remove the bit length from the variable path
                             varPath = varPath.substring(0, bitIndex);

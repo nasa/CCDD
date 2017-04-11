@@ -1005,6 +1005,11 @@ public class CcddEventLogDialog extends CcddFrameHandler
      *************************************************************************/
     protected void logEvent(final EventLogMessageType type, String logMessage)
     {
+        // Get the server, database, and user responsible for the event.
+        final String server = dbControl.getUser();
+        final String database = dbControl.getProject();
+        final String user = dbControl.getUser();
+
         // Get the current date and time stamp
         final String timestamp = getDateTimeStamp("MM/dd/yyyy HH:mm:ss.SSS");
 
@@ -1016,7 +1021,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
         if (SwingUtilities.isEventDispatchThread())
         {
             // Add the message to the event log
-            addMessageToLog(type, timestamp, message);
+            addMessageToLog(server, database, user, type, timestamp, message);
         }
         // The log event call is made from a background thread
         else
@@ -1032,7 +1037,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
                 public void run()
                 {
                     // Add the message to the event log
-                    addMessageToLog(type, timestamp, message);
+                    addMessageToLog(server, database, user, type, timestamp, message);
                 }
             });
         }
@@ -1045,11 +1050,11 @@ public class CcddEventLogDialog extends CcddFrameHandler
                 // Use a StringBuilder to concatenate the log message in case
                 // the message is lengthy (StringBuilder is much faster than
                 // string concatenation using '+')
-                StringBuilder logEntry = new StringBuilder(dbControl.getServer()
+                StringBuilder logEntry = new StringBuilder(server
                                                            + "|"
-                                                           + dbControl.getDatabase()
+                                                           + database
                                                            + "|"
-                                                           + dbControl.getUser()
+                                                           + user
                                                            + "|"
                                                            + timestamp
                                                            + "|"
@@ -1130,6 +1135,15 @@ public class CcddEventLogDialog extends CcddFrameHandler
     /**************************************************************************
      * Add a new log entry to the event log table
      * 
+     * @param server
+     *            server host and port
+     * 
+     * @param database
+     *            database connection
+     * 
+     * @param user
+     *            user name
+     * 
      * @param type
      *            message type (e.g., COMMAND_MSG)
      * 
@@ -1139,7 +1153,10 @@ public class CcddEventLogDialog extends CcddFrameHandler
      * @param logMessage
      *            new event's log message
      *************************************************************************/
-    private void addMessageToLog(EventLogMessageType type,
+    private void addMessageToLog(String server,
+                                 String database,
+                                 String user,
+                                 EventLogMessageType type,
                                  String timestamp,
                                  String logMessage)
     {
@@ -1151,9 +1168,9 @@ public class CcddEventLogDialog extends CcddFrameHandler
         eventTable.insertRow(false,
                              true,
                              new Object[] {indexNum,
-                                           getServerLog(dbControl.getServer()),
-                                           dbControl.getDatabase(),
-                                           dbControl.getUser(),
+                                           getServerLog(server),
+                                           database,
+                                           user,
                                            getDateTimeStampLog(timestamp),
                                            type.getTypeMsg(),
                                            truncateLogMessage(logMessage)});

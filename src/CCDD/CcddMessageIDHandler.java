@@ -32,6 +32,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
 
 import CCDD.CcddClasses.ArrayListMultiple;
+import CCDD.CcddClasses.Message;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.DuplicateMsgIDColumnInfo;
 import CCDD.CcddConstants.InputDataType;
@@ -135,11 +136,27 @@ public class CcddMessageIDHandler
      *            true to include message IDs assigned to tables that do not
      *            represent structures or commands
      * 
-     * @param includeTelemetry
+     * @param useTlmMsgIDsFromDb
      *            true to include message IDs assigned to telemetry messages
+     *            stored in the project database; false to use the IDs from the
+     *            currently open telemetry scheduler
+     * 
+     * @param isOverwriteTlmMsgIDs
+     *            true to allow overwriting the telemetry message IDs for the
+     *            currently selected data stream in the open telemetry
+     *            scheduler; false to not allow overwriting. This value is only
+     *            used if useTlmMsgIDsFromDb is false
+     * 
+     * @param tlmSchedulerDlg
+     *            Reference to the currently open telemetry scheduler. This
+     *            value is only used if useTlmMsgIDsFromDb is false, in which
+     *            case it can be set to null
      * 
      * @param isGetDuplicates
-     *            true to create a list of duplicate IDs
+     *            true to create a list of duplicate IDs. The flags for
+     *            including tables and for using the telemetry message IDs from
+     *            the database should be set to true when getting the list of
+     *            duplicates
      * 
      * @param parent
      *            GUI component calling this method
@@ -147,7 +164,9 @@ public class CcddMessageIDHandler
     protected List<Integer> getMessageIDsInUse(boolean includeStructures,
                                                boolean includeCommands,
                                                boolean includeOthers,
-                                               boolean includeTelemetry,
+                                               boolean useTlmMsgIDsFromDb,
+                                               boolean isOverwriteTlmMsgIDs,
+                                               CcddTelemetrySchedulerDialog tlmSchedulerDlg,
                                                boolean isGetDuplicates,
                                                Component parent)
     {
@@ -232,10 +251,10 @@ public class CcddMessageIDHandler
             }
         }
 
-        // Check is telemetry message ID data fields should be checked
-        if (includeTelemetry)
+        // Check if telemetry message IDs should be obtained from the database
+        if (useTlmMsgIDsFromDb)
         {
-            // Update the telemetry message IDs assigned in the telemetry
+            // Get the telemetry message IDs assigned in the telemetry
             // scheduler table
             List<String[]> tlmIDs = dbTable.queryDatabase("SELECT"
                                                           + (isGetDuplicates
@@ -263,6 +282,46 @@ public class CcddMessageIDHandler
                                          isGetDuplicates);
             }
         }
+        // Get the telemetry message IDs from the telemetry scheduler if it's
+        // open. This is used in place of the IDs stored in the database since
+        // the user may have modified the IDs in the telemetry scheduler but
+        // not yet stored them to the database
+        else if (tlmSchedulerDlg != null)
+        {
+            // Step through each data stream
+            for (CcddSchedulerHandler schHndlr : tlmSchedulerDlg.getSchedulerHandlers())
+            {
+                // Check if this isn't the currently selected data stream, of
+                // if it is that the overwrite check box is not selected
+                if (!schHndlr.equals(tlmSchedulerDlg.getSchedulerHandler())
+                    || !isOverwriteTlmMsgIDs)
+                {
+                    // Step through each message for this data stream
+                    for (Message message : schHndlr.getSchedulerEditor().getCurrentMessages())
+                    {
+                        // Check if the message has an ID
+                        if (!message.getID().isEmpty())
+                        {
+                            // Add the message ID to the list of existing ID
+                            // values
+                            idsInUse.add(Integer.decode(message.getID()));
+                        }
+
+                        // Step through each of the message's sub-messages
+                        for (Message subMessage : message.getSubMessages())
+                        {
+                            // Check if the sub-message has an ID
+                            if (!subMessage.getID().isEmpty())
+                            {
+                                // Add the sub-message ID to the list of
+                                // existing ID values
+                                idsInUse.add(Integer.decode(subMessage.getID()));
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         return idsInUse;
     }
@@ -276,7 +335,7 @@ public class CcddMessageIDHandler
      * 
      * @param ownerAndID
      *            array where the first member is the owner (table name or
-     *            telemetry message name) and teh second element is the message
+     *            telemetry message name) and the second element is the message
      *            ID
      * 
      * @param isGetDuplicates
@@ -339,7 +398,7 @@ public class CcddMessageIDHandler
     protected void displayDuplicates(Component parent)
     {
         // Get the list of message IDs in use
-        getMessageIDsInUse(true, true, true, true, true, parent);
+        getMessageIDsInUse(true, true, true, true, false, null, true, parent);
 
         // Sort the duplicates list
         Collections.sort(duplicates, new Comparator<String[]>()

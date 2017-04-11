@@ -381,9 +381,9 @@ def outputMnemonicDefinitions():
 def outputDiscreteConversion(file, discreteConversion, conversionName):
     # Discrete conversion array indices
     VALUE = 0
-    DISP_NAME = 2
-    TEXT_COLOR = 3
-    BACK_COLOR = 4
+    DISP_NAME = 1
+    TEXT_COLOR = 2
+    BACK_COLOR = 3
 
     # Separate the enumerated parameters into an array. The expected
     # format for the enumerated values is:
@@ -501,7 +501,7 @@ def outputCommandDiscreteConversions():
 def outputEnumeration(enumeration, enumerationName):
     # Enumeration array indices
     VALUE = 0
-    DISP_NAME = 2
+    DISP_NAME = 1
 
     # Separate the enumerated parameters into an array. The expected
     # format for the enumerated values is:

@@ -81,9 +81,9 @@ public class CcddSchedulerDbIOHandler
             // Store the telemetry scheduler information in the project
             // database
             dbTable.storeInformationTableInBackground(InternalTable.TLM_SCHEDULER,
-                                          getTelemetryData(streams),
-                                          null,
-                                          dialog);
+                                                      getTelemetryData(streams),
+                                                      null,
+                                                      dialog);
         }
         // Check if this is the application scheduler
         else if (option == SchedulerType.APPLICATION_SCHEDULER)
@@ -91,9 +91,9 @@ public class CcddSchedulerDbIOHandler
             // Store the application scheduler information in the project
             // database
             dbTable.storeInformationTableInBackground(InternalTable.APP_SCHEDULER,
-                                          getApplicationData(streams.get(0).getMessages()),
-                                          null,
-                                          dialog);
+                                                      getApplicationData(streams.get(0).getMessages()),
+                                                      null,
+                                                      dialog);
         }
     }
 

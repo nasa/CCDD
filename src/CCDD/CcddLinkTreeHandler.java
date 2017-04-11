@@ -589,7 +589,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     protected void adjustNodeText(ToolTipTreeNode startNode)
     {
         // Step through the elements and children of this node
-        for (Enumeration<?> element = startNode.depthFirstEnumeration(); element.hasMoreElements();)
+        for (Enumeration<?> element = startNode.preorderEnumeration(); element.hasMoreElements();)
         {
             // Get the node reference
             ToolTipTreeNode node = (ToolTipTreeNode) element.nextElement();

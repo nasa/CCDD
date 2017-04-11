@@ -90,7 +90,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     {
         super(ccddMain);
 
-        this.dataTypeHandler = ccddMain.getDataTypeHandler();
+        dataTypeHandler = ccddMain.getDataTypeHandler();
 
         // Get the internal table definitions from the database
         List<String[]> infoDefinitions = ccddMain.getDbTableCommandHandler().retrieveInformationTable(infoType,
@@ -858,7 +858,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * @param node
      *            node to check
      *************************************************************************/
-    protected void buildDefinitionFromTree(ToolTipTreeNode node)
+    private void buildDefinitionFromTree(ToolTipTreeNode node)
     {
         // Check if this is the last node in this path (i.e., the 'leaf', which
         // is a table or primitive variable depending on the internal table

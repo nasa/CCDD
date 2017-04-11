@@ -117,8 +117,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 allVariableTreePaths = new ArrayList<String>();
 
                 // Step through all of the nodes in the variable tree
-                for (Enumeration<?> element =
-                    allVariableTree.getRootNode().preorderEnumeration(); element.hasMoreElements();)
+                for (Enumeration<?> element = allVariableTree.getRootNode().preorderEnumeration(); element.hasMoreElements();)
                 {
                     // Convert the variable path to a string and add it to the
                     // list
@@ -592,6 +591,16 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
     public CcddSchedulerHandler getSchedulerHandler()
     {
         return activeSchHandler;
+    }
+
+    /**************************************************************************
+     * Get the reference to the list of scheduler handlers
+     * 
+     * @return Reference to the list of scheduler handlers
+     *************************************************************************/
+    protected List<CcddSchedulerHandler> getSchedulerHandlers()
+    {
+        return schHandlers;
     }
 
     /**************************************************************************

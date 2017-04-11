@@ -1242,6 +1242,7 @@ public class CcddFileIOHandler
                                             tableEditor.getDeletions(),
                                             false,
                                             null,
+                                            null,
                                             ccddMain.getMainFrame()))
                 {
                     throw new CCDDException();

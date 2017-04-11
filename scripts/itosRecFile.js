@@ -489,9 +489,9 @@ function outputDiscreteConversion(file, discreteConversion, conversionName)
 {
     // Discrete conversion array indices
     var VALUE = 0;
-    var DISP_NAME = 2;
-    var TEXT_COLOR = 3;
-    var BACK_COLOR = 4;
+    var DISP_NAME = 1;
+    var TEXT_COLOR = 2;
+    var BACK_COLOR = 3;
 
     // Separate the enumerated parameters into an array. The expected
     // format for the enumerated values is:
@@ -641,7 +641,7 @@ function outputEnumeration(enumeration, enumerationName)
 {
     // Enumeration array indices
     var VALUE = 0;
-    var DISP_NAME = 2;
+    var DISP_NAME = 1;
 
     // Separate the enumerated parameters into an array. The expected
     // format for the enumerated values is:

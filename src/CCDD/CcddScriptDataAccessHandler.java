@@ -1119,7 +1119,30 @@ public class CcddScriptDataAccessHandler
      *************************************************************************/
     public String getFullVariableName(int row)
     {
-        return getFullVariableName(row, "_");
+        return getFullVariableName(row, "_", false);
+    }
+
+    /**************************************************************************
+     * Get a variable's full name which includes the variables in the structure
+     * path separated by underscores. In case there are any array member
+     * variable names in the full name, replace left square brackets with #
+     * underscores and remove right square brackets (example: a[0],b[2] becomes
+     * a_0_b_2). Data types may be excluded or retained, based on the input
+     * flag
+     * 
+     * @param row
+     *            table row index
+     * 
+     * @param excludeDataTypes
+     *            true to remove the data types from the variable path + name
+     * 
+     * @return The variable's full path and name with each variable in the path
+     *         separated by an underscore; returns a blank is the row is
+     *         invalid
+     *************************************************************************/
+    public String getFullVariableName(int row, boolean excludeDataTypes)
+    {
+        return getFullVariableName(row, "_", excludeDataTypes);
     }
 
     /**************************************************************************
@@ -1141,45 +1164,35 @@ public class CcddScriptDataAccessHandler
      *************************************************************************/
     public String getFullVariableName(int row, String separator)
     {
+        return getFullVariableName(row, separator, false);
+    }
+
+    /**************************************************************************
+     * Get a variable's full name which includes the variables in the structure
+     * path separated by the specified separator character(s). In case there
+     * are any array member variable names in the full name, replace left
+     * square brackets with # underscores and remove right square brackets
+     * (example: a[0],b[2] becomes a_0separatorb_2). Data types may be excluded
+     * or retained, based on the input flag
+     * 
+     * @param row
+     *            table row index
+     * 
+     * @param separator
+     *            character(s) to place between variables names
+     * 
+     * @param excludeDataTypes
+     *            true to remove the data types from the variable path + name
+     * 
+     * @return The variable's full path and name with each variable in the path
+     *         separated by the specified separator character(s); returns a
+     *         blank is the row is invalid
+     *************************************************************************/
+    public String getFullVariableName(int row,
+                                      String separator,
+                                      boolean excludeDataTypes)
+    {
         String fullName = "";
-
-        // Check if the variable handler has't already been created
-        if (variableHandler == null)
-        {
-            // Create storage for the variable paths and names. This is used to
-            // create a list of converted names. This is done for the first
-            // call to this method; subsequent calls use the list built in the
-            // initial call
-            List<String[]> variableInformation = new ArrayList<String[]>();
-
-            // Step through each structure table row
-            for (int tableRow = 0; tableRow < getStructureTableNumRows(); tableRow++)
-            {
-                // Get the name of the variable name column
-                String variableNameColumnName = tableTypeHandler.getColumnNameByInputType(getStructureTypeNameByRow(tableRow),
-                                                                                          InputDataType.VARIABLE);
-                // Check that the variable name column exists
-                if (variableNameColumnName != null)
-                {
-                    // Get the variable path and name for this row
-                    String variablePath = getStructureTableVariablePathByRow(tableRow);
-                    String variableName = macroHandler.getMacroExpansion(getStructureTableData(variableNameColumnName, tableRow));
-
-                    // Check that the path and name are not null or blank
-                    if (variablePath != null
-                        && !variablePath.isEmpty()
-                        && variableName != null
-                        && !variableName.isEmpty())
-                    {
-                        // Add the variable's path and name to the list
-                        variableInformation.add(new String[] {variablePath, variableName});
-                    }
-                }
-            }
-
-            // Create the variable handler
-            variableHandler = new CcddVariableConversionHandler(variableInformation, macroHandler);
-        }
 
         // Get the name of the variable name column
         String tableType = getStructureTypeNameByRow(row);
@@ -1191,16 +1204,191 @@ public class CcddScriptDataAccessHandler
         {
             // Get the variable path and variable name at the specified row
             String variablePath = getStructureTableVariablePathByRow(row);
-            String variableName = macroHandler.getMacroExpansion(getStructureTableData(variableNameColumnName,
-                                                                                       row));
+            String variableName = getStructureTableData(variableNameColumnName, row);
 
             // Get the full variable name
-            fullName = variableHandler.getFullVariableName(variablePath,
-                                                           variableName,
-                                                           separator);
+            fullName = getFullVariableName(variablePath,
+                                           variableName,
+                                           separator);
         }
 
         return fullName;
+    }
+
+    /**************************************************************************
+     * Get a variable's full name which includes the variables in the structure
+     * path separated by the specified separator character(s). In case there
+     * are any array member variable names in the full name, replace left
+     * square brackets with # underscores and remove right square brackets
+     * (example: a[0],b[2] becomes a_0separatorb_2)
+     * 
+     * @param variablePath
+     *            variable path in the format
+     *            rootTable[,structureDataType1.variable1
+     *            [,structureDataType2.variable2[,...]]]
+     * 
+     * @param variableName
+     *            variable name in the format primitiveDataType.variable
+     * 
+     * @param separator
+     *            character(s) to place between variables names
+     * 
+     * @return The variable's full path and name with each variable in the path
+     *         separated by the specified separator character(s); returns a
+     *         blank is the row is invalid
+     *************************************************************************/
+    protected String getFullVariableName(String variablePath,
+                                         String variableName,
+                                         String separator)
+    {
+        return getFullVariableName(variablePath,
+                                   variableName,
+                                   separator,
+                                   false);
+    }
+
+    /**************************************************************************
+     * Get a variable's full name which includes the variables in the structure
+     * path separated by the specified separator character(s). In case there
+     * are any array member variable names in the full name, replace left
+     * square brackets with # underscores and remove right square brackets
+     * (example: a[0],b[2] becomes a_0separatorb_2). Data types may be excluded
+     * or retained, based on the input flag
+     * 
+     * @param variablePath
+     *            variable path in the format
+     *            rootTable[,structureDataType1.variable1
+     *            [,structureDataType2.variable2[,...]]]
+     * 
+     * @param variableName
+     *            variableName in the format primitiveDataType.variable
+     * 
+     * @param separator
+     *            character(s) to place between variables names
+     * 
+     * @param excludeDataTypes
+     *            true to remove the data types from the variable path + name
+     * 
+     * @return The variable's full path and name with each variable in the path
+     *         separated by the specified separator character(s); returns a
+     *         blank is the row is invalid
+     *************************************************************************/
+    protected String getFullVariableName(String variablePath,
+                                         String variableName,
+                                         String separator,
+                                         boolean excludeDataTypes)
+    {
+        String fullName = "";
+
+        // Check that the path and name are not blank
+        if (!variablePath.isEmpty()
+            && variableName != null
+            && !variableName.isEmpty())
+        {
+            // Get the full variable name
+            fullName = getFullVariableName(variablePath + "," + variableName,
+                                           separator,
+                                           excludeDataTypes);
+        }
+
+        return fullName;
+    }
+
+    /**************************************************************************
+     * Get a variable's full name which includes the variables in the structure
+     * path separated by the specified separator character(s). In case there
+     * are any array member variable names in the full name, replace left
+     * square brackets with # underscores and remove right square brackets
+     * (example: a[0],b[2] becomes a_0separatorb_2)
+     * 
+     * @param fullName
+     *            variable path + name in the format
+     *            rootTable[,structureDataType1.variable1
+     *            [,structureDataType2.variable2
+     *            [,...]]],primitiveDataType.variable
+     * 
+     * @param separator
+     *            character(s) to place between variables names
+     * 
+     * @return The variable's full path and name with each variable in the path
+     *         separated by the specified separator character(s); returns a
+     *         blank is the row is invalid
+     *************************************************************************/
+    protected String getFullVariableName(String fullName, String separator)
+    {
+        return getFullVariableName(fullName, separator, false);
+    }
+
+    /**************************************************************************
+     * Get a variable's full name which includes the variables in the structure
+     * path separated by the specified separator character(s). In case there
+     * are any array member variable names in the full name, replace left
+     * square brackets with # underscores and remove right square brackets
+     * (example: a[0],b[2] becomes a_0separatorb_2). Data types may be excluded
+     * or retained, based on the input flag
+     * 
+     * @param fullName
+     *            variable path + name in the format
+     *            rootTable[,structureDataType1.variable1
+     *            [,structureDataType2.variable2
+     *            [,...]]],primitiveDataType.variable
+     * 
+     * @param separator
+     *            character(s) to place between variables names
+     * 
+     * @param excludeDataTypes
+     *            true to remove the data types from the variable path + name
+     * 
+     * @return The variable's full path and name with each variable in the path
+     *         separated by the specified separator character(s); returns a
+     *         blank is the row is invalid
+     *************************************************************************/
+    protected String getFullVariableName(String fullName,
+                                         String separator,
+                                         boolean excludeDataTypes)
+    {
+        // Check if the variable handler hasn't already been created
+        if (variableHandler == null)
+        {
+            // Create storage for the variable paths and names. This is used to
+            // create a list of converted names. This is done for the first
+            // call to this method; subsequent calls use the list built in the
+            // initial call
+            List<String> variableInformation = new ArrayList<String>();
+
+            // Step through each structure table row
+            for (int tableRow = 0; tableRow < getStructureTableNumRows(); tableRow++)
+            {
+                // Get the name of the variable name column
+                String variableNameColumnName = tableTypeHandler.getColumnNameByInputType(getStructureTypeNameByRow(tableRow),
+                                                                                          InputDataType.VARIABLE);
+                // Check that the variable name column exists
+                if (variableNameColumnName != null)
+                {
+                    // Get the variable path and name for this row
+                    String varPath = getStructureTableVariablePathByRow(tableRow);
+                    String varName = macroHandler.getMacroExpansion(getStructureTableData(variableNameColumnName, tableRow));
+
+                    // Check that the path and name are not null or blank
+                    if (varPath != null
+                        && !varPath.isEmpty()
+                        && varName != null
+                        && !varName.isEmpty())
+                    {
+                        // Add the variable's path and name to the list
+                        variableInformation.add(varPath + "," + varName);
+                    }
+                }
+            }
+
+            // Create the variable handler
+            variableHandler = new CcddVariableConversionHandler(variableInformation);
+        }
+
+        // Expand any macros in the variable name before getting the full name
+        return variableHandler.getFullVariableName(macroHandler.getMacroExpansion(fullName),
+                                                   separator,
+                                                   excludeDataTypes);
     }
 
     /**************************************************************************
@@ -1225,6 +1413,8 @@ public class CcddScriptDataAccessHandler
      *         format is:
      * 
      *         top-level<,variable1.parent1<,variable2.parent2<...>>>
+     * 
+     *         Any macro is replaced by its corresponding value
      *************************************************************************/
     public String getPathByRow(String tableType, int row)
     {
@@ -1247,6 +1437,8 @@ public class CcddScriptDataAccessHandler
      *         format is:
      * 
      *         top-level<,variable1<,variable2<...>>>
+     * 
+     *         Any macro is replaced by its corresponding value
      *************************************************************************/
     public String getStructureTableVariablePathByRow(int row)
     {
@@ -1268,6 +1460,8 @@ public class CcddScriptDataAccessHandler
      *         variable in the path is separated by an period. The format is:
      * 
      *         top-level<.variable1_parent1<.variable2_parent2<...>>>
+     * 
+     *         Any macro is replaced by its corresponding value
      *************************************************************************/
     public String getStructureTableITOSPathByRow(int row)
     {
@@ -1298,7 +1492,8 @@ public class CcddScriptDataAccessHandler
      * 
      * @return The table path, for the structure table, to the current row's
      *         parameter; returns a blank if an instance of the structure table
-     *         type doesn't exist
+     *         type doesn't exist. Any macro is replaced by its corresponding
+     *         value
      *************************************************************************/
     private String getTablePathByRow(String tableType,
                                      int row,
@@ -1329,7 +1524,6 @@ public class CcddScriptDataAccessHandler
                         break;
 
                     case VARIABLE_ONLY:
-                        // TODO WHAT USES THIS FORMAT NOW?
                         // Remove the data types (parent structure names) from
                         // the path
                         structurePath = structurePath.replaceAll(",[^\\.]*\\.", ",");
@@ -1344,7 +1538,7 @@ public class CcddScriptDataAccessHandler
             }
         }
 
-        return structurePath;
+        return macroHandler.getMacroExpansion(structurePath);
     }
 
     /**************************************************************************

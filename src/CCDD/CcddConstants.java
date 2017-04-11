@@ -801,16 +801,16 @@ public class CcddConstants
                 "boolean",
                 "Boolean value; true or false"),
 
+        COMMAND_CODE("Command code",
+                     "^(?:0x)?[a-fA-F0-9]*",
+                     "hexadecimal",
+                     "Command code; hexadecimal number (see Hexadecimal)"),
+
         COMMAND_NAME("Command name",
                      ALPHANUMERIC.getInputMatch(),
                      "text",
                      "Command name; same constraints as for an "
                          + "alphanumeric (see Alphanumeric)"),
-
-        COMMAND_CODE("Command code",
-                     "^(?:0x)?[a-fA-F0-9]*",
-                     "hexadecimal",
-                     "Command code; hexadecimal number (see Hexadecimal)"),
 
         DESCRIPTION("Description",
                     ".*",
@@ -894,26 +894,22 @@ public class CcddConstants
                        + "a - f (case insensitive))"),
 
         MINIMUM("Minimum",
-                "(" + BOOLEAN.getInputMatch() + ")|("
-                    + INTEGER.getInputMatch() + ")|("
-                    + FLOAT.getInputMatch() + ")|("
-                    + HEXADECIMAL.getInputMatch() + ")",
+                "(" + INTEGER.getInputMatch() + ")|("
+                    + FLOAT.getInputMatch() + ")",
                 "minimum",
                 "Minimum value; a boolean, integer, floating point, or "
                     + "hexadecimal value (depending on context; see Boolean, "
-                    + "Integer, Floaring point, and Hexadecimal) that must be "
+                    + "Integer, Floating point, and Hexadecimal) that must be "
                     + "less than or equal to the corresponding maximum value "
                     + "(see Maximum)"),
 
         MAXIMUM("Maximum",
-                "(" + BOOLEAN.getInputMatch() + ")|("
-                    + INTEGER.getInputMatch() + ")|("
-                    + FLOAT.getInputMatch() + ")|("
-                    + HEXADECIMAL.getInputMatch() + ")",
+                "(" + INTEGER.getInputMatch() + ")|("
+                    + FLOAT.getInputMatch() + ")",
                 "maximum",
                 "Maximum value; a boolean, integer, floating point, or "
                     + "hexadecimal value (depending on context; see Boolean, "
-                    + "Integer, Floaring point, and Hexadecimal) that must be "
+                    + "Integer, Floating point, and Hexadecimal) that must be "
                     + "greater than or equal to the corresponding minimum value "
                     + "(see Minimum)"),
 

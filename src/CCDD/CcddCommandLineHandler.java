@@ -1036,7 +1036,8 @@ public class CcddCommandLineHandler
 
     /**************************************************************************
      * Get the selected option which must match one of a predefined list of
-     * options
+     * options. The command argument if forced to lower case when comparing to
+     * the acceptable options
      * 
      * @param arg
      *            command line argument
@@ -1060,6 +1061,9 @@ public class CcddCommandLineHandler
         Object val = null;
         int index = 0;
         String valid = "";
+
+        // Force the command option to lower case
+        parm = parm.toLowerCase();
 
         // Step through the valid options
         for (Object option : inputOptions)

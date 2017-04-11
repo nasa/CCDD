@@ -832,39 +832,53 @@ public class CcddRateParameterHandler
      * 
      * @return Array of the sample rate values for the specified rate column
      *         name with those rates not assigned to any telemetry parameter in
-     *         the structure tables grayed out
+     *         the structure tables grayed out; an empty array if the rate name
+     *         isn't valid
      *************************************************************************/
     protected String[] getRatesInUse(String rateName, Component parent)
     {
+        String[] availableRates = new String[0];
+
         // Create the string array list using the second column (rate values)
         // for comparison purposes
         ArrayListMultiple ratesInUse = new ArrayListMultiple(1);
 
-        // Get the array of sample rates for this rate
-        String[] availableRates = getRateInformationByRateName(rateName).getSampleRates();
+        // Get the rate information for the specified rate
+        RateInformation rateInfo = getRateInformationByRateName(rateName);
 
-        // Query the database for those values of the specified rate that are
-        // in use in all tables with a table type representing a structure,
-        // including any references in the custom values table. Only unique
-        // rate values are returned
-        ratesInUse.addAll(dbTable.queryDatabase("SELECT DISTINCT ON (2) * FROM find_columns_by_name('"
-                                                + rateName
-                                                + "', '"
-                                                + rateName.toLowerCase().replaceAll("[^a-z0-9_]", "_")
-                                                + "', '{"
-                                                + Arrays.toString(tableTypeHandler.getStructureTableTypes()).replaceAll("[\\[\\]]",
-                                                                                                                        "")
-                                                + "}');",
-                                                parent));
-
-        // Step through the available sample rates
-        for (int index = 0; index < availableRates.length; index++)
+        // Check if the rate name is recognized
+        if (rateInfo != null)
         {
-            // Check if the rate isn't used by any telemetry parameter
-            if (!ratesInUse.contains(availableRates[index]))
+            // Get a copy of the array of sample rates for this rate. If a copy
+            // isn't used then the stored sample rates can be altered to show
+            // as disabled below; subsequent calls to get the sample rates will
+            // have the disable tags
+            availableRates = Arrays.copyOf(rateInfo.getSampleRates(),
+                                           rateInfo.getSampleRates().length);
+
+            // Query the database for those values of the specified rate that
+            // are in use in all tables with a table type representing a
+            // structure, including any references in the custom values table.
+            // Only unique rate values are returned
+            ratesInUse.addAll(dbTable.queryDatabase("SELECT DISTINCT ON (2) * FROM find_columns_by_name('"
+                                                    + rateName
+                                                    + "', '"
+                                                    + rateName.toLowerCase().replaceAll("[^a-z0-9_]", "_")
+                                                    + "', '{"
+                                                    + Arrays.toString(tableTypeHandler.getStructureTableTypes()).replaceAll("[\\[\\]]",
+                                                                                                                            "")
+                                                    + "}');",
+                                                    parent));
+
+            // Step through the available sample rates
+            for (int index = 0; index < availableRates.length; index++)
             {
-                // Flag the rate as disabled
-                availableRates[index] = DISABLED_TEXT_COLOR + availableRates[index];
+                // Check if the rate isn't used by any telemetry parameter
+                if (!ratesInUse.contains(availableRates[index]))
+                {
+                    // Flag the rate as disabled
+                    availableRates[index] = DISABLED_TEXT_COLOR + availableRates[index];
+                }
             }
         }
 

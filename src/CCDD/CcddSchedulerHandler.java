@@ -464,114 +464,124 @@ public class CcddSchedulerHandler
                 // available
                 for (String rate : schedulerInput.getAvailableRates())
                 {
-                    // Get the rate as a floating point value
-                    float rateVal = CcddUtilities.convertStringToFloat(rate);
-
-                    // Get a list of all variables at the given rate
-                    varList = schedulerInput.getVariablesAtRate(rate);
-
-                    // Sort the list from largest to smallest
-                    Collections.sort(varList);
-
-                    // Loop through the list of variables until all are removed
-                    while (!varList.isEmpty())
+                    // Check if the rate has any parameters. Rates with no
+                    // parameters are grayed out using HTML tags
+                    if (!rate.startsWith("<html>"))
                     {
-                        // Total size of the variable or link
-                        totalSize = 0;
+                        // Get the rate as a floating point value
+                        float rateVal = CcddUtilities.convertStringToFloat(rate);
 
-                        // Set to the first variable in the list
-                        variable = varList.get(0);
+                        // Get a list of all variables at the given rate
+                        varList = schedulerInput.getVariablesAtRate(rate);
 
-                        // Check if the variable is linked
-                        if (variable.getLink() != null)
+                        // Sort the list from largest to smallest
+                        Collections.sort(varList);
+
+                        // Loop through the list of variables until all are
+                        // removed
+                        while (!varList.isEmpty())
                         {
-                            // Step through each variable in the variable list
-                            for (Variable linkVar : varList)
+                            // Total size of the variable or link
+                            totalSize = 0;
+
+                            // Set to the first variable in the list
+                            variable = varList.get(0);
+
+                            // Check if the variable is linked
+                            if (variable.getLink() != null)
                             {
-                                // Check if the variable is in the link of the
-                                // given variable
-                                if (linkVar.getLink() != null
-                                    && linkVar.getLink().equals(variable.getLink()))
+                                // Step through each variable in the variable
+                                // list
+                                for (Variable linkVar : varList)
                                 {
-                                    // Add the variable's size to the total
+                                    // Check if the variable is in the link of
+                                    // the given variable
+                                    if (linkVar.getLink() != null
+                                        && linkVar.getLink().equals(variable.getLink()))
+                                    {
+                                        // Add the variable's size to the total
+                                        // size
+                                        totalSize += variable.getSize();
+
+                                        // Add the variable to the list of
+                                        // removed variables
+                                        removedVars.add(linkVar);
+                                    }
+                                }
+                            }
+                            // The variable is unlinked
+                            else
+                            {
+                                // Check if this is a telemetry scheduler
+                                if (getSchedulerOption() == SchedulerType.TELEMETRY_SCHEDULER)
+                                {
+                                    // Set total size to the given variable's
                                     // size
-                                    totalSize += variable.getSize();
+                                    totalSize = variable.getSize();
+
+                                    // Get the total size (in bytes) and the
+                                    // list of the variable, or variables if
+                                    // this variable is associated with others
+                                    // due to bit-packing or string membership
+                                    // and therefore must be placed together in
+                                    // a message
+                                    AssociatedVariable associates = ((CcddTelemetrySchedulerInput) schedulerInput).getAssociatedVariables(varList);
+
+                                    // Set the total size to that of the
+                                    // associated variable(s) and add the
+                                    // variable(s) to the list of those to be
+                                    // removed
+                                    totalSize = associates.getTotalSize();
+                                    removedVars.addAll(associates.getAssociates());
+                                }
+                                // This is an application (or unknown type of)
+                                // scheduler
+                                else
+                                {
+                                    // Set total size to the given variable's
+                                    // size
+                                    totalSize = variable.getSize();
 
                                     // Add the variable to the list of removed
                                     // variables
-                                    removedVars.add(linkVar);
+                                    removedVars.add(variable);
                                 }
                             }
-                        }
-                        // The variable is unlinked
-                        else
-                        {
-                            // Check if this is a telemetry scheduler
-                            if (getSchedulerOption() == SchedulerType.TELEMETRY_SCHEDULER)
+
+                            // Find the option with the most room
+                            option = getMessageWithRoom(rateVal, totalSize);
+
+                            // Check to make sure there is an option
+                            if (option != null)
                             {
-                                // Set total size to the given variable's size
-                                totalSize = variable.getSize();
+                                // Parse the option string to extract the
+                                // sub-index (if this is a sub-option) and the
+                                // message indices
+                                Object[] parsedIndices = parseOption(option);
 
-                                // Get the total size (in bytes) and the list
-                                // of the variable, or variables if this
-                                // variable is associated with others due to
-                                // bit-packing or string membership and
-                                // therefore must be placed together in a
-                                // message
-                                AssociatedVariable associates = ((CcddTelemetrySchedulerInput) schedulerInput).getAssociatedVariables(varList);
-
-                                // Set the total size to that of the associated
-                                // variable(s) and add the variable(s) to the
-                                // list of those to be removed
-                                totalSize = associates.getTotalSize();
-                                removedVars.addAll(associates.getAssociates());
+                                // Add the variable to the given message. If a
+                                // sub-index is not given it will be set to -1.
+                                // Add the list of added variables to the list
+                                // of those to exclude in the Variables tree
+                                excludedVars.addAll(addVariableToMessage(removedVars,
+                                                                         (Integer[]) parsedIndices[1],
+                                                                         (int) parsedIndices[0]));
                             }
-                            // This is an application (or unknown type of)
-                            // scheduler
+                            // No option is available
                             else
                             {
-                                // Set total size to the given variable's size
-                                totalSize = variable.getSize();
-
-                                // Add the variable to the list of removed
-                                // variables
-                                removedVars.add(variable);
+                                // Increment the unplaced variable counter
+                                unassigned++;
                             }
+
+                            // Remove all the variables in removed variables
+                            // list. This includes variables that did not fit
+                            // into the telemetry table
+                            varList.removeAll(removedVars);
+
+                            // Clear the removed variables list
+                            removedVars.clear();
                         }
-
-                        // Find the option with the most room
-                        option = getMessageWithRoom(rateVal, totalSize);
-
-                        // Check to make sure there is an option
-                        if (option != null)
-                        {
-                            // Parse the option string to extract the sub-index
-                            // (if this is a sub-option) and the message
-                            // indices
-                            Object[] parsedIndices = parseOption(option);
-
-                            // Add the variable to the given message. If a
-                            // sub-index is not given it will be set to -1. Add
-                            // the list of added variables to the list of those
-                            // to exclude in the Variables tree
-                            excludedVars.addAll(addVariableToMessage(removedVars,
-                                                                     (Integer[]) parsedIndices[1],
-                                                                     (int) parsedIndices[0]));
-                        }
-                        // No option is available
-                        else
-                        {
-                            // Increment the unplaced variable counter
-                            unassigned++;
-                        }
-
-                        // Remove all the variables in removed variables list.
-                        // This includes variables that did not fit into the
-                        // telemetry table
-                        varList.removeAll(removedVars);
-
-                        // Clear the removed variables list
-                        removedVars.clear();
                     }
                 }
 
@@ -1159,7 +1169,7 @@ public class CcddSchedulerHandler
                 // Check if this is a parent message
                 if (parentIndex == -1)
                 {
-                    int[] indices = (int[]) parsedIndices[1];
+                    Integer[] indices = (Integer[]) parsedIndices[1];
 
                     // Set smallest to the smallest number of bytes out of the
                     // sub-messages
@@ -1197,7 +1207,7 @@ public class CcddSchedulerHandler
      * 
      * @return Smallest number of bytes
      *************************************************************************/
-    private int getSmallestByteSize(int[] indices, int parentIndex)
+    private int getSmallestByteSize(Integer[] indices, int parentIndex)
     {
         int smallest = Integer.MAX_VALUE;
 
@@ -1205,7 +1215,7 @@ public class CcddSchedulerHandler
         for (int index = 0; index < indices.length; index++)
         {
             // Set size to the given (sub-)message's size
-            int size = schedulerEditor.getMessage(indices[index],
+            int size = schedulerEditor.getMessage(indices[index].intValue(),
                                                   parentIndex).getBytesRemaining();
 
             // Check if the (sub-)message's size is less then the smallest

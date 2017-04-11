@@ -32,6 +32,7 @@ import javax.swing.JTextField;
 import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import javax.swing.text.JTextComponent;
 
 import CCDD.CcddConstants.ArrowFocusOption;
 import CCDD.CcddConstants.BaseDataTypeInfo;
@@ -456,7 +457,7 @@ public class CcddKeyboardHandler
                     else if (ke.getKeyCode() == KeyEvent.VK_M)
                     {
                         // Check if the shift key is also pressed
-                        // (Ctrl+Shift-M)
+                        // (Ctrl-Shift-M)
                         if (ke.isShiftDown())
                         {
                             // Check if the macros aren't already expanded
@@ -471,7 +472,7 @@ public class CcddKeyboardHandler
                                     // Replace the macro names with their
                                     // corresponding values in the currently
                                     // selected table in this editor
-                                    editorDialog.getTableEditor().expandMacros(true);
+                                    editorDialog.getTableEditor().expandMacros(true, true);
                                     isShowMacros = true;
                                 }
                             }
@@ -485,8 +486,7 @@ public class CcddKeyboardHandler
 
                             // Check if a table editor dialog has the focus and
                             // that the cell doesn't contain a combo box
-                            if (editorDialog != null
-                                && !(comp instanceof JComboBox))
+                            if (editorDialog != null && !(comp instanceof JComboBox))
                             {
                                 // Get references to shorten subsequent calls
                                 CcddTableEditorHandler editor = editorDialog.getTableEditor();
@@ -504,9 +504,9 @@ public class CcddKeyboardHandler
                                     InputDataType inputType = ccddMain.getTableTypeHandler().getTypeDefinition(editor.getTableInformation().getType()).getInputTypes()[column];
 
                                     // Insert the macro name chosen by the user
-                                    // into the text field at the current
+                                    // into the text component at the current
                                     // text insertion point
-                                    macroHandler.insertMacroName((JTextField) comp, inputType);
+                                    macroHandler.insertMacroName((JTextComponent) comp, inputType);
                                 }
                             }
                         }
@@ -553,7 +553,7 @@ public class CcddKeyboardHandler
                                 {
                                     // Restore the macro names in the currently
                                     // selected table in this editor
-                                    editorDialog.getTableEditor().expandMacros(false);
+                                    editorDialog.getTableEditor().expandMacros(false, true);
                                     isShowMacros = false;
                                 }
                             }

@@ -2191,13 +2191,12 @@ public class CcddDbTableCommandHandler
                                                          + columnName
                                                          + "'"
                                                          + (columnValue == null
-                                                            || columnValue.isEmpty()
-                                                                                    ? ""
-                                                                                    : " AND "
-                                                                                      + ValuesColumn.VALUE.getColumnName()
-                                                                                      + " = '"
-                                                                                      + columnValue
-                                                                                      + "'")
+                                                                               ? ""
+                                                                               : " AND "
+                                                                                 + ValuesColumn.VALUE.getColumnName()
+                                                                                 + " = '"
+                                                                                 + columnValue
+                                                                                 + "'")
                                                          + ";",
                                                          parent);
 
@@ -2499,6 +2498,11 @@ public class CcddDbTableCommandHandler
      *            reference to the current data type handler) if the change
      *            does not originate from the data type editor
      * 
+     * @param newMacroHandler
+     *            macro handler with macro modifications. null (or a reference
+     *            to the current macro handler) if the change does not
+     *            originate from the macro editor
+     * 
      * @param parent
      *            reference to the GUI component over which any error dialogs
      *            should be centered
@@ -2509,6 +2513,7 @@ public class CcddDbTableCommandHandler
                                                final List<TableDeletion> deletions,
                                                final boolean forceUpdate,
                                                final CcddDataTypeHandler newDataTypeHandler,
+                                               final CcddMacroHandler newMacroHandler,
                                                final Component parent)
     {
         // Execute the command in the background
@@ -2526,6 +2531,7 @@ public class CcddDbTableCommandHandler
                                 deletions,
                                 forceUpdate,
                                 newDataTypeHandler,
+                                newMacroHandler,
                                 parent);
             }
         });
@@ -2558,6 +2564,11 @@ public class CcddDbTableCommandHandler
      *            reference to the current data type handler) if the change
      *            does not originate from the data type editor
      * 
+     * @param newMacroHandler
+     *            macro handler with macro modifications. null (or a reference
+     *            to the current macro handler) if the change does not
+     *            originate from the macro editor
+     * 
      * @param parent
      *            reference to the GUI component over which any error dialogs
      *            should be centered
@@ -2570,6 +2581,7 @@ public class CcddDbTableCommandHandler
                                       List<TableDeletion> deletions,
                                       boolean forceUpdate,
                                       CcddDataTypeHandler newDataTypeHandler,
+                                      CcddMacroHandler newMacroHandler,
                                       Component parent)
     {
         boolean errorFlag = false;
@@ -2607,6 +2619,7 @@ public class CcddDbTableCommandHandler
                                                         modifications,
                                                         typeDefinition,
                                                         newDataTypeHandler,
+                                                        newMacroHandler,
                                                         tableTree)
                              + buildDeletionCommand(tableInfo,
                                                     typeDefinition.isStructure(),
@@ -2798,6 +2811,7 @@ public class CcddDbTableCommandHandler
                                             List<TableModification> modifications,
                                             TypeDefinition typeDefinition,
                                             CcddDataTypeHandler newDataTypeHandler,
+                                            CcddMacroHandler newMacroHandler,
                                             CcddTableTreeHandler tableTree)
     {
         StringBuilder modCmd = new StringBuilder("");
@@ -2812,6 +2826,14 @@ public class CcddDbTableCommandHandler
             {
                 // Set the updated data type handler to use the current handler
                 newDataTypeHandler = dataTypeHandler;
+            }
+
+            // Check if no updated macro handler is provided. This implies the
+            // modifications are not due to an update in the macro editor
+            if (newMacroHandler == null)
+            {
+                // Set the updated macro handler to use the current handler
+                newMacroHandler = macroHandler;
             }
 
             // Step through each modification
@@ -3086,10 +3108,10 @@ public class CcddDbTableCommandHandler
                                     // variable based on its bit length and
                                     // data type
                                     int oldLen = !oldBitLength.isEmpty()
-                                                                        ? Integer.valueOf(oldBitLength)
+                                                                        ? Integer.valueOf(macroHandler.getMacroExpansion(oldBitLength))
                                                                         : dataTypeHandler.getSizeInBits(oldDataType);
                                     int newLen = !newBitLength.isEmpty()
-                                                                        ? Integer.valueOf(newBitLength)
+                                                                        ? Integer.valueOf(newMacroHandler.getMacroExpansion(newBitLength))
                                                                         : dataTypeHandler.getSizeInBits(newDataType);
 
                                     // Check if the new size is not greater
@@ -6213,6 +6235,9 @@ public class CcddDbTableCommandHandler
                                             (isDataType
                                                        ? (CcddDataTypeHandler) newHandler
                                                        : null),
+                                            (isDataType
+                                                       ? null
+                                                       : (CcddMacroHandler) newHandler),
                                             dialog))
                         {
                             throw new SQLException("table modification error");
@@ -6316,11 +6341,13 @@ public class CcddDbTableCommandHandler
      *            neither a structure or command table, or the table type name
      *            to get all tables for the specified type
      * 
-     * @return Array containing all tables that represent the specified type
+     * @return Array containing all tables that represent the specified type.
+     *         Returns an empty array if no tables of the specified type exists
+     *         in the project database
      *************************************************************************/
     protected String[] getTablesOfType(String tableType)
     {
-        String[] tablesOfType = null;
+        String[] tablesOfType = new String[0];
 
         // Step through each table type
         for (String type : tableTypeHandler.getTypes())

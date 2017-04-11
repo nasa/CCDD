@@ -474,9 +474,9 @@ def outputDiscreteConversion(file, discreteConversion, conversionName)
 {
     // Discrete conversion array indices
     def VALUE = 0
-    def DISP_NAME = 2
-    def TEXT_COLOR = 3
-    def BACK_COLOR = 4
+    def DISP_NAME = 1
+    def TEXT_COLOR = 2
+    def BACK_COLOR = 3
 
     // Separate the enumerated parameters into an array. The expected
     // format for the enumerated values is:
@@ -623,7 +623,7 @@ def outputEnumeration(enumeration, enumerationName)
 {
     // Enumeration array indices
     def VALUE = 0
-    def DISP_NAME = 2
+    def DISP_NAME = 1
 
     // Separate the enumerated parameters into an array. The expected
     // format for the enumerated values is:

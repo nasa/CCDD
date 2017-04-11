@@ -147,6 +147,9 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
     private final List<TableModification> modifications;
     private final List<TableDeletion> deletions;
 
+    // Flag indicating if the table can be edited
+    private boolean isEditEnabled;
+
     /**************************************************************************
      * Table editor handler class constructor
      * 
@@ -206,6 +209,9 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
         // Initialize the structure table information
         tableTree = null;
         allStructureTables = null;
+
+        // Set the flag to indicate that editing of the table is allowed
+        isEditEnabled = true;
 
         // Create the table editor
         initialize();
@@ -313,6 +319,17 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
     protected boolean isStructure()
     {
         return typeDefn.isStructure();
+    }
+
+    /**************************************************************************
+     * Enable/disable editing of the table
+     * 
+     * @param true to enable normal editing of the table, false to disable
+     *        editing
+     *************************************************************************/
+    protected void setTableEditEnable(boolean enable)
+    {
+        isEditEnabled = enable;
     }
 
     /**************************************************************************
@@ -1100,7 +1117,7 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
      * @return Value of the cell in the table model with any macro name
      *         replaced with its corresponding macro value
      *************************************************************************/
-    public String getExpandedValueAt(int row, int column)
+    private String getExpandedValueAt(int row, int column)
     {
         return newMacroHandler.getMacroExpansion(tableModel.getValueAt(row, column).toString());
     }
@@ -1118,7 +1135,7 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
      * @return Value of the cell in the row of table data supplied with any
      *         macro name replaced with its corresponding macro value
      *************************************************************************/
-    public String getExpandedValueAt(List<Object[]> tableData, int row, int column)
+    private String getExpandedValueAt(List<Object[]> tableData, int row, int column)
     {
         return newMacroHandler.getMacroExpansion(tableData.get(row)[column].toString());
     }
@@ -1275,13 +1292,18 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
             @Override
             public boolean isCellEditable(int row, int column)
             {
-                boolean isEditable = true;
+                // Initialize the flag to the table edit flag (based on the
+                // table edit flag this enables normal editing or disables
+                // editing any cell)
+                boolean isEditable = isEditEnabled;
 
-                // Check if the table is displayable (to prevent corruption of
-                // the cell editor) or that the table isn't open in an editor
-                // (as when a macro change is processed), if the table model
-                // exists, and if the table has at least one row
-                if ((isDisplayable() || editorDialog == null)
+                // Check if editing is enabled, the table is displayable (to
+                // prevent corruption of the cell editor) or that the table
+                // isn't open in an editor (as when a macro change is
+                // processed), if the table model exists, and if the table has
+                // at least one row
+                if (isEditable
+                    && (isDisplayable() || editorDialog == null)
                     && tableModel != null
                     && tableModel.getRowCount() != 0)
                 {
@@ -1641,7 +1663,8 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                                      || column == colGrp.getMaximum())
                             {
                                 // Verify that the minimum/maximum value is
-                                // valid for the argument's data type
+                                // valid for the argument's data type, and stop
+                                // searching
                                 validateMinMaxContent(tableData,
                                                       row,
                                                       column,
@@ -1662,7 +1685,8 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                                 || column == minMax.getMaximum())
                             {
                                 // Verify that the minimum/maximum value is
-                                // valid for the argument's data type
+                                // valid for the argument's data type, and stop
+                                // searching
                                 validateMinMaxContent(tableData,
                                                       row,
                                                       column,
@@ -1708,19 +1732,55 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                     // value
                     if (!newValueS.equals(oldValueS))
                     {
+                        String variableName = null;
+                        String dataType = null;
+                        String arraySize = null;
+                        String bitLength = null;
+
+                        // Check if the variable name column exists
+                        if (variableNameIndex != -1)
+                        {
+                            // Get the variable name for the current row,
+                            // expanding macros in the name (if present)
+                            variableName = getExpandedValueAt(tableData, row, variableNameIndex);
+                        }
+
+                        // Check if the data type column exists
+                        if (dataTypeIndex != -1)
+                        {
+                            // Get the data type for the current row
+                            dataType = tableData.get(row)[dataTypeIndex].toString();
+                        }
+
+                        // Check if the array size column exists
+                        if (arraySizeIndex != -1)
+                        {
+                            // Get the array size for the current row,
+                            // expanding macros in the value (if present)
+                            arraySize = getExpandedValueAt(tableData, row, arraySizeIndex);
+                        }
+
+                        // Check if the bit length column exists
+                        if (bitLengthIndex != -1)
+                        {
+                            // Get the bit length for the current row,
+                            // expanding macros in the value (if present)
+                            bitLength = getExpandedValueAt(tableData, row, bitLengthIndex);
+                        }
+
                         // Check if the variable name or data type has been
                         // changed and that an array size column exists
                         if ((column == variableNameIndex || column == dataTypeIndex)
-                            && arraySizeIndex != -1)
+                            && arraySize != null)
                         {
                             // Check if this is the data type column, a bit
                             // length is present, and the bit length exceeds
                             // the size of the data type in bits
                             if (column == dataTypeIndex
-                                && bitLengthIndex != -1
-                                && !tableData.get(row)[bitLengthIndex].toString().isEmpty()
-                                && Integer.valueOf(tableData.get(row)[bitLengthIndex].toString())
-                                > newDataTypeHandler.getSizeInBits(tableData.get(row)[dataTypeIndex].toString()))
+                                && !newValueS.isEmpty()
+                                && bitLength != null
+                                && !bitLength.isEmpty()
+                                && Integer.valueOf(bitLength) > newDataTypeHandler.getSizeInBits(dataType))
                             {
                                 throw new CCDDException("Bit length exceeds the size of the data type");
                             }
@@ -1728,10 +1788,8 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                             // Get the array index values from the array size
                             // column and update array members if this is an
                             // array definition
-                            int[] arraySize = ArrayVariable.getArrayIndexFromSize(getExpandedValueAt(tableData,
-                                                                                                     row,
-                                                                                                     arraySizeIndex));
-                            adjustArrayMember(tableData, arraySize, arraySize, row, column);
+                            int[] arrayDims = ArrayVariable.getArrayIndexFromSize(arraySize);
+                            adjustArrayMember(tableData, arrayDims, arrayDims, row, column);
                         }
                         // Check if this is the array size column
                         else if (column == arraySizeIndex)
@@ -1780,29 +1838,23 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                         // Check if this is the rate column and the row is an
                         // array definition
                         else if (rateIndex.contains(column)
-                                 && arraySizeIndex != -1
-                                 && variableNameIndex != -1
-                                 && !getExpandedValueAt(tableData,
-                                                        row,
-                                                        arraySizeIndex).isEmpty()
-                                 && !ArrayVariable.isArrayMember(getExpandedValueAt(tableData,
-                                                                                    row,
-                                                                                    variableNameIndex)))
+                                 && arraySize != null
+                                 && variableName != null
+                                 && !arraySize.isEmpty()
+                                 && !ArrayVariable.isArrayMember(variableName))
                         {
                             // Get the array index value(s)
-                            int[] arraySize = ArrayVariable.getArrayIndexFromSize(getExpandedValueAt(tableData,
-                                                                                                     row,
-                                                                                                     arraySizeIndex));
+                            int[] arrayDims = ArrayVariable.getArrayIndexFromSize(arraySize);
 
                             // Update the array members with the new rate
-                            adjustArrayMember(tableData, arraySize, arraySize, row, column);
+                            adjustArrayMember(tableData, arrayDims, arrayDims, row, column);
                         }
                         // Check if this is the rate column and the variable
                         // has a bit length value
                         else if (rateIndex.contains(column)
-                                 && bitLengthIndex != -1
-                                 && dataTypeIndex != -1
-                                 && !tableData.get(row)[bitLengthIndex].toString().isEmpty())
+                                 && bitLength != null
+                                 && dataType != null
+                                 && !bitLength.isEmpty())
                         {
                             // Adjust the rates of any other bit-wise variables
                             // that are packed together with this variable,
@@ -1815,10 +1867,10 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                         {
                             // Check if a bit length is present and it exceeds
                             // the bit size of the data type
-                            if (!tableData.get(row)[bitLengthIndex].toString().isEmpty()
-                                && dataTypeIndex != -1
-                                && Integer.valueOf(tableData.get(row)[bitLengthIndex].toString())
-                                > newDataTypeHandler.getSizeInBits(tableData.get(row)[dataTypeIndex].toString()))
+                            if (!bitLength.isEmpty()
+                                && dataType != null
+                                && Integer.valueOf(bitLength)
+                                > newDataTypeHandler.getSizeInBits(dataType))
                             {
                                 throw new CCDDException("Bit length exceeds the size of the data type");
                             }
@@ -1831,17 +1883,15 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                         // Check if a column other than the variable name, data
                         // type, or array size is changed for an array
                         // definition or for a string array
-                        else if (variableNameIndex != -1
-                                 && dataTypeIndex != -1
-                                 && arraySizeIndex != -1
+                        else if (variableName != null
+                                 && dataType != null
+                                 && arraySize != null
                                  && column != variableNameIndex
                                  && column != dataTypeIndex
                                  && column != arraySizeIndex
-                                 && !getExpandedValueAt(tableData, row, arraySizeIndex).isEmpty()
-                                 && (!tableData.get(row)[variableNameIndex].toString().endsWith("]")
-                                 || newDataTypeHandler.isCharacter(getExpandedValueAt(tableData,
-                                                                                      row,
-                                                                                      dataTypeIndex))))
+                                 && !arraySize.isEmpty()
+                                 && (!variableName.endsWith("]")
+                                 || newDataTypeHandler.isCharacter(dataType)))
                         {
                             // Propagate the value to all members of this
                             // array/string
@@ -3036,8 +3086,13 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
             @Override
             protected void processTableContentChange()
             {
-                // Update the change indicator for the table
-                editorDialog.updateChangeIndicator();
+                // Check that the table is open in a table editor (versus open
+                // for a macro name and/or value change)
+                if (editorDialog != null)
+                {
+                    // Update the change indicator for the table
+                    editorDialog.updateChangeIndicator();
+                }
             }
         };
 
@@ -3093,39 +3148,58 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
      * @param isExpand
      *            true to replace the macro names with the corresponding macro
      *            values; false to restore the macro names
+     * 
+     * @param isVisibleOnly
+     *            true to only expand the macros in those cells that are
+     *            currently visible; false to expand the macros in all of the
+     *            table cells
      *************************************************************************/
-    protected void expandMacros(boolean isExpand)
+    protected void expandMacros(boolean isExpand, boolean isVisibleOnly)
     {
-        // Determine first and last rows that are currently visible. Get the
-        // coordinates of the table's visible rectangle
-        Rectangle visRect = table.getVisibleRect();
+        int firstRow;
+        int lastRow;
 
-        // Determine the first (upper) row. If a column is being resized or the
-        // table has no rows then set to 0 (the first table row), otherwise set
-        // to the first visible row
-        int firstRow = Math.max(table.rowAtPoint(visRect.getLocation()), 0);
-
-        // Move the rectangle down the height of the table, then back 1 pixel
-        // to remain within the table boundaries
-        visRect.translate(0, visRect.height - 1);
-
-        // Get the last visible row plus 1 (as required by updateRowHeights).
-        // Defaults to 0 if the table has no rows
-        int lastRow = table.rowAtPoint(visRect.getLocation()) + 1;
-
-        // Check if the calculated last row is greater than the total number of
-        // rows in the table
-        if (lastRow == 0)
+        // Check if all cells are to be expanded
+        if (!isVisibleOnly)
         {
-            // Set the last row to the table's visible row count
-            lastRow = table.getRowCount();
+            // Get the first and last row indices
+            firstRow = 0;
+            lastRow = tableModel.getRowCount();
         }
+        // Only expand the visible cells
+        else
+        {
+            // Determine first and last rows that are currently visible. Get
+            // the coordinates of the table's visible rectangle
+            Rectangle visRect = table.getVisibleRect();
 
-        // Convert the row indices to model coordinates. Model coordinates are
-        // used to prevent the change in the table value from being logged as
-        // undoable
-        firstRow = table.convertRowIndexToModel(firstRow);
-        lastRow = table.convertRowIndexToModel(lastRow - 1) + 1;
+            // Determine the first (upper) row. If a column is being resized or
+            // the table has no rows then set to 0 (the first table row),
+            // otherwise set to the first visible row
+            firstRow = Math.max(table.rowAtPoint(visRect.getLocation()), 0);
+
+            // Move the rectangle down the height of the table, then back 1
+            // pixel to remain within the table boundaries
+            visRect.translate(0, visRect.height - 1);
+
+            // Get the last visible row plus 1 (as required by
+            // updateRowHeights). Defaults to 0 if the table has no rows
+            lastRow = table.rowAtPoint(visRect.getLocation()) + 1;
+
+            // Check if the calculated last row is greater than the total
+            // number of rows in the table
+            if (lastRow == 0)
+            {
+                // Set the last row to the table's visible row count
+                lastRow = table.getRowCount();
+            }
+
+            // Convert the row indices to model coordinates. Model coordinates
+            // are used to prevent the change in the table value from being
+            // logged as undoable
+            firstRow = table.convertRowIndexToModel(firstRow);
+            lastRow = table.convertRowIndexToModel(lastRow - 1) + 1;
+        }
 
         // Check if the macro values are being displayed
         if (isExpand)
@@ -3470,7 +3544,7 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
             }
 
             // Check if any structure tables exist
-            if (allStructureTables != null)
+            if (allStructureTables != null && allStructureTables.length != 0)
             {
                 // Sort the array of structure table names alphabetically,
                 // ignoring case. This ordering should match the ordering in
@@ -3706,8 +3780,8 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
             if (minColumn != -1 && maxColumn != -1)
             {
                 // Store the minimum and maximum cell contents
-                minVal = newMacroHandler.getMacroExpansion(tableData.get(row)[minColumn].toString());
-                maxVal = newMacroHandler.getMacroExpansion(tableData.get(row)[maxColumn].toString());
+                minVal = getExpandedValueAt(tableData, row, minColumn);
+                maxVal = getExpandedValueAt(tableData, row, maxColumn);
             }
 
             // Check if the data type is an unsigned integer
@@ -3723,9 +3797,13 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                                             + "' expected");
                 }
 
-                // Check if the value exceeds the maximum possible for an
+                // Convert the cell value to an integer
+                int value = Integer.valueOf(newValueS);
+
+                // Check if the value is outside the possible bounds for an
                 // unsigned integer of this data type's size
-                if (Integer.valueOf(newValueS) > (int) newDataTypeHandler.getMaximum(dataType))
+                if (value < (int) newDataTypeHandler.getMinimum(dataType)
+                    || value > (int) newDataTypeHandler.getMaximum(dataType))
                 {
                     throw new CCDDException("Input value out of range for column '"
                                             + typeDefn.getColumnNamesUser()[column]
@@ -4248,7 +4326,7 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
         // Step backwards through the table while a variable with a bit length
         // of the same data type is found
         while (curRow >= 0
-               && !tableData.get(curRow)[bitLengthIndex].toString().isEmpty()
+               && !getExpandedValueAt(tableData, curRow, bitLengthIndex).isEmpty()
                && dataType.equals(tableData.get(curRow)[dataTypeIndex].toString()))
         {
             // Go to the previous row
@@ -4265,13 +4343,15 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
         // Step forward, packing the bits, in order to determine the variables
         // in the target row's pack
         while (curRow < tableData.size()
-               && !tableData.get(curRow)[bitLengthIndex].toString().isEmpty()
+               && !getExpandedValueAt(tableData, curRow, bitLengthIndex).isEmpty()
                && dataType.equals(tableData.get(curRow)[dataTypeIndex].toString()))
         {
             // Add the number of bits occupied by this variable to the running
             // count
-            int bitLength = Integer.valueOf(tableData.get(curRow)[bitLengthIndex].toString());
-            bitCount += bitLength;
+            int numBits = Integer.valueOf(getExpandedValueAt(tableData,
+                                                             curRow,
+                                                             bitLengthIndex));
+            bitCount += numBits;
 
             // Check if the bit count rolled over the maximum allowed
             if (bitCount > dataTypeBitSize)
@@ -4285,7 +4365,7 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
 
                 // Reset the bit count to the current row's value and store the
                 // row index for the first variable in the pack
-                bitCount = bitLength;
+                bitCount = numBits;
                 firstRow = curRow;
             }
 
@@ -4398,7 +4478,7 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                 // the table is open in an editor) or if the current row's
                 // column is empty
                 if (!isArrayDefn
-                    || newMacroHandler.getMacroExpansion(tableData.get(curRow)[columnChanged].toString()).isEmpty()
+                    || getExpandedValueAt(tableData, curRow, columnChanged).isEmpty()
                     || editorDialog == null
                     || editorDialog.isArrayOverwriteAll())
                 {
@@ -4466,7 +4546,33 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
      *************************************************************************/
     protected boolean isTableChanged()
     {
-        return table.isTableChanged(committedInfo.getData());
+        boolean isChanged = false;
+
+        // Check if table editing is disabled. If the editor dialog command to
+        // show macros is selected then the table edit flag is false and the
+        // macros are displayed
+        if (!isEditEnabled)
+        {
+            // Display the macros in place of the macro values. If the macros
+            // aren't restored then the comparison detects every expanded macro
+            // as a change; restoring the macros prevents this erroneous change
+            // indication
+            expandMacros(false, false);
+        }
+
+        // Check if the table has changes
+        isChanged = table.isTableChanged(committedInfo.getData());
+
+        // Check if table editing is disabled. If the editor dialog command to
+        // show macros is selected then the table edit flag is false and the
+        // macros are displayed
+        if (!isEditEnabled)
+        {
+            // Redisplay the macro values in place of the macros
+            expandMacros(true, false);
+        }
+
+        return isChanged;
     }
 
     /**************************************************************************

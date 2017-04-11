@@ -784,7 +784,7 @@ public class CcddTableTypeEditorHandler extends CcddEditorPanelHandler
                 // definition (i.e., isn't a default column for the table type)
                 if (typeDefinition == null
                     || !DefaultColumn.isProtectedColumn(typeDefinition.getName(),
-                                                        tableData.get(table.convertRowIndexToView(modelRow))[TableTypeEditorColumnInfo.NAME.ordinal()].toString()))
+                                                        tableData.get(modelRow)[TableTypeEditorColumnInfo.NAME.ordinal()].toString()))
                 {
                     // Remove the row from the table
                     modelRow = super.removeRow(tableData, modelRow);
