@@ -55,6 +55,7 @@ public class CcddMessageIDHandler
     private final CcddReservedMsgIDHandler rsvMsgIDHandler;
     private final CcddTableTypeHandler tableTypeHandler;
     private final CcddMacroHandler macroHandler;
+    private final CcddRateParameterHandler rateHandler;
 
     // Lists of the names (with paths) of tables that represent structures,
     // commands, and other table types
@@ -69,6 +70,9 @@ public class CcddMessageIDHandler
     // List of message IDs that are used by multiple owners, and their owner
     private final ArrayListMultiple duplicates;
 
+    // List of message IDs and their owners that are potential duplicates
+    private final ArrayListMultiple potentialDuplicates;
+
     /**************************************************************************
      * Message ID handler class constructor
      * 
@@ -82,10 +86,12 @@ public class CcddMessageIDHandler
         rsvMsgIDHandler = ccddMain.getReservedMsgIDHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
+        rateHandler = ccddMain.getRateParameterHandler();
 
         // Create the lists
         idsInUse = new ArrayList<Integer>();
         duplicates = new ArrayListMultiple(1);
+        potentialDuplicates = new ArrayListMultiple(1);
         structureTables = new ArrayList<String>();
         commandTables = new ArrayList<String>();
         otherTables = new ArrayList<String>();
@@ -175,6 +181,7 @@ public class CcddMessageIDHandler
         // Empty the duplicates list in case this isn't the first execution of
         // this method
         duplicates.clear();
+        potentialDuplicates.clear();
 
         // Get the list of reserved message ID values
         idsInUse = rsvMsgIDHandler.getReservedMsgIDs();
@@ -256,10 +263,9 @@ public class CcddMessageIDHandler
         {
             // Get the telemetry message IDs assigned in the telemetry
             // scheduler table
-            List<String[]> tlmIDs = dbTable.queryDatabase("SELECT"
-                                                          + (isGetDuplicates
-                                                                            ? " "
-                                                                            : " DISTINCT ON (2) ")
+            List<String[]> tlmIDs = dbTable.queryDatabase("SELECT DISTINCT ON (2) "
+                                                          + InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.RATE_NAME.ordinal())
+                                                          + " || ', ' || "
                                                           + InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.MESSAGE_NAME.ordinal())
                                                           + ", "
                                                           + InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.MESSAGE_ID.ordinal())
@@ -275,6 +281,16 @@ public class CcddMessageIDHandler
             // Step through each telemetry message ID
             for (String[] tlmMsgNameAndID : tlmIDs)
             {
+                // Check if the list of duplicate message IDs is to be created
+                if (isGetDuplicates)
+                {
+                    // Replace the rate name with its corresponding stream name
+                    // when displaying duplicate IDs
+                    String rateName = tlmMsgNameAndID[0].replaceFirst(",.*", "");
+                    String streamName = rateHandler.getRateInformationByRateName(rateName).getStreamName();
+                    tlmMsgNameAndID[0] = tlmMsgNameAndID[0].replaceFirst(rateName, streamName);
+                }
+
                 // Update the IDs in use in the telemetry messages, and update
                 // the duplicates list (if the flag is set)
                 updateUsageAndDuplicates("Message",
@@ -348,19 +364,34 @@ public class CcddMessageIDHandler
         // Convert the message ID from a hexadecimal string to an integer
         int msgID = Integer.decode(ownerAndID[1]);
 
+        // Check if the list of duplicate message IDs is to be created
+        if (isGetDuplicates)
+        {
+            // Prepend the owner type to the owner name and reformat the
+            // message ID to remove extra leading zeroes
+            ownerAndID[0] = ownerType + ": " + ownerAndID[0];
+            ownerAndID[1] = "0x" + Integer.toHexString(msgID);
+        }
+
         // Check the message ID isn't already in the list
         if (!idsInUse.contains(msgID))
         {
             // Add the ID value to the list of those in use
             idsInUse.add(msgID);
+
+            // Check if the list of duplicate message IDs is to be created
+            if (isGetDuplicates)
+            {
+                // Add the ID to the list of potential duplicates. This is used
+                // to get the ID's owner if a duplicate of this ID is later
+                // detected
+                potentialDuplicates.add(ownerAndID);
+            }
         }
-        // The message ID is already in the list; check if duplicates are being
-        // sought
+        // The message ID is already in the list; check if the list of
+        // duplicate message IDs is to be created
         else if (isGetDuplicates)
         {
-            // Reformat the message ID to remove extra leading zeroes
-            ownerAndID[1] = "0x" + Integer.toHexString(msgID);
-
             // Get the index of the owner and ID pair with a matching message
             // ID, if one exists
             int index = duplicates.indexOf(ownerAndID[1]);
@@ -368,22 +399,30 @@ public class CcddMessageIDHandler
             // Check if this ID isn't already in the list
             if (index == -1)
             {
-                // Prepend the owner type to the owner name
-                ownerAndID[0] = ownerType + ": " + ownerAndID[0];
+                // Get the index of the ID in the list of potential duplicates
+                int pdIndex = potentialDuplicates.indexOf(ownerAndID[1]);
 
-                // Add the owner and ID pair to the duplicates list
-                duplicates.add(ownerAndID);
+                // Add the owner and ID of the first occurrence of this ID to
+                // the duplicates list
+                duplicates.add(potentialDuplicates.get(pdIndex));
+
+                // Check if the owner of this occurrence of the ID differs from
+                // the owner of the first occurrence
+                if (!ownerAndID[0].equals(potentialDuplicates.get(pdIndex)[0]))
+                {
+                    // Append this owner to the other owner(s) of this
+                    // duplicate ID
+                    duplicates.get(duplicates.size() - 1)[0] += "\n" + ownerAndID[0];
+                }
             }
-            // The ID is already in the list with another owner (table or data
-            // field)
-            else if (!duplicates.get(index)[0].matches("(?:^|.*\\\n)Table: "
+            // The ID is already in the list of duplicates; check if this owner
+            // isn't already included
+            else if (!duplicates.get(index)[0].matches("(?:^|.*\\\n)"
                                                        + ownerAndID[0]
                                                        + "(?:\\\n.*|$)"))
             {
                 // Append the owner to the existing entry for this message ID
-                duplicates.get(index)[0] += "\n"
-                                            + ownerType + ": "
-                                            + ownerAndID[0];
+                duplicates.get(index)[0] += "\n" + ownerAndID[0];
             }
         }
     }
@@ -409,7 +448,7 @@ public class CcddMessageIDHandler
             @Override
             public int compare(final String[] msgID1, final String[] msgID2)
             {
-                return msgID1[1].compareTo(msgID2[1]);
+                return Integer.decode(msgID1[1]).compareTo(Integer.decode(msgID2[1]));
             }
         });
 
@@ -501,7 +540,7 @@ public class CcddMessageIDHandler
         new CcddDialogHandler().showOptionsDialog(parent,
                                                   dialogPnl,
                                                   "Duplicate Message IDs",
-                                                  DialogOption.OK_OPTION,
+                                                  DialogOption.PRINT_OPTION,
                                                   true);
     }
 }

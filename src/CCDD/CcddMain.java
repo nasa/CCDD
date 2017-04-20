@@ -90,6 +90,7 @@ public class CcddMain
     private CcddDataTypeEditorDialog dataTypeEditorDialog;
     private CcddMacroEditorDialog macroEditorDialog;
     private CcddReservedMsgIDEditorDialog msgIDEditorDialog;
+    private CcddGroupManagerDialog groupManagerDialog;
     private final CcddFileIOHandler fileIOHandler;
     private final CcddScriptHandler scriptHandler;
     private CcddScriptManagerDialog scriptAssnDlg;
@@ -144,7 +145,7 @@ public class CcddMain
     private JMenuItem mntmReserveMsgID;
     private JMenuItem mntmDuplicateMsgID;
     private JMenuItem mntmEditDataField;
-    private JMenuItem mntmShowITOSNames;
+    private JMenuItem mntmShowVariables;
     private JMenuItem mntmSearchTable;
     private JMenuItem mntmManageLinks;
     private JMenuItem mntmManageTlm;
@@ -676,6 +677,27 @@ public class CcddMain
     }
 
     /**************************************************************************
+     * Get the reference to the group manager dialog
+     * 
+     * @return Reference to the group manager dialog
+     *************************************************************************/
+    protected CcddGroupManagerDialog getGroupManager()
+    {
+        return groupManagerDialog;
+    }
+
+    /**************************************************************************
+     * Set the reference to the group manager dialog
+     * 
+     * @param groupManagerDialog
+     *            reference to the group manager dialog
+     *************************************************************************/
+    protected void setGroupManager(CcddGroupManagerDialog groupManagerDialog)
+    {
+        this.groupManagerDialog = groupManagerDialog;
+    }
+
+    /**************************************************************************
      * Activate/deactivate the main menu by setting the component enable flags
      * appropriately. While disabled these components are grayed out and do not
      * respond to inputs
@@ -724,7 +746,7 @@ public class CcddMain
         mntmReserveMsgID.setEnabled(dbControl.isDatabaseConnected());
         mntmDuplicateMsgID.setEnabled(dbControl.isDatabaseConnected());
         mntmEditDataField.setEnabled(dbControl.isDatabaseConnected());
-        mntmShowITOSNames.setEnabled(dbControl.isDatabaseConnected());
+        mntmShowVariables.setEnabled(dbControl.isDatabaseConnected());
         mntmSearchTable.setEnabled(dbControl.isDatabaseConnected());
         mntmManageLinks.setEnabled(dbControl.isDatabaseConnected());
         mntmManageTlm.setEnabled(dbControl.isDatabaseConnected());
@@ -1213,7 +1235,7 @@ public class CcddMain
         mntmDuplicateMsgID = createMenuItem(mnMessageID, "Find duplicates", KeyEvent.VK_F, 1, "Detect duplicate message ID numbers");
         mntmEditDataField = createMenuItem(mnData, "Show/edit fields", KeyEvent.VK_F, 1, "Open the data field table editor");
         mnData.addSeparator();
-        mntmShowITOSNames = createMenuItem(mnData, "Show ITOS names", KeyEvent.VK_W, 1, "Display the variable paths + names in the current editor table formatted for ITOS record files");
+        mntmShowVariables = createMenuItem(mnData, "Show variables", KeyEvent.VK_V, 1, "Display all of the variable paths + names in various formats");
         mnData.addSeparator();
         mntmSearchTable = createMenuItem(mnData, "Search tables", KeyEvent.VK_S, 1, "Search the project database tables");
 
@@ -1872,18 +1894,17 @@ public class CcddMain
             }
         });
 
-        // Add a listener for the Show ITOS Names command
-        mntmShowITOSNames.addActionListener(new ActionListener()
+        // Add a listener for the Show Variables command
+        mntmShowVariables.addActionListener(new ActionListener()
         {
             /******************************************************************
-             * Display a dialog showing all of the variable paths + names in
-             * the currently selected structure table converted to their
-             * equivalents for use in an ITOS record file
+             * Display a dialog showing all of the variable paths + names. The
+             * application format and ITOS record formats are shown
              *****************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddITOSNameDialog(CcddMain.this);
+                new CcddVariablesDialog(CcddMain.this);
             }
         });
 

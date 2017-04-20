@@ -427,7 +427,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                         if (macroTable.isTableChanged(committedData)
                             && !checkForMissingColumns()
                             && new CcddDialogHandler().showMessageDialog(CcddMacroEditorDialog.this,
-                                                                         "<html><b>Store changes in database?",
+                                                                         "<html><b>Store changes in project database?",
                                                                          "Store Changes",
                                                                          JOptionPane.QUESTION_MESSAGE,
                                                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)

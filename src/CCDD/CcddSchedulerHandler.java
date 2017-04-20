@@ -591,7 +591,6 @@ public class CcddSchedulerHandler
 
                 // Set the variable tree to exclude the variable(s)
                 setVariableUnavailable(excludedVars);
-                schedulerInput.updateVariableTree(rateFilter.getSelectedItem().toString());
             }
 
             /******************************************************************
@@ -600,6 +599,21 @@ public class CcddSchedulerHandler
             @Override
             protected void complete()
             {
+                // Display the originally selected rate's variable tree
+                schedulerInput.updateVariableTree(rateFilter.getSelectedItem().toString());
+
+                // Update the remaining bytes column values
+                schedulerEditor.updateRemainingBytesColumn();
+
+                // Update the unused bytes/time field
+                setUnusedField();
+
+                // Update the assigned variables/applications list panel
+                schedulerEditor.updateAssignmentList();
+
+                // Update the scheduler dialog's change indicator
+                getSchedulerDialog().updateChangeIndicator();
+
                 // Check if there are items that are not assigned
                 if (unassigned != 0)
                 {
@@ -614,18 +628,6 @@ public class CcddSchedulerHandler
                                                               JOptionPane.WARNING_MESSAGE,
                                                               DialogOption.OK_OPTION);
                 }
-
-                // Update the remaining bytes column values
-                schedulerEditor.updateRemainingBytesColumn();
-
-                // Update the unused bytes/time field
-                setUnusedField();
-
-                // Update the assigned variables/applications list panel
-                schedulerEditor.updateAssignmentList();
-
-                // Update the scheduler dialog's change indicator
-                getSchedulerDialog().updateChangeIndicator();
             }
         });
     }

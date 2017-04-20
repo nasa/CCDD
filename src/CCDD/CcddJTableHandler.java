@@ -3293,7 +3293,7 @@ public abstract class CcddJTableHandler extends JTable
      * Handle a TableModelEvent event
      *************************************************************************/
     @Override
-    public void tableChanged(TableModelEvent tme)
+    public void tableChanged(final TableModelEvent tme)
     {
         // Check that a model data reload is not in progress, that the table
         // model is valid, and that the table has rows to display. The columns
@@ -4094,9 +4094,6 @@ public abstract class CcddJTableHandler extends JTable
                                   int column,
                                   boolean undoable)
         {
-            // Get the listeners for this event
-            UndoableEditListener listeners[] = getListeners(UndoableEditListener.class);
-
             // Check if the value is text. For check boxes the value is boolean
             if (value instanceof String)
             {
@@ -4114,23 +4111,29 @@ public abstract class CcddJTableHandler extends JTable
                 // Update the cell's value
                 super.setValueAt(value, row, column);
 
-                // Check if this edit is undoable and that there is an edit
-                // listener registered
-                if (allowUndo && undoable && listeners != null)
+                // Check if this edit is undoable
+                if (allowUndo && undoable)
                 {
-                    // Create the edit event to be passed to the listeners
-                    UndoableEditEvent editEvent = new UndoableEditEvent(this,
-                                                                        new CellEdit(this,
-                                                                                     oldValue,
-                                                                                     value,
-                                                                                     row,
-                                                                                     column));
+                    // Get the listeners for this event
+                    UndoableEditListener listeners[] = getListeners(UndoableEditListener.class);
 
-                    // Step through the registered listeners
-                    for (UndoableEditListener listener : listeners)
+                    // Check if there is an edit listener registered
+                    if (listeners != null)
                     {
-                        // Inform the listener that an update occurred
-                        listener.undoableEditHappened(editEvent);
+                        // Create the edit event to be passed to the listeners
+                        UndoableEditEvent editEvent = new UndoableEditEvent(this,
+                                                                            new CellEdit(this,
+                                                                                         oldValue,
+                                                                                         value,
+                                                                                         row,
+                                                                                         column));
+
+                        // Step through the registered listeners
+                        for (UndoableEditListener listener : listeners)
+                        {
+                            // Inform the listener that an update occurred
+                            listener.undoableEditHappened(editEvent);
+                        }
                     }
                 }
             }

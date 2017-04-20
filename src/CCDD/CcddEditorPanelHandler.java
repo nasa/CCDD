@@ -19,6 +19,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
+import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.List;
@@ -35,6 +36,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
@@ -47,6 +49,7 @@ import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.WrapLayout;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddEditorPanelHandler.UndoableCheckBox.UndoableToggleButtonModel;
 
 /******************************************************************************
  * CFS Command & Data Dictionary editor panel handler class. The editor panel
@@ -74,6 +77,63 @@ public abstract class CcddEditorPanelHandler
 
     // Description field scroll pane (not used with table descriptions)
     private JScrollPane descScrollPane;
+
+    // Flag that indicates if each data field value update should terminate the
+    // edit sequence
+    private boolean isAutoEndEditSequence;
+
+    /**************************************************************************
+     * Get a reference to the editor panel handler
+     * 
+     * @return Reference to the editor panel handler
+     *************************************************************************/
+    protected CcddEditorPanelHandler getEditPanelHandler()
+    {
+        return this;
+    }
+
+    /**************************************************************************
+     * Get the JPanel containing the table editor
+     * 
+     * @return JPanel containing the table editor
+     *************************************************************************/
+    protected JPanel getEditorPanel()
+    {
+        return editorPnl;
+    }
+
+    /**************************************************************************
+     * Get the undo/redo manager
+     * 
+     * @return Reference to the undo/redo manager
+     *************************************************************************/
+    protected CcddUndoManager getEditPanelUndoManager()
+    {
+        return undoManager;
+    }
+
+    /**************************************************************************
+     * Set the undo/redo manager
+     * 
+     * @param undoManager
+     *            undo/redo manager
+     *************************************************************************/
+    protected void setEditPanelUndoManager(CcddUndoManager undoManager)
+    {
+        this.undoManager = undoManager;
+    }
+
+    /**************************************************************************
+     * Enable/disable automatic ending of an edit sequence when a data field
+     * value is changed
+     * 
+     * @param enable
+     *            true to enable automatic edit sequence ending
+     *************************************************************************/
+    protected void setAutoEndEditSequenceEnable(boolean enable)
+    {
+        isAutoEndEditSequence = enable;
+    }
 
     /**************************************************************************
      * Get the owner name for this editor
@@ -118,16 +178,6 @@ public abstract class CcddEditorPanelHandler
     protected abstract void updateOwnerChangeIndicator();
 
     /**************************************************************************
-     * Get the JPanel containing the table editor
-     * 
-     * @return JPanel containing the table editor
-     *************************************************************************/
-    protected JPanel getEditorPanel()
-    {
-        return editorPnl;
-    }
-
-    /**************************************************************************
      * Get the description field text
      * 
      * @return Description field text
@@ -165,27 +215,6 @@ public abstract class CcddEditorPanelHandler
         descriptionFld.setEditable(enable);
         descriptionFld.setBackground(backColor);
         descScrollPane.setBackground(backColor);
-    }
-
-    /**************************************************************************
-     * Get the undo/redo manager
-     * 
-     * @return Reference to the undo/redo manager
-     *************************************************************************/
-    protected CcddUndoManager getEditPanelUndoManager()
-    {
-        return undoManager;
-    }
-
-    /**************************************************************************
-     * Set the undo/redo manager
-     * 
-     * @param undoManager
-     *            undo/redo manager
-     *************************************************************************/
-    protected void setEditPanelUndoManager(CcddUndoManager undoManager)
-    {
-        this.undoManager = undoManager;
     }
 
     /**************************************************************************
@@ -270,6 +299,10 @@ public abstract class CcddEditorPanelHandler
         this.parent = parent;
         this.ownerName = ownerName;
         this.fieldHandler = fieldHandler;
+
+        // Set the flag to allow automatic ending of a data field value edit
+        // sequence
+        isAutoEndEditSequence = true;
 
         // Set the initial layout manager characteristics
         gbc = new GridBagConstraints(0,
@@ -567,26 +600,23 @@ public abstract class CcddEditorPanelHandler
 
                                     // Restore the previous value in the data
                                     // field and undo the input
-                                    inputFld.setText(inputFld.getText());
-                                    undoManager.undoRemoveEdit();
+                                    inputFld.setText(inputFld.getText(), false);
 
                                     isValid = false;
                                 }
                                 // The input is valid
                                 else
                                 {
+                                    // Store the 'cleaned' text back into the
+                                    // text field. For numeric types, reformat
+                                    // the input value
+                                    inputFld.setText(fieldInfo.getInputType().formatInput(inputTxt));
+
                                     // Set the text field background color. If
                                     // the field is empty and is flagged as
                                     // required then set the background to
                                     // indicate a value should be supplied
-                                    input.setBackground(inputTxt.isEmpty() && fieldInfo.isRequired()
-                                                                                                    ? Color.YELLOW
-                                                                                                    : Color.WHITE);
-
-                                    // Store the 'cleaned' text back into the
-                                    // text field. For numeric types, reformat
-                                    // the input value
-                                    ((UndoableTextField) input).setText(fieldInfo.getInputType().formatInput(inputTxt));
+                                    setFieldBackground(fieldInfo);
                                 }
 
                                 return isValid;
@@ -607,12 +637,174 @@ public abstract class CcddEditorPanelHandler
     }
 
     /**************************************************************************
+     * Clear the values from all fields
+     *************************************************************************/
+    protected void clearFieldValues()
+    {
+        // Disable automatically ending the edit sequence. This allows all of
+        // the cleared fields to be grouped into a single sequence so that if
+        // undone, all fields are restored
+        isAutoEndEditSequence = false;
+
+        for (FieldInformation fieldInfo : fieldHandler.getFieldInformation())
+        {
+            // Check if this is a boolean input (check box) data field
+            if (fieldInfo.getInputType() == InputDataType.BOOLEAN)
+            {
+                // Set the field value to 'false'
+                fieldInfo.setValue("false");
+
+                // Set the check box
+                ((UndoableCheckBox) fieldInfo.getInputFld()).setSelected(false);
+            }
+            // Not a boolean input (check box) data field
+            else
+            {
+                // Get the reference to the text field
+                UndoableTextField inputFld = (UndoableTextField) fieldInfo.getInputFld();
+
+                // Clear the field value
+                fieldInfo.setValue("");
+                inputFld.setText("");
+
+                // Set the text field background color. If the field is flagged
+                // as required then set the background to indicate a value
+                // should be supplied
+                setFieldBackground(fieldInfo);
+            }
+        }
+
+        // Re-enable automatic edit sequence ending, then end the edit sequence
+        // to group the cleared fields
+        isAutoEndEditSequence = true;
+        undoManager.endEditSequence();
+    }
+
+    /**************************************************************************
+     * Set the data field background color for all fields based each field's
+     * value and required flag
+     *************************************************************************/
+    protected void setFieldBackgound()
+    {
+        // Create a runnable object to be executed
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            /******************************************************************
+             * Set the data field colors after other pending events are
+             * complete. If this isn't done following other events then the
+             * colors aren't updated consistently
+             *****************************************************************/
+            @Override
+            public void run()
+            {
+                // Step through each field
+                for (FieldInformation fieldInfo : fieldHandler.getFieldInformation())
+                {
+                    // Check if this isn't a boolean input (check box) data
+                    // field
+                    if (fieldInfo.getInputType() != InputDataType.BOOLEAN)
+                    {
+                        // Set the text field background color. If the field is
+                        // empty and is flagged as required then set the
+                        // background to indicate a value should be supplied
+                        setFieldBackground(fieldInfo);
+                    }
+                }
+            }
+        });
+    }
+
+    /**************************************************************************
+     * Set the specified data field's background color based the field's value
+     * and required flag
+     * 
+     * @param fieldInfo
+     *            reference to the data field's information
+     *************************************************************************/
+    private void setFieldBackground(FieldInformation fieldInfo)
+    {
+        // Set the text field background color. If the field is empty and is
+        // flagged as required then set the background to indicate a value
+        // should be supplied
+        ((UndoableTextField) fieldInfo.getInputFld()).setBackground(fieldInfo.getValue().isEmpty()
+                                                                    && fieldInfo.isRequired()
+                                                                                             ? Color.YELLOW
+                                                                                             : Color.WHITE);
+    }
+
+    /**************************************************************************
      * Check box value undo/redo class
      *************************************************************************/
     @SuppressWarnings("serial")
     protected class UndoableCheckBox extends JCheckBox
     {
         private boolean oldValue;
+
+        /**********************************************************************
+         * Toggle button model undo/redo class
+         *********************************************************************/
+        protected class UndoableToggleButtonModel extends ToggleButtonModel
+        {
+            /******************************************************************
+             * Override the default method with a method that includes a flag
+             * to store the edit in the undo stack
+             *****************************************************************/
+            @Override
+            public void setSelected(boolean select)
+            {
+                setSelected(select, true);
+            }
+
+            /******************************************************************
+             * Change the value of a check box
+             * 
+             * @param select
+             *            check box state; true to select
+             * 
+             * @param undoable
+             *            true if the change can be undone
+             *****************************************************************/
+            public void setSelected(boolean select, boolean undoable)
+            {
+                super.setSelected(select);
+
+                // Check if the edit is undoable and if the check box selection
+                // state changed
+                if (undoable && oldValue != isSelected())
+                {
+                    // Get the listeners for this event
+                    UndoableEditListener listeners[] = getListeners(UndoableEditListener.class);
+
+                    // Check if there is an edit listener registered
+                    if (listeners != null)
+                    {
+                        // Create the edit event to be passed to the listeners
+                        UndoableEditEvent editEvent = new UndoableEditEvent(this,
+                                                                            new CheckBoxEdit(UndoableCheckBox.this,
+                                                                                             oldValue,
+                                                                                             isSelected()));
+
+                        // Store the new check box selection state
+                        oldValue = isSelected();
+
+                        // Step through the registered listeners
+                        for (UndoableEditListener listener : listeners)
+                        {
+                            // Inform the listener that an update occurred
+                            listener.undoableEditHappened(editEvent);
+                        }
+                    }
+
+                    // Check if the flag is set that allows automatically
+                    // ending the edit sequence
+                    if (isAutoEndEditSequence)
+                    {
+                        // End the editing sequence
+                        undoManager.endEditSequence();
+                    }
+                }
+            }
+        }
 
         /**********************************************************************
          * Check box value undo/redo class constructor
@@ -622,8 +814,8 @@ public abstract class CcddEditorPanelHandler
             // Create the check box
             super();
 
-            // Add a listener for check box focus changes
-            addFocusChangeListener(false);
+            // Set the model so that check box edits can be undone/redone
+            setModel(new UndoableToggleButtonModel());
         }
 
         /**********************************************************************
@@ -640,72 +832,8 @@ public abstract class CcddEditorPanelHandler
             // Create the check box
             super(text, selected);
 
-            // Add a listener for check box focus changes
-            addFocusChangeListener(selected);
-        }
-
-        /**********************************************************************
-         * Add a focus change listener to the check box
-         * 
-         * @param value
-         *            initial check box selection state
-         *********************************************************************/
-        private void addFocusChangeListener(boolean selected)
-        {
-            // Initialize the check box's original selection state
-            oldValue = selected;
-
-            // Add a listener for text area focus changes
-            addFocusListener(new FocusListener()
-            {
-                /**************************************************************
-                 * Handle a focus gained event
-                 *************************************************************/
-                @Override
-                public void focusGained(FocusEvent fe)
-                {
-                    // Store the current text area value
-                    oldValue = isSelected();
-                }
-
-                /**************************************************************
-                 * Handle a focus lost event
-                 *************************************************************/
-                @Override
-                public void focusLost(FocusEvent fe)
-                {
-                    // Check if the check box selection state changed
-                    if (oldValue != isSelected())
-                    {
-                        // Get the listeners for this event
-                        UndoableEditListener listeners[] = getListeners(UndoableEditListener.class);
-
-                        // Check if there is an edit listener registered
-                        if (listeners != null)
-                        {
-                            // Create the edit event to be passed to the
-                            // listeners
-                            UndoableEditEvent editEvent = new UndoableEditEvent(this,
-                                                                                new CheckBoxEdit(UndoableCheckBox.this,
-                                                                                                 oldValue,
-                                                                                                 isSelected()));
-
-                            // Store the new check box selection state
-                            oldValue = isSelected();
-
-                            // Step through the registered listeners
-                            for (UndoableEditListener listener : listeners)
-                            {
-                                // Inform the listener that an update occurred
-                                listener.undoableEditHappened(editEvent);
-                            }
-                        }
-
-                        // End the editing sequence
-                        undoManager.endEditSequence();
-                    }
-                }
-            });
+            // Set the model so that check box edits can be undone/redone
+            setModel(new UndoableToggleButtonModel());
         }
     }
 
@@ -777,14 +905,10 @@ public abstract class CcddEditorPanelHandler
         private void setSelectedCheckBox(final boolean selected)
         {
             // Update the check box selection state
-            checkBox.setSelected(selected);
+            ((UndoableToggleButtonModel) checkBox.getModel()).setSelected(selected, false);
 
-            // Check that the check box field is still visible
-            if (checkBox.isVisible())
-            {
-                // Request a focus change to the check box that was changed
-                checkBox.requestFocusInWindow();
-            }
+            // Request a focus change to the check box that was changed
+            setComponentFocus(checkBox);
         }
 
         /**********************************************************************
@@ -806,6 +930,7 @@ public abstract class CcddEditorPanelHandler
     protected class UndoableTextField extends JTextField
     {
         private String oldValue;
+        private boolean allowUndo = false;
 
         /**********************************************************************
          * Text field value undo/redo class constructor
@@ -814,6 +939,11 @@ public abstract class CcddEditorPanelHandler
         {
             // Create the text field
             super();
+
+            // This is initially false to prevent storing the initial values as
+            // undoable edits. Set the flag to true so that subsequent edits
+            // can be undone
+            allowUndo = true;
 
             // Add a listener for text field focus changes
             addFocusChangeListener("");
@@ -829,6 +959,11 @@ public abstract class CcddEditorPanelHandler
         {
             // Create the text field
             super(text);
+
+            // This is initially false to prevent storing the initial values as
+            // undoable edits. Set the flag to true so that subsequent edits
+            // can be undone
+            allowUndo = true;
 
             // Add a listener for text field focus changes
             addFocusChangeListener(text);
@@ -849,13 +984,89 @@ public abstract class CcddEditorPanelHandler
             // Create the text field
             super(text, columns);
 
+            // This is initially false to prevent storing the initial values as
+            // undoable edits. Set the flag to true so that subsequent edits
+            // can be undone
+            allowUndo = true;
+
             // Add a listener for text field focus changes
             addFocusChangeListener(text);
         }
 
         /**********************************************************************
-         * Add a focus change listener to the text field
+         * Override the default method with a method that includes a flag to
+         * store the edit in the undo stack
+         *********************************************************************/
+        @Override
+        public void setText(String text)
+        {
+            setText(text, true);
+        }
+
+        /**********************************************************************
+         * Change the value of a text field
          * 
+         * @param text
+         *            new text field value
+         * 
+         * @param undoable
+         *            true if the change can be undone
+         *********************************************************************/
+        protected void setText(String text, boolean undoable)
+        {
+            // Check if the original value hasn't been set
+            if (oldValue == null)
+            {
+                // Set to blank to prevent an exception when comparing to the
+                // new value below
+                oldValue = "";
+            }
+
+            // Check if the text field text changed
+            if (!oldValue.equals(text))
+            {
+                super.setText(text);
+
+                // Check if the edit is undoable
+                if (allowUndo && undoable)
+                {
+                    // Get the listeners for this event
+                    UndoableEditListener listeners[] = getListeners(UndoableEditListener.class);
+
+                    // Check if there is an edit listener registered
+                    if (listeners != null)
+                    {
+                        // Create the edit event to be passed to the listeners
+                        UndoableEditEvent editEvent = new UndoableEditEvent(this,
+                                                                            new TextFieldEdit(UndoableTextField.this,
+                                                                                              oldValue,
+                                                                                              text));
+
+                        // Store the value
+                        oldValue = text;
+
+                        // Step through the registered listeners
+                        for (UndoableEditListener listener : listeners)
+                        {
+                            // Inform the listener that an update occurred
+                            listener.undoableEditHappened(editEvent);
+                        }
+                    }
+
+                    // Check if the flag is set that allows automatically
+                    // ending the edit sequence
+                    if (isAutoEndEditSequence)
+                    {
+                        // End the editing sequence
+                        undoManager.endEditSequence();
+                    }
+                }
+            }
+        }
+
+        /**********************************************************************
+         * Add a focus change listener to the text field
+         *
          * @param text
          *            text to display in the text field
          *********************************************************************/
@@ -865,7 +1076,7 @@ public abstract class CcddEditorPanelHandler
             oldValue = text;
 
             // Add a listener for text field focus changes
-            addFocusListener(new FocusListener()
+            addFocusListener(new FocusAdapter()
             {
                 /**************************************************************
                  * Handle a focus gained event
@@ -875,44 +1086,6 @@ public abstract class CcddEditorPanelHandler
                 {
                     // Store the current text field value
                     oldValue = getText();
-                }
-
-                /**************************************************************
-                 * Handle a focus lost event
-                 *************************************************************/
-                @Override
-                public void focusLost(FocusEvent fe)
-                {
-                    // Check if the text field value changed
-                    if (!oldValue.equals(getText()))
-                    {
-                        // Get the listeners for this event
-                        UndoableEditListener listeners[] = getListeners(UndoableEditListener.class);
-
-                        // Check if there is an edit listener registered
-                        if (listeners != null)
-                        {
-                            // Create the edit event to be passed to the
-                            // listeners
-                            UndoableEditEvent editEvent = new UndoableEditEvent(this,
-                                                                                new TextFieldEdit(UndoableTextField.this,
-                                                                                                  oldValue,
-                                                                                                  getText()));
-
-                            // Store the new text field value
-                            oldValue = getText();
-
-                            // Step through the registered listeners
-                            for (UndoableEditListener listener : listeners)
-                            {
-                                // Inform the listener that an update occurred
-                                listener.undoableEditHappened(editEvent);
-                            }
-                        }
-
-                        // End the editing sequence
-                        undoManager.endEditSequence();
-                    }
                 }
             });
         }
@@ -986,14 +1159,10 @@ public abstract class CcddEditorPanelHandler
         private void setSelectedTextField(final String value)
         {
             // Update the text field value
-            textField.setText(value);
+            textField.setText(value, false);
 
-            // Check that the text field field is still visible
-            if (textField.isVisible())
-            {
-                // Request a focus change to the text field that was changed
-                textField.requestFocusInWindow();
-            }
+            // Request a focus change to the text field that was changed
+            setComponentFocus(textField);
         }
 
         /**********************************************************************
@@ -1067,7 +1236,7 @@ public abstract class CcddEditorPanelHandler
 
         /**********************************************************************
          * Add a focus change listener to the text area
-         * 
+         *
          * @param text
          *            text to display in the text area
          *********************************************************************/
@@ -1099,7 +1268,8 @@ public abstract class CcddEditorPanelHandler
                     if (!oldValue.equals(getText()))
                     {
                         // Get the listeners for this event
-                        UndoableEditListener listeners[] = getListeners(UndoableEditListener.class);
+                        UndoableEditListener listeners[] =
+                            getListeners(UndoableEditListener.class);
 
                         // Check if there is an edit listener registered
                         if (listeners != null)
@@ -1122,8 +1292,13 @@ public abstract class CcddEditorPanelHandler
                             }
                         }
 
-                        // End the editing sequence
-                        undoManager.endEditSequence();
+                        // Check if the flag is set that allows automatically
+                        // ending the edit sequence
+                        if (isAutoEndEditSequence)
+                        {
+                            // End the editing sequence
+                            undoManager.endEditSequence();
+                        }
                     }
                 }
             });
@@ -1189,8 +1364,7 @@ public abstract class CcddEditorPanelHandler
         }
 
         /**********************************************************************
-         * Set the selected text area. In order for this to select the text
-         * area it must be scheduled to execute after other pending events
+         * Set the text and focus to the text area
          * 
          * @param value
          *            text to place in the text area
@@ -1200,12 +1374,8 @@ public abstract class CcddEditorPanelHandler
             // Update the text area value
             textArea.setText(value);
 
-            // Check that the text area field is still visible
-            if (textArea.isVisible())
-            {
-                // Request a focus change to the text area that was changed
-                textArea.requestFocusInWindow();
-            }
+            // Request a focus change to the text area that was changed
+            setComponentFocus(textArea);
         }
 
         /**********************************************************************
@@ -1217,6 +1387,30 @@ public abstract class CcddEditorPanelHandler
         public String getPresentationName()
         {
             return "TextArea";
+        }
+    }
+
+    /**************************************************************************
+     * Set the focus to the specified component, without generating a new edit
+     * event
+     * 
+     * @param comp
+     *            JComponent to which to set the focus
+     *************************************************************************/
+    private void setComponentFocus(JComponent comp)
+    {
+        // Check that the component is still visible
+        if (comp.isVisible())
+        {
+            // Disable input verification since this sets the component value,
+            // creating an edit event
+            comp.setVerifyInputWhenFocusTarget(false);
+
+            // Request a focus change to the component that was changed
+            comp.requestFocusInWindow();
+
+            // Re-enable input verification
+            comp.setVerifyInputWhenFocusTarget(true);
         }
     }
 }

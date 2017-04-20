@@ -48,11 +48,12 @@ import CCDD.CcddEditorPanelHandler.UndoableTextField;
  *****************************************************************************/
 public class CcddKeyboardHandler
 {
-    // Class reference
+    // Class references
     private final CcddMain ccddMain;
     private CcddMacroHandler macroHandler;
     private CcddDataTypeHandler dataTypeHandler;
     private CcddUndoManager modalUndoManager;
+    private CcddEditorPanelHandler editPnlHandler;
 
     /**************************************************************************
      * Keyboard handler class constructor
@@ -336,7 +337,7 @@ public class CcddKeyboardHandler
                          && ke.isControlDown()
                          && !ke.isAltDown())
                 {
-                    // Check if the Ctrl+Z key is pressed
+                    // Check if the Ctrl-Z key is pressed
                     if (ke.getKeyCode() == KeyEvent.VK_Z)
                     {
                         // Get the currently active undo manager
@@ -359,6 +360,16 @@ public class CcddKeyboardHandler
                                     // Undo the previous edit action
                                     undoManager.undo();
 
+                                    // Check if an edit panel handler (i.e.,
+                                    // data fields) is associated with the
+                                    // component
+                                    if (editPnlHandler != null)
+                                    {
+                                        // Update the data field background
+                                        // colors
+                                        editPnlHandler.setFieldBackgound();
+                                    }
+
                                     // Force the component to repaint so that
                                     // the change is visible
                                     ke.getComponent().repaint();
@@ -370,7 +381,7 @@ public class CcddKeyboardHandler
                             handled = true;
                         }
                     }
-                    // Check if the Ctrl+Y key is pressed
+                    // Check if the Ctrl-Y key is pressed
                     else if (ke.getKeyCode() == KeyEvent.VK_Y)
                     {
                         // Get the currently active undo manager
@@ -392,6 +403,16 @@ public class CcddKeyboardHandler
                                 {
                                     // Redo the previous undo action
                                     undoManager.redo();
+
+                                    // Check if an edit panel handler (i.e.,
+                                    // data fields) is associated with the
+                                    // component
+                                    if (editPnlHandler != null)
+                                    {
+                                        // Update the data field background
+                                        // colors
+                                        editPnlHandler.setFieldBackgound();
+                                    }
 
                                     // Force the component to repaint so that
                                     // the change is visible
@@ -612,6 +633,7 @@ public class CcddKeyboardHandler
     {
         CellEditor cellEditor = null;
         CcddUndoManager undoManager = null;
+        editPnlHandler = null;
 
         // Check if a modal dialog undo manager is in effect
         if (modalUndoManager != null)
@@ -640,6 +662,17 @@ public class CcddKeyboardHandler
                 // Get the cell editor for the macro editor
                 cellEditor = macroEditor.getTable().getCellEditor();
             }
+
+            // Get a reference to the group manager dialog to shorten
+            // subsequent calls
+            CcddGroupManagerDialog groupManager = ccddMain.getGroupManager();
+
+            // Check if the group manager is open and has focus
+            if (groupManager != null && groupManager.isFocused())
+            {
+                // Get the group manager's editor panel handler
+                editPnlHandler = groupManager.getEditorPanelHandler();
+            }
         }
         // No modal undo manager is active
         else
@@ -660,10 +693,11 @@ public class CcddKeyboardHandler
                 // Check if this editor dialog has the keyboard focus
                 else if (editorDialog.isFocused())
                 {
-                    // Get the undo manager and cell editor for the active
-                    // table editor
+                    // Get the undo manager, cell editor, and editor panel
+                    // handler for the active table editor
                     undoManager = editorDialog.getTableEditor().getEditPanelUndoManager();
                     cellEditor = editorDialog.getTableEditor().getTable().getCellEditor();
+                    editPnlHandler = editorDialog.getTableEditor().getEditPanelHandler();
                 }
 
                 // Check if an undo manager is active
@@ -695,10 +729,11 @@ public class CcddKeyboardHandler
                 // Check if the table type editor has the keyboard focus
                 else if (editorDialog.isFocused())
                 {
-                    // Get the undo manager and cell editor for the active
-                    // table type editor
+                    // Get the undo manager, cell editor, and editor panel
+                    // handler for the active table type editor
                     undoManager = editorDialog.getTypeEditor().getEditPanelUndoManager();
                     cellEditor = editorDialog.getTypeEditor().getTable().getCellEditor();
+                    editPnlHandler = editorDialog.getTypeEditor().getEditPanelHandler();
                 }
             }
 

@@ -230,9 +230,10 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     }
 
     /**************************************************************************
-     * Remove the selected group(s) from the group information class
+     * Remove the selected group(s) from the group information class and group
+     * tree
      *************************************************************************/
-    protected void removeSelectedGroup()
+    protected void removeSelectedGroups()
     {
         List<String> groups = new ArrayList<String>();
 
@@ -252,6 +253,9 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                 groupHandler.removeGroupInformation(name);
             }
         }
+
+        // Remove the selected group(s) from the group tree
+        removeSelectedTopLevelNodes();
     }
 
     /**************************************************************************

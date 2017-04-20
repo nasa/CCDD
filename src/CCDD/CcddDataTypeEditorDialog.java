@@ -435,7 +435,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                         if (dataTypeTable.isTableChanged(committedData)
                             && !checkForMissingColumns()
                             && new CcddDialogHandler().showMessageDialog(CcddDataTypeEditorDialog.this,
-                                                                         "<html><b>Store changes in database?",
+                                                                         "<html><b>Store changes in project database?",
                                                                          "Store Changes",
                                                                          JOptionPane.QUESTION_MESSAGE,
                                                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)

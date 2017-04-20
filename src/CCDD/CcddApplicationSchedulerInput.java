@@ -306,7 +306,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
     public List<Variable> getSelectedVariable()
     {
         // Get the selected application node(s) in the tree (can only be one)
-        return getApplicationFields(applicationTree.getSelectedNode(),
+        return getApplicationFields(applicationTree.getTopLevelSelectedNodeNames(),
                                     selectedRate);
     }
 

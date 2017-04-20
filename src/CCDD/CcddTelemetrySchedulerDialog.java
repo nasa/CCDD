@@ -435,25 +435,18 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
      *************************************************************************/
     private void addDataStreams()
     {
-        // Get the different rate columns
-        String[] rateNames = rateHandler.getRateColumnNames(false);
-
-        // Create a variable to hold the rate information
-        RateInformation rateInfo;
-
-        // Step through each rate column
-        for (int index = 0; index < rateNames.length; index++)
+        // Step through each rate
+        for (RateInformation rateInfo : rateHandler.getRateInformation())
         {
-            // Get the rate parameters for the rate column
-            rateInfo = rateHandler.getRateInformationByRateName(rateNames[index]);
-
             // Create a new scheduler handler for each rate column
-            schHandlers.add(new CcddSchedulerHandler(ccddMain, rateNames[index], this));
+            schHandlers.add(new CcddSchedulerHandler(ccddMain,
+                                                     rateInfo.getRateName(),
+                                                     this));
 
             // Add each table as a tab in the editor window tabbed pane
             tabbedPane.addTab(rateInfo.getStreamName(),
                               null,
-                              schHandlers.get(index).getSchedulerPanel(),
+                              schHandlers.get(schHandlers.size() - 1).getSchedulerPanel(),
                               null);
         }
     }

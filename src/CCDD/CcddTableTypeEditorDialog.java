@@ -156,7 +156,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     protected void setActiveTypeName(String typeName)
     {
         tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(), typeName);
-        activeEditor.setTypeName(typeName);
+        activeEditor.setTableTypeName(typeName);
     }
 
     /**************************************************************************
@@ -338,11 +338,11 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                 // Create the Row menu and menu items
                 JMenu mnRow = ccddMain.createMenu(menuBar, "Row", KeyEvent.VK_R, 1, null);
-                mntmInsertRow = ccddMain.createMenuItem(mnRow, "Insert row", KeyEvent.VK_I, 1, "Insert a row at the current focus location");
-                mntmDeleteRow = ccddMain.createMenuItem(mnRow, "Delete row", KeyEvent.VK_D, 1, "Delete the currently selected row(s)");
+                mntmInsertRow = ccddMain.createMenuItem(mnRow, "Insert row", KeyEvent.VK_I, 1, "Insert a row below the current focus location");
+                mntmDeleteRow = ccddMain.createMenuItem(mnRow, "Delete row(s)", KeyEvent.VK_D, 1, "Delete the currently selected row(s)");
                 mnRow.addSeparator();
-                mntmMoveUp = ccddMain.createMenuItem(mnRow, "Move row(s) up", KeyEvent.VK_U, 1, "Move the currently selected row(s) up one row");
-                mntmMoveDown = ccddMain.createMenuItem(mnRow, "Move row(s) down", KeyEvent.VK_N, 1, "Move the currently selected row(s) down one row");
+                mntmMoveUp = ccddMain.createMenuItem(mnRow, "Move up", KeyEvent.VK_U, 1, "Move the currently selected row(s) up one row");
+                mntmMoveDown = ccddMain.createMenuItem(mnRow, "Move down", KeyEvent.VK_N, 1, "Move the currently selected row(s) down one row");
 
                 // Create the Field menu and menu items
                 JMenu mnField = ccddMain.createMenu(menuBar, "Field", KeyEvent.VK_L, 1, null);
@@ -683,17 +683,8 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         // Check if there are any data fields to clear
                         if (!activeEditor.getFieldHandler().getFieldInformation().isEmpty())
                         {
-                            // Confirm clearing the data field values
-                            if (new CcddDialogHandler().showMessageDialog(CcddTableTypeEditorDialog.this,
-                                                                          "<html><b>Clear the data field values?",
-                                                                          "Clear Field Values",
-                                                                          JOptionPane.QUESTION_MESSAGE,
-                                                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-                            {
-                                // Remove all of the data field values from the
-                                // table
-                                activeEditor.getFieldHandler().clearFieldValues();
-                            }
+                            // Remove all of the data field values
+                            activeEditor.getEditPanelHandler().clearFieldValues();
                         }
                     }
 
@@ -866,6 +857,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     protected void performAction(ActionEvent ae)
                     {
                         activeEditor.getEditPanelUndoManager().undo();
+
+                        // Update the data field background colors
+                        activeEditor.getEditPanelHandler().setFieldBackgound();
                     }
 
                     /**********************************************************
@@ -900,6 +894,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     protected void performAction(ActionEvent ae)
                     {
                         activeEditor.getEditPanelUndoManager().redo();
+
+                        // Update the data field background colors
+                        activeEditor.getEditPanelHandler().setFieldBackgound();
                     }
 
                     /**********************************************************
@@ -945,7 +942,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         if (activeEditor.isTableChanged()
                             && !activeEditor.checkForMissingColumns()
                             && new CcddDialogHandler().showMessageDialog(CcddTableTypeEditorDialog.this,
-                                                                         "<html><b>Store changes in database?",
+                                                                         "<html><b>Store changes in project database?",
                                                                          "Store Changes",
                                                                          JOptionPane.QUESTION_MESSAGE,
                                                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON

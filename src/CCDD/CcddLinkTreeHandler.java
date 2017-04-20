@@ -237,7 +237,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      * by the specified link, or of any link if no link name is provided
      * 
      * @param name
-     *            link name
+     *            link name; null to include all links
      * 
      * @return List of variables, including their paths, that are referenced by
      *         the specified link, of any link if no link name is provided
@@ -300,27 +300,35 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      * @param rateName
      *            rate column name
      * 
-     * @param name
+     * @param linkName
      *            link name
+     * 
+     * @param sampleRate
+     *            link rate in samples per second
      * 
      * @param description
      *            link description
      *************************************************************************/
     protected void addLinkInformation(String rateName,
-                                      String name,
+                                      String linkName,
+                                      String sampleRate,
                                       String description)
     {
         // Add the new link information
-        linkInformation.add(new LinkInformation(rateName, name, description));
+        linkInformation.add(new LinkInformation(rateName,
+                                                linkName,
+                                                sampleRate,
+                                                description));
 
         // Update the link definitions to account for the added link
         updateLinkDefinitions();
     }
 
     /**************************************************************************
-     * Remove the selected link(s) from the link information class
+     * Remove the selected link(s) from the link information class and links
+     * tree
      *************************************************************************/
-    protected void removeLinkInformation()
+    protected void removeSelectedLinks()
     {
         List<String> links = new ArrayList<String>();
 
@@ -350,6 +358,9 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
                 }
             }
         }
+
+        // Remove the selected link(s) from the link tree
+        removeSelectedTopLevelNodes();
 
         // Update the link definitions to account for the deleted link
         updateLinkDefinitions();

@@ -445,7 +445,7 @@ public class CcddConstants
     // Table path format types
     protected static enum TablePathType
     {
-        VARIABLE_AND_PARENT,
+        PARENT_AND_VARIABLE,
         VARIABLE_ONLY,
         ITOS_RECORD
     }
@@ -1451,6 +1451,16 @@ public class CcddConstants
                    false,
                    true,
                    false),
+        ARG_ARRAY_SIZE_1(TYPE_COMMAND,
+                         COL_ARGUMENT + " 1 " + "Array Size",
+                         "Command argument 1 array size",
+                         InputDataType.ARRAY_INDEX,
+                         false,
+                         false,
+                         false,
+                         false,
+                         false,
+                         false),
         ARG_ENUMS_1(TYPE_COMMAND,
                     COL_ARGUMENT + " 1 " + COL_ENUMERATION,
                     "Command argument 1 enumeration",
@@ -3971,6 +3981,98 @@ public class CcddConstants
 
             // Step through each column
             for (DuplicateMsgIDColumnInfo type : DuplicateMsgIDColumnInfo.values())
+            {
+                // Get the tool tip text
+                toolTips[index] = type.toolTip;
+                index++;
+            }
+
+            return toolTips;
+        }
+    }
+
+    /**************************************************************************
+     * Link copy error table column information
+     *************************************************************************/
+    protected static enum LinkCopyErrorColumnInfo
+    {
+        LINK("Link", "Name of link that failed to copy"),
+        MEMBER("Member", "Variable that failed to copy"),
+        STREAM("Target Stream", "Name of the target data stream"),
+        CAUSE("Error Cause", "Description of the error");
+
+        private final String columnName;
+        private final String toolTip;
+
+        /**********************************************************************
+         * Link copy error table column information constructor
+         * 
+         * @param columnName
+         *            text to display for the link copy error table column
+         * 
+         * @param toolTip
+         *            tool tip text to display for the link copy error table
+         *            column
+         *********************************************************************/
+        LinkCopyErrorColumnInfo(String columnName, String toolTip)
+        {
+            this.columnName = columnName;
+            this.toolTip = toolTip;
+        }
+
+        /**********************************************************************
+         * Get the link copy error table column header
+         * 
+         * @return Link copy error table column name
+         *********************************************************************/
+        protected String getColumnName()
+        {
+            return columnName;
+        }
+
+        /**********************************************************************
+         * Get the link copy error table column tool tip
+         * 
+         * @return Link copy error table column tool tip
+         *********************************************************************/
+        protected String getToolTip()
+        {
+            return toolTip;
+        }
+
+        /**********************************************************************
+         * Get the link copy error table column names
+         * 
+         * @return Array containing the link copy error table column names
+         *********************************************************************/
+        protected static String[] getColumnNames()
+        {
+            String[] names = new String[LinkCopyErrorColumnInfo.values().length];
+            int index = 0;
+
+            // Step through each column
+            for (LinkCopyErrorColumnInfo type : LinkCopyErrorColumnInfo.values())
+            {
+                // Store the column name
+                names[index] = type.columnName;
+                index++;
+            }
+
+            return names;
+        }
+
+        /**********************************************************************
+         * Get the link copy error table column tool tips
+         * 
+         * @return Array containing the link copy error table column tool tips
+         *********************************************************************/
+        protected static String[] getToolTips()
+        {
+            String[] toolTips = new String[LinkCopyErrorColumnInfo.values().length];
+            int index = 0;
+
+            // Step through each column
+            for (LinkCopyErrorColumnInfo type : LinkCopyErrorColumnInfo.values())
             {
                 // Get the tool tip text
                 toolTips[index] = type.toolTip;

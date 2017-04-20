@@ -254,7 +254,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
 
                     // Get the name of the selected link (null if more than
                     // one link is selected)
-                    String[] selected = getSelectedNode();
+                    String[] selected = getTopLevelSelectedNodeNames();
 
                     // If a single link is selected then set the selected
                     // link, enable and populate the description, rate, and
@@ -691,13 +691,13 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
             public void actionPerformed(ActionEvent ae)
             {
                 // Get the selected node(s) in the tree (can only be one)
-                String[] selectedNodes = linkTree.getSelectedNode();
+                String[] selected = linkTree.getTopLevelSelectedNodeNames();
 
                 // Check that a node is selected
-                if (selectedNodes.length != 0)
+                if (selected.length != 0)
                 {
                     // Get the link information for the selected node
-                    LinkInformation selectedLink = linkTree.getLinkInformation(selectedNodes[0]);
+                    LinkInformation selectedLink = linkTree.getLinkInformation(selected[0]);
 
                     // Remove the variable(s) from the link
                     removeVariableFromLink();
@@ -706,7 +706,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
                     // from the link's node name so that the link comparison
                     // finds the correct link
                     if (linkTree.getLinkHandler().getLinkSizeInBytes(rateName,
-                                                                     linkTree.removeExtraText(selectedNodes[0])) == 0)
+                                                                     linkTree.removeExtraText(selected[0])) == 0)
                     {
                         // Blank the rate in the link and the rate field
                         selectedLink.setSampleRate("0");
@@ -736,15 +736,15 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
             public void actionPerformed(ActionEvent ae)
             {
                 // Get the selected node(s) in the tree (can only be one)
-                String[] selectedNodes = linkTree.getSelectedNode();
+                String[] selected = linkTree.getTopLevelSelectedNodeNames();
 
                 // Check that a single node is selected. Only valid link nodes
                 // (ones with the same rate or empty ones) can be selected;
                 // invalid link nodes are grayed out
-                if (selectedNodes.length == 1)
+                if (selected.length == 1)
                 {
                     // Get the reference to the selected link's information
-                    LinkInformation linkInfo = linkTree.getLinkInformation(selectedNodes[0]);
+                    LinkInformation linkInfo = linkTree.getLinkInformation(selected[0]);
 
                     // Set the link's rate if this is its first member(s)
                     // and update the rate field

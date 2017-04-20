@@ -2181,7 +2181,8 @@ public class CcddDbTableCommandHandler
 
         try
         {
-            // Get the row data from the custom values table for all columns
+            // Get the row data from the custom values table for all
+            // columns
             // with a matching column name and column value
             ResultSet rowData = dbCommand.executeDbQuery("SELECT * FROM "
                                                          + InternalTable.VALUES.getTableName()
@@ -2191,12 +2192,13 @@ public class CcddDbTableCommandHandler
                                                          + columnName
                                                          + "'"
                                                          + (columnValue == null
-                                                                               ? ""
-                                                                               : " AND "
-                                                                                 + ValuesColumn.VALUE.getColumnName()
-                                                                                 + " = '"
-                                                                                 + columnValue
-                                                                                 + "'")
+                                                            || columnValue.isEmpty()
+                                                                                    ? ""
+                                                                                    : " AND "
+                                                                                      + ValuesColumn.VALUE.getColumnName()
+                                                                                      + " = '"
+                                                                                      + columnValue
+                                                                                      + "'")
                                                          + ";",
                                                          parent);
 
@@ -5331,8 +5333,7 @@ public class CcddDbTableCommandHandler
             // Check if any table of this type exists
             if (tableNames.length != 0)
             {
-                // Convert the array of tables names into a single
-                // string and
+                // Convert the array of tables names into a single string and
                 // shorten it if too long
                 names = " and table(s) '</b>"
                         + getShortenedTableNames(tableNames)

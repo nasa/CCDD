@@ -315,11 +315,12 @@ public class CcddLinkHandler
             // target, and that this is the link information entry
             if (linkRate.equals(rateName)
                 && linkName.equals(name)
+                && linkMember.contains(".")// TODO
                 && !linkMember.matches("\\d.*"))
             {
+                // TODO LINK MEMBERS CAN HAVE MACROS!
                 // linkMember =
                 // ccddMain.getMacroHandler().getMacroExpansion(linkMember);
-                // TODO
 
                 // Get the data type from the variable name
                 String dataType = linkMember.substring(linkMember.lastIndexOf(",") + 1,

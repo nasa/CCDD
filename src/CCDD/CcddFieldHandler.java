@@ -13,14 +13,11 @@ import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JCheckBox;
-
 import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddConstants.FieldEditorColumnInfo;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
-import CCDD.CcddEditorPanelHandler.UndoableTextField;
 
 /******************************************************************************
  * CFS Command & Data Dictionary field handler class
@@ -548,40 +545,5 @@ public class CcddFieldHandler
     protected static String getFieldGroupName(String groupName)
     {
         return GROUP_DATA_FIELD_IDENT + groupName;
-    }
-
-    /**************************************************************************
-     * Clear the values from all fields
-     *************************************************************************/
-    protected void clearFieldValues()
-    {
-        // Step through each field
-        for (int index = 0; index < fieldInformation.size(); index++)
-        {
-            // Check if this is a boolean input (check box) data field
-            if (fieldInformation.get(index).getInputType() == InputDataType.BOOLEAN)
-            {
-                // Set the field value to 'false'
-                fieldInformation.get(index).setValue("false");
-
-                // Set the check box
-                ((JCheckBox) fieldInformation.get(index).getInputFld()).setSelected(false);
-            }
-            // Not a boolean input (check box) data field
-            else
-            {
-                // Clear the field value
-                fieldInformation.get(index).setValue("");
-
-                // Get the reference to the text field
-                UndoableTextField inputFld = (UndoableTextField) fieldInformation.get(index).getInputFld();
-
-                inputFld.setText("");
-
-                // Call the data field input verifier to set the background
-                // color
-                inputFld.getInputVerifier().verify(inputFld);
-            }
-        }
     }
 }

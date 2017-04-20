@@ -573,6 +573,29 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     }
 
     /**************************************************************************
+     * Remove the specified child node, and its ancestors until a node with
+     * other children or the top level node is reached
+     * 
+     * @param removeNode
+     *            node at which to start the removal
+     *************************************************************************/
+    protected void removeNodeAndEmptyAncestors(ToolTipTreeNode removeNode)
+    {
+        // Check if the node has no siblings and is not the top level in the
+        // sub-tree
+        while (removeNode.getParent() != null
+               && removeNode.getParent().getChildCount() == 1
+               && ((ToolTipTreeNode) removeNode.getParent()).getLevel() > getTableNodeLevel())
+        {
+            // Set the node to remove to the child node's parent node
+            removeNode = (ToolTipTreeNode) removeNode.getParent();
+        }
+
+        // Remove the node(s)
+        removeNode.removeFromParent();
+    }
+
+    /**************************************************************************
      * Remove the currently selected top level node(s) and all of its child
      * nodes from the information tree
      *************************************************************************/
@@ -652,9 +675,30 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * @return Array containing the top-level node name(s) associated with the
      *         selected node(s); an empty array if no node is selected
      *************************************************************************/
-    protected String[] getSelectedNode()
+    protected String[] getTopLevelSelectedNodeNames()
     {
-        List<String> selectedNodes = new ArrayList<String>();
+        List<String> selectedNodeNames = new ArrayList<String>();
+
+        // Step through each selected top-level node
+        for (ToolTipTreeNode selectedNode : getTopLevelSelectedNodes())
+        {
+            // Store the node name
+            selectedNodeNames.add(selectedNode.getUserObject().toString());
+
+        }
+
+        return selectedNodeNames.toArray(new String[0]);
+    }
+
+    /**************************************************************************
+     * Get the top-level node(s) associated with the selected node(s)
+     * 
+     * @return Array containing the top-level node(s) associated with the
+     *         selected node(s); an empty array if no node is selected
+     *************************************************************************/
+    protected ToolTipTreeNode[] getTopLevelSelectedNodes()
+    {
+        List<ToolTipTreeNode> selectedNodes = new ArrayList<ToolTipTreeNode>();
 
         // Get the array of selected node indices
         int[] rows = getSelectionRows();
@@ -673,20 +717,20 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                 if (path.getPathCount() > getGroupNodeLevel())
                 {
                     // Get the name of the node
-                    String nodeName = path.getPathComponent(getGroupNodeLevel()).toString();
+                    ToolTipTreeNode node = (ToolTipTreeNode) path.getPathComponent(getGroupNodeLevel());
 
                     // Check if a selected node has not yet been added to the
                     // list
-                    if (!selectedNodes.contains(nodeName))
+                    if (!selectedNodes.contains(node))
                     {
                         // Store the node name
-                        selectedNodes.add(nodeName);
+                        selectedNodes.add(node);
                     }
                 }
             }
         }
 
-        return selectedNodes.toArray(new String[0]);
+        return selectedNodes.toArray(new ToolTipTreeNode[0]);
     }
 
     /**************************************************************************

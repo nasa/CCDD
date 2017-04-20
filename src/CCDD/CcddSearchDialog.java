@@ -422,7 +422,7 @@ public class CcddSearchDialog extends CcddDialogHandler
         // Place the table into a scroll pane
         JScrollPane scrollPane = new JScrollPane(resultsTable);
 
-        // Set up the field table parameters
+        // Set up the search results table parameters
         resultsTable.setFixedCharacteristics(scrollPane,
                                              false,
                                              ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
@@ -847,7 +847,7 @@ public class CcddSearchDialog extends CcddDialogHandler
                         // Check if the match is with the field owner name
                         if (hitColumnName.equals(FieldsColumn.OWNER_NAME.getColumnName()))
                         {
-                            location += "owner (table or group)";
+                            location += "owner";
                             context = columnValue[FieldsColumn.OWNER_NAME.ordinal()];
                         }
                         // Check if the match is with the field name

@@ -151,8 +151,21 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         dbTable = ccddMain.getDbTableCommandHandler();
         fldTblEditor = ccddMain.getFieldTableEditor();
 
+        // Set the reference to this dialog in main
+        ccddMain.setGroupManager(this);
+
         // Create the group selection dialog
         initialize();
+    }
+
+    /**************************************************************************
+     * Get a reference to the editor panel handler
+     * 
+     * @return Reference to the editor panel handler
+     *************************************************************************/
+    protected CcddEditorPanelHandler getEditorPanelHandler()
+    {
+        return fieldPnl;
     }
 
     /**************************************************************************
@@ -281,7 +294,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                         updateSelectedGroupInformation();
 
                         // Get the name of the selected group(s)
-                        String[] selected = getSelectedNode();
+                        String[] selected = getTopLevelSelectedNodeNames();
 
                         // If a single group is selected then set the selected
                         // group, enable and populate the description field,
@@ -608,17 +621,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                         // Check if there are any data fields to clear
                         if (!fieldPnl.getFieldHandler().getFieldInformation().isEmpty())
                         {
-                            // Confirm clearing the data field values
-                            if (new CcddDialogHandler().showMessageDialog(CcddGroupManagerDialog.this,
-                                                                          "<html><b>Clear the data field values?",
-                                                                          "Clear Field Values",
-                                                                          JOptionPane.QUESTION_MESSAGE,
-                                                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-                            {
-                                // Clear all of the data field values for the
-                                // group
-                                fieldPnl.getFieldHandler().clearFieldValues();
-                            }
+                            // Clear all of the data field values for the group
+                            fieldPnl.clearFieldValues();
                         }
                     }
                 });
@@ -1046,13 +1050,10 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         if (groupTree.getSelectionCount() != 0)
         {
             // Add the selected group(s) to the deleted groups list
-            deletedGroups.addAll(Arrays.asList(groupTree.getSelectedNode()));
+            deletedGroups.addAll(Arrays.asList(groupTree.getTopLevelSelectedNodeNames()));
 
             // Remove the selected group(s) information
-            groupTree.removeSelectedGroup();
-
-            // Remove the selected group(s) from the group tree
-            groupTree.removeSelectedTopLevelNodes();
+            groupTree.removeSelectedGroups();
 
             // Update the group dialog's change indicator
             updateChangeIndicator();
@@ -1065,7 +1066,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     private void renameGroup()
     {
         // Get the selected group(s)
-        String[] selected = groupTree.getSelectedNode();
+        String[] selected = groupTree.getTopLevelSelectedNodeNames();
 
         // Check that a single node is selected in the group tree
         if (selected.length == 1)
@@ -1118,7 +1119,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     private void copyGroup()
     {
         // Get the selected group(s)
-        String[] selected = groupTree.getSelectedNode();
+        String[] selected = groupTree.getTopLevelSelectedNodeNames();
 
         // Check that a single node is selected in the group tree
         if (selected.length == 1)

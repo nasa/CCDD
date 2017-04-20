@@ -1815,10 +1815,10 @@ public class CcddClasses
         }
 
         /**********************************************************************
-         * Get a reference to the field's UndoableTextField or JCheckBox (if
-         * boolean)
+         * Get a reference to the field's UndoableTextField or UndoableCheckBox
+         * (if boolean)
          *
-         * @return Field's UndoableTextField or JCheckBox reference
+         * @return Field's UndoableTextField or UndoableCheckBox reference
          *********************************************************************/
         protected Object getInputFld()
         {
@@ -1826,10 +1826,10 @@ public class CcddClasses
         }
 
         /**********************************************************************
-         * Set the field's UndoableTextField or JCheckBox
+         * Set the field's UndoableTextField or UndoableCheckBox
          *
          * @param inputFld
-         *            field's UndoableTextField or JCheckBox
+         *            field's UndoableTextField or UndoableCheckBox
          ********************************************************************/
         protected void setInputFld(Object inputFld)
         {
@@ -2046,17 +2046,17 @@ public class CcddClasses
          * @param rateName
          *            name of the data stream rate column
          *
-         * @param name
+         * @param linkName
          *            link name
          *
          * @param description
          *            link description
          *********************************************************************/
         protected LinkInformation(String rateName,
-                                  String name,
+                                  String linkName,
                                   String description)
         {
-            this(rateName, name, "0", description);
+            this(rateName, linkName, "0", description);
         }
 
         /**********************************************************************

@@ -44,6 +44,7 @@ import javax.swing.JOptionPane;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.CCDDException;
+import CCDD.CcddClasses.RateInformation;
 import CCDD.CcddConstants.ConnectionType;
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.DatabaseObject;
@@ -317,14 +318,15 @@ public class CcddDbControlHandler
     /**************************************************************************
      * Get the database server version number
      * 
-     * @return String containing the database server version number
+     * @return String containing the database server version number; returns
+     *         '*not connected*' if not connected to the PostgreSQL server
      *************************************************************************/
     protected String getDatabaseVersion()
     {
-        String databaseVersion = "";
+        String databaseVersion = "*not connected*";
 
         // Check if the database is connected
-        if (this.isDatabaseConnected())
+        if (isServerConnected())
         {
             try
             {
@@ -354,14 +356,15 @@ public class CcddDbControlHandler
     /**************************************************************************
      * Get the JDBC version number
      * 
-     * @return String containing the JDBC version number
+     * @return String containing the JDBC version number; returns '*not
+     *         connected*' if if not connected to the PostgreSQL server
      *************************************************************************/
     protected String getJDBCVersion()
     {
-        String jdbcVersion = "";
+        String jdbcVersion = "*not connected*";
 
         // Check if the database is connected
-        if (this.isDatabaseConnected())
+        if (isServerConnected())
         {
             try
             {
@@ -1251,10 +1254,13 @@ public class CcddDbControlHandler
                 // Check if any rate columns are defined
                 if (ccddMain.getRateParameterHandler().getNumRateColumns() != 0)
                 {
-                    // Step through each rate column name (in its database
-                    // form)
-                    for (String rateColName : ccddMain.getRateParameterHandler().getRateColumnNames(true))
+                    // Step through each data stream
+                    for (RateInformation rateInfo : ccddMain.getRateParameterHandler().getRateInformation())
                     {
+                        // Get the rate column name (in its database form)
+                        String rateColName = DefaultColumn.convertVisibleToDatabase(rateInfo.getRateName(),
+                                                                                    InputDataType.RATE);
+
                         // Add detection for the rate column. If the column
                         // doesn't exist in the table then a blank is returned
                         // for that column's rate value

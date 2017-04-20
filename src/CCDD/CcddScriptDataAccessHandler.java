@@ -43,7 +43,6 @@ import CCDD.CcddConstants.CopyTableEntry;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.TablePathType;
-import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /******************************************************************************
@@ -78,6 +77,10 @@ public class CcddScriptDataAccessHandler
 
     // Data table information array
     private final TableInformation[] tableInformation;
+
+    // Flag indicating if the variable handler references all variables (true)
+    // or only those contained in the associated structure tables (false)
+    private boolean isAllVariables;
 
     /**************************************************************************
      * Script data access class constructor
@@ -131,6 +134,77 @@ public class CcddScriptDataAccessHandler
         macroHandler = ccddMain.getMacroHandler();
         tableTree = null;
         copyHandler = null;
+        isAllVariables = false;
+    }
+
+    /**************************************************************************
+     * Create the variable handler. This creates a table tree of instance
+     * tales, including primitive variables, and lists that show all the
+     * original variables' full names, and the // variable's full name before
+     * and after converting any // commas and brackets to underscores. Only
+     * variable's where the converted // name matches another variable's are
+     * saved in the latter two lists
+     *************************************************************************/
+    private void createVariableHandler(boolean getAllVariables)
+    {
+        // Check if the variable handler hasn't already been created, or if it
+        // has then check if the previous handler only included the subset of
+        // variables within the associated structure tables, but now all
+        // variables are required
+        if (variableHandler == null
+            || (getAllVariables == true && isAllVariables != true))
+        {
+            // Check if only the variables referenced within the associated
+            // structure tables are needed
+            if (!getAllVariables)
+            {
+                // Create storage for the variable paths and names. This is
+                // used to create a list of converted names. This is done for
+                // the first call to this method; subsequent calls use the list
+                // built in the initial call
+                List<String> variableInformation = new ArrayList<String>();
+
+                // Step through each structure table row
+                for (int tableRow = 0; tableRow < getStructureTableNumRows(); tableRow++)
+                {
+                    // Get the name of the variable name column
+                    String variableNameColumnName = tableTypeHandler.getColumnNameByInputType(getStructureTypeNameByRow(tableRow),
+                                                                                              InputDataType.VARIABLE);
+                    // Check that the variable name column exists
+                    if (variableNameColumnName != null)
+                    {
+                        // Get the variable path and name for this row
+                        String varPath = getStructureTableVariablePathByRow(tableRow);
+                        String varName = macroHandler.getMacroExpansion(getStructureTableData(variableNameColumnName, tableRow));
+
+                        // Check that the path and name are not null or blank
+                        if (varPath != null
+                            && !varPath.isEmpty()
+                            && varName != null
+                            && !varName.isEmpty())
+                        {
+                            // Add the variable's path and name to the list
+                            variableInformation.add(varPath + "," + varName);
+                        }
+                    }
+                }
+
+                // Create the variable handler for only those variables in the
+                // associated structure tables
+                variableHandler = new CcddVariableConversionHandler(variableInformation);
+            }
+            // All variables in the project database are needed
+            else
+            {
+                // Set the flag indicating all variables have been loaded and
+                // create the variable handler for all variables
+                isAllVariables = true;
+                variableHandler = new CcddVariableConversionHandler(ccddMain);
+            }
+
+            // Get the reference to the table tree used in the variable handler
+            tableTree = variableHandler.getTableTree();
+        }
     }
 
     /**************************************************************************
@@ -596,7 +670,7 @@ public class CcddScriptDataAccessHandler
          ""
         };
 
-        // Check if the index is valid
+        // Check if the index is invalid
         if (index < 0 || index > limitNames.length - 1)
         {
             // Set the index to the blank array member
@@ -607,85 +681,32 @@ public class CcddScriptDataAccessHandler
     }
 
     /**************************************************************************
-     * Get the name of the parent structure table. Convenience method that
-     * assumes the table type is a structure
+     * Get the array of root structure table names (child table names are
+     * excluded). Convenience method that assumes the table type is a structure
      * 
-     * @return Parent structure table's name; returns a blank if an instance of
-     *         the structure table type doesn't exist
-     *************************************************************************/
-    public String getParentStructureTableName()
-    {
-        return getParentTableName(TYPE_STRUCTURE);
-    }
-
-    /**************************************************************************
-     * Get the name of the parent command table. Convenience method that
-     * assumes the table type is a command
-     * 
-     * @return Parent command table's name; returns a blank if an instance of
-     *         the command table type doesn't exist
-     *************************************************************************/
-    public String getParentCommandTableName()
-    {
-        return getParentTableName(TYPE_COMMAND);
-    }
-
-    /**************************************************************************
-     * Get the name of the parent table for the supplied table type
-     * 
-     * @param tableType
-     *            table type. All structure table types are combined and are
-     *            referenced by the type name "Structure", and all command
-     *            table types are combined and are referenced by the type name
-     *            "Command"
-     * 
-     * @return Parent table's name for the type specified; returns a blank if
-     *         an instance of the table type doesn't exist
-     *************************************************************************/
-    public String getParentTableName(String tableType)
-    {
-        String name = "";
-
-        // Get the reference to the table information class for the requested
-        // table type
-        TableInformation tableInfo = getTableInformation(tableType);
-
-        // Check that the table type exists
-        if (tableInfo != null)
-        {
-            // Store the table name
-            name = tableInfo.getProtoVariableName();
-        }
-
-        return name;
-    }
-
-    /**************************************************************************
-     * Get the array of parent structure table names. Convenience method that
-     * assumes the table type is a structure
-     * 
-     * @return Array of parent structure table names; returns a blank if an
+     * @return Array of root structure table names; returns a blank if an
      *         instance of the structure table type doesn't exist
      *************************************************************************/
-    public String[] getParentStructureTableNames()
+    public String[] getRootStructureTableNames()
     {
-        return getParentTableNames(TYPE_STRUCTURE);
+        return getRootTableNames(TYPE_STRUCTURE);
     }
 
     /**************************************************************************
-     * Get the array of parent command table names. Convenience method that
-     * assumes the table type is a command
+     * Get the array of root command table names. Convenience method that
+     * assumes the table type is a command. Note that all command tables are
+     * root tables
      * 
-     * @return Array of parent command table names; returns a blank if an
+     * @return Array of root command table names; returns a blank if an
      *         instance of the command table type doesn't exist
      *************************************************************************/
-    public String[] getParentCommandTableNames()
+    public String[] getRootCommandTableNames()
     {
-        return getParentTableNames(TYPE_COMMAND);
+        return getRootTableNames(TYPE_COMMAND);
     }
 
     /**************************************************************************
-     * Get the array of the parent table names for the supplied table type
+     * Get the array of the root table names for the supplied table type
      * 
      * @param tableType
      *            table type. All structure table types are combined and are
@@ -693,10 +714,10 @@ public class CcddScriptDataAccessHandler
      *            table types are combined and are referenced by the type name
      *            "Command"
      * 
-     * @return Array of parent table names for the type specified; returns a
+     * @return Array of root table names for the type specified; returns a
      *         blank if an instance of the table type doesn't exist
      *************************************************************************/
-    public String[] getParentTableNames(String tableType)
+    public String[] getRootTableNames(String tableType)
     {
         List<String> name = new ArrayList<String>();
 
@@ -704,28 +725,24 @@ public class CcddScriptDataAccessHandler
         // table type
         TableInformation tableInfo = getTableInformation(tableType);
 
-        // Check that the table type exists
-        if (tableInfo != null)
+        // Check that the table type exists and that there is data for the
+        // specified table type
+        if (tableInfo != null && tableInfo.getData().length != 0)
         {
-            // Check that there is data for the specified table type
-            if (tableInfo.getData().length != 0)
+            // Step through each row in the table data
+            for (int row = 0; row < tableInfo.getData().length; row++)
             {
-                // Step through each row in the table data
-                for (int row = 0; row < tableInfo.getData().length; row++)
+                // Calculate the column index for the structure path
+                int pathColumn = tableInfo.getData()[row].length - PATH_COLUMN_DELTA;
+
+                // Split the table path into an array
+                String[] parts = tableInfo.getData()[row][pathColumn].split(Pattern.quote(","));
+
+                // Check if the list doesn't already contain the parent name
+                if (!name.contains(parts[0]))
                 {
-                    // Calculate the column index for the structure path
-                    int pathColumn = tableInfo.getData()[row].length - PATH_COLUMN_DELTA;
-
-                    // Split the table path into an array
-                    String[] parts = tableInfo.getData()[row][pathColumn].split(Pattern.quote(","));
-
-                    // Check if the list doesn't already contain the parent
-                    // name
-                    if (!name.contains(parts[0]))
-                    {
-                        // Add the parent name to the list
-                        name.add(parts[0]);
-                    }
+                    // Add the parent name to the list
+                    name.add(parts[0]);
                 }
             }
         }
@@ -1347,43 +1364,9 @@ public class CcddScriptDataAccessHandler
                                          String separator,
                                          boolean excludeDataTypes)
     {
-        // Check if the variable handler hasn't already been created
-        if (variableHandler == null)
-        {
-            // Create storage for the variable paths and names. This is used to
-            // create a list of converted names. This is done for the first
-            // call to this method; subsequent calls use the list built in the
-            // initial call
-            List<String> variableInformation = new ArrayList<String>();
-
-            // Step through each structure table row
-            for (int tableRow = 0; tableRow < getStructureTableNumRows(); tableRow++)
-            {
-                // Get the name of the variable name column
-                String variableNameColumnName = tableTypeHandler.getColumnNameByInputType(getStructureTypeNameByRow(tableRow),
-                                                                                          InputDataType.VARIABLE);
-                // Check that the variable name column exists
-                if (variableNameColumnName != null)
-                {
-                    // Get the variable path and name for this row
-                    String varPath = getStructureTableVariablePathByRow(tableRow);
-                    String varName = macroHandler.getMacroExpansion(getStructureTableData(variableNameColumnName, tableRow));
-
-                    // Check that the path and name are not null or blank
-                    if (varPath != null
-                        && !varPath.isEmpty()
-                        && varName != null
-                        && !varName.isEmpty())
-                    {
-                        // Add the variable's path and name to the list
-                        variableInformation.add(varPath + "," + varName);
-                    }
-                }
-            }
-
-            // Create the variable handler
-            variableHandler = new CcddVariableConversionHandler(variableInformation);
-        }
+        // Create the variable handler for only those variables referenced in
+        // the associated structure tables, if it hasn't already been created
+        createVariableHandler(false);
 
         // Expand any macros in the variable name before getting the full name
         return variableHandler.getFullVariableName(macroHandler.getMacroExpansion(fullName),
@@ -1418,7 +1401,7 @@ public class CcddScriptDataAccessHandler
      *************************************************************************/
     public String getPathByRow(String tableType, int row)
     {
-        return getTablePathByRow(tableType, row, TablePathType.VARIABLE_AND_PARENT);
+        return getTablePathByRow(tableType, row, TablePathType.PARENT_AND_VARIABLE);
     }
 
     /**************************************************************************
@@ -1520,7 +1503,9 @@ public class CcddScriptDataAccessHandler
 
                 switch (pathType)
                 {
-                    case VARIABLE_AND_PARENT:
+                    case PARENT_AND_VARIABLE:
+                        // Get the path as stored, with the parent structures
+                        // in place
                         break;
 
                     case VARIABLE_ONLY:
@@ -1542,8 +1527,8 @@ public class CcddScriptDataAccessHandler
     }
 
     /**************************************************************************
-     * Determine if the specified structure is referenced by more than one
-     * parent structure
+     * Determine if the specified structure is referenced by more than one root
+     * structure
      * 
      * @param structureName
      *            name of the structure to check
@@ -1558,14 +1543,9 @@ public class CcddScriptDataAccessHandler
         // Check if a structure name is provided
         if (structureName != null && !structureName.isEmpty())
         {
-            // Check if no table tree is loaded
-            if (tableTree == null)
-            {
-                // Build the table tree, including the primitive variables
-                tableTree = new CcddTableTreeHandler(ccddMain,
-                                                     TableTreeType.INSTANCE_WITH_PRIMITIVES,
-                                                     parent);
-            }
+            // Create the variable handler for all the project's variables, if
+            // it hasn't already been created
+            createVariableHandler(true);
 
             // Get the list table tree paths for which the target structure is
             // a member
@@ -1575,14 +1555,14 @@ public class CcddScriptDataAccessHandler
             if (memberPaths.size() > 1)
             {
                 // Get the root table for the first path
-                String target = tableTree.getVariableParentFromNodePath(memberPaths.get(0));
+                String target = tableTree.getVariableRootFromNodePath(memberPaths.get(0));
 
                 // Step through the remaining paths
                 for (int index = 1; index < memberPaths.size(); index++)
                 {
                     // Check if the root table differs from the first path's
                     // root table
-                    if (!target.equals(tableTree.getVariableParentFromNodePath(memberPaths.get(index))))
+                    if (!target.equals(tableTree.getVariableRootFromNodePath(memberPaths.get(index))))
                     {
                         // Set the flag indicating that the target structure is
                         // referenced by more than one root table and stop
@@ -1598,64 +1578,21 @@ public class CcddScriptDataAccessHandler
     }
 
     /**************************************************************************
-     * Get an array containing the path to each parent structure and its
-     * variables
+     * Get an array containing the path to every root structure in the project
+     * database and its variables
      * 
-     * @return Two-dimensional array containing the path for each structure
-     *         variable. The parent structures are sorted alphabetically. The
-     *         variables are displayed in the order of appearance within the
-     *         structure (parent or child)
-     * 
-     *         TODO Should this return an array of strings (e.g., table path as
-     *         string) instead of an array of arrays? AA2 scripts use this
-     *         call, so must coordinate any changes
+     * @return Array containing the path for each structure variable. The root
+     *         structures are sorted alphabetically. The variables are
+     *         displayed in the order of appearance within the structure
+     *         (parent or child)
      *************************************************************************/
-    public String[][] getVariablePaths()
+    public String[] getVariablePaths()
     {
-        List<Object[]> tableTreePaths = new ArrayList<Object[]>();
+        // Create the variable handler for all the project's variables, if it
+        // hasn't already been created
+        createVariableHandler(true);
 
-        // Check if no table tree is loaded
-        if (tableTree == null)
-        {
-            // Build the table tree, including the primitive variables
-            tableTree = new CcddTableTreeHandler(ccddMain,
-                                                 TableTreeType.INSTANCE_WITH_PRIMITIVES,
-                                                 parent);
-        }
-
-        // Get the variable paths from the table tree
-        List<Object[]> pathsWithOther = tableTree.getTableTreePathArray(null);
-
-        // Step through each variable path
-        for (Object[] path : pathsWithOther)
-        {
-            // Check if the path contains a structure and/or variable
-            if (path.length > tableTree.getTableNodeLevel())
-            {
-                // Get the last object in the path
-                String var = path[path.length - 1].toString();
-
-                // Get the index of the bit length separator, if present
-                int index = var.indexOf(":");
-
-                // Check if a bit length exists (i.e., this is a variable with
-                // a bit length value appended)
-                if (index != -1)
-                {
-                    // Remove the bit length and separator from the variable
-                    // name
-                    path[path.length - 1] = var.substring(0, index);
-                }
-
-                // Copy the portion of the path that references a structure
-                // and/or variable
-                tableTreePaths.add(Arrays.copyOfRange(path,
-                                                      tableTree.getTableNodeLevel(),
-                                                      path.length));
-            }
-        }
-
-        return CcddUtilities.convertObjectToString(tableTreePaths.toArray(new Object[0][0]));
+        return variableHandler.getAllVariableNameList().toArray(new String[0]);
     }
 
     /**************************************************************************
@@ -1938,7 +1875,7 @@ public class CcddScriptDataAccessHandler
      * @return Contents of the specified structure table's array at the row and
      *         column name provided, with any macro replaced by its
      *         corresponding value; returns null if an instance of the
-     *         structure table type doesn't exist
+     *         structure table type, the column name, or the row doesn't exist
      *************************************************************************/
     public String getStructureTableData(String columnName, int row)
     {
@@ -1959,7 +1896,7 @@ public class CcddScriptDataAccessHandler
      * @return Contents of the specified command table's array at the row and
      *         column name provided, with any macro replaced by its
      *         corresponding value; returns null if an instance of the command
-     *         table type doesn't exist
+     *         table type, the column name, or the row doesn't exist
      *************************************************************************/
     public String getCommandTableData(String columnName, int row)
     {

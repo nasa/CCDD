@@ -609,12 +609,28 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
      *************************************************************************/
     private void getSpecialColumnIndices()
     {
-        variableNameIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
-        dataTypeIndex = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
-        arraySizeIndex = typeDefn.getColumnIndexByInputType(InputDataType.ARRAY_INDEX);
-        bitLengthIndex = typeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH);
-        enumerationIndex = typeDefn.getColumnIndicesByInputType(InputDataType.ENUMERATION);
-        rateIndex = typeDefn.getColumnIndicesByInputType(InputDataType.RATE);
+        // Check if the table represents a structure
+        if (typeDefn.isStructure())
+        {
+            variableNameIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
+            dataTypeIndex = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
+            arraySizeIndex = typeDefn.getColumnIndexByInputType(InputDataType.ARRAY_INDEX);
+            bitLengthIndex = typeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH);
+            enumerationIndex = typeDefn.getColumnIndicesByInputType(InputDataType.ENUMERATION);
+            rateIndex = typeDefn.getColumnIndicesByInputType(InputDataType.RATE);
+        }
+        // The table doesn't represent a structure
+        else
+        {
+            // Set the special indices to invalid column values. Only structure
+            // tables get special handling for these columns
+            variableNameIndex = -1;
+            dataTypeIndex = -1;
+            arraySizeIndex = -1;
+            bitLengthIndex = -1;
+            enumerationIndex = new ArrayList<Integer>();
+            rateIndex = new ArrayList<Integer>();
+        }
     }
 
     /**************************************************************************
@@ -1427,7 +1443,12 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                             && dataTypeIndex != -1
                             && dataTypeHandler.isCharacter(rowData[dataTypeIndex].toString())
                             && ArrayVariable.isArrayMember(rowData[variableNameIndex])
-                            && !rowData[variableNameIndex].toString().endsWith("[0]")))
+                            && !rowData[variableNameIndex].toString().endsWith("[0]"))
+
+                        // This is an array definition and the column input
+                        // type is 'message ID'
+                        || (isArrayDefinition
+                        && typeDefn.getInputTypes()[column].equals(InputDataType.MESSAGE_ID)))
                     {
                         // Set the flag to prevent altering the data value
                         isAlterable = false;

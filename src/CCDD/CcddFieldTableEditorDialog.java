@@ -770,7 +770,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                         // content has changed and the user confirms the action
                         if (isFieldTableChanged()
                             && new CcddDialogHandler().showMessageDialog(CcddFieldTableEditorDialog.this,
-                                                                         "<html><b>Store changes in database?",
+                                                                         "<html><b>Store changes in project database?",
                                                                          "Store Changes",
                                                                          JOptionPane.QUESTION_MESSAGE,
                                                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)

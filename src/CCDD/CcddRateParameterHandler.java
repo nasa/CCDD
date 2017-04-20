@@ -12,11 +12,12 @@ import static CCDD.CcddConstants.TRAILING_ZEROES;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.RateInformation;
-import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.RateParameter;
@@ -95,12 +96,26 @@ public class CcddRateParameterHandler
     }
 
     /**************************************************************************
-     * Get the list of rate information
+     * Get the list of rate information, sorted by data stream name
      * 
      * @return List of rate information
      *************************************************************************/
     protected List<RateInformation> getRateInformation()
     {
+        // Sort the rate information by data stream name
+        Collections.sort(rateInformation, new Comparator<RateInformation>()
+        {
+            /******************************************************************
+             * Compare the stream names of two rates. Force lower case to
+             * eliminate case differences in the comparison
+             *****************************************************************/
+            @Override
+            public int compare(RateInformation rate1, RateInformation rate2)
+            {
+                return rate1.getStreamName().toLowerCase().compareTo(rate2.getStreamName().toLowerCase());
+            }
+        });
+
         return rateInformation;
     }
 
@@ -771,33 +786,6 @@ public class CcddRateParameterHandler
         }
 
         return rate.replaceAll(TRAILING_ZEROES, "");
-    }
-
-    /**************************************************************************
-     * Get an array containing the unique rate column names in viewable or
-     * database form
-     * 
-     * @param useDbName
-     *            true to use the database form of the rate column name, false
-     *            to use the viewable form
-     * 
-     * @return Array containing the unique rate column names
-     *************************************************************************/
-    protected String[] getRateColumnNames(boolean useDbName)
-    {
-        List<String> columnNames = new ArrayList<String>();
-
-        // Step through each data stream
-        for (RateInformation rateInfo : rateInformation)
-        {
-            // Add the rate column name to the list
-            columnNames.add(useDbName
-                                     ? DefaultColumn.convertVisibleToDatabase(rateInfo.getRateName(),
-                                                                              InputDataType.RATE)
-                                     : rateInfo.getRateName());
-        }
-
-        return columnNames.toArray(new String[0]);
     }
 
     /**************************************************************************

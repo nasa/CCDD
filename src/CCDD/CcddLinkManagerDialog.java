@@ -17,6 +17,7 @@ import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.RENAME_ICON;
 import static CCDD.CcddConstants.STORE_ICON;
+import static CCDD.CcddConstants.TABLE_BACK_COLOR;
 
 import java.awt.Color;
 import java.awt.GridBagConstraints;
@@ -32,20 +33,23 @@ import java.util.Enumeration;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.CCDDException;
@@ -54,6 +58,8 @@ import CCDD.CcddClasses.RateInformation;
 import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
+import CCDD.CcddConstants.LinkCopyErrorColumnInfo;
+import CCDD.CcddConstants.TableSelectionMode;
 
 /******************************************************************************
  * CFS Command & Data Dictionary link manager dialog class
@@ -81,6 +87,9 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
 
     // List of streams to which to copy a link
     private List<String> selectedStreams;
+
+    // List containing the links or link members unable to be copied
+    private List<Object[]> notCopiedList;
 
     /**************************************************************************
      * Link manager dialog class constructor
@@ -395,37 +404,27 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
      *************************************************************************/
     private void addLinkHandlerPanes()
     {
-        // Get the rate information for all data streams
-        List<RateInformation> rateInfo = rateHandler.getRateInformation();
-
         // Create storage for the link manager handlers
         linkMgrs = new ArrayList<CcddLinkManagerHandler>();
 
         // Step through each stream
-        for (int index = 0; index < rateInfo.size(); index++)
+        for (RateInformation rateInfo : rateHandler.getRateInformation())
         {
             // Create a link manager for this stream
             CcddLinkManagerHandler linkMgr = new CcddLinkManagerHandler(ccddMain,
                                                                         this,
-                                                                        rateInfo.get(index).getRateName(),
-                                                                        rateHandler.getRatesInUse(rateInfo.get(index).getRateName(),
+                                                                        rateInfo.getRateName(),
+                                                                        rateHandler.getRatesInUse(rateInfo.getRateName(),
                                                                                                   CcddLinkManagerDialog.this));
 
             // Add the link manager to the list of managers
             linkMgrs.add(linkMgr);
 
-            // Create a tab for each table type
-            tabbedPane.addTab(rateInfo.get(index).getStreamName(),
+            // Create a tab for each data stream
+            tabbedPane.addTab(rateInfo.getStreamName(),
                               null,
                               linkMgr.getHandlerPanel(),
-                              rateInfo.get(index).getRateName());
-        }
-
-        // Check if only a single link manager was added
-        if (rateInfo.size() == 1)
-        {
-            // Select the tab for the newly added type
-            tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
+                              rateInfo.getRateName());
         }
     }
 
@@ -509,6 +508,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
             // Add the new link information
             activeHandler.getLinkTree().addLinkInformation(activeHandler.getRateName(),
                                                            newLinkName,
+                                                           "0",
                                                            newLinkDescription);
 
             // Insert the new link into the link tree
@@ -532,10 +532,11 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
         if (activeHandler.getLinkTree().getSelectionCount() != 0)
         {
             // Remove the selected link(s) information
-            activeHandler.getLinkTree().removeLinkInformation();
+            activeHandler.getLinkTree().removeSelectedLinks();
 
-            // Remove the selected link(s) from the link tree
-            activeHandler.getLinkTree().removeSelectedTopLevelNodes();
+            // Update the variable tree to enable any variables no longer
+            // assigned due to the deleted link
+            activeHandler.getVariableTree().setExcludedVariables(activeHandler.getLinkTree().getLinkVariables(null));
 
             // Update the link dialog's change indicator
             updateChangeIndicator();
@@ -548,7 +549,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     private void renameLink()
     {
         // Get the selected link(s)
-        String[] selected = activeHandler.getLinkTree().getSelectedNode();
+        String[] selected = activeHandler.getLinkTree().getTopLevelSelectedNodeNames();
 
         // Check that a single node is selected in the link tree
         if (selected.length == 1)
@@ -621,16 +622,19 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
             CcddLinkTreeHandler currentTree = activeHandler.getLinkTree();
 
             // Get the selected link(s)
-            String[] selectedLink = currentTree.getSelectedNode();
+            String[] selected = currentTree.getTopLevelSelectedNodeNames();
 
             // Create a panel to contain the dialog components
             JPanel streamPnl = new JPanel(new GridBagLayout());
 
-            // Step through each rate column name
-            for (int index = 0; index < rateHandler.getNumRateColumns(); index++)
+            int rateIndex = 0;
+
+            // Step through each data stream
+            for (RateInformation rateInfo : rateHandler.getRateInformation())
             {
                 // Add the associated data stream name to the array
-                arrayItemData[index][0] = rateHandler.getDataStreamNames()[index];
+                arrayItemData[rateIndex][0] = rateInfo.getStreamName();
+                rateIndex++;
             }
 
             // Add the index of the current data stream to the list of disabled
@@ -639,7 +643,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
 
             // Get the name(s) of the link(s) to be copied, minus any HTML tags
             // and rate/size information
-            String linkNames = currentTree.removeExtraText(Arrays.toString(selectedLink).replaceAll("^\\[|\\]$", ""));
+            String linkNames = currentTree.removeExtraText(Arrays.toString(selected).replaceAll("^\\[|\\]$", ""));
 
             // Create a panel containing a grid of check boxes representing the
             // data streams from which to choose
@@ -688,14 +692,21 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                                               DialogOption.COPY_OPTION,
                                               true) == OK_BUTTON)
                 {
-                    DefaultListModel<String> notCopyModel = new DefaultListModel<String>();
+                    notCopiedList = new ArrayList<Object[]>();
+
+                    // Get the node(s) that represent the links (skipping the
+                    // link members)
+                    ToolTipTreeNode[] selectedLinks = currentTree.getTopLevelSelectedNodes();
+
+                    // Index of the next selected link node to copy
+                    int selectionIndex = 0;
 
                     // Step through each link to be copied
-                    for (String copyLink : selectedLink)
+                    for (ToolTipTreeNode copyLink : selectedLinks)
                     {
                         // Remove any HTML tags and parenthetical text from the
                         // selected link name
-                        String nameOnly = activeHandler.getLinkTree().removeExtraText(copyLink);
+                        String nameOnly = activeHandler.getLinkTree().removeExtraText(copyLink.getUserObject().toString());
 
                         // Step through each selected data stream name
                         for (int index = 0; index < arrayItemData.length; index++)
@@ -731,13 +742,12 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                                     {
                                         List<ToolTipTreeNode> removedNodes = new ArrayList<ToolTipTreeNode>();
 
-                                        // Create a node for the new link and
-                                        // copy the child nodes from the copied
-                                        // link to the new link
+                                        // Create a node for the new link
                                         ToolTipTreeNode newLinkNode = new ToolTipTreeNode(nameOnly,
                                                                                           linkInfo.getDescription());
-                                        targetTree.copySubTree((ToolTipTreeNode) currentTree.getSelectionPath().getLastPathComponent(),
-                                                               newLinkNode);
+                                        // Copy the top-level nodes from the
+                                        // copied link to the new link
+                                        targetTree.copySubTree(selectedLinks[selectionIndex], newLinkNode);
 
                                         // Update the target stream's variable
                                         // tree to the copied link's rate. The
@@ -755,20 +765,33 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                                             ToolTipTreeNode subNode = (ToolTipTreeNode) element.nextElement();
                                             String varPath = targetTree.convertLeafNodePath(subNode.getPath(), 1);
 
-                                            // Check that the variable path
-                                            // isn't blank and that the
-                                            // variable path isn't present in
-                                            // the target stream's variable
-                                            // tree (i.e., the variable's rate
-                                            // differs between the current
-                                            // stream and the target stream)
+                                            // Check if the variable path isn't
+                                            // blank, the path refers to a
+                                            // variable (and not a structure),
+                                            // and if the variable path isn't
+                                            // present in the target stream's
+                                            // variable tree (i.e., the
+                                            // variable's rate differs between
+                                            // the current stream and the
+                                            // target stream or the structure
+                                            // containing the variable doesn't
+                                            // have the rate column associated
+                                            // with the stream)
                                             if (!varPath.isEmpty()
+                                                && varPath.contains(".")
                                                 && !linkMgr.getVariableTree().isNodeInTree(varPath))
                                             {
                                                 // Add this node to the list of
                                                 // those to be removed from the
                                                 // new link
                                                 removedNodes.add(subNode);
+
+                                                // Add the invalid link and
+                                                // data stream to the list
+                                                notCopiedList.add(new Object[] {nameOnly,
+                                                                                subNode.getUserObject(),
+                                                                                arrayItemData[index][0],
+                                                                                "Sample rate differs or variable unavailable in target"});
                                             }
                                         }
 
@@ -777,30 +800,38 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                                         for (ToolTipTreeNode removeNode : removedNodes)
                                         {
                                             // Remove the variable node from
-                                            // the new link
-                                            removeNode.removeFromParent();
+                                            // the tree, and its ancestor nodes
+                                            // (up to the link level) if these
+                                            // have no siblings
+                                            targetTree.removeNodeAndEmptyAncestors(removeNode);
                                         }
-
-                                        // Create the new link in the target
-                                        // data stream
-                                        targetTree.addLinkInformation(rateInfo.getRateName(),
-                                                                      linkInfo.getName(),
-                                                                      linkInfo.getDescription());
 
                                         // Insert the new link into the link
                                         // tree
                                         ToolTipTreeNode targetNode = targetTree.addInformationNode(nameOnly,
                                                                                                    linkInfo.getDescription());
 
-                                        // Copy the variable members from the
-                                        // link being copied to the copy in the
+                                        // Copy the link members from the link
+                                        // being copied to the copy in the
                                         // target data stream
                                         targetTree.copySubTree(newLinkNode, targetNode);
+
+                                        // Create the new link in the target
+                                        // data stream
+                                        targetTree.addLinkInformation(rateInfo.getRateName(),
+                                                                      linkInfo.getName(),
+                                                                      linkInfo.getSampleRate(),
+                                                                      linkInfo.getDescription());
 
                                         // Update the link tree node names in
                                         // the target stream (e.g., add the
                                         // rate/size information)
                                         targetTree.adjustNodeText(targetNode);
+
+                                        // Update the target stream's variable
+                                        // tree to gray out any variables now
+                                        // assigned due to the new link
+                                        linkMgr.getVariableTree().setExcludedVariables(targetTree.getLinkVariables(null));
 
                                         // Update the link dialog's change
                                         // indicator
@@ -810,61 +841,174 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                                     // the copied link
                                     else
                                     {
-                                        // Add the link and data stream to the
-                                        // list
-                                        notCopyModel.addElement("<html><b>"
-                                                                + nameOnly
-                                                                + "</b> to stream <b>"
-                                                                + arrayItemData[index][0]
-                                                                + "</b>; rate unsupported");
+                                        // Add the invalid link and data stream
+                                        // to the list
+                                        notCopiedList.add(new Object[] {nameOnly,
+                                                                        "",
+                                                                        arrayItemData[index][0],
+                                                                        "Sample rate unsupported in target"});
                                     }
                                 }
                                 // The data stream already contains a link with
                                 // this name
                                 else
                                 {
-                                    // Add the link and data stream
-                                    notCopyModel.addElement("<html><b>"
-                                                            + nameOnly
-                                                            + "</b> to stream <b>"
-                                                            + arrayItemData[index][0]
-                                                            + "</b>; name already exists");
+                                    // Add the invalid link and data stream to
+                                    notCopiedList.add(new Object[] {nameOnly,
+                                                                    "",
+                                                                    arrayItemData[index][0],
+                                                                    "Link name already exists in target"});
                                 }
                             }
                         }
+
+                        selectionIndex++;
                     }
 
-                    // Check if any link failed to copy
-                    if (!notCopyModel.isEmpty())
+                    // Check if any link or link member failed to copy
+                    if (!notCopiedList.isEmpty())
                     {
                         // Create a panel for the link copy failure dialog
                         JPanel notCopyPnl = new JPanel(new GridBagLayout());
 
                         // Create the list label and add it to the dialog
-                        JLabel notCopyLbl = new JLabel("Following link(s) not copied:");
+                        JLabel notCopyLbl = new JLabel("Following link(s) and/or link "
+                                                       + "member(s) were not copied:");
                         notCopyLbl.setFont(LABEL_FONT_BOLD);
                         gbc.insets.left = LABEL_HORIZONTAL_SPACING / 2;
                         gbc.insets.right = LABEL_HORIZONTAL_SPACING / 2;
                         gbc.gridy = 0;
                         notCopyPnl.add(notCopyLbl, gbc);
 
-                        // Add the list to a scroll pane that is placed below
-                        // the label
-                        JList<String> notCopyList = new JList<String>(notCopyModel);
-                        notCopyList.setFont(LABEL_FONT_PLAIN);
-                        notCopyList.setVisibleRowCount(Math.min(notCopyModel.size(), 10));
-                        JScrollPane notCopyScroll = new JScrollPane(notCopyList);
-                        notCopyScroll.setBorder(border);
-                        gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+                        // Create the table to display the links & members not
+                        // copied
+                        CcddJTableHandler notCopiedTable = new CcddJTableHandler()
+                        {
+                            /**************************************************
+                             * Allow multiple line display in the specified
+                             * columns
+                             *************************************************/
+                            @Override
+                            protected boolean isColumnMultiLine(int column)
+                            {
+                                return column == LinkCopyErrorColumnInfo.MEMBER.ordinal()
+                                       || column == LinkCopyErrorColumnInfo.CAUSE.ordinal();
+                            }
+
+                            /**************************************************
+                             * Load the link & members not copied data into the
+                             * table and format the table cells
+                             *************************************************/
+                            @Override
+                            protected void loadAndFormatData()
+                            {
+                                // Place the data into the table model along
+                                // with the column names, set up the editors
+                                // and renderers for the table cells, set up
+                                // the table grid lines, and calculate the
+                                // minimum width required to display the table
+                                // information
+                                setUpdatableCharacteristics(notCopiedList.toArray(new Object[0][0]),
+                                                            LinkCopyErrorColumnInfo.getColumnNames(),
+                                                            null,
+                                                            null,
+                                                            null,
+                                                            LinkCopyErrorColumnInfo.getToolTips(),
+                                                            true,
+                                                            true,
+                                                            true,
+                                                            true);
+                            }
+
+                            /**************************************************
+                             * Override the table layout so that extra width is
+                             * apportioned unequally between the columns when
+                             * the table is resized
+                             *************************************************/
+                            @Override
+                            public void doLayout()
+                            {
+                                // Get a reference to the column being resized
+                                if (getTableHeader() != null
+                                    && getTableHeader().getResizingColumn() == null)
+                                {
+                                    // Get a reference to the event table's
+                                    // column model to shorten subsequent calls
+                                    TableColumnModel tcm = getColumnModel();
+
+                                    // Calculate the change in the search
+                                    // dialog's width
+                                    int delta = getParent().getWidth() - tcm.getTotalColumnWidth();
+
+                                    // Get the reference to the link copy error
+                                    // table columns
+                                    TableColumn linkCol = tcm.getColumn(LinkCopyErrorColumnInfo.LINK.ordinal());
+                                    TableColumn memCol = tcm.getColumn(LinkCopyErrorColumnInfo.MEMBER.ordinal());
+                                    TableColumn strmCol = tcm.getColumn(LinkCopyErrorColumnInfo.STREAM.ordinal());
+                                    TableColumn errCol = tcm.getColumn(LinkCopyErrorColumnInfo.CAUSE.ordinal());
+
+                                    // Set the columns' widths to its current
+                                    // width plus a percentage of the the extra
+                                    // width added to the dialog due to the
+                                    // resize
+                                    linkCol.setPreferredWidth(linkCol.getPreferredWidth()
+                                                              + (int) (delta * 0.125));
+                                    linkCol.setWidth(linkCol.getPreferredWidth());
+                                    memCol.setPreferredWidth(memCol.getPreferredWidth()
+                                                             + (int) (delta * 0.375));
+                                    memCol.setWidth(memCol.getPreferredWidth());
+                                    strmCol.setPreferredWidth(strmCol.getPreferredWidth()
+                                                              + (int) (delta * 0.125));
+                                    strmCol.setWidth(strmCol.getPreferredWidth());
+                                    errCol.setPreferredWidth(errCol.getPreferredWidth()
+                                                             + delta
+                                                             - (int) (delta * 0.125) * 2
+                                                             - (int) (delta * 0.375));
+                                    errCol.setWidth(errCol.getPreferredWidth());
+                                }
+                                // Table header or resize column not available
+                                else
+                                {
+                                    super.doLayout();
+                                }
+                            }
+                        };
+
+                        // Place the table into a scroll pane
+                        JScrollPane scrollPane = new JScrollPane(notCopiedTable);
+
+                        // Set up the link copy error table parameters
+                        notCopiedTable.setFixedCharacteristics(scrollPane,
+                                                               false,
+                                                               ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
+                                                               TableSelectionMode.SELECT_BY_CELL,
+                                                               true,
+                                                               TABLE_BACK_COLOR,
+                                                               false,
+                                                               true,
+                                                               LABEL_FONT_PLAIN,
+                                                               true);
+
+                        // Define the panel to contain the table
+                        JPanel resultsTblPnl = new JPanel();
+                        resultsTblPnl.setLayout(new BoxLayout(resultsTblPnl, BoxLayout.X_AXIS));
+                        resultsTblPnl.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+                        resultsTblPnl.add(scrollPane);
+
+                        // Add the table to the dialog
+                        gbc.gridwidth = GridBagConstraints.REMAINDER;
+                        gbc.fill = GridBagConstraints.BOTH;
+                        gbc.weighty = 1.0;
+                        gbc.gridx = 0;
                         gbc.gridy++;
-                        notCopyPnl.add(notCopyScroll, gbc);
+                        notCopyPnl.add(resultsTblPnl, gbc);
 
                         // Inform the user that the link(s) can't be copied for
                         // the reason provided
                         new CcddDialogHandler().showOptionsDialog(CcddLinkManagerDialog.this,
                                                                   notCopyPnl,
                                                                   "Link Copy Failure",
-                                                                  DialogOption.OK_OPTION,
+                                                                  DialogOption.PRINT_OPTION,
                                                                   true);
                     }
                 }

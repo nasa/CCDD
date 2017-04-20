@@ -375,8 +375,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *            value
      * 
      * @param rateName
-     *            data stream rate column name used to filter the table tree
-     *            for variables with rates
+     *            rate column name used to filter the table tree for variables
+     *            with rates
      * 
      * @param rateFilter
      *            data rate used to filter the table tree for variables with
@@ -573,9 +573,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *            false)
      * 
      * @param rateName
-     *            data stream rate column name used to filter the table tree
-     *            for variables with rates; null if the tree is not filtered by
-     *            data rate
+     *            rate column name used to filter the table tree for variables
+     *            with rates; null if the tree is not filtered by data rate
      * 
      * @param rateFilter
      *            data rate used to filter the table tree for variables with
@@ -856,8 +855,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                                     Component parent)
     {
         // Check if the descriptions are needed (i.e., if building a visible
-        // table tree)
-        if (getDescriptions)
+        // table tree) and haven't already been loaded
+        if (getDescriptions && tableDescriptions == null)
         {
             // Get an array containing the tables and their variable paths, if
             // any, for those tables with descriptions
@@ -1452,16 +1451,16 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**************************************************************************
-     * Get the variable parent from the specified node path
+     * Get the variable's root table from the specified node path
      * 
      * @param nodePath
-     *            node path from which to obtain the variable parent
+     *            node path from which to obtain the variable's root table
      * 
-     * @return The parent variable for the specified node path
+     * @return The variable's root table for the specified node path
      *************************************************************************/
-    protected String getVariableParentFromNodePath(Object[] nodePath)
+    protected String getVariableRootFromNodePath(Object[] nodePath)
     {
-        String parent = "";
+        String root = "";
 
         // Step backwards through the node path
         for (int index = nodePath.length - 1; index > 0; index--)
@@ -1470,13 +1469,13 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // the format data_type.variable_name[:bit_length]
             if (!nodePath[index].toString().contains("."))
             {
-                // Store the parent and stop searching
-                parent = nodePath[index].toString();
+                // Store the root table and stop searching
+                root = nodePath[index].toString();
                 break;
             }
         }
 
-        return parent;
+        return root;
     }
 
     /**************************************************************************
