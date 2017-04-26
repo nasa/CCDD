@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -27,6 +28,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import CCDD.CcddClasses.ArrayVariable;
+import CCDD.CcddClasses.GroupInformation;
 import CCDD.CcddClasses.NodeIndex;
 import CCDD.CcddClasses.ToolTipTreeNode;
 
@@ -285,6 +287,304 @@ public class CcddCommonTreeHandler extends JTree
                 expandRow(row);
             }
         }
+    }
+
+    /**************************************************************************
+     * Adjust the tree expansion state to account for the tree filter selection
+     * status
+     * 
+     * @param expState
+     *            string representing the desired tree expansion state
+     * 
+     * @param isByGroup
+     *            true if the tree is filtered by group/application
+     * 
+     * @param isByGroupChanged
+     *            true if the group filter status changed
+     * 
+     * @param isByType
+     *            true if the tree is filtered by table type
+     * 
+     * @param isByTypeChanged
+     *            true if the table type filter status changed
+     * 
+     * @param isApp
+     *            true if the groups are to be treated as possible
+     *            applications; false if the application distinction doesn't
+     *            apply
+     * 
+     * @param topNodePrefixes
+     *            initial portion of the node path that provide the overall
+     *            division of the tree
+     * 
+     * @param groupHandler
+     *            reference to the group handler
+     * 
+     * @param tableTypeHandler
+     *            reference to the table type handler
+     * 
+     * @return String representing the tree expansion state with adjustments
+     *         made to account for the change in filter selection status
+     *************************************************************************/
+    protected String adjustExpansionState(String expState,
+                                          boolean isByGroup,
+                                          boolean isByGroupChanged,
+                                          boolean isByType,
+                                          boolean isByTypeChanged,
+                                          boolean isApp,
+                                          List<String> topNodePrefixes,
+                                          CcddGroupHandler groupHandler,
+                                          CcddTableTypeHandler tableTypeHandler)
+    {
+        // Break the expansion state into the separate visible nodes
+        String[] paths = expState.split(Pattern.quote("],"));
+
+        // Clear the expansion state
+        expState = "";
+
+        // Create the path termination regular expression
+        String termPattern = "(\\],|,.*)";
+
+        // Initialize the group name regular expression pattern assuming there
+        // is no filtering by groups
+        String groupPattern = "(())";
+
+        // Check if the tree has changed to or is already being filtered by
+        // groups
+        if ((isByGroup && !isByGroupChanged) || (!isByGroup && isByGroupChanged))
+        {
+            // Initialize the group name regular expression pattern with group
+            // filtering enabled
+            groupPattern = "(, (";
+
+            // Step through each group
+            for (GroupInformation grpInfo : groupHandler.getGroupInformation())
+            {
+                // Add the group name to the pattern
+                groupPattern += Pattern.quote(grpInfo.getName()) + "|";
+            }
+
+            // Finish the group name pattern
+            groupPattern = CcddUtilities.removeTrailer(groupPattern, "|") + "))";
+
+        }
+
+        // Initialize the type name regular expression pattern assuming there
+        // is no filtering by types
+        String typePattern = "(())";
+
+        // Check if the tree has changed to or is already being filtered by
+        // types
+        if ((isByType && !isByTypeChanged) || (!isByType && isByTypeChanged))
+        {
+            // Initialize the type name regular expression pattern with type
+            // filtering enabled
+            typePattern = "(, (";
+
+            // Step through each table type
+            for (String type : tableTypeHandler.getTypes())
+            {
+                // Add the type name to the pattern
+                typePattern += Pattern.quote(type) + "|";
+            }
+
+            // Finish the type name pattern
+            typePattern = CcddUtilities.removeTrailer(typePattern, "|") + "))";
+
+        }
+
+        // Step through each visible path in the tree
+        for (String path : paths)
+        {
+            // Add the path terminator that was removed when the expansion
+            // state was split
+            path += "],";
+
+            // Step through the prototype and instance nodes
+            for (String prefix : topNodePrefixes)
+            {
+                // Set the flag to true if the path contains the group and/or a
+                // type nodes
+                boolean matchesEither = path.matches(Pattern.quote(prefix)
+                                                     + groupPattern
+                                                     + typePattern
+                                                     + termPattern);
+
+                // Set the flag to true if the path contains a group node but
+                // no type node
+                boolean matchesGroup = groupPattern.equals("(())")
+                                                                  ? false
+                                                                  : typePattern.equals("(())")
+                                                                                              ? path.matches(Pattern.quote(prefix)
+                                                                                                             + groupPattern
+                                                                                                             + termPattern)
+                                                                                                || path.matches(Pattern.quote(prefix)
+                                                                                                                + termPattern)
+                                                                                              : path.matches(Pattern.quote(prefix)
+                                                                                                             + groupPattern
+                                                                                                             + "[^"
+                                                                                                             + typePattern
+                                                                                                             + "]"
+                                                                                                             + termPattern)
+                                                                                                || path.matches(Pattern.quote(prefix)
+                                                                                                                + typePattern
+                                                                                                                + termPattern);
+
+                // Set the flag to true if the path contains a type node but
+                // no group node
+                boolean matchesType = typePattern.equals("(())")
+                                                                ? false
+                                                                : groupPattern.equals("(())")
+                                                                                             ? path.matches(Pattern.quote(prefix)
+                                                                                                            + typePattern
+                                                                                                            + termPattern)
+                                                                                               || path.matches(Pattern.quote(prefix)
+                                                                                                               + termPattern)
+                                                                                             : path.matches(Pattern.quote(prefix)
+                                                                                                            + "[^"
+                                                                                                            + groupPattern
+                                                                                                            + "]"
+                                                                                                            + typePattern
+                                                                                                            + termPattern)
+                                                                                               || path.matches(Pattern.quote(prefix)
+                                                                                                               + groupPattern
+                                                                                                               + termPattern);
+                // Check if the path contains a group or type node
+                if (matchesEither)
+                {
+                    // Check if the group filter changed to enabled
+                    if (isByGroup && isByGroupChanged)
+                    {
+                        // Check if the groups are to treated as possible
+                        // applications
+                        if (isApp)
+                        {
+                            // Update the node path with the group name
+                            path = path.replaceAll(Pattern.quote(prefix)
+                                                   + typePattern
+                                                   + termPattern,
+                                                   prefix
+                                                       + "$1$3");
+                        }
+                        // All groups are to treated equally
+                        else
+                        {
+                            String newPath = "";
+
+                            // Step through each group
+                            for (GroupInformation grpInfo : groupHandler.getGroupInformation())
+                            {
+                                // Check if the tree is filtered by type
+                                if (isByType)
+                                {
+                                    // Update the node path with the group name
+                                    // and append it to new path
+                                    newPath += path.replaceAll(Pattern.quote(prefix)
+                                                               + typePattern
+                                                               + termPattern,
+                                                               prefix
+                                                                   + ", "
+                                                                   + grpInfo.getName()
+                                                                   + "$3");
+                                }
+
+                                // Update the node path with the group name and
+                                // append it to new path
+                                newPath += path.replaceAll(Pattern.quote(prefix)
+                                                           + typePattern
+                                                           + termPattern,
+                                                           prefix
+                                                               + ", "
+                                                               + grpInfo.getName()
+                                                               + "$1$3");
+                            }
+
+                            // Check if type filtering is enabled and that the
+                            // path contains a type
+                            if (isByType && matchesType)
+                            {
+                                // Blank the original path; only the new path
+                                // items are applicable
+                                path = "";
+                            }
+
+                            // Add the new group nodes to the path
+                            path += newPath;
+                        }
+                    }
+                    // Check if the group filter changed to disabled
+                    else if (!isByGroup && isByGroupChanged)
+                    {
+                        // Remove the group name form the path
+                        path = path.replaceAll((isApp ? groupPattern : "")
+                                               + Pattern.quote(prefix)
+                                               + (isApp ? "" : groupPattern)
+                                               + typePattern
+                                               + termPattern,
+                                               prefix
+                                                   + "$3$5");
+                    }
+                    // Check if the type filter changed to enabled
+                    else if (isByType && isByTypeChanged)
+                    {
+                        String newPath = "";
+
+                        // Step through each table type
+                        for (String type : tableTypeHandler.getTypes())
+                        {
+                            // Modify the existing path to include the new
+                            // type node
+                            newPath += path.replaceAll(Pattern.quote(prefix)
+                                                       + groupPattern
+                                                       + termPattern,
+                                                       prefix
+                                                           + "$1, "
+                                                           + type
+                                                           + "$3");
+                        }
+
+                        // Add the new type nodes to the path
+                        path += newPath;
+                    }
+                    // Check if the type filter changed to disabled
+                    else if (!isByType && isByTypeChanged)
+                    {
+                        // Remove the type name form the path
+                        path = path.replaceAll(Pattern.quote(prefix)
+                                               + groupPattern
+                                               + typePattern
+                                               + termPattern,
+                                               prefix
+                                                   + "$1$5");
+                    }
+
+                    break;
+                }
+                // Check if group filtering is disabled and the path contains a
+                // group
+                else if (!isByGroup && matchesGroup)
+                {
+                    // Blank the path
+                    path = "";
+                }
+                // Check if type filtering is disabled and the path contains a
+                // type
+                else if (!isByType && matchesType)
+                {
+                    // Blank the path
+                    path = "";
+                }
+            }
+
+            // Check that the path isn't already in the updated expansion state
+            if (!expState.contains(path))
+            {
+                // Add the path to the expansion state
+                expState += path;
+            }
+        }
+
+        return expState;
     }
 
     /**************************************************************************

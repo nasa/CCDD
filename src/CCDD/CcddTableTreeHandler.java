@@ -35,7 +35,6 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -79,13 +78,12 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     private final CcddDbControlHandler dbControl;
 
     // Components referenced by multiple methods
-    private JCheckBox expandChkBx;
-    private JCheckBox groupFilterChkBx;
     private final List<TableMembers> tableMembers;
     private List<Object[]> tablePathList;
     private ToolTipTreeNode root;
     private final TableTreeType treeType;
     private ToolTipTreeNode instance;
+    private JCheckBox expandChkBx;
 
     // Flag to indicate if the tree should be filtered by table type
     private boolean isByGroup;
@@ -642,16 +640,16 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         if (isByGroup && isByType)
         {
             // Step through the groups
-            for (GroupInformation grpInfo : groupHandler.getGroupInformation())
+            for (GroupInformation groupInfo : groupHandler.getGroupInformation())
             {
                 // Create nodes for the group
-                ToolTipTreeNode protoGroupNode = new ToolTipTreeNode(grpInfo.getName(),
+                ToolTipTreeNode protoGroupNode = new ToolTipTreeNode(groupInfo.getName(),
                                                                      getDescriptions
-                                                                                    ? grpInfo.getDescription()
+                                                                                    ? groupInfo.getDescription()
                                                                                     : null);
-                ToolTipTreeNode instGroupNode = new ToolTipTreeNode(grpInfo.getName(),
+                ToolTipTreeNode instGroupNode = new ToolTipTreeNode(groupInfo.getName(),
                                                                     getDescriptions
-                                                                                   ? grpInfo.getDescription()
+                                                                                   ? groupInfo.getDescription()
                                                                                    : null);
 
                 // Add the group node to the prototype and instance nodes
@@ -669,7 +667,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                         // Check if the table is of the current type and if it
                         // belongs to the current group
                         if (type.equals(member.getTableType())
-                            && grpInfo.getTables().contains(member.getTableName()))
+                            && groupInfo.getTableMembers().contains(member.getTableName()))
                         {
                             // Add the table name to the list for this type
                             tables.add(member.getTableName());
@@ -701,24 +699,24 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         else if (isByGroup)
         {
             // Step through the groups
-            for (GroupInformation grpInfo : groupHandler.getGroupInformation())
+            for (GroupInformation groupInfo : groupHandler.getGroupInformation())
             {
                 // Create nodes for the group
-                ToolTipTreeNode protoGroupNode = new ToolTipTreeNode(grpInfo.getName(),
+                ToolTipTreeNode protoGroupNode = new ToolTipTreeNode(groupInfo.getName(),
                                                                      getDescriptions
-                                                                                    ? grpInfo.getDescription() :
+                                                                                    ? groupInfo.getDescription() :
                                                                                     null);
-                ToolTipTreeNode instGroupNode = new ToolTipTreeNode(grpInfo.getName(),
+                ToolTipTreeNode instGroupNode = new ToolTipTreeNode(groupInfo.getName(),
                                                                     getDescriptions
-                                                                                   ? grpInfo.getDescription()
+                                                                                   ? groupInfo.getDescription()
                                                                                    : null);
 
                 // Add the group node to the instance and prototype nodes
                 prototype.add(protoGroupNode);
                 instance.add(instGroupNode);
 
-                // Build the top-level nodes filtered by group
-                buildTopLevelNodes(grpInfo.getTables(),
+                // / Build the top-level nodes filtered by group
+                buildTopLevelNodes(groupInfo.getTableMembers(),
                                    instGroupNode,
                                    protoGroupNode,
                                    parent);
@@ -1787,243 +1785,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**************************************************************************
-     * Adjust the tree expansion state to account for the tree filter selection
-     * status
-     * 
-     * @param expState
-     *            string representing the desired tree expansion state
-     * 
-     * @param isByGroupChanged
-     *            true if the Group filter status changed
-     * 
-     * @param isByTypeChanged
-     *            true if the Type filter status changed
-     * 
-     * @param expState
-     *            string representing the tree expansion state with adjustments
-     *            made to account for the change in filter selection status
-     *************************************************************************/
-    private String adjustExpansionState(String expState,
-                                        boolean isByGroupChanged,
-                                        boolean isByTypeChanged)
-    {
-        // Break the expansion state into the separate visible nodes
-        String[] paths = expState.split(Pattern.quote("],"));
-
-        // Clear the expansion state
-        expState = "";
-
-        // Create the path termination regular expression
-        String termPattern = "(\\],|,.*)";
-
-        // Create the prefixes for the prototype and instance nodes
-        String[] prefixes = new String[] {"[" + dbControl.getDatabase() + ", Prototypes",
-                                          "[" + dbControl.getDatabase() + ", Parents & Children"};
-
-        // Initialize the group name regular expression pattern assuming there
-        // is no filtering by groups
-        String groupPattern = "(())";
-
-        // Check if the tree has changed to or is already being filtered by
-        // groups
-        if ((isByGroup && !isByGroupChanged) || (!isByGroup && isByGroupChanged))
-        {
-            // Initialize the group name regular expression pattern with group
-            // filtering enabled
-            groupPattern = "(, (";
-
-            // Step through each group
-            for (GroupInformation grpInfo : groupHandler.getGroupInformation())
-            {
-                // Add the group name to the pattern
-                groupPattern += Pattern.quote(grpInfo.getName()) + "|";
-            }
-
-            // Finish the group name pattern
-            groupPattern = CcddUtilities.removeTrailer(groupPattern, "|") + "))";
-        }
-
-        // Initialize the type name regular expression pattern assuming there
-        // is no filtering by types
-        String typePattern = "(())";
-
-        // Check if the tree has changed to or is already being filtered by
-        // types
-        if ((isByType && !isByTypeChanged) || (!isByType && isByTypeChanged))
-        {
-            // Initialize the type name regular expression pattern with type
-            // filtering enabled
-            typePattern = "(, (";
-
-            // Step through each table type
-            for (String type : tableTypeHandler.getTypes())
-            {
-                // Add the type name to the pattern
-                typePattern += Pattern.quote(type) + "|";
-            }
-
-            // Finish the type name pattern
-            typePattern = CcddUtilities.removeTrailer(typePattern, "|") + "))";
-        }
-
-        // Step through each visible path in the tree
-        for (String path : paths)
-        {
-            // Add the path terminator that was removed when the expansion
-            // state was split
-            path += "],";
-
-            // Step through the prototype and instance nodes
-            for (String prefix : prefixes)
-            {
-                // Set the flag to true if the path contains the group and/or a
-                // type nodes
-                boolean matchesEither = path.matches(Pattern.quote(prefix)
-                                                     + groupPattern
-                                                     + typePattern
-                                                     + termPattern);
-
-                // Set the flag to true if the path contains a group node but
-                // no type node
-                boolean matchesGroup = groupPattern.equals("(())")
-                                                                  ? false
-                                                                  : typePattern.equals("(())")
-                                                                                              ? path.matches(Pattern.quote(prefix)
-                                                                                                             + groupPattern
-                                                                                                             + termPattern)
-                                                                                              : path.matches(Pattern.quote(prefix)
-                                                                                                             + groupPattern
-                                                                                                             + "[^"
-                                                                                                             + typePattern
-                                                                                                             + "]"
-                                                                                                             + termPattern);
-
-                // Set the flag to true if the path contains a type node but
-                // no group node
-                boolean matchesType = typePattern.equals("(())")
-                                                                ? false
-                                                                : groupPattern.equals("(())")
-                                                                                             ? path.matches(Pattern.quote(prefix)
-                                                                                                            + typePattern
-                                                                                                            + termPattern)
-                                                                                             : path.matches(Pattern.quote(prefix)
-                                                                                                            + "[^"
-                                                                                                            + groupPattern
-                                                                                                            + "]"
-                                                                                                            + typePattern
-                                                                                                            + termPattern);
-
-                // Check if the path contains a group or type node
-                if (matchesEither)
-                {
-                    // Check if the group filter changed to enabled
-                    if (isByGroup && isByGroupChanged)
-                    {
-                        String newPath = "";
-
-                        // Step through each group
-                        for (GroupInformation grpInfo : groupHandler.getGroupInformation())
-                        {
-                            // Create the new group node for the path
-                            newPath += path.replaceAll(Pattern.quote(prefix)
-                                                       + typePattern
-                                                       + termPattern,
-                                                       prefix
-                                                           + ", "
-                                                           + grpInfo.getName()
-                                                           + "$3");
-
-                            // Modify the existing path to include the new
-                            // group node
-                            newPath += path.replaceAll(Pattern.quote(prefix)
-                                                       + typePattern
-                                                       + termPattern,
-                                                       prefix
-                                                           + ", "
-                                                           + grpInfo.getName()
-                                                           + "$1$3");
-                        }
-
-                        // Check if type filtering is enabled and that the path
-                        // contains a type
-                        if (isByType && matchesType)
-                        {
-                            // Blank the original path; only the new path items
-                            // are applicable
-                            path = "";
-                        }
-
-                        // Add the new group nodes to the path
-                        path += newPath;
-                    }
-                    // Check if the group filter changed to disabled
-                    else if (!isByGroup && isByGroupChanged)
-                    {
-                        // Remove the group name form the path
-                        path = path.replaceAll(Pattern.quote(prefix)
-                                               + groupPattern
-                                               + typePattern
-                                               + termPattern,
-                                               prefix
-                                                   + "$3$5");
-                    }
-                    // Check if the type filter changed to enabled
-                    else if (isByType && isByTypeChanged)
-                    {
-                        String newPath = "";
-
-                        // Step through each table type
-                        for (String type : tableTypeHandler.getTypes())
-                        {
-                            // Modify the existing path to include the new
-                            // type node
-                            newPath += path.replaceAll(Pattern.quote(prefix)
-                                                       + groupPattern
-                                                       + termPattern,
-                                                       prefix
-                                                           + "$1, "
-                                                           + type
-                                                           + "$3");
-                        }
-
-                        // Add the new type nodes to the path
-                        path += newPath;
-                    }
-                    // Check if the type filter changed to disabled
-                    else if (!isByType && isByTypeChanged)
-                    {
-                        // Remove the type name form the path
-                        path = path.replaceAll(Pattern.quote(prefix)
-                                               + groupPattern
-                                               + typePattern
-                                               + termPattern,
-                                               prefix
-                                                   + "$1$5");
-                    }
-
-                    break;
-                }
-                // Check if group filtering is disabled and the path contains a
-                // group
-                else if (!isByGroup && matchesGroup)
-                {
-                    // Blank the path
-                    path = "";
-                }
-            }
-
-            // Check that the path isn't already in the updated expansion state
-            if (!expState.contains(path))
-            {
-                // Add the path to the expansion state
-                expState += path;
-            }
-        }
-
-        return expState;
-    }
-
-    /**************************************************************************
      * Create a table tree panel. The table tree is placed in a scroll pane. A
      * check box is added that allows tree expansion/collapse
      * 
@@ -2176,11 +1937,27 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             }
         });
 
+        // Create the filtering node prefix storage and check boxes
+        final List<String> prefixes = new ArrayList<String>();
+        final JCheckBox groupFilterChkBx = new JCheckBox("Filter by group");
+        final JCheckBox typeFilterChkBx = new JCheckBox("Filter by type");
+
+        // Step through the child nodes of the root. These are the nodes that
+        // specify the table/variable divisions (e.g., 'Prototype', 'Parents &
+        // Children')
+        for (int index = 0; index < root.getChildCount(); index++)
+        {
+            // Add the child node name with its path to the prefix list
+            prefixes.add("["
+                         + root.getUserObject()
+                         + ", "
+                         + ((ToolTipTreeNode) root.getChildAt(index)).getUserObject());
+        }
+
         // Check if the group check box is valid for this tree type
         if (showGroupFilter)
         {
             // Create a group filter check box
-            groupFilterChkBx = new JCheckBox("Filter by group");
             groupFilterChkBx.setBorder(emptyBorder);
             groupFilterChkBx.setFont(LABEL_FONT_BOLD);
             groupFilterChkBx.setSelected(false);
@@ -2220,7 +1997,15 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
 
                     // Adjust the expansion state to account for the change in
                     // filtering, then restore the expansion state
-                    expState = adjustExpansionState(expState, true, false);
+                    expState = adjustExpansionState(expState,
+                                                    groupFilterChkBx.isSelected(),
+                                                    true,
+                                                    typeFilterChkBx.isSelected(),
+                                                    false,
+                                                    false,
+                                                    prefixes,
+                                                    groupHandler,
+                                                    tableTypeHandler);
                     setExpansionState(expState);
                 }
             });
@@ -2230,7 +2015,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         if (showTypeFilter)
         {
             // Create a type filter check box
-            final JCheckBox typeFilterChkBx = new JCheckBox("Filter by type");
             typeFilterChkBx.setBorder(emptyBorder);
             typeFilterChkBx.setFont(LABEL_FONT_BOLD);
             typeFilterChkBx.setSelected(false);
@@ -2269,7 +2053,15 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
 
                     // Adjust the expansion state to account for the change in
                     // filtering, then restore the expansion state
-                    expState = adjustExpansionState(expState, false, true);
+                    expState = adjustExpansionState(expState,
+                                                    groupFilterChkBx.isSelected(),
+                                                    false,
+                                                    typeFilterChkBx.isSelected(),
+                                                    true,
+                                                    false,
+                                                    prefixes,
+                                                    groupHandler,
+                                                    tableTypeHandler);
                     setExpansionState(expState);
                 }
             });

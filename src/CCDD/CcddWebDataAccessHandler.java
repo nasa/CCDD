@@ -9,14 +9,12 @@ package CCDD;
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_DATA_FIELD_IDENT;
-import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,6 +51,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     private final CcddDbTableCommandHandler dbTable;
     private final CcddEventLogDialog eventLog;
     private CcddRateParameterHandler rateHandler;
+    private CcddVariableConversionHandler variableHandler;
     private CcddLinkHandler linkHandler;
     private TableTreeType tableTreeType;
     private CcddJSONHandler jsonHandler;
@@ -65,18 +64,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     // table names to a specified level in the tree. This is used to get the
     // root tables
     boolean isMaxLevel;
-
-    // List for storing rate information from the custom values table
-    private List<String[]> rateValues;
-
-    // List for storing enumeration information from the custom values table
-    private List<String[]> enumerationValues;
-
-    // List of unique enumeration column names
-    private List<String> enumColumnNames;
-
-    // List of table names belonging to a group (or application)
-    private List<String> groupTables;
 
     /**************************************************************************
      * Web data access handler class constructor
@@ -179,19 +166,26 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *            text string to separate
      * 
      * @param separator
-     *            separation character(s). The is padded with a check for white
-     *            space characters in order to remove them
+     *            separation character(s). This is padded with a check for
+     *            white space characters in order to remove them
      * 
      * @param limit
      *            maximum number of parts to separate the text into. This is
      *            the number of parts returned, with any missing parts returned
      *            as blanks
      * 
+     * @param removeQuotes
+     *            true to remove excess double quotes from the individual array
+     *            members
+     * 
      * @return Array containing the specified number of parts of the text
      *         string. A part is returned as blank if the supplied text does
-     *         not contain the separator
+     *         not contain the number of parts specified by the limit
      *************************************************************************/
-    private String[] getParts(String text, String separator, int limit)
+    private String[] getParts(String text,
+                              String separator,
+                              int limit,
+                              boolean removeQuotes)
     {
         int index = 0;
 
@@ -199,15 +193,15 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         String[] parts = new String[limit];
         Arrays.fill(parts, "");
 
-        // Extract the parts of the input string using the supplied
-        // separator and limit, then step through each part
-        for (String part : text.trim().split("\\s*"
-                                             + Pattern.quote(separator)
-                                             + "\\s*",
-                                             limit))
+        // Extract the parts of the input string using the supplied separator
+        // and limit, then step through each part
+        for (String part : CcddUtilities.splitAndRemoveQuotes(text.trim(),
+                                                              separator,
+                                                              limit,
+                                                              removeQuotes))
         {
             // Store the value in the array
-            parts[index] = part;
+            parts[index] = part.trim();
             index++;
         }
 
@@ -242,7 +236,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         {
             // Separate the component/attribute/name from the flag to replace
             // macros (if present)
-            String[] itemAndMacro = getParts(item, ";", 2);
+            String[] itemAndMacro = getParts(item, ";", 2, false);
 
             // Set the flag if the text indicates the macro names (in place of
             // macro values) should be displayed
@@ -250,7 +244,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                              && !itemAndMacro[1].equalsIgnoreCase("macros");
 
             // Extract the item's attribute and name
-            String[] attributeAndName = getParts(itemAndMacro[0], "=", 2);
+            String[] attributeAndName = getParts(itemAndMacro[0], "=", 2, false);
 
             // Check if this is a table-related request
             if (component.equals("table")
@@ -423,6 +417,13 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                                 + "'");
                 }
             }
+            // Check if this is a variable names request
+            else if (component.equals("variable"))
+            {
+                // Get the variable names
+                response = getVariableNames(attributeAndName[0],
+                                            attributeAndName[1]);
+            }
             // Check if this is a telemetry parameter request
             else if (component.equals("telemetry"))
             {
@@ -517,16 +518,16 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     private List<String> getTableList()
     {
         // Build the table tree, including the primitive variables
-        CcddTableTreeHandler allTableTree = new CcddTableTreeHandler(ccddMain,
-                                                                     tableTreeType,
-                                                                     ccddMain.getMainFrame());
+        CcddTableTreeHandler allTablesTree = new CcddTableTreeHandler(ccddMain,
+                                                                      tableTreeType,
+                                                                      ccddMain.getMainFrame());
 
         // Convert the table tree to a list of table paths
-        return allTableTree.getTableTreePathList(null,
-                                                 (ToolTipTreeNode) allTableTree.getRootNode(),
-                                                 isMaxLevel
-                                                           ? allTableTree.getTableNodeLevel()
-                                                           : -1);
+        return allTablesTree.getTableTreePathList(null,
+                                                  (ToolTipTreeNode) allTablesTree.getRootNode(),
+                                                  isMaxLevel
+                                                            ? allTablesTree.getTableNodeLevel()
+                                                            : -1);
     }
 
     /**************************************************************************
@@ -1105,8 +1106,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // Check if any groups/applications exist
             if (groupNames.length != 0)
             {
-                response = "";
-
                 // Step through each group/application name
                 for (String name : groupNames)
                 {
@@ -1152,7 +1151,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 JSONArray dataJA = new JSONArray();
 
                 // Get the list of the group's tables
-                List<String> tables = groupInfo.getTables();
+                List<String> tables = groupInfo.getTablesAndAncestors();
 
                 // Step through each table
                 for (String table : tables)
@@ -1262,10 +1261,10 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                                                   : "group")
                                                 + " description");
                     }
-
-                    // Convert the response array to a JSON string
-                    response = responseJA.toString();
                 }
+
+                // Convert the response array to a JSON string
+                response = responseJA.toString();
             }
         }
         // A group name is provided
@@ -1283,12 +1282,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             {
                 JSONObject groupNameAndDesc = new JSONObject();
 
-                // Get the description. If no description exists then use a
-                // blank
-                response = groupInfo.getDescription() != null
-                                                             ? groupInfo.getDescription()
-                                                             : "";
-
                 // Check if the group name is to be included
                 if (includeNameTag)
                 {
@@ -1302,6 +1295,15 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                                          : JSONTags.GROUP_DESCRIPTION.getTag()),
                                          response);
                     response = groupNameAndDesc.toString();
+                }
+                // Don't include the name and description tags
+                else
+                {
+                    // Get the description. If no description exists then use a
+                    // blank
+                    response = groupInfo.getDescription() != null
+                                                                 ? groupInfo.getDescription()
+                                                                 : "";
                 }
             }
         }
@@ -1332,7 +1334,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * 
      * @return JSON encoded string containing the specified group's data
      *         fields; null if the group doesn't exist or if the project
-     *         database contains no groups
+     *         database contains no groups, or blank if the group contains no
+     *         data fields
      *************************************************************************/
     @SuppressWarnings("unchecked")
     private String getGroupFields(String groupName,
@@ -1355,7 +1358,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             {
                 JSONArray responseJA = new JSONArray();
                 JSONParser parser = new JSONParser();
-                response = "";
 
                 // Step through each group/application name
                 for (String name : groupNames)
@@ -1400,6 +1402,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 && (!applicationOnly
                 || groupInfo.isApplication()))
             {
+                JSONArray groupFieldsJA = new JSONArray();
+
                 // Build the field information list for this group
                 fieldHandler.buildFieldInformation(CcddFieldHandler.getFieldGroupName(groupName));
 
@@ -1411,30 +1415,29 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     JSONObject fieldsJO = jsonHandler.getTableFields(CcddFieldHandler.getFieldGroupName(groupName),
                                                                      fieldHandler,
                                                                      new JSONObject());
-                    JSONArray groupFieldsJA = (JSONArray) fieldsJO.get(JSONTags.TABLE_FIELD.getTag());
+                    groupFieldsJA = (JSONArray) fieldsJO.get(JSONTags.TABLE_FIELD.getTag());
+                }
 
-                    // Check if the name tag is to be included
-                    if (includeNameTag)
-                    {
-                        // Add the group name and group data fields to the
-                        // output
-                        JSONObject groupNameAndFields = new JSONObject();
-                        groupNameAndFields.put((applicationOnly
-                                                               ? JSONTags.APPLICATION_NAME.getTag()
-                                                               : JSONTags.GROUP_NAME.getTag()),
-                                               groupName);
-                        groupNameAndFields.put((applicationOnly
-                                                               ? JSONTags.APPLICATION_FIELD.getTag()
-                                                               : JSONTags.GROUP_FIELD.getTag()),
-                                               groupFieldsJA);
-                        response = groupNameAndFields.toString();
-                    }
-                    // Don't include the name tag
-                    else
-                    {
-                        // Add the data fields to the output
-                        response = groupFieldsJA.toString();
-                    }
+                // Check if the name tag is to be included
+                if (includeNameTag)
+                {
+                    // Add the group name and group data fields to the output
+                    JSONObject groupNameAndFields = new JSONObject();
+                    groupNameAndFields.put((applicationOnly
+                                                           ? JSONTags.APPLICATION_NAME.getTag()
+                                                           : JSONTags.GROUP_NAME.getTag()),
+                                           groupName);
+                    groupNameAndFields.put((applicationOnly
+                                                           ? JSONTags.APPLICATION_FIELD.getTag()
+                                                           : JSONTags.GROUP_FIELD.getTag()),
+                                           groupFieldsJA);
+                    response = groupNameAndFields.toString();
+                }
+                // Don't include the name and field tags
+                else
+                {
+                    // Add the data fields to the output
+                    response = groupFieldsJA.toString();
                 }
             }
         }
@@ -1598,43 +1601,38 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 && (!applicationOnly
                 || groupInfo.isApplication()))
             {
-                // Get the groups' table members
-                String tables = getGroupTables(groupName,
-                                               applicationOnly,
-                                               false,
-                                               groupHandler);
-
-                // Check if the group/application exists
-                if (tables != null)
+                try
                 {
-                    try
-                    {
-                        // Store the group's name, description, tables, and
-                        // data fields
-                        JSONObject groupInformation = new JSONObject();
-                        groupInformation.put(nameTag, groupName);
-                        groupInformation.put(descriptionTag,
-                                             getGroupDescription(groupName,
-                                                                 applicationOnly,
-                                                                 false,
-                                                                 groupHandler));
-                        groupInformation.put(tableTag, parser.parse(tables));
-                        groupInformation.put(dataFieldTag,
-                                             parser.parse(getGroupFields(groupName,
-                                                                         applicationOnly,
-                                                                         false,
-                                                                         groupHandler,
-                                                                         fieldHandler)));
+                    // Store the group's name, description, tables, and data
+                    // fields
+                    JSONObject groupInfoJO = new JSONObject();
+                    groupInfoJO.put(nameTag, groupName);
+                    groupInfoJO.put(descriptionTag,
+                                    getGroupDescription(groupName,
+                                                        applicationOnly,
+                                                        false,
+                                                        groupHandler));
+                    groupInfoJO.put(tableTag,
+                                    parser.parse(getGroupTables(groupName,
+                                                                applicationOnly,
+                                                                false,
+                                                                groupHandler)));
+                    groupInfoJO.put(dataFieldTag,
+                                    parser.parse(getGroupFields(groupName,
+                                                                applicationOnly,
+                                                                false,
+                                                                groupHandler,
+                                                                fieldHandler)));
 
-                        // Convert the response object to a JSON string
-                        response = groupInformation.toString();
-                    }
-                    catch (ParseException pe)
-                    {
-                        throw new CCDDException("error parsing "
-                                                + groupType
-                                                + " information");
-                    }
+                    // Convert the response object to a JSON string
+                    response = groupInfoJO.toString();
+                }
+                catch (ParseException pe)
+                {
+                    pe.printStackTrace();
+                    throw new CCDDException("error parsing "
+                                            + groupType
+                                            + " information");
                 }
             }
         }
@@ -1659,7 +1657,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         String response = null;
 
         // Separate the input parameters
-        String[] parameter = getParts(parameters, ",", 4);
+        String[] parameter = getParts(parameters, ",", 4, true);
 
         // Check if all the input parameters are present and that they're in
         // the expected formats
@@ -1756,9 +1754,95 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     }
 
     /**************************************************************************
-     * Get the path, ITOS mnemonic, data type, bit length, description, units,
-     * data stream information, and enumeration information for each
-     * telemetered variable matching the specified filters
+     * Get the variable names, both in application format and altered based on
+     * the user-provided parameters
+     * 
+     * @param variablePath
+     *            variable path + name for which to return the converted path;
+     *            blank to provide the paths for all variables
+     * 
+     * @param parameters
+     *            comma-separated string containing the variable path separator
+     *            character(s), show/hide data types flag ('true' or 'false'),
+     *            and data type/variable name separator character(s)
+     * 
+     * @return JSON encoded string containing the variable names; blank if the
+     *         project doesn't contain any variables and null if any input
+     *         parameter is invalid
+     *************************************************************************/
+    @SuppressWarnings("unchecked")
+    private String getVariableNames(String variablePath,
+                                    String parameters) throws CCDDException
+    {
+        String response = null;
+
+        // Separate the input parameters
+        String[] parameter = getParts(parameters, ",", 3, true);
+
+        // Check if all the input parameters are present and that they're in
+        // the expected formats
+        if (!parameter[0].matches(".*[\\[\\]].*")
+            && parameter[1].matches("(true|false)")
+            && !parameter[2].matches(".*[\\[\\]].*"))
+        {
+            JSONObject responseJO = new JSONObject();
+            response = "";
+
+            // Get the individual parameters and format them if needed
+            String varPathSeparator = parameter[0];
+            boolean hideDataTypes = Boolean.valueOf(parameter[1]);
+            String typeNameSeparator = parameter[2];
+
+            // Check if the variable handler hasn't been created already
+            if (variableHandler == null)
+            {
+                // Create the variable handler
+                variableHandler = new CcddVariableConversionHandler(ccddMain);
+            }
+
+            // Check if a variable path is specified
+            if (!variablePath.isEmpty())
+            {
+                // Store the variable path and name in the application and
+                // user-specified formats
+                responseJO.put(variablePath,
+                               variableHandler.getFullVariableName(variablePath,
+                                                                   varPathSeparator,
+                                                                   hideDataTypes,
+                                                                   typeNameSeparator));
+            }
+            // Get the conversion for all variables
+            else
+            {
+                // Step through each row in the variables table
+                for (int row = 0; row < variableHandler.getAllVariableNameList().size(); row++)
+                {
+                    // Store the variable paths and names in the application
+                    // and user-specified formats
+                    responseJO.put(variableHandler.getAllVariableNameList().get(row).toString(),
+                                   variableHandler.getFullVariableName(variableHandler.getAllVariableNameList().get(row).toString(),
+                                                                       varPathSeparator,
+                                                                       hideDataTypes,
+                                                                       typeNameSeparator));
+                }
+            }
+
+            response = responseJO.toString();
+        }
+        // Illegal separator character(s) or invalid show/hide data type flag
+        // value
+        else
+        {
+            throw new CCDDException("illegal separator character(s) or invalid show/hide data type flag value");
+        }
+
+        return response;
+    }
+
+    /**************************************************************************
+     * Get the path, data type, bit length, description, units, data stream
+     * information, and enumeration information for each telemetered variable
+     * matching the specified filters
      * 
      * @param telemetryFilter
      *            group (or application) name, data stream name, and/or rate
@@ -1771,26 +1855,27 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *            order to be included; blank to include the variable
      *            regardless of the rate value
      * 
-     * @return JSON encoded string containing the path, ITOS mnemonic, data
-     *         type, bit length, description, units, data stream name(s), and
-     *         enumeration(s) for each telemetered variable matching the
-     *         specified filters; empty array if no variables are telemetered
+     * @return JSON encoded string containing the path, data type, bit length,
+     *         description, units, data stream name(s), and enumeration(s) for
+     *         each telemetered variable matching the specified filters; empty
+     *         array if no variables are telemetered
      *************************************************************************/
     @SuppressWarnings("unchecked")
     private String getTelemetryInformation(String telemetryFilter) throws CCDDException
     {
         JSONArray telemetryJA = new JSONArray();
         TypeDefinition typeDefn = null;
-        rateValues = new ArrayListMultiple();
-        enumerationValues = new ArrayListMultiple();
         String groupFilter = "";
         String streamFilter = "";
         String rateFilter = "";
         int variableNameIndex = -1;
         int dataTypeIndex = -1;
         int bitLengthIndex = -1;
+        List<Integer> rateIndices = null;
+        List<Integer> enumerationIndices = null;
         int descriptionIndex = -1;
         int unitsIndex = -1;
+        List<String> allTableNameList = new ArrayList<String>();
 
         // Table type name for the previous table type loaded
         String lastType = "";
@@ -1802,7 +1887,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         if (!telemetryFilter.isEmpty())
         {
             // Separate the filter parameters
-            String[] filter = getParts(telemetryFilter, ",", 3);
+            String[] filter = getParts(telemetryFilter, ",", 3, true);
 
             // Check that the number of filter parameters is correct, that the
             // data stream name filter is blank or matches an existing data
@@ -1830,72 +1915,47 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     // Check if the group doesn't exist
                     if (groupInfo == null)
                     {
-                        throw new CCDDException("unrecognized group or stream name, "
-                                                + "or invalid rate value format");
+                        throw new CCDDException("unrecognized group name");
                     }
 
                     // Get the tables associated with the group
-                    groupTables = groupInfo.getTables();
+                    allTableNameList = groupInfo.getTablesAndAncestors();
                 }
             }
-            // Incorrect number of filter parameters, unrecognized data stream
-            // name, or invalid rate value format
+            // Unrecognized data stream name or invalid rate value format
             else
             {
-                throw new CCDDException("too many parameters, unrecognized group or "
-                                        + "stream name, or invalid rate value format");
+                throw new CCDDException("unrecognized stream name or invalid rate value format");
             }
         }
 
-        // Step through each data stream
-        for (String streamName : dataStreamNames)
+        // Check if no group filter is in effect
+        if (groupFilter.isEmpty())
         {
-            // Check if all data streams are to be loaded, of if a stream
-            // filter is supplied that the stream names match
-            if (streamFilter.isEmpty() || streamName.equals(streamFilter))
-            {
-                // Load all references to rate column values from the custom
-                // values table that match the rate column name associated with
-                // the data stream name
-                rateValues.addAll(dbTable.getCustomValues(rateHandler.getRateInformationByStreamName(streamName).getRateName(),
-                                                          rateFilter,
-                                                          ccddMain.getMainFrame()));
-            }
-        }
-
-        // Get the list of enumeration column names
-        enumColumnNames = ccddMain.getTableTypeHandler().getStructEnumColNames(false);
-
-        // Step through each enumeration column
-        for (String enumeration : enumColumnNames)
-        {
-            // Load all references to enumeration column values from the custom
-            // values table that match the enumeration column name
-            enumerationValues.addAll(dbTable.getCustomValues(enumeration,
-                                                             null,
-                                                             ccddMain.getMainFrame()));
+            // Get a list of all root and child tables
+            tableTreeType = TableTreeType.INSTANCE_ONLY;
+            allTableNameList = getTableList();
         }
 
         // Step through each structure table
-        for (String structureTable : dbTable.getTablesOfType(TYPE_STRUCTURE))
+        for (String table : allTableNameList)
         {
-            // Check if all telemetered variables are to be returned, or if a
-            // specific group's telemetered variables are requested that the
-            // table is a member of the group
-            if (groupFilter.isEmpty()
-                || groupTables.contains(structureTable))
-            {
-                // Get the information from the database for the specified
-                // table
-                TableInformation tableInfo = dbTable.loadTableData(structureTable,
-                                                                   false,
-                                                                   false,
-                                                                   false,
-                                                                   false,
-                                                                   ccddMain.getMainFrame());
+            // Get the information from the database for the specified table
+            TableInformation tableInfo = dbTable.loadTableData(table,
+                                                               false,
+                                                               false,
+                                                               false,
+                                                               false,
+                                                               ccddMain.getMainFrame());
 
-                // Check if the table loaded successfully
-                if (!tableInfo.isErrorFlag())
+            // Check if the table loaded successfully
+            if (!tableInfo.isErrorFlag())
+            {
+                // Get the table's type definition
+                typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(tableInfo.getType());
+
+                // CHekc if the table represents a structure
+                if (typeDefn.isStructure())
                 {
                     // Check if the table type changed. This accounts for
                     // multiple table types that represent structures, and
@@ -1911,17 +1971,42 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // Store the table type name
                         lastType = tableInfo.getType();
 
-                        // Get the table's type definition
-                        typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(tableInfo.getType());
-
                         // Get the variable name column
-                        variableNameIndex = typeDefn.getColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.VARIABLE));
+                        variableNameIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
 
                         // Get the data type column
-                        dataTypeIndex = typeDefn.getColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.PRIM_AND_STRUCT));
+                        dataTypeIndex = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
 
                         // Get the bit length column
-                        bitLengthIndex = typeDefn.getColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.BIT_LENGTH));
+                        bitLengthIndex = typeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH);
+
+                        // Check if a data stream filter is in effect
+                        if (!streamFilter.isEmpty())
+                        {
+                            // Get the index of the rate column corresponding
+                            // to the data stream filter
+                            rateIndices = new ArrayList<Integer>();
+
+                            // Get the index of the rate column with the
+                            // corresponding data stream name
+                            int rateIndex = typeDefn.getColumnIndexByUserName(rateHandler.getRateInformationByStreamName(streamFilter).getRateName());
+
+                            // Check if the table has the specified rate column
+                            if (rateIndex != -1)
+                            {
+                                // Add the rate column index to the list
+                                rateIndices.add(typeDefn.getColumnIndexByUserName(rateHandler.getRateInformationByStreamName(streamFilter).getRateName()));
+                            }
+                        }
+                        // Include all data streams
+                        else
+                        {
+                            // Get the indices for all rate columns
+                            rateIndices = typeDefn.getColumnIndicesByInputType(InputDataType.RATE);
+                        }
+
+                        // Get the enumeration column(s)
+                        enumerationIndices = typeDefn.getColumnIndicesByInputType(InputDataType.ENUMERATION);
 
                         // Check if a description column exists
                         if ((descColName = typeDefn.getColumnNameByInputType(InputDataType.DESCRIPTION)) != null)
@@ -1956,51 +2041,89 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // all the variable data on this row is skipped
                         if (!(cellValue = tableInfo.getData()[row][variableNameIndex]).isEmpty())
                         {
-                            // Store the name of the structure table from which
-                            // this variable is taken
-                            structureJO.put("Structure Table Name", structureTable);
+                            boolean hasRate = false;
 
-                            // Store the variable name in the JSON output
-                            structureJO.put(typeDefn.getColumnNamesUser()[variableNameIndex],
-                                            cellValue);
-
-                            // Check if the data type is present
-                            if (!(cellValue = tableInfo.getData()[row][dataTypeIndex]).isEmpty())
+                            // Step through the relevant rate columns
+                            for (Integer rateIndex : rateIndices)
                             {
-                                // Store the data type in the JSON output
-                                structureJO.put(typeDefn.getColumnNamesUser()[dataTypeIndex],
-                                                cellValue);
+                                // Check that a rate value is present and if
+                                // the rate matches the rate filter value (or
+                                // no filter is in effect)
+                                if (!tableInfo.getData()[row][rateIndex].isEmpty()
+                                    && (rateFilter.isEmpty()
+                                    || tableInfo.getData()[row][rateIndex].equals(rateFilter)))
+                                {
+                                    hasRate = true;
+
+                                    // Store the rate in the JSON output
+                                    structureJO.put(typeDefn.getColumnNamesUser()[rateIndex],
+                                                    tableInfo.getData()[row][rateIndex]);
+                                }
                             }
 
-                            // Check if the bit length is present
-                            if (!(cellValue = tableInfo.getData()[row][bitLengthIndex]).isEmpty())
+                            // Check if a variable matching the rate filters
+                            // exists
+                            if (hasRate)
                             {
-                                // Store the bit length in the JSON output
-                                structureJO.put(typeDefn.getColumnNamesUser()[bitLengthIndex],
-                                                cellValue);
-                            }
+                                // Store the name of the structure table from
+                                // which this variable is taken
+                                structureJO.put("Structure Table Name", table);
 
-                            // Check if the description is present
-                            if (descriptionIndex != -1
-                                && !(cellValue = tableInfo.getData()[row][descriptionIndex]).isEmpty())
-                            {
-                                // Store the description in the JSON output
-                                structureJO.put(typeDefn.getColumnNamesUser()[descriptionIndex],
+                                // Store the variable name in the JSON output
+                                structureJO.put(typeDefn.getColumnNamesUser()[variableNameIndex],
                                                 cellValue);
-                            }
 
-                            // Check if the units is present
-                            if (unitsIndex != -1
-                                && !(cellValue = tableInfo.getData()[row][unitsIndex]).isEmpty())
-                            {
-                                // Store the units in the JSON output
-                                structureJO.put(typeDefn.getColumnNamesUser()[descriptionIndex],
-                                                cellValue);
+                                // Check if the data type is present
+                                if (!(cellValue = tableInfo.getData()[row][dataTypeIndex]).isEmpty())
+                                {
+                                    // Store the data type in the JSON output
+                                    structureJO.put(typeDefn.getColumnNamesUser()[dataTypeIndex],
+                                                    cellValue);
+                                }
+
+                                // Check if the bit length is present
+                                if (!(cellValue = tableInfo.getData()[row][bitLengthIndex]).isEmpty())
+                                {
+                                    // Store the bit length in the JSON output
+                                    structureJO.put(typeDefn.getColumnNamesUser()[bitLengthIndex],
+                                                    cellValue);
+                                }
+
+                                // Step through each enumeration column
+                                for (Integer enumerationIndex : enumerationIndices)
+                                {
+                                    // Check if the enumeration is present
+                                    if (!(cellValue = tableInfo.getData()[row][enumerationIndex]).isEmpty())
+                                    {
+                                        // Store the enumeration in the JSON
+                                        // output
+                                        structureJO.put(typeDefn.getColumnNamesUser()[enumerationIndex],
+                                                        cellValue);
+                                    }
+                                }
+
+                                // Check if the description is present
+                                if (descriptionIndex != -1
+                                    && !(cellValue = tableInfo.getData()[row][descriptionIndex]).isEmpty())
+                                {
+                                    // Store the description in the JSON output
+                                    structureJO.put(typeDefn.getColumnNamesUser()[descriptionIndex],
+                                                    cellValue);
+                                }
+
+                                // Check if the units is present
+                                if (unitsIndex != -1
+                                    && !(cellValue = tableInfo.getData()[row][unitsIndex]).isEmpty())
+                                {
+                                    // Store the units in the JSON output
+                                    structureJO.put(typeDefn.getColumnNamesUser()[descriptionIndex],
+                                                    cellValue);
+                                }
+
+                                // Add the variable to the JSON array
+                                telemetryJA.add(structureJO);
                             }
                         }
-
-                        // Add the variable to the JSON array
-                        telemetryJA.add(structureJO);
                     }
                 }
             }
@@ -2030,6 +2153,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         int commandCodeIndex = -1;
         int commandDescriptionIndex = -1;
         List<AssociatedColumns> commandArguments = null;
+        List<String> groupTables = null;
 
         // Table type name for the previous table type loaded
         String lastType = "";
@@ -2050,11 +2174,11 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             }
 
             // Get the tables associated with the group
-            groupTables = groupInfo.getTables();
+            groupTables = groupInfo.getTablesAndAncestors();
         }
 
         // Step through each command table
-        for (String commandTable : dbTable.getTablesOfType(TYPE_COMMAND))
+        for (String commandTable : dbTable.getPrototypeTablesOfType(TYPE_COMMAND))
         {
             // Check if all commands are to be returned, or if a specific
             // group's commands are requested that the table is a member of the

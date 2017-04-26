@@ -131,10 +131,10 @@ public class CcddConstants
     // without a leading decimal)
     protected static final String TRAILING_ZEROES = "\\.??0*$";
 
-    // Regular expression for separating a data table row value string into the
-    // individual columns. Commas between double quotes are ignored so that an
-    // erroneous column separation doesn't occur
-    protected static final String COMMAS_AND_QUOTES = ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
+    // Regular expression for separating text string at a specified separator
+    // character. Separator characters between double quotes are ignored so
+    // that an erroneous separation doesn't occur
+    protected static final String SPLIT_IGNORE_QUOTES = "(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
 
     // Regular expressions that detect the presence of the specified text
     // within a string (case insensitive)

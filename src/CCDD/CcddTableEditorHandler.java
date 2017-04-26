@@ -3526,7 +3526,7 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
         {
             // Get the array of structure tables, if any
             allStructureTables = (allStructTbls == null)
-                                                        ? dbTable.getTablesOfType(TYPE_STRUCTURE)
+                                                        ? dbTable.getPrototypeTablesOfType(TYPE_STRUCTURE)
                                                         : allStructTbls;
 
             // Get the table tree

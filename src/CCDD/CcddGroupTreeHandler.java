@@ -90,7 +90,11 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     private String scheduleRate;
 
     // Flag indication only application groups should be displayed
-    boolean isApplicationOnly;
+    private final boolean isApplicationOnly;
+
+    // Node names for use when filtering the tree by application
+    private static String APP_NODE = "Application";
+    private static String OTHER_NODE = "Other";
 
     /**************************************************************************
      * Tree cell renderer with group size display handling class
@@ -192,7 +196,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         this.groupDefinitions = groupDefinitions;
         dbTable = ccddMain.getDbTableCommandHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
-        groupHandler = new CcddGroupHandler(groupDefinitions);
+        groupHandler = new CcddGroupHandler();
         fieldHandler = new CcddFieldHandler();
 
         // Set the tree to be collapsed initially
@@ -264,7 +268,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      * @param filterByType
      *            true if the tree is filtered by table type
      * 
-     * @param filterByType
+     * @param filterByApp
      *            true if the tree is filtered by application status
      * 
      * @param scheduleRate
@@ -331,16 +335,16 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         {
             // Create the node storage for the application statuses
             appNodes = new ToolTipTreeNode[2];
-            appNodes[0] = addInformationNode("Application",
+            appNodes[0] = addInformationNode(APP_NODE,
                                              "Groups representing a CFS application");
-            appNodes[1] = addInformationNode("Other",
+            appNodes[1] = addInformationNode(OTHER_NODE,
                                              "Groups not representing a CFS application");
         }
 
         // Step through each group
         for (GroupInformation groupInfo : groupHandler.getGroupInformation())
         {
-            // Extract the link name and rate/description or member
+            // Extract the group name
             String groupName = groupInfo.getName();
 
             // Check if all groups should be displayed or only applications and
@@ -350,7 +354,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                 // Create a node for the group and add it to the group tree
                 ToolTipTreeNode groupNode = addInformationNode(groupName,
                                                                groupInfo.getDescription(),
-                                                               isByApp);
+                                                               groupInfo.isApplication());
 
                 // Check if the table nodes should be displayed (i.e., no
                 // schedule rate is supplied)
@@ -375,7 +379,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                     }
 
                     // Step through each table belonging to the group
-                    for (String table : groupInfo.getTables())
+                    for (String table : groupInfo.getTablesAndAncestors())
                     {
                         // Check if the groups are filtered by application
                         // status
@@ -481,7 +485,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         groupHandler.getGroupInformation().add(new GroupInformation(nameOfCopy,
                                                                     ((GroupInformation) groupToCopy).getDescription(),
                                                                     ((GroupInformation) groupToCopy).isApplication(),
-                                                                    ((GroupInformation) groupToCopy).getTables().toArray(new String[0]),
+                                                                    ((GroupInformation) groupToCopy).getTablesAndAncestors(),
                                                                     ((GroupInformation) groupToCopy).getFieldInformation()));
     }
 
@@ -737,8 +741,8 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
             treePnl.add(appFilterChkBx, gbc);
 
             // Create a listener for changes in selection of the type filter
-            // or application filter check boxes
-            ActionListener listener = new ActionListener()
+            // check box
+            typeFilterChkBx.addActionListener(new ActionListener()
             {
                 /**************************************************************
                  * Handle a change to the type filter check box selection
@@ -750,19 +754,142 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                     // members
                     groupDefinitions = createDefinitionsFromTree();
 
+                    // Store the tree's current expansion state
+                    String expState = getExpansionState();
+
                     // Rebuild the tree based on the filter selection
                     buildTree(typeFilterChkBx.isSelected(),
                               appFilterChkBx.isSelected(),
                               scheduleRate,
                               isApplicationOnly,
                               parent);
-                }
-            };
 
-            // Add the filter check box listener to the type and application
-            // check boxes
-            typeFilterChkBx.addActionListener(listener);
-            appFilterChkBx.addActionListener(listener);
+                    final List<String> topNodePrefixes = new ArrayList<String>();
+
+                    // Step through each node immediately below the root node
+                    for (int index = 0; index < root.getChildCount(); index++)
+                    {
+                        // Add the node name to the list of prefixes
+                        topNodePrefixes.add("["
+                                            + root.getUserObject()
+                                            + ", "
+                                            + ((ToolTipTreeNode) root.getChildAt(index)).getUserObject());
+                    }
+
+                    // Adjust the expansion state to account for the change in
+                    // filtering, then restore the expansion state
+                    expState = adjustExpansionState(expState,
+                                                    appFilterChkBx.isSelected(),
+                                                    false,
+                                                    typeFilterChkBx.isSelected(),
+                                                    true,
+                                                    true,
+                                                    topNodePrefixes,
+                                                    groupHandler,
+                                                    tableTypeHandler);
+                    setExpansionState(expState);
+                }
+            });
+
+            // Create a listener for changes in selection of the application
+            // filter check box
+            appFilterChkBx.addActionListener(new ActionListener()
+            {
+                /**************************************************************
+                 * Handle a change to the type filter check box selection
+                 *************************************************************/
+                @Override
+                public void actionPerformed(ActionEvent ae)
+                {
+                    // Recreate the group definitions based on the current tree
+                    // members
+                    groupDefinitions = createDefinitionsFromTree();
+
+                    // Store the tree's current expansion state
+                    String expState = getExpansionState();
+
+                    // Rebuild the tree based on the filter selection
+                    buildTree(typeFilterChkBx.isSelected(),
+                              appFilterChkBx.isSelected(),
+                              scheduleRate,
+                              isApplicationOnly,
+                              parent);
+
+                    final List<String> topNodePrefixes = new ArrayList<String>();
+
+                    // Check if filtering by application is in effect
+                    if (appFilterChkBx.isSelected())
+                    {
+                        // Step through each node immediately below the root
+                        // node; these are the Application and Other nodes
+                        for (int index = 0; index < root.getChildCount(); index++)
+                        {
+                            // Step through each node immediately below the
+                            // Application and Other nodes
+                            for (int subIndex = 0; subIndex < root.getChildAt(index).getChildCount(); subIndex++)
+                            {
+                                // Add the node name to the list of prefixes
+                                topNodePrefixes.add("["
+                                                    + root.getUserObject()
+                                                    + ", "
+                                                    + ((ToolTipTreeNode)
+                                                    root.getChildAt(index)).getUserObject()
+                                                    + ", "
+                                                    + ((ToolTipTreeNode) root.getChildAt(index).getChildAt(subIndex)).getUserObject());
+                            }
+                        }
+
+                        // Check if the tree is completely collapsed
+                        if (expState.isEmpty())
+                        {
+                            // Set the expansion state to show the Application
+                            // and Other nodes
+                            expState = "[, " + APP_NODE + "], [, " + OTHER_NODE + "], ";
+                        }
+                        // The tree is expanded to some degree
+                        else
+                        {
+                            // Insert Application and Other nodes names into
+                            // the expansion paths
+                            expState = expState.replaceAll("\\[, ",
+                                                           "[, " + APP_NODE + ", ")
+                                       + " "
+                                       + expState.replaceAll("\\[, ", "[, " + OTHER_NODE + ", ");
+                        }
+                    }
+                    // Filtering by application is not in effect
+                    else
+                    {
+                        // Remove Application and Other nodes names from the
+                        // expansion paths
+                        expState = expState.replaceAll("\\[, " + APP_NODE + ", ", "[, ")
+                                           .replaceAll("\\[, " + OTHER_NODE + ", ", "[, ");
+                    }
+
+                    // Adjust the expansion state to account for the change in
+                    // filtering
+                    expState = adjustExpansionState(expState,
+                                                    appFilterChkBx.isSelected(),
+                                                    true,
+                                                    typeFilterChkBx.isSelected(),
+                                                    false,
+                                                    true,
+                                                    topNodePrefixes,
+                                                    groupHandler,
+                                                    tableTypeHandler);
+
+                    // Check if filtering by application is in effect
+                    if (appFilterChkBx.isSelected())
+                    {
+                        // Add the Application and Other nodes to the expansion
+                        // path
+                        expState = "[, " + APP_NODE + "], [, " + OTHER_NODE + "], " + expState;
+                    }
+
+                    // Restore the expansion state
+                    setExpansionState(expState);
+                }
+            });
         }
 
         return treePnl;

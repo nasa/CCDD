@@ -917,7 +917,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
             String[] nodePath = cleanNodePath(node.getPath());
 
             // Store the top level name
-            leafDefinition.add(nodePath[getTableNodeLevel() + 1]);
+            leafDefinition.add(nodePath[getGroupNodeLevel()]);
 
             // Get the leaf node's path, converted from an array to a string
             leafDefinition.add(convertLeafNodePath(nodePath));

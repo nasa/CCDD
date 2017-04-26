@@ -29,7 +29,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.print.PrinterException;
+import java.awt.print.PageFormat;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.CharBuffer;
@@ -37,7 +37,6 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -54,7 +53,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.JTextPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -98,7 +96,6 @@ public class CcddSearchDialog extends CcddDialogHandler
 {
     // Class references
     private final CcddMain ccddMain;
-    private final CcddDbControlHandler dbControl;
     private final CcddDbCommandHandler dbCommand;
     private final CcddTableTypeHandler tableTypeHandler;
     private CcddJTableHandler resultsTable;
@@ -108,7 +105,6 @@ public class CcddSearchDialog extends CcddDialogHandler
     private JTextField searchFld;
     private JCheckBox ignoreCaseCb;
     private JCheckBox dataTablesOnlyCb;
-    private JTextPane resultsPane;
 
     // Search dialog type
     private final SearchDialogType searchDlgType;
@@ -142,7 +138,6 @@ public class CcddSearchDialog extends CcddDialogHandler
         this.eventLog = eventLog;
 
         // Create references to shorten subsequent calls
-        dbControl = ccddMain.getDbControlHandler();
         dbCommand = ccddMain.getDbCommandHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
 
@@ -214,16 +209,17 @@ public class CcddSearchDialog extends CcddDialogHandler
         searchFld.setForeground(Color.BLACK);
         searchFld.setBackground(Color.WHITE);
         searchFld.setBorder(border);
-        gbc.gridy++;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets.left = LABEL_HORIZONTAL_SPACING * 2;
         gbc.insets.bottom = LABEL_VERTICAL_SPACING / 2;
+        gbc.gridy++;
         dialogPnl.add(searchFld, gbc);
 
         // Create a check box for ignoring the text case
         ignoreCaseCb = new JCheckBox("Ignore text case");
         ignoreCaseCb.setFont(LABEL_FONT_BOLD);
         ignoreCaseCb.setBorder(BorderFactory.createEmptyBorder());
+        gbc.insets.left = LABEL_HORIZONTAL_SPACING;
         gbc.gridy++;
         dialogPnl.add(ignoreCaseCb, gbc);
 
@@ -241,14 +237,14 @@ public class CcddSearchDialog extends CcddDialogHandler
         }
 
         // Create the search dialog labels and fields
-        JLabel resultLbl = new JLabel("Search results");
-        resultLbl.setFont(LABEL_FONT_BOLD);
-        resultLbl.setForeground(LABEL_TEXT_COLOR);
+        JLabel resultsLbl = new JLabel("Search results");
+        resultsLbl.setFont(LABEL_FONT_BOLD);
+        resultsLbl.setForeground(LABEL_TEXT_COLOR);
         gbc.insets.top = LABEL_VERTICAL_SPACING;
         gbc.insets.left = LABEL_HORIZONTAL_SPACING;
         gbc.insets.bottom = 0;
         gbc.gridy++;
-        dialogPnl.add(resultLbl, gbc);
+        dialogPnl.add(resultsLbl, gbc);
 
         // Create the table to display the search results
         resultsTable = new CcddJTableHandler()
@@ -510,7 +506,10 @@ public class CcddSearchDialog extends CcddDialogHandler
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                printSearchResults();
+                resultsTable.printTable("Search Results",
+                                        null,
+                                        CcddSearchDialog.this,
+                                        PageFormat.LANDSCAPE);
             }
         });
 
@@ -1261,34 +1260,5 @@ public class CcddSearchDialog extends CcddDialogHandler
 
         // Display the results in the dialog search results table
         resultsTable.loadAndFormatData();
-    }
-
-    /**************************************************************************
-     * Output the search results to the user-selected printer
-     *************************************************************************/
-    private void printSearchResults()
-    {
-        try
-        {
-            resultsPane.print(new MessageFormat("Project '"
-                                                + dbControl.getDatabase()
-                                                + " Inconsistencies"),
-                              new MessageFormat("Page - {0}"),
-                              true,
-                              null,
-                              null,
-                              true);
-        }
-        catch (PrinterException pe)
-        {
-            // Inform the user that printing the search results failed
-            new CcddDialogHandler().showMessageDialog(this,
-                                                      "<html><b>Cannot print search results; cause '"
-                                                          + pe.getMessage()
-                                                          + "'",
-                                                      "Print Error",
-                                                      JOptionPane.WARNING_MESSAGE,
-                                                      DialogOption.OK_OPTION);
-        }
     }
 }

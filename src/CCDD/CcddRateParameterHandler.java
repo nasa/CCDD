@@ -275,8 +275,8 @@ public class CcddRateParameterHandler
      * @param streamName
      *            name of stream
      * 
-     * @return Rate information with the data stream name; null if the rate
-     *         column doesn't exist
+     * @return Rate information with the data stream name; null if the data
+     *         stream doesn't exist
      *************************************************************************/
     protected RateInformation getRateInformationByStreamName(String streamName)
     {

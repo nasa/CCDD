@@ -230,14 +230,14 @@ public class CcddMessageIDHandler
                                               parent));
 
         // Get the list of tables representing structures
-        structureTables = Arrays.asList(dbTable.getTablesOfType(TYPE_STRUCTURE));
+        structureTables = Arrays.asList(dbTable.getPrototypeTablesOfType(TYPE_STRUCTURE));
 
         // Get the list of tables representing commands
-        commandTables = Arrays.asList(dbTable.getTablesOfType(TYPE_COMMAND));
+        commandTables = Arrays.asList(dbTable.getPrototypeTablesOfType(TYPE_COMMAND));
 
         // Get the list of tables representing table types other than
         // structures and commands
-        otherTables = Arrays.asList(dbTable.getTablesOfType(TYPE_OTHER));
+        otherTables = Arrays.asList(dbTable.getPrototypeTablesOfType(TYPE_OTHER));
 
         // Step through each data field message ID
         for (String[] tableOwnerAndID : tableIDs)

@@ -6,7 +6,7 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.COMMAS_AND_QUOTES;
+import static CCDD.CcddConstants.SPLIT_IGNORE_QUOTES;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -259,14 +259,50 @@ public class CcddUtilities
      *************************************************************************/
     protected static String[] splitAndRemoveQuotes(String text)
     {
-        // Extract the table type information
-        String[] array = text.split(COMMAS_AND_QUOTES, -1);
+        return splitAndRemoveQuotes(text, ",", -1, true);
+    }
 
-        // Step through each definition entry
-        for (int index = 0; index < array.length; index++)
+    /**************************************************************************
+     * Split the supplied text string into an array, divided at the specified
+     * separator character(s), ignoring the separator character(s) within
+     * quotes. Remove the excess double quotes from the array members
+     * 
+     * @param text
+     *            text string to split
+     * 
+     * @param separator
+     *            character(s) at which to split the text
+     * 
+     * @param limit
+     *            maximum number of parts to separate the text into. This is
+     *            the number of parts returned, with any missing parts returned
+     *            as blanks
+     * 
+     * @param removeQuotes
+     *            true to remove excess double quotes from the individual array
+     *            members
+     * 
+     * @return Text string divided into separate components, split at commas,
+     *         accounting for commas within double quotes, and with the excess
+     *         double quotes removed
+     *************************************************************************/
+    protected static String[] splitAndRemoveQuotes(String text,
+                                                   String separator,
+                                                   int limit,
+                                                   boolean removeQuotes)
+    {
+        // Extract the table type information
+        String[] array = text.split(separator + SPLIT_IGNORE_QUOTES, limit);
+
+        // Check if the excess double quotes are to be removed
+        if (removeQuotes)
         {
-            // Remove any excess quotes
-            array[index] = removeExcessQuotes(array[index]);
+            // Step through each definition entry
+            for (int index = 0; index < array.length; index++)
+            {
+                // Remove any excess quotes
+                array[index] = removeExcessQuotes(array[index]);
+            }
         }
 
         return array;

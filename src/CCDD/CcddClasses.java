@@ -1856,7 +1856,8 @@ public class CcddClasses
         private String name;
         private String description;
         private Boolean isApplication;
-        private List<String> tables;
+        private final List<String> tablesAndAncestors;
+        private final List<String> tableMembers;
         private List<FieldInformation> fieldInformation;
 
         /**********************************************************************
@@ -1895,8 +1896,8 @@ public class CcddClasses
          *            flag indicating if the group represents a CFS application
          * 
          * @param tables
-         *            array of tables belonging to this group; null if creating
-         *            a new, empty group
+         *            list of tables (with full paths( belonging to this group;
+         *            null if creating a new, empty group
          * 
          * @param fieldInformation
          *            data field information
@@ -1904,9 +1905,12 @@ public class CcddClasses
         protected GroupInformation(String name,
                                    String description,
                                    Boolean isApplication,
-                                   String[] tables,
+                                   List<String> tables,
                                    List<FieldInformation> fieldInformation)
         {
+            tablesAndAncestors = new ArrayList<String>();
+            tableMembers = new ArrayList<String>();
+
             this.name = name;
             this.description = description;
             this.isApplication = isApplication;
@@ -1923,13 +1927,14 @@ public class CcddClasses
             if (tables == null)
             {
                 // Create an empty list for the tables
-                this.tables = new ArrayList<String>();
+                tables = new ArrayList<String>();
             }
-            // The table are supplied
-            else
+
+            // Step through each table path in the group
+            for (String table : tables)
             {
-                // Convert the supplied array of tables to a list
-                this.tables = Arrays.asList(tables);
+                // Add the table to the lists
+                addTable(table);
             }
         }
 
@@ -1999,13 +2004,70 @@ public class CcddClasses
         }
 
         /**********************************************************************
-         * Get the group table list
+         * Get the group table list that includes the member tables and all of
+         * their ancestor tables
          *
-         * @return Group table list
+         * @return Group table list that includes the member tables and all of
+         *         their ancestor tables
          *********************************************************************/
-        protected List<String> getTables()
+        protected List<String> getTablesAndAncestors()
         {
-            return tables;
+            return tablesAndAncestors;
+        }
+
+        /**********************************************************************
+         * Get the list of table members (root tables and parent.child table
+         * table pairs) belonging to this group
+         *
+         * @return List of table members (parent.child table table pairs)
+         *         belonging to this group
+         *********************************************************************/
+        protected List<String> getTableMembers()
+        {
+            return tableMembers;
+        }
+
+        /**********************************************************************
+         * Add the specified group table to the lists that include each
+         * parent.child table pair and the member table along with its ancestor
+         * tables
+         * 
+         * @param table
+         *            group table member (full table path)
+         *********************************************************************/
+        protected void addTable(String table)
+        {
+            // Separate the root and parent.child tables in the path
+            for (String member : table.split(","))
+            {
+                // Check if the table isn't in the list
+                if (!tableMembers.contains(member))
+                {
+                    // Add the table to the group's table member list
+                    tableMembers.add(member);
+                }
+            }
+
+            // Check if this isn't a root table
+            while (table.contains(","))
+            {
+                // Check if the table isn't already added to the list
+                if (!tablesAndAncestors.contains(table))
+                {
+                    // Add the member/ancestor table to the list
+                    tablesAndAncestors.add(table);
+                }
+
+                // Remove the parent.child
+                table = table.substring(0, table.lastIndexOf(","));
+            }
+
+            // Check if the root table isn't already added to the list
+            if (!tablesAndAncestors.contains(table))
+            {
+                // Add the root table to the list
+                tablesAndAncestors.add(table);
+            }
         }
 
         /**********************************************************************
@@ -4669,7 +4731,8 @@ public class CcddClasses
     }
 
     /**************************************************************************
-     * Array list class with string arrays
+     * Array list class with string arrays. The array column for use with the
+     * indexOf and contains methods can be specified (defaults to column 0)
      *************************************************************************/
     @SuppressWarnings("serial")
     protected static class ArrayListMultiple extends ArrayList<String[]>

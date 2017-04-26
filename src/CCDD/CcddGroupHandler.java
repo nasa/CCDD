@@ -24,6 +24,13 @@ public class CcddGroupHandler
     private List<GroupInformation> groupInformation;
 
     /**************************************************************************
+     * Group handler class constructor
+     *************************************************************************/
+    protected CcddGroupHandler()
+    {
+    }
+
+    /**************************************************************************
      * Group handler class constructor. Load and build the group information
      * class from the group definitions stored in the project database
      * 
@@ -134,41 +141,14 @@ public class CcddGroupHandler
                 // This is a group's variable path
                 else
                 {
-                    // Split the entry into the parent table and the path
-                    String[] topAndPath = groupMember.toString().split(",", 2);
-
                     // Get the reference to this group's information
                     GroupInformation groupInfo = getGroupInformationByName(groupName);
 
                     // Check that the group exists
                     if (groupInfo != null)
                     {
-                        // Check if this parent table has not been added to the
-                        // group's table list
-                        if (!groupInfo.getTables().contains(topAndPath[0]))
-                        {
-                            // Add the parent table to the group's table list
-                            groupInfo.getTables().add(topAndPath[0]);
-                        }
-
-                        // Check if this parent table contains any paths
-                        if (topAndPath.length > 1)
-                        {
-                            // Split the path into structure and variable pairs
-                            String[] tables = topAndPath[1].split(",");
-
-                            // Step through each table referenced in the path
-                            for (int index = 1; index < tables.length; index++)
-                            {
-                                // Check if this table reference han't been
-                                // added to the group's table list
-                                if (!groupInfo.getTables().contains(tables[index]))
-                                {
-                                    // Add this table to the group's table list
-                                    groupInfo.getTables().add(tables[index]);
-                                }
-                            }
-                        }
+                        // Add the table to the group's table list
+                        groupInfo.addTable(groupMember);
                     }
                 }
             }
@@ -230,29 +210,33 @@ public class CcddGroupHandler
      *************************************************************************/
     protected List<GroupInformation> getGroupInformation()
     {
-        // Sort the group information list based on the group names
-        Collections.sort(groupInformation, new Comparator<Object>()
+        // Check if any groups exist
+        if (groupInformation != null)
         {
-            /******************************************************************
-             * Compare group names
-             * 
-             * @param grpInfo1
-             *            first group's information
-             * 
-             * @param grpInfo2
-             *            second group's information
-             * 
-             * @return -1 if the first group's name is lexically less than the
-             *         second group's name; 0 if the two group names are the
-             *         same; 1 if the first group's name is lexically greater
-             *         than the second group's name
-             *****************************************************************/
-            @Override
-            public int compare(Object grpInfo1, Object grpInfo2)
+            // Sort the group information list based on the group names
+            Collections.sort(groupInformation, new Comparator<Object>()
             {
-                return ((GroupInformation) grpInfo1).getName().compareTo(((GroupInformation) grpInfo2).getName());
-            }
-        });
+                /**************************************************************
+                 * Compare group names
+                 * 
+                 * @param grpInfo1
+                 *            first group's information
+                 * 
+                 * @param grpInfo2
+                 *            second group's information
+                 * 
+                 * @return -1 if the first group's name is lexically less than
+                 *         the second group's name; 0 if the two group names
+                 *         are the same; 1 if the first group's name is
+                 *         lexically greater than the second group's name
+                 *************************************************************/
+                @Override
+                public int compare(Object grpInfo1, Object grpInfo2)
+                {
+                    return ((GroupInformation) grpInfo1).getName().compareTo(((GroupInformation) grpInfo2).getName());
+                }
+            });
+        }
 
         return groupInformation;
     }

@@ -599,7 +599,7 @@ public class CcddDataTypeHandler
         comboDlg = new JDialog(ccddMain.getDataTypeEditor());
 
         // Get the array of prototype structure table names
-        structures = dbTable.getTablesOfType(TYPE_STRUCTURE);
+        structures = dbTable.getPrototypeTablesOfType(TYPE_STRUCTURE);
 
         // Check if any structures exist
         if (structures.length != 0)

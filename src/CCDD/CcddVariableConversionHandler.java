@@ -7,10 +7,8 @@
 package CCDD;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 
-import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.TableTreeType;
 
 /******************************************************************************
@@ -42,9 +40,6 @@ public class CcddVariableConversionHandler
     CcddVariableConversionHandler(List<String> allVariableNameList)
     {
         this.allVariableNameList = allVariableNameList;
-
-        // Create the conversion list
-        createConvertedVariableNameList(allVariableNameList);
     }
 
     /**************************************************************************
@@ -56,34 +51,25 @@ public class CcddVariableConversionHandler
      *************************************************************************/
     CcddVariableConversionHandler(CcddMain ccddMain)
     {
-        allVariableNameList = new ArrayList<String>();
+        // allVariableNameList = new ArrayList<String>();
 
         // Create a tree containing all of the variables
         allVariableTree = new CcddTableTreeHandler(ccddMain,
                                                    TableTreeType.INSTANCE_WITH_PRIMITIVES,
                                                    ccddMain.getMainFrame());
 
-        // Expand the tree so that all nodes are 'visible'
-        allVariableTree.setTreeExpansion(true);
+        // Get the list of all variables
+        allVariableNameList = allVariableTree.getTableTreePathList(null);
 
-        // Step through all of the nodes in the variable tree
-        for (Enumeration<?> element = allVariableTree.getRootNode().preorderEnumeration(); element.hasMoreElements();)
+        // Step through each variable
+        for (int index = 0; index < allVariableNameList.size(); index++)
         {
-            // Get the variable name from the node
-            String variable = allVariableTree.getFullVariablePath(((ToolTipTreeNode) element.nextElement()).getPath());
-
-            // Check if a variable name exists at this node
-            if (!variable.isEmpty())
-            {
-                // Convert the variable path to a string and add it to the
-                // list, expanding any macro(s) in the variable name and
-                // removing the bit length (if present)
-                allVariableNameList.add(ccddMain.getMacroHandler().getMacroExpansion(variable).replaceFirst("\\:\\d+$", ""));
-            }
+            // Expand any macro(s) in the variable name and remove the bit
+            // length (if present)
+            allVariableNameList.set(index,
+                                    ccddMain.getMacroHandler().getMacroExpansion(allVariableNameList.get(index)).replaceFirst("\\:\\d+$",
+                                                                                                                              ""));
         }
-
-        // Create the conversion list
-        createConvertedVariableNameList(allVariableNameList);
     }
 
     /**************************************************************************
@@ -109,38 +95,53 @@ public class CcddVariableConversionHandler
     }
 
     /**************************************************************************
-     * Remove the data types in the supplied variable path + name, replace the
-     * commas in the (which separate each structure variable in the path) with
-     * the specified separator character, replace any left brackets with
-     * underscores and right brackets with blanks (in case there are any array
-     * members in the path), and remove the bit length (if one is present)
+     * Retain or remove the data types in the supplied variable path + name
+     * based on the input flag, replace the commas in the (which separate each
+     * structure variable in the path) with the specified separator character,
+     * replace any left brackets with underscores and right brackets with
+     * blanks (in case there are any array members in the path), and remove the
+     * bit length (if one is present)
      * 
      * @param fullName
      *            variable path + name
      * 
-     * @param separator
-     *            character(s) to replace commas in the variable path + name
+     * @param varPathSeparator
+     *            character(s) to place between variables path members
      * 
      * @param excludeDataTypes
      *            true to remove the data types from the variable path + name
      * 
-     * @return Variable path + name with the data types removed, commas
-     *         replaced by the separator character(s), left brackets replaced
-     *         by underscores, right brackets removed, and the bit length
-     *         removed (if present)
+     * @param typeNameSeparator
+     *            character(s) to place between data types and variable names
+     * 
+     * @return Variable path + name with the data types retained or removed,
+     *         commas replaced by the separator character(s), left brackets
+     *         replaced by underscores, right brackets removed, and the bit
+     *         length removed (if present)
      *************************************************************************/
     private String convertVariableName(String fullName,
-                                       String separator,
-                                       boolean excludeDataTypes)
+                                       String varPathSeparator,
+                                       boolean excludeDataTypes,
+                                       String typeNameSeparator)
     {
         // Check if data types are to be excluded
         if (excludeDataTypes)
         {
             // Remove the data types from the variable path + name
-            fullName = fullName.replaceAll(",[^\\.]*\\.", ".");
+            fullName = fullName.replaceAll(",[^\\.]*\\.", ",");
+        }
+        // Data types are retained
+        else
+        {
+            // Replace the data type/variable name separator with marker
+            // characters. These are used to detect and replace the data type
+            // and variable name separator below, and prevents collisions
+            // between the two separators and their original characters
+            fullName = fullName.replaceAll("\\.", "@~~@");
         }
 
-        return fullName.replaceAll("[,]", separator)
+        return fullName.replaceAll("[,]", varPathSeparator)
+                       .replaceAll("@~~@", typeNameSeparator)
                        .replaceAll("[\\[]", "_")
                        .replaceAll("\\]", "")
                        .replaceFirst("\\:\\d+$", "");
@@ -159,28 +160,45 @@ public class CcddVariableConversionHandler
      *            [,structureDataType2.variable2
      *            [,...]]],primitiveDataType.variable
      * 
-     * @param separator
-     *            character(s) to place between variables names
+     * @param varPathSeparator
+     *            character(s) to place between variables path members
      * 
      * @param excludeDataTypes
      *            true to remove the data types from the variable path + name
+     * 
+     * @param typeNameSeparator
+     *            character(s) to place between data types and variable names
      * 
      * @return The variable's full path and name with each variable in the path
      *         separated by the specified separator character(s); returns a
      *         blank is the row is invalid
      *************************************************************************/
     protected String getFullVariableName(String fullName,
-                                         String separator,
-                                         boolean excludeDataTypes)
+                                         String varPathSeparator,
+                                         boolean excludeDataTypes,
+                                         String typeNameSeparator)
     {
         // Check if the full variable name is provided
         if (fullName != null && !fullName.isEmpty())
         {
             int index = -1;
 
-            // Check if the separator character is an underscore
-            if (separator.equals("_"))
+            // Check if the separator character is an underscore and that data
+            // types are to be removed
+            if (varPathSeparator.equals("_") && excludeDataTypes == true)
             {
+                // Check if the conversion list hasn't been created already
+                if (originalVariableNameList == null)
+                {
+                    // Create the conversion list. The conversion list is
+                    // needed since it's possible that duplicate variable path
+                    // + names can occur if underscores are part of the names.
+                    // The lists ensure that no duplicate is returned; instead,
+                    // a unique name is created by appending one or more
+                    // underscores to the otherwise duplicate name
+                    createConvertedVariableNameList(allVariableNameList);
+                }
+
                 // Get the index of the variable name from the list of
                 // original names
                 index = originalVariableNameList.indexOf(fullName);
@@ -201,8 +219,9 @@ public class CcddVariableConversionHandler
                 // Convert the variable path + name using the separator
                 // character(s) to separate the variables in the path
                 fullName = convertVariableName(fullName,
-                                               separator,
-                                               excludeDataTypes);
+                                               varPathSeparator,
+                                               excludeDataTypes,
+                                               typeNameSeparator);
             }
         }
 
@@ -231,7 +250,7 @@ public class CcddVariableConversionHandler
         {
             // Convert the variable path + name using underscores to separate
             // the variables in the path, and retain the data types
-            String fullName = convertVariableName(variableName, "_", false);
+            String fullName = convertVariableName(variableName, "_", false, ".");
 
             // Compare the converted variable name to those already added to
             // the list

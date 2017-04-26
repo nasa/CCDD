@@ -5652,7 +5652,7 @@ public class CcddDbTableCommandHandler
         if (!ccddMain.getTableEditorDialogs().isEmpty())
         {
             // Build the structure table array and table tree
-            String[] allStructureTables = getTablesOfType(TYPE_STRUCTURE);
+            String[] allStructureTables = getPrototypeTablesOfType(TYPE_STRUCTURE);
             CcddTableTreeHandler newTableTree = new CcddTableTreeHandler(ccddMain,
                                                                          TableTreeType.INSTANCE_ONLY,
                                                                          parent);
@@ -6333,7 +6333,8 @@ public class CcddDbTableCommandHandler
     }
 
     /**************************************************************************
-     * Get an array containing all tables that represent the specified type
+     * Get an array containing all prototype tables that represent the
+     * specified type
      * 
      * @param tableType
      *            TYPE_STRUCTURE to get all tables for any type that represents
@@ -6342,11 +6343,11 @@ public class CcddDbTableCommandHandler
      *            neither a structure or command table, or the table type name
      *            to get all tables for the specified type
      * 
-     * @return Array containing all tables that represent the specified type.
-     *         Returns an empty array if no tables of the specified type exists
-     *         in the project database
+     * @return Array containing all prototype tables that represent the
+     *         specified type. Returns an empty array if no tables of the
+     *         specified type exists in the project database
      *************************************************************************/
-    protected String[] getTablesOfType(String tableType)
+    protected String[] getPrototypeTablesOfType(String tableType)
     {
         String[] tablesOfType = new String[0];
 
