@@ -9,7 +9,7 @@ package CCDD;
 import static CCDD.CcddConstants.DATABASE;
 import static CCDD.CcddConstants.DATABASE_BACKUP_PATH;
 import static CCDD.CcddConstants.DATABASE_DRIVER;
-import static CCDD.CcddConstants.DATABASE_TYPE_IDENTIFIER;
+import static CCDD.CcddConstants.CCDD_PROJECT_IDENTIFIER;
 import static CCDD.CcddConstants.DEFAULT_DATABASE;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_HOST;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_PORT;
@@ -542,7 +542,7 @@ public class CcddDbControlHandler
             resultSet.next();
 
             // Split the comment to remove the CFS project identifier
-            String[] parts = resultSet.getString(1).split(DATABASE_TYPE_IDENTIFIER);
+            String[] parts = resultSet.getString(1).split(CCDD_PROJECT_IDENTIFIER);
 
             resultSet.close();
 
@@ -696,7 +696,7 @@ public class CcddDbControlHandler
         return "COMMENT ON DATABASE "
                + databaseName
                + " IS '"
-               + DATABASE_TYPE_IDENTIFIER
+               + CCDD_PROJECT_IDENTIFIER
                + (lockStatus ? "1" : "0")
                + description
                + "'; ";

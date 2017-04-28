@@ -7,6 +7,7 @@
 package CCDD;
 
 import static CCDD.CcddConstants.DB_SAVE_POINT_NAME;
+import static CCDD.CcddConstants.REPLACE_INDICATOR;
 import static CCDD.CcddConstants.DIALOG_MAX_MESSAGE_LENGTH;
 import static CCDD.CcddConstants.ENUMERATION_SEPARATOR;
 import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
@@ -422,6 +423,53 @@ public class CcddDbTableCommandHandler
         }
 
         return queryResults;
+    }
+
+    /**************************************************************************
+     * Retrieve the specified cell's value from the specified table
+     * 
+     * @param table
+     *            name database table name
+     * 
+     * @param primaryKey
+     *            value of the table's primary key column from which to extract
+     *            the cell value
+     * 
+     * @param columnName
+     *            name of the column from which to extract the cell value
+     * 
+     * @param parent
+     *            GUI component calling this method
+     * 
+     * @return Value of the cell in the table specified; blank if the query
+     *         fails
+     *************************************************************************/
+    protected String queryTableCellValue(String tableName,
+                                         String primaryKey,
+                                         String columnName,
+                                         Component parent)
+    {
+        String cellValue = "";
+
+        // Get the cell value from the table
+        List<String[]> results = queryDatabase("SELECT "
+                                               + columnName
+                                               + " FROM "
+                                               + tableName
+                                               + " WHERE "
+                                               + DefaultColumn.PRIMARY_KEY.getDbName()
+                                               + " = "
+                                               + primaryKey,
+                                               parent);
+
+        // Check if the query succeeded
+        if (results != null)
+        {
+            // Get the cell value from the query results
+            cellValue = results.get(0)[0];
+        }
+
+        return cellValue;
     }
 
     /**************************************************************************
@@ -3362,23 +3410,31 @@ public class CcddDbTableCommandHandler
                                           + ValuesColumn.COLUMN_NAME.getColumnName()
                                           + " = '"
                                           + typeDefinition.getColumnNamesUser()[column]
-                                          + "'; INSERT INTO "
-                                          + InternalTable.VALUES.getTableName()
-                                          + " ("
-                                          + ValuesColumn.TABLE_PATH.getColumnName()
-                                          + ", "
-                                          + ValuesColumn.COLUMN_NAME.getColumnName()
-                                          + ", "
-                                          + ValuesColumn.VALUE.getColumnName()
-                                          + ") VALUES ('"
-                                          + tableInfo.getTablePath()
-                                          + ","
-                                          + variableName
-                                          + "', '"
-                                          + typeDefinition.getColumnNamesUser()[column]
-                                          + "', '"
-                                          + mod.getRowData()[column]
-                                          + "'); ");
+                                          + "';");
+
+                            // Check if the new value does not begin with the
+                            // flag that indicates the existing custom value
+                            // should be removed
+                            if (!mod.getRowData()[column].toString().startsWith(REPLACE_INDICATOR))
+                            {
+                                modCmd.append(" INSERT INTO "
+                                              + InternalTable.VALUES.getTableName()
+                                              + " ("
+                                              + ValuesColumn.TABLE_PATH.getColumnName()
+                                              + ", "
+                                              + ValuesColumn.COLUMN_NAME.getColumnName()
+                                              + ", "
+                                              + ValuesColumn.VALUE.getColumnName()
+                                              + ") VALUES ('"
+                                              + tableInfo.getTablePath()
+                                              + ","
+                                              + variableName
+                                              + "', '"
+                                              + typeDefinition.getColumnNamesUser()[column]
+                                              + "', '"
+                                              + mod.getRowData()[column]
+                                              + "'); ");
+                            }
                         }
                     }
                 }

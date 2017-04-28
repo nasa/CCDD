@@ -50,7 +50,7 @@ public class CcddConstants
 
     // String used as a comment on the database to identify it as a CCDD
     // project
-    protected static final String DATABASE_TYPE_IDENTIFIER = "Core Flight Software Command and Data Dictionary";
+    protected static final String CCDD_PROJECT_IDENTIFIER = "Core Flight Software Command and Data Dictionary";
 
     // User's guide file name
     protected static final String USERS_GUIDE = "/docs/CCDD_Users_Guide.pdf";
@@ -116,6 +116,11 @@ public class CcddConstants
     // Separator for rate values and table names in the telemetry scheduler
     // table
     protected static final String TLM_SCH_SEPARATOR = "\\";
+
+    // Special character to denote that a child data table cell value is to be
+    // replaced with the corresponding entry in its prototype table, and that
+    // its entry in the custom values table is to be removed
+    protected static final String REPLACE_INDICATOR = "\u00d8";
 
     // Radio button, and check box change event names
     protected static final String RADIO_BUTTON_CHANGE_EVENT = "radioButtonChanged";
@@ -4363,11 +4368,11 @@ public class CcddConstants
         // Get the list of command & data dictionary databases, sorted
         // alphabetically
         DATABASES("SELECT datname || E',' || split_part(description, '"
-                  + DATABASE_TYPE_IDENTIFIER
+                  + CCDD_PROJECT_IDENTIFIER
                   + "', 2) AS databases FROM pg_database d "
                   + "LEFT JOIN pg_shdescription ON pg_shdescription.objoid = d.oid "
                   + "WHERE d.datistemplate = false AND description LIKE '"
-                  + DATABASE_TYPE_IDENTIFIER
+                  + CCDD_PROJECT_IDENTIFIER
                   + "%' ORDER BY datname ASC;"),
 
         // Get the list of active database connections by user. The database
@@ -4381,13 +4386,13 @@ public class CcddConstants
         // owner name
         DATABASES_BY_USER("SELECT database_and_description, allow FROM "
                           + "(SELECT datname || E',' || split_part(description, '"
-                          + DATABASE_TYPE_IDENTIFIER
+                          + CCDD_PROJECT_IDENTIFIER
                           + "', 2) AS database_and_description, pg_has_role('_user_', "
                           + "pg_catalog.pg_get_userbyid(d.datdba), 'member') AS allow "
                           + "FROM pg_database d LEFT JOIN pg_shdescription "
                           + "ON pg_shdescription.objoid = d.oid "
                           + "WHERE d.datistemplate = false AND description LIKE '"
-                          + DATABASE_TYPE_IDENTIFIER
+                          + CCDD_PROJECT_IDENTIFIER
                           + "%') AS databases WHERE allow = 't' ORDER BY databases ASC;"),
 
         // Get the list of users, sorted alphabetically

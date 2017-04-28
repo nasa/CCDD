@@ -18,6 +18,7 @@ import static CCDD.CcddConstants.HEADER_VERTICAL_PADDING;
 import static CCDD.CcddConstants.INITIAL_VIEWABLE_TABLE_ROWS;
 import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
 import static CCDD.CcddConstants.MAX_INITIAL_CELL_WIDTH;
+import static CCDD.CcddConstants.REPLACE_INDICATOR;
 import static CCDD.CcddConstants.SELECTED_BACK_COLOR;
 import static CCDD.CcddConstants.SELECTED_TEXT_COLOR;
 import static CCDD.CcddConstants.TABLE_TEXT_COLOR;
@@ -263,12 +264,6 @@ public abstract class CcddJTableHandler extends JTable
         return lastSelectionEnd;
     }
 
-    /**************************************************************************
-     * Get the position of the text cursor in the last cell edited
-     * 
-     * @return Position of the text cursor in the last cell edited; -1 until a
-     *         text cell is edited
-     *************************************************************************/
     /**************************************************************************
      * Override the method so that the a selected cell's row and column
      * coordinates can be stored
@@ -1948,9 +1943,14 @@ public abstract class CcddJTableHandler extends JTable
                             if (!ke.isControlDown())
                             {
                                 // Delete the contents of the currently
-                                // selected cell(s)
+                                // selected cell(s). If the shift key is also
+                                // pressed then flag the cell for deletion of
+                                // the custom values table entry so that its
+                                // prototype's value is used
                                 ke.consume();
-                                deleteCell();
+                                deleteCell(ke.isShiftDown()
+                                                           ? true
+                                                           : false);
                             }
 
                             break;
@@ -2331,9 +2331,32 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**************************************************************************
-     * Delete the contents of the selected cell(s)
+     * Get the character(s) used to replace a cell's contents when deleting the
+     * cell. Override to substitute character(s) in place of the default blank
+     * 
+     * @param row
+     *            cell row index in model coordinates
+     * 
+     * @param column
+     *            cell column index in model coordinates
+     * 
+     * @return Cell replacement character(s) (default is a blank)
      *************************************************************************/
-    protected void deleteCell()
+    protected String getSpecialReplacement(int row, int column)
+    {
+        return "";
+    }
+
+    /**************************************************************************
+     * Delete the contents of the selected cell(s)
+     * 
+     * @param isReplaceSpecial
+     *            false to replace the cell value with a blank; true to replace
+     *            the cell contents with one or more special replacement
+     *            characters
+     *************************************************************************/
+    @SuppressWarnings("unchecked")
+    protected void deleteCell(boolean isReplaceSpecial)
     {
         // Check if any cells are currently selected
         if (!selectedCells.getSelectedCells().isEmpty())
@@ -2371,8 +2394,21 @@ public abstract class CcddJTableHandler extends JTable
                     // Get the current cell value
                     Object oldValue = tableData.get(modelRow)[modelColumn];
 
-                    // Check if the cell isn't already empty
-                    if (!oldValue.toString().isEmpty())
+                    // Set the default replacement character when deleting a
+                    // cell's contents
+                    String replaceChars = "";
+
+                    // Check if special replacement characters should be used
+                    // in place of the default blank
+                    if (isReplaceSpecial)
+                    {
+                        // Get the special replacement character(s)
+                        replaceChars = getSpecialReplacement(modelRow, modelColumn);
+                    }
+
+                    // Check if the cell value changes due to the deletion
+                    // operation
+                    if (!replaceChars.equals(oldValue.toString()))
                     {
                         // Get this cell's editor component
                         Component comp = ((DefaultCellEditor) getCellEditor(cell.getRow(),
@@ -2384,29 +2420,45 @@ public abstract class CcddJTableHandler extends JTable
                             // Check if the cell contains a combo box
                             if (comp instanceof JComboBox)
                             {
-                                // Set the selection so that the cell is blank
-                                ((JComboBox<?>) comp).setSelectedIndex(-1);
+                                // Check if special replacement characters
+                                // should be used in place of the default blank
+                                if (isReplaceSpecial)
+                                {
+                                    // Temporarily add the item with the
+                                    // replace flag prepended. This allows the
+                                    // combo box item get methods to 'find' the
+                                    // flagged item. The flagged item is
+                                    // removed if the cell is later edited
+                                    ((JComboBox<String>) comp).insertItemAt(REPLACE_INDICATOR
+                                                                            + replaceChars,
+                                                                            0);
+                                }
+                                // Use no special character replacement
+                                else
+                                {
+                                    // Set the selection so that the cell is
+                                    // blank
+                                    ((JComboBox<?>) comp).setSelectedIndex(-1);
+                                }
                             }
-
-                            // Replace the cell value with a space. If a blank
-                            // is used then the change in cell value isn't
-                            // recognized
-                            Object newValue = "";
-
-                            // Store the value in the table
-                            tableModel.setValueAt(newValue,
-                                                  modelRow,
-                                                  modelColumn,
-                                                  true);
 
                             // Handle changes to the cell contents
                             validateCellContent(tableData,
                                                 modelRow,
                                                 modelColumn,
                                                 oldValue,
-                                                newValue,
+                                                replaceChars,
                                                 true,
                                                 false);
+
+                            // Check if special replacement characters are used
+                            if (isReplaceSpecial)
+                            {
+                                // Prepend the indicator to the cell's value to
+                                // flag it for special handling
+                                tableData.get(modelRow)[modelColumn] = REPLACE_INDICATOR
+                                                                       + replaceChars;
+                            }
 
                             // Set the flag indicating a cell value changed
                             isChange = true;
@@ -3111,7 +3163,6 @@ public abstract class CcddJTableHandler extends JTable
             setHorizontalAlignment(centerText
                                              ? JLabel.CENTER
                                              : JLabel.LEFT);
-
             // Set to paint every pixel within the cell. This is needed to
             // prevent a border appearing around the cell for some look & feels
             setOpaque(true);
@@ -3531,8 +3582,8 @@ public abstract class CcddJTableHandler extends JTable
                                            : ALTERNATE_COLOR);
         }
 
-        // Check if this cell displays multiple lines
-        if (renderer instanceof MultiLineCellRenderer)
+        // Check if this cell displays a text component
+        if (renderer instanceof JTextComponent)
         {
             // Perform any special rendering on this cell
             doSpecialRendering(comp,
@@ -3773,6 +3824,20 @@ public abstract class CcddJTableHandler extends JTable
                     // Check if the data has changed
                     if (!newValue.equals(oldValue))
                     {
+                        // Check if the cell is flagged for special handling
+                        if (newValue.toString().startsWith(REPLACE_INDICATOR))
+                        {
+                            // Remove the flag and store the 'cleaned' value
+                            // back in the table
+                            newValue = newValue.toString().replaceFirst("^"
+                                                                        + REPLACE_INDICATOR,
+                                                                        "");
+                            tableModel.setValueAt(newValue,
+                                                  editRow,
+                                                  editColumn,
+                                                  false);
+                        }
+
                         // Make a copy of the data in case another cell starts
                         // editing while processing this cell's change
                         new TableCellListener(editRow,
@@ -3803,6 +3868,28 @@ public abstract class CcddJTableHandler extends JTable
                             // Flag the end of the editing sequence for
                             // undo/redo purposes
                             undoManager.endEditSequence();
+
+                            // Check if the cell is flagged for special
+                            // handling
+                            if (oldValue.toString().startsWith(REPLACE_INDICATOR))
+                            {
+                                // Get this cell's editor component
+                                Component comp = ((DefaultCellEditor) getCellEditor(table.convertRowIndexToView(editRow),
+                                                                                    table.convertColumnIndexToView(editColumn))).getComponent();
+
+                                // Check if the cell contains a combo box
+                                if (comp instanceof JComboBox)
+                                {
+                                    // Remove the specially flagged item from
+                                    // the combo box list and select the
+                                    // identical item minus the flag
+                                    ((JComboBox<?>) comp).removeItem(oldValue);
+                                    oldValue = oldValue.toString().replaceFirst("^"
+                                                                                + REPLACE_INDICATOR,
+                                                                                "");
+                                    ((JComboBox<?>) comp).setSelectedItem(oldValue);
+                                }
+                            }
                         }
                     }
                 }

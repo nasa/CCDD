@@ -14,6 +14,7 @@ import static CCDD.CcddConstants.INITIAL_VIEWABLE_DATA_TABLE_ROWS;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.PROTECTED_BACK_COLOR;
 import static CCDD.CcddConstants.PROTECTED_TEXT_COLOR;
+import static CCDD.CcddConstants.REPLACE_INDICATOR;
 import static CCDD.CcddConstants.SELECTED_BACK_COLOR;
 import static CCDD.CcddConstants.TABLE_BACK_COLOR;
 import static CCDD.CcddConstants.TEXT_HIGHLIGHT_COLOR;
@@ -30,6 +31,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.DefaultCellEditor;
@@ -45,6 +47,10 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
+import javax.swing.text.JTextComponent;
 
 import CCDD.CcddClasses.ArrayVariable;
 import CCDD.CcddClasses.AssociatedColumns;
@@ -679,6 +685,47 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
     }
 
     /**************************************************************************
+     * Remove the custom value deletion flag in a cell, if present
+     *************************************************************************/
+    protected void clearCustomValueDeletionFlags()
+    {
+        // Step through each row in the table
+        for (int row = 0; row < tableModel.getRowCount(); row++)
+        {
+            // Step through each column of the updated row data
+            for (int column = 0; column < tableModel.getColumnCount(); column++)
+            {
+                // Get the cell value
+                String cellValue = tableModel.getValueAt(row, column).toString();
+
+                // Check if the cell value begins with the flag that indicates
+                // the custom value for this cell was deleted
+                if (cellValue.startsWith(REPLACE_INDICATOR))
+                {
+                    // Get this cell's editor component
+                    Component comp = ((DefaultCellEditor) table.getCellEditor(table.convertRowIndexToView(row),
+                                                                              table.convertColumnIndexToView(column))).getComponent();
+
+                    // Check if the cell contains a combo box
+                    if (comp instanceof JComboBox)
+                    {
+                        // Remove the specially flagged item from the combo box
+                        // list
+                        ((JComboBox<?>) comp).removeItem(cellValue);
+                    }
+
+                    // Remove the flag from the cell value
+                    cellValue = cellValue.replaceFirst("^" + REPLACE_INDICATOR, "");
+
+                    // Store the value in the cell without the flag
+                    tableModel.setValueAt(cellValue, row, column);
+                    committedInfo.getData()[row][column] = cellValue;
+                }
+            }
+        }
+    }
+
+    /**************************************************************************
      * Perform the steps needed following execution of database table changes
      * 
      * @param commandError
@@ -788,15 +835,15 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                 // Step through each row modified in the table
                 for (TableModification mod : modifications)
                 {
-                    // Step through each column of the updated row data
-                    for (int column = 0; column < tableModel.getColumnCount(); column++)
+                    // Step through each row in the table
+                    for (int row = 0; row < tableModel.getRowCount(); row++)
                     {
-                        // Step through each row in the table
-                        for (int row = 0; row < tableModel.getRowCount(); row++)
+                        // Check if the primary keys match between the
+                        // table row and the row to modify
+                        if (tableModel.getValueAt(row, primaryKeyIndex).toString().equals(mod.getRowData()[primaryKeyIndex].toString()))
                         {
-                            // Check if the primary keys match between the
-                            // table row and the row to delete
-                            if (tableModel.getValueAt(row, primaryKeyIndex).toString().equals(mod.getRowData()[primaryKeyIndex].toString()))
+                            // Step through each column of the updated row data
+                            for (int column = 0; column < tableModel.getColumnCount(); column++)
                             {
                                 // Get the current value of the column in the
                                 // updated row
@@ -817,11 +864,10 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                                                           false);
                                     committedData.get(row)[column] = mod.getRowData()[column];
                                 }
-
-                                // Stop searching since the matching row was
-                                // found
-                                break;
                             }
+
+                            // Stop searching since the matching row was found
+                            break;
                         }
                     }
                 }
@@ -1172,7 +1218,7 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
         table = new CcddJTableHandler(INITIAL_VIEWABLE_DATA_TABLE_ROWS)
         {
             /******************************************************************
-             * Highlight any macros in the table cells
+             * Highlight any macros or special flags in the table cells
              * 
              * @param component
              *            reference to the table cell renderer component
@@ -1204,6 +1250,37 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                                             isSelected
                                                       ? Color.BLACK
                                                       : TEXT_HIGHLIGHT_COLOR);
+
+                // Highlight the flag that indicates the custom value for this
+                // cell is to be removed and the prototype's value used
+                // instead. Create a highlighter painter
+                DefaultHighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(isSelected
+                                                                                                           ? Color.BLACK
+                                                                                                           : Color.MAGENTA);
+
+                // Create the match pattern
+                Pattern pattern = Pattern.compile("^" + Pattern.quote(REPLACE_INDICATOR));
+
+                // Create the pattern matcher from the pattern
+                Matcher matcher = pattern.matcher(text);
+
+                // Check if there is a match in the cell value
+                if (matcher.find())
+                {
+                    try
+                    {
+                        // Highlight the matching text. Adjust the highlight
+                        // color to account for the cell selection highlighting
+                        // so that the search text is easily readable
+                        ((JTextComponent) component).getHighlighter().addHighlight(matcher.start(),
+                                                                                   matcher.end(),
+                                                                                   painter);
+                    }
+                    catch (BadLocationException ble)
+                    {
+                        // Ignore highlighting failure
+                    }
+                }
             }
 
             /******************************************************************
@@ -1294,12 +1371,12 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
             }
 
             /******************************************************************
-             * Allow multiple line display in all except rate columns
+             * Allow multiple line display in all columns
              *****************************************************************/
             @Override
             protected boolean isColumnMultiLine(int column)
             {
-                return !typeDefn.getInputTypes()[column].equals(InputDataType.RATE);
+                return true;
             }
 
             /******************************************************************
@@ -1629,6 +1706,15 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                     // Create a string version of the new value, replacing any
                     // macro in the text with its corresponding value
                     String newValueS = newMacroHandler.getMacroExpansion(newValue.toString());
+
+                    // Check if the cell is flagged for replacement by the
+                    // prototype value
+                    if (newValueS.startsWith(REPLACE_INDICATOR))
+                    {
+                        // Remove the flag so that the updated value is stored
+                        // as a custom value
+                        newValueS = newValueS.replaceFirst("^" + REPLACE_INDICATOR, "");
+                    }
 
                     // Check that the new value isn't blank
                     if (!newValueS.isEmpty())
@@ -2152,8 +2238,7 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                     String value = getValueAt(row, column).toString();
 
                     // Check if the cell is required and empty
-                    if (typeDefn.isRequired()[modelColumn]
-                        && value.isEmpty())
+                    if (typeDefn.isRequired()[modelColumn] && value.isEmpty())
                     {
                         // Set the flag indicating that the cell value is
                         // invalid
@@ -2177,8 +2262,8 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                             // Check if the cell matches the combo box item
                             if (comboBox.getItemAt(index).equals(value))
                             {
-                                // Set the flag indicating that the cell
-                                // value is valid and stop searching
+                                // Set the flag indicating that the cell value
+                                // is valid and stop searching
                                 found = true;
                                 break;
                             }
@@ -2619,7 +2704,8 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                 if (isCanHaveArrays())
                 {
                     // Extract the array size cell value
-                    String arraySize = tableData.get(modelRow)[arraySizeIndex].toString();
+                    String arraySize = getExpandedValueAt(modelRow,
+                                                          arraySizeIndex);
 
                     // Check if an array size is present
                     if (!arraySize.isEmpty())
@@ -2666,6 +2752,45 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                                           false);
 
                 return modelRow - 1;
+            }
+
+            /******************************************************************
+             * Override the CcddJTableHandler method for getting the special
+             * replacement character when deleting the contents of a cell. Get
+             * the corresponding cell value from the table's prototype
+             * 
+             * @param row
+             *            cell row index in model coordinates
+             * 
+             * @param column
+             *            cell column index in model coordinates
+             * 
+             * @return The corresponding cell value from the tables' prototype
+             *****************************************************************/
+            @Override
+            protected String getSpecialReplacement(int row, int column)
+            {
+                return dbTable.queryTableCellValue(tableInfo.getPrototypeName(),
+                                                   committedInfo.getData()[row][primaryKeyIndex],
+                                                   typeDefn.getColumnNamesDatabase()[column],
+                                                   editorDialog);
+            }
+
+            /******************************************************************
+             * Override the CcddJTableHandler method for deleting a cell. Set
+             * the special character flag to false if the table is a prototype
+             * - prototypes can't have an entry in the custom values table so
+             * no special handling is needed for this case
+             * 
+             * @param isReplaceSpecial
+             *            false to replace the cell value with a blank; true to
+             *            replace the cell contents with the prototype's
+             *            corresponding cell value
+             *****************************************************************/
+            @Override
+            protected void deleteCell(boolean isReplaceSpecial)
+            {
+                super.deleteCell(isReplaceSpecial && !tableInfo.isPrototype());
             }
 
             /******************************************************************
@@ -4245,16 +4370,12 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
             // Check if the rate information exists for this column
             if (rateInfo != null)
             {
+                // Make the first item a blank
+                comboBox.addItem("");
+
                 // Step through each sample rate
                 for (String rate : rateInfo.getSampleRates())
                 {
-                    // Check if this is the first item added to the combo box
-                    if (comboBox.getItemCount() == 0)
-                    {
-                        // Make the first item a blank
-                        comboBox.addItem("");
-                    }
-
                     // Add the sample rate to the combo box list
                     comboBox.addItem(rate);
                 }

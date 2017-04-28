@@ -87,7 +87,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     private JMenuItem mntmPaste;
     private JMenuItem mntmInsertMacro;
     private JCheckBoxMenuItem mntmShowMacros;
-    private JMenuItem mntmClearData;
+    private JMenuItem mntmWithBlanks;
+    private JMenuItem mntmWithPrototype;
     private JMenuItem mntmInsert;
     private JMenuItem mntmInsertRow;
     private JMenuItem mntmDeleteRow;
@@ -282,7 +283,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmMoveLeft.setEnabled(enable || mntmShowMacros.isSelected());
         mntmMoveRight.setEnabled(enable || mntmShowMacros.isSelected());
         mntmResetOrder.setEnabled(enable || mntmShowMacros.isSelected());
-        mntmClearData.setEnabled(enable);
+        mntmWithBlanks.setEnabled(enable);
+        mntmWithPrototype.setEnabled(enableChild);
         mntmManageFields.setEnabled(enable);
         mntmClearValues.setEnabled(enable
                                    && !activeEditor.getFieldHandler().getFieldInformation().isEmpty());
@@ -442,6 +444,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                     // changed
                     if (tableInfo.equals(editor.getTableInformation()))
                     {
+                        // Replace any custom value deletion flags with blanks
+                        editor.clearCustomValueDeletionFlags();
+
                         // Accept all edits for this table
                         editor.getTable().getUndoManager().discardAllEdits();
                     }
@@ -629,7 +634,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmInsertMacro = ccddMain.createMenuItem(mnEdit, "Insert macro", KeyEvent.VK_M, 1, "Insert a macro selected from the pop-up list");
         mntmShowMacros = ccddMain.createCheckBoxMenuItem(mnEdit, "Show macros", KeyEvent.VK_S, 1, "Temporarily replace macro(s) with the corresponding value(s)", false);
         mnEdit.addSeparator();
-        mntmClearData = ccddMain.createMenuItem(mnEdit, "Clear data", KeyEvent.VK_D, 1, "Clear the selected data in the current editor table");
+        JMenu mnClearSelected = ccddMain.createSubMenu(mnEdit, "Replace selected", KeyEvent.VK_L, 1, null);
+        mntmWithBlanks = ccddMain.createMenuItem(mnClearSelected, "With blank", KeyEvent.VK_B, 1, "Replace the values in the selected cells with blanks");
+        mntmWithPrototype = ccddMain.createMenuItem(mnClearSelected, "With prototype", KeyEvent.VK_P, 1, "Replace the values in the selected cells with the prototype's values");
 
         // Create the Row menu and menu items
         JMenu mnRow = ccddMain.createMenu(menuBar, "Row", KeyEvent.VK_R, 1, null);
@@ -957,8 +964,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             }
         });
 
-        // Add a listener for the Clear data command
-        mntmClearData.addActionListener(new ValidateCellActionListener()
+        // Add a listener for the Clear selected | With blanks command
+        mntmWithBlanks.addActionListener(new ValidateCellActionListener()
         {
             /******************************************************************
              * Erase the data in the selected cell(s)
@@ -970,7 +977,35 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 if (activeEditor.getTableModel().getRowCount() != 0)
                 {
                     // Clear the selected cell(s)
-                    activeEditor.getTable().deleteCell();
+                    activeEditor.getTable().deleteCell(false);
+                }
+            }
+
+            /******************************************************************
+             * Get the reference to the currently displayed table
+             *****************************************************************/
+            @Override
+            protected CcddJTableHandler getTable()
+            {
+                return activeEditor.getTable();
+            }
+        });
+
+        // Add a listener for the Clear selected | With prototype command
+        mntmWithPrototype.addActionListener(new ValidateCellActionListener()
+        {
+            /******************************************************************
+             * Erase the data in the selected cell(s) and the corresponding
+             * entry(s) in the custom values table
+             *****************************************************************/
+            @Override
+            protected void performAction(ActionEvent ae)
+            {
+                // Check if there are any rows to clear
+                if (activeEditor.getTableModel().getRowCount() != 0)
+                {
+                    // Clear the selected cell(s)
+                    activeEditor.getTable().deleteCell(true);
                 }
             }
 
