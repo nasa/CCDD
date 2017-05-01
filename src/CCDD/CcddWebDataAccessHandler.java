@@ -1691,10 +1691,11 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                                                                     ccddMain.getMainFrame()),
                                                                new CcddLinkHandler(ccddMain,
                                                                                    ccddMain.getMainFrame()),
-                                                               rateInfo.getRateName(),
+                                                               rateInfo.getStreamName(),
                                                                headerSize,
                                                                messageIDNameField,
-                                                               optimize);
+                                                               optimize,
+                                                               isReplaceMacro);
 
             // Check if there are any entries in the table
             if (copyTable.length != 0)

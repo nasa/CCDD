@@ -315,13 +315,9 @@ public class CcddLinkHandler
             // target, and that this is the link information entry
             if (linkRate.equals(rateName)
                 && linkName.equals(name)
-                && linkMember.contains(".")// TODO
+                && linkMember.contains(".")
                 && !linkMember.matches("\\d.*"))
             {
-                // TODO LINK MEMBERS CAN HAVE MACROS!
-                // linkMember =
-                // ccddMain.getMacroHandler().getMacroExpansion(linkMember);
-
                 // Get the data type from the variable name
                 String dataType = linkMember.substring(linkMember.lastIndexOf(",") + 1,
                                                        linkMember.lastIndexOf("."));
@@ -661,7 +657,7 @@ public class CcddLinkHandler
                         if (bitIndex != -1)
                         {
                             // Extract the bit length from the variable path
-                            bitLength = ccddMain.getMacroHandler().getMacroExpansion(varPath.substring(bitIndex + 1));// TODO
+                            bitLength = ccddMain.getMacroHandler().getMacroExpansion(varPath.substring(bitIndex + 1));
 
                             // Remove the bit length from the variable path
                             varPath = varPath.substring(0, bitIndex);

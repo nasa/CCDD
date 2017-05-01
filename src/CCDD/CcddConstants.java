@@ -270,6 +270,7 @@ public class CcddConstants
     protected static final String COPY_ICON = "/images/copy.png";
     protected static final String EXECUTE_ICON = "/images/execute.png";
     protected static final String EXECUTE_ALL_ICON = "/images/execute_all.png";
+    protected static final String HALT_EXECUTION_ICON = "/images/halt.png";
     protected static final String GROUP_ICON = "/images/group.png";
     protected static final String SEPARATOR_ICON = "/images/separator.png";
     protected static final String BREAK_ICON = "/images/line_break.png";
@@ -4697,7 +4698,8 @@ public class CcddConstants
         STORE_OPTION("Store", 'S', "Cancel", COPY_ICON, 2),
         RETRIEVE_OPTION("Retrieve", 'R', "Cancel", UNDO_ICON, 2),
         UNLOCK_OPTION("Unlock", 'U', "Cancel", UNLOCK_ICON, 2),
-        SEARCH_OPTION("Search", 'S', "Cancel", SEARCH_ICON, 2);
+        SEARCH_OPTION("Search", 'S', "Cancel", SEARCH_ICON, 2),
+        HALT_OPTION("Halt", 'H', "", HALT_EXECUTION_ICON, 1);
 
         private final String buttonText;
         private final char buttonMnemonic;

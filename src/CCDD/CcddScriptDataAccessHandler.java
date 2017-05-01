@@ -36,6 +36,7 @@ import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 
 import CCDD.CcddClasses.FieldInformation;
+import CCDD.CcddClasses.GroupInformation;
 import CCDD.CcddClasses.RateInformation;
 import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddConstants.BaseDataTypeInfo;
@@ -2972,6 +2973,74 @@ public class CcddScriptDataAccessHandler
     }
 
     /**************************************************************************
+     * Get an array containing the table members, including the member table
+     * ancestor tables, for the specified group
+     * 
+     * @param groupName
+     *            group name
+     * 
+     * @return Array containing the table members for the specified group; an
+     *         empty array if the group has no table members, or the group
+     *         doesn't exist
+     *************************************************************************/
+    public String[] getGroupTables(String groupName)
+    {
+        String[] groupTables = new String[0];
+
+        // Get a reference to the group's information
+        GroupInformation groupInfo = groupHandler.getGroupInformationByName(groupName);
+
+        // Check if the group exists
+        if (groupInfo != null)
+        {
+            // Get the list of the group's tables
+            groupTables = groupInfo.getTablesAndAncestors().toArray(new String[0]);
+        }
+
+        return groupTables;
+    }
+
+    /**************************************************************************
+     * Get an array containing the data field information for the specified
+     * group
+     * 
+     * @param groupName
+     *            group name
+     * 
+     * @return Array containing the data field information for the specified
+     *         group; an empty array if the group has no data fields, or the
+     *         group doesn't exist. The array in is the format: field name,
+     *         description, size, input type, required (true or false),
+     *         applicability, value[,...]
+     *************************************************************************/
+    public String[][] getGroupFields(String groupName)
+    {
+        List<String[]> groupFields = new ArrayList<String[]>();
+
+        // Get a reference to the group's information
+        GroupInformation groupInfo = groupHandler.getGroupInformationByName(groupName);
+
+        // Check if the group exists
+        if (groupInfo != null)
+        {
+            // Step through each data field belonging to the group
+            for (FieldInformation fieldInfo : groupInfo.getFieldInformation())
+            {
+                // Add the data field information to the list
+                groupFields.add(new String[] {fieldInfo.getFieldName(),
+                                              fieldInfo.getDescription(),
+                                              Integer.toString(fieldInfo.getSize()),
+                                              fieldInfo.getInputType().getInputName(),
+                                              Boolean.toString(fieldInfo.isRequired()),
+                                              fieldInfo.getApplicabilityType().getApplicabilityName(),
+                                              fieldInfo.getValue()});
+            }
+        }
+
+        return groupFields.toArray(new String[0][0]);
+    }
+
+    /**************************************************************************
      * Get the copy table column names
      * 
      * @return Array containing the copy table column names
@@ -2991,7 +3060,9 @@ public class CcddScriptDataAccessHandler
     }
 
     /**************************************************************************
-     * Get the copy table for the messages of the specified data stream
+     * Get the copy table for the messages of the specified data stream. Any
+     * macros embedded in the variable names are replaced by their
+     * corresponding values
      * 
      * @param streamName
      *            data stream name
@@ -3017,6 +3088,47 @@ public class CcddScriptDataAccessHandler
                                           String messageIDNameField,
                                           boolean optimize)
     {
+        // Create the copy table
+        return copyHandler.createCopyTable(fieldHandler,
+                                           linkHandler,
+                                           streamName,
+                                           headerSize,
+                                           messageIDNameField,
+                                           optimize,
+                                           true);
+    }
+
+    /**************************************************************************
+     * Get the copy table for the messages of the specified data stream
+     * 
+     * @param streamName
+     *            data stream name
+     * 
+     * @param headerSize
+     *            size of the message header in bytes. For example, the CCSDS
+     *            header size is 12
+     * 
+     * @param messageIDNameField
+     *            name of the message ID name data field (e.g., 'Message ID
+     *            name')
+     * 
+     * @param optimize
+     *            true to combine memory copy calls for consecutive variables
+     *            in the copy table
+     * 
+     * @param expandMacros
+     *            true to expand any macro within the variable names
+     * 
+     * @return Array containing the copy table entries; returns blank if there
+     *         are no entries for the specified data stream or if data stream
+     *         name is invalid
+     *************************************************************************/
+    public String[][] getCopyTableEntries(String streamName,
+                                          int headerSize,
+                                          String messageIDNameField,
+                                          boolean optimize,
+                                          boolean expandMacros)
+    {
         String[][] entries = new String[0][0];
 
         // Check if the copy table handler doesn't exist
@@ -3035,7 +3147,8 @@ public class CcddScriptDataAccessHandler
                                                   streamName,
                                                   headerSize,
                                                   messageIDNameField,
-                                                  optimize);
+                                                  optimize,
+                                                  expandMacros);
         }
 
         return entries;

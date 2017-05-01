@@ -7,12 +7,12 @@
 package CCDD;
 
 import static CCDD.CcddConstants.DB_SAVE_POINT_NAME;
-import static CCDD.CcddConstants.REPLACE_INDICATOR;
 import static CCDD.CcddConstants.DIALOG_MAX_MESSAGE_LENGTH;
 import static CCDD.CcddConstants.ENUMERATION_SEPARATOR;
 import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.OK_BUTTON;
+import static CCDD.CcddConstants.REPLACE_INDICATOR;
 import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
 import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
 import static CCDD.CcddConstants.TYPE_COMMAND;
@@ -6012,9 +6012,6 @@ public class CcddDbTableCommandHandler
                     // modification
                     for (String ref : references)
                     {
-                        // TODO For testing
-                        // System.out.println("ref: " + ref);
-
                         String tableName = null;
                         String changeColumn = null;
                         String matchColumn = null;
@@ -6266,20 +6263,6 @@ public class CcddDbTableCommandHandler
                         // Build the additions, modification, and deletions to
                         // the table
                         modTbl.getEditor().buildUpdates();
-
-                        // TODO For testing
-                        // System.out.println("Table: " +
-                        // modTbl.getEditor().getTableInformation().getProtoVariableName());
-                        // for (TableModification mod :
-                        // modTbl.getEditor().getModifications())
-                        // {
-                        // System.out.println(" mod: " +
-                        // Arrays.toString(mod.getOriginalRowData())
-                        // + "\n      " +
-                        // Arrays.toString(mod.getRowData())
-                        // + "\n    data type col: " +
-                        // mod.getDataTypeColumn());
-                        // }
 
                         // Make the table modifications to the project database
                         // and to any open table editors that contain the data

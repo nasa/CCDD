@@ -6,10 +6,10 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.CCDD_PROJECT_IDENTIFIER;
 import static CCDD.CcddConstants.DATABASE;
 import static CCDD.CcddConstants.DATABASE_BACKUP_PATH;
 import static CCDD.CcddConstants.DATABASE_DRIVER;
-import static CCDD.CcddConstants.CCDD_PROJECT_IDENTIFIER;
 import static CCDD.CcddConstants.DEFAULT_DATABASE;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_HOST;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_PORT;
@@ -1243,10 +1243,6 @@ public class CcddDbControlHandler
                                                                        + "()"),
                                                ccddMain.getMainFrame());
                 }
-
-                // TODO CHECK THAT THIS CORRECTLY GETS THE RATE(S) AND ENUM(S),
-                // WHEN THERE IS ONE OR MORE DEFINED ACROSS MULTIPLE TABLE
-                // TYPES
 
                 String rateCol = "";
                 String rateJoin = "";

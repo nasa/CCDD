@@ -23,6 +23,7 @@ public class CcddCopyTableHandler
     // Class references
     private final CcddRateParameterHandler rateHandler;
     private final CcddSchedulerDbIOHandler schedulerDb;
+    private final CcddMacroHandler macroHandler;
 
     // List of copy table entries
     private final List<String[]> copyTable;
@@ -39,6 +40,7 @@ public class CcddCopyTableHandler
         schedulerDb = new CcddSchedulerDbIOHandler(ccddMain,
                                                    SchedulerType.TELEMETRY_SCHEDULER,
                                                    null);
+        macroHandler = ccddMain.getMacroHandler();
 
         // Load the telemetry scheduler information from the project database
         schedulerDb.loadStoredData();
@@ -67,6 +69,9 @@ public class CcddCopyTableHandler
      * @param optimize
      *            true to create copy table with memory copies optimized
      * 
+     * @param expandMacros
+     *            true to expand any macro within the variable names
+     * 
      * @return Array containing the copy table entries
      *************************************************************************/
     protected String[][] createCopyTable(CcddFieldHandler fieldHandler,
@@ -74,7 +79,8 @@ public class CcddCopyTableHandler
                                          String dataStreamName,
                                          int headerSize,
                                          String messageIDNameField,
-                                         boolean optimize)
+                                         boolean optimize,
+                                         boolean expandMacros)
     {
         List<String[]> messageTable = new ArrayList<String[]>();
 
@@ -93,6 +99,13 @@ public class CcddCopyTableHandler
                     // Split the packet definition's variable string into the
                     // parent structure name and variable reference string
                     String[] parentAndPath = variable.getFullName().split(",", 2);
+
+                    // Check if macro in the variable names are to be expanded
+                    if (expandMacros)
+                    {
+                        // Replace any macros with their corresponding values
+                        parentAndPath[1] = macroHandler.getMacroExpansion(parentAndPath[1]);
+                    }
 
                     // Get the offset in the root structure of the variable
                     // indicated by the packet definition

@@ -359,32 +359,32 @@ public class CcddScriptHandler
                 // selects the Okay button or the script execution completes
                 // and a Cancel button is issued)
                 int option = cancelDialog.showMessageDialog(dialog,
-                                                            "<html><b>Halt script execution<br><br>"
-                                                                + "<font color=#ff0000><i>*** CAUTION ***<br>"
-                                                                + "Restarting the application is "
-                                                                + "</i><u>strongly</u><i><br>recommended "
-                                                                + "after halting a script!",
-                                                            "Stop Script",
+                                                            "<html><b>Script execution in progress...<br><br>"
+                                                                + "<font color=#ff0000><i>*** Press </i>Halt<i> "
+                                                                + "to terminate script execution ***",
+                                                            "Script Executing",
                                                             JOptionPane.ERROR_MESSAGE,
-                                                            DialogOption.OK_OPTION);
+                                                            DialogOption.HALT_OPTION);
 
                 // Check if the script execution was terminated by the user and
                 // that the script is still executing
                 if (option == OK_BUTTON && scriptThread.isAlive())
                 {
-                    // Stop script execution. Note: this method is deprecated
-                    // due to inherent issues that can occur when a thread is
-                    // abruptly stopped. However, simply interrupting the
-                    // script thread leaves the script executing in the
-                    // background. The stop method is the only manner in which
-                    // the script itself can be terminated. Due to the
-                    // potential for object corruption the application should
-                    // be restarted once the stop method is performed
+                    // Forcibly stop script execution. Note: this method is
+                    // deprecated due to inherent issues that can occur when a
+                    // thread is abruptly stopped. However, the stop method is
+                    // the only manner in which the script can be terminated
+                    // (without additional code within the script itself, which
+                    // cannot be assumed since the scripts are user-generated).
+                    // There shouldn't be a potential for object corruption in
+                    // the application since it doesn't reference any objects
+                    // created by a script
                     scriptThread.stop();
 
                     // Set the execution status(es) to indicate the scripts
                     // didn't complete
                     isBad = new boolean[associations.length];
+                    Arrays.fill(isBad, true);
                 }
             }
 

@@ -131,7 +131,7 @@ public class CcddSchedulerDbIOHandler
         List<Message> messages = new ArrayList<Message>();
 
         // Check if the index is valid
-        if (streamIndex < dataStreams.size())
+        if (streamIndex != -1 && streamIndex < dataStreams.size())
         {
             // Get the list of messages for the specified data stream
             messages = dataStreams.get(streamIndex).getMessages();
