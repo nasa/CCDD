@@ -12,6 +12,7 @@ import static CCDD.CcddConstants.DOWN_ICON;
 import static CCDD.CcddConstants.INSERT_ICON;
 import static CCDD.CcddConstants.LABEL_FONT_BOLD;
 import static CCDD.CcddConstants.LEFT_ICON;
+import static CCDD.CcddConstants.MIN_WINDOW_WIDTH;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.REDO_ICON;
 import static CCDD.CcddConstants.RIGHT_ICON;
@@ -219,7 +220,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             for (CcddTableEditorHandler editor : tableEditors)
             {
                 // Check if the table name matches the specified name
-                if (tableName.equals(editor.getTableEditorOwnerName()))
+                if (tableName.equals(editor.getOwnerName()))
                 {
                     // Remove the table's editor and tab, and stop searching
                     tableEditors.remove(editor);
@@ -287,7 +288,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmWithPrototype.setEnabled(enableChild);
         mntmManageFields.setEnabled(enable);
         mntmClearValues.setEnabled(enable
-                                   && !activeEditor.getFieldHandler().getFieldInformation().isEmpty());
+                                   && !activeEditor.getDataFieldHandler().getFieldInformation().isEmpty());
 
         // Set the button enable status
         btnInsertRow.setEnabled(enableParent);
@@ -532,7 +533,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
         // Get the prototype + variable name from that editor owner name by
         // stripping off the root name and separator
-        String protoVarName = editor.getTableEditorOwnerName().substring(editor.getTableEditorOwnerName().indexOf(" ") + 1);
+        String protoVarName = editor.getOwnerName().substring(editor.getOwnerName().indexOf(" ") + 1);
 
         // Set flag to true if the prototype changed and isn't/wasn't a
         // primitive variable
@@ -555,7 +556,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         if ((isRename
             && (protoVarName.equals(oldPrototype)
                 || protoVarName.startsWith(oldPrototype + ".")
-                || editor.getTableEditorOwnerName().startsWith(oldPrototype + ":")))
+                || editor.getOwnerName().startsWith(oldPrototype + ":")))
             || (oldVariableName != null
                 && !oldVariableName.equals(newVariableName)
                 && (protoVarName.equals(oldVariableName)
@@ -574,7 +575,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             // Update the tab in the editor dialog for this table with the new
             // name and tool tip text
             editorDialog.setTabText(tabIndex,
-                                    editor.getTableEditorOwnerName(),
+                                    editor.getOwnerName(),
                                     editor.getTableToolTip());
 
             // Check if this table's editor is the active one for this editor
@@ -583,7 +584,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             if (editor.equals(editorDialog.getTableEditor()))
             {
                 // Change the editor dialog title
-                editorDialog.setTitle(editor.getTableEditorOwnerName());
+                editorDialog.setTitle(editor.getOwnerName());
             }
         }
     }
@@ -863,8 +864,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             {
                 // Print the table
                 activeEditor.getTable().printTable("Table: "
-                                                   + activeEditor.getTableEditorOwnerName(),
-                                                   activeEditor.getFieldHandler(),
+                                                   + activeEditor.getOwnerName(),
+                                                   activeEditor.getDataFieldHandler(),
                                                    CcddTableEditorDialog.this,
                                                    PageFormat.LANDSCAPE);
             }
@@ -1186,13 +1187,15 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             {
                 // Create the field editor dialog showing the fields for this
                 // table
-                new CcddFieldEditorDialog(activeEditor,
+                new CcddFieldEditorDialog(ccddMain,
+                                          activeEditor,
                                           activeEditor.getTableInformation().getTablePath(),
-                                          false);
+                                          false,
+                                          MIN_WINDOW_WIDTH);
 
                 // Enable/disable the Clear values command depending on if any
                 // data fields remain
-                mntmClearValues.setEnabled(!activeEditor.getFieldHandler().getFieldInformation().isEmpty());
+                mntmClearValues.setEnabled(!activeEditor.getDataFieldHandler().getFieldInformation().isEmpty());
             }
 
             /******************************************************************
@@ -1215,10 +1218,10 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             protected void performAction(ActionEvent ae)
             {
                 // Check if there are any data fields to clear
-                if (!activeEditor.getFieldHandler().getFieldInformation().isEmpty())
+                if (!activeEditor.getDataFieldHandler().getFieldInformation().isEmpty())
                 {
                     // Remove all of the data field values from the table
-                    activeEditor.getEditPanelHandler().clearFieldValues();
+                    activeEditor.getInputFieldPanelHandler().clearFieldValues();
                 }
             }
 
@@ -1467,10 +1470,10 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             @Override
             protected void performAction(ActionEvent ae)
             {
-                activeEditor.getEditPanelUndoManager().undo();
+                activeEditor.getFieldPanelUndoManager().undo();
 
                 // Update the data field background colors
-                activeEditor.getEditPanelHandler().setFieldBackgound();
+                activeEditor.getInputFieldPanelHandler().setFieldBackgound();
             }
 
             /******************************************************************
@@ -1502,10 +1505,10 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             @Override
             protected void performAction(ActionEvent ae)
             {
-                activeEditor.getEditPanelUndoManager().redo();
+                activeEditor.getFieldPanelUndoManager().redo();
 
                 // Update the data field background colors
-                activeEditor.getEditPanelHandler().setFieldBackgound();
+                activeEditor.getInputFieldPanelHandler().setFieldBackgound();
             }
 
             /******************************************************************
@@ -1595,7 +1598,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 {
                     // Close the active table. If this is the only table in the
                     // editor then close the editor
-                    closeTableEditor(activeEditor.getTableEditorOwnerName());
+                    closeTableEditor(activeEditor.getOwnerName());
                 }
             }
 
@@ -1668,7 +1671,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 activeEditor = tableEditors.get(tabbedPane.getSelectedIndex());
 
                 // Change the dialog's title to the active table's name
-                (CcddTableEditorDialog.this).setTitle(activeEditor.getTableEditorOwnerName());
+                (CcddTableEditorDialog.this).setTitle(activeEditor.getOwnerName());
 
                 // Update the expand/collapse arrays check box
                 updateExpandArrayCheckBox();
@@ -1692,7 +1695,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         createFrame(ccddMain.getMainFrame(),
                     tabbedPane,
                     buttonPnl,
-                    activeEditor.getTableEditorOwnerName(),
+                    activeEditor.getOwnerName(),
                     null);
 
         // Enable the editor controls
@@ -1852,9 +1855,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             tableEditors.add(editor);
 
             // Create a tab for each table
-            tabbedPane.addTab(editor.getTableEditorOwnerName(),
+            tabbedPane.addTab(editor.getOwnerName(),
                               null,
-                              editor.getEditorPanel(),
+                              editor.getFieldPanel(),
                               editor.getTableToolTip());
         }
 

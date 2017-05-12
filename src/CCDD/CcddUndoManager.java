@@ -7,8 +7,6 @@
 package CCDD;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CompoundEdit;
@@ -188,38 +186,6 @@ public class CcddUndoManager extends UndoManager
 
             // Send event indicating the owner has changed
             ownerHasChanged();
-        }
-    }
-
-    /**************************************************************************
-     * Remove the specified edit types from the edit stack
-     * 
-     * @param editTypes
-     *            array of edit type names to remove from the edit stack
-     *************************************************************************/
-    protected void discardEdits(String[] editTypes)
-    {
-        // Check if there are any edits to discard
-        if (pointer != -1)
-        {
-            List<String> editTypeList = Arrays.asList(editTypes);
-            List<CompoundEdit> removedEdits = new ArrayList<CompoundEdit>();
-
-            // Step through each edit in the stack
-            for (CompoundEdit compoundEdit : compoundEdits)
-            {
-                // Check if the edit matches one in the list to remove
-                if (editTypeList.contains(compoundEdit.getPresentationName()))
-                {
-                    // Add the edit reference to the list of those to remove
-                    removedEdits.add(compoundEdit);
-                }
-            }
-
-            // Remove any edits that match those in the specified list and
-            // adjust the stack pointer
-            compoundEdits.removeAll(removedEdits);
-            pointer -= removedEdits.size();
         }
     }
 

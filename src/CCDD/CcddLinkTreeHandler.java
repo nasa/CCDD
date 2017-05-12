@@ -40,7 +40,6 @@ import javax.swing.border.BevelBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 import CCDD.CcddClasses.LinkInformation;
@@ -48,6 +47,7 @@ import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.LinksColumn;
+import CCDD.CcddUndoHandler.UndoableTreeModel;
 
 /******************************************************************************
  * CFS Command & Data Dictionary link tree handler class
@@ -157,6 +157,9 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      * @param ccddMain
      *            main class
      * 
+     * @param undoHandler
+     *            reference to the undo handler
+     * 
      * @param rateName
      *            data stream rate column name associated with the tree; used
      *            to filter the links added to the link tree
@@ -164,9 +167,12 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      * @param parent
      *            GUI component calling this method
      *************************************************************************/
-    CcddLinkTreeHandler(CcddMain ccddMain, String rateName, Component parent)
+    CcddLinkTreeHandler(CcddMain ccddMain,
+                        CcddUndoHandler undoHandler,
+                        String rateName,
+                        Component parent)
     {
-        super(ccddMain, InternalTable.LINKS, rateName, false, parent);
+        super(ccddMain, undoHandler, InternalTable.LINKS, rateName, false, parent);
 
         // Create the tree icons depicting links
         validLinkIcon = new ImageIcon(getClass().getResource(OK_ICON));
@@ -667,7 +673,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
                     // Update the node name. Indicate that the node changed so
                     // that the tree redraws the name
                     node.setUserObject(nodeName);
-                    ((DefaultTreeModel) getModel()).nodeChanged(node);
+                    ((UndoableTreeModel) getModel()).nodeChanged(node);
                 }
             }
         }

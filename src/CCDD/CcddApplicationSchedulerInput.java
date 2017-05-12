@@ -82,6 +82,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
 
         // Create the application tree
         applicationTree = new CcddGroupTreeHandler(ccddMain,
+                                                   null,
                                                    selectedRate,
                                                    true,
                                                    ccddMain.getMainFrame())

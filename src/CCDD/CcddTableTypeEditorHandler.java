@@ -45,7 +45,7 @@ import CCDD.CcddTableTypeHandler.TypeDefinition;
  * CFS Command & Data Dictionary table type editor handler class
  *****************************************************************************/
 @SuppressWarnings("serial")
-public class CcddTableTypeEditorHandler extends CcddEditorPanelHandler
+public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 {
     // Class references
     private String tableTypeName;
@@ -168,17 +168,6 @@ public class CcddTableTypeEditorHandler extends CcddEditorPanelHandler
     }
 
     /**************************************************************************
-     * Get the table editor dialog
-     * 
-     * @return Table editor dialog
-     *************************************************************************/
-    @Override
-    protected CcddFrameHandler getTableEditor()
-    {
-        return editorDialog;
-    }
-
-    /**************************************************************************
      * Get the table handler
      * 
      * @return Table handler
@@ -261,7 +250,7 @@ public class CcddTableTypeEditorHandler extends CcddEditorPanelHandler
      * @return Table UndoManager
      *************************************************************************/
     @Override
-    protected CcddUndoManager getEditPanelUndoManager()
+    protected CcddUndoManager getFieldPanelUndoManager()
     {
         return table.getUndoManager();
     }
@@ -913,15 +902,21 @@ public class CcddTableTypeEditorHandler extends CcddEditorPanelHandler
         // input data types
         setUpInputTypeColumn();
 
-        // Set the undo/redo manager for the description and data field values
-        setEditPanelUndoManager(table.getUndoManager());
+        // Set the reference to the editor's data field handler in the undo
+        // handler so that data field value changes can be undone/redone
+        // correctly
+        table.getUndoHandler().setFieldHandler(fieldHandler);
+
+        // Set the undo/redo manager and handler for the description and data
+        // field values
+        setEditPanelUndo(table.getUndoManager(), table.getUndoHandler());
 
         // Create the editor panel to contain the type editor
-        createEditorPanel(editorDialog,
-                          scrollPane,
-                          tableTypeName,
-                          committedDescription,
-                          fieldHandler);
+        createDescAndDataFieldPanel(editorDialog,
+                                    scrollPane,
+                                    tableTypeName,
+                                    committedDescription,
+                                    fieldHandler);
 
         // Set the JTable name so that table change events can be identified
         // with this table

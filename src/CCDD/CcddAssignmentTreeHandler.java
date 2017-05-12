@@ -127,6 +127,7 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
                               Component parent)
     {
         super(ccddMain,
+              null,
               InternalTable.TLM_SCHEDULER,
               rateMsgFilter, false,
               parent);

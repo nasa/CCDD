@@ -95,9 +95,6 @@ public class CcddDialogHandler extends JDialog
     // Check boxes generated from user-supplied list
     private JCheckBox[] checkBox;
 
-    // Initial width of the dialog in pixels
-    private int initialDialogWidth;
-
     // Component that initially has the focus; null to set the focus to the
     // first (default) component
     private Component initialFocusComponent;
@@ -1871,9 +1868,6 @@ public class CcddDialogHandler extends JDialog
                                              getHeight()));
             }
 
-            // Store the dialog's initial width
-            initialDialogWidth = getMinimumSize().width;
-
             // Position the dialog frame centered on the parent
             setLocationRelativeTo(parent);
 
@@ -1890,15 +1884,6 @@ public class CcddDialogHandler extends JDialog
         }
 
         return buttonSelected;
-    }
-
-    /**************************************************************************
-     * Set the dialog's minimum size
-     *************************************************************************/
-    protected void setDialogMinimumSize()
-    {
-        setMinimumSize(new Dimension(initialDialogWidth,
-                                     getPreferredSize().height));
     }
 
     /**************************************************************************

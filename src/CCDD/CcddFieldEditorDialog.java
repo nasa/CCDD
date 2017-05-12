@@ -23,6 +23,7 @@ import static CCDD.CcddConstants.UP_ICON;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -62,7 +63,8 @@ import CCDD.CcddConstants.TableSelectionMode;
 public class CcddFieldEditorDialog extends CcddDialogHandler
 {
     // Class reference
-    private final CcddEditorPanelHandler editorHandler;
+    private final CcddKeyboardHandler keyboardHandler;
+    private final CcddInputFieldPanelHandler fieldPnlHandler;
     private CcddJTableHandler fieldTable;
 
     // Components referenced by multiple methods
@@ -102,8 +104,11 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     /**************************************************************************
      * Data field editor dialog class constructor
      * 
-     * @param editorHandler
-     *            editor panel reference
+     * @param ccddMain
+     *            main class reference
+     * 
+     * @param fieldPnlHandler
+     *            description and data field panel reference
      * 
      * @param ownerName
      *            table name, including the path if this is a structure type
@@ -111,32 +116,45 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
      * 
      * @param includeApplicability
      *            true to include the applicability column
+     * 
+     * @param minimumWidth
+     *            minimum pixel width of the caller
      *************************************************************************/
-    CcddFieldEditorDialog(CcddEditorPanelHandler editorHandler,
+    CcddFieldEditorDialog(CcddMain ccddMain,
+                          CcddInputFieldPanelHandler fieldPnlHandler,
                           String ownerName,
-                          boolean includeApplicability)
+                          boolean includeApplicability,
+                          int minimumWidth)
     {
-        this.editorHandler = editorHandler;
+        keyboardHandler = ccddMain.getKeyboardHandler();
+        this.fieldPnlHandler = fieldPnlHandler;
         this.ownerName = ownerName;
         this.includeApplicability = includeApplicability;
 
-        fieldInformation = editorHandler.getFieldHandler().getFieldInformation();
+        // Get the reference to the data field information
+        fieldInformation = fieldPnlHandler.getDataFieldHandler().getFieldInformation();
+
+        // Store the old data fields in case an undo is requested
+        fieldPnlHandler.storeCurrentFieldInformation();
 
         // Create the data field editor dialog
-        initialize();
+        initialize(minimumWidth);
     }
 
     /**************************************************************************
      * Create the data field editor dialog
+     * 
+     * @param minimumWidth
+     *            minimum pixel width of the caller
      *************************************************************************/
-    private void initialize()
+    private void initialize(final int minimumWidth)
     {
 
         // Check if the table has fields
         if (!fieldInformation.isEmpty())
         {
             // Store the field information
-            currentData = editorHandler.getFieldHandler().getFieldDefinitionArray(true);
+            currentData = fieldPnlHandler.getDataFieldHandler().getFieldDefinitionArray(true);
         }
         // The table has no data fields
         else
@@ -528,7 +546,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
 
         // Set the data field editor and editor dialog references in the parent
         // table or table type editor
-        editorHandler.setFieldEditorDialog(this);
+        fieldPnlHandler.setFieldEditorDialog(this);
 
         // Create the lower (button) panel
         JPanel buttonPnl = new JPanel();
@@ -632,6 +650,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                                                    0,
                                                    InputDataType.SEPARATOR.getInputName(),
                                                    false,
+                                                   "",
                                                    ""});
             }
         });
@@ -658,6 +677,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                                                    0,
                                                    InputDataType.BREAK.getInputName(),
                                                    false,
+                                                   "",
                                                    ""});
             }
         });
@@ -715,12 +735,16 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             @Override
             protected void performAction(ActionEvent ae)
             {
-                // Check that no required columns are empty
-                if (!checkForMissingColumns())
+                // Check if no required columns are empty, the currently
+                // editing cell's contents is valid (if a cell is being
+                // edited), and that there are changes to update
+                if (!checkForMissingColumns()
+                    && fieldTable.isLastCellValid()
+                    && fieldTable.isTableChanged(currentData))
                 {
                     // Rebuild the data field panel in the table editor using
                     // the current text field contents
-                    recreateDataFieldPanel();
+                    recreateDataFieldPanel(minimumWidth);
                 }
             }
         });
@@ -760,18 +784,32 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Distribute the buttons across two rows
         setButtonRows(2);
 
+        // Set the modal undo manager and table references in the keyboard
+        // handler while the data field editor is active
+        keyboardHandler.setModalDialogReference(fieldTable.getUndoManager(),
+                                                fieldTable);
+
         // Display the table data field editor dialog
-        showOptionsDialog(editorHandler.getTableEditor(),
+        showOptionsDialog(fieldPnlHandler.getOwner(),
                           outerPanel,
                           buttonPnl,
                           DIALOG_TITLE + ": " + ownerName,
                           true);
+
+        // Clear the modal dialog references in the keyboard handler since the
+        // data field editor is no longer active. The component that called
+        // this editor, if a modal dialog, must set these parameters again once
+        // control is returned to it from this editor
+        keyboardHandler.setModalDialogReference(null, null);
     }
 
     /**************************************************************************
      * Recreate the data fields for display below the table
+     * 
+     * @param minimumWidth
+     *            minimum pixel width of the caller
      *************************************************************************/
-    private void recreateDataFieldPanel()
+    private void recreateDataFieldPanel(int minimumWidth)
     {
         // Get the data field information as it is currently displayed in the
         // table editor and update the current data array to reflect the
@@ -780,24 +818,31 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
 
         // Build the field definitions from the editor table data, then use
         // the definitions to build the field information
-        editorHandler.getFieldHandler().buildFieldInformation(editorHandler.getFieldHandler().buildFieldDefinition(currentData,
-                                                                                                                   ownerName),
-                                                              ownerName);
+        fieldPnlHandler.getDataFieldHandler().buildFieldInformation(fieldPnlHandler.getDataFieldHandler().buildFieldDefinition(currentData,
+                                                                                                                               ownerName),
+                                                                    ownerName);
 
         // Rebuild the data field panel in the table editor using the current
         // text field contents
-        editorHandler.createDataFieldPanel();
+        fieldPnlHandler.createDataFieldPanel(true);
+
+        // Update the size of the data field owner to accommodate a field wider
+        // than the owner's minimum width
+        fieldPnlHandler.getOwner().setMinimumSize(new Dimension(Math.max(minimumWidth,
+                                                                         fieldPnlHandler.getMaxFieldWidth()),
+                                                                fieldPnlHandler.getOwner().getPreferredSize().height));
+        fieldPnlHandler.getOwner().setPreferredSize(fieldPnlHandler.getOwner().getPreferredSize());
 
         // Update the dialog title to remove the change indicator
         setTitle(DIALOG_TITLE + ": " + ownerName);
 
-        // Force the table editor to redraw in order for the field updates to
-        // appear
-        editorHandler.getTableEditor().validate();
-        editorHandler.getTableEditor().repaint();
-
         // Update the change indicator for the owner of this edit panel
-        editorHandler.updateOwnerChangeIndicator();
+        fieldPnlHandler.updateOwnerChangeIndicator();
+
+        // Update the undo manager so that all data field editor edits up to
+        // the press of the Update button can be undone/redone
+        fieldPnlHandler.storeCurrentFieldInformation();
+        fieldTable.getUndoManager().endEditSequence();
     }
 
     /**************************************************************************

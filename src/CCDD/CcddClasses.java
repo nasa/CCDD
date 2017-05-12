@@ -560,7 +560,7 @@ public class CcddClasses
          *********************************************************************/
         protected void setRootTable(String rootTable)
         {
-            tablePath.replaceFirst("^.*(,|$)", rootTable);
+            tablePath = tablePath.replaceFirst("^.*?(,|$)", rootTable + "$1");
         }
 
         /**********************************************************************
@@ -1596,7 +1596,7 @@ public class CcddClasses
         private final boolean isRequired;
         private ApplicabilityType applicability;
         private String value;
-        private Object inputFld;
+        private Component inputFld;
 
         /**********************************************************************
          * Data field information class constructor
@@ -1820,7 +1820,7 @@ public class CcddClasses
          *
          * @return Field's UndoableTextField or UndoableCheckBox reference
          *********************************************************************/
-        protected Object getInputFld()
+        protected Component getInputFld()
         {
             return inputFld;
         }
@@ -1831,7 +1831,7 @@ public class CcddClasses
          * @param inputFld
          *            field's UndoableTextField or UndoableCheckBox
          ********************************************************************/
-        protected void setInputFld(Object inputFld)
+        protected void setInputFld(Component inputFld)
         {
             this.inputFld = inputFld;
         }
@@ -4877,7 +4877,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Returns the minimum or preferred dimension needed to layout the
-         * target container.
+         * target container
          *
          * @param target
          *            target to get layout size for
@@ -4885,7 +4885,7 @@ public class CcddClasses
          * @param preferred
          *            should preferred size be calculated
          *
-         *            * @return The dimension to layout the target container
+         * @return The dimension to layout the target container
          *********************************************************************/
         private Dimension layoutSize(Container target, boolean preferred)
         {
@@ -4916,6 +4916,7 @@ public class CcddClasses
                 int horizontalInsetsAndGap = insets.left
                                              + insets.right
                                              + (hgap * 2);
+
                 int maxWidth = targetWidth - horizontalInsetsAndGap;
 
                 // Fit components into the allowed width

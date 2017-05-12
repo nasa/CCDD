@@ -1006,7 +1006,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
     protected void logEvent(final EventLogMessageType type, String logMessage)
     {
         // Get the server, database, and user responsible for the event.
-        final String server = dbControl.getUser();
+        final String server = dbControl.getServer();
         final String database = dbControl.getProject();
         final String user = dbControl.getUser();
 

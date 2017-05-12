@@ -54,6 +54,10 @@ public class CcddCommonTreeHandler extends JTree
     // variables
     private int lastPackRow;
 
+    // Flag that indicates if table node selection changes should be ignored
+    // for undo/redo consideration
+    private boolean ignoreSelectionChange;
+
     /**************************************************************************
      * Common tree handler class constructor
      *************************************************************************/
@@ -73,6 +77,39 @@ public class CcddCommonTreeHandler extends JTree
         linkedPackedVariableIcon = new ImageIcon(getClass().getResource(LINKED_PACKED_VARIABLE_ICON));
 
         lastPackRow = -1;
+        ignoreSelectionChange = false;
+    }
+
+    /**************************************************************************
+     * Placeholder for method to respond to changes in selection of a table in
+     * the table tree
+     *************************************************************************/
+    protected void updateTableSelection()
+    {
+    }
+
+    /**************************************************************************
+     * Set the flag that indicates if table node selection edits should be
+     * ignored for undo/redo consideration
+     * 
+     * @param ignore
+     *            true to not store table node selection edits
+     *************************************************************************/
+    protected void setIgnoreSelectionChange(boolean ignore)
+    {
+        ignoreSelectionChange = ignore;
+    }
+
+    /**************************************************************************
+     * Get the flag that indicates if table node selection edits should be
+     * ignored for undo/redo consideration
+     * 
+     * @return true if table node selection edits are to be ignored for
+     *         undo/redo consideration
+     *************************************************************************/
+    protected boolean isIgnoreSelectionChange()
+    {
+        return ignoreSelectionChange;
     }
 
     /**************************************************************************

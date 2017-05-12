@@ -409,28 +409,32 @@ public class CcddConstants
     protected static enum TableTreeType
     {
         // Prototype tables only, all types
-        PROTOTYPE_ONLY,
+        PROTOTYPE_TABLES,
 
         // Instance tables only, all types
-        INSTANCE_ONLY,
+        INSTANCE_TABLES,
 
         // Prototype and instance tables, all types
-        PROTOTYPE_AND_INSTANCE,
+        TABLES,
 
         // Prototype and instance tables, structure types only, with primitive
         // variables
-        PROTOTYPE_AND_INSTANCE_WITH_PRIMITIVES,
+        STRUCTURES_WITH_PRIMITIVES,
 
         // Instance tables only, structure types only, with primitive variables
-        INSTANCE_WITH_PRIMITIVES,
+        INSTANCE_STRUCTURES_WITH_PRIMITIVES,
 
         // Instance tables only, structure types only, with primitive variables
         // and their sample rates
-        INSTANCE_WITH_PRIMITIVES_AND_RATES,
+        INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES,
+
+        // Prototype and instance tables, all types, with primitive variables
+        // (for structures)
+        TABLES_WITH_PRIMITIVES,
 
         // Instance tables only, all types, with primitive variables (for
         // structures)
-        ALL_INSTANCE_WITH_PRIMITIVES
+        INSTANCE_TABLES_WITH_PRIMITIVES
     }
 
     // Table member types

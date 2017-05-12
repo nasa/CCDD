@@ -39,9 +39,9 @@ import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.DataTypeEditorColumnInfo;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.SearchDialogType;
-import CCDD.CcddEditorPanelHandler.UndoableCheckBox;
-import CCDD.CcddEditorPanelHandler.UndoableTextArea;
-import CCDD.CcddEditorPanelHandler.UndoableTextField;
+import CCDD.CcddUndoHandler.UndoableCheckBox;
+import CCDD.CcddUndoHandler.UndoableTextArea;
+import CCDD.CcddUndoHandler.UndoableTextField;
 
 /******************************************************************************
  * CFS Command & Data Dictionary keyboard handler class
@@ -53,7 +53,9 @@ public class CcddKeyboardHandler
     private CcddMacroHandler macroHandler;
     private CcddDataTypeHandler dataTypeHandler;
     private CcddUndoManager modalUndoManager;
-    private CcddEditorPanelHandler editPnlHandler;
+    private CcddJTableHandler modalTable;
+    private CcddInputFieldPanelHandler editPnlHandler;
+    private KeyboardFocusManager focusManager;
 
     /**************************************************************************
      * Keyboard handler class constructor
@@ -79,18 +81,27 @@ public class CcddKeyboardHandler
     }
 
     /**************************************************************************
-     * Set the undo manager to that of an active modal dialog (e.g., the group
-     * manager or macro dialogs). This must be done manually by the dialog
-     * since it is modal, unlike the table and table type editors. The modal
-     * undo manager must be set to null when the dialog closes so that the
-     * table and table type editors undo managers can be checked
+     * Set the references for the undo manager and table (if applicable) to
+     * those of the active modal dialog (e.g., the group manager or macro
+     * editor dialogs). Since the modal dialogs lock the user interface while
+     * active a reference to them cannot be set for the code to access as it
+     * can with the non-modal dialogs (i.e., the table editors and table type
+     * editor). The modal undo manager must be set to null after the dialog
+     * closes so that the non-modal dialogs (e.g., table and table type
+     * editors) undo managers can handle undo/redo operations
      * 
      * @param undoManager
      *            modal dialog undo manager; null to disable
+     * 
+     * @param table
+     *            modal dialog tab;e reference; null if the modal dialog has no
+     *            table
      *************************************************************************/
-    protected void setModalUndoManager(CcddUndoManager undoManager)
+    protected void setModalDialogReference(CcddUndoManager undoManager,
+                                           CcddJTableHandler table)
     {
         modalUndoManager = undoManager;
+        modalTable = table;
     }
 
     /**************************************************************************
@@ -101,7 +112,7 @@ public class CcddKeyboardHandler
     private void setKeyboardHandler()
     {
         // Get the keyboard focus manager
-        final KeyboardFocusManager focusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        focusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
 
         // Listen for key presses
         focusManager.addKeyEventDispatcher(new KeyEventDispatcher()
@@ -623,8 +634,7 @@ public class CcddKeyboardHandler
     }
 
     /**************************************************************************
-     * Get the active table editor, table type editor, data field editor, group
-     * manager, or macro editor undo manager
+     * Get the active component's undo manager
      * 
      * @return The active undo manager; null if no undo manager is active or no
      *         editor has focus
@@ -635,32 +645,17 @@ public class CcddKeyboardHandler
         CcddUndoManager undoManager = null;
         editPnlHandler = null;
 
-        // Check if a modal dialog undo manager is in effect
+        // Check if a modal dialog is active
         if (modalUndoManager != null)
         {
             // Set the undo manager to the modal dialog's undo manager
             undoManager = modalUndoManager;
 
-            // Get a reference to the data type editor dialog to shorten
-            // subsequent calls
-            CcddDataTypeEditorDialog dataTypeEditor = ccddMain.getDataTypeEditor();
-
-            // Check if the data type editor is open and the editor has focus
-            if (dataTypeEditor != null && dataTypeEditor.isFocused())
+            // Check if a modal table is active
+            if (modalTable != null)
             {
-                // Get the cell editor for the data type editor
-                cellEditor = dataTypeEditor.getTable().getCellEditor();
-            }
-
-            // Get a reference to the macro editor dialog to shorten subsequent
-            // calls
-            CcddMacroEditorDialog macroEditor = ccddMain.getMacroEditor();
-
-            // Check if the macro editor is open and the editor has focus
-            if (macroEditor != null && macroEditor.isFocused())
-            {
-                // Get the cell editor for the macro editor
-                cellEditor = macroEditor.getTable().getCellEditor();
+                // Get the cell editor for the modal table
+                cellEditor = modalTable.getCellEditor();
             }
 
             // Get a reference to the group manager dialog to shorten
@@ -680,24 +675,14 @@ public class CcddKeyboardHandler
             // Step through each open table editor dialog
             for (CcddTableEditorDialog editorDialog : ccddMain.getTableEditorDialogs())
             {
-                // Check if the table's field editor is open and has the
-                // keyboard focus
-                if (editorDialog.getFieldEditorDialog() != null
-                    && editorDialog.getFieldEditorDialog().isFocused())
-                {
-                    // Get a reference to the table's field editor undo manager
-                    // and cell editor
-                    undoManager = editorDialog.getFieldEditorDialog().getUndoManager();
-                    cellEditor = editorDialog.getFieldEditorDialog().getTable().getCellEditor();
-                }
-                // Check if this editor dialog has the keyboard focus
-                else if (editorDialog.isFocused())
+                // // Check if this editor dialog has the keyboard focus
+                if (editorDialog.isFocused())
                 {
                     // Get the undo manager, cell editor, and editor panel
                     // handler for the active table editor
-                    undoManager = editorDialog.getTableEditor().getEditPanelUndoManager();
+                    undoManager = editorDialog.getTableEditor().getFieldPanelUndoManager();
                     cellEditor = editorDialog.getTableEditor().getTable().getCellEditor();
-                    editPnlHandler = editorDialog.getTableEditor().getEditPanelHandler();
+                    editPnlHandler = editorDialog.getTableEditor().getInputFieldPanelHandler();
                 }
 
                 // Check if an undo manager is active
@@ -716,24 +701,14 @@ public class CcddKeyboardHandler
             // editor is open
             if (undoManager == null && editorDialog != null)
             {
-                // Check if the table type's field editor is open and has the
-                // keyboard focus
-                if (editorDialog.getFieldEditorDialog() != null
-                    && editorDialog.getFieldEditorDialog().isFocused())
-                {
-                    // Get a reference to the table's field editor undo manager
-                    // and cell editor
-                    undoManager = editorDialog.getFieldEditorDialog().getUndoManager();
-                    cellEditor = editorDialog.getFieldEditorDialog().getTable().getCellEditor();
-                }
-                // Check if the table type editor has the keyboard focus
-                else if (editorDialog.isFocused())
+                // // Check if the table type editor has the keyboard focus
+                if (editorDialog.isFocused())
                 {
                     // Get the undo manager, cell editor, and editor panel
                     // handler for the active table type editor
-                    undoManager = editorDialog.getTypeEditor().getEditPanelUndoManager();
+                    undoManager = editorDialog.getTypeEditor().getFieldPanelUndoManager();
                     cellEditor = editorDialog.getTypeEditor().getTable().getCellEditor();
-                    editPnlHandler = editorDialog.getTypeEditor().getEditPanelHandler();
+                    editPnlHandler = editorDialog.getTypeEditor().getInputFieldPanelHandler();
                 }
             }
 
@@ -764,8 +739,7 @@ public class CcddKeyboardHandler
         else
         {
             // Get the current owner of the keyboard focus
-            Component focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
-
+            Component focusOwner = focusManager.getFocusOwner();
             // Check if the focus is in an edit panel's description or data
             // field
             if (focusOwner != null &&
@@ -773,9 +747,17 @@ public class CcddKeyboardHandler
                  || focusOwner instanceof UndoableTextArea
                  || focusOwner instanceof UndoableCheckBox))
             {
+                // Check if the focus owner is a text field data field
+                if (focusOwner instanceof UndoableTextField)
+                {
+                    // Force the text to update so that an undo command starts
+                    // with this field
+                    ((JTextField) focusOwner).setText(((JTextField) focusOwner).getText());
+                }
+
                 // Clear the keyboard focus so that the current data field
                 // value is registered as an edit
-                KeyboardFocusManager.getCurrentKeyboardFocusManager().clearGlobalFocusOwner();
+                focusManager.clearGlobalFocusOwner();
             }
         }
 

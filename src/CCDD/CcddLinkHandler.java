@@ -606,7 +606,7 @@ public class CcddLinkHandler
         // variables. This is used for determining bit-packing, variable
         // relative position, variable offsets, and structure sizes
         CcddTableTreeHandler allVariableTree = new CcddTableTreeHandler(ccddMain,
-                                                                        TableTreeType.PROTOTYPE_AND_INSTANCE_WITH_PRIMITIVES,
+                                                                        TableTreeType.STRUCTURES_WITH_PRIMITIVES,
                                                                         ccddMain.getMainFrame());
 
         // Expand the tree so that all nodes are 'visible'

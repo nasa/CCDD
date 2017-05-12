@@ -1963,7 +1963,7 @@ public class CcddDbTableCommandHandler
                     {
                         // Check if the tab name matches the last table name in
                         // the list of those to be opened
-                        if (tableEditorDlg.getTabbedPane().getComponentAt(index).equals(tableEditor.getEditorPanel()))
+                        if (tableEditorDlg.getTabbedPane().getComponentAt(index).equals(tableEditor.getFieldPanel()))
                         {
                             // Bring the editor tab to the front and stop
                             // searching
@@ -2656,7 +2656,7 @@ public class CcddDbTableCommandHandler
                 // Create the table tree. This is needed if a variable name has
                 // been changed or deleted
                 tableTree = new CcddTableTreeHandler(ccddMain,
-                                                     TableTreeType.INSTANCE_ONLY,
+                                                     TableTreeType.INSTANCE_TABLES,
                                                      parent);
             }
 
@@ -3036,7 +3036,6 @@ public class CcddDbTableCommandHandler
                                 // Pad the array brackets with backslashes for
                                 // use in a regular expression
                                 orgVariablePath = CcddUtilities.padBracketsForRegEx(orgVariablePath);
-                                newVariablePath = CcddUtilities.padBracketsForRegEx(newVariablePath);
 
                                 // Append the new data type and/or name of the
                                 // variable that's being changed to the
@@ -3225,17 +3224,12 @@ public class CcddDbTableCommandHandler
                                     // Create the command to update the links
                                     // table for instances of variables of the
                                     // prototype table
-                                    linksModCmd.append("UPDATE "
-                                                       + InternalTable.LINKS.getTableName()
-                                                       + " SET "
-                                                       + LinksColumn.MEMBER.getColumnName()
-                                                       + " = regexp_replace("
-                                                       + LinksColumn.MEMBER.getColumnName()
-                                                       + ", E'^"
-                                                       + orgVariablePath
-                                                       + "(,.*|\\\\[.*|:|$)', E'"
-                                                       + newVariablePath
-                                                       + "\\\\1'); ");
+                                    linksModCmd.append(updateVarNameAndDataType(orgVariablePath,
+                                                                                newVariablePath,
+                                                                                InternalTable.LINKS.getTableName(),
+                                                                                LinksColumn.MEMBER.getColumnName(),
+                                                                                "",
+                                                                                ""));
 
                                     // Get the original and new sizes of the
                                     // variable
@@ -3246,25 +3240,17 @@ public class CcddDbTableCommandHandler
                                     // than the original size
                                     if (newLen <= oldLen)
                                     {
-                                        // Since the variable still fits within
-                                        // the any message in the telemetry
+                                        // Since the variable may no longer fit
+                                        // within any message in the telemetry
                                         // scheduler table to which it's
-                                        // assigned leave it in the message and
-                                        // update the instances of variables of
-                                        // the prototype table
-                                        tlmModCmd.append("UPDATE "
-                                                         + InternalTable.TLM_SCHEDULER.getTableName()
-                                                         + " SET "
-                                                         + TlmSchedulerColumn.MEMBER.getColumnName()
-                                                         + " = regexp_replace("
-                                                         + TlmSchedulerColumn.MEMBER.getColumnName()
-                                                         + ", E'^(.*"
-                                                         + TLM_SCH_SEPARATOR
-                                                         + ")"
-                                                         + orgVariablePath
-                                                         + "(,.*|\\\\[.*|:|$)', E'\\\\1"
-                                                         + newVariablePath
-                                                         + "\\\\2'); ");
+                                        // assigned remove all references to
+                                        // the variable
+                                        tlmModCmd.append(updateVarNameAndDataType(orgVariablePath,
+                                                                                  newVariablePath,
+                                                                                  InternalTable.TLM_SCHEDULER.getTableName(),
+                                                                                  TlmSchedulerColumn.MEMBER.getColumnName(),
+                                                                                  "(.*" + TLM_SCH_SEPARATOR + ")",
+                                                                                  "\\\\1"));
                                     }
                                     // The size increased
                                     else
@@ -3342,19 +3328,14 @@ public class CcddDbTableCommandHandler
                                 if (variableChanged || dataTypeChanged)
                                 {
                                     // Create the command to update the custom
-                                    // values table for instances of variables
-                                    // of the prototype table
-                                    valuesModCmd.append("UPDATE "
-                                                        + InternalTable.VALUES.getTableName()
-                                                        + " SET "
-                                                        + ValuesColumn.TABLE_PATH.getColumnName()
-                                                        + " = regexp_replace("
-                                                        + ValuesColumn.TABLE_PATH.getColumnName()
-                                                        + ", E'^"
-                                                        + orgVariablePath
-                                                        + "(,.*|\\\\[.*|$)', E'"
-                                                        + newVariablePath
-                                                        + "\\\\1'); ");
+                                    // values table for instances of non-array
+                                    // member variables of the prototype table
+                                    valuesModCmd.append(updateVarNameAndDataType(orgVariablePath,
+                                                                                 newVariablePath,
+                                                                                 InternalTable.VALUES.getTableName(),
+                                                                                 ValuesColumn.TABLE_PATH.getColumnName(),
+                                                                                 "",
+                                                                                 ""));
                                 }
                             }
                         }
@@ -3442,6 +3423,119 @@ public class CcddDbTableCommandHandler
         }
 
         return modCmd.toString();
+    }
+
+    // TODO
+    /**************************************************************************
+     * Build the command to update the variable name and/or the data type.
+     * Combine updates to array members into a single command by using a
+     * regular expression to match the array indices
+     * 
+     * @param orgVariablePath
+     *            original variable path
+     * 
+     * @param newVariablePath
+     *            new variable path
+     * 
+     * @param tableName
+     *            name of the internal table to update
+     * 
+     * @param columnName
+     *            name of the column in the internal table that contains the
+     *            variable path
+     * 
+     * @param captureIn
+     *            pattern match to capture any character(s) that precede(s) the
+     *            variable path; blank if none
+     * 
+     * @param captureOut
+     *            pattern for replacing the captured character(s) specified in
+     *            captureIn; blank if none
+     * 
+     * @return Command to update the variable name and/or the data type
+     *************************************************************************/
+    private String updateVarNameAndDataType(String orgVariablePath,
+                                            String newVariablePath,
+                                            String tableName,
+                                            String columnName,
+                                            String captureIn,
+                                            String captureOut)
+    {
+        String command = "";
+
+        // Initialize the regular expression capture group index
+        int captureGrp = captureIn.isEmpty() ? 1 : 2;
+
+        // Check if the path contains an array member
+        if (orgVariablePath.contains("["))
+        {
+            // Check if any of the array members in the path are not the first
+            // array index ([0]) for that array. Only a path where all array
+            // index references are for the first index need to be processed
+            // since the command is tailored to account for all index values
+            if (!orgVariablePath.matches(".+\\[[1-9].*"))
+            {
+                // Step through the original variable path for each first array
+                // index reference
+                while (orgVariablePath.contains("[0"))
+                {
+                    // Change the array index reference in the original path to
+                    // generically search for and capture the array index
+                    // value, and change the new path to insert the capture
+                    // group value in the appropriate array index location.
+                    // This allows a single command to cover a variable name or
+                    // data type update for an entire array
+                    orgVariablePath = orgVariablePath.replaceFirst("\\[0",
+                                                                   "[(\\\\\\\\d+)");
+                    newVariablePath = newVariablePath.replaceFirst("\\[0",
+                                                                   "[\\\\\\\\"
+                                                                       + captureGrp);
+                    captureGrp++;
+                }
+
+                // Create the command to update the custom values table for
+                // instances of array variables of the prototype table
+                command = "UPDATE "
+                          +
+                          tableName
+                          + " SET "
+                          + columnName
+                          + " = regexp_replace("
+                          + columnName
+                          + ", E'^"
+                          + captureIn
+                          + orgVariablePath
+                          + "(,.*|\\\\[.*|$)', E'"
+                          + captureOut
+                          + newVariablePath
+                          + "\\\\"
+                          + captureGrp
+                          + "'); ";
+            }
+        }
+        // The path doesn't contain an array member
+        else
+        {
+            // Create the command to update the custom values table for
+            // instances of non-array member variables of the prototype table
+            command = "UPDATE "
+                      + tableName
+                      + " SET "
+                      + columnName
+                      + " = regexp_replace("
+                      + columnName
+                      + ", E'^"
+                      + captureIn
+                      + orgVariablePath
+                      + "(,.*|\\\\[.*|$)', E'"
+                      + captureOut
+                      + newVariablePath
+                      + "\\\\"
+                      + captureGrp
+                      + "'); ";
+        }
+
+        return command;
     }
 
     /**************************************************************************
@@ -4896,7 +4990,7 @@ public class CcddDbTableCommandHandler
 
             // Build a table tree with all prototype and instance tables
             CcddTableTreeHandler tableTree = new CcddTableTreeHandler(ccddMain,
-                                                                      TableTreeType.PROTOTYPE_AND_INSTANCE,
+                                                                      TableTreeType.TABLES,
                                                                       editorDialog);
 
             // ////////////////////////////////////////////////////////////////
@@ -5678,7 +5772,7 @@ public class CcddDbTableCommandHandler
                             // remove. The table editor can't be closed in this
                             // loop since it's iterating over the list of
                             // editors
-                            removeNames.add(editor.getTableEditorOwnerName());
+                            removeNames.add(editor.getOwnerName());
                         }
                     }
                 }
@@ -5710,7 +5804,7 @@ public class CcddDbTableCommandHandler
             // Build the structure table array and table tree
             String[] allStructureTables = getPrototypeTablesOfType(TYPE_STRUCTURE);
             CcddTableTreeHandler newTableTree = new CcddTableTreeHandler(ccddMain,
-                                                                         TableTreeType.INSTANCE_ONLY,
+                                                                         TableTreeType.INSTANCE_TABLES,
                                                                          parent);
 
             // Step through each open table editor dialog

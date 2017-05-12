@@ -678,19 +678,25 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         throw new CCDDException("Illegal character(s) in project name");
                     }
 
-                    // Get the list of available databases
-                    String[] databases = dbControl.queryDatabaseList(CcddDbManagerDialog.this);
-
-                    // Step through each of the database names
-                    for (int index = 0; index < databases.length; index++)
+                    // Check that the selected database is not the currently
+                    // open one (only the description can be altered for this
+                    // case)
+                    if (!getRadioButtonSelected().equals(dbControl.getDatabase()))
                     {
-                        // Check if the user-supplied name matches an existing
-                        // database name
-                        if (databases[index].split(",")[0].equals(nameFld.getText()))
+                        // Get the list of available databases
+                        String[] databases = dbControl.queryDatabaseList(CcddDbManagerDialog.this);
+
+                        // Step through each of the database names
+                        for (int index = 0; index < databases.length; index++)
                         {
-                            // Inform the user that the name is already in
-                            // use
-                            throw new CCDDException("Project name already in use");
+                            // Check if the user-supplied name matches an
+                            // existing database name
+                            if (databases[index].split(",")[0].equals(nameFld.getText()))
+                            {
+                                // Inform the user that the name is already in
+                                // use
+                                throw new CCDDException("Project name already in use");
+                            }
                         }
                     }
 

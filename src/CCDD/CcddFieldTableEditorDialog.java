@@ -51,14 +51,10 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
-import javax.swing.event.UndoableEditEvent;
-import javax.swing.event.UndoableEditListener;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import javax.swing.undo.AbstractUndoableEdit;
-import javax.swing.undo.CannotUndoException;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.CellSelectionHandler;
@@ -71,8 +67,9 @@ import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddConstants.TableTreeType;
-import CCDD.CcddEditorPanelHandler.UndoableTextField;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
+import CCDD.CcddUndoHandler.UndoableCellSelection;
+import CCDD.CcddUndoHandler.UndoableTextField;
 
 /******************************************************************************
  * CFS Command & Data Dictionary data field table editor dialog class
@@ -90,6 +87,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
     // Components that need to be accessed by multiple methods
     private CcddJTableHandler dataFieldTable;
+    private UndoableCellSelection cellSelect;
 
     // Data field information
     private List<String[]> dataFields;
@@ -250,11 +248,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
                             // Rebuild the table's editor panel which contains
                             // the data fields
-                            editor.createDataFieldPanel();
-
-                            // Force the table editor to redraw in order for
-                            // the field updates to appear
-                            editor.getTableEditor().repaint();
+                            editor.createDataFieldPanel(false);
                         }
                     }
 
@@ -440,7 +434,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     tableTree = new CcddTableTreeHandler(ccddMain,
                                                          new CcddGroupHandler(ccddMain,
                                                                               CcddFieldTableEditorDialog.this),
-                                                         TableTreeType.PROTOTYPE_AND_INSTANCE,
+                                                         TableTreeType.TABLES,
                                                          true,
                                                          false,
                                                          CcddFieldTableEditorDialog.this)
@@ -892,59 +886,16 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             // Step through each column in the table
             for (int column = 0; column < dataFieldTable.getModel().getColumnCount(); column++)
             {
-                // Check if this is not the table name or path column
+                // Check if this is not the table name or path column and if
+                // the cell at these coordinates is selected
                 if (column != FieldTableEditorColumnInfo.OWNER.ordinal()
-                    && column != FieldTableEditorColumnInfo.PATH.ordinal())
+                    && column != FieldTableEditorColumnInfo.PATH.ordinal()
+                    && dataFieldTable.isCellSelected(row,
+                                                     dataFieldTable.convertColumnIndexToView(column)))
                 {
-                    // Check if the cell at these coordinates is selected
-                    if (dataFieldTable.isCellSelected(row,
-                                                      dataFieldTable.convertColumnIndexToView(column)))
-                    {
-                        // Flag to indicate if a selection or deselection
-                        // occurred
-                        boolean isSelected;
-
-                        // Check if the cell wasn't already selected
-                        if (!selectedCells.contains(row, column))
-                        {
-                            // Flag the data field represented by these
-                            // coordinates for removal
-                            selectedCells.add(row, column);
-
-                            isSelected = true;
-                        }
-                        // The cell was already selected
-                        else
-                        {
-                            // Remove the data field represented by these
-                            // coordinates from the list
-                            selectedCells.remove(row, column);
-
-                            isSelected = false;
-                        }
-
-                        // Update the undo manager with this event. Get the
-                        // listeners for this event
-                        UndoableEditListener listeners[] = getListeners(UndoableEditListener.class);
-
-                        // Check if there is an edit listener registered
-                        if (listeners != null)
-                        {
-                            // Create the edit event to be passed to the
-                            // listeners
-                            UndoableEditEvent editEvent = new UndoableEditEvent(this,
-                                                                                new CellSelectEdit(row,
-                                                                                                   column,
-                                                                                                   isSelected));
-
-                            // Step through the registered listeners
-                            for (UndoableEditListener listener : listeners)
-                            {
-                                // Inform the listener that an update occurred
-                                listener.undoableEditHappened(editEvent);
-                            }
-                        }
-                    }
+                    // Add (if selecting) or remove (if deselecting) the cell
+                    // from the selection list
+                    cellSelect.toggleCellSelection(row, column);
                 }
             }
         }
@@ -1312,6 +1263,11 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                                true,
                                                LABEL_FONT_PLAIN,
                                                true);
+
+        // Set the reference to the cell selection container in the undo
+        // handler, then create a cell selection object
+        dataFieldTable.getUndoHandler().setSelectedCells(selectedCells);
+        cellSelect = dataFieldTable.getUndoHandler().new UndoableCellSelection();
 
         // Discard the edits created by adding the columns initially
         dataFieldTable.getUndoManager().discardAllEdits();
@@ -1718,94 +1674,5 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     {
         return !selectedCells.getSelectedCells().isEmpty()
                || dataFieldTable.isTableChanged(committedData);
-    }
-
-    /**************************************************************************
-     * Cell selection edit event handler class. This handles undo and redo of
-     * cell selection events related to removing data field represented by the
-     * selected cell
-     *************************************************************************/
-    private class CellSelectEdit extends AbstractUndoableEdit
-    {
-        private final int row;
-        private final int column;
-        private final boolean isSelected;
-
-        /**********************************************************************
-         * Cell selection edit event handler constructor
-         * 
-         * @param row
-         *            select cell row index
-         * 
-         * @param column
-         *            select cell column index
-         * 
-         * @param isSelected
-         *            true if the cell is selected
-         *********************************************************************/
-        private CellSelectEdit(int row,
-                               int column,
-                               boolean isSelected)
-        {
-            this.row = row;
-            this.column = column;
-            this.isSelected = isSelected;
-
-            // Add the cell selection edit to the undo stack
-            dataFieldTable.getUndoManager().addEditSequence(this);
-        }
-
-        /**********************************************************************
-         * Replace the current cell selection state with the old state
-         *********************************************************************/
-        @Override
-        public void undo() throws CannotUndoException
-        {
-            super.undo();
-
-            // Select the cell where the change was undone
-            setSelectedCell(!isSelected);
-        }
-
-        /**********************************************************************
-         * Replace the current cell selection state with the new state
-         *********************************************************************/
-        @Override
-        public void redo() throws CannotUndoException
-        {
-            super.redo();
-
-            // Select the cell where the change was redone
-            setSelectedCell(isSelected);
-        }
-
-        /**********************************************************************
-         * Set the selected cell
-         * 
-         * @param selectState
-         *            state to which the cell should be set; true to show the
-         *            cell selected and false for deselected
-         *********************************************************************/
-        private void setSelectedCell(boolean selectState)
-        {
-            // Check if the cell wasn't already selected
-            if (selectState)
-            {
-                // Flag the data field represented by these coordinates for
-                // removal
-                selectedCells.add(row, column);
-            }
-            // The cell was already selected
-            else
-            {
-                // Remove the data field represented by these coordinates from
-                // the list
-                selectedCells.remove(row, column);
-            }
-
-            // Force the table to redraw so that the selection state is
-            // displayed correctly
-            dataFieldTable.repaint();
-        }
     }
 }

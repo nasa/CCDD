@@ -111,18 +111,22 @@ public class CcddFieldHandler
     {
         List<FieldInformation> fldInfo = new ArrayList<FieldInformation>();
 
-        // Step through each field
-        for (FieldInformation info : fieldInfo)
+        // Check if any fields exist
+        if (fieldInfo != null)
         {
-            // Add the field to the copy
-            fldInfo.add(new FieldInformation(info.getOwnerName(),
-                                             info.getFieldName(),
-                                             info.getDescription(),
-                                             info.getSize(),
-                                             info.getInputType(),
-                                             info.isRequired(),
-                                             info.getApplicabilityType(),
-                                             info.getValue()));
+            // Step through each field
+            for (FieldInformation info : fieldInfo)
+            {
+                // Add the field to the copy
+                fldInfo.add(new FieldInformation(info.getOwnerName(),
+                                                 info.getFieldName(),
+                                                 info.getDescription(),
+                                                 info.getSize(),
+                                                 info.getInputType(),
+                                                 info.isRequired(),
+                                                 info.getApplicabilityType(),
+                                                 info.getValue()));
+            }
         }
 
         return fldInfo;

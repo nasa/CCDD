@@ -676,7 +676,9 @@ public class CcddDbControlHandler
     }
 
     /**************************************************************************
-     * Build the command to create the database comment
+     * Build the command to create the database comment. Delimit the text so
+     * that special characters (e.g., single quotes) can be placed in the
+     * description
      * 
      * @param databaseName
      *            database name
@@ -695,11 +697,11 @@ public class CcddDbControlHandler
     {
         return "COMMENT ON DATABASE "
                + databaseName
-               + " IS '"
-               + CCDD_PROJECT_IDENTIFIER
-               + (lockStatus ? "1" : "0")
-               + description
-               + "'; ";
+               + " IS "
+               + ccddMain.getDbTableCommandHandler().delimitText(CCDD_PROJECT_IDENTIFIER
+                                                                 + (lockStatus ? "1" : "0")
+                                                                 + description)
+               + "; ";
     }
 
     /**************************************************************************

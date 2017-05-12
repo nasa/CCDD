@@ -108,7 +108,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 // Create a tree containing all of the variables. This is used
                 // for determining bit-packing and variable relative position
                 allVariableTree = new CcddTableTreeHandler(ccddMain,
-                                                           TableTreeType.INSTANCE_WITH_PRIMITIVES_AND_RATES,
+                                                           TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES,
                                                            ccddMain.getMainFrame());
 
                 // Expand the tree so that all nodes are 'visible'

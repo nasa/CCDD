@@ -40,8 +40,8 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
 
     // Flags to indicate if the tree should be filtered by table type or by
     // application
-    private boolean isByType;
-    private boolean isByApp;
+    private boolean isFilterByType;
+    private boolean isFilterByApp;
 
     // Array containing the comments parameters for each table
     private String[][] tableComments;
@@ -69,6 +69,9 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * @param ccddMain
      *            main class
      * 
+     * @param undoHandler
+     *            reference to the undo handler
+     * 
      * @param infoType
      *            internal table type
      * 
@@ -83,6 +86,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *            GUI component calling this method
      *************************************************************************/
     CcddInformationTreeHandler(CcddMain ccddMain,
+                               CcddUndoHandler undoHandler,
                                InternalTable infoType,
                                String filterValue,
                                boolean filterFlag,
@@ -101,6 +105,18 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         {
             this.filterValue = filterValue;
 
+            // Create the tree's root node
+            root = new ToolTipTreeNode("", "");
+
+            // Set the tree model and hide the root node from view. Use the
+            // undoable tree model if an undo handler is provided; otherwise
+            // use the default (non-undoable) tree model
+            infoTreeModel = undoHandler != null
+                                               ? undoHandler.new UndoableTreeModel(root)
+                                               : new DefaultTreeModel(root);
+            setModel(infoTreeModel);
+            setRootVisible(false);
+
             // Perform any initialization steps needed for this information
             // table prior to building its tree
             initialize(ccddMain, infoDefinitions);
@@ -118,7 +134,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     @Override
     protected int getTableNodeLevel()
     {
-        return (isByApp ? 1 : 0) + (isByType ? 1 : 0);
+        return (isFilterByApp ? 1 : 0) + (isFilterByType ? 1 : 0);
     }
 
     /**************************************************************************
@@ -128,7 +144,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *************************************************************************/
     protected int getGroupNodeLevel()
     {
-        return (isByApp ? 2 : 1);
+        return (isFilterByApp ? 2 : 1);
     }
 
     /**************************************************************************
@@ -174,10 +190,10 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     /**************************************************************************
      * Create the information tree root node and set the tree model
      * 
-     * @param filterByType
+     * @param isFilterByType
      *            true if the tree is filtered by table type
      * 
-     * @param filterByApp
+     * @param isFilterByApp
      *            true if the tree is filtered by application status
      * 
      * @param filterValue
@@ -190,23 +206,18 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * @param parent
      *            GUI component calling this method
      *************************************************************************/
-    protected void buildTree(boolean filterByType,
-                             boolean filterByApp,
+    protected void buildTree(boolean isFilterByType,
+                             boolean isFilterByApp,
                              String filterValue,
                              boolean filterFlag,
                              Component parent)
     {
-        isByType = filterByType;
-        isByApp = filterByApp;
+        this.isFilterByType = isFilterByType;
+        this.isFilterByApp = isFilterByApp;
         this.filterValue = filterValue;
 
-        // Create the tree's root node
-        root = new ToolTipTreeNode("", "");
-
-        // Set the tree model and hide the root node from view
-        infoTreeModel = new DefaultTreeModel(root);
-        setModel(infoTreeModel);
-        setRootVisible(false);
+        // Clear the current tree in case this is a rebuild
+        root.removeAllChildren();
     }
 
     /**************************************************************************
@@ -343,7 +354,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         if (parentNode.equals(root) && parentNode.getChildCount() == 1)
         {
             // Force the root node to draw with the node addition
-            ((DefaultTreeModel) treeModel).nodeStructureChanged(root);
+            infoTreeModel.nodeStructureChanged(root);
         }
 
         return childNode;
@@ -384,11 +395,11 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                                                  String toolTipText,
                                                  boolean isApp)
     {
-        return addNode(isByApp
-                              ? (ToolTipTreeNode) root.getChildAt(isApp
-                                                                       ? 0
-                                                                       : 1)
-                              : root,
+        return addNode(isFilterByApp
+                                    ? (ToolTipTreeNode) root.getChildAt(isApp
+                                                                             ? 0
+                                                                             : 1)
+                                    : root,
                        nodeName,
                        toolTipText,
                        TreeChildOrder.ALPHABETICAL);
@@ -497,7 +508,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                                      int startIndex)
     {
         // Check if the tree is filtered by table type
-        if (isByType)
+        if (isFilterByType)
         {
             // Get the source node's prototype table name
             String protoName = sourcePath[startIndex].toString().split(Pattern.quote("."))[0];
@@ -1013,13 +1024,5 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         }
 
         return leafPath;
-    }
-
-    /**************************************************************************
-     * Placeholder for method to respond to changes in selection of a variable
-     * in the information tree
-     *************************************************************************/
-    protected void updateTableSelection()
-    {
     }
 }

@@ -263,9 +263,10 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                 editorPnl.add(tablePnl, gbc);
                 editorPnl.setBorder(BorderFactory.createEmptyBorder());
 
-                // Set the undo manager in the keyboard handler while the macro
-                // editor is active
-                ccddMain.getKeyboardHandler().setModalUndoManager(macroTable.getUndoManager());
+                // Set the modal undo manager and table references in the
+                // keyboard handler while the macro editor is active
+                ccddMain.getKeyboardHandler().setModalDialogReference(macroTable.getUndoManager(),
+                                                                      macroTable);
 
                 // New button
                 JButton btnInsertRow = CcddButtonPanelHandler.createButton("Ins Row",
@@ -886,8 +887,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
             // Close the dialog
             closeDialog();
 
-            // Clear the undo manager in the keyboard handler
-            ccddMain.getKeyboardHandler().setModalUndoManager(null);
+            // Clear the modal dialog references in the keyboard handler
+            ccddMain.getKeyboardHandler().setModalDialogReference(null, null);
         }
     }
 

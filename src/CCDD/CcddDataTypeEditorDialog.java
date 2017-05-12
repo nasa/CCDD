@@ -268,9 +268,10 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                 // Create the cell editor for base data types
                 createBasePrimitiveTypeCellEditor();
 
-                // Set the undo manager in the keyboard handler while the data
-                // type editor is active
-                ccddMain.getKeyboardHandler().setModalUndoManager(dataTypeTable.getUndoManager());
+                // Set the modal undo manager and table references in the
+                // keyboard handler while the data type editor is active
+                ccddMain.getKeyboardHandler().setModalDialogReference(dataTypeTable.getUndoManager(),
+                                                                      dataTypeTable);
 
                 // New button
                 JButton btnInsertRow = CcddButtonPanelHandler.createButton("Ins Row",
@@ -1111,8 +1112,8 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
             // Close the dialog
             closeDialog();
 
-            // Clear the undo manager in the keyboard handler
-            ccddMain.getKeyboardHandler().setModalUndoManager(null);
+            // Clear the modal dialog references in the keyboard handler
+            ccddMain.getKeyboardHandler().setModalDialogReference(null, null);
         }
     }
 

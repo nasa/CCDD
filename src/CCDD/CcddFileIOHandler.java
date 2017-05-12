@@ -1265,7 +1265,7 @@ public class CcddFileIOHandler
     {
         // Allow the user to select the data file path + name to import from
         File[] dataFile = new CcddDialogHandler().choosePathFile(ccddMain,
-                                                                 tableHandler.getTableEditor(),
+                                                                 tableHandler.getOwner(),
                                                                  null,
                                                                  "export",
                                                                  new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.CSV.getDescription(),
@@ -1295,28 +1295,28 @@ public class CcddFileIOHandler
                 if (dataFile[0].getAbsolutePath().endsWith(FileExtension.CSV.getExtension()))
                 {
                     // Create a CSV handler
-                    ioHandler = new CcddCSVHandler(ccddMain, tableHandler.getTableEditor());
+                    ioHandler = new CcddCSVHandler(ccddMain, tableHandler.getOwner());
                 }
                 // Check if the file to import is in EDS XML format based on
                 // the extension
                 else if (dataFile[0].getAbsolutePath().endsWith(FileExtension.EDS.getExtension()))
                 {
                     // Create an EDS handler
-                    ioHandler = new CcddEDSHandler(ccddMain, tableHandler.getTableEditor());
+                    ioHandler = new CcddEDSHandler(ccddMain, tableHandler.getOwner());
                 }
                 // Check if the file to import is in JSON format based on the
                 // extension
                 else if (dataFile[0].getAbsolutePath().endsWith(FileExtension.JSON.getExtension()))
                 {
                     // Create a JSON handler
-                    ioHandler = new CcddJSONHandler(ccddMain, tableHandler.getTableEditor());
+                    ioHandler = new CcddJSONHandler(ccddMain, tableHandler.getOwner());
                 }
                 // Check if the file to import is in XTCE XML format based on
                 // the extension
                 else if (dataFile[0].getAbsolutePath().endsWith(FileExtension.XTCE.getExtension()))
                 {
                     // Create an XTCE handler
-                    ioHandler = new CcddXTCEHandler(ccddMain, tableHandler.getTableEditor());
+                    ioHandler = new CcddXTCEHandler(ccddMain, tableHandler.getOwner());
                 }
                 // The file extension isn't recognized
                 else
@@ -1345,7 +1345,7 @@ public class CcddFileIOHandler
                         // specified table
                         pasteIntoTableFromDefinition(tableHandler,
                                                      tableDefinitions.get(0),
-                                                     tableHandler.getTableEditor());
+                                                     tableHandler.getOwner());
 
                         // Restore the table types to the values prior to the
                         // import operation
@@ -1360,7 +1360,7 @@ public class CcddFileIOHandler
             catch (IOException ioe)
             {
                 // Inform the user that the data file cannot be read
-                new CcddDialogHandler().showMessageDialog(tableHandler.getTableEditor(),
+                new CcddDialogHandler().showMessageDialog(tableHandler.getOwner(),
                                                           "<html><b>Cannot read import file<br>'</b>"
                                                               + dataFile[0].getAbsolutePath()
                                                               + "<b>'",
@@ -1375,7 +1375,7 @@ public class CcddFileIOHandler
                 {
                     // Inform the user that an error occurred reading the
                     // import file
-                    new CcddDialogHandler().showMessageDialog(tableHandler.getTableEditor(),
+                    new CcddDialogHandler().showMessageDialog(tableHandler.getOwner(),
                                                               "<html><b>"
                                                                   + ce.getMessage(),
                                                               "File Error",
@@ -1387,7 +1387,7 @@ public class CcddFileIOHandler
             {
                 // Display a dialog providing details on the unanticipated
                 // error
-                CcddUtilities.displayException(e, tableHandler.getTableEditor());
+                CcddUtilities.displayException(e, tableHandler.getOwner());
             }
         }
     }
@@ -1413,15 +1413,11 @@ public class CcddFileIOHandler
         tableHandler.setDescription(tableDefn.getDescription());
 
         // Update the field information in case the field values changed
-        tableHandler.getFieldHandler().setFieldDefinitions(tableDefn.getDataFields());
-        tableHandler.getFieldHandler().buildFieldInformation(tableDefn.getName());
+        tableHandler.getDataFieldHandler().setFieldDefinitions(tableDefn.getDataFields());
+        tableHandler.getDataFieldHandler().buildFieldInformation(tableDefn.getName());
 
         // Rebuild the table's editor panel which contains the data fields
-        tableHandler.createDataFieldPanel();
-
-        // Force the table editor to redraw in order for the field updates to
-        // appear
-        tableHandler.getTableEditor().repaint();
+        tableHandler.createDataFieldPanel(true);
 
         // Check if cell data is provided in the table definition
         if (tableDefn.getData() != null && !tableDefn.getData().isEmpty())
@@ -1438,7 +1434,7 @@ public class CcddFileIOHandler
                                                    true))
             {
                 // Let the user know how many rows were added
-                new CcddDialogHandler().showMessageDialog(tableHandler.getTableEditor(),
+                new CcddDialogHandler().showMessageDialog(tableHandler.getOwner(),
                                                           "<html><b>"
                                                               + (tableHandler.getTableModel().getRowCount()
                                                               - numRows)

@@ -551,7 +551,7 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
         tableTree = new CcddTableTreeHandler(ccddMain,
                                              new CcddGroupHandler(ccddMain,
                                                                   ccddMain.getMainFrame()),
-                                             TableTreeType.INSTANCE_ONLY,
+                                             TableTreeType.INSTANCE_TABLES,
                                              true,
                                              false,
                                              ccddMain.getMainFrame())

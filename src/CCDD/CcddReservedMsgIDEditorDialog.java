@@ -194,9 +194,11 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                 editorPnl.add(tablePnl, gbc);
                 editorPnl.setBorder(BorderFactory.createEmptyBorder());
 
-                // Set the undo manager in the keyboard handler while the
-                // reserved message ID editor is active
-                ccddMain.getKeyboardHandler().setModalUndoManager(msgIDTable.getUndoManager());
+                // Set the modal undo manager and table references in the
+                // keyboard handler while the reserved message ID editor is
+                // active
+                ccddMain.getKeyboardHandler().setModalDialogReference(msgIDTable.getUndoManager(),
+                                                                      msgIDTable);
 
                 // New button
                 JButton btnInsertRow = CcddButtonPanelHandler.createButton("Ins Row",
@@ -718,8 +720,8 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
             // Close the dialog
             closeDialog();
 
-            // Clear the undo manager in the keyboard handler
-            ccddMain.getKeyboardHandler().setModalUndoManager(null);
+            // Clear the modal dialog references in the keyboard handler
+            ccddMain.getKeyboardHandler().setModalDialogReference(null, null);
         }
     }
 

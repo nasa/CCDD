@@ -315,7 +315,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                         dialogPnl = createSelectionPanel("Select table(s) to edit",
                                                          gbc,
                                                          TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
-                                                         TableTreeType.PROTOTYPE_AND_INSTANCE);
+                                                         TableTreeType.TABLES);
 
                         // Check that the panel was created; i.e., that there
                         // are tables available for editing
@@ -377,7 +377,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                         dialogPnl = createSelectionPanel("Select a table to rename",
                                                          gbc,
                                                          TreeSelectionModel.SINGLE_TREE_SELECTION,
-                                                         TableTreeType.PROTOTYPE_ONLY);
+                                                         TableTreeType.PROTOTYPE_TABLES);
 
                         // Check that the panel was created; i.e., that there
                         // are tables available for renaming
@@ -399,7 +399,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                         dialogPnl = createSelectionPanel("Select a table to copy",
                                                          gbc,
                                                          TreeSelectionModel.SINGLE_TREE_SELECTION,
-                                                         TableTreeType.PROTOTYPE_ONLY);
+                                                         TableTreeType.PROTOTYPE_TABLES);
 
                         // Check that the panel was created; i.e., that there
                         // are tables available for copying
@@ -421,7 +421,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                         dialogPnl = createSelectionPanel("Select table(s) to delete",
                                                          gbc,
                                                          TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
-                                                         TableTreeType.PROTOTYPE_ONLY);
+                                                         TableTreeType.PROTOTYPE_TABLES);
 
                         // Check if the no panel was created; i.e., that there
                         // are no tables available for deleting
@@ -976,7 +976,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             dialogPnl = createSelectionPanel("Select table(s) to export",
                                              gbc,
                                              TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
-                                             TableTreeType.PROTOTYPE_AND_INSTANCE);
+                                             TableTreeType.TABLES);
             gbc.insets.top = LABEL_VERTICAL_SPACING * 2;
         }
         // The export command originated from a table editor dialog menu

@@ -68,14 +68,14 @@ import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddConstants.TableTreeType;
-import CCDD.CcddJTableHandler.UndoableTableModel;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
+import CCDD.CcddUndoHandler.UndoableTableModel;
 
 /******************************************************************************
  * CFS Command & Data Dictionary table editor handler class
  *****************************************************************************/
 @SuppressWarnings("serial")
-public class CcddTableEditorHandler extends CcddEditorPanelHandler
+public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 {
     // Class references
     private final CcddMain ccddMain;
@@ -297,17 +297,6 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
     }
 
     /**************************************************************************
-     * Get the table editor dialog
-     * 
-     * @return Table editor dialog
-     *************************************************************************/
-    @Override
-    protected CcddFrameHandler getTableEditor()
-    {
-        return editorDialog;
-    }
-
-    /**************************************************************************
      * Get the table being edited by this dialog
      * 
      * @return Table edited by the dialog
@@ -363,14 +352,16 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
         // Update the table's parent name
         tableInfo.setRootTable(tableInfo.getRootTable().replaceAll("^"
                                                                    + Pattern.quote(oldPrototype)
-                                                                   + "$", newPrototype));
+                                                                   + "$",
+                                                                   newPrototype));
 
         // Update the data type (prototype name) in the table path
         tableInfo.setTablePath(tableInfo.getTablePath().replaceAll(","
                                                                    + Pattern.quote(oldPrototype)
-                                                                   + "\\.", ","
-                                                                            + newPrototype
-                                                                            + "."));
+                                                                   + "\\.",
+                                                                   ","
+                                                                       + newPrototype
+                                                                       + "."));
 
         // Check if a variable name changed
         if (oldVariableName != null)
@@ -431,11 +422,11 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
         String name = tableInfo.getProtoVariableName();
 
         // Set the name of the table editor's owner
-        setTableEditorOwnerName(name.equals(tableInfo.getRootTable())
-                                                                     ? name
-                                                                     : tableInfo.getRootTable()
-                                                                       + ": "
-                                                                       + name);
+        setOwnerName(name.equals(tableInfo.getRootTable())
+                                                          ? name
+                                                          : tableInfo.getRootTable()
+                                                            + ": "
+                                                            + name);
 
         // Check that the table is open in a table editor (versus open for a
         // macro name and/or value change)
@@ -448,7 +439,7 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
 
         // Set the JTable name so that table change events can be identified
         // with this table
-        table.setName(getTableEditorOwnerName());
+        table.setName(getOwnerName());
 
         // Check if the table has uncommitted changes
         if (isTableChanged())
@@ -552,7 +543,7 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
      * @return Table UndoManager
      *************************************************************************/
     @Override
-    protected CcddUndoManager getEditPanelUndoManager()
+    protected CcddUndoManager getFieldPanelUndoManager()
     {
         return table.getUndoManager();
     }
@@ -662,7 +653,7 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
         table.loadAndFormatData();
 
         // Update the current field information
-        getFieldHandler().setFieldInformation(tableInfo.getFieldHandler().getFieldInformation());
+        getDataFieldHandler().setFieldInformation(tableInfo.getFieldHandler().getFieldInformation());
 
         // Update the editor data fields
         updateDataFields();
@@ -2895,8 +2886,8 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
             }
 
             /******************************************************************
-             * Override the paste method so that hidden rows are displayed
-             * prior to pasting in new data
+             * Override the paste method so that hidden rows (array members)
+             * are displayed prior to pasting in new data
              *****************************************************************/
             @Override
             protected boolean pasteData(Object[] cellData,
@@ -3087,91 +3078,126 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
                             tableData.add(adjustedRow, getEmptyRow());
                         }
 
-                        // Step through the columns, beginning at the one with
-                        // the focus
-                        for (int column = startColumn; column <= endColumn
-                                                       && showMessage != null; column++)
-                        {
-                            // Check that the column falls within the bounds of
-                            // the table. If outside the bounds or protected
-                            // then discard the value
-                            if (column < getColumnCount())
-                            {
-                                // Convert the column coordinate from view to
-                                // model
-                                int columnModel = convertColumnIndexToModel(column);
+                        // Store the index into the array of data to be pasted
+                        int indexSave = index;
 
-                                // Check that the cell is alterable
-                                if (isDataAlterable(tableData.get(adjustedRow),
-                                                    adjustedRow,
-                                                    columnModel))
+                        // If pasting values over existing ones it's possible
+                        // that the check for a cell being alterable will
+                        // return false due to other cells in the row that
+                        // haven't yet been pasted over (e.g., a bit length in
+                        // a subsequent column prevents pasting in the array
+                        // size). To overcome this two passes for each row are
+                        // made; first cells containing blanks in the pasted
+                        // data are pasted, then the cells that are not empty
+                        // are pasted
+                        for (int pass = 1; pass <= 2; pass++)
+                        {
+                            // Check if this is the second pass through the
+                            // row's columns
+                            if (pass == 2)
+                            {
+                                // Reset the index into the array of data to be
+                                // pasted so that the non-blank cells can be
+                                // processed
+                                index = indexSave;
+                            }
+
+                            // Step through the columns, beginning at the one
+                            // with the focus
+                            for (int column = startColumn; column <= endColumn
+                                                           && showMessage != null; column++)
+                            {
+                                // Check that the column falls within the
+                                // bounds of the table. If outside the bounds
+                                // or protected then discard the value
+                                if (column < getColumnCount())
                                 {
-                                    // Get the old and new cell values,
-                                    // removing any leading or trailing white
-                                    // space characters. If the number of cells
-                                    // to be filled exceeds the stored values
-                                    // then insert blanks
-                                    Object oldValue = tableData.get(adjustedRow)[columnModel];
+                                    // Convert the column coordinate from view
+                                    // to model
+                                    int columnModel = convertColumnIndexToModel(column);
+
+                                    // Get the value to be pasted into the
+                                    // cell, removing any leading or trailing
+                                    // white space characters. If the number of
+                                    // cells to be filled exceeds the stored
+                                    // values then insert a blank
                                     Object newValue = index < cellData.length
                                                                              ? cellData[index].toString().trim()
                                                                              : "";
 
-                                    // Check if the value has changed and, if
-                                    // this values are being inserted, that the
-                                    // value isn't blank
-                                    if (!oldValue.equals(newValue)
-                                        && !(isInsert
-                                        && newValue.toString().isEmpty()))
+                                    // For the first pass through this row's
+                                    // column process only blank cells; for the
+                                    // second pass process only non-blank
+                                    // cells. If one of these criteria is met
+                                    // then check if the cell is alterable
+                                    if (((pass == 1 && newValue.toString().isEmpty())
+                                        || (pass == 2 && !newValue.toString().isEmpty()))
+                                        && isDataAlterable(tableData.get(adjustedRow),
+                                                           adjustedRow,
+                                                           columnModel))
                                     {
-                                        // Insert the value into the cell
-                                        tableData.get(adjustedRow)[columnModel] = newValue;
+                                        // Get the original cell value
+                                        Object oldValue = tableData.get(adjustedRow)[columnModel];
 
-                                        // Get the number of rows in the table
-                                        // prior to inserting the new value
-                                        int previousRows = tableData.size();
-
-                                        // Validate the new cell contents
-                                        showMessage = validateCellContent(tableData,
-                                                                          adjustedRow,
-                                                                          columnModel,
-                                                                          oldValue,
-                                                                          newValue,
-                                                                          showMessage,
-                                                                          cellData.length > 1);
-
-                                        // Check if the user selected the
-                                        // Cancel button following an invalid
-                                        // input
-                                        if (showMessage == null)
+                                        // Check if the value has changed and,
+                                        // if this values are being inserted,
+                                        // that the value isn't blank
+                                        if (!oldValue.equals(newValue)
+                                            && !(isInsert
+                                            && newValue.toString().isEmpty()))
                                         {
-                                            // Stop pasting data
-                                            continue;
-                                        }
+                                            // Insert the value into the cell
+                                            tableData.get(adjustedRow)[columnModel] = newValue;
 
-                                        // Get the number of rows added due to
-                                        // pasting in the new value. This is
-                                        // non-zero if an array definition is
-                                        // pasted in or if an existing array's
-                                        // size is altered
-                                        int deltaRows = tableData.size()
-                                                        - previousRows;
+                                            // Get the number of rows in the
+                                            // table prior to inserting the new
+                                            // value
+                                            int previousRows = tableData.size();
 
-                                        // Check if the row count changed
-                                        if (deltaRows != 0)
-                                        {
-                                            // Store the number of
-                                            // added/deleted rows and update
-                                            // the total number of
-                                            // added/deleted rows
-                                            arrayRowsAdded = deltaRows;
-                                            totalAddedRows += arrayRowsAdded;
+                                            // Validate the new cell contents
+                                            showMessage = validateCellContent(tableData,
+                                                                              adjustedRow,
+                                                                              columnModel,
+                                                                              oldValue,
+                                                                              newValue,
+                                                                              showMessage,
+                                                                              cellData.length > 1);
+
+                                            // Check if the user selected the
+                                            // Cancel button following an
+                                            // invalid input
+                                            if (showMessage == null)
+                                            {
+                                                // Stop pasting data
+                                                continue;
+                                            }
+
+                                            // Get the number of rows added due
+                                            // to pasting in the new value.
+                                            // This is non-zero if an array
+                                            // definition is pasted in or if an
+                                            // existing array's size is altered
+                                            int deltaRows = tableData.size()
+                                                            - previousRows;
+
+                                            // Check if the row count changed
+                                            if (deltaRows > 0)
+                                            {
+                                                // Store the number of
+                                                // added/deleted rows and
+                                                // update the total number of
+                                                // added/deleted rows
+                                                arrayRowsAdded = deltaRows;
+                                                totalAddedRows += arrayRowsAdded;
+                                            }
                                         }
                                     }
                                 }
-                            }
 
-                            // Increment the index to the next value to paste
-                            index++;
+                                // Increment the index to the next value to
+                                // paste
+                                index++;
+                            }
                         }
                     }
                 }
@@ -3263,8 +3289,14 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
         // Discard the edits created by adding the columns initially
         table.getUndoManager().discardAllEdits();
 
-        // Set the undo/redo manager for the description and data field values
-        setEditPanelUndoManager(table.getUndoManager());
+        // Set the reference to the editor's data field handler in the undo
+        // handler so that data field value changes can be undone/redone
+        // correctly
+        table.getUndoHandler().setFieldHandler(tableInfo.getFieldHandler());
+
+        // Set the undo/redo manager and handler for the description and data
+        // field values
+        setEditPanelUndo(table.getUndoManager(), table.getUndoHandler());
 
         // Set the mouse listener to expand and collapse arrays
         setArrayExpansionListener();
@@ -3274,11 +3306,11 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
         if (editorDialog != null)
         {
             // Create the editor panel to contain the table editor
-            createEditorPanel(editorDialog,
-                              scrollPane,
-                              tableInfo.getProtoVariableName(),
-                              tableInfo.getDescription(),
-                              tableInfo.getFieldHandler());
+            createDescAndDataFieldPanel(editorDialog,
+                                        scrollPane,
+                                        tableInfo.getProtoVariableName(),
+                                        tableInfo.getDescription(),
+                                        tableInfo.getFieldHandler());
 
             // Set the dialog name so that this dialog can be recognized as
             // being open by the table selection dialog, and the JTable name so
@@ -3657,7 +3689,7 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
             // Get the table tree
             tableTree = (tblTree == null)
                                          ? new CcddTableTreeHandler(ccddMain,
-                                                                    TableTreeType.INSTANCE_ONLY,
+                                                                    TableTreeType.INSTANCE_TABLES,
                                                                     editorDialog)
                                          : tblTree;
 
@@ -4672,11 +4704,7 @@ public class CcddTableEditorHandler extends CcddEditorPanelHandler
 
         // Rebuild the data field panel in the table editor using the updated
         // fields
-        createDataFieldPanel();
-
-        // Force the table editor to redraw in order for the field updates to
-        // appear
-        getTableEditor().repaint();
+        createDataFieldPanel(true);
     }
 
     /**************************************************************************

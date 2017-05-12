@@ -15,9 +15,11 @@ import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
 import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
 import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.OK_BUTTON;
+import static CCDD.CcddConstants.REDO_ICON;
 import static CCDD.CcddConstants.RENAME_ICON;
 import static CCDD.CcddConstants.STORE_ICON;
 import static CCDD.CcddConstants.TABLE_BACK_COLOR;
+import static CCDD.CcddConstants.UNDO_ICON;
 
 import java.awt.Color;
 import java.awt.GridBagConstraints;
@@ -204,6 +206,11 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
 
                         // Update the manager controls state
                         setLinkButtonsEnabled(numSelectedLinks == 1, numSelectedLinks != 0);
+
+                        // Set the modal undo manager reference in the keyboard
+                        // handler while the link manager is active
+                        ccddMain.getKeyboardHandler().setModalDialogReference(activeHandler.getUndoManager(),
+                                                                              null);
                     }
                 });
 
@@ -289,6 +296,50 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                     }
                 });
 
+                // Undo button
+                JButton btnUndo = CcddButtonPanelHandler.createButton("Undo",
+                                                                      UNDO_ICON,
+                                                                      KeyEvent.VK_Z,
+                                                                      "Undo the last edit action");
+
+                // Create a listener for the Undo command
+                ActionListener undoAction = new ActionListener()
+                {
+                    /**********************************************************
+                     * Undo the last edit
+                     *********************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        activeHandler.getUndoManager().undo();
+                    }
+                };
+
+                // Add the undo listener to the Undo button and menu command
+                btnUndo.addActionListener(undoAction);
+
+                // Redo button
+                JButton btnRedo = CcddButtonPanelHandler.createButton("Redo",
+                                                                      REDO_ICON,
+                                                                      KeyEvent.VK_Y,
+                                                                      "Redo the last udone edit action");
+
+                // Create a listener for the Redo command
+                ActionListener redoAction = new ActionListener()
+                {
+                    /**********************************************************
+                     * Redo the last edit that was undone
+                     *********************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        activeHandler.getUndoManager().redo();
+                    }
+                };
+
+                // Add the redo listener to the Redo button and menu command
+                btnRedo.addActionListener(redoAction);
+
                 // Store links button
                 JButton btnStoreLinks = CcddButtonPanelHandler.createButton("Store",
                                                                             STORE_ICON,
@@ -346,6 +397,10 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                         {
                             // Close the dialog
                             closeDialog();
+
+                            // Clear the modal dialog references in the
+                            // keyboard handler
+                            ccddMain.getKeyboardHandler().setModalDialogReference(null, null);
                         }
                     }
                 });
@@ -354,9 +409,11 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                 // right, top to bottom)
                 buttonPnl.add(btnNewLink);
                 buttonPnl.add(btnRenameLink);
+                buttonPnl.add(btnUndo);
                 buttonPnl.add(btnStoreLinks);
                 buttonPnl.add(btnDeleteLink);
                 buttonPnl.add(btnCopyLink);
+                buttonPnl.add(btnRedo);
                 buttonPnl.add(btnClose);
 
                 // Distribute the buttons across two rows
@@ -386,17 +443,19 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
      * Set the enable status of the buttons that apply only when one or more
      * links is selected
      * 
-     * @param enableRename
-     *            true to enable the Rename button, false to disable
+     * @param isSingleLinkSelected
+     *            true to enable the those buttons that are valid when only a
+     *            single link is selected
      * 
-     * @param enableCopy
-     *            true to enable the Copy button, false to disable
+     * @param isOneOrMoreLinksSelected
+     *            true to enable those buttons that are valid if one or more
+     *            links is selected
      *************************************************************************/
-    protected void setLinkButtonsEnabled(boolean enableRename,
-                                         boolean enableCopy)
+    protected void setLinkButtonsEnabled(boolean isSingleLinkSelected,
+                                         boolean isOneOrMoreLinksSelected)
     {
-        btnRenameLink.setEnabled(enableRename);
-        btnCopyLink.setEnabled(enableCopy);
+        btnRenameLink.setEnabled(isSingleLinkSelected);
+        btnCopyLink.setEnabled(isOneOrMoreLinksSelected);
     }
 
     /**************************************************************************

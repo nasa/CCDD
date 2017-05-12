@@ -45,6 +45,7 @@ import CCDD.CcddClasses.GroupInformation;
 import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.DefaultApplicationField;
 import CCDD.CcddConstants.InternalTable;
+import CCDD.CcddUndoHandler.UndoableTreeModel;
 
 /******************************************************************************
  * CFS Command & Data Dictionary group tree handler class
@@ -57,13 +58,12 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     private CcddGroupHandler groupHandler;
     private CcddTableTypeHandler tableTypeHandler;
     private ToolTipTreeNode root;
-    private DefaultTreeModel treeModel;
     private CcddFieldHandler fieldHandler;
 
     // Flags to indicate if the tree should be filtered by table type and
     // filtered by application
-    private boolean isByType;
-    private boolean isByApp;
+    private boolean isFilterByType;
+    private boolean isFilterByApp;
 
     // Flag indicating if the group tree nodes are expanded or not
     private boolean isExpanded;
@@ -142,6 +142,9 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      * @param ccddMain
      *            main class
      * 
+     * @param undoHandler
+     *            reference to the undo handler
+     * 
      * @param scheduleRate
      *            string value representing a schedule rate used to filter the
      *            groups that may be selected; null or blank if not filtering
@@ -154,11 +157,13 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      *            GUI component calling this method
      *************************************************************************/
     CcddGroupTreeHandler(CcddMain ccddMain,
+                         CcddUndoHandler undoHandler,
                          String scheduleRate,
                          boolean isApplicationOnly,
                          Component parent)
     {
         super(ccddMain,
+              undoHandler,
               InternalTable.GROUPS,
               scheduleRate,
               isApplicationOnly,
@@ -173,12 +178,17 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      * @param ccddMain
      *            main class
      * 
+     * @param undoHandler
+     *            reference to the undo handler
+     * 
      * @param parent
      *            GUI component calling this method
      *************************************************************************/
-    CcddGroupTreeHandler(CcddMain ccddMain, Component parent)
+    CcddGroupTreeHandler(CcddMain ccddMain,
+                         CcddUndoHandler undoHandler,
+                         Component parent)
     {
-        this(ccddMain, null, false, parent);
+        this(ccddMain, undoHandler, null, false, parent);
     }
 
     /**************************************************************************
@@ -288,21 +298,18 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                              boolean isApplicationOnly,
                              Component parent)
     {
-        isByType = filterByType;
-        isByApp = filterByApp;
+        this.isFilterByType = filterByType;
+        this.isFilterByApp = filterByApp;
         this.scheduleRate = scheduleRate;
 
-        super.buildTree(isByType,
-                        isByApp,
+        super.buildTree(isFilterByType,
+                        isFilterByApp,
                         scheduleRate,
                         isApplicationOnly,
                         parent);
 
         // Get the tree's root node
         root = getRootNode();
-
-        // Get the tree model
-        treeModel = (DefaultTreeModel) getModel();
 
         // Build the group information using the group definitions and group
         // data fields from the database
@@ -323,15 +330,15 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         setCellRenderer(new GroupSizeCellRenderer());
 
         // Check if the table types are to be used to filter the table tree
-        if (isByType)
+        if (isFilterByType)
         {
             // Create the node storage for the table types
             typeNodes = new ToolTipTreeNode[tableTypeHandler.getTypes().length];
         }
 
-        // Check if the application statuses are to be used to filter the table
+        // Check if the application statuses are to be used to filter the group
         // tree
-        if (isByApp)
+        if (isFilterByApp)
         {
             // Create the node storage for the application statuses
             appNodes = new ToolTipTreeNode[2];
@@ -362,7 +369,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                 {
                     // Check if the table types are to be used to filter the
                     // table tree
-                    if (isByType)
+                    if (isFilterByType)
                     {
                         int index = 0;
 
@@ -373,7 +380,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                             // to the tree model
                             typeNodes[index] = new ToolTipTreeNode(type,
                                                                    tableTypeHandler.getTypeDefinition(type).getDescription());
-                            treeModel.insertNodeInto(typeNodes[index], groupNode, index);
+                            ((UndoableTreeModel) getModel()).insertNodeInto(typeNodes[index], groupNode, index);
                             index++;
                         }
                     }
@@ -383,7 +390,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                     {
                         // Check if the groups are filtered by application
                         // status
-                        if (isByApp)
+                        if (isFilterByApp)
                         {
                             boolean isFound = false;
 

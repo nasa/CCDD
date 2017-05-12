@@ -13,10 +13,12 @@ import static CCDD.CcddConstants.LABEL_FONT_BOLD;
 import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
 import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
 import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
+import static CCDD.CcddConstants.LIST_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.OK_ICON;
 import static CCDD.CcddConstants.PRINT_ICON;
 import static CCDD.CcddConstants.TABLE_BACK_COLOR;
+import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
 import static CCDD.CcddConstants.EventLogMessageType.STATUS_MSG;
 
 import java.awt.GridBagConstraints;
@@ -48,15 +50,21 @@ import javax.swing.tree.TreePath;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.ArrayVariable;
-import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddClasses.TableAddition;
 import CCDD.CcddClasses.TableDeletion;
 import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddClasses.TableModification;
 import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.DefaultColumn;
+import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
+import CCDD.CcddConstants.InternalTable.AssociationsColumn;
+import CCDD.CcddConstants.InternalTable.FieldsColumn;
+import CCDD.CcddConstants.InternalTable.GroupsColumn;
+import CCDD.CcddConstants.InternalTable.LinksColumn;
 import CCDD.CcddConstants.InternalTable.OrdersColumn;
+import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
+import CCDD.CcddConstants.InternalTable.ValuesColumn;
 import CCDD.CcddConstants.TableCommentIndex;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddConstants.TableTreeType;
@@ -529,8 +537,6 @@ public class CcddDbVerificationHandler
     {
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
         {
-            boolean isCheckCanceled = false;
-
             /******************************************************************
              * Auto-fill command
              *****************************************************************/
@@ -561,17 +567,16 @@ public class CcddDbVerificationHandler
                     // Check for inconsistencies in the internal tables
                     verifyInternalTables(tableResult);
 
+                    // Verify the table and variable path references in the
+                    // internal tables
+                    verifyPathReferences(tableResult);
+
                     // Check for inconsistencies between the table type
                     // definitions and the tables of that type
                     verifyTableTypes(tableResult);
 
                     // Check for inconsistencies within the data tables
                     verifyDataTables();
-                }
-                catch (CCDDException ce)
-                {
-                    // User elected to cancel the consistency check
-                    isCheckCanceled = true;
                 }
                 catch (SQLException se)
                 {
@@ -603,7 +608,7 @@ public class CcddDbVerificationHandler
             {
                 // Perform any corrections to the database authorized by the
                 // user
-                updateDatabase(isCheckCanceled);
+                updateDatabase();
             }
         });
     }
@@ -723,8 +728,7 @@ public class CcddDbVerificationHandler
         }
         catch (SQLException se)
         {
-            // Inform the user that checking the table consistency
-            // failed
+            // Inform the user that checking the table consistency failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Error verifying project database '"
                                       + dbControl.getDatabase()
@@ -745,7 +749,7 @@ public class CcddDbVerificationHandler
      * @param tableResult
      *            metadata for all tables
      *************************************************************************/
-    private void verifyInternalTables(ResultSet tableResult) throws CCDDException
+    private void verifyInternalTables(ResultSet tableResult)
     {
         String tableNameDb = "";
 
@@ -927,6 +931,309 @@ public class CcddDbVerificationHandler
     }
 
     /**************************************************************************
+     * Check that the references to tables and variables in the internal tables
+     * are valid. If any invalid entries are detected then get user approval to
+     * alter the table(s)
+     * 
+     * @param tableResult
+     *            metadata for all tables
+     *************************************************************************/
+    private void verifyPathReferences(ResultSet tableResult)
+    {
+        String tableNameDb = "";
+
+        try
+        {
+            // Get the list of table and variable paths and names, retaining
+            // any macros and bit lengths
+            CcddVariableConversionHandler variableHandler = new CcddVariableConversionHandler(ccddMain,
+                                                                                              TableTreeType.TABLES_WITH_PRIMITIVES);
+
+            // Go to the first row in the result set
+            tableResult.first();
+
+            // Step through each database table
+            while (tableResult.next())
+            {
+                // Get the table name
+                tableNameDb = tableResult.getString("TABLE_NAME");
+
+                // Check if this is the script associations table
+                if (tableNameDb.equals(InternalTable.ASSOCIATIONS.getTableName()))
+                {
+                    // Step through the associated tables
+                    for (String[] member : getInternalTableMembers(tableNameDb,
+                                                                   AssociationsColumn.MEMBERS.getColumnName()))
+                    {
+                        // Check if a this association references a table . If
+                        // no table is associated the member column contains a
+                        // space
+                        if (!member[0].trim().isEmpty())
+                        {
+                            // Step through each table in the association
+                            for (String table : member[0].split(Pattern.quote(LIST_TABLE_SEPARATOR)))
+                            {
+                                // Check if the table doesn't exist
+                                if (!variableHandler.getAllVariableNameList().contains(table))
+                                {
+                                    // Association table reference is invalid
+                                    issues.add(new TableIssue("Internal table '"
+                                                              + tableNameDb
+                                                              + "' references a non-existent table, '"
+                                                              + table
+                                                              + "'",
+                                                              "Delete script association",
+                                                              "DELETE FROM "
+                                                                  + tableNameDb
+                                                                  + " WHERE "
+                                                                  + AssociationsColumn.MEMBERS.getColumnName()
+                                                                  + " = '"
+                                                                  + member[0]
+                                                                  + "'; "));
+                                }
+                            }
+                        }
+                    }
+                }
+                // Check if this is the data fields table
+                else if (tableNameDb.equals(InternalTable.FIELDS.getTableName()))
+                {
+                    // Step through the field owners
+                    for (String[] member : getInternalTableMembers(tableNameDb,
+                                                                   FieldsColumn.OWNER_NAME.getColumnName()))
+                    {
+                        // Check if this data field doesn't belong to a group
+                        // or table type, and if the table doesn't exist
+                        if (!member[0].matches("^.*:.*")
+                            && !variableHandler.getAllVariableNameList().contains(member[0]))
+                        {
+                            // Data field table owner reference is invalid
+                            issues.add(new TableIssue("Internal table '"
+                                                      + tableNameDb
+                                                      + "' references a non-existent table, '"
+                                                      + member[0]
+                                                      + "'",
+                                                      "Delete table's data field(s)",
+                                                      "DELETE FROM "
+                                                          + tableNameDb
+                                                          + " WHERE "
+                                                          + FieldsColumn.OWNER_NAME.getColumnName()
+                                                          + " = '"
+                                                          + member[0]
+                                                          + "'; "));
+                        }
+                    }
+                }
+                // Check if this is the groups table
+                else if (tableNameDb.equals(InternalTable.GROUPS.getTableName()))
+                {
+                    // Step through the group tables
+                    for (String[] member : getInternalTableMembers(tableNameDb,
+                                                                   GroupsColumn.MEMBERS.getColumnName()))
+                    {
+                        // Check if this isn't a group definition entry and if
+                        // the table doesn't exist
+                        if (!member[0].matches("^\\d+.*")
+                            && !variableHandler.getAllVariableNameList().contains(member[0]))
+                        {
+                            // Group table member reference is invalid
+                            issues.add(new TableIssue("Internal table '"
+                                                      + tableNameDb
+                                                      + "' references a non-existent variable, '"
+                                                      + member[0]
+                                                      + "'",
+                                                      "Delete table from group",
+                                                      "DELETE FROM "
+                                                          + tableNameDb
+                                                          + " WHERE "
+                                                          + GroupsColumn.MEMBERS.getColumnName()
+                                                          + " = '"
+                                                          + member[0]
+                                                          + "'; "));
+                        }
+                    }
+                }
+                // Check if this is the links table
+                else if (tableNameDb.equals(InternalTable.LINKS.getTableName()))
+                {
+                    // Step through the link variables
+                    for (String[] member : getInternalTableMembers(tableNameDb,
+                                                                   LinksColumn.MEMBER.getColumnName()))
+                    {
+                        // Check if this isn't a link definition entry and if
+                        // the variable doesn't exist
+                        if (!member[0].matches("^\\d+.*")
+                            && !variableHandler.getAllVariableNameList().contains(member[0]))
+                        {
+                            // Link variable member reference is invalid
+                            issues.add(new TableIssue("Internal table '"
+                                                      + tableNameDb
+                                                      + "' references a non-existent variable, '"
+                                                      + member[0]
+                                                      + "'",
+                                                      "Delete variable from link",
+                                                      "DELETE FROM "
+                                                          + tableNameDb
+                                                          + " WHERE "
+                                                          + LinksColumn.MEMBER.getColumnName()
+                                                          + " = '"
+                                                          + member[0]
+                                                          + "'; "));
+                        }
+                    }
+                }
+                // Check if this is the telemetry scheduler table
+                else if (tableNameDb.equals(InternalTable.TLM_SCHEDULER.getTableName()))
+                {
+                    // Step through the telemetry scheduler message variables
+                    for (String[] member : getInternalTableMembers(tableNameDb,
+                                                                   TlmSchedulerColumn.MEMBER.getColumnName()))
+                    {
+                        // Check if the message contains a variable
+                        if (!member[0].isEmpty())
+                        {
+                            boolean isFound = false;
+
+                            // Step through each variable in the list
+                            for (String variablePath : variableHandler.getAllVariableNameList())
+                            {
+                                // Check if the message variable exists (skip
+                                // the rate that precedes the variable)
+                                if (member[0].matches(InputDataType.FLOAT_POSITIVE.getInputMatch()
+                                                      + Pattern.quote(TLM_SCH_SEPARATOR
+                                                                      + variablePath)))
+                                {
+                                    // Set the flag to indicate the variable
+                                    // exists and stop searching
+                                    isFound = true;
+                                    break;
+                                }
+                            }
+
+                            // Check if the variable isn't in the list
+                            if (!isFound)
+                            {
+                                // Telemetry scheduler message variable member
+                                // reference is invalid
+                                issues.add(new TableIssue("Internal table '"
+                                                          + tableNameDb
+                                                          + "' references a non-existent variable, '"
+                                                          + member[0]
+                                                          + "'",
+                                                          "Delete variable from message(s)",
+                                                          "DELETE FROM "
+                                                              + tableNameDb
+                                                              + " WHERE "
+                                                              + TlmSchedulerColumn.MEMBER.getColumnName()
+                                                              + " = '"
+                                                              + member[0]
+                                                              + "'; "));
+                            }
+                        }
+                    }
+                }
+                // Check if this is the custom values table
+                else if (tableNameDb.equals(InternalTable.VALUES.getTableName()))
+                {
+                    // Step through the custom values variables
+                    for (String[] member : getInternalTableMembers(tableNameDb,
+                                                                   ValuesColumn.TABLE_PATH.getColumnName()))
+                    {
+                        boolean isFound = false;
+
+                        // Step through each variable in the list
+                        for (String variablePath : variableHandler.getAllVariableNameList())
+                        {
+                            // Check if the variable is in the list. The custom
+                            // values table variable references don't include
+                            // the bit length, so this is removed from the list
+                            // variable for the comparison. The list doesn't
+                            // contain the array definitions, so a match to an
+                            // array member is used
+                            if (variablePath.replaceFirst("\\:\\d+$", "").equals(member[0])
+                                || variablePath.matches(Pattern.quote(member[0]) + "\\[.*"))
+                            {
+                                // Set the flag to indicate the variable exists
+                                // and stop searching
+                                isFound = true;
+                                break;
+                            }
+                        }
+
+                        // Check if the variable isn't in the list
+                        if (!isFound)
+                        {
+                            // Custom values variable member reference is
+                            // invalid
+                            issues.add(new TableIssue("Internal table '"
+                                                      + tableNameDb
+                                                      + "' references a non-existent variable, '"
+                                                      + member[0]
+                                                      + "'",
+                                                      "Delete variable reference",
+                                                      "DELETE FROM "
+                                                          + tableNameDb
+                                                          + " WHERE "
+                                                          + ValuesColumn.TABLE_PATH.getColumnName()
+                                                          + " = '"
+                                                          + member[0]
+                                                          + "'; "));
+                        }
+                    }
+                }
+            }
+        }
+        catch (SQLException se)
+        {
+            // Inform the user that obtaining the internal table metadata
+            // failed
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Error obtaining metadata for internal table '"
+                                      + tableNameDb
+                                      + "'; cause '"
+                                      + se.getMessage()
+                                      + "'",
+                                  "<html><b>Error obtaining metadata for internal table '</b>"
+                                      + tableNameDb
+                                      + "<b>'");
+        }
+    }
+
+    /**************************************************************************
+     * Query the specified internal table in the database for the specified
+     * column entries that reference tables or variables
+     * 
+     * @param intTableName
+     *            internal table name to query
+     * 
+     * @param intTableColumn
+     *            name of the column in the internal table column name from
+     *            which to obtain the entries
+     * 
+     * @return List of table or variable entries from the specified column in
+     *         the specified internal table
+     *************************************************************************/
+    private List<String[]> getInternalTableMembers(String intTableName,
+                                                   String intTableColumn)
+    {
+        // Get the entries from the specified column in the specified table
+        List<String[]> members = dbTable.queryDatabase("SELECT "
+                                                       + intTableColumn
+                                                       + " FROM "
+                                                       + intTableName,
+                                                       ccddMain.getMainFrame());
+
+        // Check if an error occurred obtaining the entries
+        if (members == null)
+        {
+            // Return an empty list; the error is logged by the query method
+            members = new ArrayList<String[]>();
+        }
+
+        return members;
+    }
+
+    /**************************************************************************
      * Check that the tables are consistent with their type definitions. If any
      * inconsistencies are detected then get user approval to alter the
      * table(s)
@@ -934,7 +1241,7 @@ public class CcddDbVerificationHandler
      * @param tableResult
      *            metadata for all tables
      *************************************************************************/
-    private void verifyTableTypes(ResultSet tableResult) throws CCDDException
+    private void verifyTableTypes(ResultSet tableResult)
     {
         String tableNameDb = "";
 
@@ -1143,11 +1450,11 @@ public class CcddDbVerificationHandler
      * If any inconsistencies are detected then get user approval to alter the
      * table(s)
      *************************************************************************/
-    private void verifyDataTables() throws CCDDException
+    private void verifyDataTables()
     {
         // Build the table tree
         CcddTableTreeHandler tableTree = new CcddTableTreeHandler(ccddMain,
-                                                                  TableTreeType.PROTOTYPE_ONLY,
+                                                                  TableTreeType.PROTOTYPE_TABLES,
                                                                   ccddMain.getMainFrame());
 
         // Get the list of root structure tables
@@ -1943,12 +2250,9 @@ public class CcddDbVerificationHandler
 
     /**************************************************************************
      * Perform the updates to the database authorized by the user
-     *
-     * @param isCheckCanceled
-     *            true if the user canceled the consistency check
      *************************************************************************/
     @SuppressWarnings("serial")
-    private void updateDatabase(boolean isCheckCanceled)
+    private void updateDatabase()
     {
         // Initialize the event log status message
         String message = "No project database inconsistencies detected";

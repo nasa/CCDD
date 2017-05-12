@@ -439,7 +439,7 @@ public class CcddScriptHandler
         {
             // Build the table tree
             tableTree = new CcddTableTreeHandler(ccddMain,
-                                                 TableTreeType.INSTANCE_ONLY,
+                                                 TableTreeType.INSTANCE_TABLES,
                                                  component);
         }
 

@@ -307,6 +307,7 @@ public class CcddSchedulerTableHandler
 
         // Create a group tree
         CcddGroupTreeHandler groupTree = new CcddGroupTreeHandler(ccddMain,
+                                                                  null,
                                                                   ccddMain.getMainFrame());
 
         // Get a list of the current group's names

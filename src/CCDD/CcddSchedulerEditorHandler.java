@@ -65,7 +65,7 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.SchedulerType;
 import CCDD.CcddConstants.TableSelectionMode;
-import CCDD.CcddJTableHandler.UndoableTableModel;
+import CCDD.CcddUndoHandler.UndoableTableModel;
 
 /******************************************************************************
  * CFS Command & Data Dictionary scheduler editor handler class

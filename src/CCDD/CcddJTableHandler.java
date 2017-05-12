@@ -70,31 +70,26 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JViewport;
 import javax.swing.KeyStroke;
-import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.TableModelEvent;
-import javax.swing.event.UndoableEditEvent;
-import javax.swing.event.UndoableEditListener;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableColumnModel;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.JTextComponent;
-import javax.swing.undo.AbstractUndoableEdit;
-import javax.swing.undo.CannotUndoException;
 
 import CCDD.CcddClasses.CellSelectionHandler;
 import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.SelectedCell;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.TableSelectionMode;
+import CCDD.CcddUndoHandler.UndoableTableColumnModel;
+import CCDD.CcddUndoHandler.UndoableTableModel;
 
 /******************************************************************************
  * CFS Command & Data Dictionary custom Swing table handler class
@@ -104,7 +99,8 @@ public abstract class CcddJTableHandler extends JTable
 {
     // Class references
     private final CcddJTableHandler table;
-    private CcddUndoManager undoManager;
+    private final CcddUndoManager undoManager;
+    private final CcddUndoHandler undoHandler;
 
     // Table model
     private UndoableTableModel tableModel;
@@ -121,9 +117,6 @@ public abstract class CcddJTableHandler extends JTable
     // Flag that indicates if row should remain highlighted when the table
     // loses focus
     private boolean ignoreFocus;
-
-    // Flag that indicates if actions can be undone/redone
-    private boolean allowUndo;
 
     // Flag that indicates if the grid lines between cells is visible
     private boolean showGrid;
@@ -191,14 +184,6 @@ public abstract class CcddJTableHandler extends JTable
     private int lastSelectionStart;
     private int lastSelectionEnd;
 
-    // Row and column edit types
-    private enum TableEditType
-    {
-        INSERT,
-        DELETE,
-        MOVE
-    }
-
     /**************************************************************************
      * Custom Swing table handler constructor
      *************************************************************************/
@@ -221,9 +206,43 @@ public abstract class CcddJTableHandler extends JTable
         // Store a reference to the table
         table = this;
 
+        // Add an undo edit manager and add it as a listener for undo/redo
+        // changes
+        undoManager = new CcddUndoManager()
+        {
+            /******************************************************************
+             * Perform any steps necessary following a table content change
+             *****************************************************************/
+            @Override
+            protected void ownerHasChanged()
+            {
+                // Create a runnable object to be executed
+                SwingUtilities.invokeLater(new Runnable()
+                {
+                    /**********************************************************
+                     * Execute after all pending Swing events are finished
+                     *********************************************************/
+                    @Override
+                    public void run()
+                    {
+                        // Perform any table-specific steps following the table
+                        // content change
+                        processTableContentChange();
+                    }
+                });
+
+                // Update the row heights for the visible rows
+                tableChanged(null);
+            }
+        };
+
+        // Create the undo handler for the components with undoable actions
+        undoHandler = new CcddUndoHandler(undoManager);
+        undoHandler.setTable(table);
+
         // Set the table column model so that column changes can be
         // undone/redone
-        setColumnModel(new UndoableTableColumnModel());
+        setColumnModel(undoHandler.new UndoableTableColumnModel());
 
         // Create the border used to pad the table cells
         cellBorder = BorderFactory.createEmptyBorder(CELL_VERTICAL_PADDING,
@@ -564,6 +583,14 @@ public abstract class CcddJTableHandler extends JTable
     protected CcddUndoManager getUndoManager()
     {
         return undoManager;
+    }
+
+    /**************************************************************************
+     * Get the undo handler
+     *************************************************************************/
+    protected CcddUndoHandler getUndoHandler()
+    {
+        return undoHandler;
     }
 
     /**************************************************************************
@@ -1051,7 +1078,7 @@ public abstract class CcddJTableHandler extends JTable
         this.ignoreFocus = ignoreFocus;
 
         // Set to true to allow changes to the table to be undone/redone
-        this.allowUndo = allowUndo;
+        undoHandler.setAllowUndo(allowUndo);
 
         // Set the cell content font
         this.cellFont = cellFont;
@@ -1107,41 +1134,8 @@ public abstract class CcddJTableHandler extends JTable
 
         // Create the table model. The data and column headers are added later
         // in case these need to be adjusted
-        tableModel = new UndoableTableModel();
+        tableModel = undoHandler.new UndoableTableModel();
         setModel(tableModel);
-
-        // Add an undo edit manager and add it as a listener for undo/redo
-        // changes
-        undoManager = new CcddUndoManager()
-        {
-            /******************************************************************
-             * Perform any steps necessary following a table content change
-             *****************************************************************/
-            @Override
-            protected void ownerHasChanged()
-            {
-                // Create a runnable object to be executed
-                SwingUtilities.invokeLater(new Runnable()
-                {
-                    /**********************************************************
-                     * Execute after all pending Swing events are finished
-                     *********************************************************/
-                    @Override
-                    public void run()
-                    {
-                        // Perform any table-specific steps following the table
-                        // content change
-                        processTableContentChange();
-                    }
-                });
-
-                // Update the row heights for the visible rows
-                tableChanged(null);
-            }
-        };
-
-        // Enable the undo manager
-        tableModel.addUndoableEditListener(undoManager);
 
         // Exit the cell's editor, if active, when the cell loses focus
         putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
@@ -1447,7 +1441,6 @@ public abstract class CcddJTableHandler extends JTable
     protected void loadDataArrayIntoTable(Object[][] tableData,
                                           boolean undoable)
     {
-
         // Check if the number of table rows changed
         if (tableData.length != tableModel.getDataVector().size())
         {
@@ -2737,21 +2730,33 @@ public abstract class CcddJTableHandler extends JTable
                 tableData.add(modelRow, getEmptyRow());
             }
 
-            // Step through the columns, beginning at the one with the focus
-            for (int column = startColumn; column <= endColumn
-                                           && showMessage != null; column++)
-            {
-                // Convert the view column index to model coordinates
-                int modelColumn = convertColumnIndexToModel(column);
+            // Store the index into the array of data to be pasted
+            int indexSave = index;
 
-                // Check that the column falls within the bounds of the table
-                // and that the cell is not protected. If outside the bounds or
-                // protected then discard the value
-                if (modelColumn < tableModel.getColumnCount()
-                    && isDataAlterable(tableData.get(modelRow),
-                                       modelRow,
-                                       modelColumn))
+            // If pasting values over existing ones it's possible that the
+            // check for a cell being alterable will return false due to other
+            // cells in the row that haven't yet been pasted over. To overcome
+            // this two passes for each row are made; first cells containing
+            // blanks in the pasted data are pasted, then the cells that are
+            // not empty are pasted
+            for (int pass = 1; pass <= 2; pass++)
+            {
+                // Check if this is the second pass through the row's columns
+                if (pass == 2)
                 {
+                    // Reset the index into the array of data to be pasted so
+                    // that the non-blank cells can be processed
+                    index = indexSave;
+                }
+
+                // Step through the columns, beginning at the one with the
+                // focus
+                for (int column = startColumn; column <= endColumn
+                                               && showMessage != null; column++)
+                {
+                    // Convert the view column index to model coordinates
+                    int modelColumn = convertColumnIndexToModel(column);
+
                     // Get the old cell value
                     Object oldValue = tableData.get(modelRow)[modelColumn];
                     Object newValue;
@@ -2783,36 +2788,48 @@ public abstract class CcddJTableHandler extends JTable
                                                           : "";
                     }
 
-                    // Check if the value has changed and, if this values are
-                    // being inserted, that the value isn't blank
-                    if (!oldValue.equals(newValue)
-                        && !(isInsert && newValue.toString().isEmpty()))
+                    // For the first pass through this row's column process
+                    // only blank cells; for the second pass process only
+                    // non-blank cells. If one of these criteria is met then
+                    // check if the column index is within the table boundaries
+                    // and if the cell is alterable
+                    if (((pass == 1 && newValue.toString().isEmpty())
+                        || (pass == 2 && !newValue.toString().isEmpty()))
+                        && modelColumn < tableModel.getColumnCount()
+                        && isDataAlterable(tableData.get(modelRow),
+                                           modelRow,
+                                           modelColumn))
                     {
-                        // Insert the value into the cell
-                        tableData.get(modelRow)[modelColumn] = newValue;
-
-                        // Validate the new cell contents
-                        showMessage = validateCellContent(tableData,
-                                                          modelRow,
-                                                          modelColumn,
-                                                          oldValue,
-                                                          newValue,
-                                                          showMessage,
-                                                          cellData.length > 1);
-
-                        // Check if the user selected the
-                        // Cancel button following an invalid
-                        // input
-                        if (showMessage == null)
+                        // Check if the value has changed and, if this values
+                        // are being inserted, that the value isn't blank
+                        if (!oldValue.equals(newValue)
+                            && !(isInsert && newValue.toString().isEmpty()))
                         {
-                            // Stop pasting data
-                            continue;
+                            // Insert the value into the cell
+                            tableData.get(modelRow)[modelColumn] = newValue;
+
+                            // Validate the new cell contents
+                            showMessage = validateCellContent(tableData,
+                                                              modelRow,
+                                                              modelColumn,
+                                                              oldValue,
+                                                              newValue,
+                                                              showMessage,
+                                                              cellData.length > 1);
+
+                            // Check if the user selected the Cancel button
+                            // following an invalid input
+                            if (showMessage == null)
+                            {
+                                // Stop pasting data
+                                continue;
+                            }
                         }
                     }
-                }
 
-                // Increment the index to the next value to paste
-                index++;
+                    // Increment the index to the next value to paste
+                    index++;
+                }
             }
         }
 
@@ -4124,922 +4141,6 @@ public abstract class CcddJTableHandler extends JTable
                          int pageIndex) throws PrinterException
         {
             return delegate.print(graphics, pageFormat, pageIndex - offset);
-        }
-    }
-
-    /**************************************************************************
-     * Table model class for handling cell undo/redo edits
-     *************************************************************************/
-    protected class UndoableTableModel extends DefaultTableModel
-    {
-        /**********************************************************************
-         * Return the class of the column object
-         *********************************************************************/
-        @Override
-        public Class<?> getColumnClass(int column)
-        {
-            Class<?> returnClass = null;
-
-            // Check if the table has at least one row
-            if (getRowCount() != 0 && getValueAt(0, column) != null)
-            {
-                // Return the class of the object in the target column
-                returnClass = getValueAt(0, column).getClass();
-            }
-
-            return returnClass;
-        }
-
-        /**********************************************************************
-         * Override the default method with a method that includes a flag to
-         * store the edit in the undo stack
-         *********************************************************************/
-        @Override
-        public void setValueAt(Object value, int row, int column)
-        {
-            // Set the value in the cell and add this edit to the undo stack
-            setValueAt(value, row, column, true);
-        }
-
-        /**********************************************************************
-         * Change the value of a cell
-         * 
-         * @param value
-         *            new cell value
-         * 
-         * @param row
-         *            table row
-         * 
-         * @param column
-         *            table column
-         * 
-         * @param undoable
-         *            true if the change can be undone
-         *********************************************************************/
-        protected void setValueAt(Object value,
-                                  int row,
-                                  int column,
-                                  boolean undoable)
-        {
-            // Check if the value is text. For check boxes the value is boolean
-            if (value instanceof String)
-            {
-                // Remove any leading and trailing whitespace
-                value = value.toString().trim();
-            }
-
-            // Get the cell's current value
-            Object oldValue = getValueAt(row, column);
-
-            // Check if the cell value has changed. Not processing duplicate
-            // updates prevents the undo stack from registering the edit twice
-            if (!oldValue.equals(value))
-            {
-                // Update the cell's value
-                super.setValueAt(value, row, column);
-
-                // Check if this edit is undoable
-                if (allowUndo && undoable)
-                {
-                    // Get the listeners for this event
-                    UndoableEditListener listeners[] = getListeners(UndoableEditListener.class);
-
-                    // Check if there is an edit listener registered
-                    if (listeners != null)
-                    {
-                        // Create the edit event to be passed to the listeners
-                        UndoableEditEvent editEvent = new UndoableEditEvent(this,
-                                                                            new CellEdit(this,
-                                                                                         oldValue,
-                                                                                         value,
-                                                                                         row,
-                                                                                         column));
-
-                        // Step through the registered listeners
-                        for (UndoableEditListener listener : listeners)
-                        {
-                            // Inform the listener that an update occurred
-                            listener.undoableEditHappened(editEvent);
-                        }
-                    }
-                }
-            }
-        }
-
-        /**********************************************************************
-         * Override the default method with a method that includes a flag to
-         * store the table data change in the undo stack
-         *********************************************************************/
-        @Override
-        public void setDataVector(Object[][] dataVector,
-                                  Object[] columnIdentifiers)
-        {
-            // Set the table data and add this update to the undo stack
-            setDataVector(dataVector, columnIdentifiers, true);
-        }
-
-        /**********************************************************************
-         * Change the table data array
-         * 
-         * @param dataVector
-         *            array of new table data
-         * 
-         * @param columnIdentifiers
-         *            array containing the table column names
-         * 
-         * @param undoable
-         *            true if the change can be undone
-         *********************************************************************/
-        private void setDataVector(Object[][] dataVector,
-                                   Object[] columnIdentifiers,
-                                   boolean undoable)
-        {
-            // Check if this data vector update is undoable
-            if (allowUndo && undoable)
-            {
-                // Get the listeners for this event
-                UndoableEditListener listeners[] = getListeners(UndoableEditListener.class);
-
-                // Check if there is an edit listener registered
-                if (listeners != null)
-                {
-                    // Create the edit event to be passed to the listeners
-                    UndoableEditEvent editEvent = new UndoableEditEvent(this,
-                                                                        new DataVectorEdit(getTableData(false),
-                                                                                           dataVector));
-                    // Step through the registered listeners
-                    for (UndoableEditListener listener : listeners)
-                    {
-                        // Inform the listener that an update occurred
-                        listener.undoableEditHappened(editEvent);
-                    }
-                }
-            }
-
-            super.setDataVector(dataVector, columnIdentifiers);
-        }
-
-        /**********************************************************************
-         * Add a listener for undoable changes
-         * 
-         * @param listener
-         *            edit change handler
-         *********************************************************************/
-        private void addUndoableEditListener(UndoableEditListener listener)
-        {
-            listenerList.add(UndoableEditListener.class, listener);
-        }
-
-        /**********************************************************************
-         * Override the default method with a method that includes a flag to
-         * store the row inserted in the undo stack
-         *********************************************************************/
-        @Override
-        public void insertRow(int row, Object[] values)
-        {
-            insertRow(row, values, true);
-        }
-
-        /**********************************************************************
-         * Insert a row into the table
-         * 
-         * @param row
-         *            row to insert
-         * 
-         * @param undoable
-         *            true if the row deletion can be undone
-         *********************************************************************/
-        protected void insertRow(int row, Object values[], boolean undoable)
-        {
-            // Check if this row deletion is undoable
-            if (allowUndo && undoable)
-            {
-                // Get the listeners for this event
-                UndoableEditListener listeners[] = getListeners(UndoableEditListener.class);
-
-                // Check if there is an edit listener registered
-                if (listeners != null)
-                {
-                    // Create the edit event to be passed to the listeners
-                    UndoableEditEvent editEvent = new UndoableEditEvent(this,
-                                                                        new RowEdit(this,
-                                                                                    values,
-                                                                                    row,
-                                                                                    0,
-                                                                                    0,
-                                                                                    TableEditType.INSERT));
-
-                    // Step through the registered listeners
-                    for (UndoableEditListener listener : listeners)
-                    {
-                        // Inform the listener that an update occurred
-                        listener.undoableEditHappened(editEvent);
-                    }
-                }
-            }
-
-            super.insertRow(row, values);
-
-            // Set the table sort capability in case the table had no rows
-            // prior to the insert
-            setTableSortable();
-        }
-
-        /**********************************************************************
-         * Override the default method with a method that includes a flag to
-         * store the row removed in the undo stack
-         *********************************************************************/
-        @Override
-        public void removeRow(int row)
-        {
-            removeRow(row, true);
-        }
-
-        /**********************************************************************
-         * Remove a row from the table
-         * 
-         * @param row
-         *            row to remove
-         * 
-         * @param undoable
-         *            true if the row deletion can be undone
-         *********************************************************************/
-        protected void removeRow(int row, boolean undoable)
-        {
-            // Check if this row deletion is undoable
-            if (allowUndo && undoable)
-            {
-                // Get the listeners for this event
-                UndoableEditListener listeners[] = getListeners(UndoableEditListener.class);
-
-                // Check if there is an edit listener registered
-                if (listeners != null)
-                {
-                    Object[] values = new Object[tableModel.getColumnCount()];
-
-                    // Step through each column of the row to be deleted
-                    for (int column = 0; column < tableModel.getColumnCount(); column++)
-                    {
-                        // Store the cell value
-                        values[column] = getValueAt(row, column);
-                    }
-
-                    // Create the edit event to be passed to the listeners
-                    UndoableEditEvent editEvent = new UndoableEditEvent(this,
-                                                                        new RowEdit(this,
-                                                                                    values,
-                                                                                    row,
-                                                                                    0,
-                                                                                    0,
-                                                                                    TableEditType.DELETE));
-
-                    // Step through the registered listeners
-                    for (UndoableEditListener listener : listeners)
-                    {
-                        // Inform the listener that an update occurred
-                        listener.undoableEditHappened(editEvent);
-                    }
-                }
-            }
-
-            // Disable the row sorter in case the last table row is removed and
-            // a row filter is active
-            setRowSorter(null);
-
-            super.removeRow(row);
-
-            // Set the table sort capability in case the table still has rows
-            setTableSortable();
-        }
-
-        /**********************************************************************
-         * Override the default method with a method that includes a flag to
-         * store the row moved in the undo stack
-         *********************************************************************/
-        @Override
-        public void moveRow(int start, int end, int to)
-        {
-            moveRow(start, end, to, true);
-        }
-
-        /**********************************************************************
-         * Move a row or rows within the table
-         * 
-         * @param start
-         *            starting row index
-         * 
-         * @param end
-         *            ending row index
-         * 
-         * @param to
-         *            row index to which to move the rows between start and end
-         * 
-         * @param undoable
-         *            true if the row movement can be undone
-         *********************************************************************/
-        protected void moveRow(int start, int end, int to, boolean undoable)
-        {
-            // Check if this row movement is undoable
-            if (allowUndo && undoable)
-            {
-                // Get the listeners for this event
-                UndoableEditListener listeners[] = getListeners(UndoableEditListener.class);
-
-                // Check if there is an edit listener registered and that the
-                // target row isn't the same as the starting row
-                if (listeners != null && start != to)
-                {
-                    // Create the edit event to be passed to the listeners
-                    UndoableEditEvent editEvent = new UndoableEditEvent(this,
-                                                                        new RowEdit(this,
-                                                                                    null,
-                                                                                    to,
-                                                                                    start,
-                                                                                    end,
-                                                                                    TableEditType.MOVE));
-
-                    // Step through the registered listeners
-                    for (UndoableEditListener listener : listeners)
-                    {
-                        // Inform the listener that an update occurred
-                        listener.undoableEditHappened(editEvent);
-                    }
-                }
-            }
-
-            super.moveRow(start, end, to);
-
-            // Get the table's row sorter
-            TableRowSorter<?> sorter = (TableRowSorter<?>) table.getRowSorter();
-
-            // Check if the table row sorter exists and if a row filter is in
-            // effect
-            if (sorter != null && sorter.getRowFilter() != null)
-            {
-                // Issue data and structure change events to ensure the table
-                // is redrawn correctly. If this is done for all cases it can
-                // cause the table to scroll to an unexpected position
-                tableModel.fireTableDataChanged();
-                tableModel.fireTableStructureChanged();
-            }
-        }
-
-        /**********************************************************************
-         * Sort the table rows
-         * 
-         * @param oldSortKeys
-         *            sort keys prior to sorting the rows
-         * 
-         * @param newSortKeys
-         *            sort keys after sorting the rows
-         *********************************************************************/
-        private void sortRows(List<? extends SortKey> oldSortKeys,
-                              List<? extends SortKey> newSortKeys)
-        {
-            // Check if this row sort is undoable
-            if (allowUndo)
-            {
-                // Get the listeners for this event
-                UndoableEditListener listeners[] = getListeners(UndoableEditListener.class);
-
-                // Check if there is an edit listener registered
-                if (listeners != null)
-                {
-                    // Create the edit event to be passed to the listeners
-                    UndoableEditEvent sortEvent = new UndoableEditEvent(this,
-                                                                        new RowSort(oldSortKeys,
-                                                                                    newSortKeys));
-
-                    // Step through the registered listeners
-                    for (UndoableEditListener listener : listeners)
-                    {
-                        // Inform the listener that an update occurred
-                        listener.undoableEditHappened(sortEvent);
-                    }
-                }
-            }
-        }
-    }
-
-    /**************************************************************************
-     * Table data array update event handler class
-     *************************************************************************/
-    private class DataVectorEdit extends AbstractUndoableEdit
-    {
-        private final Object[][] oldDataVector;
-        private final Object[][] newDataVector;
-
-        /**********************************************************************
-         * Table data array update event handler class constructor
-         * 
-         * @param oldDataVector
-         *            table data prior to the update
-         * 
-         * @param newDataVector
-         *            table data after the update
-         *********************************************************************/
-        private DataVectorEdit(Object[][] oldDataVector,
-                               Object[][] newDataVector)
-        {
-            this.oldDataVector = oldDataVector;
-            this.newDataVector = newDataVector;
-
-            // Add the table data update to the undo stack
-            undoManager.addEditSequence(this);
-        }
-
-        /**********************************************************************
-         * Undo setting the table data
-         *********************************************************************/
-        @Override
-        public void undo() throws CannotUndoException
-        {
-            super.undo();
-
-            // Set the table data to the old values
-            loadDataArrayIntoTable(oldDataVector, false);
-        }
-
-        /**********************************************************************
-         * Redo setting the table data
-         *********************************************************************/
-        @Override
-        public void redo() throws CannotUndoException
-        {
-            super.redo();
-
-            // Set the table data back to the new values
-            loadDataArrayIntoTable(newDataVector, false);
-        }
-
-        /**********************************************************************
-         * Get the name of the edit type
-         * 
-         * @return Name of the edit type
-         *********************************************************************/
-        @Override
-        public String getPresentationName()
-        {
-            return "DataVector";
-        }
-    }
-
-    /**************************************************************************
-     * Row sort event handler class
-     *************************************************************************/
-    private class RowSort extends AbstractUndoableEdit
-    {
-        private final List<? extends SortKey> oldSortKeys;
-        private final List<? extends SortKey> newSortKeys;
-
-        /**********************************************************************
-         * Row sort event handler class constructor
-         * 
-         * @param oldSortKeys
-         *            sort keys prior to sorting the rows
-         * 
-         * @param newSortKeys
-         *            sort keys after sorting the rows
-         *********************************************************************/
-        private RowSort(List<? extends SortKey> oldSortKeys,
-                        List<? extends SortKey> newSortKeys)
-        {
-            this.oldSortKeys = oldSortKeys;
-            this.newSortKeys = newSortKeys;
-
-            // Add the row sort to the undo stack
-            undoManager.addEditSequence(this);
-        }
-
-        /**********************************************************************
-         * Undo sorting rows
-         *********************************************************************/
-        @Override
-        public void undo() throws CannotUndoException
-        {
-            super.undo();
-
-            // Undo the previous row sort
-            getRowSorter().setSortKeys(oldSortKeys);
-        }
-
-        /**********************************************************************
-         * Redo sorting rows
-         *********************************************************************/
-        @Override
-        public void redo() throws CannotUndoException
-        {
-            super.redo();
-
-            // Perform the row sort again
-            getRowSorter().setSortKeys(newSortKeys);
-        }
-
-        /**********************************************************************
-         * Get the name of the edit type
-         * 
-         * @return Name of the edit type
-         *********************************************************************/
-        @Override
-        public String getPresentationName()
-        {
-            return "RowSort";
-        }
-    }
-
-    /**************************************************************************
-     * Row edit event handler class
-     *************************************************************************/
-    private class RowEdit extends AbstractUndoableEdit
-    {
-        private final UndoableTableModel tableModel;
-        private final Object[] values;
-        private final int row;
-        private final int start;
-        private final int end;
-        private final TableEditType type;
-
-        /**********************************************************************
-         * Row edit event handler constructor
-         * 
-         * @param tableModel
-         *            table model
-         * 
-         * @param values
-         *            array of column values for the row
-         * 
-         * @param row
-         *            table row
-         * 
-         * @param start
-         *            start index for a row move
-         * 
-         * @param end
-         *            end index for a row move
-         * 
-         * @param type
-         *            TableEditType.INSERT if inserting a row;
-         *            TableEditType.DELETE if removing a row;
-         *            TableEditType.MOVE if moving a row or rows
-         *********************************************************************/
-        private RowEdit(UndoableTableModel tableModel,
-                        Object[] values,
-                        int row,
-                        int start,
-                        int end,
-                        TableEditType type)
-        {
-            this.tableModel = tableModel;
-            this.values = (values == null)
-                                          ? null
-                                          : Arrays.copyOf(values, values.length);
-            this.row = row;
-            this.start = start;
-            this.end = end;
-            this.type = type;
-
-            // Add the row edit to the undo stack
-            undoManager.addEditSequence(this);
-        }
-
-        /**********************************************************************
-         * Undo inserting, deleting, or moving a row
-         *********************************************************************/
-        @Override
-        public void undo() throws CannotUndoException
-        {
-            super.undo();
-
-            switch (type)
-            {
-                case INSERT:
-                    // Undo the row insertion by deleting it
-                    tableModel.removeRow(row, false);
-                    break;
-
-                case DELETE:
-                    // Undo the row deletion by inserting it
-                    tableModel.insertRow(row, values, false);
-                    break;
-
-                case MOVE:
-                    // Undo the row move by moving it back
-                    tableModel.moveRow(row, row + end - start, start, false);
-                    break;
-            }
-        }
-
-        /**********************************************************************
-         * Redo inserting, deleting, or moving a row
-         *********************************************************************/
-        @Override
-        public void redo() throws CannotUndoException
-        {
-            super.redo();
-
-            switch (type)
-            {
-                case INSERT:
-                    // Perform the row insertion again
-                    tableModel.insertRow(row, values, false);
-                    break;
-
-                case DELETE:
-                    // Perform the row deletion again
-                    tableModel.removeRow(row, false);
-                    break;
-
-                case MOVE:
-                    // Perform the row movement again
-                    tableModel.moveRow(start, end, row, false);
-                    break;
-            }
-        }
-
-        /**********************************************************************
-         * Get the name of the edit type
-         * 
-         * @return Name of the edit type
-         *********************************************************************/
-        @Override
-        public String getPresentationName()
-        {
-            return "RowEdit";
-        }
-    }
-
-    /**************************************************************************
-     * Cell edit event handler class
-     *************************************************************************/
-    private class CellEdit extends AbstractUndoableEdit
-    {
-        private final UndoableTableModel tableModel;
-        private final Object oldValue;
-        private final Object newValue;
-        private final int row;
-        private final int column;
-
-        /**********************************************************************
-         * Cell edit event handler constructor
-         * 
-         * @param tableModel
-         *            table model
-         * 
-         * @param oldValue
-         *            previous cell value
-         * 
-         * @param newValue
-         *            new cell value
-         * 
-         * @param row
-         *            table row in model coordinates
-         * 
-         * @param column
-         *            table column in model coordinates
-         *********************************************************************/
-        private CellEdit(UndoableTableModel tableModel,
-                         Object oldValue,
-                         Object newValue,
-                         int row,
-                         int column)
-        {
-            this.tableModel = tableModel;
-            this.oldValue = oldValue;
-            this.newValue = newValue;
-            this.row = row;
-            this.column = column;
-
-            // Add the cell edit to the undo stack
-            undoManager.addEditSequence(this);
-        }
-
-        /**********************************************************************
-         * Replace the current cell value with the old value
-         *********************************************************************/
-        @Override
-        public void undo() throws CannotUndoException
-        {
-            super.undo();
-
-            // Update the table without generating an undo/redo event
-            tableModel.setValueAt(oldValue, row, column, false);
-
-            // Select the cell where the change was undone
-            setSelectedCell();
-        }
-
-        /**********************************************************************
-         * Replace the current cell value with the new value
-         *********************************************************************/
-        @Override
-        public void redo() throws CannotUndoException
-        {
-            super.redo();
-
-            // Update the table without generating an undo/redo event
-            tableModel.setValueAt(newValue, row, column, false);
-
-            // Select the cell where the change was redone
-            setSelectedCell();
-        }
-
-        /**********************************************************************
-         * Set the selected cell in the table. In order for this to select the
-         * cell it must be scheduled to execute after other pending events
-         *********************************************************************/
-        private void setSelectedCell()
-        {
-            // Create a runnable object to be executed
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                /**************************************************************
-                 * Execute after all pending Swing events are finished
-                 *************************************************************/
-                @Override
-                public void run()
-                {
-                    // Request focus in the table and select the specified cell
-                    requestFocusInWindow();
-                    changeSelection(convertRowIndexToView(row),
-                                    convertColumnIndexToView(column),
-                                    false,
-                                    false);
-                }
-            });
-        }
-
-        /**********************************************************************
-         * Get the name of the edit type
-         * 
-         * @return Name of the edit type
-         *********************************************************************/
-        @Override
-        public String getPresentationName()
-        {
-            return "CellEdit";
-        }
-    }
-
-    /**************************************************************************
-     * Table column model class for handling column move undo/redo
-     *************************************************************************/
-    private class UndoableTableColumnModel extends DefaultTableColumnModel
-    {
-        /**********************************************************************
-         * Override the default method with a method that includes a flag to
-         * store the column moved in the undo stack
-         *********************************************************************/
-        @Override
-        public void moveColumn(int columnIndex, int newIndex)
-        {
-            moveColumn(columnIndex, newIndex, true);
-        }
-
-        /**********************************************************************
-         * Move a column within the table
-         * 
-         * @param columnIndex
-         *            starting column index
-         * 
-         * @param newIndex
-         *            ending column index
-         * 
-         * @param undoable
-         *            true if the row deletion can be undone
-         *********************************************************************/
-        private void moveColumn(int columnIndex,
-                                int newIndex,
-                                boolean undoable)
-        {
-            // Check if this column movement is undoable
-            if (allowUndo && undoable)
-            {
-                // Get the listeners for this event
-                UndoableEditListener listeners[] = getListeners(UndoableEditListener.class);
-
-                // Check if there is an edit listener registered and that the
-                // column position has changed
-                if (listeners != null && columnIndex != newIndex)
-                {
-                    // Create the edit event to be passed to the listeners
-                    UndoableEditEvent editEvent = new UndoableEditEvent(this,
-                                                                        new ColumnEdit(this,
-                                                                                       columnIndex,
-                                                                                       newIndex,
-                                                                                       TableEditType.MOVE));
-
-                    // Step through the registered listeners
-                    for (UndoableEditListener listener : listeners)
-                    {
-                        // Inform the listener that an update occurred
-                        listener.undoableEditHappened(editEvent);
-                    }
-                }
-            }
-
-            super.moveColumn(columnIndex, newIndex);
-        }
-    }
-
-    /**************************************************************************
-     * Column edit event handler class
-     *************************************************************************/
-    private class ColumnEdit extends AbstractUndoableEdit
-    {
-        private final UndoableTableColumnModel tableColumnModel;
-        private final int start;
-        private final int end;
-        private final TableEditType type;
-
-        /**********************************************************************
-         * Column edit event handler constructor
-         * 
-         * @param tableColumnModel
-         *            table column model
-         * 
-         * @param column
-         *            table column
-         * 
-         * @param start
-         *            start index for a column move
-         * 
-         * @param end
-         *            end index for a column move
-         * 
-         * @param type
-         *            TableEditType.INSERT if inserting a column;
-         *            TableEditType.DELETE if removing a column;
-         *            TableEditType.MOVE if moving a column
-         *********************************************************************/
-        private ColumnEdit(UndoableTableColumnModel tableColumnModel,
-                           int start,
-                           int end,
-                           TableEditType type)
-        {
-            this.tableColumnModel = tableColumnModel;
-            this.start = start;
-            this.end = end;
-            this.type = type;
-
-            // Add the column edit to the undo stack
-            undoManager.addEditSequence(this);
-        }
-
-        /**********************************************************************
-         * Undo inserting, deleting, or moving a column
-         *********************************************************************/
-        @Override
-        public void undo() throws CannotUndoException
-        {
-            super.undo();
-
-            switch (type)
-            {
-                case MOVE:
-                    // Undo the column move by moving it back
-                    tableColumnModel.moveColumn(end, start, false);
-                    break;
-
-                case INSERT:
-                    break;
-
-                case DELETE:
-                    break;
-            }
-        }
-
-        /**********************************************************************
-         * Redo inserting, deleting, or moving a column
-         *********************************************************************/
-        @Override
-        public void redo() throws CannotUndoException
-        {
-            super.redo();
-
-            switch (type)
-            {
-                case MOVE:
-                    // Perform the column movement again
-                    tableColumnModel.moveColumn(start, end, false);
-                    break;
-
-                case INSERT:
-                    break;
-
-                case DELETE:
-                    break;
-            }
-        }
-
-        /**********************************************************************
-         * Get the name of the edit type
-         * 
-         * @return Name of the edit type
-         *********************************************************************/
-        @Override
-        public String getPresentationName()
-        {
-            return "ColumnEdit";
         }
     }
 }

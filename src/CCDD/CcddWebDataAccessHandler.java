@@ -255,10 +255,10 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 // Set the tree type (instance, prototype, or both) based on
                 // the command
                 tableTreeType = component.equals("table")
-                                                         ? TableTreeType.PROTOTYPE_AND_INSTANCE
+                                                         ? TableTreeType.TABLES
                                                          : (component.equals("proto_table")
-                                                                                           ? TableTreeType.PROTOTYPE_ONLY
-                                                                                           : TableTreeType.INSTANCE_ONLY);
+                                                                                           ? TableTreeType.PROTOTYPE_TABLES
+                                                                                           : TableTreeType.INSTANCE_TABLES);
 
                 // Set the maximum level flag if only root table information is
                 // requested
@@ -1934,7 +1934,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         if (groupFilter.isEmpty())
         {
             // Get a list of all root and child tables
-            tableTreeType = TableTreeType.INSTANCE_ONLY;
+            tableTreeType = TableTreeType.INSTANCE_TABLES;
             allTableNameList = getTableList();
         }
 

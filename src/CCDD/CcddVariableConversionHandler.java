@@ -43,33 +43,73 @@ public class CcddVariableConversionHandler
     }
 
     /**************************************************************************
-     * Variable conversion handler class constructor for all variables in the
-     * project database
+     * Variable conversion handler class constructor for the tables and/or
+     * variables in the project database as specified by the tree type, and
+     * with the macros expanded and bit lengths removed based on the input flag
      * 
-     * @param variableInformation
-     *            list containing variable path and name pairs
+     * @param ccddMain
+     *            main class reference
+     * 
+     * @param treeType
+     *            type of tree contents to obtain as defined by TableTreeType
+     * 
+     * @param cleanName
+     *            true to convert any macros in the path and to strip off the
+     *            bit length, if present
      *************************************************************************/
-    CcddVariableConversionHandler(CcddMain ccddMain)
+    CcddVariableConversionHandler(CcddMain ccddMain,
+                                  TableTreeType treeType,
+                                  boolean cleanName)
     {
-        // allVariableNameList = new ArrayList<String>();
-
         // Create a tree containing all of the variables
         allVariableTree = new CcddTableTreeHandler(ccddMain,
-                                                   TableTreeType.INSTANCE_WITH_PRIMITIVES,
+                                                   treeType,
                                                    ccddMain.getMainFrame());
 
         // Get the list of all variables
         allVariableNameList = allVariableTree.getTableTreePathList(null);
 
-        // Step through each variable
-        for (int index = 0; index < allVariableNameList.size(); index++)
+        // Check if the path should have the macros expanded and the bit length
+        // removed
+        if (cleanName)
         {
-            // Expand any macro(s) in the variable name and remove the bit
-            // length (if present)
-            allVariableNameList.set(index,
-                                    ccddMain.getMacroHandler().getMacroExpansion(allVariableNameList.get(index)).replaceFirst("\\:\\d+$",
-                                                                                                                              ""));
+            // Step through each variable
+            for (int index = 0; index < allVariableNameList.size(); index++)
+            {
+                // Expand any macro(s) in the variable name and remove the bit
+                // length (if present)
+                allVariableNameList.set(index,
+                                        ccddMain.getMacroHandler().getMacroExpansion(allVariableNameList.get(index)).replaceFirst("\\:\\d+$",
+                                                                                                                                  ""));
+            }
         }
+    }
+
+    /**************************************************************************
+     * Variable conversion handler class constructor for all variables in the
+     * project database
+     * 
+     * @param ccddMain
+     *            main class reference
+     *************************************************************************/
+    CcddVariableConversionHandler(CcddMain ccddMain)
+    {
+        this(ccddMain, TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES, true);
+    }
+
+    /**************************************************************************
+     * Variable conversion handler class constructor for the tables and/or
+     * variables in the project database as specified by the tree type
+     * 
+     * @param ccddMain
+     *            main class reference
+     * 
+     * @param treeType
+     *            type of tree contents to obtain as defined by TableTreeType
+     *************************************************************************/
+    CcddVariableConversionHandler(CcddMain ccddMain, TableTreeType treeType)
+    {
+        this(ccddMain, treeType, false);
     }
 
     /**************************************************************************

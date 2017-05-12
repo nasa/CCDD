@@ -155,6 +155,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
 
         // Build a link tree
         linkTree = new CcddLinkTreeHandler(ccddMain,
+                                           null,
                                            rateName,
                                            ccddMain.getMainFrame())
         {
@@ -191,7 +192,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
         variableTree = new CcddTableTreeHandler(ccddMain,
                                                 new CcddGroupHandler(ccddMain,
                                                                      ccddMain.getMainFrame()),
-                                                TableTreeType.INSTANCE_WITH_PRIMITIVES_AND_RATES,
+                                                TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES,
                                                 rateName,
                                                 selectedRate,
                                                 excludedVars,
