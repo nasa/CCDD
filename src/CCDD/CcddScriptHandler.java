@@ -216,8 +216,7 @@ public class CcddScriptHandler
             // Add the information for this engine to the list
             engineInfo.add(CcddUtilities.colorHTMLText(name + ": ",
                                                        LABEL_TEXT_COLOR)
-                           + factory.getLanguageVersion().replaceAll("[a-zA-Z ]",
-                                                                     "")
+                           + factory.getLanguageVersion()
                            + " ("
                            + factory.getEngineName()
                            + " "

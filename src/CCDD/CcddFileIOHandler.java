@@ -1241,6 +1241,7 @@ public class CcddFileIOHandler
                                             tableEditor.getModifications(),
                                             tableEditor.getDeletions(),
                                             false,
+                                            false,
                                             null,
                                             null,
                                             ccddMain.getMainFrame()))

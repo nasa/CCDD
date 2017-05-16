@@ -394,6 +394,52 @@ public class CcddDialogHandler extends JDialog
                                     int messageType,
                                     DialogOption optionType)
     {
+        return showMessageDialog(parent,
+                                 message,
+                                 title,
+                                 messageType,
+                                 optionType,
+                                 true);
+    }
+
+    /**************************************************************************
+     * Display a non-resizable message dialog and return the button type
+     * selected. The icon displayed is based on the message type. Dialog
+     * modality is based on the input flag
+     * 
+     * @param parent
+     *            window to center the dialog over
+     * 
+     * @param message
+     *            text message to display
+     * 
+     * @param title
+     *            title to display in the dialog window frame
+     * 
+     * @param messageType
+     *            message type: JOptionPane.PLAIN_MESSAGE,
+     *            JOptionPane.INFORMATION_MESSAGE,
+     *            JOptionPane.QUESTION_MESSAGE, JOptionPane.WARNING_MESSAGE, or
+     *            JOptionPane.ERROR_MESSAGE
+     * 
+     * @param optionType
+     *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION,
+     *            READ_OPTION, PRINT_OPTION, CLOSE_OPTION, OK_OPTION, or
+     *            OK_CANCEL_OPTION
+     * 
+     * @param modal
+     *            false to allow the main application window to still be
+     *            operated while the dialog is open
+     * 
+     * @return Selected button type
+     *************************************************************************/
+    protected int showMessageDialog(Component parent,
+                                    String message,
+                                    String title,
+                                    int messageType,
+                                    DialogOption optionType,
+                                    boolean modal)
+    {
         Icon icon = null;
 
         // Get the icon to display beside the text message based on the current
@@ -429,7 +475,7 @@ public class CcddDialogHandler extends JDialog
                             optionType,
                             icon,
                             false,
-                            true);
+                            modal);
     }
 
     /**************************************************************************
@@ -649,6 +695,50 @@ public class CcddDialogHandler extends JDialog
                             null,
                             false,
                             true);
+    }
+
+    /**************************************************************************
+     * Display a user-interactive dialog using buttons defined by the supplied
+     * option type. The dialog may be resized, based on the input flag. The
+     * dialog's modality is set by input flag. Return the button type selected
+     * 
+     * @param parent
+     *            window to center the dialog over
+     * 
+     * @param dialogPanel
+     *            panel containing the dialog components
+     * 
+     * @param title
+     *            title to display in the dialog window frame
+     * 
+     * @param optionType
+     *            DialogOption type
+     * 
+     * @param resizable
+     *            true to allow the dialog to be resized
+     * 
+     * @param modal
+     *            false to allow the main application window to still be
+     *            operated while the dialog is open
+     * 
+     * @return Selected button type
+     *************************************************************************/
+    protected int showOptionsDialog(Component parent,
+                                    Component dialogPanel,
+                                    String title,
+                                    DialogOption optionType,
+                                    boolean resizable,
+                                    boolean modal)
+    {
+        // Used for the Appearance and database dialogs
+        return createDialog(parent,
+                            dialogPanel,
+                            null,
+                            title,
+                            optionType,
+                            null,
+                            resizable,
+                            modal);
     }
 
     /**************************************************************************

@@ -1788,6 +1788,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                                             editor.getModifications(),
                                             editor.getDeletions(),
                                             false,
+                                            false,
                                             null,
                                             null,
                                             CcddTableEditorDialog.this);
@@ -1826,6 +1827,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                                                 editor.getAdditions(),
                                                 editor.getModifications(),
                                                 editor.getDeletions(),
+                                                false,
                                                 false,
                                                 null,
                                                 null,

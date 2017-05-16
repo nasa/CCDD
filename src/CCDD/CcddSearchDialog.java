@@ -23,6 +23,7 @@ import static CCDD.CcddConstants.TEXT_HIGHLIGHT_COLOR;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -105,6 +106,7 @@ public class CcddSearchDialog extends CcddDialogHandler
     private JTextField searchFld;
     private JCheckBox ignoreCaseCb;
     private JCheckBox dataTablesOnlyCb;
+    private JLabel numResultsLbl;
 
     // Search dialog type
     private final SearchDialogType searchDlgType;
@@ -236,15 +238,22 @@ public class CcddSearchDialog extends CcddDialogHandler
             dialogPnl.add(dataTablesOnlyCb, gbc);
         }
 
-        // Create the search dialog labels and fields
+        // Create the results and number of results found labels
         JLabel resultsLbl = new JLabel("Search results");
         resultsLbl.setFont(LABEL_FONT_BOLD);
         resultsLbl.setForeground(LABEL_TEXT_COLOR);
+        numResultsLbl = new JLabel();
+        numResultsLbl.setFont(LABEL_FONT_PLAIN);
         gbc.insets.top = LABEL_VERTICAL_SPACING;
         gbc.insets.left = LABEL_HORIZONTAL_SPACING;
         gbc.insets.bottom = 0;
         gbc.gridy++;
-        dialogPnl.add(resultsLbl, gbc);
+
+        // Add the results labels to the dialog
+        JPanel resultsPnl = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        resultsPnl.add(resultsLbl);
+        resultsPnl.add(numResultsLbl);
+        dialogPnl.add(resultsPnl, gbc);
 
         // Create the table to display the search results
         resultsTable = new CcddJTableHandler()
@@ -488,6 +497,9 @@ public class CcddSearchDialog extends CcddDialogHandler
                             break;
                     }
                 }
+
+                // Update the number of results found label
+                numResultsLbl.setText("  (" + resultsData.length + " found)");
             }
         });
 

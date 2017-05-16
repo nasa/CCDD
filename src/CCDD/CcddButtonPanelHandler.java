@@ -55,8 +55,8 @@ public class CcddButtonPanelHandler
         buttonPnl = new JPanel();
         buttonPnl.setBorder(BorderFactory.createEmptyBorder());
         buttonPnl.setLayout(new FlowLayout(FlowLayout.CENTER,
-                                             BUTTON_GAP,
-                                             BUTTON_GAP));
+                                           BUTTON_GAP,
+                                           BUTTON_GAP));
         buttonRows = 1;
     }
 
@@ -205,11 +205,11 @@ public class CcddButtonPanelHandler
         // Size the panel containing the buttons based on the buttons' widths
         // and heights
         Dimension buttonPnlCoord = new Dimension(maxWidth * numColumns
-                                                   + (BUTTON_GAP + 1)
-                                                   * (numColumns + 1),
-                                                   maxHeight * buttonRows
-                                                       + (BUTTON_GAP + 1)
-                                                       * (buttonRows + 1));
+                                                 + (BUTTON_GAP + 1)
+                                                 * (numColumns + 1),
+                                                 maxHeight * buttonRows
+                                                     + (BUTTON_GAP + 1)
+                                                     * (buttonRows + 1));
 
         // Set the button panel to a fixed size so that the buttons stay
         // positioned correctly relative to each other

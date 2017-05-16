@@ -900,6 +900,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                                         editor.getModifications(),
                                                         editor.getDeletions(),
                                                         true,
+                                                        false,
                                                         null,
                                                         null,
                                                         CcddAssignMessageIDDialog.this);

@@ -21,6 +21,7 @@ import static CCDD.CcddConstants.TABLE_BACK_COLOR;
 import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
 import static CCDD.CcddConstants.EventLogMessageType.STATUS_MSG;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -42,8 +43,10 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.tree.TreePath;
@@ -56,6 +59,7 @@ import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddClasses.TableModification;
 import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.DefaultColumn;
+import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
@@ -116,6 +120,10 @@ public class CcddDbVerificationHandler
 
     // Flag indicating if changes are to be made to the tables
     private boolean isChanges;
+
+    // Flag indicating that the user elected to cancel project database
+    // verification
+    private boolean canceled = false;
 
     /**************************************************************************
      * Table data storage class. An instance is created for each data table to
@@ -538,11 +546,62 @@ public class CcddDbVerificationHandler
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
         {
             /******************************************************************
-             * Auto-fill command
+             * Verification cancellation dialog class
+             *****************************************************************/
+            @SuppressWarnings("serial")
+            class HaltDialog extends CcddDialogHandler
+            {
+                /**************************************************************
+                 * Handle the close dialog button action
+                 *************************************************************/
+                @Override
+                protected void closeDialog(int button)
+                {
+                    // Set the flag to cancel verification
+                    canceled = true;
+
+                    super.closeDialog(button);
+                };
+            }
+
+            HaltDialog cancelDialog = new HaltDialog();
+
+            /******************************************************************
+             * Perform project database verification
              *****************************************************************/
             @Override
             protected void execute()
             {
+                // Create the cancellation dialog
+                JPanel dialogPnl = new JPanel();
+                dialogPnl.setBorder(BorderFactory.createEmptyBorder());
+                dialogPnl.setLayout(new BoxLayout(dialogPnl, BoxLayout.Y_AXIS));
+                JLabel textLbl = new JLabel("<html><b>Verification in progress...<br><br>",
+                                            SwingConstants.LEFT);
+                textLbl.setFont(LABEL_FONT_PLAIN);
+                dialogPnl.add(textLbl);
+                JLabel textLbl2 = new JLabel("<html><b>"
+                                             + "<font color=#ff0000><i>*** Press </i>Halt<i> "
+                                             + "to terminate verification ***<br><br>",
+                                             SwingConstants.CENTER);
+                textLbl2.setFont(LABEL_FONT_PLAIN);
+                dialogPnl.add(textLbl2);
+
+                // Add a progress bar to the dialog
+                JProgressBar progBar = new JProgressBar(0, 5);
+                progBar.setValue(0);
+                progBar.setStringPainted(true);
+                progBar.setPreferredSize(new Dimension(100, 20));
+                dialogPnl.add(progBar);
+
+                // Display he verification cancellation dialog
+                cancelDialog.showOptionsDialog(ccddMain.getMainFrame(),
+                                               dialogPnl,
+                                               "Verifying Project",
+                                               DialogOption.HALT_OPTION,
+                                               false,
+                                               false);
+
                 // Set flags indicating no changes are pending, no
                 // inconsistencies exist, and the user hasn't canceled the
                 // check
@@ -559,24 +618,61 @@ public class CcddDbVerificationHandler
                                                                                               null,
                                                                                               new String[] {"TABLE"});
 
-                    // Check for inconsistencies in the owner role of the
-                    // project database and its tables, sequences, indices, and
-                    // functions
-                    verifyOwners();
+                    // Check if verification isn't canceled
+                    if (!canceled)
+                    {
+                        // Check for inconsistencies in the owner role of the
+                        // project database and its tables, sequences, indices,
+                        // and functions
+                        verifyOwners();
 
-                    // Check for inconsistencies in the internal tables
-                    verifyInternalTables(tableResult);
+                        // Check if verification isn't canceled
+                        if (!canceled)
+                        {
+                            // Update the progress bar
+                            progBar.setValue(1);
 
-                    // Verify the table and variable path references in the
-                    // internal tables
-                    verifyPathReferences(tableResult);
+                            // Check for inconsistencies in the internal tables
+                            verifyInternalTables(tableResult);
 
-                    // Check for inconsistencies between the table type
-                    // definitions and the tables of that type
-                    verifyTableTypes(tableResult);
+                            // Check if verification isn't canceled
+                            if (!canceled)
+                            {
+                                // Update the progress bar
+                                progBar.setValue(2);
 
-                    // Check for inconsistencies within the data tables
-                    verifyDataTables();
+                                // Verify the table and variable path
+                                // references in the internal tables
+                                verifyPathReferences(tableResult);
+
+                                // Check if verification isn't canceled
+                                if (!canceled)
+                                {
+                                    // Update the progress bar
+                                    progBar.setValue(3);
+
+                                    // Check for inconsistencies between the
+                                    // table type definitions and the tables of
+                                    // that type
+                                    verifyTableTypes(tableResult);
+
+                                    // Check if verification isn't canceled
+                                    if (!canceled)
+                                    {
+                                        // Update the progress bar
+                                        progBar.setValue(4);
+
+                                        // Check for inconsistencies within the
+                                        // data tables
+                                        verifyDataTables();
+
+                                        // Update the progress bar
+                                        progBar.setValue(5);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
                 catch (SQLException se)
                 {
@@ -601,14 +697,27 @@ public class CcddDbVerificationHandler
             }
 
             /******************************************************************
-             * Auto-fill command complete
+             * Project database verification command complete
              *****************************************************************/
             @Override
             protected void complete()
             {
-                // Perform any corrections to the database authorized by the
-                // user
-                updateDatabase();
+                // Check if the user didn't cancel verification
+                if (!canceled)
+                {
+                    // Close the cancellation dialog
+                    cancelDialog.closeDialog();
+
+                    // Perform any corrections to the database authorized by
+                    // the user
+                    updateDatabase();
+                }
+                // Verification was canceled
+                else
+                {
+                    // Note that verification was canceled in the event log
+                    eventLog.logEvent(STATUS_MSG, "Verification terminated by user");
+                }
             }
         });
     }
@@ -641,6 +750,12 @@ public class CcddDbVerificationHandler
             // Step through each component with a mismatched owner
             while (mismatch.next())
             {
+                // Check if the user canceled verification
+                if (canceled)
+                {
+                    break;
+                }
+
                 String type;
 
                 // Get the component type
@@ -761,6 +876,12 @@ public class CcddDbVerificationHandler
             // Step through each database table
             while (tableResult.next())
             {
+                // Check if the user canceled verification
+                if (canceled)
+                {
+                    break;
+                }
+
                 // Get the table name
                 tableNameDb = tableResult.getString("TABLE_NAME");
 
@@ -773,6 +894,12 @@ public class CcddDbVerificationHandler
                     // Step through each internal table type
                     for (InternalTable intTable : InternalTable.values())
                     {
+                        // Check if the user canceled verification
+                        if (canceled)
+                        {
+                            break;
+                        }
+
                         // Check if the table name matches that of a known
                         // internal table
                         if (tableNameDb.equals(intTable.getTableName()))
@@ -811,6 +938,12 @@ public class CcddDbVerificationHandler
                                 // Step through each column in the table
                                 while (columnResult.next())
                                 {
+                                    // Check if the user canceled verification
+                                    if (canceled)
+                                    {
+                                        break;
+                                    }
+
                                     // Check if the table has more columns than
                                     // expected
                                     if (columnIndex == intTable.getNumColumns())
@@ -963,8 +1096,15 @@ public class CcddDbVerificationHandler
                 {
                     // Step through the associated tables
                     for (String[] member : getInternalTableMembers(tableNameDb,
-                                                                   AssociationsColumn.MEMBERS.getColumnName()))
+                                                                   AssociationsColumn.MEMBERS.getColumnName(),
+                                                                   AssociationsColumn.SCRIPT_FILE.getColumnName()))
                     {
+                        // Check if the user canceled verification
+                        if (canceled)
+                        {
+                            break;
+                        }
+
                         // Check if a this association references a table . If
                         // no table is associated the member column contains a
                         // space
@@ -981,15 +1121,27 @@ public class CcddDbVerificationHandler
                                                               + tableNameDb
                                                               + "' references a non-existent table, '"
                                                               + table
+                                                              + "', associated with script '"
+                                                              + member[1]
                                                               + "'",
                                                               "Delete script association",
                                                               "DELETE FROM "
                                                                   + tableNameDb
                                                                   + " WHERE "
+                                                                  + AssociationsColumn.SCRIPT_FILE.getColumnName()
+                                                                  + " = "
+                                                                  + dbTable.delimitText(member[1])
+                                                                  + " AND "
                                                                   + AssociationsColumn.MEMBERS.getColumnName()
-                                                                  + " = '"
-                                                                  + member[0]
-                                                                  + "'; "));
+                                                                  + " = "
+                                                                  + dbTable.delimitText(member[0])
+                                                                  + "; "));
+
+                                    // Skip any other invalid table references
+                                    // in this association; this prevents
+                                    // allowing the user to select removal of
+                                    // the same association more than once
+                                    break;
                                 }
                             }
                         }
@@ -1000,8 +1152,15 @@ public class CcddDbVerificationHandler
                 {
                     // Step through the field owners
                     for (String[] member : getInternalTableMembers(tableNameDb,
-                                                                   FieldsColumn.OWNER_NAME.getColumnName()))
+                                                                   FieldsColumn.OWNER_NAME.getColumnName(),
+                                                                   null))
                     {
+                        // Check if the user canceled verification
+                        if (canceled)
+                        {
+                            break;
+                        }
+
                         // Check if this data field doesn't belong to a group
                         // or table type, and if the table doesn't exist
                         if (!member[0].matches("^.*:.*")
@@ -1018,9 +1177,9 @@ public class CcddDbVerificationHandler
                                                           + tableNameDb
                                                           + " WHERE "
                                                           + FieldsColumn.OWNER_NAME.getColumnName()
-                                                          + " = '"
-                                                          + member[0]
-                                                          + "'; "));
+                                                          + " = "
+                                                          + dbTable.delimitText(member[0])
+                                                          + "; "));
                         }
                     }
                 }
@@ -1029,8 +1188,15 @@ public class CcddDbVerificationHandler
                 {
                     // Step through the group tables
                     for (String[] member : getInternalTableMembers(tableNameDb,
-                                                                   GroupsColumn.MEMBERS.getColumnName()))
+                                                                   GroupsColumn.MEMBERS.getColumnName(),
+                                                                   null))
                     {
+                        // Check if the user canceled verification
+                        if (canceled)
+                        {
+                            break;
+                        }
+
                         // Check if this isn't a group definition entry and if
                         // the table doesn't exist
                         if (!member[0].matches("^\\d+.*")
@@ -1039,7 +1205,7 @@ public class CcddDbVerificationHandler
                             // Group table member reference is invalid
                             issues.add(new TableIssue("Internal table '"
                                                       + tableNameDb
-                                                      + "' references a non-existent variable, '"
+                                                      + "' references a non-existent table, '"
                                                       + member[0]
                                                       + "'",
                                                       "Delete table from group",
@@ -1047,9 +1213,9 @@ public class CcddDbVerificationHandler
                                                           + tableNameDb
                                                           + " WHERE "
                                                           + GroupsColumn.MEMBERS.getColumnName()
-                                                          + " = '"
-                                                          + member[0]
-                                                          + "'; "));
+                                                          + " = "
+                                                          + dbTable.delimitText(member[0])
+                                                          + "; "));
                         }
                     }
                 }
@@ -1058,8 +1224,15 @@ public class CcddDbVerificationHandler
                 {
                     // Step through the link variables
                     for (String[] member : getInternalTableMembers(tableNameDb,
-                                                                   LinksColumn.MEMBER.getColumnName()))
+                                                                   LinksColumn.MEMBER.getColumnName(),
+                                                                   null))
                     {
+                        // Check if the user canceled verification
+                        if (canceled)
+                        {
+                            break;
+                        }
+
                         // Check if this isn't a link definition entry and if
                         // the variable doesn't exist
                         if (!member[0].matches("^\\d+.*")
@@ -1076,92 +1249,105 @@ public class CcddDbVerificationHandler
                                                           + tableNameDb
                                                           + " WHERE "
                                                           + LinksColumn.MEMBER.getColumnName()
-                                                          + " = '"
-                                                          + member[0]
-                                                          + "'; "));
+                                                          + " = "
+                                                          + dbTable.delimitText(member[0])
+                                                          + "; "));
                         }
                     }
                 }
                 // Check if this is the telemetry scheduler table
                 else if (tableNameDb.equals(InternalTable.TLM_SCHEDULER.getTableName()))
                 {
-                    // Step through the telemetry scheduler message variables
+                    // Step through each variable in the telemetry table
                     for (String[] member : getInternalTableMembers(tableNameDb,
-                                                                   TlmSchedulerColumn.MEMBER.getColumnName()))
+                                                                   TlmSchedulerColumn.MEMBER.getColumnName(),
+                                                                   null))
                     {
-                        // Check if the message contains a variable
-                        if (!member[0].isEmpty())
+                        // Check if the user canceled verification
+                        if (canceled)
                         {
-                            boolean isFound = false;
+                            break;
+                        }
 
-                            // Step through each variable in the list
-                            for (String variablePath : variableHandler.getAllVariableNameList())
-                            {
-                                // Check if the message variable exists (skip
-                                // the rate that precedes the variable)
-                                if (member[0].matches(InputDataType.FLOAT_POSITIVE.getInputMatch()
-                                                      + Pattern.quote(TLM_SCH_SEPARATOR
-                                                                      + variablePath)))
-                                {
-                                    // Set the flag to indicate the variable
-                                    // exists and stop searching
-                                    isFound = true;
-                                    break;
-                                }
-                            }
-
-                            // Check if the variable isn't in the list
-                            if (!isFound)
-                            {
-                                // Telemetry scheduler message variable member
-                                // reference is invalid
-                                issues.add(new TableIssue("Internal table '"
+                        // Check if the variable isn't blank (i.e., an empty
+                        // message) and if the variable isn't in the list
+                        if (!member[0].isEmpty()
+                            && !variableHandler.getAllVariableNameList().contains(member[0].replaceFirst(InputDataType.FLOAT_POSITIVE.getInputMatch()
+                                                                                                         + Pattern.quote(TLM_SCH_SEPARATOR),
+                                                                                                         "")))
+                        {
+                            // Telemetry scheduler message variable member
+                            // reference is invalid
+                            issues.add(new TableIssue("Internal table '"
+                                                      + tableNameDb
+                                                      + "' references a non-existent variable, '"
+                                                      + member[0].replaceFirst(".*"
+                                                                               + Pattern.quote(TLM_SCH_SEPARATOR),
+                                                                               "")
+                                                      + "'",
+                                                      "Delete variable from message(s)",
+                                                      "DELETE FROM "
                                                           + tableNameDb
-                                                          + "' references a non-existent variable, '"
-                                                          + member[0]
-                                                          + "'",
-                                                          "Delete variable from message(s)",
-                                                          "DELETE FROM "
-                                                              + tableNameDb
-                                                              + " WHERE "
-                                                              + TlmSchedulerColumn.MEMBER.getColumnName()
-                                                              + " = '"
-                                                              + member[0]
-                                                              + "'; "));
-                            }
+                                                          + " WHERE "
+                                                          + TlmSchedulerColumn.MEMBER.getColumnName()
+                                                          + " = "
+                                                          + dbTable.delimitText(member[0])
+                                                          + "; "));
                         }
                     }
                 }
                 // Check if this is the custom values table
                 else if (tableNameDb.equals(InternalTable.VALUES.getTableName()))
                 {
+                    // List to contain the variables without bit lengths and to
+                    // include array definitions. A separate list is created to
+                    // speed the comparisons
+                    List<String> cleanName = new ArrayList<String>();
+
+                    // Step through each variable in the list
+                    for (String variablePath : variableHandler.getAllVariableNameList())
+                    {
+                        // Check if the user canceled verification
+                        if (canceled)
+                        {
+                            break;
+                        }
+
+                        // Remove the bit length, if present, and store the
+                        // variable in the new list
+                        cleanName.add(variablePath.replaceFirst("\\:\\d+$", ""));
+
+                        // Check if the variable is an array member
+                        if (variablePath.endsWith("]"))
+                        {
+                            // Strip the array index form the end to create a
+                            // reference to the variable's array definition
+                            String name = variablePath.substring(0,
+                                                                 variablePath.lastIndexOf("["));
+
+                            // Check if this array definition isn't already in
+                            // the new list
+                            if (!cleanName.contains(name))
+                            {
+                                // Add the array definition to the list
+                                cleanName.add(name);
+                            }
+                        }
+                    }
+
                     // Step through the custom values variables
                     for (String[] member : getInternalTableMembers(tableNameDb,
-                                                                   ValuesColumn.TABLE_PATH.getColumnName()))
+                                                                   ValuesColumn.TABLE_PATH.getColumnName(),
+                                                                   null))
                     {
-                        boolean isFound = false;
-
-                        // Step through each variable in the list
-                        for (String variablePath : variableHandler.getAllVariableNameList())
+                        // Check if the user canceled verification
+                        if (canceled)
                         {
-                            // Check if the variable is in the list. The custom
-                            // values table variable references don't include
-                            // the bit length, so this is removed from the list
-                            // variable for the comparison. The list doesn't
-                            // contain the array definitions, so a match to an
-                            // array member is used
-                            if (variablePath.replaceFirst("\\:\\d+$", "").equals(member[0])
-                                || variablePath.matches(Pattern.quote(member[0]) + "\\[.*"))
-                            {
-                                // Set the flag to indicate the variable exists
-                                // and stop searching
-                                isFound = true;
-                                break;
-                            }
+                            break;
                         }
 
                         // Check if the variable isn't in the list
-                        if (!isFound)
+                        if (!cleanName.contains(member[0]))
                         {
                             // Custom values variable member reference is
                             // invalid
@@ -1175,9 +1361,9 @@ public class CcddDbVerificationHandler
                                                           + tableNameDb
                                                           + " WHERE "
                                                           + ValuesColumn.TABLE_PATH.getColumnName()
-                                                          + " = '"
-                                                          + member[0]
-                                                          + "'; "));
+                                                          + " = "
+                                                          + dbTable.delimitText(member[0])
+                                                          + "; "));
                         }
                     }
                 }
@@ -1206,19 +1392,29 @@ public class CcddDbVerificationHandler
      * @param intTableName
      *            internal table name to query
      * 
-     * @param intTableColumn
+     * @param intTableColumnA
      *            name of the column in the internal table column name from
      *            which to obtain the entries
+     * 
+     * @param intTableColumnB
+     *            name of the second column in the internal table column name
+     *            from which to obtain the entries; null if no second column is
+     *            requested
      * 
      * @return List of table or variable entries from the specified column in
      *         the specified internal table
      *************************************************************************/
     private List<String[]> getInternalTableMembers(String intTableName,
-                                                   String intTableColumn)
+                                                   String intTableColumnA,
+                                                   String intTableColumnB)
     {
         // Get the entries from the specified column in the specified table
         List<String[]> members = dbTable.queryDatabase("SELECT "
-                                                       + intTableColumn
+                                                       + intTableColumnA
+                                                       + (intTableColumnB != null
+                                                                                 ? ", "
+                                                                                   + intTableColumnB
+                                                                                 : "")
                                                        + " FROM "
                                                        + intTableName,
                                                        ccddMain.getMainFrame());
@@ -1257,6 +1453,12 @@ public class CcddDbVerificationHandler
             // Step through each database table
             while (tableResult.next())
             {
+                // Check if the user canceled verification
+                if (canceled)
+                {
+                    break;
+                }
+
                 // Get the table name
                 tableNameDb = tableResult.getString("TABLE_NAME");
 
@@ -1282,6 +1484,12 @@ public class CcddDbVerificationHandler
                         // Step through each table in the column order table
                         for (int index = 0; index < orders.size(); index++)
                         {
+                            // Check if the user canceled verification
+                            if (canceled)
+                            {
+                                break;
+                            }
+
                             // Check if the number of columns indicated in the
                             // column order table doesn't match the number of
                             // columns for this table's type
@@ -1329,6 +1537,12 @@ public class CcddDbVerificationHandler
                         // Step through each column in the table
                         while (columnResult.next())
                         {
+                            // Check if the user canceled verification
+                            if (canceled)
+                            {
+                                break;
+                            }
+
                             // Get the column name and data type
                             String columnName = columnResult.getString("COLUMN_NAME");
                             String columnType = columnResult.getString("TYPE_NAME");
@@ -1393,6 +1607,12 @@ public class CcddDbVerificationHandler
                         // Step through the column found flags
                         for (int index = 0; index < isFound.length; index++)
                         {
+                            // Check if the user canceled verification
+                            if (canceled)
+                            {
+                                break;
+                            }
+
                             // Check if the column wasn't located in the table
                             if (!isFound[index])
                             {
@@ -1467,6 +1687,12 @@ public class CcddDbVerificationHandler
         // Step through the root node's children
         for (Enumeration<?> element = tableTree.getRootNode().preorderEnumeration(); element.hasMoreElements();)
         {
+            // Check if the user canceled verification
+            if (canceled)
+            {
+                break;
+            }
+
             // Get the referenced node and the path to the node
             ToolTipTreeNode tableNode = (ToolTipTreeNode) element.nextElement();
             TreePath path = new TreePath(tableNode.getPath());
@@ -1492,10 +1718,10 @@ public class CcddDbVerificationHandler
                     String[][] committedData = new String[tableInfo.getData().length][tableInfo.getData()[0].length];
 
                     // Step through each row in the table
-                    for (int row = 0; row < tableInfo.getData().length; row++)
+                    for (int row = 0; row < tableInfo.getData().length && !canceled; row++)
                     {
                         // Step through each column in the table
-                        for (int column = 0; column < tableInfo.getData()[0].length; column++)
+                        for (int column = 0; column < tableInfo.getData()[0].length && !canceled; column++)
                         {
                             // Store the table value into the committed storage
                             // array
@@ -1522,10 +1748,10 @@ public class CcddDbVerificationHandler
                     definitionRow = 0;
 
                     // Step through each row in the table
-                    for (int row = 0; row < tableInfo.getData().length; row++)
+                    for (int row = 0; row < tableInfo.getData().length && !canceled; row++)
                     {
                         // Step through each column in the table
-                        for (int column = 0; column < tableInfo.getData()[row].length; column++)
+                        for (int column = 0; column < tableInfo.getData()[row].length && !canceled; column++)
                         {
                             // Check if the cell value doesn't match the cell's
                             // input type
@@ -2249,7 +2475,7 @@ public class CcddDbVerificationHandler
     }
 
     /**************************************************************************
-     * Perform the updates to the database authorized by the user
+     * Perform the corrections to the database authorized by the user
      *************************************************************************/
     @SuppressWarnings("serial")
     private void updateDatabase()
@@ -2282,14 +2508,17 @@ public class CcddDbVerificationHandler
             // Create an empty border
             Border emptyBorder = BorderFactory.createEmptyBorder();
 
-            // Create the dialog's upper panel and add the inconsistency list
+            // Create the dialog's upper panel
             JPanel dialogPnl = new JPanel(new GridBagLayout());
             dialogPnl.setBorder(emptyBorder);
-            JLabel updateLbl = new JLabel("Select updates to perform");
-            updateLbl.setFont(LABEL_FONT_BOLD);
 
-            // Add the text label and scroll pane to the dialog panel
-            dialogPnl.add(updateLbl, gbc);
+            // Add the text label and issues table scroll pane to the dialog
+            // panel
+            JLabel correctLbl = new JLabel(issues.size()
+                                           + " issue(s) detected; select issue(s) to correct");
+            correctLbl.setFont(LABEL_FONT_BOLD);
+            gbc.gridy++;
+            dialogPnl.add(correctLbl, gbc);
 
             // Create the table to display the database inconsistencies
             updateTable = new CcddJTableHandler()
@@ -2511,7 +2740,7 @@ public class CcddDbVerificationHandler
             if (dialog.showOptionsDialog(ccddMain.getMainFrame(),
                                          dialogPnl,
                                          buttonPnl,
-                                         "Perform Updates",
+                                         "Perform Corrections",
                                          true) == OK_BUTTON)
             {
                 String command = "";
@@ -2651,6 +2880,7 @@ public class CcddDbVerificationHandler
                                                     tableChange.getModifications(),
                                                     tableChange.getDeletions(),
                                                     true,
+                                                    false,
                                                     null,
                                                     null,
                                                     ccddMain.getMainFrame()))
@@ -2666,7 +2896,7 @@ public class CcddDbVerificationHandler
                 if (!isErrors)
                 {
                     // Log that the table update(s) succeeded
-                    message = "One or more project database inconsistencies were detected and updated";
+                    message = "One or more project database inconsistencies were detected and corrected";
 
                     if (isSomeIgnored)
                     {
@@ -2677,7 +2907,8 @@ public class CcddDbVerificationHandler
                 else
                 {
                     // Log that the table update(s) succeeded
-                    message = "One or more project database inconsistencies were detected, but an error occurred while updating";
+                    message = "One or more project database inconsistencies were "
+                              + "detected, but an error occurred while updating";
 
                     if (isSomeIgnored)
                     {
