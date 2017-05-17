@@ -66,6 +66,7 @@ public class CcddConstants
     protected static final String SCRIPT_PATH = "ScriptPath";
     protected static final String LOOK_AND_FEEL = "LookAndFeel";
     protected static final String WEB_SERVER_PORT = "WebServerPort";
+    protected static final String SEARCH_STRINGS = "SearchStrings";
 
     // Prefix assigned to internally created CCDD database tables
     protected static final String INTERNAL_TABLE_PREFIX = "__";
@@ -116,6 +117,14 @@ public class CcddConstants
     // Separator for rate values and table names in the telemetry scheduler
     // table
     protected static final String TLM_SCH_SEPARATOR = "\\";
+
+    // Number of search strings to store in the program preferences; used for
+    // auto-completing the search text field in teh search dialogs
+    protected static final int NUM_REMEMBERED_SEARCHES = 30;
+
+    // Characters used to separate individual remembered search strings that
+    // are stored as a single string in the program preferences
+    protected static final String SEARCH_TEXT_SEPARATOR = "%~%";
 
     // Special character to denote that a child data table cell value is to be
     // replaced with the corresponding entry in its prototype table, and that

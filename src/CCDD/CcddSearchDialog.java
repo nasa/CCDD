@@ -15,8 +15,11 @@ import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
 import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
 import static CCDD.CcddConstants.LABEL_TEXT_COLOR;
 import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
+import static CCDD.CcddConstants.NUM_REMEMBERED_SEARCHES;
 import static CCDD.CcddConstants.PRINT_ICON;
 import static CCDD.CcddConstants.SEARCH_ICON;
+import static CCDD.CcddConstants.SEARCH_STRINGS;
+import static CCDD.CcddConstants.SEARCH_TEXT_SEPARATOR;
 import static CCDD.CcddConstants.TABLE_BACK_COLOR;
 import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
 import static CCDD.CcddConstants.TEXT_HIGHLIGHT_COLOR;
@@ -53,7 +56,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -65,6 +67,7 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.JTextComponent;
 
+import CCDD.CcddClasses.AutoCompleteTextField;
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
@@ -103,7 +106,7 @@ public class CcddSearchDialog extends CcddDialogHandler
     private final CcddEventLogDialog eventLog;
 
     // Components referenced from multiple methods
-    private JTextField searchFld;
+    private AutoCompleteTextField searchFld;
     private JCheckBox ignoreCaseCb;
     private JCheckBox dataTablesOnlyCb;
     private JLabel numResultsLbl;
@@ -113,6 +116,10 @@ public class CcddSearchDialog extends CcddDialogHandler
 
     // Array to contain the search results
     private Object[][] resultsData;
+
+    // List containing the remembered search strings; used to auto-complete the
+    // search text field
+    private List<String> searches;
 
     /**************************************************************************
      * Search database tables, scripts, and event log class constructor
@@ -173,6 +180,10 @@ public class CcddSearchDialog extends CcddDialogHandler
      *************************************************************************/
     private void initialize(final Long targetRow)
     {
+        // Get the list of remembered searches from the program preferences
+        searches = new ArrayList<String>(Arrays.asList(ccddMain.getProgPrefs().get(SEARCH_STRINGS,
+                                                                                   "").split(SEARCH_TEXT_SEPARATOR)));
+
         // Create a border for the dialog components
         Border border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
                                                                                            Color.LIGHT_GRAY,
@@ -204,8 +215,11 @@ public class CcddSearchDialog extends CcddDialogHandler
         dlgLbl.setFont(LABEL_FONT_BOLD);
         dialogPnl.add(dlgLbl, gbc);
 
-        // Create the search field and add it to the dialog panel
-        searchFld = new JTextField("", 20);
+        // Create the auto-completion search field and add it to the dialog
+        // panel
+        searchFld = new AutoCompleteTextField(searches);
+        searchFld.setText("");
+        searchFld.setColumns(20);
         searchFld.setFont(LABEL_FONT_PLAIN);
         searchFld.setEditable(true);
         searchFld.setForeground(Color.BLACK);
@@ -221,6 +235,22 @@ public class CcddSearchDialog extends CcddDialogHandler
         ignoreCaseCb = new JCheckBox("Ignore text case");
         ignoreCaseCb.setFont(LABEL_FONT_BOLD);
         ignoreCaseCb.setBorder(BorderFactory.createEmptyBorder());
+
+        // Add a listener for check box selection changes
+        ignoreCaseCb.addActionListener(new ActionListener()
+        {
+            /******************************************************************
+             * Handle a change in the ignore case check box state
+             *****************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                // Change the case sensitivity for the remembered searches to
+                // match the case sensitivity check box
+                searchFld.setCaseSensitive(!ignoreCaseCb.isSelected());
+            }
+        });
+
         gbc.insets.left = LABEL_HORIZONTAL_SPACING;
         gbc.gridy++;
         dialogPnl.add(ignoreCaseCb, gbc);
@@ -481,6 +511,29 @@ public class CcddSearchDialog extends CcddDialogHandler
                 // The search field contains text
                 else
                 {
+                    // Check if this is a repeat of a previous search
+                    if (searches.contains(searchFld.getText()))
+                    {
+                        // Remove the search string from its current position
+                        // in the remembered searches list so that it can be
+                        // put at the head of the list
+                        searches.remove(searchFld.getText());
+                    }
+                    // Check if the maximum number of remembered searches has
+                    // been reached
+                    else if (searches.size() == NUM_REMEMBERED_SEARCHES)
+                    {
+                        // Remove the oldest search text from the list
+                        searches.remove(searches.size() - 1);
+                    }
+
+                    // Insert the latest search text at the beginning of the
+                    // remembered searches list
+                    searches.add(0, searchFld.getText());
+
+                    // Update the search field's remembered searches list
+                    searchFld.setDataList(searches);
+
                     switch (searchDlgType)
                     {
                         case TABLES:
@@ -535,11 +588,29 @@ public class CcddSearchDialog extends CcddDialogHandler
         btnCancel.addActionListener(new ActionListener()
         {
             /******************************************************************
-             * Close the search dialog
+             * Store the search strings and close the search dialog
              *****************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
+                String searchString = "";
+
+                // Step through the remembered search strings
+                for (String search : searches)
+                {
+                    // Append the search string and separator characters to the
+                    // single string
+                    searchString += search + SEARCH_TEXT_SEPARATOR;
+                }
+
+                // Remove the trailing separator characters and store the
+                // search strings, as a single string, in the program
+                // preferences
+                searchString = CcddUtilities.removeTrailer(searchString,
+                                                           SEARCH_TEXT_SEPARATOR);
+                ccddMain.getProgPrefs().put(SEARCH_STRINGS, searchString);
+
+                // Close the dialog
                 closeDialog(CANCEL_BUTTON);
             }
         });

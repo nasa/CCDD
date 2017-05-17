@@ -24,6 +24,8 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,10 +40,14 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.PlainDocument;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import CCDD.CcddConstants.ApplicabilityType;
@@ -5014,6 +5020,333 @@ public class CcddClasses
             }
 
             dim.height += rowHeight;
+        }
+    }
+
+    /**************************************************************************
+     * JTextField with auto-completion class. This is a modified version of
+     * Java2sAutoTextField, which carries the following copyright notice:
+     * 
+     * Copyright (c) 2006 Sun Microsystems, Inc. All Rights Reserved.
+     *
+     * Redistribution and use in source and binary forms, with or without
+     * modification, are permitted provided that the following conditions are
+     * met:
+     *
+     * -Redistribution of source code must retain the above copyright notice,
+     * this list of conditions and the following disclaimer.
+     *
+     * -Redistribution in binary form must reproduce the above copyright
+     * notice, this list of conditions and the following disclaimer in the
+     * documentation and/or other materials provided with the distribution.
+     *
+     * Neither the name of Sun Microsystems, Inc. or the names of contributors
+     * may be used to endorse or promote products derived from this software
+     * without specific prior written permission.
+     *
+     * This software is provided "AS IS," without a warranty of any kind. ALL
+     * EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
+     * ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+     * PURPOSE OR NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MIDROSYSTEMS, INC.
+     * ("SUN") AND ITS LICENSORS SHALL NOT BE LIABLE FOR ANY DAMAGES SUFFERED
+     * BY LICENSEE AS A RESULT OF USING, MODIFYING OR DISTRIBUTING THIS
+     * SOFTWARE OR ITS DERIVATIVES. IN NO EVENT WILL SUN OR ITS LICENSORS BE
+     * LIABLE FOR ANY LOST REVENUE, PROFIT OR DATA, OR FOR DIRECT, INDIRECT,
+     * SPECIAL, CONSEQUENTIAL, INCIDENTAL OR PUNITIVE DAMAGES, HOWEVER CAUSED
+     * AND REGARDLESS OF THE THEORY OF LIABILITY, ARISING OUT OF THE USE OF OR
+     * INABILITY TO USE THIS SOFTWARE, EVEN IF SUN HAS BEEN ADVISED OF THE
+     * POSSIBILITY OF SUCH DAMAGES.
+     *
+     * You acknowledge that this software is not designed, licensed or intended
+     * for use in the design, construction, operation or maintenance of any
+     * nuclear facility.
+     *************************************************************************/
+    @SuppressWarnings("serial")
+    public static class AutoCompleteTextField extends JTextField
+    {
+        // List containing the auto-completion text
+        private List<String> autoCompList;
+
+        // Flag that determines if the text entered must match the case of the
+        // text in the list
+        private boolean isCaseSensitive;
+
+        // Flag that determines if only selections from the list are valid; if
+        // false then input other than what's in the list is valid
+        private boolean isOnlyFromList;
+
+        /**********************************************************************
+         * Auto-complete document class
+         *********************************************************************/
+        class AutoDocument extends PlainDocument
+        {
+            /******************************************************************
+             * Replace text in the text field
+             *****************************************************************/
+            @Override
+            public void replace(int startIndex,
+                                int length,
+                                String insertTxt,
+                                AttributeSet attributeset) throws BadLocationException
+            {
+                super.remove(startIndex, length);
+                insertString(startIndex, insertTxt, attributeset);
+            }
+
+            /******************************************************************
+             * Insert text into the text field
+             *****************************************************************/
+            @Override
+            public void insertString(int startIndex,
+                                     String insertTxt,
+                                     AttributeSet attributeset) throws BadLocationException
+            {
+                if (insertTxt != null && !insertTxt.isEmpty())
+                {
+                    String s1 = getText(0, startIndex);
+                    String s2 = getMatch(s1 + insertTxt);
+                    int newStartIndex = (startIndex + insertTxt.length()) - 1;
+
+                    if (!isOnlyFromList && s2 == null)
+                    {
+                        super.insertString(startIndex, insertTxt, attributeset);
+                    }
+                    else
+                    {
+                        if (isOnlyFromList && s2 == null)
+                        {
+                            s2 = getMatch(s1);
+                            newStartIndex--;
+                        }
+
+                        super.remove(0, getLength());
+                        super.insertString(0, s2, attributeset);
+                        setSelectionStart(newStartIndex + 1);
+                        setSelectionEnd(getLength());
+                    }
+                }
+            }
+
+            /******************************************************************
+             * Remove text from the text field
+             *****************************************************************/
+            @Override
+            public void remove(int startIndex, int length) throws BadLocationException
+            {
+                int selectStart = getSelectionStart();
+
+                if (selectStart > 0)
+                {
+                    selectStart--;
+                }
+
+                String match = getMatch(getText(0, selectStart));
+
+                if (!isOnlyFromList && match == null)
+                {
+                    super.remove(startIndex, length);
+                }
+                else
+                {
+                    super.remove(0, getLength());
+                    super.insertString(0, match, null);
+
+                    setSelectionStart(selectStart);
+                    setSelectionEnd(getLength());
+                }
+            }
+        }
+
+        /**********************************************************************
+         * JTextField auto-completion class constructor
+         * 
+         * @param autoCompList
+         *            list containing the strings from which the
+         *            auto-completion text is extracted
+         *********************************************************************/
+        protected AutoCompleteTextField(List<String> autoCompList)
+        {
+            this.autoCompList = autoCompList;
+
+            // Initialize with case sensitivity enables and allowing text other
+            // than that in the auto-completion list from being entered
+            isCaseSensitive = true;
+            isOnlyFromList = false;
+
+            // Add a key press listener to the text field
+            addKeyListener(new KeyAdapter()
+            {
+                /**************************************************************
+                 * Handle backspace and delete key presses. This allows these
+                 * keys to removed one or more characters and not invoke
+                 * auto-completion afterwards (changing the text otherwise
+                 * enables auto-completion)
+                 *************************************************************/
+                @Override
+                public void keyPressed(KeyEvent ke)
+                {
+                    // Check if the backspace or delete key was pressed
+                    if (ke.getKeyCode() == KeyEvent.VK_BACK_SPACE
+                        || ke.getKeyCode() == KeyEvent.VK_DELETE)
+                    {
+                        try
+                        {
+                            int startIndex = 0;
+                            int length = 0;
+
+                            // Check if one or more characters is selected
+                            if (getSelectedText() != null)
+                            {
+                                // Delete the selected characters
+                                startIndex = Math.min(getCaret().getDot(),
+                                                      getCaret().getMark());
+                                length = Math.max(getCaret().getDot(),
+                                                  getCaret().getMark())
+                                         - startIndex;
+                            }
+                            // Check if the backspace key was pressed and the
+                            // text cursor isn't at the beginning of the text
+                            // string
+                            else if (ke.getKeyCode() == KeyEvent.VK_BACK_SPACE
+                                     && getCaret().getDot() != 0)
+                            {
+                                // Delete the character to the left of the text
+                                // cursor
+                                startIndex = getCaret().getDot() - 1;
+                                length = 1;
+                            }
+                            // Check if the delete key was pressed and the text
+                            // cursor isn't at the end of the text string
+                            else if (ke.getKeyCode() == KeyEvent.VK_DELETE
+                                     && getCaret().getDot() < getText().length())
+                            {
+                                // Delete the character to the right of the
+                                // text cursor
+                                startIndex = getCaret().getDot();
+                                length = 1;
+                            }
+
+                            // Check if one or more characters is to be deleted
+                            if (length != 0)
+                            {
+                                // Remove the character(s) from the text string
+                                // without invoking auto-completion
+                                ((PlainDocument) getDocument()).replace(startIndex,
+                                                                        length,
+                                                                        null,
+                                                                        null);
+                            }
+                        }
+                        catch (BadLocationException ble)
+                        {
+                        }
+
+                        // Remove the key press so that further handling isn't performed
+                        ke.consume();
+                    }
+                }
+            });
+
+            setDocument(new AutoDocument());
+
+            if (isOnlyFromList && autoCompList.size() > 0)
+            {
+                setText(autoCompList.get(0).toString());
+            }
+        }
+
+        /**********************************************************************
+         * Set the case sensitivity flag
+         * 
+         * @param isCaseSensitive
+         *            true so match case when auto-completing a string
+         *********************************************************************/
+        protected void setCaseSensitive(boolean isCaseSensitive)
+        {
+            this.isCaseSensitive = isCaseSensitive;
+        }
+
+        /**********************************************************************
+         * Set the flag that determines if text other than the auto-completion
+         * strings can be entered into the text field
+         * 
+         * @param isOnlyFromList
+         *            true to only allow text from he auto-completion strings
+         *            to be entered into the text field
+         *********************************************************************/
+        protected void setOnlyFromList(boolean isOnlyFromList)
+        {
+            this.isOnlyFromList = isOnlyFromList;
+        }
+
+        /**********************************************************************
+         * Set the list of auto-completion strings
+         * 
+         * @param autoCompList
+         *            list containing the strings from which the
+         *            auto-completion text is extracted
+         *********************************************************************/
+        protected void setDataList(List<String> autoCompList)
+        {
+            this.autoCompList = autoCompList;
+        }
+
+        /**********************************************************************
+         * Get the first auto-completion list string that matches the input
+         * text
+         * 
+         * @param inputTxt
+         *            text for which to find a match
+         * 
+         * @return First auto-completion list string that matches the input
+         *         text; null if no match is found
+         *********************************************************************/
+        private String getMatch(String inputTxt)
+        {
+            String match = null;
+
+            if (!inputTxt.isEmpty())
+            {
+                for (String autoTxt : autoCompList)
+                {
+                    if (!isCaseSensitive
+                        && autoTxt.toLowerCase().startsWith(inputTxt.toLowerCase()))
+                    {
+                        match = autoTxt;
+                        break;
+                    }
+                    else if (isCaseSensitive && autoTxt.startsWith(inputTxt))
+                    {
+                        match = autoTxt;
+                        break;
+                    }
+                }
+            }
+
+            return match;
+        }
+
+        /**********************************************************************
+         * Replace the selected text in the text field
+         *********************************************************************/
+        @Override
+        public void replaceSelection(String selectedTxt)
+        {
+            try
+            {
+                int startIndex = Math.min(getCaret().getDot(),
+                                          getCaret().getMark());
+                int length = Math.max(getCaret().getDot(),
+                                      getCaret().getMark())
+                             - startIndex;
+                ((AutoDocument) getDocument()).replace(startIndex,
+                                                       length,
+                                                       selectedTxt,
+                                                       null);
+            }
+            catch (Exception exception)
+            {
+            }
         }
     }
 }
