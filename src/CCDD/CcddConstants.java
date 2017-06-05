@@ -1247,7 +1247,7 @@ public class CcddConstants
          * Applicability types constructor
          * 
          * @param applicabilityName
-         *            applicability type
+         *            applicability type name
          *********************************************************************/
         ApplicabilityType(String applicabilityName)
         {
@@ -1255,9 +1255,9 @@ public class CcddConstants
         }
 
         /**********************************************************************
-         * Get the input data type
+         * Get the applicability type name
          * 
-         * @return Input data type
+         * @return Applicability type name
          *********************************************************************/
         protected String getApplicabilityName()
         {
@@ -3415,7 +3415,7 @@ public class CcddConstants
                  false),
         APPLICABILITY("Applicability",
                       "Add field to all tables, parent tables only, or child tables only",
-                      "All",
+                      ApplicabilityType.ALL,
                       true),
         VALUE("Value", "", "", false);
 
@@ -4290,6 +4290,7 @@ public class CcddConstants
         TABLE_TYPE_NAME("Table Type Name"),
         TABLE_TYPE_DESCRIPTION("Table Type Description"),
         TABLE_TYPE_COLUMN("Table Type Column"),
+        TABLE_TYPE_FIELD("Table Type Data Field"),
         MACRO_DEFN("Macro Definition"),
         RESERVED_MSG_ID_DEFN("Reserved Message ID Definition"),
         TABLE_DEFN("Table Definition"),

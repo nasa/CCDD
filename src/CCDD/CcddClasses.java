@@ -1253,6 +1253,7 @@ public class CcddClasses
         private final String typeName;
         private final String description;
         private final List<Object[]> columns;
+        private final List<String[]> dataFields;
 
         /**********************************************************************
          * Table definition class constructor
@@ -1270,6 +1271,8 @@ public class CcddClasses
 
             // Initialize storage for the table type column information
             columns = new ArrayList<Object[]>();
+
+            dataFields = new ArrayList<String[]>(); // TODO
         }
 
         /**********************************************************************
@@ -1311,6 +1314,27 @@ public class CcddClasses
         protected void addColumn(Object[] column)
         {
             columns.add(column);
+        }
+
+        /**********************************************************************
+         * Get the list containing the table type data field information
+         * 
+         * @return List containing the table type data field information
+         *********************************************************************/
+        protected List<String[]> getDataFields()
+        {
+            return dataFields;
+        }
+
+        /**********************************************************************
+         * Add a table type data field
+         * 
+         * @param dataField
+         *            array of table type data field information
+         *********************************************************************/
+        protected void addDataField(String[] dataField)
+        {
+            dataFields.add(dataField);
         }
     }
 
@@ -5241,7 +5265,8 @@ public class CcddClasses
                         {
                         }
 
-                        // Remove the key press so that further handling isn't performed
+                        // Remove the key press so that further handling isn't
+                        // performed
                         ke.consume();
                     }
                 }

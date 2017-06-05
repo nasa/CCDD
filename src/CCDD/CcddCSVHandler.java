@@ -51,6 +51,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
     private final CcddDbControlHandler dbControl;
     private final CcddMacroHandler macroHandler;
     private final CcddReservedMsgIDHandler rsvMsgIDHandler;
+    private final CcddFieldHandler fieldHandler;
 
     // GUI component instantiating this class
     private final Component parent;
@@ -74,6 +75,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
         DATA_FIELD("_data_fields_"),
         MACRO("_macros_"),
         TABLE_TYPE("_table_type_"),
+        TABLE_TYPE_DATA_FIELD("_table_type_data_fields_"),
         DATA_TYPE("_data_type_"),
         RESERVED_MSG_IDS("_reserved_msg_ids_");
 
@@ -106,11 +108,22 @@ public class CcddCSVHandler implements CcddImportExportInterface
      * 
      * @param ccddMain
      *            main class reference
+     * 
+     * @param fieldHandler
+     *            reference to a data field handler
+     * 
+     * @param parent
+     *            GUI component instantiating this class
      *************************************************************************/
-    CcddCSVHandler(CcddMain ccddMain, Component parent)
+    CcddCSVHandler(CcddMain ccddMain,
+                   CcddFieldHandler fieldHandler,
+                   Component parent)
     {
         this.ccddMain = ccddMain;
+        this.fieldHandler = fieldHandler;
         this.parent = parent;
+
+        // Create references to shorten subsequent calls
         dbControl = ccddMain.getDbControlHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
@@ -297,6 +310,15 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                 // as the table type name and description
                                 isTypeName = true;
                             }
+                            // Check if this is the table type data field tag
+                            // and that a table type is defined
+                            else if (columnValues[0].equalsIgnoreCase(CSVTags.TABLE_TYPE_DATA_FIELD.getTag())
+                                     && tableTypeDefn != null)
+                            {
+                                // Set the input type to look for the table
+                                // type data field(s)
+                                importTag = CSVTags.TABLE_TYPE_DATA_FIELD;
+                            }
                             // Check if this is the data type tag
                             else if (columnValues[0].equalsIgnoreCase(CSVTags.DATA_TYPE.getTag()))
                             {
@@ -349,7 +371,6 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                                                             (columnValues.length == 2
                                                                                                                      ? columnValues[1]
                                                                                                                      : ""));
-
                                                     tableTypeDefns.add(tableTypeDefn);
                                                 }
                                                 // Check if the user hasn't
@@ -487,6 +508,70 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                         // ignore subsequent
                                                         // table type errors
                                                         continueOnTableTypeError = true;
+                                                    }
+                                                    // Check if the Cancel
+                                                    // button was pressed
+                                                    else if (buttonSelected == CANCEL_BUTTON)
+                                                    {
+                                                        // No error message is
+                                                        // provided since the
+                                                        // user chose this
+                                                        // action
+                                                        throw new CCDDException();
+                                                    }
+                                                }
+                                            }
+
+                                            break;
+
+                                        case TABLE_TYPE_DATA_FIELD:
+                                            // Check if all definitions are to
+                                            // be loaded
+                                            if (importType == ImportType.IMPORT_ALL)
+                                            {
+                                                // Check if the expected number
+                                                // of inputs is present
+                                                if (columnValues.length == FieldsColumn.values().length - 1)
+                                                {
+                                                    // Add the table type data
+                                                    // field definition
+                                                    tableTypeDefn.addDataField(new String[] {CcddFieldHandler.getFieldTypeName(tableTypeDefn.getTypeName()),
+                                                                                             columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
+                                                                                             columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
+                                                                                             columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
+                                                                                             columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
+                                                                                             columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
+                                                                                             columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
+                                                                                             columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1]});
+                                                }
+                                                // Check that the user hasn't
+                                                // elected to ignore data field
+                                                // errors
+                                                else if (!continueOnDataFieldError)
+                                                {
+                                                    // Inform the user that the
+                                                    // data field name inputs
+                                                    // are incorrect
+                                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                                        "<html><b>Table type '</b>"
+                                                                                                                            + tableTypeDefn.getTypeName()
+                                                                                                                            + "<b>' has missing or extra data field "
+                                                                                                                            + "input(s) in import file '</b>"
+                                                                                                                            + importFile.getAbsolutePath()
+                                                                                                                            + "<b>'; continue?",
+                                                                                                                        "Data Field Error",
+                                                                                                                        "Ignore this invalid data field",
+                                                                                                                        "Ignore this and any remaining invalid data fields",
+                                                                                                                        "Stop importing");
+
+                                                    // Check if the Ignore All
+                                                    // button was pressed
+                                                    if (buttonSelected == IGNORE_BUTTON)
+                                                    {
+                                                        // Set the flag to
+                                                        // ignore subsequent
+                                                        // data field errors
+                                                        continueOnDataFieldError = true;
                                                     }
                                                     // Check if the Cancel
                                                     // button was pressed
@@ -953,6 +1038,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                         case DATA_TYPE:
                                         case MACRO:
                                         case TABLE_TYPE:
+                                        case TABLE_TYPE_DATA_FIELD:
                                         case RESERVED_MSG_IDS:
                                             break;
 
@@ -994,7 +1080,8 @@ public class CcddCSVHandler implements CcddImportExportInterface
                     // Add the table type if it's new or match it to an
                     // existing one with the same name if the type definitions
                     // are the same
-                    String badDefn = tableTypeHandler.updateTableTypes(tableTypeDefns);
+                    String badDefn = tableTypeHandler.updateTableTypes(tableTypeDefns,
+                                                                       fieldHandler);
 
                     // Check if a table type isn't new and doesn't match an
                     // existing one with the same name
@@ -1301,6 +1388,31 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                                            tableTypeDefn.isRequired()[column].toString(),
                                                                            tableTypeDefn.isStructureAllowed()[column].toString(),
                                                                            tableTypeDefn.isPointerAllowed()[column].toString()));
+                    }
+
+                    // Build the data field information for this table type
+                    fieldHandler.buildFieldInformation(CcddFieldHandler.getFieldTypeName(tableType));
+                    List<FieldInformation> fieldInformation = fieldHandler.getFieldInformation();
+
+                    // Check if the table type contains any data fields
+                    if (!fieldInformation.isEmpty())
+                    {
+                        // Output the data field marker
+                        pw.printf(CSVTags.TABLE_TYPE_DATA_FIELD.getTag() + "\n");
+
+                        // Step through each data field
+                        for (FieldInformation fieldInfo : fieldInformation)
+                        {
+                            // Output the field information
+                            pw.printf("%s\n",
+                                      CcddUtilities.addEmbeddedQuotesAndCommas(fieldInfo.getFieldName(),
+                                                                               fieldInfo.getDescription(),
+                                                                               Integer.toString(fieldInfo.getSize()),
+                                                                               fieldInfo.getInputType().getInputName(),
+                                                                               Boolean.toString(fieldInfo.isRequired()),
+                                                                               fieldInfo.getApplicabilityType().getApplicabilityName(),
+                                                                               fieldInfo.getValue()));
+                        }
                     }
                 }
             }

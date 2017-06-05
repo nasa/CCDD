@@ -383,11 +383,12 @@ public class CcddFieldHandler
     }
 
     /**************************************************************************
-     * Add a field. This method is not applicable if the fields for all tables
-     * and group are loaded
+     * Add a field. This method is not applicable if the fields for all tables,
+     * table types, and groups are loaded
      *
      * @param ownerName
-     *            name of the table/group to which the field is a member
+     *            name of the table/table type/group to which the field is a
+     *            member
      *
      * @param name
      *            name of the new field

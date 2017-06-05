@@ -68,6 +68,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
     private final CcddMacroHandler macroHandler;
     private final CcddReservedMsgIDHandler rsvMsgIDHandler;
     private TableInformation tableInfo;
+    private final CcddFieldHandler fieldHandler;
 
     // GUI component instantiating this class
     private final Component parent;
@@ -84,12 +85,23 @@ public class CcddJSONHandler implements CcddImportExportInterface
      * 
      * @param ccddMain
      *            main class reference
+     * 
+     * @param fieldHandler
+     *            reference to a data field handler
+     * 
+     * @param parent
+     *            GUI component instantiating this class
      *************************************************************************/
-    CcddJSONHandler(CcddMain ccddMain, Component parent)
+    CcddJSONHandler(CcddMain ccddMain,
+                    CcddFieldHandler fieldHandler,
+                    Component parent)
     {
         this.ccddMain = ccddMain;
+        this.fieldHandler = fieldHandler;
         this.parent = parent;
-        this.dbTable = ccddMain.getDbTableCommandHandler();
+
+        // Create references to shorten subsequent calls
+        dbTable = ccddMain.getDbTableCommandHandler();
         dbControl = ccddMain.getDbControlHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
@@ -428,19 +440,116 @@ public class CcddJSONHandler implements CcddImportExportInterface
                             }
                         }
 
+                        // Get the data fields for this table type
+                        Object typeField = getObject(tableTypeJO,
+                                                     JSONTags.TABLE_TYPE_FIELD.getTag());
+
+                        // Check if any data fields exists for this table type
+                        if (typeField != null)
+                        {
+                            // Step through each table type data field
+                            // definition
+                            for (JSONObject typeJO : parseJSONArray(typeField))
+                            {
+                                // Get the table type data field definition
+                                // components
+                                String name = getString(typeJO,
+                                                        FieldEditorColumnInfo.NAME.getColumnName());
+                                String description = getString(typeJO,
+                                                               FieldEditorColumnInfo.DESCRIPTION.getColumnName());
+                                String size = getString(typeJO,
+                                                        FieldEditorColumnInfo.SIZE.getColumnName());
+                                String inputType = getString(typeJO,
+                                                             FieldEditorColumnInfo.INPUT_TYPE.getColumnName());
+                                String required = getString(typeJO,
+                                                            FieldEditorColumnInfo.REQUIRED.getColumnName());
+                                String applicability = getString(typeJO,
+                                                                 FieldEditorColumnInfo.APPLICABILITY.getColumnName());
+                                String value = getString(typeJO,
+                                                         FieldEditorColumnInfo.VALUE.getColumnName());
+
+                                // Check if the expected inputs are present
+                                if (!name.isEmpty()
+                                    && !size.isEmpty()
+                                    && !inputType.isEmpty()
+                                    && typeJO.keySet().size() <= FieldEditorColumnInfo.values().length)
+                                {
+                                    // Check if the 'required' flag is empty
+                                    if (required.isEmpty())
+                                    {
+                                        // Default to 'false'
+                                        required = "false";
+                                    }
+
+                                    // Check if the field applicability is
+                                    // empty
+                                    if (applicability.isEmpty())
+                                    {
+                                        // Default to applicable for all tables
+                                        applicability = ApplicabilityType.ALL.getApplicabilityName();
+                                    }
+
+                                    // Add the table type data field definition
+                                    tableTypeDefn.addDataField(new String[] {CcddFieldHandler.getFieldTypeName(tableTypeDefn.getTypeName()),
+                                                                             name,
+                                                                             description,
+                                                                             size,
+                                                                             inputType,
+                                                                             required,
+                                                                             applicability,
+                                                                             value});
+                                }
+                                // Incorrect number of inputs. Check if the
+                                // user hasn't already elected to ignore table
+                                // type errors
+                                else if (!continueOnTableTypeError)
+                                {
+                                    // Inform the user that the table type
+                                    // data field inputs are missing
+                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                        "<html><b>Table type '</b>"
+                                                                                                            + tableTypeDefn.getTypeName()
+                                                                                                            + "<b>' has missing or extra data field "
+                                                                                                            + "input(s) in import file '</b>"
+                                                                                                            + importFile.getAbsolutePath()
+                                                                                                            + "<b>'; continue?",
+                                                                                                        "Table Type Error",
+                                                                                                        "Ignore this table type",
+                                                                                                        "Ignore this and any remaining invalid table types",
+                                                                                                        "Stop importing");
+
+                                    // Check if the Ignore All button was
+                                    // pressed
+                                    if (buttonSelected == IGNORE_BUTTON)
+                                    {
+                                        // Set the flag to ignore subsequent
+                                        // table type errors
+                                        continueOnTableTypeError = true;
+                                    }
+                                    // Check if the Cancel button was pressed
+                                    else if (buttonSelected == CANCEL_BUTTON)
+                                    {
+                                        // No error message is provided since
+                                        // the user chose this action
+                                        throw new CCDDException();
+                                    }
+                                }
+                            }
+                        }
+
                         // Add the table type definition to the list
                         tableTypeDefinitions.add(tableTypeDefn);
                     }
                 }
             }
 
-            // Add the table type if it's new or match it to an
-            // existing one with the same name if the type definitions
-            // are the same
-            String badDefn = tableTypeHandler.updateTableTypes(tableTypeDefinitions);
+            // Add the table type if it's new or match it to an existing one
+            // with the same name if the type definitions are the same
+            String badDefn = tableTypeHandler.updateTableTypes(tableTypeDefinitions,
+                                                               fieldHandler);
 
-            // Check if a table type isn't new and doesn't match an
-            // existing one with the same name
+            // Check if a table type isn't new and doesn't match an existing
+            // one with the same name
             if (badDefn != null)
             {
                 throw new CCDDException("Imported table type '"
@@ -1004,18 +1113,11 @@ public class CcddJSONHandler implements CcddImportExportInterface
             {
                 JSONArray tableJA = new JSONArray();
 
-                // Create a data field handler
-                CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain,
-                                                                     null,
-                                                                     ccddMain.getMainFrame());
-
                 // Step through each table
                 for (String tblName : tableNames)
                 {
                     // Get the table's information
-                    JSONObject tableInfoJO = getTableInformation(tblName,
-                                                                 fieldHandler,
-                                                                 !replaceMacros);
+                    JSONObject tableInfoJO = getTableInformation(tblName, !replaceMacros);
 
                     // Check if the table's data successfully loaded
                     if (tableInfoJO != null && !tableInfoJO.isEmpty())
@@ -1297,38 +1399,37 @@ public class CcddJSONHandler implements CcddImportExportInterface
     }
 
     /**************************************************************************
-     * Get the data field information for the specified table
+     * Get the data field information for the specified owner (table, table
+     * type, or group)
      * 
-     * @param tableName
+     * @param ownerName
      *            table name and path in the format
-     *            rootTable[,dataType1.variable1[,...]]. If blank then every
-     *            data table's data fields are returned
-     * 
-     * @param fieldHandler
-     *            data field handler
+     *            rootTable[,dataType1.variable1[,...]] (if blank then every
+     *            data table's data fields are returned), table type name in
+     *            the format tableTypeTag:tableTypepName, or group owner in the
+     *            format groupTag:groupName
      * 
      * @param outputJO
-     *            JSON object to which the data types are added
+     *            JSON object to which the data fields are added
      * 
-     * @return The supplied JSON object, with the table data field(s) added (if
-     *         any)
+     * @return The supplied JSON object, with the data field(s) added (if any)
      *************************************************************************/
     @SuppressWarnings("unchecked")
-    protected JSONObject getTableFields(String tableName,
-                                        CcddFieldHandler fieldHandler,
-                                        JSONObject outputJO)
+    protected JSONObject getDataFields(String ownerName,
+                                       String tagName,
+                                       JSONObject outputJO)
     {
         JSONArray dataFieldDefnJA = new JSONArray();
 
-        // Get the existing data fields for the specified table
-        fieldHandler.buildFieldInformation(tableName);
+        // Get the existing data fields for the specified owner
+        fieldHandler.buildFieldInformation(ownerName);
 
-        // Check if the table has any fields
+        // Check if the owner has any fields
         if (!fieldHandler.getFieldInformation().isEmpty())
         {
             JSONObject fieldJO = new JSONObject();
 
-            // Step through the data fields for this table
+            // Step through the data fields for this owner
             for (FieldInformation fieldInfo : fieldHandler.getFieldInformation())
             {
                 fieldJO = new JSONObject();
@@ -1355,7 +1456,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
             if (!dataFieldDefnJA.isEmpty())
             {
                 // Add the data field(s) to the JSON output
-                outputJO.put(JSONTags.TABLE_FIELD.getTag(), dataFieldDefnJA);
+                outputJO.put(tagName, dataFieldDefnJA);
             }
         }
 
@@ -1370,9 +1471,6 @@ public class CcddJSONHandler implements CcddImportExportInterface
      *            table name and path in the format
      *            rootTable[,dataType1.variable1[,...]]
      * 
-     * @param fieldHandler
-     *            data field handler
-     * 
      * @param isReplaceMacro
      *            true to display the macro values in place of the
      *            corresponding macro names; false to display the macro names
@@ -1381,9 +1479,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
      *         null if the specified table doesn't exist or fails to load
      *************************************************************************/
     @SuppressWarnings("unchecked")
-    protected JSONObject getTableInformation(String tableName,
-                                             CcddFieldHandler fieldHandler,
-                                             boolean isReplaceMacro)
+    protected JSONObject getTableInformation(String tableName, boolean isReplaceMacro)
     {
         // Store the table's data
         JSONObject tableInformation = getTableData(tableName,
@@ -1400,9 +1496,9 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                  tableInfo.getType());
             tableInformation.put(JSONTags.TABLE_DESCRIPTION.getTag(),
                                  tableInfo.getDescription());
-            tableInformation = getTableFields(tableName,
-                                              fieldHandler,
-                                              tableInformation);
+            tableInformation = getDataFields(tableName,
+                                             JSONTags.TABLE_FIELD.getTag(),
+                                             tableInformation);
 
             // Get the table's system from the system name data field, if it
             // exists
@@ -1497,7 +1593,9 @@ public class CcddJSONHandler implements CcddImportExportInterface
                         typeDefnJA.add(tableTypeJO);
                     }
 
-                    // Add the wrapper for the table type name
+                    // Add the wrapper for the table type name and put the
+                    // table type description, column definitions, and data
+                    // fields (if any) in it
                     tableTypeJO = new JSONObject();
                     tableTypeJO.put(JSONTags.TABLE_TYPE_NAME.getTag(),
                                     refTableType);
@@ -1505,6 +1603,10 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                     tableTypeDefn.getDescription());
                     tableTypeJO.put(JSONTags.TABLE_TYPE_COLUMN.getTag(),
                                     typeDefnJA);
+                    tableTypeJO = getDataFields(CcddFieldHandler.getFieldTypeName(refTableType),
+                                                JSONTags.TABLE_TYPE_FIELD.getTag(),
+                                                tableTypeJO);
+
                     tableTypeJA.add(tableTypeJO);
                 }
             }

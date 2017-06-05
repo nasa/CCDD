@@ -55,6 +55,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     private CcddLinkHandler linkHandler;
     private TableTreeType tableTreeType;
     private CcddJSONHandler jsonHandler;
+    private CcddFieldHandler fieldHandler;
 
     // Flag that indicates if the macro name(s) in the table cells is to be
     // replaced by the corresponding macro values
@@ -79,12 +80,18 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     }
 
     /**************************************************************************
-     * Set the reference to the rate parameter and JSON handler classes
+     * Set the reference to the rate parameter, data field, and JSON handler
+     * classes
      *************************************************************************/
     protected void setHandlers()
     {
         rateHandler = ccddMain.getRateParameterHandler();
-        jsonHandler = new CcddJSONHandler(ccddMain, ccddMain.getMainFrame());
+        fieldHandler = new CcddFieldHandler(ccddMain,
+                                            null,
+                                            ccddMain.getMainFrame());
+        jsonHandler = new CcddJSONHandler(ccddMain,
+                                          fieldHandler,
+                                          ccddMain.getMainFrame());
     }
 
     /**************************************************************************
@@ -272,10 +279,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // Get the name, type, description, data, and data
                         // fields for the specified table (or all tables if no
                         // table name is specified)
-                        response = getTableInformation(attributeAndName[1],
-                                                       new CcddFieldHandler(ccddMain,
-                                                                            null,
-                                                                            ccddMain.getMainFrame()));
+                        response = getTableInformation(attributeAndName[1]);
                         break;
 
                     case "data":
@@ -293,11 +297,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     case "fields":
                         // Get a data field information for the specified table
                         // (or all tables if no table name is specified)
-                        response = getTableFields(attributeAndName[1],
-                                                  true,
-                                                  new CcddFieldHandler(ccddMain,
-                                                                       null,
-                                                                       ccddMain.getMainFrame()));
+                        response = getTableFields(attributeAndName[1], true);
                         break;
 
                     case "names":
@@ -341,9 +341,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         response = getGroupInformation(attributeAndName[1],
                                                        applicationOnly,
                                                        new CcddGroupHandler(ccddMain,
-                                                                            ccddMain.getMainFrame()),
-                                                       new CcddFieldHandler(ccddMain,
-                                                                            null,
                                                                             ccddMain.getMainFrame()));
                         break;
 
@@ -374,9 +371,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                                   applicationOnly,
                                                   true,
                                                   new CcddGroupHandler(ccddMain,
-                                                                       ccddMain.getMainFrame()),
-                                                  new CcddFieldHandler(ccddMain,
-                                                                       null,
                                                                        ccddMain.getMainFrame()));
                         break;
 
@@ -708,17 +702,13 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *            true to check if the specified table exists in the project
      *            database
      * 
-     * @param fieldHandler
-     *            data field handler
-     * 
      * @return JSON encoded string containing the specified table's data
      *         fields; null if the table doesn't exist or if the project
      *         database contains no data tables
      *************************************************************************/
     @SuppressWarnings("unchecked")
     private String getTableFields(String tableName,
-                                  boolean checkExists,
-                                  CcddFieldHandler fieldHandler) throws CCDDException
+                                  boolean checkExists) throws CCDDException
     {
         String response = null;
 
@@ -758,9 +748,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // to the response array. This is needed to get the
                         // brackets and commas in the JSON formatted string
                         // correct
-                        responseJA.add(parser.parse(getTableFields(name,
-                                                                   false,
-                                                                   fieldHandler)));
+                        responseJA.add(parser.parse(getTableFields(name, false)));
                     }
                     catch (ParseException pe)
                     {
@@ -780,8 +768,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // Add the table name and data field information to the output
             JSONObject tableNameAndFields = new JSONObject();
             tableNameAndFields.put(JSONTags.TABLE_NAME.getTag(), tableName);
-            tableNameAndFields = jsonHandler.getTableFields(tableName,
-                                                            fieldHandler,
+            tableNameAndFields = jsonHandler.getDataFields(tableName,
+                                                            JSONTags.TABLE_FIELD.getTag(),
                                                             tableNameAndFields);
             response = tableNameAndFields.toString();
         }
@@ -992,16 +980,12 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *            rootTable[,dataType1.variable1[,...]]. Blank to return the
      *            data for all tables
      * 
-     * @param fieldHandler
-     *            data field handler
-     * 
      * @return JSON encoded string containing the specified table information;
      *         null if a table name is specified and the table doesn't exist or
      *         if no data tables exist in the project database
      *************************************************************************/
     @SuppressWarnings("unchecked")
-    private String getTableInformation(String tableName,
-                                       CcddFieldHandler fieldHandler) throws CCDDException
+    private String getTableInformation(String tableName) throws CCDDException
     {
         JSONArray responseJA = new JSONArray();
         JSONParser parser = new JSONParser();
@@ -1029,8 +1013,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // to the response array. This is needed to get the
                         // brackets and commas in the JSON formatted string
                         // correct
-                        responseJA.add(parser.parse(getTableInformation(name,
-                                                                        fieldHandler)));
+                        responseJA.add(parser.parse(getTableInformation(name)));
                     }
                     catch (ParseException pe)
                     {
@@ -1046,7 +1029,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         {
             // Get the tables information
             JSONObject tableInfoJO = jsonHandler.getTableInformation(tableName,
-                                                                     fieldHandler,
                                                                      isReplaceMacro);
 
             // Check if the table loaded successfully
@@ -1329,9 +1311,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * @param groupHandler
      *            group handler
      * 
-     * @param fieldHandler
-     *            data field handler
-     * 
      * @return JSON encoded string containing the specified group's data
      *         fields; null if the group doesn't exist or if the project
      *         database contains no groups, or blank if the group contains no
@@ -1341,8 +1320,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     private String getGroupFields(String groupName,
                                   boolean applicationOnly,
                                   boolean includeNameTag,
-                                  CcddGroupHandler groupHandler,
-                                  CcddFieldHandler fieldHandler) throws CCDDException
+                                  CcddGroupHandler groupHandler) throws CCDDException
     {
         String response = null;
 
@@ -1372,8 +1350,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         responseJA.add(parser.parse(getGroupFields(name,
                                                                    applicationOnly,
                                                                    true,
-                                                                   groupHandler,
-                                                                   fieldHandler)));
+                                                                   groupHandler)));
                     }
                     catch (ParseException pe)
                     {
@@ -1412,10 +1389,10 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 {
                     // Get the group data fields (extract the data field array
                     // from the table field tag)
-                    JSONObject fieldsJO = jsonHandler.getTableFields(CcddFieldHandler.getFieldGroupName(groupName),
-                                                                     fieldHandler,
+                    JSONObject fieldsJO = jsonHandler.getDataFields(CcddFieldHandler.getFieldGroupName(groupName),
+                                                                     JSONTags.GROUP_FIELD.getTag(),
                                                                      new JSONObject());
-                    groupFieldsJA = (JSONArray) fieldsJO.get(JSONTags.TABLE_FIELD.getTag());
+                    groupFieldsJA = (JSONArray) fieldsJO.get(JSONTags.GROUP_FIELD.getTag());
                 }
 
                 // Check if the name tag is to be included
@@ -1507,9 +1484,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * @param groupHandler
      *            group handler
      * 
-     * @param fieldHandler
-     *            field handler
-     * 
      * @return JSON encoded string containing the specified group/application
      *         information; null if a group name is specified and the
      *         group/application doesn't exist or if no groups/applications
@@ -1518,8 +1492,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     @SuppressWarnings("unchecked")
     private String getGroupInformation(String groupName,
                                        boolean applicationOnly,
-                                       CcddGroupHandler groupHandler,
-                                       CcddFieldHandler fieldHandler) throws CCDDException
+                                       CcddGroupHandler groupHandler) throws CCDDException
     {
         JSONArray responseJA = new JSONArray();
         JSONParser parser = new JSONParser();
@@ -1573,8 +1546,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // correct
                         responseJA.add(parser.parse(getGroupInformation(name,
                                                                         applicationOnly,
-                                                                        groupHandler,
-                                                                        fieldHandler)));
+                                                                        groupHandler)));
                     }
                     catch (ParseException pe)
                     {
@@ -1621,8 +1593,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                     parser.parse(getGroupFields(groupName,
                                                                 applicationOnly,
                                                                 false,
-                                                                groupHandler,
-                                                                fieldHandler)));
+                                                                groupHandler)));
 
                     // Convert the response object to a JSON string
                     response = groupInfoJO.toString();

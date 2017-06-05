@@ -22,6 +22,7 @@ import static CCDD.CcddConstants.TABLE_BACK_COLOR;
 import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
 import static CCDD.CcddConstants.EventLogMessageType.STATUS_MSG;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -598,8 +599,10 @@ public class CcddDbVerificationHandler
                 gbc.gridy++;
                 dialogPnl.add(textLbl, gbc);
                 JLabel textLbl2 = new JLabel("<html><b>"
-                                             + "<font color=#ff0000><i>*** Press </i>Halt<i> "
-                                             + "to terminate verification ***<br><br>",
+                                             + CcddUtilities.colorHTMLText("*** Press </i>Halt<i> "
+                                                                           + "to terminate verification ***",
+                                                                           Color.RED)
+                                             + "<br><br>",
                                              SwingConstants.CENTER);
                 textLbl2.setFont(LABEL_FONT_PLAIN);
                 gbc.gridy++;

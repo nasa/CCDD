@@ -1538,8 +1538,18 @@ public class CcddDbControlHandler
                 // completed the flag is updated accordingly
                 connectionStatus = TO_SERVER_ONLY;
 
+                // Get the database lock status
+                Boolean isLocked = getDatabaseLockStatus(databaseName);
+
+                // Check if an error occurred obtaining the lock status
+                if (isLocked == null)
+                {
+                    // Set the error flag
+                    throw new CCDDException("");
+                }
+
                 // Check if the database is locked
-                if (getDatabaseLockStatus(databaseName))
+                if (isLocked)
                 {
                     throw new SQLException("database is locked");
                 }
@@ -1563,48 +1573,44 @@ public class CcddDbControlHandler
                 if (!isAllowed)
                 {
                     // Set the error flag
-                    errorFlag = true;
+                    throw new CCDDException("");
                 }
-                // The user is allowed access to this database
-                else
+
+                // Get the database owner
+                activeOwner = queryDatabaseOwner(databaseName,
+                                                 ccddMain.getMainFrame())[0];
+
+                // Set the connection status to indicate a database is
+                // connected
+                connectionStatus = TO_DATABASE;
+
+                // Check if an automatic backup was scheduled via the command
+                // line argument
+                if (!backupFileName.isEmpty())
                 {
-                    // Get the database owner
-                    activeOwner = queryDatabaseOwner(databaseName,
-                                                     ccddMain.getMainFrame())[0];
-
-                    // Set the connection status to indicate a database is
-                    // connected
-                    connectionStatus = TO_DATABASE;
-
-                    // Check if an automatic backup was scheduled via the
-                    // command line argument
-                    if (!backupFileName.isEmpty())
+                    // Check if the backup file name is missing the correct
+                    // extension
+                    if (!backupFileName.endsWith(FileExtension.DBU.getExtension()))
                     {
-                        // Check if the backup file name is missing the correct
-                        // extension
-                        if (!backupFileName.endsWith(FileExtension.DBU.getExtension()))
-                        {
-                            // Append the backup file extension to the file
-                            // name
-                            backupFileName += FileExtension.DBU.getExtension();
-                        }
-
-                        // Backup the database
-                        backupDatabaseInBackground(databaseName, new File(backupFileName));
-
-                        // Reset the backup file name to prevent another
-                        // automatic backup
-                        backupFileName = "";
+                        // Append the backup file extension to the file name
+                        backupFileName += FileExtension.DBU.getExtension();
                     }
 
-                    // Inform the user that the database connection succeeded
-                    eventLog.logEvent(SUCCESS_MSG,
-                                      "Connected to project database '"
-                                          + databaseName
-                                          + "' as user '"
-                                          + activeUser
-                                          + "'");
+                    // Backup the database
+                    backupDatabaseInBackground(databaseName, new File(backupFileName));
+
+                    // Reset the backup file name to prevent another automatic
+                    // backup
+                    backupFileName = "";
                 }
+
+                // Inform the user that the database connection succeeded
+                eventLog.logEvent(SUCCESS_MSG,
+                                  "Connected to project database '"
+                                      + databaseName
+                                      + "' as user '"
+                                      + activeUser
+                                      + "'");
             }
         }
         catch (SQLException se)
@@ -1642,6 +1648,10 @@ public class CcddDbControlHandler
                                                                                       + "<b>'"));
             }
 
+            errorFlag = true;
+        }
+        catch (CCDDException ce)
+        {
             errorFlag = true;
         }
 

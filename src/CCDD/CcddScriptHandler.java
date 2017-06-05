@@ -359,8 +359,9 @@ public class CcddScriptHandler
                 // and a Cancel button is issued)
                 int option = cancelDialog.showMessageDialog(dialog,
                                                             "<html><b>Script execution in progress...<br><br>"
-                                                                + "<font color=#ff0000><i>*** Press </i>Halt<i> "
-                                                                + "to terminate script execution ***",
+                                                                + CcddUtilities.colorHTMLText("*** Press </i>Halt<i> "
+                                                                                              + "to terminate script execution ***",
+                                                                                              Color.RED),
                                                             "Script Executing",
                                                             JOptionPane.ERROR_MESSAGE,
                                                             DialogOption.HALT_OPTION);

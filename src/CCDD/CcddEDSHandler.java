@@ -67,7 +67,6 @@ import CCDD.CcddConstants.FieldEditorColumnInfo;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
-import CCDD.CcddConstants.TableTypeUpdate;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /******************************************************************************
@@ -84,6 +83,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
     private TypeDefinition typeDefn;
     private final CcddMacroHandler macroHandler;
     private final CcddReservedMsgIDHandler rsvMsgIDHandler;
+    private final CcddFieldHandler fieldHandler;
 
     // GUI component instantiating this class
     private final Component parent;
@@ -199,12 +199,18 @@ public class CcddEDSHandler implements CcddImportExportInterface
      * @param ccddMain
      *            main class
      * 
+     * @param fieldHandler
+     *            reference to a data field handler
+     * 
      * @param parent
      *            GUI component instantiating this class
      *************************************************************************/
-    protected CcddEDSHandler(CcddMain ccddMain, Component parent)
+    protected CcddEDSHandler(CcddMain ccddMain,
+                             CcddFieldHandler fieldHandler,
+                             Component parent)
     {
         this.ccddMain = ccddMain;
+        this.fieldHandler = fieldHandler;
         this.parent = parent;
 
         // Create references to shorten subsequent calls
@@ -514,962 +520,43 @@ public class CcddEDSHandler implements CcddImportExportInterface
         // Check if a name space exists
         if (nameSpaces != null)
         {
-            // Step through each name space
-            for (NamespaceType nameSpace : nameSpaces)
+            // Make two passes; the first to create the any table types, data
+            // types, macros, and reserved IDs, and the second to create the
+            // table(s)
+            for (int pass = 1; pass <= 2; pass++)
             {
-                // Check if this is the table type definitions name space and
-                // if an interface set exists
-                if (nameSpace.getName().equals(EDSTags.TABLE_TYPE.getTag())
-                    && nameSpace.getDeclaredInterfaceSet() != null)
+                // Step through each name space
+                for (NamespaceType nameSpace : nameSpaces)
                 {
-                    // Step through the interfaces in order to locate the name
-                    // space's parameter and command sets
-                    for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
+                    // Check if this is the table type definitions name space
+                    // and if an interface set exists
+                    if (pass == 1
+                        && nameSpace.getName().equals(EDSTags.TABLE_TYPE.getTag())
+                        && nameSpace.getDeclaredInterfaceSet() != null)
                     {
-                        // Check if this interface contains a generic type set
-                        if (intfcDecType.getGenericTypeSet() != null
-                            && !intfcDecType.getGenericTypeSet().getGenericType().isEmpty()
-                            && intfcDecType.getName().startsWith(EDSTags.TABLE_TYPE.getTag()))
-                        {
-                            // Step through each generic type data
-                            for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
-                            {
-                                // Check if the table type inputs are present
-                                if (genType.getName() != null
-                                    && genType.getShortDescription() != null)
-                                {
-                                    // Get the table type inputs. If not
-                                    // present use a blank to prevent an error
-                                    // when separating the inputs
-                                    String inputs = genType.getShortDescription() != null
-                                                                                         ? genType.getShortDescription()
-                                                                                         : "";
-
-                                    // Extract the table type information
-                                    String[] definition = CcddUtilities.splitAndRemoveQuotes(("\""
-                                                                                              + genType.getName()
-                                                                                              + "\","
-                                                                                              + inputs));
-
-                                    // Check if the expected number of inputs
-                                    // is present
-                                    if ((definition.length - 2) % TableTypeEditorColumnInfo.values().length != 0)
-                                    {
-                                        // Create the table type definition,
-                                        // supplying the name and description
-                                        TableTypeDefinition tableTypeDefn = new TableTypeDefinition(definition[0],
-                                                                                                    definition[1]);
-
-                                        // Step through each column definition
-                                        // (ignoring the primary key and row
-                                        // index columns)
-                                        for (int columnNumber = NUM_HIDDEN_COLUMNS, index = 2; index < definition.length; columnNumber++, index += TableTypeEditorColumnInfo.values().length - 1)
-                                        {
-                                            // Add the column definition to the
-                                            // table type definition
-                                            tableTypeDefn.addColumn(new Object[] {columnNumber,
-                                                                                  definition[TableTypeEditorColumnInfo.NAME.ordinal() + index - 1],
-                                                                                  definition[TableTypeEditorColumnInfo.DESCRIPTION.ordinal() + index - 1],
-                                                                                  definition[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal() + index - 1],
-                                                                                  Boolean.valueOf(definition[TableTypeEditorColumnInfo.UNIQUE.ordinal() + index - 1]),
-                                                                                  Boolean.valueOf(definition[TableTypeEditorColumnInfo.REQUIRED.ordinal() + index - 1]),
-                                                                                  Boolean.valueOf(definition[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal() + index - 1]),
-                                                                                  Boolean.valueOf(definition[TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal() + index - 1])});
-                                        }
-
-                                        // Check if the table type isn't new
-                                        // and doesn't match an existing one
-                                        // with the same name
-                                        if (tableTypeHandler.updateTableTypes(tableTypeDefn, true) == TableTypeUpdate.MISMATCH)
-                                        {
-                                            throw new CCDDException("table type '"
-                                                                    + tableTypeDefn.getTypeName()
-                                                                    + "' already exists and doesn't match the import definition");
-                                        }
-                                    }
-                                    // Check if the user hasn't already elected
-                                    // to ignore table type errors
-                                    else if (!continueOnTableTypeError)
-                                    {
-                                        // Inform the user that the table type
-                                        // name is incorrect
-                                        int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                            "<html><b>Table type '"
-                                                                                                                + genType.getName()
-                                                                                                                + "' definition has missing or extra "
-                                                                                                                + "input(s) in import file '</b>"
-                                                                                                                + importFileName
-                                                                                                                + "<b>'; continue?",
-                                                                                                            "Table Type Error",
-                                                                                                            "Ignore this table type",
-                                                                                                            "Ignore this and any remaining invalid table types",
-                                                                                                            "Stop importing");
-
-                                        // Check if the Ignore All button was
-                                        // pressed
-                                        if (buttonSelected == IGNORE_BUTTON)
-                                        {
-                                            // Set the flag to ignore
-                                            // subsequent column name errors
-                                            continueOnTableTypeError = true;
-                                        }
-                                        // Check if the Cancel button was
-                                        // pressed
-                                        else if (buttonSelected == CANCEL_BUTTON)
-                                        {
-                                            // No error message is provided
-                                            // since the user chose this action
-                                            throw new CCDDException();
-                                        }
-                                    }
-                                }
-                                // Check if the user hasn't already elected to
-                                // ignore table type errors
-                                else if (!continueOnTableTypeError)
-                                {
-                                    // Inform the user that the table type name
-                                    // is missing
-                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                        "<html><b>Missing table type "
-                                                                                                            + "name in import file '</b>"
-                                                                                                            + importFileName
-                                                                                                            + "<b>'; continue?",
-                                                                                                        "Table Type Error",
-                                                                                                        "Ignore this table type",
-                                                                                                        "Ignore this and any remaining invalid table types",
-                                                                                                        "Stop importing");
-
-                                    // Check if the Ignore All button was
-                                    // pressed
-                                    if (buttonSelected == IGNORE_BUTTON)
-                                    {
-                                        // Set the flag to ignore subsequent
-                                        // column name errors
-                                        continueOnTableTypeError = true;
-                                    }
-                                    // Check if the Cancel button was pressed
-                                    else if (buttonSelected == CANCEL_BUTTON)
-                                    {
-                                        // No error message is provided since
-                                        // the user chose this action
-                                        throw new CCDDException();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                // Check if all definitions are to be loaded, this is the
-                // primitive data type definitions name space, and an interface
-                // set exists
-                else if (importType == ImportType.IMPORT_ALL
-                         && nameSpace.getName().equals(EDSTags.DATA_TYPE.getTag())
-                         && nameSpace.getDataTypeSet() != null)
-                {
-                    // Get the data types defined in the data set
-                    List<RootDataType> dataTypes = nameSpace.getDataTypeSet().getArrayDataTypeOrBinaryDataTypeOrBooleanDataType();
-
-                    // Step through each data type
-                    for (RootDataType rDataType : dataTypes)
-                    {
-                        // Set the data type name and initialize the size and
-                        // base type values
-                        String dataType = rDataType.getName();
-                        String sizeInBytes = "";
-                        String baseType = "";
-
-                        // Check if this is an integer data type
-                        if (rDataType instanceof IntegerDataType)
-                        {
-                            IntegerDataType iDataType = (IntegerDataType) rDataType;
-                            IntegerDataEncodingType intEncode = iDataType.getIntegerDataEncoding();
-
-                            // Check if the size exists
-                            if (intEncode.getSizeInBits() != null)
-                            {
-                                // Get the integer's size in bytes
-                                sizeInBytes = String.valueOf(intEncode.getSizeInBits().intValue() / 8);
-                            }
-
-                            // Check if the integer is unsigned
-                            if (intEncode.getEncoding() == IntegerEncodingType.UNSIGNED)
-                            {
-                                // Set the base type to indicate an unsigned
-                                // integer
-                                baseType = BaseDataTypeInfo.UNSIGNED_INT.getName();
-                            }
-                            // The integer is signed
-                            else
-                            {
-                                // Set the base type to indicate a signed
-                                // integer
-                                baseType = BaseDataTypeInfo.SIGNED_INT.getName();
-                            }
-                        }
-                        // Check if this is a floating point data type
-                        else if (rDataType instanceof FloatDataType)
-                        {
-                            // Set the base type to indicate a floating point
-                            baseType = BaseDataTypeInfo.FLOATING_POINT.getName();
-                        }
-                        // Check if this is a string data type
-                        else if (rDataType instanceof StringDataType)
-                        {
-                            // Set the base type to indicate a character
-                            baseType = BaseDataTypeInfo.CHARACTER.getName();
-                        }
-
-                        // Add the data type definition to the list (add a
-                        // blank for the OID column)
-                        dataTypeDefns.add(new String[] {dataType,
-                                                        dataType,
-                                                        sizeInBytes,
-                                                        baseType,
-                                                        ""});
-                    }
-
-                    // Step through the interfaces in order to locate the
-                    // name space's parameter and command sets
-                    for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
-                    {
-                        // Check if this interface contains a generic type
-                        // set
-                        if (intfcDecType.getGenericTypeSet() != null
-                            && !intfcDecType.getGenericTypeSet().getGenericType().isEmpty())
-                        {
-                            // Step through each generic type data
-                            for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
-                            {
-                                // Check if the expected inputs are present
-                                if (genType.getName() != null
-                                    && genType.getShortDescription() != null)
-                                {
-                                    boolean isFound = false;
-
-                                    // Build the data type definition from the
-                                    // generic type data
-                                    String[] typeDefn = (genType.getName()
-                                                         + ","
-                                                         + genType.getShortDescription()
-                                                         + ",\"\"").split(",", -1);
-
-                                    // Step through the data type definitions
-                                    // already added
-                                    for (int index = 0; index < dataTypeDefns.size(); index++)
-                                    {
-                                        // Check if the data type in the
-                                        // generic set matches an existing one
-                                        // from the data set
-                                        if (CcddDataTypeHandler.getDataTypeName(typeDefn).equals(CcddDataTypeHandler.getDataTypeName(dataTypeDefns.get(index))))
-                                        {
-                                            // Set the flag to indicate a match
-                                            // exists
-                                            isFound = true;
-
-                                            // Check if the user name is empty
-                                            // in either the data set or
-                                            // generic type set. This accounts
-                                            // for definitions with a blank
-                                            // user name (i.e., the C name is
-                                            // used as the data type name)
-                                            if (dataTypeDefns.get(index)[DataTypesColumn.USER_NAME.ordinal()].isEmpty()
-                                                || typeDefn[DataTypesColumn.USER_NAME.ordinal()].isEmpty())
-                                            {
-                                                // Set the user name to the one
-                                                // from the generic set
-                                                dataTypeDefns.get(index)[DataTypesColumn.USER_NAME.ordinal()] = typeDefn[DataTypesColumn.USER_NAME.ordinal()];
-                                            }
-
-                                            // Check if the data set C name is
-                                            // blank
-                                            if (dataTypeDefns.get(index)[DataTypesColumn.C_NAME.ordinal()].isEmpty())
-                                            {
-                                                // Set the C name to the one
-                                                // from the generic set
-                                                dataTypeDefns.get(index)[DataTypesColumn.C_NAME.ordinal()] = typeDefn[DataTypesColumn.C_NAME.ordinal()];
-                                            }
-
-                                            // Check if the data set size is
-                                            // blank
-                                            if (dataTypeDefns.get(index)[DataTypesColumn.SIZE.ordinal()].isEmpty())
-                                            {
-                                                // Set the size to the one from
-                                                // the generic set
-                                                dataTypeDefns.get(index)[DataTypesColumn.SIZE.ordinal()] = typeDefn[DataTypesColumn.SIZE.ordinal()];
-                                            }
-
-                                            // Check if the data set base type
-                                            // is blank
-                                            if (dataTypeDefns.get(index)[DataTypesColumn.BASE_TYPE.ordinal()].isEmpty())
-                                            {
-                                                // Set the base type to the one
-                                                // from the generic set
-                                                dataTypeDefns.get(index)[DataTypesColumn.BASE_TYPE.ordinal()] = typeDefn[DataTypesColumn.BASE_TYPE.ordinal()];
-                                            }
-
-                                            break;
-                                        }
-                                    }
-
-                                    // Check if the data type doesn't match one
-                                    // already added from the data set
-                                    if (!isFound)
-                                    {
-                                        // Add the data type definition to the
-                                        // list (add a blank for the OID
-                                        // column)
-                                        dataTypeDefns.add(typeDefn);
-                                    }
-                                }
-                                // Incorrect number of inputs. Check if the
-                                // user hasn't already elected to ignore data
-                                // type errors
-                                else if (!continueOnDataTypeError)
-                                {
-                                    // Inform the user that the data type
-                                    // inputs are incorrect
-                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                        "<html><b>Missing or extra data type definition input(s) in import file '</b>"
-                                                                                                            + importFileName
-                                                                                                            + "<b>'; continue?",
-                                                                                                        "Data Type Error",
-                                                                                                        "Ignore this data type",
-                                                                                                        "Ignore this and any remaining invalid data types",
-                                                                                                        "Stop importing");
-
-                                    // Check if the Ignore All button was
-                                    // pressed
-                                    if (buttonSelected == IGNORE_BUTTON)
-                                    {
-                                        // Set the flag to ignore subsequent
-                                        // column name errors
-                                        continueOnDataTypeError = true;
-                                    }
-                                    // Check if the Cancel button was pressed
-                                    else if (buttonSelected == CANCEL_BUTTON)
-                                    {
-                                        // No error message is provided since
-                                        // the user chose this action
-                                        throw new CCDDException();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                // Check if all definitions are to be loaded, this is the macro
-                // definitions name space, and an interface set exists
-                else if (importType == ImportType.IMPORT_ALL
-                         && nameSpace.getName().equals(EDSTags.MACRO.getTag())
-                         && nameSpace.getDeclaredInterfaceSet() != null)
-                {
-                    // Step through the interfaces in order to locate the name
-                    // space's parameter and command sets
-                    for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
-                    {
-                        // Check if this interface contains a generic type set
-                        if (intfcDecType.getGenericTypeSet() != null
-                            && !intfcDecType.getGenericTypeSet().getGenericType().isEmpty()
-                            && intfcDecType.getName().startsWith(EDSTags.MACRO.getTag()))
-                        {
-                            // Step through each generic type data
-                            for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
-                            {
-                                // Check that the macro name is present
-                                if (genType.getName() != null)
-                                {
-                                    // Add the macro definition to the list
-                                    // (add a blank for the OID column)
-                                    macroDefns.add(new String[] {genType.getName(),
-                                                                 (genType.getShortDescription() != null
-                                                                                                       ? genType.getShortDescription()
-                                                                                                       : ""),
-                                                                 ""});
-                                }
-                                // Incorrect number of inputs. Check if the
-                                // user hasn't already elected to ignore macro
-                                // errors
-                                else if (!continueOnMacroError)
-                                {
-                                    // Inform the user that the macro inputs
-                                    // are incorrect
-                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                        "<html><b>Missing or extra macro definition "
-                                                                                                            + "input(s) in import file '</b>"
-                                                                                                            + importFileName
-                                                                                                            + "<b>'; continue?",
-                                                                                                        "Macro Error",
-                                                                                                        "Ignore this macro",
-                                                                                                        "Ignore this and any remaining invalid macros",
-                                                                                                        "Stop importing");
-
-                                    // Check if the Ignore All button was
-                                    // pressed
-                                    if (buttonSelected == IGNORE_BUTTON)
-                                    {
-                                        // Set the flag to ignore subsequent
-                                        // macro errors
-                                        continueOnMacroError = true;
-                                    }
-                                    // Check if the Cancel button was pressed
-                                    else if (buttonSelected == CANCEL_BUTTON)
-                                    {
-                                        // No error message is provided since
-                                        // the user chose this action
-                                        throw new CCDDException();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                // Check if all definitions are to be loaded, this is the
-                // reserved message ID definitions name space, and an interface
-                // set exists
-                else if (importType == ImportType.IMPORT_ALL
-                         && nameSpace.getName().equals(EDSTags.RESERVED_MSG_ID.getTag())
-                         && nameSpace.getDeclaredInterfaceSet() != null)
-                {
-                    // Step through the interfaces in order to locate the name
-                    // space's parameter and command sets
-                    for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
-                    {
-                        // Check if this interface contains a generic type set
-                        if (intfcDecType.getGenericTypeSet() != null
-                            && !intfcDecType.getGenericTypeSet().getGenericType().isEmpty()
-                            && intfcDecType.getName().startsWith(EDSTags.RESERVED_MSG_ID.getTag()))
-                        {
-                            // Step through each generic type data
-                            for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
-                            {
-                                // Check that the reserved message ID is
-                                // present
-                                if (genType.getName() != null)
-                                {
-                                    // Add the reserved message ID definition
-                                    // to the list (add a blank for the OID
-                                    // column)
-                                    reservedMsgIDDefns.add(new String[] {genType.getName(),
-                                                                         (genType.getShortDescription() != null
-                                                                                                               ? genType.getShortDescription()
-                                                                                                               : ""),
-                                                                         ""});
-                                }
-                                // Incorrect number of inputs. Check if the
-                                // user hasn't already elected to ignore
-                                // reserved message ID errors
-                                else if (!continueOnReservedMsgIDError)
-                                {
-                                    // Inform the user that the reserved
-                                    // message ID inputs are incorrect
-                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                        "<html><b>Missing or extra reserved message ID "
-                                                                                                            + "definition input(s) in import file '</b>"
-                                                                                                            + importFileName
-                                                                                                            + "<b>'; continue?",
-                                                                                                        "Reserved Message ID Error",
-                                                                                                        "Ignore this reserved message ID",
-                                                                                                        "Ignore this and any remaining invalid reserved message IDs",
-                                                                                                        "Stop importing");
-
-                                    // Check if the Ignore All button was
-                                    // pressed
-                                    if (buttonSelected == IGNORE_BUTTON)
-                                    {
-                                        // Set the flag to ignore subsequent
-                                        // reserved message ID errors
-                                        continueOnReservedMsgIDError = true;
-                                    }
-                                    // Check if the Cancel button was pressed
-                                    else if (buttonSelected == CANCEL_BUTTON)
-                                    {
-                                        // No error message is provided since
-                                        // the user chose this action
-                                        throw new CCDDException();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                // Check if all definitions are to be loaded or that this is
-                // the first table, this is a table definition name space, an
-                // interface set exists, and that the name space name is in the
-                // correct format for a table (table identifier : table name< :
-                // system name>)
-                else if ((importType == ImportType.IMPORT_ALL
-                         || tableDefinitions.size() == 0)
-                         && nameSpace.getName().startsWith(EDSTags.TABLE.getTag() + ":")
-                         && nameSpace.getDeclaredInterfaceSet() != null
-                         && nameSpace.getName().matches("[^:]+?:[^:]+?(?::[^:]*)?$"))
-                {
-                    int cmdArgIndex = -1;
-                    String command = "";
-                    TableDefinition tableDefn = null;
-
-                    // Separate the name space name into the tag, table name,
-                    // and (optional) system name
-                    String[] nameParts = nameSpace.getName().split(":");
-
-                    // Create a table definition for this table. The
-                    // nameSpace name begins with the table identifier followed
-                    // by the system and the table name, separated by colons
-                    tableDefn = new TableDefinition(nameParts[1].trim(),
-                                                    nameSpace.getShortDescription());
-
-                    // Make three passes through the name space interface. The
-                    // first pass processes the telemetry and command
-                    // interfaces, and the generic types not associated with
-                    // table column data. The second pass processes the
-                    // enumerations in the data set. The third pass processes
-                    // the generic type column data, only using it if a cell
-                    // value is still empty after being populated by the
-                    // telemetry or command interface data
-                    for (int loop = 1; loop <= 3; loop++)
-                    {
-                        // Check if this is the second pass, a data set exists,
-                        // and the command name column is present in the data
-                        // type
-                        if (loop == 2
-                            && nameSpace.getDataTypeSet() != null
-                            && commandNameIndex != -1)
-                        {
-                            // Get the reference to the data type sets
-                            List<RootDataType> dataTypes = nameSpace.getDataTypeSet().getArrayDataTypeOrBinaryDataTypeOrBooleanDataType();
-
-                            // Step through each data type set
-                            for (RootDataType rDataType : dataTypes)
-                            {
-                                // Check if this is an enumerated data type set
-                                if (rDataType instanceof EnumeratedDataType)
-                                {
-                                    EnumeratedDataType eDataType = (EnumeratedDataType) rDataType;
-
-                                    // Get the list of enumerated values and
-                                    // associated labels
-                                    EnumerationListType enumList = eDataType.getEnumerationList();
-
-                                    // Check if any enumerations exist
-                                    if (enumList != null)
-                                    {
-                                        String enumeration = null;
-
-                                        // Step through each enumeration
-                                        for (ValueEnumerationType enumType : enumList.getEnumeration())
-                                        {
-                                            // Check if this is the first value
-                                            if (enumeration == null)
-                                            {
-                                                enumeration = "";
-                                            }
-                                            // Not the first value
-                                            else
-                                            {
-                                                enumeration += ", ";
-                                            }
-
-                                            // Build the enumeration
-                                            enumeration += enumType.getValue()
-                                                           + " | "
-                                                           + enumType.getLabel();
-                                        }
-
-                                        // Check if the command name changed
-                                        if (!eDataType.getShortDescription().equals(command))
-                                        {
-                                            // Reset the argument index
-                                            cmdArgIndex = -1;
-                                        }
-
-                                        // Increment the argument index and
-                                        // store the command name for which
-                                        // this argument is a member
-                                        cmdArgIndex++;
-                                        command = eDataType.getShortDescription();
-
-                                        // Step through each row of table data
-                                        for (int row = 0; row < tableDefn.getData().size(); row += numColumns)
-                                        {
-                                            // Check if the command name
-                                            // matches the one in the table
-                                            // data for this row
-                                            if (tableDefn.getData().get(row + commandNameIndex) != null
-                                                && tableDefn.getData().get(row + commandNameIndex).equals(command)
-                                                && cmdArgIndex < commandArguments.size())
-                                            {
-                                                // Get the command argument
-                                                // reference
-                                                AssociatedColumns cmdArg = commandArguments.get(cmdArgIndex);
-
-                                                // Check if the command
-                                                // argument enumeration is
-                                                // present
-                                                if (cmdArg.getEnumeration() != -1
-                                                    && enumeration != null)
-                                                {
-                                                    // Store the command
-                                                    // argument enumeration
-                                                    tableDefn.getData().set(row
-                                                                            + cmdArg.getEnumeration(),
-                                                                            enumeration);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        List<TableTypeDefinition> tableTypeDefns = new ArrayList<TableTypeDefinition>();
 
                         // Step through the interfaces in order to locate the
-                        // name space's parameter, command, and generic sets
+                        // name space's parameter and command sets
                         for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
                         {
-                            // Check if this is the first pass
-                            if (loop == 1)
-                            {
-                                /**********************************************
-                                 * Telemetry processing
-                                 * *******************************************/
-                                // Check if the interface contains a parameter
-                                // set
-                                if (intfcDecType.getParameterSet() != null
-                                    && !intfcDecType.getParameterSet().getParameter().isEmpty())
-                                {
-                                    // Step through each parameter
-                                    for (InterfaceParameterType parmType : intfcDecType.getParameterSet().getParameter())
-                                    {
-                                        // Create a new row of data in the
-                                        // table definition to contain this
-                                        // structure's information. Initialize
-                                        // all columns to blanks except for the
-                                        // variable name
-                                        String[] newRow = new String[typeDefn.getColumnCountVisible()];
-                                        Arrays.fill(newRow, "");
-                                        newRow[variableNameIndex] = parmType.getName();
-
-                                        // Check if a data type exists
-                                        if (parmType.getType() != null
-                                            && !parmType.getType().isEmpty())
-                                        {
-                                            // Store the data type for this
-                                            // variable
-                                            newRow[dataTypeIndex] = parmType.getType().replaceFirst("^[^/]*/",
-                                                                                                    "");
-                                        }
-
-                                        // Check if the description column
-                                        // exists in the table type definition
-                                        // and that a description exists
-                                        if (descriptionIndex != -1
-                                            && parmType.getShortDescription() != null)
-                                        {
-                                            // Store the description for this
-                                            // variable
-                                            newRow[descriptionIndex] = parmType.getShortDescription();
-                                        }
-
-                                        // Add the new row to the table
-                                        // definition
-                                        tableDefn.addData(newRow);
-                                    }
-                                }
-
-                                /**********************************************
-                                 * Command processing
-                                 * *******************************************/
-                                // Check if the interface contains a command
-                                // set
-                                if (intfcDecType.getCommandSet() != null
-                                    && !intfcDecType.getCommandSet().getCommand().isEmpty())
-                                {
-                                    // Step through each command
-                                    for (InterfaceCommandType cmdType : intfcDecType.getCommandSet().getCommand())
-                                    {
-                                        // Create a new row of data in the
-                                        // table definition to contain this
-                                        // command's information. Initialize
-                                        // all columns to blanks except for the
-                                        // command name
-                                        String[] newRow = new String[typeDefn.getColumnCountVisible()];
-                                        Arrays.fill(newRow, "");
-                                        newRow[commandNameIndex] = cmdType.getName();
-
-                                        // Check if the command description is
-                                        // present and the description column
-                                        // exists in the table type definition
-                                        if (cmdType.getShortDescription() != null
-                                            && cmdDescriptionIndex != -1)
-                                        {
-                                            // Store the command description in
-                                            // the row's description column
-                                            newRow[cmdDescriptionIndex] = cmdType.getShortDescription();
-                                        }
-
-                                        // Step through each command argument
-                                        for (int index = 0; index < commandArguments.size(); index++)
-                                        {
-                                            // Check if this argument is
-                                            // applicable to this command (not
-                                            // all commands may have the same
-                                            // number of arguments)
-                                            if (index < cmdType.getArgument().size())
-                                            {
-                                                // Store the command argument
-                                                // name and data types
-                                                newRow[commandArguments.get(index).getName()] = cmdType.getArgument().get(index).getName();
-
-                                                // Check if a data type exists
-                                                if (cmdType.getArgument().get(index).getType() != null)
-                                                {
-                                                    newRow[commandArguments.get(index).getDataType()] = cmdType.getArgument().get(index).getType();
-                                                }
-
-                                                // Step through the other
-                                                // associated command argument
-                                                // columns
-                                                for (int column : commandArguments.get(index).getOther())
-                                                {
-                                                    // Check if a command
-                                                    // argument description
-                                                    // exists and if this is
-                                                    // the command argument
-                                                    // description column
-                                                    if (cmdType.getArgument().get(index).getShortDescription() != null
-                                                        && typeDefn.getColumnNamesVisible()[column].matches(CONTAINS_DESCRIPTION))
-                                                    {
-                                                        // Store the command
-                                                        // argument description
-                                                        // and stop searching
-                                                        newRow[column] = cmdType.getArgument().get(index).getShortDescription();
-                                                        break;
-                                                    }
-                                                }
-                                            }
-                                        }
-
-                                        // Add the new row to the table
-                                        // definition
-                                        tableDefn.addData(newRow);
-                                    }
-                                }
-                            }
-
-                            /**************************************************
-                             * Generic type processing
-                             * ***********************************************/
                             // Check if this interface contains a generic type
-                            // set. The generic type set is used to column
-                            // data, data fields, and enumeration parameters
-                            // for tables that aren't structure or command
-                            // tables, and to store extra columns, data fields,
-                            // and extra enumeration parameters for structure
-                            // and command tables
+                            // set
                             if (intfcDecType.getGenericTypeSet() != null
                                 && !intfcDecType.getGenericTypeSet().getGenericType().isEmpty())
                             {
-                                // Step through each generic type data
-                                for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
+                                // Check if this is the table type definition
+                                if (intfcDecType.getName().startsWith(EDSTags.TABLE_TYPE.getTag()))
                                 {
-                                    // Check if this is the first pass
-                                    if (loop == 1)
+                                    // Step through each generic type data
+                                    for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
                                     {
-                                        // Check if this is the table type
-                                        if (intfcDecType.getName().equals(EDSTags.TABLE_TYPE.getTag()))
+                                        // Check if the table type inputs are
+                                        // present
+                                        if (genType.getName() != null
+                                            && genType.getShortDescription() != null)
                                         {
-                                            // Store the table's type name
-                                            tableDefn.setType(genType.getShortDescription());
-
-                                            // Get the table's type
-                                            // definition based on the type
-                                            // name
-                                            typeDefn = tableTypeHandler.getTypeDefinition(tableDefn.getType());
-
-                                            // Check if the table type
-                                            // isn't recognized
-                                            if (typeDefn == null)
-                                            {
-                                                throw new CCDDException("unknown table type '"
-                                                                        + tableDefn.getType()
-                                                                        + "'");
-                                            }
-
-                                            // Get the number of visible
-                                            // columns for this table type
-                                            numColumns = typeDefn.getColumnCountVisible();
-
-                                            // Get the array of visible column
-                                            // names
-                                            String[] columnNames = typeDefn.getColumnNamesVisible();
-
-                                            // Check if this is a structure
-                                            // type table
-                                            if (typeDefn.isStructure())
-                                            {
-                                                String descColName;
-
-                                                // Get the structure column
-                                                // indices, if this is a
-                                                // structure type
-                                                variableNameIndex = typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.VARIABLE));
-                                                dataTypeIndex = typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.PRIM_AND_STRUCT));
-
-                                                // Get the description column
-                                                // name
-                                                if ((descColName = typeDefn.getColumnNameByInputType(InputDataType.DESCRIPTION)) != null)
-                                                {
-                                                    // Get the variable
-                                                    // description column, if
-                                                    // present
-                                                    descriptionIndex = typeDefn.getVisibleColumnIndexByUserName(descColName);
-                                                }
-
-                                                // Check if the column by the
-                                                // default name isn't present
-                                                if (descriptionIndex == -1)
-                                                {
-                                                    // Step through each column
-                                                    for (int column = 0; column < numColumns; column++)
-                                                    {
-                                                        // Check if the column
-                                                        // name contain
-                                                        // 'description'
-                                                        if (columnNames[column].matches(CONTAINS_DESCRIPTION))
-                                                        {
-                                                            // Set this column
-                                                            // as the
-                                                            // description
-                                                            // column and stop
-                                                            // searching
-                                                            descriptionIndex = column;
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-
-                                                // Get the units column. If the
-                                                // default units column name
-                                                // isn't used then the first
-                                                // column containing 'units' is
-                                                // selected
-                                                unitsIndex = typeDefn.getVisibleColumnIndexByUserName(DefaultColumn.UNITS.getName());
-
-                                                // Check if the column by the
-                                                // default name isn't present
-                                                if (unitsIndex == -1)
-                                                {
-                                                    // Step through each column
-                                                    for (int column = 0; column < numColumns; column++)
-                                                    {
-                                                        // Check if the column
-                                                        // name contain 'units'
-                                                        if (columnNames[column].matches(CONTAINS_UNITS))
-                                                        {
-                                                            // Set this column
-                                                            // as the units
-                                                            // column and stop
-                                                            // searching
-                                                            unitsIndex = column;
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            // Check if this is a command type
-                                            // table
-                                            else if (typeDefn.isCommand())
-                                            {
-                                                // Get the list containing
-                                                // command argument name, data
-                                                // type, enumeration, minimum,
-                                                // maximum, and other
-                                                // associated column indices
-                                                // for each argument grouping
-                                                commandArguments = typeDefn.getAssociatedCommandColumns(true);
-
-                                                // Get the command name column
-                                                commandNameIndex = typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.COMMAND_NAME));
-
-                                                // Get the command description
-                                                // column. If the default
-                                                // command description column
-                                                // name isn't used then the
-                                                // first column containing
-                                                // 'description' is selected
-                                                // that doesn't refer to a
-                                                // command argument
-                                                cmdDescriptionIndex = typeDefn.getVisibleColumnIndexByUserName(DefaultColumn.DESCRIPTION_CMD.getName());
-
-                                                // Check if the column by the
-                                                // default name isn't present
-                                                if (cmdDescriptionIndex == -1)
-                                                {
-                                                    // Step through each column
-                                                    for (int column = 0; column < numColumns; column++)
-                                                    {
-                                                        // Check if the column
-                                                        // name contain
-                                                        // 'description'
-                                                        if (columnNames[column].matches(CONTAINS_DESCRIPTION))
-                                                        {
-                                                            boolean isArgDesc = false;
-
-                                                            // Step through the
-                                                            // command argument
-                                                            // columns
-                                                            for (AssociatedColumns argCols : commandArguments)
-                                                            {
-                                                                // Check if
-                                                                // this column
-                                                                // is the
-                                                                // description
-                                                                // for a
-                                                                // command
-                                                                // argument
-                                                                if (argCols.getOther().contains(column))
-                                                                {
-                                                                    // Set the
-                                                                    // flag
-                                                                    // indicating
-                                                                    // this is
-                                                                    // a
-                                                                    // command
-                                                                    // argument
-                                                                    // description
-                                                                    // and stop
-                                                                    // searching
-                                                                    isArgDesc = true;
-                                                                    break;
-                                                                }
-                                                            }
-
-                                                            // Check if the
-                                                            // column isn't a
-                                                            // command argument
-                                                            // description
-                                                            if (!isArgDesc)
-                                                            {
-                                                                // Set this
-                                                                // column
-                                                                // as the
-                                                                // description
-                                                                // column and
-                                                                // stop
-                                                                // searching
-                                                                cmdDescriptionIndex = column;
-                                                                break;
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        // Check if all definitions are to be
-                                        // loaded and this is a data field
-                                        // definition
-                                        else if (importType == ImportType.IMPORT_ALL
-                                                 && intfcDecType.getName().equals(EDSTags.DATA_FIELD.getTag()))
-                                        {
-                                            // Get the data field inputs. If
+                                            // Get the table type inputs. If
                                             // not present use a blank to
                                             // prevent an error when separating
                                             // the inputs
@@ -1477,131 +564,60 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                                                                                  ? genType.getShortDescription()
                                                                                                  : "";
 
-                                            // Parse data field. The values are
-                                            // comma-separated; however, commas
-                                            // within quotes are ignored - this
-                                            // allows commas to be included in
-                                            // the data values
-                                            String[] fieldDefn = CcddUtilities.splitAndRemoveQuotes("\""
-                                                                                                    + tableDefn.getName()
-                                                                                                    + "\","
-                                                                                                    + inputs);
+                                            // Extract the table type
+                                            // information
+                                            String[] definition = CcddUtilities.splitAndRemoveQuotes(("\""
+                                                                                                      + genType.getName()
+                                                                                                      + "\","
+                                                                                                      + inputs));
 
                                             // Check if the expected number of
                                             // inputs is present
-                                            if (fieldDefn.length == FieldEditorColumnInfo.values().length + 1)
+                                            if ((definition.length - 2) % TableTypeEditorColumnInfo.values().length != 0)
                                             {
-                                                // Add the data field
-                                                // definition to the table
-                                                tableDefn.addDataField(fieldDefn);
+                                                // Create the table type
+                                                // definition, supplying the
+                                                // name and description
+                                                TableTypeDefinition tableTypeDefn = new TableTypeDefinition(definition[0],
+                                                                                                            definition[1]);
+                                                tableTypeDefns.add(tableTypeDefn);
+
+                                                // Step through each column
+                                                // definition (ignoring the
+                                                // primary key and row index
+                                                // columns)
+                                                for (int columnNumber = NUM_HIDDEN_COLUMNS, index = 2; index < definition.length; columnNumber++, index += TableTypeEditorColumnInfo.values().length - 1)
+                                                {
+                                                    // Add the column
+                                                    // definition to the table
+                                                    // type definition
+                                                    tableTypeDefn.addColumn(new Object[] {columnNumber,
+                                                                                          definition[TableTypeEditorColumnInfo.NAME.ordinal() + index - 1],
+                                                                                          definition[TableTypeEditorColumnInfo.DESCRIPTION.ordinal() + index - 1],
+                                                                                          definition[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal() + index - 1],
+                                                                                          Boolean.valueOf(definition[TableTypeEditorColumnInfo.UNIQUE.ordinal() + index - 1]),
+                                                                                          Boolean.valueOf(definition[TableTypeEditorColumnInfo.REQUIRED.ordinal() + index - 1]),
+                                                                                          Boolean.valueOf(definition[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal() + index - 1]),
+                                                                                          Boolean.valueOf(definition[TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal() + index - 1])});
+                                                }
                                             }
-                                            // Check that the user hasn't
-                                            // elected to ignore data field
+                                            // Check if the user hasn't already
+                                            // elected to ignore table type
                                             // errors
-                                            else if (!continueOnDataFieldError)
+                                            else if (!continueOnTableTypeError)
                                             {
                                                 // Inform the user that the
-                                                // data field name inputs are
-                                                // incorrect
+                                                // table type name is incorrect
                                                 int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                                    "<html><b>Table '</b>"
-                                                                                                                        + tableDefn.getName()
-                                                                                                                        + "<b>' has missing or extra data field "
+                                                                                                                    "<html><b>Table type '"
+                                                                                                                        + genType.getName()
+                                                                                                                        + "' definition has missing or extra "
                                                                                                                         + "input(s) in import file '</b>"
                                                                                                                         + importFileName
                                                                                                                         + "<b>'; continue?",
-                                                                                                                    "Data Field Error",
-                                                                                                                    "Ignore this invalid data field",
-                                                                                                                    "Ignore this and any remaining invalid data fields",
-                                                                                                                    "Stop importing");
-
-                                                // Check if the Ignore All
-                                                // button was pressed
-                                                if (buttonSelected == IGNORE_BUTTON)
-                                                {
-                                                    // Set the flag to ignore
-                                                    // subsequent data field
-                                                    // errors
-                                                    continueOnDataFieldError = true;
-                                                }
-                                                // Check if the Cancel
-                                                // button was pressed
-                                                else if (buttonSelected == CANCEL_BUTTON)
-                                                {
-                                                    // No error message is
-                                                    // provided since the
-                                                    // user chose this
-                                                    // action
-                                                    throw new CCDDException();
-                                                }
-                                            }
-                                        }
-                                    }
-                                    // Check if this is the third pass
-                                    else if (loop == 3)
-                                    {
-                                        // Check if this is column data
-                                        if (intfcDecType.getName().equals(EDSTags.COLUMN.getTag()))
-                                        {
-                                            // Extract the column name and row
-                                            // number, and use the column name
-                                            // to get the column index
-                                            String[] parts = genType.getName().split(":");
-                                            String columnName = parts[EDSTags.getColumnNameIndex()].trim();
-                                            int row = Integer.valueOf(parts[EDSTags.getRowIndex()].trim());
-                                            int column = typeDefn.getVisibleColumnIndexByUserName(columnName);
-
-                                            // Check that the column exists in
-                                            // the table
-                                            if (column != -1)
-                                            {
-                                                // Add one or more rows until
-                                                // the row is created
-                                                // containing this column value
-                                                while (row * numColumns >= tableDefn.getData().size())
-                                                {
-                                                    // Create a row with empty
-                                                    // columns and add the new
-                                                    // row to the table data
-                                                    String[] newRow = new String[typeDefn.getColumnCountVisible()];
-                                                    Arrays.fill(newRow, "");
-                                                    tableDefn.addData(newRow);
-                                                }
-
-                                                // Check if the cell is empty
-                                                // (i.e., don't replace the
-                                                // cell value if it already is
-                                                // present)
-                                                if (tableDefn.getData().get(row
-                                                                            * numColumns
-                                                                            + column).isEmpty())
-                                                {
-                                                    // Replace the value for
-                                                    // the specified column
-                                                    tableDefn.getData().set(row
-                                                                            * numColumns
-                                                                            + column,
-                                                                            genType.getShortDescription());
-                                                }
-                                            }
-                                            // Check that the user hasn't
-                                            // elected to ignore column name
-                                            // errors
-                                            else if (!continueOnColumnError)
-                                            {
-                                                // Inform the user that the
-                                                // column name is invalid
-                                                int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                                    "<html><b>Table '</b>"
-                                                                                                                        + tableDefn.getName()
-                                                                                                                        + "<b>' column name '</b>"
-                                                                                                                        + columnName
-                                                                                                                        + "<b>' unrecognized in import file '</b>"
-                                                                                                                        + importFileName
-                                                                                                                        + "<b>'; continue?",
-                                                                                                                    "Column Error",
-                                                                                                                    "Ignore this invalid column name",
-                                                                                                                    "Ignore this and any remaining invalid column names",
+                                                                                                                    "Table Type Error",
+                                                                                                                    "Ignore this table type",
+                                                                                                                    "Ignore this and any remaining invalid table types",
                                                                                                                     "Stop importing");
 
                                                 // Check if the Ignore All
@@ -1611,7 +627,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                                     // Set the flag to ignore
                                                     // subsequent column name
                                                     // errors
-                                                    continueOnColumnError = true;
+                                                    continueOnTableTypeError = true;
                                                 }
                                                 // Check if the Cancel button
                                                 // was pressed
@@ -1624,14 +640,1198 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                                 }
                                             }
                                         }
+                                        // Check if the user hasn't already
+                                        // elected to ignore table type errors
+                                        else if (!continueOnTableTypeError)
+                                        {
+                                            // Inform the user that the table
+                                            // type name is missing
+                                            int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                                "<html><b>Missing table type "
+                                                                                                                    + "name in import file '</b>"
+                                                                                                                    + importFileName
+                                                                                                                    + "<b>'; continue?",
+                                                                                                                "Table Type Error",
+                                                                                                                "Ignore this table type",
+                                                                                                                "Ignore this and any remaining invalid table types",
+                                                                                                                "Stop importing");
+
+                                            // Check if the Ignore All button
+                                            // was pressed
+                                            if (buttonSelected == IGNORE_BUTTON)
+                                            {
+                                                // Set the flag to ignore
+                                                // subsequent column name
+                                                // errors
+                                                continueOnTableTypeError = true;
+                                            }
+                                            // Check if the Cancel button was
+                                            // pressed
+                                            else if (buttonSelected == CANCEL_BUTTON)
+                                            {
+                                                // No error message is provided
+                                                // since the user chose this
+                                                // action
+                                                throw new CCDDException();
+                                            }
+                                        }
+                                    }
+                                }
+                                // Check if this is the table type data field
+                                // definition
+                                else if (intfcDecType.getName().startsWith(EDSTags.DATA_FIELD.getTag()))
+                                {
+                                    // Step through each generic type data
+                                    for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
+                                    {
+                                        // Check if the table type data field
+                                        // inputs are present
+                                        if (genType.getName() != null
+                                            && genType.getShortDescription() != null)
+                                        {
+                                            // Extract the table type owner of
+                                            // this data field
+                                            String tableTypeName = genType.getName().replaceFirst(".*:", "");
+
+                                            // Step through the table type
+                                            // definitions
+                                            for (TableTypeDefinition tableTypeDefn : tableTypeDefns)
+                                            {
+                                                // Check if the table type name
+                                                // matches
+                                                if (tableTypeName.equals(tableTypeDefn.getTypeName()))
+                                                {
+                                                    // Get the data field
+                                                    // inputs. If not present
+                                                    // use a blank to prevent
+                                                    // an error when separating
+                                                    // the inputs
+                                                    String inputs = genType.getShortDescription() != null
+                                                                                                         ? genType.getShortDescription()
+                                                                                                         : "";
+
+                                                    // Parse data field. The
+                                                    // values are
+                                                    // comma-separated;
+                                                    // however, commas within
+                                                    // quotes are ignored -
+                                                    // this allows commas to be
+                                                    // included in the data
+                                                    // values
+                                                    String[] fieldDefn = CcddUtilities.splitAndRemoveQuotes("\""
+                                                                                                            + CcddFieldHandler.getFieldTypeName(tableTypeName)
+                                                                                                            + "\","
+                                                                                                            + inputs);
+
+                                                    // Check if the expected
+                                                    // number of inputs is
+                                                    // present
+                                                    if (fieldDefn.length == FieldEditorColumnInfo.values().length + 1)
+                                                    {
+                                                        // Add the data field
+                                                        // definition to the
+                                                        // table
+                                                        tableTypeDefn.addDataField(fieldDefn);
+                                                    }
+                                                    // Check that the user
+                                                    // hasn't elected to ignore
+                                                    // data field errors
+                                                    else if (!continueOnTableTypeError)
+                                                    {
+                                                        // Inform the user that
+                                                        // the data field name
+                                                        // inputs are incorrect
+                                                        int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                                            "<html><b>Table type '</b>"
+                                                                                                                                + tableTypeName
+                                                                                                                                + "<b>' has missing or extra data field "
+                                                                                                                                + "input(s) in import file '</b>"
+                                                                                                                                + importFileName
+                                                                                                                                + "<b>'; continue?",
+                                                                                                                            "Data Field Error",
+                                                                                                                            "Ignore this invalid data field",
+                                                                                                                            "Ignore this and any remaining invalid data fields",
+                                                                                                                            "Stop importing");
+
+                                                        // Check if the Ignore
+                                                        // All button was
+                                                        // pressed
+                                                        if (buttonSelected == IGNORE_BUTTON)
+                                                        {
+                                                            // Set the flag to
+                                                            // ignore
+                                                            // subsequent data
+                                                            // field errors
+                                                            continueOnTableTypeError = true;
+                                                        }
+                                                        // Check if the Cancel
+                                                        // button was pressed
+                                                        else if (buttonSelected == CANCEL_BUTTON)
+                                                        {
+                                                            // No error message
+                                                            // is provided
+                                                            // since the user
+                                                            // chose this
+                                                            // action
+                                                            throw new CCDDException();
+                                                        }
+                                                    }
+
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // Add the table type if it's new or match it to an
+                        // existing one with the same name if the type
+                        // definitions are the same
+                        String badDefn = tableTypeHandler.updateTableTypes(tableTypeDefns,
+                                                                           fieldHandler);
+
+                        // Check if a table type isn't new and doesn't match an
+                        // existing one with the same name
+                        if (badDefn != null)
+                        {
+                            throw new CCDDException("Imported table type '"
+                                                    + badDefn
+                                                    + "' doesn't match the existing definition");
+                        }
+                    }
+                    // Check if all definitions are to be loaded, this is the
+                    // primitive data type definitions name space, and an
+                    // interface set exists
+                    else if (pass == 1
+                             && importType == ImportType.IMPORT_ALL
+                             && nameSpace.getName().equals(EDSTags.DATA_TYPE.getTag())
+                             && nameSpace.getDataTypeSet() != null)
+                    {
+                        // Get the data types defined in the data set
+                        List<RootDataType> dataTypes = nameSpace.getDataTypeSet().getArrayDataTypeOrBinaryDataTypeOrBooleanDataType();
+
+                        // Step through each data type
+                        for (RootDataType rDataType : dataTypes)
+                        {
+                            // Set the data type name and initialize the size
+                            // and base type values
+                            String dataType = rDataType.getName();
+                            String sizeInBytes = "";
+                            String baseType = "";
+
+                            // Check if this is an integer data type
+                            if (rDataType instanceof IntegerDataType)
+                            {
+                                IntegerDataType iDataType = (IntegerDataType) rDataType;
+                                IntegerDataEncodingType intEncode = iDataType.getIntegerDataEncoding();
+
+                                // Check if the size exists
+                                if (intEncode.getSizeInBits() != null)
+                                {
+                                    // Get the integer's size in bytes
+                                    sizeInBytes = String.valueOf(intEncode.getSizeInBits().intValue() / 8);
+                                }
+
+                                // Check if the integer is unsigned
+                                if (intEncode.getEncoding() == IntegerEncodingType.UNSIGNED)
+                                {
+                                    // Set the base type to indicate an
+                                    // unsigned integer
+                                    baseType = BaseDataTypeInfo.UNSIGNED_INT.getName();
+                                }
+                                // The integer is signed
+                                else
+                                {
+                                    // Set the base type to indicate a signed
+                                    // integer
+                                    baseType = BaseDataTypeInfo.SIGNED_INT.getName();
+                                }
+                            }
+                            // Check if this is a floating point data type
+                            else if (rDataType instanceof FloatDataType)
+                            {
+                                // Set the base type to indicate a floating
+                                // point
+                                baseType = BaseDataTypeInfo.FLOATING_POINT.getName();
+                            }
+                            // Check if this is a string data type
+                            else if (rDataType instanceof StringDataType)
+                            {
+                                // Set the base type to indicate a character
+                                baseType = BaseDataTypeInfo.CHARACTER.getName();
+                            }
+
+                            // Add the data type definition to the list (add a
+                            // blank for the OID column)
+                            dataTypeDefns.add(new String[] {dataType,
+                                                            dataType,
+                                                            sizeInBytes,
+                                                            baseType,
+                                                            ""});
+                        }
+
+                        // Step through the interfaces in order to locate the
+                        // name space's parameter and command sets
+                        for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
+                        {
+                            // Check if this interface contains a generic type
+                            // set
+                            if (intfcDecType.getGenericTypeSet() != null
+                                && !intfcDecType.getGenericTypeSet().getGenericType().isEmpty())
+                            {
+                                // Step through each generic type data
+                                for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
+                                {
+                                    // Check if the expected inputs are present
+                                    if (genType.getName() != null
+                                        && genType.getShortDescription() != null)
+                                    {
+                                        boolean isFound = false;
+
+                                        // Build the data type definition from
+                                        // the generic type data
+                                        String[] typeDefn = (genType.getName()
+                                                             + ","
+                                                             + genType.getShortDescription()
+                                                             + ",\"\"").split(",", -1);
+
+                                        // Step through the data type
+                                        // definitions already added
+                                        for (int index = 0; index < dataTypeDefns.size(); index++)
+                                        {
+                                            // Check if the data type in the
+                                            // generic set matches an existing
+                                            // one from the data set
+                                            if (CcddDataTypeHandler.getDataTypeName(typeDefn).equals(CcddDataTypeHandler.getDataTypeName(dataTypeDefns.get(index))))
+                                            {
+                                                // Set the flag to indicate a
+                                                // match exists
+                                                isFound = true;
+
+                                                // Check if the user name is
+                                                // empty in either the data set
+                                                // or generic type set. This
+                                                // accounts for definitions
+                                                // with a blank user name
+                                                // (i.e., the C name is used as
+                                                // the data type name)
+                                                if (dataTypeDefns.get(index)[DataTypesColumn.USER_NAME.ordinal()].isEmpty()
+                                                    || typeDefn[DataTypesColumn.USER_NAME.ordinal()].isEmpty())
+                                                {
+                                                    // Set the user name to the
+                                                    // one from the generic set
+                                                    dataTypeDefns.get(index)[DataTypesColumn.USER_NAME.ordinal()] = typeDefn[DataTypesColumn.USER_NAME.ordinal()];
+                                                }
+
+                                                // Check if the data set C name
+                                                // is blank
+                                                if (dataTypeDefns.get(index)[DataTypesColumn.C_NAME.ordinal()].isEmpty())
+                                                {
+                                                    // Set the C name to the
+                                                    // one from the generic set
+                                                    dataTypeDefns.get(index)[DataTypesColumn.C_NAME.ordinal()] = typeDefn[DataTypesColumn.C_NAME.ordinal()];
+                                                }
+
+                                                // Check if the data set size
+                                                // is blank
+                                                if (dataTypeDefns.get(index)[DataTypesColumn.SIZE.ordinal()].isEmpty())
+                                                {
+                                                    // Set the size to the one
+                                                    // from the generic set
+                                                    dataTypeDefns.get(index)[DataTypesColumn.SIZE.ordinal()] = typeDefn[DataTypesColumn.SIZE.ordinal()];
+                                                }
+
+                                                // Check if the data set base
+                                                // type is blank
+                                                if (dataTypeDefns.get(index)[DataTypesColumn.BASE_TYPE.ordinal()].isEmpty())
+                                                {
+                                                    // Set the base type to the
+                                                    // one from the generic set
+                                                    dataTypeDefns.get(index)[DataTypesColumn.BASE_TYPE.ordinal()] = typeDefn[DataTypesColumn.BASE_TYPE.ordinal()];
+                                                }
+
+                                                break;
+                                            }
+                                        }
+
+                                        // Check if the data type doesn't match
+                                        // one already added from the data set
+                                        if (!isFound)
+                                        {
+                                            // Add the data type definition to
+                                            // the list (add a blank for the
+                                            // OID column)
+                                            dataTypeDefns.add(typeDefn);
+                                        }
+                                    }
+                                    // Incorrect number of inputs. Check if the
+                                    // user hasn't already elected to ignore
+                                    // data type errors
+                                    else if (!continueOnDataTypeError)
+                                    {
+                                        // Inform the user that the data type
+                                        // inputs are incorrect
+                                        int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                            "<html><b>Missing or extra data type definition input(s) in import file '</b>"
+                                                                                                                + importFileName
+                                                                                                                + "<b>'; continue?",
+                                                                                                            "Data Type Error",
+                                                                                                            "Ignore this data type",
+                                                                                                            "Ignore this and any remaining invalid data types",
+                                                                                                            "Stop importing");
+
+                                        // Check if the Ignore All button was
+                                        // pressed
+                                        if (buttonSelected == IGNORE_BUTTON)
+                                        {
+                                            // Set the flag to ignore
+                                            // subsequent column name errors
+                                            continueOnDataTypeError = true;
+                                        }
+                                        // Check if the Cancel button was
+                                        // pressed
+                                        else if (buttonSelected == CANCEL_BUTTON)
+                                        {
+                                            // No error message is provided
+                                            // since the user chose this action
+                                            throw new CCDDException();
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+                    // Check if all definitions are to be loaded, this is the
+                    // macro definitions name space, and an interface set
+                    // exists
+                    else if (pass == 1
+                             && importType == ImportType.IMPORT_ALL
+                             && nameSpace.getName().equals(EDSTags.MACRO.getTag())
+                             && nameSpace.getDeclaredInterfaceSet() != null)
+                    {
+                        // Step through the interfaces in order to locate the
+                        // name space's parameter and command sets
+                        for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
+                        {
+                            // Check if this interface contains a generic type
+                            // set
+                            if (intfcDecType.getGenericTypeSet() != null
+                                && !intfcDecType.getGenericTypeSet().getGenericType().isEmpty()
+                                && intfcDecType.getName().startsWith(EDSTags.MACRO.getTag()))
+                            {
+                                // Step through each generic type data
+                                for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
+                                {
+                                    // Check that the macro name is present
+                                    if (genType.getName() != null)
+                                    {
+                                        // Add the macro definition to the list
+                                        // (add a blank for the OID column)
+                                        macroDefns.add(new String[] {genType.getName(),
+                                                                     (genType.getShortDescription() != null
+                                                                                                           ? genType.getShortDescription()
+                                                                                                           : ""),
+                                                                     ""});
+                                    }
+                                    // Incorrect number of inputs. Check if the
+                                    // user hasn't already elected to ignore
+                                    // macro errors
+                                    else if (!continueOnMacroError)
+                                    {
+                                        // Inform the user that the macro
+                                        // inputs are incorrect
+                                        int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                            "<html><b>Missing or extra macro definition "
+                                                                                                                + "input(s) in import file '</b>"
+                                                                                                                + importFileName
+                                                                                                                + "<b>'; continue?",
+                                                                                                            "Macro Error",
+                                                                                                            "Ignore this macro",
+                                                                                                            "Ignore this and any remaining invalid macros",
+                                                                                                            "Stop importing");
 
-                    // Add the table definition to the list
-                    tableDefinitions.add(tableDefn);
+                                        // Check if the Ignore All button was
+                                        // pressed
+                                        if (buttonSelected == IGNORE_BUTTON)
+                                        {
+                                            // Set the flag to ignore
+                                            // subsequent macro errors
+                                            continueOnMacroError = true;
+                                        }
+                                        // Check if the Cancel button was
+                                        // pressed
+                                        else if (buttonSelected == CANCEL_BUTTON)
+                                        {
+                                            // No error message is provided
+                                            // since the user chose this action
+                                            throw new CCDDException();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // Check if all definitions are to be loaded, this is the
+                    // reserved message ID definitions name space, and an
+                    // interface set exists
+                    else if (pass == 1
+                             && importType == ImportType.IMPORT_ALL
+                             && nameSpace.getName().equals(EDSTags.RESERVED_MSG_ID.getTag())
+                             && nameSpace.getDeclaredInterfaceSet() != null)
+                    {
+                        // Step through the interfaces in order to locate the
+                        // name space's parameter and command sets
+                        for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
+                        {
+                            // Check if this interface contains a generic type
+                            // set
+                            if (intfcDecType.getGenericTypeSet() != null
+                                && !intfcDecType.getGenericTypeSet().getGenericType().isEmpty()
+                                && intfcDecType.getName().startsWith(EDSTags.RESERVED_MSG_ID.getTag()))
+                            {
+                                // Step through each generic type data
+                                for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
+                                {
+                                    // Check that the reserved message ID is
+                                    // present
+                                    if (genType.getName() != null)
+                                    {
+                                        // Add the reserved message ID
+                                        // definition to the list (add a blank
+                                        // for the OID column)
+                                        reservedMsgIDDefns.add(new String[] {genType.getName(),
+                                                                             (genType.getShortDescription() != null
+                                                                                                                   ? genType.getShortDescription()
+                                                                                                                   : ""),
+                                                                             ""});
+                                    }
+                                    // Incorrect number of inputs. Check if the
+                                    // user hasn't already elected to ignore
+                                    // reserved message ID errors
+                                    else if (!continueOnReservedMsgIDError)
+                                    {
+                                        // Inform the user that the reserved
+                                        // message ID inputs are incorrect
+                                        int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                            "<html><b>Missing or extra reserved message ID "
+                                                                                                                + "definition input(s) in import file '</b>"
+                                                                                                                + importFileName
+                                                                                                                + "<b>'; continue?",
+                                                                                                            "Reserved Message ID Error",
+                                                                                                            "Ignore this reserved message ID",
+                                                                                                            "Ignore this and any remaining invalid reserved message IDs",
+                                                                                                            "Stop importing");
+
+                                        // Check if the Ignore All button was
+                                        // pressed
+                                        if (buttonSelected == IGNORE_BUTTON)
+                                        {
+                                            // Set the flag to ignore
+                                            // subsequent reserved message ID
+                                            // errors
+                                            continueOnReservedMsgIDError = true;
+                                        }
+                                        // Check if the Cancel button was
+                                        // pressed
+                                        else if (buttonSelected == CANCEL_BUTTON)
+                                        {
+                                            // No error message is provided
+                                            // since the user chose this action
+                                            throw new CCDDException();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // Check if all definitions are to be loaded or that this
+                    // is the first table, this is a table definition name
+                    // space, an interface set exists, and that the name space
+                    // name is in the correct format for a table (table
+                    // identifier : table name< : system name>)
+                    else if (pass == 2
+                             && (importType == ImportType.IMPORT_ALL
+                             || tableDefinitions.size() == 0)
+                             && nameSpace.getName().startsWith(EDSTags.TABLE.getTag() + ":")
+                             && nameSpace.getDeclaredInterfaceSet() != null
+                             && nameSpace.getName().matches("[^:]+?:[^:]+?(?::[^:]*)?$"))
+                    {
+                        int cmdArgIndex = -1;
+                        String command = "";
+                        TableDefinition tableDefn = null;
+
+                        // Separate the name space name into the tag, table
+                        // name, and (optional) system name
+                        String[] nameParts = nameSpace.getName().split(":");
+
+                        // Create a table definition for this table. The
+                        // nameSpace name begins with the table identifier
+                        // followed by the system and the table name, separated
+                        // by colons
+                        tableDefn = new TableDefinition(nameParts[1].trim(),
+                                                        nameSpace.getShortDescription());
+
+                        // Make three passes through the name space interface.
+                        // The first pass processes the telemetry and command
+                        // interfaces, and the generic types not associated
+                        // with table column data. The second pass processes
+                        // the enumerations in the data set. The third pass
+                        // processes the generic type column data, only using
+                        // it if a cell value is still empty after being
+                        // populated by the telemetry or command interface data
+                        for (int loop = 1; loop <= 3; loop++)
+                        {
+                            // Check if this is the second pass, a data set
+                            // exists, and the command name column is present
+                            // in the data type
+                            if (loop == 2
+                                && nameSpace.getDataTypeSet() != null
+                                && commandNameIndex != -1)
+                            {
+                                // Get the reference to the data type sets
+                                List<RootDataType> dataTypes = nameSpace.getDataTypeSet().getArrayDataTypeOrBinaryDataTypeOrBooleanDataType();
+
+                                // Step through each data type set
+                                for (RootDataType rDataType : dataTypes)
+                                {
+                                    // Check if this is an enumerated data type
+                                    // set
+                                    if (rDataType instanceof EnumeratedDataType)
+                                    {
+                                        EnumeratedDataType eDataType = (EnumeratedDataType) rDataType;
+
+                                        // Get the list of enumerated values
+                                        // and associated labels
+                                        EnumerationListType enumList = eDataType.getEnumerationList();
+
+                                        // Check if any enumerations exist
+                                        if (enumList != null)
+                                        {
+                                            String enumeration = null;
+
+                                            // Step through each enumeration
+                                            for (ValueEnumerationType enumType : enumList.getEnumeration())
+                                            {
+                                                // Check if this is the first
+                                                // value
+                                                if (enumeration == null)
+                                                {
+                                                    enumeration = "";
+                                                }
+                                                // Not the first value
+                                                else
+                                                {
+                                                    enumeration += ", ";
+                                                }
+
+                                                // Build the enumeration
+                                                enumeration += enumType.getValue()
+                                                               + " | "
+                                                               + enumType.getLabel();
+                                            }
+
+                                            // Check if the command name
+                                            // changed
+                                            if (!eDataType.getShortDescription().equals(command))
+                                            {
+                                                // Reset the argument index
+                                                cmdArgIndex = -1;
+                                            }
+
+                                            // Increment the argument index and
+                                            // store the command name for which
+                                            // this argument is a member
+                                            cmdArgIndex++;
+                                            command = eDataType.getShortDescription();
+
+                                            // Step through each row of table
+                                            // data
+                                            for (int row = 0; row < tableDefn.getData().size(); row += numColumns)
+                                            {
+                                                // Check if the command name
+                                                // matches the one in the table
+                                                // data for this row
+                                                if (tableDefn.getData().get(row + commandNameIndex) != null
+                                                    && tableDefn.getData().get(row + commandNameIndex).equals(command)
+                                                    && cmdArgIndex < commandArguments.size())
+                                                {
+                                                    // Get the command argument
+                                                    // reference
+                                                    AssociatedColumns cmdArg = commandArguments.get(cmdArgIndex);
+
+                                                    // Check if the command
+                                                    // argument enumeration is
+                                                    // present
+                                                    if (cmdArg.getEnumeration() != -1
+                                                        && enumeration != null)
+                                                    {
+                                                        // Store the command
+                                                        // argument enumeration
+                                                        tableDefn.getData().set(row
+                                                                                + cmdArg.getEnumeration(),
+                                                                                enumeration);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Step through the interfaces in order to locate
+                            // the name space's parameter, command, and generic
+                            // sets
+                            for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
+                            {
+                                // Check if this is the first pass
+                                if (loop == 1)
+                                {
+                                    /******************************************
+                                     * Telemetry processing
+                                     * ***************************************/
+                                    // Check if the interface contains a
+                                    // parameter set
+                                    if (intfcDecType.getParameterSet() != null
+                                        && !intfcDecType.getParameterSet().getParameter().isEmpty())
+                                    {
+                                        // Step through each parameter
+                                        for (InterfaceParameterType parmType : intfcDecType.getParameterSet().getParameter())
+                                        {
+                                            // Create a new row of data in the
+                                            // table definition to contain this
+                                            // structure's information.
+                                            // Initialize all columns to blanks
+                                            // except for the variable name
+                                            String[] newRow = new String[typeDefn.getColumnCountVisible()];
+                                            Arrays.fill(newRow, "");
+                                            newRow[variableNameIndex] = parmType.getName();
+
+                                            // Check if a data type exists
+                                            if (parmType.getType() != null
+                                                && !parmType.getType().isEmpty())
+                                            {
+                                                // Store the data type for this
+                                                // variable
+                                                newRow[dataTypeIndex] = parmType.getType().replaceFirst("^[^/]*/",
+                                                                                                        "");
+                                            }
+
+                                            // Check if the description column
+                                            // exists in the table type
+                                            // definition and that a
+                                            // description exists
+                                            if (descriptionIndex != -1
+                                                && parmType.getShortDescription() != null)
+                                            {
+                                                // Store the description for
+                                                // this variable
+                                                newRow[descriptionIndex] = parmType.getShortDescription();
+                                            }
+
+                                            // Add the new row to the table
+                                            // definition
+                                            tableDefn.addData(newRow);
+                                        }
+                                    }
+
+                                    /******************************************
+                                     * Command processing
+                                     * ***************************************/
+                                    // Check if the interface contains a
+                                    // command set
+                                    if (intfcDecType.getCommandSet() != null
+                                        && !intfcDecType.getCommandSet().getCommand().isEmpty())
+                                    {
+                                        // Step through each command
+                                        for (InterfaceCommandType cmdType : intfcDecType.getCommandSet().getCommand())
+                                        {
+                                            // Create a new row of data in the
+                                            // table definition to contain this
+                                            // command's information.
+                                            // Initialize all columns to blanks
+                                            // except for the command name
+                                            String[] newRow = new String[typeDefn.getColumnCountVisible()];
+                                            Arrays.fill(newRow, "");
+                                            newRow[commandNameIndex] = cmdType.getName();
+
+                                            // Check if the command description
+                                            // is present and the description
+                                            // column exists in the table type
+                                            // definition
+                                            if (cmdType.getShortDescription() != null
+                                                && cmdDescriptionIndex != -1)
+                                            {
+                                                // Store the command
+                                                // description in the row's
+                                                // description column
+                                                newRow[cmdDescriptionIndex] = cmdType.getShortDescription();
+                                            }
+
+                                            // Step through each command
+                                            // argument
+                                            for (int index = 0; index < commandArguments.size(); index++)
+                                            {
+                                                // Check if this argument is
+                                                // applicable to this command
+                                                // (not all commands may have
+                                                // the same number of
+                                                // arguments)
+                                                if (index < cmdType.getArgument().size())
+                                                {
+                                                    // Store the command
+                                                    // argument
+                                                    // name and data types
+                                                    newRow[commandArguments.get(index).getName()] = cmdType.getArgument().get(index).getName();
+
+                                                    // Check if a data type
+                                                    // exists
+                                                    if (cmdType.getArgument().get(index).getType() != null)
+                                                    {
+                                                        newRow[commandArguments.get(index).getDataType()] = cmdType.getArgument().get(index).getType();
+                                                    }
+
+                                                    // Step through the other
+                                                    // associated command
+                                                    // argument columns
+                                                    for (int column : commandArguments.get(index).getOther())
+                                                    {
+                                                        // Check if a command
+                                                        // argument description
+                                                        // exists and if this
+                                                        // is the command
+                                                        // argument description
+                                                        // column
+                                                        if (cmdType.getArgument().get(index).getShortDescription() != null
+                                                            && typeDefn.getColumnNamesVisible()[column].matches(CONTAINS_DESCRIPTION))
+                                                        {
+                                                            // Store the
+                                                            // command argument
+                                                            // description and
+                                                            // stop searching
+                                                            newRow[column] = cmdType.getArgument().get(index).getShortDescription();
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            // Add the new row to the table
+                                            // definition
+                                            tableDefn.addData(newRow);
+                                        }
+                                    }
+                                }
+
+                                /**********************************************
+                                 * Generic type processing
+                                 * *******************************************/
+                                // Check if this interface contains a generic
+                                // type set. The generic type set is used to
+                                // column data, data fields, and enumeration
+                                // parameters for tables that aren't structure
+                                // or command tables, and to store extra
+                                // columns, data fields, and extra enumeration
+                                // parameters for structure and command tables
+                                if (intfcDecType.getGenericTypeSet() != null
+                                    && !intfcDecType.getGenericTypeSet().getGenericType().isEmpty())
+                                {
+                                    // Step through each generic type data
+                                    for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
+                                    {
+                                        // Check if this is the first pass
+                                        if (loop == 1)
+                                        {
+                                            // Check if this is the table type
+                                            if (intfcDecType.getName().equals(EDSTags.TABLE_TYPE.getTag()))
+                                            {
+                                                // Store the table's type name
+                                                tableDefn.setType(genType.getShortDescription());
+
+                                                // Get the table's type
+                                                // definition based on the type
+                                                // name
+                                                typeDefn = tableTypeHandler.getTypeDefinition(tableDefn.getType());
+
+                                                // Check if the table type
+                                                // isn't recognized
+                                                if (typeDefn == null)
+                                                {
+                                                    throw new CCDDException("unknown table type '"
+                                                                            + tableDefn.getType()
+                                                                            + "'");
+                                                }
+
+                                                // Get the number of visible
+                                                // columns for this table type
+                                                numColumns = typeDefn.getColumnCountVisible();
+
+                                                // Get the array of visible
+                                                // column names
+                                                String[] columnNames = typeDefn.getColumnNamesVisible();
+
+                                                // Check if this is a structure
+                                                // type table
+                                                if (typeDefn.isStructure())
+                                                {
+                                                    String descColName;
+
+                                                    // Get the structure column
+                                                    // indices, if this is a
+                                                    // structure type
+                                                    variableNameIndex = typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.VARIABLE));
+                                                    dataTypeIndex = typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.PRIM_AND_STRUCT));
+
+                                                    // Get the description
+                                                    // column name
+                                                    if ((descColName = typeDefn.getColumnNameByInputType(InputDataType.DESCRIPTION)) != null)
+                                                    {
+                                                        // Get the variable
+                                                        // description column,
+                                                        // if present
+                                                        descriptionIndex = typeDefn.getVisibleColumnIndexByUserName(descColName);
+                                                    }
+
+                                                    // Check if the column by
+                                                    // the default name isn't
+                                                    // present
+                                                    if (descriptionIndex == -1)
+                                                    {
+                                                        // Step through each
+                                                        // column
+                                                        for (int column = 0; column < numColumns; column++)
+                                                        {
+                                                            // Check if the
+                                                            // column name
+                                                            // contain
+                                                            // 'description'
+                                                            if (columnNames[column].matches(CONTAINS_DESCRIPTION))
+                                                            {
+                                                                // Set this
+                                                                // column as
+                                                                // the
+                                                                // description
+                                                                // column and
+                                                                // stop
+                                                                // searching
+                                                                descriptionIndex = column;
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+
+                                                    // Get the units column. If
+                                                    // the default units column
+                                                    // name isn't used then the
+                                                    // first column containing
+                                                    // 'units' is selected
+                                                    unitsIndex = typeDefn.getVisibleColumnIndexByUserName(DefaultColumn.UNITS.getName());
+
+                                                    // Check if the column by
+                                                    // the default name isn't
+                                                    // present
+                                                    if (unitsIndex == -1)
+                                                    {
+                                                        // Step through each
+                                                        // column
+                                                        for (int column = 0; column < numColumns; column++)
+                                                        {
+                                                            // Check if the
+                                                            // column name
+                                                            // contain 'units'
+                                                            if (columnNames[column].matches(CONTAINS_UNITS))
+                                                            {
+                                                                // Set this
+                                                                // column as
+                                                                // the units
+                                                                // column and
+                                                                // stop
+                                                                // searching
+                                                                unitsIndex = column;
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                // Check if this is a command
+                                                // type table
+                                                else if (typeDefn.isCommand())
+                                                {
+                                                    // Get the list containing
+                                                    // command argument name,
+                                                    // data type, enumeration,
+                                                    // minimum, maximum, and
+                                                    // other associated column
+                                                    // indices for each
+                                                    // argument grouping
+                                                    commandArguments = typeDefn.getAssociatedCommandColumns(true);
+
+                                                    // Get the command name
+                                                    // column
+                                                    commandNameIndex = typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.COMMAND_NAME));
+
+                                                    // Get the command
+                                                    // description column. If
+                                                    // the default command
+                                                    // description column name
+                                                    // isn't used then the
+                                                    // first column containing
+                                                    // 'description' is
+                                                    // selected that doesn't
+                                                    // refer to a command
+                                                    // argument
+                                                    cmdDescriptionIndex = typeDefn.getVisibleColumnIndexByUserName(DefaultColumn.DESCRIPTION_CMD.getName());
+
+                                                    // Check if the column by
+                                                    // the default name isn't
+                                                    // present
+                                                    if (cmdDescriptionIndex == -1)
+                                                    {
+                                                        // Step through each
+                                                        // column
+                                                        for (int column = 0; column < numColumns; column++)
+                                                        {
+                                                            // Check if the
+                                                            // column name
+                                                            // contain
+                                                            // 'description'
+                                                            if (columnNames[column].matches(CONTAINS_DESCRIPTION))
+                                                            {
+                                                                boolean isArgDesc = false;
+
+                                                                // Step through
+                                                                // the command
+                                                                // argument
+                                                                // columns
+                                                                for (AssociatedColumns argCols : commandArguments)
+                                                                {
+                                                                    // Check if
+                                                                    // this
+                                                                    // column
+                                                                    // is the
+                                                                    // description
+                                                                    // for a
+                                                                    // command
+                                                                    // argument
+                                                                    if (argCols.getOther().contains(column))
+                                                                    {
+                                                                        // Set
+                                                                        // the
+                                                                        // flag
+                                                                        // indicating
+                                                                        // this
+                                                                        // is a
+                                                                        // command
+                                                                        // argument
+                                                                        // description
+                                                                        // and
+                                                                        // stop
+                                                                        // searching
+                                                                        isArgDesc = true;
+                                                                        break;
+                                                                    }
+                                                                }
+
+                                                                // Check if the
+                                                                // column isn't
+                                                                // a command
+                                                                // argument
+                                                                // description
+                                                                if (!isArgDesc)
+                                                                {
+                                                                    // Set this
+                                                                    // column
+                                                                    // as the
+                                                                    // description
+                                                                    // column
+                                                                    // and stop
+                                                                    // searching
+                                                                    cmdDescriptionIndex = column;
+                                                                    break;
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            // Check if all definitions are to
+                                            // be loaded and this is a data
+                                            // field definition
+                                            else if (importType == ImportType.IMPORT_ALL
+                                                     && intfcDecType.getName().equals(EDSTags.DATA_FIELD.getTag()))
+                                            {
+                                                // Get the data field inputs.
+                                                // If not present use a blank
+                                                // to prevent an error when
+                                                // separating the inputs
+                                                String inputs = genType.getShortDescription() != null
+                                                                                                     ? genType.getShortDescription()
+                                                                                                     : "";
+
+                                                // Parse data field. The values
+                                                // are comma-separated;
+                                                // however, commas within
+                                                // quotes are ignored - this
+                                                // allows commas to be included
+                                                // in the data values
+                                                String[] fieldDefn = CcddUtilities.splitAndRemoveQuotes("\""
+                                                                                                        + tableDefn.getName()
+                                                                                                        + "\","
+                                                                                                        + inputs);
+
+                                                // Check if the expected number
+                                                // of inputs is present
+                                                if (fieldDefn.length == FieldEditorColumnInfo.values().length + 1)
+                                                {
+                                                    // Add the data field
+                                                    // definition to the table
+                                                    tableDefn.addDataField(fieldDefn);
+                                                }
+                                                // Check that the user hasn't
+                                                // elected to ignore data field
+                                                // errors
+                                                else if (!continueOnDataFieldError)
+                                                {
+                                                    // Inform the user that the
+                                                    // data field name inputs
+                                                    // are incorrect
+                                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                                        "<html><b>Table '</b>"
+                                                                                                                            + tableDefn.getName()
+                                                                                                                            + "<b>' has missing or extra data field "
+                                                                                                                            + "input(s) in import file '</b>"
+                                                                                                                            + importFileName
+                                                                                                                            + "<b>'; continue?",
+                                                                                                                        "Data Field Error",
+                                                                                                                        "Ignore this invalid data field",
+                                                                                                                        "Ignore this and any remaining invalid data fields",
+                                                                                                                        "Stop importing");
+
+                                                    // Check if the Ignore All
+                                                    // button was pressed
+                                                    if (buttonSelected == IGNORE_BUTTON)
+                                                    {
+                                                        // Set the flag to
+                                                        // ignore subsequent
+                                                        // data field errors
+                                                        continueOnDataFieldError = true;
+                                                    }
+                                                    // Check if the Cancel
+                                                    // button was pressed
+                                                    else if (buttonSelected == CANCEL_BUTTON)
+                                                    {
+                                                        // No error message is
+                                                        // provided since the
+                                                        // user chose this
+                                                        // action
+                                                        throw new CCDDException();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        // Check if this is the third pass
+                                        else if (loop == 3)
+                                        {
+                                            // Check if this is column data
+                                            if (intfcDecType.getName().equals(EDSTags.COLUMN.getTag()))
+                                            {
+                                                // Extract the column name and
+                                                // row number, and use the
+                                                // column name to get the
+                                                // column index
+                                                String[] parts = genType.getName().split(":");
+                                                String columnName = parts[EDSTags.getColumnNameIndex()].trim();
+                                                int row = Integer.valueOf(parts[EDSTags.getRowIndex()].trim());
+                                                int column = typeDefn.getVisibleColumnIndexByUserName(columnName);
+
+                                                // Check that the column exists
+                                                // in the table
+                                                if (column != -1)
+                                                {
+                                                    // Add one or more rows
+                                                    // until the row is created
+                                                    // containing this column
+                                                    // value
+                                                    while (row * numColumns >= tableDefn.getData().size())
+                                                    {
+                                                        // Create a row with
+                                                        // empty columns and
+                                                        // add the new row to
+                                                        // the table data
+                                                        String[] newRow = new String[typeDefn.getColumnCountVisible()];
+                                                        Arrays.fill(newRow, "");
+                                                        tableDefn.addData(newRow);
+                                                    }
+
+                                                    // Check if the cell is
+                                                    // empty (i.e., don't
+                                                    // replace the cell value
+                                                    // if it already is
+                                                    // present)
+                                                    if (tableDefn.getData().get(row
+                                                                                * numColumns
+                                                                                + column).isEmpty())
+                                                    {
+                                                        // Replace the value
+                                                        // for the specified
+                                                        // column
+                                                        tableDefn.getData().set(row
+                                                                                * numColumns
+                                                                                + column,
+                                                                                genType.getShortDescription());
+                                                    }
+                                                }
+                                                // Check that the user hasn't
+                                                // elected to ignore column
+                                                // name errors
+                                                else if (!continueOnColumnError)
+                                                {
+                                                    // Inform the user that the
+                                                    // column name is invalid
+                                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                                        "<html><b>Table '</b>"
+                                                                                                                            + tableDefn.getName()
+                                                                                                                            + "<b>' column name '</b>"
+                                                                                                                            + columnName
+                                                                                                                            + "<b>' unrecognized in import file '</b>"
+                                                                                                                            + importFileName
+                                                                                                                            + "<b>'; continue?",
+                                                                                                                        "Column Error",
+                                                                                                                        "Ignore this invalid column name",
+                                                                                                                        "Ignore this and any remaining invalid column names",
+                                                                                                                        "Stop importing");
+
+                                                    // Check if the Ignore All
+                                                    // button was pressed
+                                                    if (buttonSelected == IGNORE_BUTTON)
+                                                    {
+                                                        // Set the flag to
+                                                        // ignore subsequent
+                                                        // column name errors
+                                                        continueOnColumnError = true;
+                                                    }
+                                                    // Check if the Cancel
+                                                    // button was pressed
+                                                    else if (buttonSelected == CANCEL_BUTTON)
+                                                    {
+                                                        // No error message is
+                                                        // provided since the
+                                                        // user chose this
+                                                        // action
+                                                        throw new CCDDException();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // Add the table definition to the list
+                        tableDefinitions.add(tableDefn);
+                    }
                 }
             }
 
@@ -1733,6 +1933,19 @@ public class CcddEDSHandler implements CcddImportExportInterface
             storeOtherAttributes(tableTypesNameSpace,
                                  EDSTags.TABLE_TYPE,
                                  tableTypeDefinitions);
+
+            // Step through each table type definition
+            for (String[] tableType : tableTypeDefinitions)
+            {
+                // Build the data field information for this table type
+                fieldHandler.buildFieldInformation(CcddFieldHandler.getFieldTypeName(tableType[0]));
+
+                // Store the table type data field attribute information
+                storeOtherAttributes(tableTypesNameSpace,
+                                     EDSTags.DATA_FIELD,
+                                     getDataFields(fieldHandler.getFieldInformation(),
+                                                   tableType[0]));
+            }
         }
     }
 
@@ -2040,7 +2253,8 @@ public class CcddEDSHandler implements CcddImportExportInterface
                     // Store the data field attribute information
                     storeOtherAttributes(nameSpace,
                                          EDSTags.DATA_FIELD,
-                                         getDataFields(tableInfo));
+                                         getDataFields(tableInfo.getFieldHandler().getFieldInformation(),
+                                                       null));
 
                     // Step through each row in the table
                     for (int row = 0; row < tableInfo.getData().length; row++)
@@ -2086,7 +2300,8 @@ public class CcddEDSHandler implements CcddImportExportInterface
                     // Store the data field attribute information
                     storeOtherAttributes(nameSpace,
                                          EDSTags.DATA_FIELD,
-                                         getDataFields(tableInfo));
+                                         getDataFields(tableInfo.getFieldHandler().getFieldInformation(),
+                                                       null));
 
                     // Check if this is a command table
                     if (tableType.equals(TYPE_COMMAND))
@@ -2142,20 +2357,29 @@ public class CcddEDSHandler implements CcddImportExportInterface
      * Return an array containing the specified table's data field names and
      * values
      * 
-     * @param tableInfo
-     *            TableInformation reference for the current node
+     * @param fieldInformation
+     *            list containing data field information
+     * 
+     * @param identifier
+     *            string to append to the data field tag used to identify the
+     *            table type to which a data field belongs; null if the data
+     *            type doesn't belong to a table type
      * 
      * @return List containing the data field names and values
      *************************************************************************/
-    private List<String[]> getDataFields(TableInformation tableInfo)
+    private List<String[]> getDataFields(List<FieldInformation> fieldInformation,
+                                         String identifier)
     {
         List<String[]> fieldData = new ArrayList<String[]>();
 
         // Step through the command table's data field information
-        for (FieldInformation field : tableInfo.getFieldHandler().getFieldInformation())
+        for (FieldInformation field : fieldInformation)
         {
             // Store the data field information
-            fieldData.add(new String[] {EDSTags.DATA_FIELD.getTag(),
+            fieldData.add(new String[] {EDSTags.DATA_FIELD.getTag()
+                                        + (identifier == null
+                                                             ? ""
+                                                             : ":" + identifier),
                                         "\""
                                             + field.getFieldName()
                                             + "\",\""
@@ -3124,7 +3348,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
      *            sheet
      * 
      * @param attrType
-     *            description of the additional attributes
+     *            type of the additional attributes
      * 
      * @param otherAttrs
      *            list containing other attribute data in the format [attribute

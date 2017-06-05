@@ -36,7 +36,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
 import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -1068,8 +1067,8 @@ public class CcddMain
 
         try
         {
-            // Get the name of the .jar file
-            String jarFileName = new File(CcddMain.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getName();
+            // Get the path+name of the .jar file
+            String jarFileName = CcddMain.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 
             // Check if the .jar file name exists. This is false if the
             // application is executed from within the IDE

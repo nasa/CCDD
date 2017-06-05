@@ -1017,42 +1017,17 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             // Add a listener for check box selection changes
             singleFileCb.addActionListener(new ActionListener()
             {
-                /******************************************************
+                /**************************************************************
                  * Respond to changes in selection of a the single file check
                  * box
-                 *****************************************************/
+                 *************************************************************/
                 @Override
                 public void actionPerformed(ActionEvent ae)
                 {
-                    // Get the path of the last file saved
-                    String filePath = ccddMain.getProgPrefs().get(TABLE_EXPORT_PATH, "");
-
-                    // Check if the single file check box is selected
-                    if (singleFileCb.isSelected())
-                    {
-                        // Get the location of the file extension
-                        int index = filePath.lastIndexOf(".");
-
-                        // Check if the file extension is present
-                        if (index != -1)
-                        {
-                            // Remove the original file extension and append
-                            // the current one
-                            filePath = filePath.substring(0, index)
-                                       + fileExtn.getExtension();
-                        }
-
-                        // Set the export label text and path field
-                        exportLbl.setText("Enter or select an export file");
-                        pathFld.setText(filePath);
-                    }
-                    // The single file check box isn't selected
-                    else
-                    {
-                        // Set the export label text and path field
-                        exportLbl.setText("Enter or select an export path");
-                        pathFld.setText(filePath);
-                    }
+                    // Set the export label text and path field
+                    exportLbl.setText(singleFileCb.isSelected()
+                                                               ? "Enter or select an export file"
+                                                               : "Enter or select an export path");
                 }
             });
 

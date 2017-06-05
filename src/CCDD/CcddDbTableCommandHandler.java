@@ -4037,7 +4037,8 @@ public class CcddDbTableCommandHandler
      *            type of internal table to store
      * 
      * @param tableData
-     *            list containing the table data to store
+     *            list containing the table data to store; unused for the table
+     *            types internal table
      * 
      * @param fieldInformationList
      *            list containing the list of data field information for each
@@ -4397,18 +4398,19 @@ public class CcddDbTableCommandHandler
 
     /**************************************************************************
      * Build the command for updating the data field definitions table for the
-     * specified data table or group
+     * specified data table, table type, or group
      * 
      * @param ownerName
      *            name of the table, including the path if this table
-     *            represents a structure, or group to which the field(s) belong
+     *            represents a structure, table type, or group to which the
+     *            field(s) belong
      * 
      * @param fieldInformation
      *            field information; null to delete the fields for the
-     *            specified table/group
+     *            specified table/table type/group
      * 
-     * @return Command for updating the table/group fields in the data field
-     *         table
+     * @return Command for updating the table/table type/group fields in the
+     *         data field table
      *************************************************************************/
     private String modifyFieldsCommand(String ownerName,
                                        List<FieldInformation> fieldInformation)

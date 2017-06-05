@@ -719,7 +719,7 @@ public class CcddUtilities
     protected static String colorHTMLText(String text, Color color)
     {
         return String.format("<font color=\"#%06x\">" + text + "</font>",
-                             (0xFFFFFF & color.getRGB()));
+                             (0xffffff & color.getRGB()));
     }
 
     /**************************************************************************

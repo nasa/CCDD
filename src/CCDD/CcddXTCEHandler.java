@@ -81,7 +81,6 @@ import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.InternalTable.ReservedMsgIDsColumn;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
-import CCDD.CcddConstants.TableTypeUpdate;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /******************************************************************************
@@ -98,6 +97,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
     private TypeDefinition typeDefn;
     private final CcddMacroHandler macroHandler;
     private final CcddReservedMsgIDHandler rsvMsgIDHandler;
+    private final CcddFieldHandler fieldHandler;
 
     // GUI component instantiating this class
     private final Component parent;
@@ -229,12 +229,18 @@ public class CcddXTCEHandler implements CcddImportExportInterface
      * @param ccddMain
      *            main class
      * 
+     * @param fieldHandler
+     *            reference to a data field handler
+     * 
      * @param parent
      *            GUI component instantiating this class
      *************************************************************************/
-    protected CcddXTCEHandler(CcddMain ccddMain, Component parent)
+    protected CcddXTCEHandler(CcddMain ccddMain,
+                              CcddFieldHandler fieldHandler,
+                              Component parent)
     {
         this.ccddMain = ccddMain;
+        this.fieldHandler = fieldHandler;
         this.parent = parent;
 
         // Create references to shorten subsequent calls
@@ -1550,6 +1556,8 @@ public class CcddXTCEHandler implements CcddImportExportInterface
         // Check if any extra data exists
         if (ancillarySet != null)
         {
+            List<TableTypeDefinition> tableTypeDefns = new ArrayList<TableTypeDefinition>();
+
             // Flag indicating if importing should continue after an input
             // error is detected
             boolean continueOnTableTypeError = false;
@@ -1570,6 +1578,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                         // and description
                         TableTypeDefinition tableTypeDefn = new TableTypeDefinition(definition[0],
                                                                                     definition[1]);
+                        tableTypeDefns.add(tableTypeDefn);
 
                         // Step through each column definition (ignoring the
                         // primary key and row index columns)
@@ -1585,15 +1594,6 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                                                   Boolean.valueOf(definition[TableTypeEditorColumnInfo.REQUIRED.ordinal() + index - 1]),
                                                                   Boolean.valueOf(definition[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal() + index - 1]),
                                                                   Boolean.valueOf(definition[TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal() + index - 1])});
-                        }
-
-                        // Check if the table type isn't new and doesn't match
-                        // an existing one with the same name
-                        if (tableTypeHandler.updateTableTypes(tableTypeDefn, true) == TableTypeUpdate.MISMATCH)
-                        {
-                            throw new CCDDException("table type '"
-                                                    + tableTypeDefn.getTypeName()
-                                                    + "' already exists and doesn't match the import definition");
                         }
                     }
                     // Check if the user hasn't already elected to ignore table
@@ -1629,6 +1629,91 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                         }
                     }
                 }
+                // Check if this is a table type data field definition
+                else if (ancillaryData.getName().startsWith(XTCETags.DATA_FIELD.getTag()))
+                {
+                    // Extract the table type owner of this data field
+                    String tableTypeName = ancillaryData.getName().replaceFirst(".*: ", "");
+
+                    // Step through the table type definitions
+                    for (TableTypeDefinition tableTypeDefn : tableTypeDefns)
+                    {
+                        // Check if the table type name matches
+                        if (tableTypeName.equals(tableTypeDefn.getTypeName()))
+                        {
+                            // Get the data field inputs. If not present use a
+                            // blank to prevent an error when separating the
+                            // inputs
+                            String inputs = ancillaryData.getValue() != null
+                                                                            ? ancillaryData.getValue()
+                                                                            : "";
+
+                            // Parse data field. The values are
+                            // comma-separated; however, commas within quotes
+                            // are ignored - this allows commas to be included
+                            // in the data values
+                            String[] fieldDefn = CcddUtilities.splitAndRemoveQuotes("\""
+                                                                                    + CcddFieldHandler.getFieldTypeName(tableTypeName)
+                                                                                    + "\","
+                                                                                    + inputs);
+
+                            // Check if the expected number of inputs is
+                            // present
+                            if (fieldDefn.length == FieldEditorColumnInfo.values().length + 1)
+                            {
+                                // Add the data field definition to the table
+                                tableTypeDefn.addDataField(fieldDefn);
+                            }
+                            // Check that the user hasn't elected to ignore
+                            // data field errors
+                            else if (!continueOnTableTypeError)
+                            {
+                                // Inform the user that the data field name
+                                // inputs are incorrect
+                                int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                                    "<html><b>Table type '</b>"
+                                                                                                        + tableTypeName
+                                                                                                        + "<b>' has missing or extra data field "
+                                                                                                        + "input(s) in import file '</b>"
+                                                                                                        + importFileName
+                                                                                                        + "<b>'; continue?",
+                                                                                                    "Data Field Error",
+                                                                                                    "Ignore this invalid data field",
+                                                                                                    "Ignore this and any remaining invalid data fields",
+                                                                                                    "Stop importing");
+
+                                // Check if the Ignore All button was pressed
+                                if (buttonSelected == IGNORE_BUTTON)
+                                {
+                                    // Set the flag to ignore subsequent data
+                                    // field errors
+                                    continueOnTableTypeError = true;
+                                }
+                                // Check if the Cancel button was pressed
+                                else if (buttonSelected == CANCEL_BUTTON)
+                                {
+                                    // No error message is provided since the
+                                    // user chose this action
+                                    throw new CCDDException();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Add the table type if it's new or match it to an existing one
+            // with the same name if the type definitions are the same
+            String badDefn = tableTypeHandler.updateTableTypes(tableTypeDefns,
+                                                               fieldHandler);
+
+            // Check if a table type isn't new and doesn't match an existing
+            // one with the same name
+            if (badDefn != null)
+            {
+                throw new CCDDException("Imported table type '"
+                                        + badDefn
+                                        + "' doesn't match the existing definition");
             }
         }
     }
@@ -1950,6 +2035,15 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                 // Add the table type definition to the list
                 tableTypeDefinitions.add(new String[] {XTCETags.TABLE_TYPE.getTag(),
                                                        definition.toString()});
+
+                // Build the data field information for this table type and add
+                // it to the list
+                fieldHandler.buildFieldInformation(CcddFieldHandler.getFieldTypeName(tableTypeDefn.getName()));
+
+                // Store any table type data field names and values
+                storeDataFields(fieldHandler.getFieldInformation(),
+                                tableTypeDefn.getName(),
+                                tableTypeDefinitions);
             }
         }
 
@@ -2202,7 +2296,9 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                                 tableInfo.getType()});
 
                     // Store any data field names and values
-                    storeDataFields(tableInfo, otherData);
+                    storeDataFields(tableInfo.getFieldHandler().getFieldInformation(),
+                                    null,
+                                    otherData);
 
                     // Check if this is a node for a structure table
                     if (tableType.equals(TYPE_STRUCTURE))
@@ -2313,21 +2409,30 @@ public class CcddXTCEHandler implements CcddImportExportInterface
      * Store the specified table's data field names and values into the
      * supplied list
      * 
-     * @param tableInfo
-     *            TableInformation reference for the current node
+     * @param fieldInformation
+     *            list containing data field information
+     * 
+     * @param identifier
+     *            string to append to the data field tag used to identify the
+     *            table type to which a data field belongs; null if the data
+     *            type doesn't belong to a table type
      * 
      * @param fieldData
      *            reference to the list in which the data field names and
      *            values are to be stored
      *************************************************************************/
-    private void storeDataFields(TableInformation tableInfo,
+    private void storeDataFields(List<FieldInformation> fieldInformation,
+                                 String identifier,
                                  List<String[]> fieldData)
     {
         // Step through the command table's data field information
-        for (FieldInformation field : tableInfo.getFieldHandler().getFieldInformation())
+        for (FieldInformation field : fieldInformation)
         {
             // Store the data field information
-            fieldData.add(new String[] {XTCETags.DATA_FIELD.getTag(),
+            fieldData.add(new String[] {XTCETags.DATA_FIELD.getTag()
+                                        + (identifier == null
+                                                             ? ""
+                                                             : identifier),
                                         "\""
                                             + field.getFieldName()
                                             + "\",\""

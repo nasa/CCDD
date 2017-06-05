@@ -17,10 +17,12 @@ import java.util.Comparator;
 import java.util.List;
 
 import CCDD.CcddClasses.AssociatedColumns;
+import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.TableTypeDefinition;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
+import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.TableTypesColumn;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 import CCDD.CcddConstants.TableTypeUpdate;
@@ -39,6 +41,9 @@ public class CcddTableTypeHandler
 
     // Type definitions list
     private List<TypeDefinition> typeDefinitions;
+
+    // Flag indicating that a data field was created for a table type
+    private boolean isNewField;
 
     /**************************************************************************
      * Table type definition class
@@ -1240,14 +1245,19 @@ public class CcddTableTypeHandler
      * @param tableTypeDefinitions
      *            list of table type definitions
      * 
+     * @param fieldHandler
+     *            reference to a data field handler
+     * 
      * @return null if all of the table types are created or match existing
      *         ones; the name of the table type that matches an existing one
      *         but the type definitions differ
      *************************************************************************/
-    protected String updateTableTypes(List<TableTypeDefinition> tableTypeDefinitions)
+    protected String updateTableTypes(List<TableTypeDefinition> tableTypeDefinitions,
+                                      CcddFieldHandler fieldHandler)
     {
         boolean isNewStruct = false;
         String badType = null;
+        isNewField = false;
 
         // Step through each table type definition
         for (TableTypeDefinition tableTypeDefn : tableTypeDefinitions)
@@ -1255,7 +1265,7 @@ public class CcddTableTypeHandler
             // Determine if the table type is new or matches an existing one
             // with the same name
             TableTypeUpdate typeUpdate = updateTableTypes(tableTypeDefn,
-                                                          false);
+                                                          fieldHandler);
 
             // Check if the type name matches an existing one but the type
             // definition differs
@@ -1297,6 +1307,16 @@ public class CcddTableTypeHandler
                 // Store the rate parameters in the project database
                 dbTable.storeRateParameters(ccddMain.getMainFrame());
             }
+
+            // Check if a data field was created for a table type
+            if (isNewField)
+            {
+                // Store the data field table with the additional fields
+                dbTable.storeInformationTable(InternalTable.FIELDS,
+                                              fieldHandler.getFieldDefinitions(),
+                                              null,
+                                              ccddMain.getMainFrame());
+            }
         }
 
         return badType;
@@ -1311,17 +1331,16 @@ public class CcddTableTypeHandler
      * @param tableTypeDefn
      *            table type definition
      * 
-     * @param doUpdates
-     *            true to update the PostgreSQL structure-related functions and
-     *            rate parameters is a new table type is created
+     * @param fieldHandler
+     *            reference to a data field handler
      * 
      * @return TableTypeUpdate.NEW if the table type is new,
      *         TableTypeUpdate.MATCH if the table type matches an existing one,
      *         or TableTypeUpdate.MISMATCH if the table type name matches an
      *         existing one but the type definition differs
      *************************************************************************/
-    protected TableTypeUpdate updateTableTypes(TableTypeDefinition tableTypeDefn,
-                                               boolean doUpdates)
+    private TableTypeUpdate updateTableTypes(TableTypeDefinition tableTypeDefn,
+                                             CcddFieldHandler fieldHandler)
     {
         TableTypeUpdate typeUpdate = TableTypeUpdate.MATCH;
 
@@ -1339,34 +1358,22 @@ public class CcddTableTypeHandler
                                  tableTypeDefn.getColumns().toArray(new Object[0][0]),
                                  tableTypeDefn.getDescription());
 
+            // Check if a data field is associated with the new table type
+            if (tableTypeDefn.getDataFields().size() != 0)
+            {
+                // Add the table type's data field definitions, if any, to the
+                // existing field definitions
+                fieldHandler.getFieldDefinitions().addAll(tableTypeDefn.getDataFields());
+                fieldHandler.buildFieldInformation(null);
+                isNewField = true;
+            }
             // Check if the table type editor is open
             if (ccddMain.getTableTypeEditor() != null
                 && ccddMain.getTableTypeEditor().isShowing())
             {
                 // Add the new table type tab to the editor
                 ccddMain.getTableTypeEditor().addTypePanes(new String[] {tableTypeDefn.getTypeName()},
-                                                           new ArrayList<String[]>());
-            }
-
-            // Check if the database functions and rate parameters should be
-            // updated
-            if (doUpdates)
-            {
-                // Check if the deleted type represents a structure
-                if (getTypeDefinition(tableTypeDefn.getTypeName()).isStructure())
-                {
-                    // Update the database functions that collect structure
-                    // table members and structure-defining column data
-                    dbControl.createStructureColumnFunctions();
-                }
-
-                // Check if the number of rate columns changed due to the type
-                // update
-                if (ccddMain.getRateParameterHandler().setRateInformation())
-                {
-                    // Store the rate parameters in the project database
-                    dbTable.storeRateParameters(ccddMain.getMainFrame());
-                }
+                                                           tableTypeDefn.getDataFields());
             }
         }
         // A table type with this name already exists
@@ -1398,6 +1405,35 @@ public class CcddTableTypeHandler
             {
                 // Set the flag indicating a mismatch exists
                 typeUpdate = TableTypeUpdate.MISMATCH;
+            }
+
+            // Step through each table type data field
+            for (String[] dataField : tableTypeDefn.getDataFields())
+            {
+                // Get the reference to the data field from the existing field
+                // information
+                FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(dataField[FieldsColumn.OWNER_NAME.ordinal()],
+                                                                                    dataField[FieldsColumn.FIELD_NAME.ordinal()]);
+
+                // Check if this is a new field
+                if (fieldInfo == null)
+                {
+                    // Add the field
+                    fieldHandler.getFieldDefinitions().add(dataField);
+                    isNewField = true;
+                }
+                // Check if the existing field's input type, required state,
+                // applicability, or value don't match (the description and
+                // size are allowed to differ)
+                else if (!dataField[FieldsColumn.FIELD_TYPE.ordinal()].equals(fieldInfo.getInputType().getInputName())
+                         || !dataField[FieldsColumn.FIELD_REQUIRED.ordinal()].toLowerCase().equals(Boolean.toString(fieldInfo.isRequired()))
+                         || !dataField[FieldsColumn.FIELD_APPLICABILITY.ordinal()].equals(fieldInfo.getApplicabilityType().getApplicabilityName())
+                         || !dataField[FieldsColumn.FIELD_VALUE.ordinal()].equals(fieldInfo.getValue()))
+                {
+                    // Set the flag indicating a mismatch exists
+                    typeUpdate = TableTypeUpdate.MISMATCH;
+                    break;
+                }
             }
 
             // Delete the added type definition

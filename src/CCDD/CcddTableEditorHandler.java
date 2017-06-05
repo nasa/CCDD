@@ -18,6 +18,7 @@ import static CCDD.CcddConstants.REPLACE_INDICATOR;
 import static CCDD.CcddConstants.SELECTED_BACK_COLOR;
 import static CCDD.CcddConstants.TABLE_BACK_COLOR;
 import static CCDD.CcddConstants.TEXT_HIGHLIGHT_COLOR;
+import static CCDD.CcddConstants.TOOL_TIP_TEXT_COLOR;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
 import java.awt.Color;
@@ -470,10 +471,33 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *************************************************************************/
     protected String getTableToolTip()
     {
-        return "("
-               + tableInfo.getType()
-               + ") "
-               + tableInfo.getTablePath().replaceFirst(",", ": ").replaceAll(",", ", ");
+        String pathTag = "<b>Full path:</b> ";
+
+        // Build the tool tip text, showing the table type and its full path
+        String toolTip = "<html><b>Table type:</b> "
+                         + tableInfo.getType()
+                         + "<br>"
+                         + pathTag
+                         + tableInfo.getTablePath();
+
+        // Create the indentation text; hide this text by coloring it the same
+        // as the background
+        String indent = "<br>"
+                        + CcddUtilities.colorHTMLText(pathTag,
+                                                      TOOL_TIP_TEXT_COLOR)
+                        + "&#160;&#160;";
+
+        // Step through each member in the table path
+        while (toolTip.contains(","))
+        {
+            // Replace the separating comma with the indentation text
+            toolTip = toolTip.replaceFirst(",", indent);
+
+            // Increase the indent for the next member
+            indent += "&#160;&#160;";
+        }
+
+        return toolTip;
     }
 
     /**************************************************************************

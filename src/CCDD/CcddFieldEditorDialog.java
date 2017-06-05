@@ -149,7 +149,6 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
      *************************************************************************/
     private void initialize(final int minimumWidth)
     {
-
         // Check if the table has fields
         if (!fieldInformation.isEmpty())
         {
