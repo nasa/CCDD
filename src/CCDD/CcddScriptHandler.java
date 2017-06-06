@@ -1252,8 +1252,18 @@ public class CcddScriptHandler
                 textColor = DISABLED_TEXT_COLOR;
             }
 
+            // TODO GET THE OS NAME. NEED SOME WAY TO GET THE FILE NAME FROM
+            // ANY OS' PATH. MAYBE SEARCH BACKWARD FOR FIRST NON_LEGAL CHAR
+            // (PROB: WHAT IS NON_LEGAL VARIES BY OS)
+            // System.out.println(System.getProperty("os.name"));// TODO
+
             // Add the association to the script associations lists
             associationsModel.addElement(textColor
+                                         // TODO IF IN LINUX AND THE ASSN WAS
+                                         // CREATED IN WINDOWS THEN IT CAN'T
+                                         // EXTRACT THE FILE FROM THE PATH, SO
+                                         // THE ENTIRE PATH APPEARS IN THE ASSN
+                                         // LIST
                                          + file.getName()
                                          + LIST_TABLE_DESC_SEPARATOR
                                          + association[AssociationsColumn.MEMBERS.ordinal()]);

@@ -36,7 +36,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.FileInputStream;
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -1067,8 +1069,10 @@ public class CcddMain
 
         try
         {
-            // Get the path+name of the .jar file
-            String jarFileName = CcddMain.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            // Get the path+name of the .jar file in a format acceptable to all
+            // OS's
+            String jarFileName = URLDecoder.decode(new File(CcddMain.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getAbsolutePath(),
+                                                   "UTF-8");
 
             // Check if the .jar file name exists. This is false if the
             // application is executed from within the IDE
@@ -1106,9 +1110,9 @@ public class CcddMain
                 // and set the date to today's date. This is for when the
                 // application is executed from within the IDE
                 Properties properties = new Properties();
-                properties.load(new FileInputStream("./ccdd.build.version"));
+                properties.load(new FileInputStream("." + File.separator + "ccdd.build.version"));
                 ccddVersion = properties.getProperty("build.version");
-                properties.load(new FileInputStream("./ccdd.build.number"));
+                properties.load(new FileInputStream("." + File.separator + "ccdd.build.number"));
                 ccddVersion += "." + properties.getProperty("build.number");
                 buildDate = new SimpleDateFormat("M-d-yyyy").format(Calendar.getInstance().getTime());
             }

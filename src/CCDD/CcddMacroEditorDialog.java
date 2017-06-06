@@ -843,6 +843,10 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                          + (macroTable.isTableChanged(committedData)
                                                                     ? "*"
                                                                     : ""));
+
+                // Force the table to redraw so that changes to the cells are
+                // displayed
+                repaint();
             }
         };
 

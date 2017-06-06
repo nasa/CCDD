@@ -1068,6 +1068,10 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                          + (dataTypeTable.isTableChanged(committedData)
                                                                        ? "*"
                                                                        : ""));
+
+                // Force the table to redraw so that changes to the cells are
+                // displayed
+                repaint();
             }
         };
 

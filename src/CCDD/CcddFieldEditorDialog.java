@@ -489,6 +489,10 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                          + (fieldTable.isTableChanged(currentData)
                                                                   ? "*"
                                                                   : ""));
+
+                // Force the table to redraw so that changes to the cells are
+                // displayed
+                repaint();
             }
         };
 

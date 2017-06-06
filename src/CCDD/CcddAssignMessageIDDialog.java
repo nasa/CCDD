@@ -6,6 +6,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.LABEL_FONT_BOLD;
 import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
 import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
@@ -401,16 +402,18 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
                 // Create a tabbed pane to contain the message name/ID
                 // parameters and add it to the dialog
-                tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+                tabbedPane = new JTabbedPane(JTabbedPane.LEFT);
+
                 tabbedPane.setFont(LABEL_FONT_BOLD);
                 dialogPnl.add(tabbedPane, gbc);
                 dialogPnl.setBorder(etchBorder);
 
-                // Check if this is the structure, command, and other table
-                // type message ID assignment dialog
+                // Check if this is the table and group message ID assignment
+                // dialog
                 if (msgIDDialogType == MessageIDType.TABLE_DATA_FIELD)
                 {
-                    // Create the information for each table type tab
+                    // Create the information for each table type tab and the
+                    // group tab
                     msgTabs = new MsgTabInfo[] {new MsgTabInfo(TYPE_STRUCTURE,
                                                                "structure",
                                                                "Structure message ID assignment"),
@@ -418,8 +421,11 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                                                "command",
                                                                "Command message ID assignment"),
                                                 new MsgTabInfo(TYPE_OTHER,
-                                                               "other",
-                                                               "Other message ID assignment")};
+                                                               "other table",
+                                                               "Other table message ID assignment"),
+                                                new MsgTabInfo("Group",
+                                                               "group",
+                                                               "Group message ID assignment")};
 
                     // Step through each tab information
                     for (MsgTabInfo tabInfo : msgTabs)
@@ -452,8 +458,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             @Override
             protected void complete()
             {
-                // Check if this is the structure, command, and other table
-                // type message ID assignment dialog
+                // Check if this is the table and group message ID assignment
+                // dialog
                 if (msgIDDialogType == MessageIDType.TABLE_DATA_FIELD)
                 {
                     // Get the user's input and check if at least one of
@@ -469,6 +475,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         idsInUse = msgIDHandler.getMessageIDsInUse(!msgTabs[0].getOverwriteCbx().isSelected(),
                                                                    !msgTabs[1].getOverwriteCbx().isSelected(),
                                                                    !msgTabs[2].getOverwriteCbx().isSelected(),
+                                                                   !msgTabs[3].getOverwriteCbx().isSelected(),
                                                                    true,
                                                                    false,
                                                                    null,
@@ -500,23 +507,49 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                             }
                         });
 
-                        // Assign the structure, command, and other table type
-                        // column and data field message IDs, skipping any that
-                        // are in the reserved message IDs list
-                        boolean structMsgChanged = assignTableMessageIDs(msgTabs[0],
-                                                                         msgIDHandler.getStructureTables(),
-                                                                         fieldInformation);
-                        boolean cmdMsgChanged = assignTableMessageIDs(msgTabs[1],
-                                                                      msgIDHandler.getCommandTables(),
-                                                                      fieldInformation);
-                        boolean otherMsgChanged = assignTableMessageIDs(msgTabs[2],
-                                                                        msgIDHandler.getOtherTables(),
-                                                                        fieldInformation);
+                        boolean structMsgChanged = false;
+                        boolean cmdMsgChanged = false;
+                        boolean otherMsgChanged = false;
+                        boolean groupMsgChanged = false;
+
+                        // Check if the structure table message IDs should be
+                        // assigned
+                        if (msgTabs[0].getAssignCbx().isSelected())
+                        {
+                            structMsgChanged = assignTableMessageIDs(msgTabs[0],
+                                                                     msgIDHandler.getStructureTables(),
+                                                                     fieldInformation);
+                        }
+
+                        // Check if the command table message IDs should be
+                        // assigned
+                        if (msgTabs[1].getAssignCbx().isSelected())
+                        {
+                            structMsgChanged = assignTableMessageIDs(msgTabs[1],
+                                                                     msgIDHandler.getCommandTables(),
+                                                                     fieldInformation);
+                        }
+
+                        // Check if the other table message IDs should be
+                        // assigned
+                        if (msgTabs[2].getAssignCbx().isSelected())
+                        {
+                            structMsgChanged = assignTableMessageIDs(msgTabs[2],
+                                                                     msgIDHandler.getOtherTables(),
+                                                                     fieldInformation);
+                        }
+
+                        // Check if the group message IDs should be assigned
+                        if (msgTabs[3].getAssignCbx().isSelected())
+                        {
+                            structMsgChanged = assignGroupMessageIDs(msgTabs[3],
+                                                                     fieldInformation);
+                        }
 
                         // Check if a structure, command, or other table type
-                        // telemetry message ID column or data field value
-                        // changed
-                        if (structMsgChanged || cmdMsgChanged || otherMsgChanged)
+                        // telemetry message ID column or data field value, or
+                        // a group message ID data field value changed
+                        if (structMsgChanged || cmdMsgChanged || otherMsgChanged || groupMsgChanged)
                         {
                             // Store the updated data fields table
                             dbTable.storeInformationTableInBackground(InternalTable.FIELDS,
@@ -540,6 +573,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         // Get the list of message IDs that are reserved or
                         // already in use
                         idsInUse = msgIDHandler.getMessageIDsInUse(true,
+                                                                   true,
                                                                    true,
                                                                    true,
                                                                    false,
@@ -921,10 +955,9 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             // Get the reference to the field information
             FieldInformation fieldInfo = fieldInformation.get(index);
 
-            // Check if the field is for a table (and not a default field),
-            // that the field name matches the one supplied by the user in the
-            // text field, and that either the overwrite check box is selected
-            // or the field is blank
+            // Check if the field contains a message ID, the field owner
+            // matches one of the supplied tables, and that either the
+            // overwrite check box is selected or the field is blank
             if (fieldInfo.getInputType().equals(InputDataType.MESSAGE_ID)
                 && tables.contains(fieldInfo.getOwnerName())
                 && (type.getOverwriteCbx().isSelected()
@@ -976,6 +1009,53 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         break;
                     }
                 }
+
+                // Set the flag to indicate a message ID value is changed
+                isChanges = true;
+            }
+        }
+
+        return isChanges;
+    }
+
+    /**************************************************************************
+     * Assign message ID values to the group data fields
+     * 
+     * @param tabInfo
+     *            message ID tab information reference
+     * 
+     * @param fieldInformation
+     *            list of data field information
+     * 
+     * @return true if a message ID value changed
+     *************************************************************************/
+    private boolean assignGroupMessageIDs(MsgTabInfo type,
+                                          List<FieldInformation> fieldInformation)
+    {
+        boolean isChanges = false;
+
+        // Get the starting message ID and ID interval values
+        int startID = Integer.decode(type.getStartFld().getText());
+        int interval = Integer.valueOf(type.getIntervalFld().getText());
+
+        // Step through each defined data field
+        for (int index = 0; index < fieldInformation.size(); index++)
+        {
+            // Get the reference to the field information
+            FieldInformation fieldInfo = fieldInformation.get(index);
+
+            // Check if the field contains a message ID, is for a group, and
+            // that either the overwrite check box is selected or the field is
+            // blank
+            if (fieldInfo.getInputType().equals(InputDataType.MESSAGE_ID)
+                && fieldInfo.getOwnerName().startsWith(GROUP_DATA_FIELD_IDENT)
+                && (type.getOverwriteCbx().isSelected()
+                || fieldInfo.getValue().isEmpty()))
+            {
+                // Set the message ID data field value to the next unused
+                // message ID
+                startID = getNextMessageID(startID, interval);
+                fieldInfo.setValue(formatMessageID(startID));
 
                 // Set the flag to indicate a message ID value is changed
                 isChanges = true;

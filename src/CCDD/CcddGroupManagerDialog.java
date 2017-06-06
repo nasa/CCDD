@@ -1258,6 +1258,20 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 groupTree.getGroupHandler().getGroupInformationByName(selected[0]).setName(groupNameFld.getText());
                 groupTree.renameNode(selected[0], groupNameFld.getText());
 
+                // Add the original name to the list of deleted groups so that
+                // the group's data fields are removed from the internal data
+                // fields table
+                deletedGroups.add(selected[0]);
+
+                // Step through each data field in the renamed group
+                for (FieldInformation fieldInfo : groupTree.getGroupHandler().getGroupInformationByName(groupNameFld.getText()).getFieldInformation())
+                {
+                    // Set the data field owner to the renamed group's name so
+                    // that the group's data fields will be created in the
+                    // internal data fields table
+                    fieldInfo.setOwnerName(CcddFieldHandler.getFieldGroupName(groupNameFld.getText()));
+                }
+
                 // Update the group dialog's change indicator
                 updateChangeIndicator();
             }

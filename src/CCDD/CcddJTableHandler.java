@@ -2435,6 +2435,9 @@ public abstract class CcddJTableHandler extends JTable
                                 }
                             }
 
+                            // Insert the value into the cell
+                            tableData.get(modelRow)[modelColumn] = replaceChars;
+
                             // Handle changes to the cell contents
                             validateCellContent(tableData,
                                                 modelRow,

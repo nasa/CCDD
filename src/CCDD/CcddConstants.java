@@ -53,7 +53,7 @@ public class CcddConstants
     protected static final String CCDD_PROJECT_IDENTIFIER = "Core Flight Software Command and Data Dictionary";
 
     // User's guide file name
-    protected static final String USERS_GUIDE = "/docs/CCDD_Users_Guide.pdf";
+    protected static final String USERS_GUIDE = "CCDD_Users_Guide.pdf";
 
     // Program preferences backing store keys
     protected static final String POSTGRESQL_SERVER_HOST = "PostgreSQLServerHost";

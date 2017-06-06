@@ -1246,6 +1246,10 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                          + (dataFieldTable.isTableChanged(committedData)
                                                                         ? "*"
                                                                         : ""));
+
+                // Force the table to redraw so that changes to the cells are
+                // displayed
+                repaint();
             }
         };
 

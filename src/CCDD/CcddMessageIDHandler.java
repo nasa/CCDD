@@ -6,6 +6,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
 import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
 import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
@@ -142,6 +143,9 @@ public class CcddMessageIDHandler
      *            true to include message IDs assigned to tables that do not
      *            represent structures or commands
      * 
+     * @param includeGroups
+     *            true to include message IDs assigned to groups
+     * 
      * @param useTlmMsgIDsFromDb
      *            true to include message IDs assigned to telemetry messages
      *            stored in the project database; false to use the IDs from the
@@ -170,6 +174,7 @@ public class CcddMessageIDHandler
     protected List<Integer> getMessageIDsInUse(boolean includeStructures,
                                                boolean includeCommands,
                                                boolean includeOthers,
+                                               boolean includeGroups,
                                                boolean useTlmMsgIDsFromDb,
                                                boolean isOverwriteTlmMsgIDs,
                                                CcddTelemetrySchedulerDialog tlmSchedulerDlg,
@@ -248,13 +253,22 @@ public class CcddMessageIDHandler
             // Check if the message ID data field is assigned to a structure
             // (command, other) table and the structure (command, other) IDs
             // are to be included, and that the ID is not already in the list
-            if (!(!includeStructures && structureTables.contains(tableOwnerAndID[0]))
-                && !(!includeCommands && commandTables.contains(tableOwnerAndID[0]))
-                && !(!includeOthers && otherTables.contains(tableOwnerAndID[0])))
+            if (includeStructures && structureTables.contains(tableOwnerAndID[0])
+                || includeCommands && commandTables.contains(tableOwnerAndID[0])
+                || includeOthers && otherTables.contains(tableOwnerAndID[0]))
             {
                 // Get the IDs in use in the table cells and data fields, and
                 // update the duplicates list (if the flag is set)
                 updateUsageAndDuplicates("Table", tableOwnerAndID, isGetDuplicates);
+            }
+            // Check if the message ID data field is assigned to a group and
+            // the group IDs are to be included, and that the ID is not already
+            // in the list
+            else if (includeGroups && tableOwnerAndID[0].startsWith(GROUP_DATA_FIELD_IDENT))
+            {
+                // Get the IDs in use in the group data fields, and update the
+                // duplicates list (if the flag is set)
+                updateUsageAndDuplicates("Group", tableOwnerAndID, isGetDuplicates);
             }
         }
 
@@ -437,7 +451,7 @@ public class CcddMessageIDHandler
     protected void displayDuplicates(Component parent)
     {
         // Get the list of message IDs in use
-        getMessageIDsInUse(true, true, true, true, false, null, true, parent);
+        getMessageIDsInUse(true, true, true, true, true, false, null, true, parent);
 
         // Sort the duplicates list
         Collections.sort(duplicates, new Comparator<String[]>()

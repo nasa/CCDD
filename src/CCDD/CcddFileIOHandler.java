@@ -19,17 +19,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.URLDecoder;
 import java.nio.CharBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -104,10 +100,10 @@ public class CcddFileIOHandler
     }
 
     /**************************************************************************
-     * Extract the user's guide from the .jar file and display it. This command
-     * is executed in a separate thread since it may take a noticeable amount
-     * time to complete, and by using a separate thread the GUI is allowed to
-     * continue to update
+     * Display the user's guide. The guide file must be located in the same
+     * folder as the .jar file. This command is executed in a separate thread
+     * since it may take a noticeable amount time to complete, and by using a
+     * separate thread the GUI is allowed to continue to update
      *************************************************************************/
     protected void displayUsersGuide()
     {
@@ -120,11 +116,6 @@ public class CcddFileIOHandler
             @Override
             protected void execute()
             {
-                // Extract the help file name from the .jar package name
-                String fileName = USERS_GUIDE.substring(USERS_GUIDE.lastIndexOf("/") + 1);
-
-                InputStream is = null;
-
                 try
                 {
                     // Check if the Desktop class is not supported by the
@@ -135,33 +126,17 @@ public class CcddFileIOHandler
                         throw new CCDDException("Desktop class unsupported");
                     }
 
-                    // Create a path from the system's temporary file directory
-                    // name and the user's guide file name
-                    Path tempFile = FileSystems.getDefault().getPath(System.getProperty("java.io.tmpdir")
-                                                                     + "/"
-                                                                     + fileName);
+                    // Get the path+name of the .jar file in a format
+                    // acceptable to all OS's. The user's guide is expected to
+                    // be found in the same folder as the .jar file
+                    String path = URLDecoder.decode(new File(CcddMain.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getAbsolutePath(),
+                                                    "UTF-8");
 
-                    // Check if the file isn't already extracted to the
-                    // temporary directory
-                    if (!Files.exists(tempFile))
-                    {
-                        // Open an input stream using the user's guide within
-                        // the .jar file
-                        is = getClass().getResourceAsStream(USERS_GUIDE);
-
-                        // Create a temporary file in the system's temporary
-                        // file directory to which to copy the user's guide
-                        tempFile = Files.createFile(tempFile);
-
-                        // Delete the extracted file when the application exits
-                        tempFile.toFile().deleteOnExit();
-
-                        // Copy the user's guide to the temporary file
-                        Files.copy(is, tempFile, StandardCopyOption.REPLACE_EXISTING);
-                    }
-
-                    // Display the user's guide
-                    Desktop.getDesktop().open(tempFile.toFile());
+                    // Display the user's guide - replace the .jar file name
+                    // with the user's guide name
+                    Desktop.getDesktop().open(new File(path.substring(0,
+                                                                      path.lastIndexOf(File.separator) + 1)
+                                                       + USERS_GUIDE));
                 }
                 catch (Exception e)
                 {
@@ -169,36 +144,13 @@ public class CcddFileIOHandler
                     // user's guide
                     new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                               "<html><b>User's guide '"
-                                                                  + fileName
+                                                                  + USERS_GUIDE
                                                                   + "' cannot be opened; cause<br>'"
                                                                   + e.getMessage()
                                                                   + "'",
                                                               "File Error",
                                                               JOptionPane.WARNING_MESSAGE,
                                                               DialogOption.OK_OPTION);
-                }
-                finally
-                {
-                    try
-                    {
-                        // Check if the input stream is open
-                        if (is != null)
-                        {
-                            // Close the input stream
-                            is.close();
-                        }
-                    }
-                    catch (IOException ioe)
-                    {
-                        // Inform the user that the file cannot be closed
-                        new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                                  "<html><b>Cannot close user's guide file<br>'</b>"
-                                                                      + fileName
-                                                                      + "<b>'",
-                                                                  "File Warning",
-                                                                  JOptionPane.WARNING_MESSAGE,
-                                                                  DialogOption.OK_OPTION);
-                    }
                 }
             }
         });
