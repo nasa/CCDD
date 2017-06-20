@@ -403,10 +403,6 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             // Step through the open editor dialogs
             for (CcddTableEditorDialog editorDialog : main.getTableEditorDialogs())
             {
-                // Create an index to keep track of the tabbed pane index for
-                // this editor dialog
-                int tabIndex = 0;
-
                 // Step through each individual editor
                 for (CcddTableEditorHandler editor : editorDialog.getTableEditors())
                 {
@@ -467,13 +463,10 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                                              mod.getRowData()[mod.getDataTypeColumn()].toString(),
                                              mod.getOriginalRowData()[mod.getVariableColumn()].toString(),
                                              mod.getRowData()[mod.getVariableColumn()].toString(),
-                                             tabIndex,
                                              editorDialog,
                                              editor);
                         }
                     }
-
-                    tabIndex++;
                 }
             }
 
@@ -510,10 +503,6 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      * @param newVariableName
      *            current variable name if this change is for a structure table
      * 
-     * @param tabIndex
-     *            current editor dialog tab index to which the changes are
-     *            compared
-     * 
      * @param editorDialog
      *            current editor dialog to which the changes are compared
      * 
@@ -525,7 +514,6 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                                            String newPrototype,
                                            String oldVariableName,
                                            String newVariableName,
-                                           int tabIndex,
                                            CcddTableEditorDialog editorDialog,
                                            CcddTableEditorHandler editor)
     {
@@ -542,7 +530,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                            && !dtHandler.isPrimitive(newPrototype);
 
         // Check if the prototype name changed
-        if (isRename)
+        if (isRename && oldVariableName == null)
         {
             // Update the variable data types to match the change, if this
             // table represents a structure
@@ -554,7 +542,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         // and the table for the specified editor is an instance of this
         // variable
         if ((isRename
-            && (protoVarName.equals(oldPrototype)
+            && ((protoVarName.equals(oldPrototype) && oldVariableName == null)
                 || protoVarName.startsWith(oldPrototype + ".")
                 || editor.getOwnerName().startsWith(oldPrototype + ":")))
             || (oldVariableName != null
@@ -574,7 +562,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
             // Update the tab in the editor dialog for this table with the new
             // name and tool tip text
-            editorDialog.setTabText(tabIndex,
+            editorDialog.setTabText(editorDialog.getTableEditors().indexOf(editor),
                                     editor.getOwnerName(),
                                     editor.getTableToolTip());
 
@@ -1872,12 +1860,16 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     }
 
     /**************************************************************************
-     * Update the change indicator for the current table editor
+     * Update the change indicator for the specified table editor
+     * 
+     * @param tableEditor
+     *            reference to the table editor for which the change indicator
+     *            is to be updated
      *************************************************************************/
-    protected void updateChangeIndicator()
+    protected void updateChangeIndicator(CcddTableEditorHandler tableEditor)
     {
-        // Get the index of the currently displayed tab
-        int index = tabbedPane.getSelectedIndex();
+        // Get the index of the specified tab
+        int index = tableEditors.indexOf(tableEditor);
 
         // Check that the tab index is valid
         if (index != -1)
@@ -1886,9 +1878,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             // exist
             tabbedPane.setTitleAt(index,
                                   tabbedPane.getTitleAt(index).replaceAll("\\*", "")
-                                      + (tableEditors.get(index).isTableChanged()
-                                                                                 ? "*"
-                                                                                 : ""));
+                                      + (tableEditor.isTableChanged()
+                                                                     ? "*"
+                                                                     : ""));
         }
     }
 

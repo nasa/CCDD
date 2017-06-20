@@ -7,6 +7,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.AUTO_COMPLETE_TEXT_SEPARATOR;
 import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
@@ -19,7 +20,6 @@ import static CCDD.CcddConstants.NUM_REMEMBERED_SEARCHES;
 import static CCDD.CcddConstants.PRINT_ICON;
 import static CCDD.CcddConstants.SEARCH_ICON;
 import static CCDD.CcddConstants.SEARCH_STRINGS;
-import static CCDD.CcddConstants.SEARCH_TEXT_SEPARATOR;
 import static CCDD.CcddConstants.TABLE_BACK_COLOR;
 import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
 import static CCDD.CcddConstants.TEXT_HIGHLIGHT_COLOR;
@@ -117,10 +117,6 @@ public class CcddSearchDialog extends CcddDialogHandler
     // Array to contain the search results
     private Object[][] resultsData;
 
-    // List containing the remembered search strings; used to auto-complete the
-    // search text field
-    private List<String> searches;
-
     /**************************************************************************
      * Search database tables, scripts, and event log class constructor
      * 
@@ -180,10 +176,6 @@ public class CcddSearchDialog extends CcddDialogHandler
      *************************************************************************/
     private void initialize(final Long targetRow)
     {
-        // Get the list of remembered searches from the program preferences
-        searches = new ArrayList<String>(Arrays.asList(ccddMain.getProgPrefs().get(SEARCH_STRINGS,
-                                                                                   "").split(SEARCH_TEXT_SEPARATOR)));
-
         // Create a border for the dialog components
         Border border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
                                                                                            Color.LIGHT_GRAY,
@@ -215,9 +207,14 @@ public class CcddSearchDialog extends CcddDialogHandler
         dlgLbl.setFont(LABEL_FONT_BOLD);
         dialogPnl.add(dlgLbl, gbc);
 
-        // Create the auto-completion search field and add it to the dialog
-        // panel
-        searchFld = new AutoCompleteTextField(searches);
+        // Create the auto-completion search field, using the list of
+        // remembered searches from the program preferences, and add it to the
+        // dialog panel
+        List<String> searches = new ArrayList<String>(NUM_REMEMBERED_SEARCHES);
+        searches.addAll(Arrays.asList(ccddMain.getProgPrefs().get(SEARCH_STRINGS,
+                                                                  "").split(AUTO_COMPLETE_TEXT_SEPARATOR)));
+        searchFld = new AutoCompleteTextField(searches,
+                                              NUM_REMEMBERED_SEARCHES);
         searchFld.setText("");
         searchFld.setColumns(20);
         searchFld.setFont(LABEL_FONT_PLAIN);
@@ -511,28 +508,8 @@ public class CcddSearchDialog extends CcddDialogHandler
                 // The search field contains text
                 else
                 {
-                    // Check if this is a repeat of a previous search
-                    if (searches.contains(searchFld.getText()))
-                    {
-                        // Remove the search string from its current position
-                        // in the remembered searches list so that it can be
-                        // put at the head of the list
-                        searches.remove(searchFld.getText());
-                    }
-                    // Check if the maximum number of remembered searches has
-                    // been reached
-                    else if (searches.size() == NUM_REMEMBERED_SEARCHES)
-                    {
-                        // Remove the oldest search text from the list
-                        searches.remove(searches.size() - 1);
-                    }
-
-                    // Insert the latest search text at the beginning of the
-                    // remembered searches list
-                    searches.add(0, searchFld.getText());
-
-                    // Update the search field's remembered searches list
-                    searchFld.setDataList(searches);
+                    // Update the search string list
+                    searchFld.updateList(searchFld.getText());
 
                     switch (searchDlgType)
                     {
@@ -579,13 +556,13 @@ public class CcddSearchDialog extends CcddDialogHandler
         });
 
         // Close search dialog button
-        JButton btnCancel = CcddButtonPanelHandler.createButton("Close",
-                                                                CLOSE_ICON,
-                                                                KeyEvent.VK_C,
-                                                                "Close the search dialog");
+        JButton btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                               CLOSE_ICON,
+                                                               KeyEvent.VK_C,
+                                                               "Close the search dialog");
 
         // Add a listener for the Close button
-        btnCancel.addActionListener(new ActionListener()
+        btnClose.addActionListener(new ActionListener()
         {
             /******************************************************************
              * Store the search strings and close the search dialog
@@ -593,22 +570,8 @@ public class CcddSearchDialog extends CcddDialogHandler
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                String searchString = "";
-
-                // Step through the remembered search strings
-                for (String search : searches)
-                {
-                    // Append the search string and separator characters to the
-                    // single string
-                    searchString += search + SEARCH_TEXT_SEPARATOR;
-                }
-
-                // Remove the trailing separator characters and store the
-                // search strings, as a single string, in the program
-                // preferences
-                searchString = CcddUtilities.removeTrailer(searchString,
-                                                           SEARCH_TEXT_SEPARATOR);
-                ccddMain.getProgPrefs().put(SEARCH_STRINGS, searchString);
+                // Store the search list in the program preferences
+                ccddMain.getProgPrefs().put(SEARCH_STRINGS, searchFld.getListAsString());
 
                 // Close the dialog
                 closeDialog(CANCEL_BUTTON);
@@ -621,7 +584,7 @@ public class CcddSearchDialog extends CcddDialogHandler
         buttonPnl.setBorder(BorderFactory.createEmptyBorder());
         buttonPnl.add(btnSearch);
         buttonPnl.add(btnPrint);
-        buttonPnl.add(btnCancel);
+        buttonPnl.add(btnClose);
 
         // Get the dialog title based on the search type
         String title = null;

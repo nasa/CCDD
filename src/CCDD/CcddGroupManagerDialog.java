@@ -50,6 +50,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
@@ -464,7 +465,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                                                             TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
                                                                             false,
                                                                             ccddMain.getMainFrame()),
-                                                  createArrowButtonPanel()),
+                                                  createArrowButtonPanel(),
+                                                  JSplitPane.HORIZONTAL_SPLIT),
                               gbc);
 
                 // Create the field panel for the description and data fields

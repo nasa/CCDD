@@ -448,6 +448,13 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 // Get the macro definitions
                 response = getMacroDefinitions();
             }
+            // Check if this is a user authentication request
+            else if (component.equals("authenticate"))
+            {
+                // Authenticate the user credentials
+                response = authenticateUser(attributeAndName[0],
+                                            attributeAndName[1]);
+            }
             // Check if this is a web server shutdown request
             else if (component.equals("shutdown"))
             {
@@ -497,6 +504,33 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // encoder inserts into the string
             response = response.replaceAll("\\\\\\\\",
                                            "\\\\").replaceAll("\\\\/", "/");
+        }
+
+        return response;
+    }
+
+    /**************************************************************************
+     * Authenticate the specified user credentials
+     * 
+     * @param userName
+     *            user name
+     * 
+     * @param password
+     *            user password
+     * 
+     * @return The string "true" if the user name and password are valid for
+     *         the currently open database; otherwise returns "false"
+     *************************************************************************/
+    private String authenticateUser(String userName, String password)
+    {
+        String response = "false";
+
+        // Check if the user credentials are valid for the currently open
+        // database
+        if (ccddMain.getDbControlHandler().authenticateUser(userName, password))
+        {
+            // Set the response to indicate the credentials are valid
+            response = "true";
         }
 
         return response;
@@ -769,8 +803,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             JSONObject tableNameAndFields = new JSONObject();
             tableNameAndFields.put(JSONTags.TABLE_NAME.getTag(), tableName);
             tableNameAndFields = jsonHandler.getDataFields(tableName,
-                                                            JSONTags.TABLE_FIELD.getTag(),
-                                                            tableNameAndFields);
+                                                           JSONTags.TABLE_FIELD.getTag(),
+                                                           tableNameAndFields);
             response = tableNameAndFields.toString();
         }
 
@@ -1390,8 +1424,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     // Get the group data fields (extract the data field array
                     // from the table field tag)
                     JSONObject fieldsJO = jsonHandler.getDataFields(CcddFieldHandler.getFieldGroupName(groupName),
-                                                                     JSONTags.GROUP_FIELD.getTag(),
-                                                                     new JSONObject());
+                                                                    JSONTags.GROUP_FIELD.getTag(),
+                                                                    new JSONObject());
                     groupFieldsJA = (JSONArray) fieldsJO.get(JSONTags.GROUP_FIELD.getTag());
                 }
 

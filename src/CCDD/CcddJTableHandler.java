@@ -1166,13 +1166,19 @@ public abstract class CcddJTableHandler extends JTable
             }
         });
 
+        // Row height, used to set the viewport size, needs to be determined
+        // prior to loading the data, which can alter the height returned; and
+        // loading the data must be done prior to setting the viewport size in
+        // order for the initial viewport size to be set correctly
+        int rowHeight = getRowHeight();
+
         // Load the table data and format the table cells
         loadAndFormatData();
 
         // Set the initial number of rows to display in the table
         setPreferredScrollableViewportSize(new Dimension(getPreferredSize().width,
                                                          initialViewableRows
-                                                             * (getRowHeight()
+                                                             * (rowHeight
                                                                 + getRowMargin() * 2
                                                                 + 4)));
 
@@ -1311,14 +1317,8 @@ public abstract class CcddJTableHandler extends JTable
             }
         }
 
-        // Set up the renderers for the table cells
-        setCellRenderers(centerText);
-
         // Set up the table grid lines
         setTableGrid();
-
-        // Set the editor characteristics for the editable cells
-        setCellEditors();
 
         // Check if any columns are initially hidden
         if (hiddenColumnIndices != null && hiddenColumnIndices.length != 0)
@@ -1334,6 +1334,12 @@ public abstract class CcddJTableHandler extends JTable
             checkBoxColumnView.set(index,
                                    convertColumnIndexToView(checkBoxColumnModel.get(index)));
         }
+
+        // Set up the renderers for the table cells
+        setCellRenderers(centerText);
+
+        // Set the editor characteristics for the editable cells
+        setCellEditors();
 
         // Check if the width should be calculated
         if (calcTotalWidth)
@@ -3274,12 +3280,17 @@ public abstract class CcddJTableHandler extends JTable
             // Set the cell to the string representation of the value
             setText(value == null ? "" : value.toString());
 
-            // Set the text area's width to the table column width. This causes
-            // the JTextArea to calculate the height required to show all of
-            // the cell's text. Subtract 1 from the width so that cell text
-            // matching the exact width don't have text truncated
-            setSize(jtable.getColumnModel().getColumn(column).getWidth() - 1,
-                    jtable.getRowHeight(row));
+            // Check if the row and column indices are valid
+            if (row < table.getRowCount() && column < table.getColumnCount())
+            {
+                // Set the text area's width to the table column width. This
+                // causes the JTextArea to calculate the height required to
+                // show all of the cell's text. Subtract 1 from the width so
+                // that cell text matching the exact width don't have text
+                // truncated
+                setSize(jtable.getColumnModel().getColumn(column).getWidth() - 1,
+                        jtable.getRowHeight(row));
+            }
 
             return this;
         }
@@ -3369,7 +3380,7 @@ public abstract class CcddJTableHandler extends JTable
         // Check that a model data reload is not in progress, that the table
         // model is valid, and that the table has rows to display. The columns
         // are not correct until the model data reload is complete
-        if (!isReloadData && tableModel != null && table.getRowCount() != 0)
+        if (!isReloadData && tableModel != null && getRowCount() != 0)
         {
             // Flag to indicate if the changed row indices are valid
             boolean isValid = true;

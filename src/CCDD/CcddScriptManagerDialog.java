@@ -44,6 +44,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -52,6 +54,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
+import CCDD.CcddClasses.CustomSplitPane;
 import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
@@ -184,19 +187,20 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
                     dialogPnl.setBorder(BorderFactory.createEmptyBorder());
                     dialogPnl.add(createScriptSelectionPanel(), gbc);
 
-                    // Add the table selection panel components to the dialog
+                    // Add the script association list components to the
+                    // dialog within a vertically split pane. Use a separator
+                    // to denote the split pane's drag component
+                    JSeparator separator = new JSeparator();
+                    separator.setForeground(dialogPnl.getBackground().darker());
                     gbc.weighty = 1.0;
                     gbc.insets.top = LABEL_VERTICAL_SPACING;
                     gbc.gridy++;
-                    dialogPnl.add(createSelectionPanel("Select one or more tables",
-                                                       TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION),
+                    dialogPnl.add(new CustomSplitPane(createSelectionPanel("Select one or more tables",
+                                                                           TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION),
+                                                      createScriptAssnPanelWithButtons(),
+                                                      separator,
+                                                      JSplitPane.VERTICAL_SPLIT),
                                   gbc);
-
-                    // Add the script association list components to the dialog
-                    gbc.insets.left = LABEL_HORIZONTAL_SPACING;
-                    gbc.insets.bottom = 0;
-                    gbc.gridy++;
-                    dialogPnl.add(createScriptAssnPanelWithButtons(), gbc);
 
                     // Define the buttons for the lower panel:
                     // Add association button
@@ -538,7 +542,7 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
                                                         GridBagConstraints.BOTH,
                                                         new Insets(LABEL_VERTICAL_SPACING / 2,
                                                                    0,
-                                                                   LABEL_VERTICAL_SPACING / 2,
+                                                                   LABEL_VERTICAL_SPACING,
                                                                    0),
                                                         0,
                                                         0);
@@ -756,7 +760,8 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
                     {
                         // Separate the selected item into the script name and
                         // table name(s),if any
-                        String[] association = scriptHandler.getAssociationsLongModel().get(index).split(Pattern.quote(LIST_TABLE_DESC_SEPARATOR));
+                        String[] association = scriptHandler.getAssociationsLongModel().get(index)
+                                                            .split(Pattern.quote(LIST_TABLE_DESC_SEPARATOR), 2);
 
                         // Store the script file name with path in the the
                         // script file field
@@ -773,7 +778,7 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
                         {
                             // Get the node in the table tree for this table
                             // name
-                            ToolTipTreeNode node = tableTree.getNodeFromNodeName(tableName);
+                            ToolTipTreeNode node = tableTree.getNodeByNodePath(tableName);
 
                             // Check if the table name is in the tree
                             if (node != null)
@@ -819,10 +824,8 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
         if (!isAssociationExists(scriptFile.getAbsolutePath(), tables))
         {
             // Create the short and long form script association strings
-            String assnShort = scriptFile.getName()
-                               + LIST_TABLE_DESC_SEPARATOR;
-            String assnLong = scriptFile.getAbsolutePath()
-                              + LIST_TABLE_DESC_SEPARATOR;
+            String assnShort = scriptFile.getName() + LIST_TABLE_DESC_SEPARATOR;
+            String assnLong = scriptFile.getAbsolutePath() + LIST_TABLE_DESC_SEPARATOR;
 
             // Step through each selected table in the tree
             for (String table : tables)
@@ -918,7 +921,7 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
             {
                 // Split the committed script association definition to
                 // separate the script from the table names
-                String[] scriptAndTable = curr.get(index).toString().split(Pattern.quote(LIST_TABLE_DESC_SEPARATOR));
+                String[] scriptAndTable = curr.get(index).toString().split(Pattern.quote(LIST_TABLE_DESC_SEPARATOR), 2);
 
                 // Check if the script association differs between the current
                 // and committed lists

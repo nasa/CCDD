@@ -186,8 +186,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                     // Step through the open table editor dialogs
                     for (CcddTableEditorDialog editorDialog : ccddMain.getTableEditorDialogs())
                     {
-                        int tabIndex = 0;
-
                         // Step through each individual editor
                         for (CcddTableEditorHandler editor : editorDialog.getTableEditors())
                         {
@@ -197,11 +195,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                    nameFld.getText(),
                                                                    null,
                                                                    null,
-                                                                   tabIndex,
                                                                    editorDialog,
                                                                    editor);
-
-                            tabIndex++;
                         }
                     }
 

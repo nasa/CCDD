@@ -28,6 +28,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -1252,19 +1253,13 @@ public class CcddScriptHandler
                 textColor = DISABLED_TEXT_COLOR;
             }
 
-            // TODO GET THE OS NAME. NEED SOME WAY TO GET THE FILE NAME FROM
-            // ANY OS' PATH. MAYBE SEARCH BACKWARD FOR FIRST NON_LEGAL CHAR
-            // (PROB: WHAT IS NON_LEGAL VARIES BY OS)
-            // System.out.println(System.getProperty("os.name"));// TODO
-
-            // Add the association to the script associations lists
+            // Add the association to the script associations lists. The script
+            // path may be from another operating system in which case
+            // file.getName() doesn't extract the file name for the displayed
+            // list; instead a replaceFirst() call is used to remove the path
+            // regardless of the originating OS
             associationsModel.addElement(textColor
-                                         // TODO IF IN LINUX AND THE ASSN WAS
-                                         // CREATED IN WINDOWS THEN IT CAN'T
-                                         // EXTRACT THE FILE FROM THE PATH, SO
-                                         // THE ENTIRE PATH APPEARS IN THE ASSN
-                                         // LIST
-                                         + file.getName()
+                                         + association[AssociationsColumn.SCRIPT_FILE.ordinal()].replaceFirst("^.*[\\\\/:]", "")
                                          + LIST_TABLE_DESC_SEPARATOR
                                          + association[AssociationsColumn.MEMBERS.ordinal()]);
             associationsLongModel.addElement(association[AssociationsColumn.SCRIPT_FILE.ordinal()]
@@ -1273,7 +1268,18 @@ public class CcddScriptHandler
         }
 
         // Create the script associations JList
-        associationsList = new JList<String>(associationsModel);
+        associationsList = new JList<String>(associationsModel)
+        {
+            /******************************************************************
+             * Generate a tool tip using the long model (with script file path)
+             *****************************************************************/
+            @Override
+            public String getToolTipText(MouseEvent event)
+            {
+                return CcddUtilities.wrapText(CcddUtilities.removeHTMLTags(associationsLongModel.getElementAt(locationToIndex(event.getPoint()))),
+                                              80);
+            }
+        };
 
         // Set the list selection model in order to detect list items that
         // aren't allowed to be selected

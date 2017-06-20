@@ -6,20 +6,26 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.AUTO_COMPLETE_TEXT_SEPARATOR;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_HOST;
 import static CCDD.CcddConstants.DEFAULT_WEB_SERVER_PORT;
 import static CCDD.CcddConstants.LABEL_FONT_BOLD;
 import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
 import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
 import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
+import static CCDD.CcddConstants.NUM_REMEMBERED_SERVERS;
 import static CCDD.CcddConstants.OK_BUTTON;
+import static CCDD.CcddConstants.SEARCH_STRINGS;
+import static CCDD.CcddConstants.SERVER_STRINGS;
 import static CCDD.CcddConstants.WEB_SERVER_PORT;
 
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -30,6 +36,7 @@ import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 
+import CCDD.CcddClasses.AutoCompleteTextField;
 import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
@@ -51,7 +58,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
     private JTextField userField;
     private JLabel portLabel;
     private JTextField portField;
-    private JTextField hostField;
+    private AutoCompleteTextField hostField;
 
     /**************************************************************************
      * Server properties dialog class constructor
@@ -241,14 +248,21 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                 break;
 
             case DB_SERVER:
-                // Create the database server host and port dialog labels and
-                // fields
+                // Create the database server host, using the list of
+                // remembered servers from the program preferences, and port
+                // dialog labels and fields
                 JLabel hostLabel = new JLabel("Host");
                 hostLabel.setFont(LABEL_FONT_BOLD);
                 gbc.weightx = 0.0;
                 selectPanel.add(hostLabel, gbc);
 
-                hostField = new JTextField(dbControl.getHost(), 15);
+                List<String> servers = new ArrayList<String>(NUM_REMEMBERED_SERVERS);
+                servers.addAll(Arrays.asList(ccddMain.getProgPrefs().get(SERVER_STRINGS,
+                                                                         "").split(AUTO_COMPLETE_TEXT_SEPARATOR)));
+                hostField = new AutoCompleteTextField(servers,
+                                                      NUM_REMEMBERED_SERVERS);
+                hostField.setText(dbControl.getHost());
+                hostField.setColumns(15);
                 hostField.setFont(LABEL_FONT_PLAIN);
                 hostField.setEditable(true);
                 hostField.setForeground(Color.BLACK);
@@ -282,6 +296,11 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                                       "Database Server",
                                       DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                 {
+                    // Update the host list and store it in the program
+                    // preferences
+                    hostField.updateList(hostField.getText());
+                    ccddMain.getProgPrefs().put(SEARCH_STRINGS, hostField.getListAsString());
+
                     // Store the server host and port
                     dbControl.setHost(hostField.getText());
                     dbControl.setPort(portField.getText());

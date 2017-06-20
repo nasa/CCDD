@@ -6,6 +6,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.POSTGRESQL_RESERVED_CHARS;
 import static CCDD.CcddConstants.SPLIT_IGNORE_QUOTES;
 
 import java.awt.Color;
@@ -723,18 +724,19 @@ public class CcddUtilities
     }
 
     /**************************************************************************
-     * Pad the brackets in the supplied string with backslashes so that when
-     * used in a regular expression the brackets are recognized properly
+     * Escape any PostgreSQL reserved characters in the supplied string so that
+     * when used in a regular expression the characters are recognized properly
      * 
-     * @param name
-     *            string in which to pad the brackets with backslashes
+     * @param text
+     *            string in which to escape any reserved characters
      * 
-     * @return String with the brackets padded with backslashes so that the
-     *         backslashes are recognized by a regular expression
+     * @return String with any reserved PostgreSQL characters escaped so that
+     *         they are recognized by a regular expression
      *************************************************************************/
-    protected static String padBracketsForRegEx(String name)
+    protected static String escapePostgreSQLReservedChars(String text)
     {
-        return name.replaceAll("\\[(\\d+)\\]", "\\\\\\\\[$1\\\\\\\\]");
+        return text.replaceAll("\\\\", "\\\\\\\\\\\\\\\\")
+                   .replaceAll(POSTGRESQL_RESERVED_CHARS, "$1\\\\\\\\$2$3");
     }
 
     /**************************************************************************

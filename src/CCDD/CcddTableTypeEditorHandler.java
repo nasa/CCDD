@@ -871,7 +871,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                     }
 
                     // Update the change indicator for the table
-                    editorDialog.updateChangeIndicator();
+                    editorDialog.updateChangeIndicator(CcddTableTypeEditorHandler.this);
                 }
 
                 // Reset the bad input type flag so that subsequent table type
@@ -1370,6 +1370,6 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     @Override
     protected void updateOwnerChangeIndicator()
     {
-        editorDialog.updateChangeIndicator();
+        editorDialog.updateChangeIndicator(this);
     }
 }

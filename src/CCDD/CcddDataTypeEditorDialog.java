@@ -318,7 +318,8 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
                             // Check if the data type is used in any of the
                             // data tables
-                            if (dataTypeHandler.getDataTypeReferences(name, CcddDataTypeEditorDialog.this).length != 0)
+                            if (!name.isEmpty()
+                                && dataTypeHandler.getDataTypeReferences(name, CcddDataTypeEditorDialog.this).length != 0)
                             {
                                 // Deselect the data type
                                 dataTypeTable.removeRowSelectionInterval(row, row);

@@ -126,7 +126,7 @@ public class CcddCommonTreeHandler extends JTree
     }
 
     /**************************************************************************
-     * Expand or collapse the all of the nodes in the tree
+     * Expand or collapse all of the nodes in the tree
      * 
      * @param isExpanded
      *            true if all tree nodes should be expanded

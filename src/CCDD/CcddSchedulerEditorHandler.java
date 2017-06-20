@@ -734,7 +734,10 @@ public class CcddSchedulerEditorHandler
         }
 
         // Add the scheduler table and assignment tree/list to the split pane
-        tableSpltPn = new CustomSplitPane(schedulerPnl, assignmentPnl, null);
+        tableSpltPn = new CustomSplitPane(schedulerPnl,
+                                          assignmentPnl,
+                                          null,
+                                          JSplitPane.HORIZONTAL_SPLIT);
     }
 
     /**************************************************************************

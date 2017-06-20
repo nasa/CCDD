@@ -1307,12 +1307,16 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     }
 
     /**************************************************************************
-     * Update the change indicator for the current table type editor
+     * Update the change indicator for the specified table type editor
+     * 
+     * @param typeEditor
+     *            reference to the table type editor for which the change
+     *            indicator is to be updated
      *************************************************************************/
-    protected void updateChangeIndicator()
+    protected void updateChangeIndicator(CcddTableTypeEditorHandler typeEditor)
     {
-        // Get the index of the currently displayed tab
-        int index = tabbedPane.getSelectedIndex();
+        // Get the index of the specified tab
+        int index = typeEditors.indexOf(typeEditor);
 
         // Check that the tab index is valid
         if (index != -1)
@@ -1321,9 +1325,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
             // exist
             tabbedPane.setTitleAt(index,
                                   tabbedPane.getTitleAt(index).replaceAll("\\*", "")
-                                      + (typeEditors.get(index).isTableChanged()
-                                                                                ? "*"
-                                                                                : ""));
+                                      + (typeEditor.isTableChanged()
+                                                                    ? "*"
+                                                                    : ""));
         }
     }
 

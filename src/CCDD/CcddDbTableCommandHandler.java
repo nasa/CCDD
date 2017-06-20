@@ -10,8 +10,10 @@ import static CCDD.CcddConstants.DB_SAVE_POINT_NAME;
 import static CCDD.CcddConstants.DIALOG_MAX_MESSAGE_LENGTH;
 import static CCDD.CcddConstants.ENUMERATION_SEPARATOR;
 import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
+import static CCDD.CcddConstants.LIST_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.OK_BUTTON;
+import static CCDD.CcddConstants.PATH_IDENT;
 import static CCDD.CcddConstants.REPLACE_INDICATOR;
 import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
 import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
@@ -37,12 +39,14 @@ import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.ArrayVariable;
 import CCDD.CcddClasses.FieldInformation;
+import CCDD.CcddClasses.NodeIndex;
 import CCDD.CcddClasses.RateInformation;
 import CCDD.CcddClasses.TableAddition;
 import CCDD.CcddClasses.TableDeletion;
 import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddClasses.TableMembers;
 import CCDD.CcddClasses.TableModification;
+import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.DatabaseObject;
@@ -80,6 +84,12 @@ public class CcddDbTableCommandHandler
     private CcddRateParameterHandler rateHandler;
     private CcddDataTypeHandler dataTypeHandler;
 
+    // Character(s) separating table references in the script associations and
+    // telemetry scheduler tables, with any special characters escaped so as to
+    // be used in a PostgrSQL command
+    private final String assnsSeparator;
+    private final String tlmSchSeparator;
+
     /**************************************************************************
      * Database table command handler class constructor
      * 
@@ -94,6 +104,12 @@ public class CcddDbTableCommandHandler
         dbCommand = ccddMain.getDbCommandHandler();
         dbControl = ccddMain.getDbControlHandler();
         eventLog = ccddMain.getSessionEventLog();
+
+        // Escape any special characters in the script associations and
+        // telemetry scheduler table
+        // separators
+        assnsSeparator = CcddUtilities.escapePostgreSQLReservedChars(LIST_TABLE_SEPARATOR);
+        tlmSchSeparator = CcddUtilities.escapePostgreSQLReservedChars(TLM_SCH_SEPARATOR);
     }
 
     /**************************************************************************
@@ -1285,6 +1301,10 @@ public class CcddDbTableCommandHandler
                                   + renameInfoTableCommand(InternalTable.ORDERS,
                                                            OrdersColumn.TABLE_PATH.getColumnName(),
                                                            tableName,
+                                                           newName)
+                                  + renameInfoTableCommand(InternalTable.ASSOCIATIONS,
+                                                           AssociationsColumn.MEMBERS.getColumnName(),
+                                                           tableName,
                                                            newName);
                     }
 
@@ -1361,44 +1381,38 @@ public class CcddDbTableCommandHandler
      * @param newName
      *            new name for this table
      * 
-     * @return Command to rename the table in the specified internal table
+     * @return Command to rename the table reference in the specified internal
+     *         table
      *************************************************************************/
     private String renameInfoTableCommand(InternalTable intType,
                                           String idColumnName,
                                           String oldName,
                                           String newName)
     {
+        // Get the table separator, escaping any special character(s)
+        String separator = intType == InternalTable.ASSOCIATIONS
+                                                                ? "|"
+                                                                  + assnsSeparator
+                                                                : "";
+
         return "UPDATE "
                + intType.getTableName()
                + " SET "
                + idColumnName
                + " = regexp_replace("
                + idColumnName
-               + ", E'^"
+               + ", E'(^|,"
+               + (intType == InternalTable.TLM_SCHEDULER
+                                                        ? "|"
+                                                          + tlmSchSeparator
+                                                        : separator)
+               + ")"
                + oldName
-               + "$', E'"
+               + "(\\\\.|,"
+               + separator
+               + "|$)', E'\\\\1"
                + newName
-               + "'); UPDATE "
-               + intType.getTableName()
-               + " SET "
-               + idColumnName
-               + " = regexp_replace("
-               + idColumnName
-               + ", E'^"
-               + oldName
-               + ",', E'"
-               + newName
-               + ",'); UPDATE "
-               + intType.getTableName()
-               + " SET "
-               + idColumnName
-               + " = regexp_replace("
-               + idColumnName
-               + ", E',"
-               + oldName
-               + "\\.', E',"
-               + newName
-               + "\\.'); ";
+               + "\\\\2'); ";
     }
 
     /**************************************************************************
@@ -1713,25 +1727,26 @@ public class CcddDbTableCommandHandler
         // Check if these are data tables
         if (isDataTable)
         {
-            String valuesCmd = "; DELETE FROM "
-                               + InternalTable.VALUES.getTableName()
-                               + " WHERE ";
-            String linksCmd = "; DELETE FROM "
-                              + InternalTable.LINKS.getTableName()
-                              + " WHERE ";
-            String tlmSchCmd = "; DELETE FROM "
-                               + InternalTable.TLM_SCHEDULER.getTableName()
-                               + " WHERE ";
-            String groupsCmd = "; DELETE FROM "
-                               + InternalTable.GROUPS.getTableName()
-                               + " WHERE ";
-            String fieldsCmd = "; DELETE FROM "
-                               + InternalTable.FIELDS.getTableName()
-                               + " WHERE ";
-            String ordersCmd = "; DELETE FROM "
-                               + InternalTable.ORDERS.getTableName()
-                               + " WHERE ";
+            String valuesDelCmd = "; DELETE FROM "
+                                  + InternalTable.VALUES.getTableName()
+                                  + " WHERE ";
+            String linksDelCmd = "; DELETE FROM "
+                                 + InternalTable.LINKS.getTableName()
+                                 + " WHERE ";
+            String tlmSchDelCmd = "; DELETE FROM "
+                                  + InternalTable.TLM_SCHEDULER.getTableName()
+                                  + " WHERE ";
+            String groupsDelCmd = "; DELETE FROM "
+                                  + InternalTable.GROUPS.getTableName()
+                                  + " WHERE ";
+            String fieldsDelCmd = "; DELETE FROM "
+                                  + InternalTable.FIELDS.getTableName()
+                                  + " WHERE ";
+            String ordersDelCmd = "; DELETE FROM "
+                                  + InternalTable.ORDERS.getTableName()
+                                  + " WHERE ";
             String infoCmd = "";
+            String assnsUpdCmd = "";
 
             // Step through the array of table names
             for (String name : tableNames)
@@ -1743,43 +1758,82 @@ public class CcddDbTableCommandHandler
                            + name
                            + ",' OR col1 ~ E',"
                            + name
-                           + ".' OR ";
+                           + "\\\\.' OR ";
+
+                // Build the command to update the script associations table by
+                // removing references to this table
+                assnsUpdCmd += "; UPDATE "
+                               + InternalTable.ASSOCIATIONS.getTableName()
+                               + " SET "
+                               + AssociationsColumn.MEMBERS.getColumnName()
+                               + " = regexp_replace("
+                               + AssociationsColumn.MEMBERS.getColumnName()
+                               + ", E'(?:(?:^|(?:"
+                               + PATH_IDENT
+                               + ",))"
+                               + name
+                               + "(?:(?:,|\\\\.)"
+                               + PATH_IDENT
+                               + ")?"
+                               + assnsSeparator
+                               + "|"
+                               + assnsSeparator
+                               + "(?:^| \\+ |"
+                               + PATH_IDENT
+                               + ",)?"
+                               + name
+                               + "(?:(?:,|\\\\.)"
+                               + PATH_IDENT
+                               + ")?)', E'', 'g'); UPDATE "
+                               + InternalTable.ASSOCIATIONS.getTableName()
+                               + " SET "
+                               + AssociationsColumn.MEMBERS.getColumnName()
+                               + " = '' WHERE "
+                               + AssociationsColumn.MEMBERS.getColumnName()
+                               + " ~ E'^(?:"
+                               + PATH_IDENT
+                               + ",)?"
+                               + name
+                               + "(?:(?:,|\\\\.)"
+                               + PATH_IDENT
+                               + ")?$'";
             }
 
             // Replace the column 1 name placeholder with the table's column 1
             // name, then add the update string to the command. In the
             // telemetry scheduler table the table names are preceded by the
             // rate value and a separator which must be skipped
-            valuesCmd += infoCmd.replaceAll("col1",
-                                            ValuesColumn.TABLE_PATH.getColumnName());
-            linksCmd += infoCmd.replaceAll("col1",
-                                           LinksColumn.MEMBER.getColumnName());
-            tlmSchCmd += infoCmd.replaceAll("col1",
-                                            TlmSchedulerColumn.MEMBER.getColumnName());
-            tlmSchCmd = tlmSchCmd.replaceAll("\\^",
-                                             "^\\\\\\\\d+\\\\\\\\.\\\\\\\\d+"
-                                                 + "\\\\\\\\\\\\\\"
-                                                 + TLM_SCH_SEPARATOR);
-            groupsCmd += infoCmd.replaceAll("col1",
-                                            GroupsColumn.MEMBERS.getColumnName());
-            fieldsCmd += infoCmd.replaceAll("col1",
-                                            FieldsColumn.OWNER_NAME.getColumnName());
-            ordersCmd += infoCmd.replaceAll("col1",
-                                            OrdersColumn.TABLE_PATH.getColumnName());
+            valuesDelCmd += infoCmd.replaceAll("col1",
+                                               ValuesColumn.TABLE_PATH.getColumnName());
+            linksDelCmd += infoCmd.replaceAll("col1",
+                                              LinksColumn.MEMBER.getColumnName());
+            tlmSchDelCmd += infoCmd.replaceAll("col1",
+                                               TlmSchedulerColumn.MEMBER.getColumnName())
+                                   .replaceAll("\\^",
+                                               "^\\\\\\\\d+\\\\\\\\.\\\\\\\\d+"
+                                                   + "\\\\\\\\\\\\\\"
+                                                   + TLM_SCH_SEPARATOR);
+            groupsDelCmd += infoCmd.replaceAll("col1",
+                                               GroupsColumn.MEMBERS.getColumnName());
+            fieldsDelCmd += infoCmd.replaceAll("col1",
+                                               FieldsColumn.OWNER_NAME.getColumnName());
+            ordersDelCmd += infoCmd.replaceAll("col1",
+                                               OrdersColumn.TABLE_PATH.getColumnName());
 
-            // Add the internal table command to the deletion command
-            command += CcddUtilities.removeTrailer(valuesCmd,
+            // Add the internal table commands to the table deletion command
+            command += CcddUtilities.removeTrailer(valuesDelCmd,
                                                    " OR ")
-                       + CcddUtilities.removeTrailer(linksCmd,
+                       + CcddUtilities.removeTrailer(linksDelCmd,
                                                      " OR ")
-                       + CcddUtilities.removeTrailer(tlmSchCmd,
+                       + CcddUtilities.removeTrailer(tlmSchDelCmd,
                                                      " OR ")
-                       + CcddUtilities.removeTrailer(groupsCmd,
+                       + CcddUtilities.removeTrailer(groupsDelCmd,
                                                      " OR ")
-                       + CcddUtilities.removeTrailer(fieldsCmd,
+                       + CcddUtilities.removeTrailer(fieldsDelCmd,
                                                      " OR ")
-                       + CcddUtilities.removeTrailer(ordersCmd,
-                                                     " OR ");
+                       + CcddUtilities.removeTrailer(ordersDelCmd,
+                                                     " OR ")
+                       + assnsUpdCmd;
         }
 
         return command + ";";
@@ -2411,14 +2465,105 @@ public class CcddDbTableCommandHandler
                         && (!dataTypeHandler.isPrimitive(dataType)
                         || memberType == TableMemberType.INCLUDE_PRIMITIVES))
                     {
+                        // Get the number of variable names in the list
+                        int addIndex = variableNames.size();
+
+                        // Check if a variable name is already in the list
+                        if (addIndex != 0)
+                        {
+                            // Get the name of the last variable added to the
+                            // list
+                            String lastVarName = variableNames.get(addIndex - 1);
+
+                            // Check if the current and previous variables are
+                            // members of the same array
+                            if (ArrayVariable.isArrayMember(variableName)
+                                && ArrayVariable.isArrayMember(lastVarName)
+                                && ArrayVariable.removeArrayIndex(variableName)
+                                                .equals(ArrayVariable.removeArrayIndex(lastVarName)))
+                            {
+                                // The PostgreSQL function that obtains the
+                                // table members sorts the members by variable
+                                // name. However, array indices are treated as
+                                // strings when sorting, so array member [10]
+                                // appears immediately after member [1] instead
+                                // of after [9]. This code section determines
+                                // the position in the list where the current
+                                // array member should be placed relative to
+                                // those members already in the list
+
+                                // Get the current variable's array indices
+                                int[] varIndex = ArrayVariable.getArrayIndexFromSize(ArrayVariable.getVariableArrayIndex(variableName)
+                                                                                                  .replaceAll("\\]\\[", ",")
+                                                                                                  .replaceAll("[\\]\\[]", ""));
+
+                                boolean notFound = false;
+
+                                do
+                                {
+                                    notFound = true;
+
+                                    // Get the array indices of the previous
+                                    // variable
+                                    int[] prevIndex = ArrayVariable.getArrayIndexFromSize(ArrayVariable.getVariableArrayIndex(variableNames.get(addIndex - 1))
+                                                                                                       .replaceAll("\\]\\[", ",")
+                                                                                                       .replaceAll("[\\]\\[]", ""));
+                                    // Step through each array index, beginning
+                                    // with the leftmost one (this accounts for
+                                    // arrays with any number of dimensions)
+                                    for (int i = 0; i < varIndex.length; i++)
+                                    {
+                                        // Check if the index of the current
+                                        // variable for this array dimension is
+                                        // less than that of the same dimension
+                                        // in the comparison variable
+                                        if (varIndex[i] < prevIndex[i])
+                                        {
+                                            // The current variable should be
+                                            // placed prior to the comparison
+                                            // variable. Decrement the variable
+                                            // insertion index
+                                            addIndex--;
+                                            break;
+                                        }
+                                        // Check if the index of the current
+                                        // variable for this array dimension is
+                                        // greater than that of the same
+                                        // dimension in the comparison variable
+                                        else if (varIndex[i] > prevIndex[i])
+                                        {
+                                            // The current variable should be
+                                            // placed after the comparison
+                                            // variable. Set the flag
+                                            // indicating that the position of
+                                            // the current variable in the list
+                                            // is located and stop checking the
+                                            // dimension values
+                                            notFound = false;
+                                            break;
+                                        }
+
+                                        // The dimension values of the current
+                                        // variable and the comparison variable
+                                        // are the same; allow the 'for' loop
+                                        // to continue to the next dimension
+                                    }
+                                } while (notFound);
+                                // Continue to adjust the insertion index as
+                                // long as the current variable's array indices
+                                // places it prior to the that of the variable
+                                // at the current insertion index
+                            }
+                        }
+
                         // Add the data type, variable name, bit length,
                         // rate(s), and enumeration(s) to the lists for this
                         // table
-                        dataTypes.add(dataType);
-                        variableNames.add(variableName);
-                        bitLengths.add(bitLength);
-                        rates.add(rate);
-                        enumerations.add(enumeration);
+                        dataTypes.add(addIndex, dataType);
+                        variableNames.add(addIndex, variableName);
+                        bitLengths.add(addIndex, bitLength);
+                        rates.add(addIndex, rate);
+                        enumerations.add(addIndex, enumeration);
                     }
 
                     // Go to the next row in the query results; set the flag to
@@ -2656,6 +2801,7 @@ public class CcddDbTableCommandHandler
         try
         {
             CcddTableTreeHandler tableTree = null;
+            List<String> rootTables = null;
 
             // Get the name of the table to modify and convert the table name
             // to lower case. PostgreSQL automatically does this, so it's done
@@ -2666,20 +2812,31 @@ public class CcddDbTableCommandHandler
             // Get the table type definition
             TypeDefinition typeDefinition = tableTypeHandler.getTypeDefinition(tableInfo.getType());
 
-            // Check if there are any modifications or deletions
-            if (!modifications.isEmpty() || !deletions.isEmpty())
+            // Check if references in the internal tables are to be updated
+            if (!skipInternalTables)
             {
-                // Create the table tree. This is needed if a variable name has
-                // been changed or deleted
+                // Create the table tree
                 tableTree = new CcddTableTreeHandler(ccddMain,
-                                                     TableTreeType.INSTANCE_TABLES,
+                                                     TableTreeType.INSTANCE_TABLES_WITH_PRIMITIVES,
                                                      parent);
+
+                // Check if there are any additions or modifications
+                if (!additions.isEmpty() || !modifications.isEmpty())
+                {
+                    // Get the list of root tables
+                    rootTables = tableTree.getTableTreePathList(null,
+                                                                (ToolTipTreeNode) tableTree.getRootNode(),
+                                                                tableTree.getTableNodeLevel());
+                }
             }
 
             // Build the commands to add, modify, and delete table rows
             String command = buildAdditionCommand(tableInfo,
                                                   additions,
-                                                  dbTableName)
+                                                  dbTableName,
+                                                  typeDefinition,
+                                                  rootTables,
+                                                  skipInternalTables)
                              + buildModificationCommand(tableInfo,
                                                         typeDefinition.isStructure(),
                                                         modifications,
@@ -2687,6 +2844,7 @@ public class CcddDbTableCommandHandler
                                                         newDataTypeHandler,
                                                         newMacroHandler,
                                                         tableTree,
+                                                        rootTables,
                                                         skipInternalTables)
                              + buildDeletionCommand(tableInfo,
                                                     typeDefinition.isStructure(),
@@ -2799,17 +2957,40 @@ public class CcddDbTableCommandHandler
      * @param dbTableName
      *            name of the table to which to add rows
      * 
+     * @param typeDefinition
+     *            table type definition
+     * 
+     * @param rootTables
+     *            list containing the names of the root tables
+     * 
+     * @param skipInternalTables
+     *            true to not build and execute the commands to update the
+     *            internal tables. This is used during a data type update where
+     *            only the data type name has changed in order to speed up the
+     *            operation
+     * 
      * @return Table row addition command
      *************************************************************************/
     private String buildAdditionCommand(TableInformation tableInfo,
                                         List<TableAddition> additions,
-                                        String dbTableName)
+                                        String dbTableName,
+                                        TypeDefinition typeDefinition,
+                                        List<String> rootTables,
+                                        boolean skipInternalTables)
     {
         StringBuilder addCmd = new StringBuilder("");
 
         // Check if there are any table additions
         if (!additions.isEmpty())
         {
+            StringBuilder valuesAddCmd = new StringBuilder("");
+            StringBuilder linksAddCmd = new StringBuilder("");
+            StringBuilder tlmAddCmd = new StringBuilder("");
+            StringBuilder groupsAddCmd = new StringBuilder("");
+            StringBuilder fieldsAddCmd = new StringBuilder("");
+            StringBuilder ordersAddCmd = new StringBuilder("");
+            StringBuilder assnsAddCmd = new StringBuilder("");
+
             // Create the insert table data command. The array of column names
             // is converted to a string
             addCmd.append("INSERT INTO "
@@ -2838,12 +3019,131 @@ public class CcddDbTableCommandHandler
                 // parenthesis, and add the command to add this row
                 addCmd = CcddUtilities.removeTrailer(addCmd, ", ");
                 addCmd.append("), ");
+
+                // Check if internal tables are to be updated and the parent
+                // table is a structure
+                if (!skipInternalTables && typeDefinition.isStructure())
+                {
+                    // Get the data type for the variable in the new row
+                    String dataType = add.getRowData()[add.getDataTypeColumn()].toString();
+
+                    // Check if the data type isn't a primitive (i.e., it must
+                    // be a structure table) and that this structure is a root
+                    // table
+                    if (!dataTypeHandler.isPrimitive(dataType)
+                        && rootTables.contains(dataType))
+                    {
+                        // Get the variable path
+                        String newVariablePath = tableInfo.getTablePath()
+                                                 + ","
+                                                 + dataType
+                                                 + "."
+                                                 + add.getRowData()[add.getVariableColumn()].toString();
+
+                        // If the structure chosen as the variable's data type
+                        // is a root structure, then any custom values for this
+                        // the root structure (which becomes a child structure)
+                        // are transferred to its new parent structure.
+                        // References in the other internal tables are also
+                        // changed to the structure's new path as a child
+                        valuesAddCmd.append("UPDATE "
+                                            + InternalTable.VALUES.getTableName()
+                                            + " SET "
+                                            + ValuesColumn.TABLE_PATH.getColumnName()
+                                            + " = regexp_replace("
+                                            + ValuesColumn.TABLE_PATH.getColumnName()
+                                            + ", E'^"
+                                            + dataType
+                                            + ",', E'"
+                                            + newVariablePath
+                                            + ",'); ");
+                        groupsAddCmd.append("UPDATE "
+                                            + InternalTable.GROUPS.getTableName()
+                                            + " SET "
+                                            + GroupsColumn.MEMBERS.getColumnName()
+                                            + " = regexp_replace("
+                                            + GroupsColumn.MEMBERS.getColumnName()
+                                            + ", E'^"
+                                            + dataType
+                                            + "(,|$)', E'"
+                                            + newVariablePath
+                                            + "\\\\1'); ");
+                        fieldsAddCmd.append("UPDATE "
+                                            + InternalTable.FIELDS.getTableName()
+                                            + " SET "
+                                            + FieldsColumn.OWNER_NAME.getColumnName()
+                                            + " = regexp_replace("
+                                            + FieldsColumn.OWNER_NAME.getColumnName()
+                                            + ", E'^"
+                                            + dataType
+                                            + "(,|$)', E'"
+                                            + newVariablePath
+                                            + "\\\\1'); ");
+                        ordersAddCmd.append("UPDATE "
+                                            + InternalTable.ORDERS.getTableName()
+                                            + " SET "
+                                            + OrdersColumn.TABLE_PATH.getColumnName()
+                                            + " = regexp_replace("
+                                            + OrdersColumn.TABLE_PATH.getColumnName()
+                                            + ", E'^"
+                                            + dataType
+                                            + "(,|$)', E'"
+                                            + newVariablePath
+                                            + "\\\\1'); ");
+                        String orgPathWithChildren = dataType
+                                                     + "(,"
+                                                     + PATH_IDENT
+                                                     + ")?";
+                        assnsAddCmd.append("UPDATE "
+                                           + InternalTable.ASSOCIATIONS.getTableName()
+                                           + " SET "
+                                           + AssociationsColumn.MEMBERS.getColumnName()
+                                           + " = regexp_replace("
+                                           + AssociationsColumn.MEMBERS.getColumnName()
+                                           + ", E'(?:^"
+                                           + orgPathWithChildren
+                                           + "|("
+                                           + assnsSeparator
+                                           + ")"
+                                           + orgPathWithChildren
+                                           + ")', E'\\\\2"
+                                           + newVariablePath
+                                           + "\\\\1\\\\3', 'g'); ");
+
+                        // References in the links and telemetry scheduler to
+                        // the root structure and its children are not
+                        // automatically amended to include the new parent
+                        // structure path, but are instead removed
+                        linksAddCmd.append("DELETE FROM "
+                                           + InternalTable.LINKS.getTableName()
+                                           + " WHERE "
+                                           + LinksColumn.MEMBER.getColumnName()
+                                           + " ~ E'^"
+                                           + dataType
+                                           + "(?:,|$)'; ");
+                        tlmAddCmd.append("DELETE FROM "
+                                         + InternalTable.TLM_SCHEDULER.getTableName()
+                                         + " WHERE "
+                                         + TlmSchedulerColumn.MEMBER.getColumnName()
+                                         + " ~ E'^.*"
+                                         + tlmSchSeparator
+                                         + dataType
+                                         + "(?:,|$)'; ");
+                    }
+                }
             }
 
             // Remove the ending comma and space, and append the command's
             // closing semi-colon
             addCmd = CcddUtilities.removeTrailer(addCmd, ", ");
-            addCmd.append("; ");
+            addCmd.append("; "
+                          + valuesAddCmd.toString()
+                          + linksAddCmd.toString()
+                          + tlmAddCmd.toString()
+                          + groupsAddCmd.toString()
+                          + fieldsAddCmd.toString()
+                          + ordersAddCmd.toString()
+                          + assnsAddCmd.toString());
         }
 
         return addCmd.toString();
@@ -2872,6 +3172,9 @@ public class CcddDbTableCommandHandler
      * @param tableTree
      *            CcddTableTreeHandler reference describing the table tree
      * 
+     * @param rootTables
+     *            list containing the names of the root tables
+     * 
      * @param skipInternalTables
      *            true to not build and execute the commands to update the
      *            internal tables. This is used during a data type update where
@@ -2887,6 +3190,7 @@ public class CcddDbTableCommandHandler
                                             CcddDataTypeHandler newDataTypeHandler,
                                             CcddMacroHandler newMacroHandler,
                                             CcddTableTreeHandler tableTree,
+                                            List<String> rootTables,
                                             boolean skipInternalTables)
     {
         StringBuilder modCmd = new StringBuilder("");
@@ -2924,6 +3228,7 @@ public class CcddDbTableCommandHandler
                     StringBuilder groupsModCmd = new StringBuilder("");
                     StringBuilder fieldsModCmd = new StringBuilder("");
                     StringBuilder ordersModCmd = new StringBuilder("");
+                    StringBuilder assnsModCmd = new StringBuilder("");
 
                     // Build the update command
                     modCmd.append("UPDATE "
@@ -2945,15 +3250,9 @@ public class CcddDbTableCommandHandler
                         }
                     }
 
-                    // Check if the internal tables are to be updated, the
-                    // table represents a structure, and has variable name,
-                    // data type, array size, and rate columns (note that the
-                    // check for isStructure should cover the other conditions)
-                    if (!skipInternalTables
-                        && isStructure
-                        && mod.getVariableColumn() != -1
-                        && mod.getDataTypeColumn() != -1
-                        && mod.getArraySizeColumn() != -1)
+                    // Check if the internal tables are to be updated and the
+                    // table represents a structure
+                    if (!skipInternalTables && isStructure)
                     {
                         // Get the original and current variable names, data
                         // types, array sizes, and bit lengths
@@ -2969,29 +3268,25 @@ public class CcddDbTableCommandHandler
                         // Initialize the flag to indicate no rate has changed
                         boolean rateChanged = false;
 
-                        // Check if the table has a rate column
-                        if (mod.getRateColumn() != null)
+                        // Step through each rate index
+                        for (int rateIndex : mod.getRateColumn())
                         {
-                            // Step through each rate index
-                            for (int rateIndex : mod.getRateColumn())
-                            {
-                                // Get the old and new rate values
-                                String oldRate = mod.getOriginalRowData()[rateIndex].toString();
-                                String newRate = mod.getRowData()[rateIndex].toString();
+                            // Get the old and new rate values
+                            String oldRate = mod.getOriginalRowData()[rateIndex].toString();
+                            String newRate = mod.getRowData()[rateIndex].toString();
 
-                                // Check if the rate changed
-                                if (!oldRate.equals(newRate))
-                                {
-                                    // Set the flag to indicate that the rate
-                                    // changed and stop searching
-                                    rateChanged = true;
-                                    break;
-                                }
+                            // Check if the rate changed
+                            if (!oldRate.equals(newRate))
+                            {
+                                // Set the flag to indicate that the rate
+                                // changed and stop searching
+                                rateChanged = true;
+                                break;
                             }
                         }
 
                         // Set the flags to indicate if the variable name, data
-                        // type, array size, or bit length value has changed
+                        // type, array size, and bit length values have changed
                         boolean variableChanged = !oldVariableName.equals(newVariableName);
                         boolean dataTypeChanged = !oldDataType.equals(newDataType);
                         boolean arraySizeChanged = !oldArraySize.equals(newArraySize);
@@ -2999,24 +3294,42 @@ public class CcddDbTableCommandHandler
 
                         // Check if the variable name, data type, array size,
                         // bit length, or rate column value(s) changed; this
-                        // change must be propagated to the open instances of
-                        // this prototype and their entries in the internal
-                        // tables
+                        // change must be propagated to the instances of this
+                        // prototype and their entries in the internal tables
                         if (variableChanged
                             || dataTypeChanged
                             || arraySizeChanged
                             || bitLengthChanged
                             || rateChanged)
                         {
-                            // Check if the data type has been changed and the
-                            // data type is a structure
+                            // System.out.println("MODIFICATION: table = " +
+                            // tableInfo.getTablePath());// TODO
+
+                            // Check if the data type has been changed, the new
+                            // data type is a structure, and this structure is
+                            // a root table
                             if (dataTypeChanged
-                                && !newDataTypeHandler.isPrimitive(newDataType))
+                                && !newDataTypeHandler.isPrimitive(newDataType)
+                                && rootTables.contains(newDataType))
                             {
+                                // System.out.println("  DATA TYPE CHANGED TO A ROOT STRUCTURE");//
+                                // TODO
+
+                                // Get the variable path
+                                String newVariablePath = tableInfo.getTablePath()
+                                                         + ","
+                                                         + newDataType
+                                                         + "."
+                                                         + newVariableName;
+
                                 // If the structure chosen as the variable's
-                                // new data type is a top-level structure, then
-                                // any custom values it has must be transferred
-                                // to the structure to which it now belongs
+                                // data type is a root structure, then any
+                                // custom values for this the root structure
+                                // (which becomes a child structure) are
+                                // transferred to its new parent structure.
+                                // References in the other internal tables are
+                                // also changed to the structure's new path as
+                                // a child
                                 valuesModCmd.append("UPDATE "
                                                     + InternalTable.VALUES.getTableName()
                                                     + " SET "
@@ -3026,16 +3339,85 @@ public class CcddDbTableCommandHandler
                                                     + ", E'^"
                                                     + newDataType
                                                     + ",', E'"
-                                                    + tableInfo.getTablePath()
-                                                    + ","
-                                                    + newDataType
-                                                    + "."
-                                                    + newVariableName
+                                                    + newVariablePath
                                                     + ",'); ");
+                                groupsModCmd.append("UPDATE "
+                                                    + InternalTable.GROUPS.getTableName()
+                                                    + " SET "
+                                                    + GroupsColumn.MEMBERS.getColumnName()
+                                                    + " = regexp_replace("
+                                                    + GroupsColumn.MEMBERS.getColumnName()
+                                                    + ", E'^"
+                                                    + newDataType
+                                                    + "(,|$)', E'"
+                                                    + newVariablePath
+                                                    + "\\\\1'); ");
+                                fieldsModCmd.append("UPDATE "
+                                                    + InternalTable.FIELDS.getTableName()
+                                                    + " SET "
+                                                    + FieldsColumn.OWNER_NAME.getColumnName()
+                                                    + " = regexp_replace("
+                                                    + FieldsColumn.OWNER_NAME.getColumnName()
+                                                    + ", E'^"
+                                                    + newDataType
+                                                    + "(,|$)', E'"
+                                                    + newVariablePath
+                                                    + "\\\\1'); ");
+                                ordersModCmd.append("UPDATE "
+                                                    + InternalTable.ORDERS.getTableName()
+                                                    + " SET "
+                                                    + OrdersColumn.TABLE_PATH.getColumnName()
+                                                    + " = regexp_replace("
+                                                    + OrdersColumn.TABLE_PATH.getColumnName()
+                                                    + ", E'^"
+                                                    + newDataType
+                                                    + "(,|$)', E'"
+                                                    + newVariablePath
+                                                    + "\\\\1'); ");
+                                String orgPathWithChildren = newDataType
+                                                             + "(,"
+                                                             + PATH_IDENT
+                                                             + ")?";
+                                assnsModCmd.append("UPDATE "
+                                                   + InternalTable.ASSOCIATIONS.getTableName()
+                                                   + " SET "
+                                                   + AssociationsColumn.MEMBERS.getColumnName()
+                                                   + " = regexp_replace("
+                                                   + AssociationsColumn.MEMBERS.getColumnName()
+                                                   + ", E'(?:^"
+                                                   + orgPathWithChildren
+                                                   + "|("
+                                                   + assnsSeparator
+                                                   + ")"
+                                                   + orgPathWithChildren
+                                                   + ")', E'\\\\2"
+                                                   + newVariablePath
+                                                   + "\\\\1\\\\3', 'g'); ");
+
+                                // References in the links and telemetry
+                                // scheduler to the root structure and its
+                                // children are not automatically amended to
+                                // include the new parent structure path, but
+                                // are instead removed
+                                linksModCmd.append("DELETE FROM "
+                                                   + InternalTable.LINKS.getTableName()
+                                                   + " WHERE "
+                                                   + LinksColumn.MEMBER.getColumnName()
+                                                   + " ~ E'^"
+                                                   + newDataType
+                                                   + "(?:,|$)'; ");
+                                tlmModCmd.append("DELETE FROM "
+                                                 + InternalTable.TLM_SCHEDULER.getTableName()
+                                                 + " WHERE "
+                                                 + TlmSchedulerColumn.MEMBER.getColumnName()
+                                                 + " ~ E'^.*"
+                                                 + tlmSchSeparator
+                                                 + newDataType
+                                                 + "(?:,|$)'; ");
                             }
 
-                            // Create a list of table path arrays for instances
-                            // of this prototype table name
+                            // Create a list of table path arrays that are
+                            // instances of this prototype table
                             List<Object[]> tablePathList = tableTree.getTableTreePathArray(tableInfo.getPrototypeName());
 
                             // Step through each table path found
@@ -3047,147 +3429,477 @@ public class CcddDbTableCommandHandler
 
                                 // Append the original/new data type and/or
                                 // name of the variable that's being changed to
-                                // the variable path
+                                // the variable path. Escape any PostgreSQL
+                                // reserved characters so that the original
+                                // path can be used in a regular expression
                                 String orgVariablePath = tablePath
                                                          + ","
                                                          + oldDataType
                                                          + "."
                                                          + oldVariableName;
+                                String orgVarPathEsc = CcddUtilities.escapePostgreSQLReservedChars(orgVariablePath);
                                 String newVariablePath = tablePath
                                                          + ","
                                                          + newDataType
                                                          + "."
                                                          + newVariableName;
 
-                                // Pad the array brackets with backslashes for
-                                // use in a regular expression
-                                orgVariablePath = CcddUtilities.padBracketsForRegEx(orgVariablePath);
+                                // Check if the variable name changed, or if
+                                // the data type changed from one primitive to
+                                // another primitive. In either case, check
+                                // that the array status (is or isn't) remains
+                                // unchanged
+                                if ((variableChanged
 
-                                // Append the new data type and/or name of the
-                                // variable that's being changed to the
-                                // variable path
+                                    || (dataTypeChanged
+                                        && dataTypeHandler.isPrimitive(oldDataType)
+                                        && newDataTypeHandler.isPrimitive(newDataType)))
 
-                                // Check if the data type has been changed and
-                                // the data type was a structure
+                                    && !(arraySizeChanged
+                                    && (oldArraySize.isEmpty()
+                                    || newArraySize.isEmpty())))
+                                {
+                                    // System.out.println("  VARIABLE PATH/NAME CHANGE");//
+                                    // TODO
+
+                                    // Create the command to update the custom
+                                    // values table for instances of non-array
+                                    // member variables of the prototype table
+                                    valuesModCmd.append(updateVarNameAndDataType(orgVarPathEsc,
+                                                                                 newVariablePath,
+                                                                                 InternalTable.VALUES.getTableName(),
+                                                                                 ValuesColumn.TABLE_PATH.getColumnName(),
+                                                                                 "",
+                                                                                 "",
+                                                                                 true));
+                                    groupsModCmd.append(updateVarNameAndDataType(orgVarPathEsc,
+                                                                                 newVariablePath,
+                                                                                 InternalTable.GROUPS.getTableName(),
+                                                                                 GroupsColumn.MEMBERS.getColumnName(),
+                                                                                 "",
+                                                                                 "",
+                                                                                 true));
+                                    fieldsModCmd.append(updateVarNameAndDataType(orgVarPathEsc,
+                                                                                 newVariablePath,
+                                                                                 InternalTable.FIELDS.getTableName(),
+                                                                                 FieldsColumn.OWNER_NAME.getColumnName(),
+                                                                                 "",
+                                                                                 "",
+                                                                                 true));
+                                    ordersModCmd.append(updateVarNameAndDataType(orgVarPathEsc,
+                                                                                 newVariablePath,
+                                                                                 InternalTable.ORDERS.getTableName(),
+                                                                                 OrdersColumn.TABLE_PATH.getColumnName(),
+                                                                                 "",
+                                                                                 "",
+                                                                                 true));
+                                    String orgPathWithChildren = orgVarPathEsc
+                                                                 + "(,"
+                                                                 + PATH_IDENT
+                                                                 + ")?";
+                                    assnsModCmd.append("UPDATE "
+                                                       + InternalTable.ASSOCIATIONS.getTableName()
+                                                       + " SET "
+                                                       + AssociationsColumn.MEMBERS.getColumnName()
+                                                       + " = regexp_replace("
+                                                       + AssociationsColumn.MEMBERS.getColumnName()
+                                                       + ", E'(?:^"
+                                                       + orgPathWithChildren
+                                                       + "|("
+                                                       + assnsSeparator
+                                                       + ")"
+                                                       + orgPathWithChildren
+                                                       + ")', E'\\\\2"
+                                                       + newVariablePath
+                                                       + "\\\\1\\\\3', 'g'); ");
+
+                                    // Check if the bit length and rate didn't
+                                    // also change; if so, this is handled
+                                    // further down
+                                    if (!bitLengthChanged && !rateChanged)
+                                    {
+                                        // Create the command to update the
+                                        // links table for instances of
+                                        // variables of the prototype table
+                                        linksModCmd.append(updateVarNameAndDataType(orgVarPathEsc,
+                                                                                    newVariablePath,
+                                                                                    InternalTable.LINKS.getTableName(),
+                                                                                    LinksColumn.MEMBER.getColumnName(),
+                                                                                    "",
+                                                                                    "",
+                                                                                    true));
+
+                                        // Get the original and new sizes of
+                                        // the variable
+                                        int oldLen = dataTypeHandler.getSizeInBits(oldDataType);
+                                        int newLen = newDataTypeHandler.getSizeInBits(newDataType);
+
+                                        // Check if the new size is not greater
+                                        // than the original size
+                                        if (newLen <= oldLen)
+                                        {
+                                            // Since the variable still fits
+                                            // within any message in the
+                                            // telemetry scheduler table to
+                                            // which it's assigned just change
+                                            // all references to the variable
+                                            tlmModCmd.append(updateVarNameAndDataType(orgVarPathEsc,
+                                                                                      newVariablePath,
+                                                                                      InternalTable.TLM_SCHEDULER.getTableName(),
+                                                                                      TlmSchedulerColumn.MEMBER.getColumnName(),
+                                                                                      "(.*" + tlmSchSeparator + ")",
+                                                                                      "\\\\1",
+                                                                                      true));
+                                        }
+                                        // The size increased
+                                        else
+                                        {
+                                            // Since the variable may no longer
+                                            // fit within any message in the
+                                            // telemetry scheduler table to
+                                            // which it's assigned remove all
+                                            // references to the variable
+                                            tlmModCmd.append("DELETE FROM "
+                                                             + InternalTable.TLM_SCHEDULER.getTableName()
+                                                             + " WHERE "
+                                                             + TlmSchedulerColumn.MEMBER.getColumnName()
+                                                             + " ~ E'^.*"
+                                                             + tlmSchSeparator
+                                                             + orgVarPathEsc
+                                                             + "(?:,|:|$)'; ");
+                                        }
+                                    }
+                                }
+
+                                // Check if the data type changed from a
+                                // structure to either a primitive or another
+                                // structure
                                 if (dataTypeChanged
                                     && !dataTypeHandler.isPrimitive(oldDataType))
                                 {
-                                    // Remove all references to children of the
-                                    // structure variable that have had the
-                                    // data type changed
+                                    // System.out.println("  DATA TYPE CHANGED FROM A STRUCTURE TO A PRIMITIVE OR STRUCTURE");//
+                                    // TODO
+
+                                    // Create the command to delete references
+                                    // to any children of the original
+                                    // structure path and change the data type
+                                    // for references to the structure itself
                                     valuesModCmd.append("DELETE FROM "
                                                         + InternalTable.VALUES.getTableName()
                                                         + " WHERE "
                                                         + ValuesColumn.TABLE_PATH.getColumnName()
                                                         + " ~ E'^"
-                                                        + orgVariablePath
-                                                        + ",'; ");
-                                }
+                                                        + orgVarPathEsc
+                                                        + ",'; "
+                                                        + updateVarNameAndDataType(orgVarPathEsc,
+                                                                                   newVariablePath,
+                                                                                   InternalTable.VALUES.getTableName(),
+                                                                                   ValuesColumn.TABLE_PATH.getColumnName(),
+                                                                                   "",
+                                                                                   "",
+                                                                                   false));
 
-                                // Check if the data type has been changed and
-                                // if the data type was or now is a structure
-                                // reference, if the variable was changed
-                                // to/from an array, or if the rate changed
-                                if ((dataTypeChanged
-                                    && (!dataTypeHandler.isPrimitive(oldDataType)
-                                    || !newDataTypeHandler.isPrimitive(newDataType)))
-                                    || (arraySizeChanged
-                                    && (oldArraySize.isEmpty()
-                                    || newArraySize.isEmpty()))
-                                    || rateChanged)
-                                {
-                                    // Remove all references in the links table
-                                    // to children of the structure variable
-                                    // that have had the data type changed
-                                    linksModCmd.append("DELETE FROM "
-                                                       + InternalTable.LINKS.getTableName()
-                                                       + " WHERE "
-                                                       + LinksColumn.MEMBER.getColumnName()
-                                                       + " ~ E'^"
-                                                       + orgVariablePath
-                                                       + "(,|\\\\[|:|$)'; ");
+                                    // Build a regular expression for
+                                    // locating references to the original
+                                    // variable path
+                                    String pathMatch = orgVarPathEsc + "(?:,|$)";
 
-                                    // Remove all references in the telemetry
-                                    // scheduler table to children of the
-                                    // structure variable that have had the
-                                    // data type changed
-                                    tlmModCmd.append("DELETE FROM "
-                                                     + InternalTable.TLM_SCHEDULER.getTableName()
-                                                     + " WHERE "
-                                                     + TlmSchedulerColumn.MEMBER.getColumnName()
-                                                     + " ~ E'^.*"
-                                                     + TLM_SCH_SEPARATOR
-                                                     + orgVariablePath
-                                                     + "(,|\\\\[|:|$)'; ");
-                                }
-
-                                // Check if the data type has been changed and
-                                // if the data type was a structure, or if the
-                                // variable was changed to/from an array
-                                if ((dataTypeChanged
-                                    && !dataTypeHandler.isPrimitive(oldDataType))
-                                    || (arraySizeChanged
-                                    && (oldArraySize.isEmpty()
-                                    || newArraySize.isEmpty())))
-                                {
-                                    // Remove all references to children of the
-                                    // structure variable that have had the
-                                    // data type changed
+                                    // Remove all references to the
+                                    // structure and its children
                                     groupsModCmd.append("DELETE FROM "
                                                         + InternalTable.GROUPS.getTableName()
                                                         + " WHERE "
                                                         + GroupsColumn.MEMBERS.getColumnName()
                                                         + " ~ E'^"
-                                                        + orgVariablePath
-                                                        + "(,|\\\\[|$)'; ");
+                                                        + pathMatch
+                                                        + "'; ");
                                     fieldsModCmd.append("DELETE FROM "
                                                         + InternalTable.FIELDS.getTableName()
                                                         + " WHERE "
                                                         + FieldsColumn.OWNER_NAME.getColumnName()
                                                         + " ~ E'^"
-                                                        + orgVariablePath
-                                                        + "(,|\\\\[|$)'; ");
+                                                        + pathMatch
+                                                        + "'; ");
                                     ordersModCmd.append("DELETE FROM "
                                                         + InternalTable.ORDERS.getTableName()
                                                         + " WHERE "
                                                         + OrdersColumn.TABLE_PATH.getColumnName()
                                                         + " ~ E'^"
-                                                        + orgVariablePath
-                                                        + "(,|\\\\[|$)'; ");
+                                                        + pathMatch
+                                                        + "'; ");
+                                    String orgPathWithChildren = orgVarPathEsc
+                                                                 + "(?:,"
+                                                                 + PATH_IDENT
+                                                                 + ")?";
+                                    assnsModCmd.append("UPDATE "
+                                                       + InternalTable.ASSOCIATIONS.getTableName()
+                                                       + " SET "
+                                                       + AssociationsColumn.MEMBERS.getColumnName()
+                                                       + " = regexp_replace("
+                                                       + AssociationsColumn.MEMBERS.getColumnName()
+                                                       + ", E'^"
+                                                       + orgPathWithChildren
+                                                       + "', E'', 'g'); UPDATE "
+                                                       + InternalTable.ASSOCIATIONS.getTableName()
+                                                       + " SET "
+                                                       + AssociationsColumn.MEMBERS.getColumnName()
+                                                       + " = regexp_replace("
+                                                       + AssociationsColumn.MEMBERS.getColumnName()
+                                                       + ", E'"
+                                                       + assnsSeparator
+                                                       + orgPathWithChildren
+                                                       + "', E'', 'g'); UPDATE "
+                                                       + InternalTable.ASSOCIATIONS.getTableName()
+                                                       + " SET "
+                                                       + AssociationsColumn.MEMBERS.getColumnName()
+                                                       + " = regexp_replace("
+                                                       + AssociationsColumn.MEMBERS.getColumnName()
+                                                       + ", E'^"
+                                                       + assnsSeparator
+                                                       + "', E'', 'g'); ");
+
+                                    // Check if the rate didn't change as well;
+                                    // if so, then updates to the links and
+                                    // telemetry scheduler tables are handled
+                                    // further down
+                                    if (!rateChanged)
+                                    {
+                                        // References in the links and
+                                        // telemetry scheduler to the root
+                                        // structure and its children are not
+                                        // automatically amended to include the
+                                        // new parent structure path, but are
+                                        // instead removed
+                                        linksModCmd.append("DELETE FROM "
+                                                           + InternalTable.LINKS.getTableName()
+                                                           + " WHERE "
+                                                           + LinksColumn.MEMBER.getColumnName()
+                                                           + " ~ E'^"
+                                                           + orgVarPathEsc
+                                                           + "(?:,|$)'; ");
+                                        tlmModCmd.append("DELETE FROM "
+                                                         + InternalTable.TLM_SCHEDULER.getTableName()
+                                                         + " WHERE "
+                                                         + TlmSchedulerColumn.MEMBER.getColumnName()
+                                                         + " ~ E'^.*"
+                                                         + tlmSchSeparator
+                                                         + orgVarPathEsc
+                                                         + "(?:,|:|$)'; ");
+                                    }
                                 }
 
-                                // Check if the bit length changed and the rate
-                                // remains the same (if the rate changed then
-                                // the variable is no longer a member of the
-                                // link or message)
+                                // Check if the variable changed to or from
+                                // being an array (changes only to the array
+                                // dimension value(s) are handled by the table
+                                // row addition and deletion methods)
+                                if (arraySizeChanged
+                                    && (oldArraySize.isEmpty()
+                                    || newArraySize.isEmpty()))
+                                {
+                                    // System.out.println("  ARRAY STATE CHANGED (TO/FROM ARRAY)");//
+                                    // TODO
+
+                                    // Remove all references to the structure's
+                                    // children, but not the structure itself
+                                    valuesModCmd.append("DELETE FROM "
+                                                        + InternalTable.VALUES.getTableName()
+                                                        + " WHERE "
+                                                        + ValuesColumn.TABLE_PATH.getColumnName()
+                                                        + " ~ E'^"
+                                                        + orgVarPathEsc
+                                                        + "(?:,|\\\\[)"
+                                                        + "'; ");
+
+                                    // Build a regular expression for locating
+                                    // references to the original variable
+                                    // path and any children
+                                    String pathMatch = orgVarPathEsc + "(?:,|\\\\[|$)";
+
+                                    // Remove all references to the structure
+                                    // and its children
+                                    groupsModCmd.append("DELETE FROM "
+                                                        + InternalTable.GROUPS.getTableName()
+                                                        + " WHERE "
+                                                        + GroupsColumn.MEMBERS.getColumnName()
+                                                        + " ~ E'^"
+                                                        + pathMatch
+                                                        + "'; ");
+                                    fieldsModCmd.append("DELETE FROM "
+                                                        + InternalTable.FIELDS.getTableName()
+                                                        + " WHERE "
+                                                        + FieldsColumn.OWNER_NAME.getColumnName()
+                                                        + " ~ E'^"
+                                                        + pathMatch
+                                                        + "'; ");
+                                    ordersModCmd.append("DELETE FROM "
+                                                        + InternalTable.ORDERS.getTableName()
+                                                        + " WHERE "
+                                                        + OrdersColumn.TABLE_PATH.getColumnName()
+                                                        + " ~ E'^"
+                                                        + pathMatch
+                                                        + "'; ");
+                                    String orgPathWithChildren = orgVarPathEsc
+                                                                 + "(?:,|\\\\[\\d+\\\\])"
+                                                                 + PATH_IDENT;
+                                    assnsModCmd.append("UPDATE "
+                                                       + InternalTable.ASSOCIATIONS.getTableName()
+                                                       + " SET "
+                                                       + AssociationsColumn.MEMBERS.getColumnName()
+                                                       + " = regexp_replace("
+                                                       + AssociationsColumn.MEMBERS.getColumnName()
+                                                       + ", E'^"
+                                                       + orgPathWithChildren
+                                                       + "', E'', 'g'); UPDATE "
+                                                       + InternalTable.ASSOCIATIONS.getTableName()
+                                                       + " SET "
+                                                       + AssociationsColumn.MEMBERS.getColumnName()
+                                                       + " = regexp_replace("
+                                                       + AssociationsColumn.MEMBERS.getColumnName()
+                                                       + ", E'"
+                                                       + assnsSeparator
+                                                       + orgPathWithChildren
+                                                       + "', E'', 'g'); UPDATE "
+                                                       + InternalTable.ASSOCIATIONS.getTableName()
+                                                       + " SET "
+                                                       + AssociationsColumn.MEMBERS.getColumnName()
+                                                       + " = regexp_replace("
+                                                       + AssociationsColumn.MEMBERS.getColumnName()
+                                                       + ", E'(?:^|"
+                                                       + assnsSeparator
+                                                       + ")"
+                                                       + orgVarPathEsc
+                                                       + "(?:"
+                                                       + assnsSeparator
+                                                       + "|$)', E'', 'g'); UPDATE "
+                                                       + InternalTable.ASSOCIATIONS.getTableName()
+                                                       + " SET "
+                                                       + AssociationsColumn.MEMBERS.getColumnName()
+                                                       + " = regexp_replace("
+                                                       + AssociationsColumn.MEMBERS.getColumnName()
+                                                       + ", E'^"
+                                                       + assnsSeparator
+                                                       + "', E'', 'g'); ");
+
+                                    // Check if the rate didn't change as well;
+                                    // if so, then updates to the links and
+                                    // telemetry scheduler tables are handled
+                                    // further down
+                                    if (!rateChanged)
+                                    {
+                                        // References in the links and
+                                        // telemetry scheduler to the root
+                                        // structure and its children are not
+                                        // automatically amended to include the
+                                        // new parent structure path, but are
+                                        // instead removed
+                                        linksModCmd.append("DELETE FROM "
+                                                           + InternalTable.LINKS.getTableName()
+                                                           + " WHERE "
+                                                           + LinksColumn.MEMBER.getColumnName()
+                                                           + " ~ E'^"
+                                                           + orgVarPathEsc
+                                                           + "(?:,|$)'; ");
+                                        tlmModCmd.append("DELETE FROM "
+                                                         + InternalTable.TLM_SCHEDULER.getTableName()
+                                                         + " WHERE "
+                                                         + TlmSchedulerColumn.MEMBER.getColumnName()
+                                                         + " ~ E'^.*"
+                                                         + tlmSchSeparator
+                                                         + orgVarPathEsc
+                                                         + "(?:,|:|$)'; ");
+                                    }
+                                }
+
+                                // Check if the bit length changed, but the
+                                // rate didn't (changes to the rate are handled
+                                // further down)
                                 if (bitLengthChanged && !rateChanged)
                                 {
+                                    // System.out.println("  BIT LENGTH CHANGE");//
+                                    // TODO
+
                                     // Change the bit length in the links table
-                                    linksModCmd.append("UPDATE "
-                                                       + InternalTable.LINKS.getTableName()
-                                                       + " SET "
-                                                       + LinksColumn.MEMBER.getColumnName()
-                                                       + " = regexp_replace("
-                                                       + LinksColumn.MEMBER.getColumnName()
-                                                       + ", E'^"
-                                                       + orgVariablePath
-                                                       + ":"
-                                                       + oldBitLength
-                                                       + "$', E'"
-                                                       + orgVariablePath
-                                                       + ":"
-                                                       + newBitLength
-                                                       + "'); ");
+                                    linksModCmd.append(updateVarNameAndDataType(orgVarPathEsc
+                                                                                + (oldBitLength.isEmpty()
+                                                                                                         ? ""
+                                                                                                         : ":" + oldBitLength),
+                                                                                newVariablePath
+                                                                                    + (newBitLength.isEmpty()
+                                                                                                             ? ""
+                                                                                                             : ":" + newBitLength),
+                                                                                InternalTable.LINKS.getTableName(),
+                                                                                LinksColumn.MEMBER.getColumnName(),
+                                                                                "",
+                                                                                "",
+                                                                                false));
 
                                     // Get the original and new sizes of the
                                     // variable based on its bit length and
                                     // data type
                                     int oldLen = !oldBitLength.isEmpty()
-                                                                        ? Integer.valueOf(macroHandler.getMacroExpansion(oldBitLength))
-                                                                        : dataTypeHandler.getSizeInBits(oldDataType);
+                                                                        ?
+                                                                        Integer.valueOf(macroHandler.getMacroExpansion(oldBitLength))
+                                                                        :
+                                                                        dataTypeHandler.getSizeInBits(oldDataType);
                                     int newLen = !newBitLength.isEmpty()
-                                                                        ? Integer.valueOf(newMacroHandler.getMacroExpansion(newBitLength))
-                                                                        : dataTypeHandler.getSizeInBits(newDataType);
+                                                                        ?
+                                                                        Integer.valueOf(newMacroHandler.getMacroExpansion(newBitLength))
+                                                                        :
+                                                                        newDataTypeHandler.getSizeInBits(newDataType);
+
+                                    // Check if the variable takes up more bits
+                                    if (newLen > oldLen)
+                                    {
+                                        // Get the table tree node for the
+                                        // variable
+                                        ToolTipTreeNode node = tableTree.getNodeByNodePath(orgVariablePath
+                                                                                           + (oldBitLength.isEmpty()
+                                                                                                                    ? ""
+                                                                                                                    : ":" + oldBitLength));
+
+                                        // Check if the variable was located
+                                        if (node != null)
+                                        {
+                                            // Get the indices of the other
+                                            // variables bit-packed with this
+                                            // variable
+                                            NodeIndex nodeIndex = tableTree.getBitPackedVariables(node);
+
+                                            int bitCount = 0;
+
+                                            // Step through each variable
+                                            // bit-packed with this variable
+                                            for (int index = nodeIndex.getFirstIndex(); index <= nodeIndex.getLastIndex(); ++index)
+                                            {
+                                                // Check if this is the index
+                                                // of the target variable
+                                                if (index == nodeIndex.getTableIndex())
+                                                {
+                                                    // Add the variable's new
+                                                    // bit length to the total
+                                                    bitCount += newLen;
+                                                }
+                                                // This is a variable
+                                                // bit-packed with the variable
+                                                else
+                                                {
+                                                    // Add the variable's bit
+                                                    // length to the total
+                                                    bitCount += Integer.valueOf(tableTree.getVariableFromNodeName(((ToolTipTreeNode) node.getParent().getChildAt(index)).getUserObject().toString())
+                                                                                         .replaceAll("^.*:(.*)$", "$1"));
+                                                }
+                                            }
+
+                                            // Set the original length to the
+                                            // size of the data type (the
+                                            // maximum bit size of the packed
+                                            // variables) and the new length to
+                                            // the new size of the variables
+                                            // when packed
+                                            oldLen = dataTypeHandler.getSizeInBits(oldDataType);
+                                            newLen = bitCount;
+                                        }
+                                    }
 
                                     // Check if the new size is not greater
                                     // than the original size
@@ -3198,85 +3910,19 @@ public class CcddDbTableCommandHandler
                                         // scheduler table to which it's
                                         // assigned leave it in the message and
                                         // change the bit length
-                                        tlmModCmd.append("UPDATE "
-                                                         + InternalTable.TLM_SCHEDULER.getTableName()
-                                                         + " SET "
-                                                         + TlmSchedulerColumn.MEMBER.getColumnName()
-                                                         + " = regexp_replace("
-                                                         + TlmSchedulerColumn.MEMBER.getColumnName()
-                                                         + ", E'^(.*"
-                                                         + TLM_SCH_SEPARATOR
-                                                         + ")"
-                                                         + orgVariablePath
-                                                         + ":"
-                                                         + oldBitLength
-                                                         + "$', E'\\\\1"
-                                                         + orgVariablePath
-                                                         + ":"
-                                                         + newBitLength
-                                                         + "'); ");
-                                    }
-                                    // The size increased
-                                    else
-                                    {
-                                        // Since the variable may no longer fit
-                                        // within any message in the telemetry
-                                        // scheduler table to which it's
-                                        // assigned remove all references to
-                                        // the variable
-                                        tlmModCmd.append("DELETE FROM "
-                                                         + InternalTable.TLM_SCHEDULER.getTableName()
-                                                         + " WHERE "
-                                                         + TlmSchedulerColumn.MEMBER.getColumnName()
-                                                         + " ~ E'^.*"
-                                                         + TLM_SCH_SEPARATOR
-                                                         + orgVariablePath
-                                                         + "(,|\\\\[|:|$)'; ");
-                                    }
-                                }
-
-                                // Check if (a) the variable name changed and
-                                // the row is not an array definition, or (b)
-                                // if the data type changed from a primitive
-                                // type to another primitive type
-                                if ((variableChanged
-                                    && (newArraySize.isEmpty()
-                                    || ArrayVariable.isArrayMember(newVariableName)))
-                                    || (dataTypeChanged
-                                        && dataTypeHandler.isPrimitive(oldDataType)
-                                        && newDataTypeHandler.isPrimitive(newDataType)))
-
-                                {
-                                    // Create the command to update the links
-                                    // table for instances of variables of the
-                                    // prototype table
-                                    linksModCmd.append(updateVarNameAndDataType(orgVariablePath,
-                                                                                newVariablePath,
-                                                                                InternalTable.LINKS.getTableName(),
-                                                                                LinksColumn.MEMBER.getColumnName(),
-                                                                                "",
-                                                                                ""));
-
-                                    // Get the original and new sizes of the
-                                    // variable
-                                    int oldLen = dataTypeHandler.getSizeInBits(oldDataType);
-                                    int newLen = dataTypeHandler.getSizeInBits(newDataType);
-
-                                    // Check if the new size is not greater
-                                    // than the original size
-                                    if (newLen <= oldLen)
-                                    {
-                                        // Since the variable still fits within
-                                        // any message in the telemetry
-                                        // scheduler table to which it's
-                                        // assigned just change all references
-                                        // to the variable
-                                        tlmModCmd.append(updateVarNameAndDataType(orgVariablePath,
-                                                                                  newVariablePath,
+                                        tlmModCmd.append(updateVarNameAndDataType(orgVarPathEsc
+                                                                                  + (oldBitLength.isEmpty()
+                                                                                                           ? ""
+                                                                                                           : ":" + oldBitLength),
+                                                                                  newVariablePath
+                                                                                      + (newBitLength.isEmpty()
+                                                                                                               ? ""
+                                                                                                               : ":" + newBitLength),
                                                                                   InternalTable.TLM_SCHEDULER.getTableName(),
                                                                                   TlmSchedulerColumn.MEMBER.getColumnName(),
-                                                                                  "(.*" + TLM_SCH_SEPARATOR + ")",
-                                                                                  "\\\\1"));
+                                                                                  "(.*" + tlmSchSeparator + ")",
+                                                                                  "\\\\1",
+                                                                                  false));
                                     }
                                     // The size increased
                                     else
@@ -3291,77 +3937,36 @@ public class CcddDbTableCommandHandler
                                                          + " WHERE "
                                                          + TlmSchedulerColumn.MEMBER.getColumnName()
                                                          + " ~ E'^.*"
-                                                         + TLM_SCH_SEPARATOR
-                                                         + orgVariablePath
-                                                         + "(,|\\\\[|:|$)'; ");
-                                    }
-
-                                    // Check if the variable name changed. The
-                                    // data type change doesn't apply since
-                                    // primitive data types don't appear in the
-                                    // groups, fields, or orders tables
-                                    if (variableChanged)
-                                    {
-                                        // Create the command to update the
-                                        // groups table for instances of
-                                        // variables of the prototype table
-                                        groupsModCmd.append("UPDATE "
-                                                            + InternalTable.GROUPS.getTableName()
-                                                            + " SET "
-                                                            + GroupsColumn.MEMBERS.getColumnName()
-                                                            + " = regexp_replace("
-                                                            + GroupsColumn.MEMBERS.getColumnName()
-                                                            + ", E'^"
-                                                            + orgVariablePath
-                                                            + "(,.*|\\\\[.*|$)', E'"
-                                                            + newVariablePath
-                                                            + "\\\\1'); ");
-
-                                        // Create the command to update the
-                                        // fields table for instances of
-                                        // variables of the prototype table
-                                        fieldsModCmd.append("UPDATE "
-                                                            + InternalTable.FIELDS.getTableName()
-                                                            + " SET "
-                                                            + FieldsColumn.OWNER_NAME.getColumnName()
-                                                            + " = regexp_replace("
-                                                            + FieldsColumn.OWNER_NAME.getColumnName()
-                                                            + ", E'^"
-                                                            + orgVariablePath
-                                                            + "(,.*|\\\\[.*|$)', E'"
-                                                            + newVariablePath
-                                                            + "\\\\1'); ");
-
-                                        // Create the command to update the
-                                        // orders table for instances of
-                                        // variables of the prototype table
-                                        ordersModCmd.append("UPDATE "
-                                                            + InternalTable.ORDERS.getTableName()
-                                                            + " SET "
-                                                            + OrdersColumn.TABLE_PATH.getColumnName()
-                                                            + " = regexp_replace("
-                                                            + OrdersColumn.TABLE_PATH.getColumnName()
-                                                            + ", E'^"
-                                                            + orgVariablePath
-                                                            + "(,.*|\\\\[.*|$)', E'"
-                                                            + newVariablePath
-                                                            + "\\\\1'); ");
+                                                         + tlmSchSeparator
+                                                         + orgVarPathEsc
+                                                         + "(,|:|$)'; ");
                                     }
                                 }
 
-                                // Check if the variable name or data type
-                                // changed
-                                if (variableChanged || dataTypeChanged)
+                                // Check if the rate changed
+                                if (rateChanged)
                                 {
-                                    // Create the command to update the custom
-                                    // values table for instances of non-array
-                                    // member variables of the prototype table
-                                    valuesModCmd.append(updateVarNameAndDataType(orgVariablePath,
-                                                                                 newVariablePath,
-                                                                                 InternalTable.VALUES.getTableName(),
-                                                                                 ValuesColumn.TABLE_PATH.getColumnName(),
-                                                                                 "",
-                                                                                 ""));
+                                    // System.out.println("  RATE CHANGE");//
+                                    // TODO
+
+                                    // Remove all references to the structure
+                                    // and its children from the links and
+                                    // telemetry scheduler tables
+                                    linksModCmd.append("DELETE FROM "
+                                                       + InternalTable.LINKS.getTableName()
+                                                       + " WHERE "
+                                                       + LinksColumn.MEMBER.getColumnName()
+                                                       + " ~ E'^"
+                                                       + orgVarPathEsc
+                                                       + "(?:,|:|$)'; ");
+                                    tlmModCmd.append("DELETE FROM "
+                                                     + InternalTable.TLM_SCHEDULER.getTableName()
+                                                     + " WHERE "
+                                                     + TlmSchedulerColumn.MEMBER.getColumnName()
+                                                     + " ~ E'^.*"
+                                                     + tlmSchSeparator
+                                                     + orgVarPathEsc
+                                                     + "(?:,|:|$)'; ");
                                 }
                             }
                         }
@@ -3381,16 +3986,13 @@ public class CcddDbTableCommandHandler
                                   + tlmModCmd.toString()
                                   + groupsModCmd.toString()
                                   + fieldsModCmd.toString()
-                                  + ordersModCmd.toString());
+                                  + ordersModCmd.toString()
+                                  + assnsModCmd.toString());
                 }
                 // Not a prototype table, so modifications are made to the
-                // custom values table (if internal tables are to be updated,
-                // and this table is a structure and has both variable name and
-                // data type columns)
-                else if (!skipInternalTables
-                         && isStructure
-                         && mod.getVariableColumn() != -1
-                         && mod.getDataTypeColumn() != -1)
+                // custom values table if internal tables are to be updated,
+                // and this table is a structure
+                else if (!skipInternalTables && isStructure)
                 {
                     // Get the variable name and data type
                     String variableName = mod.getRowData()[mod.getDataTypeColumn()].toString()
@@ -3479,6 +4081,9 @@ public class CcddDbTableCommandHandler
      *            pattern for replacing the captured character(s) specified in
      *            captureIn; blank if none
      * 
+     * @param includeChildren
+     *            true to include child tables of the variable paths
+     * 
      * @return Command to update the variable name and/or the data type
      *************************************************************************/
     private String updateVarNameAndDataType(String orgVariablePath,
@@ -3486,7 +4091,8 @@ public class CcddDbTableCommandHandler
                                             String tableName,
                                             String columnName,
                                             String captureIn,
-                                            String captureOut)
+                                            String captureOut,
+                                            boolean includeChildren)
     {
         String command = "";
 
@@ -3523,8 +4129,7 @@ public class CcddDbTableCommandHandler
                 // Create the command to update the internal table for
                 // instances of array variables of the prototype table
                 command = "UPDATE "
-                          +
-                          tableName
+                          + tableName
                           + " SET "
                           + columnName
                           + " = regexp_replace("
@@ -3532,11 +4137,16 @@ public class CcddDbTableCommandHandler
                           + ", E'^"
                           + captureIn
                           + orgVariablePath
-                          + "(,.*|\\\\[.*|$)', E'"
+                          + (includeChildren
+                                            ? "(,.*|\\\\[.*|$)"
+                                            : "$")
+                          + "', E'"
                           + captureOut
                           + newVariablePath
-                          + "\\\\"
-                          + captureGrp
+                          + (includeChildren
+                                            ? "\\\\"
+                                              + captureGrp
+                                            : "$")
                           + "'); ";
             }
         }
@@ -3554,11 +4164,16 @@ public class CcddDbTableCommandHandler
                       + ", E'^"
                       + captureIn
                       + orgVariablePath
-                      + "(,.*|\\\\[.*|:\\\\d+|$)', E'"
+                      + (includeChildren
+                                        ? "(,.*|\\\\[.*|:\\\\d+|$)"
+                                        : "$")
+                      + "', E'"
                       + captureOut
                       + newVariablePath
-                      + "\\\\"
-                      + captureGrp
+                      + (includeChildren
+                                        ? "\\\\"
+                                          + captureGrp
+                                        : "$")
                       + "'); ";
         }
 
@@ -3610,9 +4225,11 @@ public class CcddDbTableCommandHandler
         {
             StringBuilder valuesDelCmd = new StringBuilder("");
             StringBuilder linksDelCmd = new StringBuilder("");
+            StringBuilder tlmDelCmd = new StringBuilder("");
             StringBuilder groupsDelCmd = new StringBuilder("");
             StringBuilder fieldsDelCmd = new StringBuilder("");
             StringBuilder ordersDelCmd = new StringBuilder("");
+            StringBuilder assnsDelCmd = new StringBuilder("");
 
             // Step through each deletion
             for (TableDeletion del : deletions)
@@ -3627,11 +4244,9 @@ public class CcddDbTableCommandHandler
                               + " = "
                               + del.getRowData()[DefaultColumn.PRIMARY_KEY.ordinal()]);
 
-                // Check if the table represents a structure and has variable
-                // name and data type columns
-                if (isStructure
-                    && del.getVariableColumn() != -1
-                    && del.getDataTypeColumn() != -1)
+                // Check if the internal tables are to be updated and the
+                // table represents a structure
+                if (!skipInternalTables && isStructure)
                 {
                     // Get the variable name and data type
                     String variableName = del.getRowData()[del.getVariableColumn()].toString();
@@ -3651,87 +4266,112 @@ public class CcddDbTableCommandHandler
                         // the path
                         tablePath += "," + dataType + "." + variableName;
 
-                        // Pad the array brackets with backslashes for use in a
-                        // regular expression
-                        tablePath = CcddUtilities.padBracketsForRegEx(tablePath);
+                        // Escape any PostgreSQL reserved characters so that
+                        // the path can be used in a regular expression
+                        tablePath = CcddUtilities.escapePostgreSQLReservedChars(tablePath);
 
-                        // Check if internal tables are to be updated
-                        if (!skipInternalTables)
+                        // Create or add to the command to update the internal
+                        // table for instances of variables of the prototype
+                        // table
+                        valuesDelCmd.append((valuesDelCmd.length() == 0
+                                                                       ? "DELETE FROM "
+                                                                         + InternalTable.VALUES.getTableName()
+                                                                         + " WHERE"
+                                                                       : " OR")
+                                            + " "
+                                            + ValuesColumn.TABLE_PATH.getColumnName()
+                                            + " ~ E'^"
+                                            + tablePath
+                                            + "(?:,|:|$)'");
+                        linksDelCmd.append((linksDelCmd.length() == 0
+                                                                     ? "DELETE FROM "
+                                                                       + InternalTable.LINKS.getTableName()
+                                                                       + " WHERE"
+                                                                     : " OR")
+                                           + " "
+                                           + LinksColumn.MEMBER.getColumnName()
+                                           + " ~ E'^"
+                                           + tablePath
+                                           + "(?:,|:|$)'");
+                        tlmDelCmd.append((tlmDelCmd.length() == 0
+                                                                 ? "DELETE FROM "
+                                                                   + InternalTable.TLM_SCHEDULER.getTableName()
+                                                                   + " WHERE"
+                                                                 : " OR")
+                                         + " "
+                                         + TlmSchedulerColumn.MEMBER.getColumnName()
+                                         + " ~ E'^.*"
+                                         + tlmSchSeparator
+                                         + tablePath
+                                         + "(?:,|:|$)'");
+
+                        // Check if the data type represents a structure and
+                        // not a primitive variable
+                        if (!dataTypeHandler.isPrimitive(dataType))
                         {
-                            // Create or add to the command to update the
-                            // custom values table for instances of variables
-                            // of the prototype table
-                            valuesDelCmd.append((valuesDelCmd.length() == 0
+                            // Create or add to the commands to update the
+                            // internal tables for instances of variables of
+                            // the prototype table
+                            groupsDelCmd.append((groupsDelCmd.length() == 0
                                                                            ? "DELETE FROM "
-                                                                             + InternalTable.VALUES.getTableName()
+                                                                             + InternalTable.GROUPS.getTableName()
                                                                              + " WHERE"
                                                                            : " OR")
                                                 + " "
-                                                + ValuesColumn.TABLE_PATH.getColumnName()
+                                                + GroupsColumn.MEMBERS.getColumnName()
                                                 + " ~ E'^"
                                                 + tablePath
-                                                + "(,|:|$)'");
-
-                            // Create or add to the command to update the link
-                            // definitions table for instances of variables of
-                            // the prototype table
-                            linksDelCmd.append((linksDelCmd.length() == 0
-                                                                         ? "DELETE FROM "
-                                                                           + InternalTable.LINKS.getTableName()
-                                                                           + " WHERE"
-                                                                         : " OR")
-                                               + " "
-                                               + LinksColumn.MEMBER.getColumnName()
-                                               + " ~ E'^"
-                                               + tablePath
-                                               + "(,|:|$)'");
-
-                            // Check if the data type represents a structure
-                            // and not a primitive variable
-                            if (!dataTypeHandler.isPrimitive(dataType))
-                            {
-                                // Create or add to the command to update the
-                                // group definitions table for instances of
-                                // variables of the prototype table
-                                groupsDelCmd.append((groupsDelCmd.length() == 0
-                                                                               ? "DELETE FROM "
-                                                                                 + InternalTable.GROUPS.getTableName()
-                                                                                 + " WHERE"
-                                                                               : " OR")
-                                                    + " "
-                                                    + GroupsColumn.MEMBERS.getColumnName()
-                                                    + " ~ E'^"
-                                                    + tablePath
-                                                    + "(,|$)'");
-
-                                // Create or add to the command to update the
-                                // field definitions table for instances of
-                                // variables of the prototype table
-                                fieldsDelCmd.append((fieldsDelCmd.length() == 0
-                                                                               ? "DELETE FROM "
-                                                                                 + InternalTable.FIELDS.getTableName()
-                                                                                 + " WHERE"
-                                                                               : " OR")
-                                                    + " "
-                                                    + FieldsColumn.OWNER_NAME.getColumnName()
-                                                    + " ~ E'^"
-                                                    + tablePath
-                                                    + "(,|$)'");
-
-                                // Create or add to the command to update the
-                                // column order table for instances of
-                                // variables of the prototype table
-                                ordersDelCmd.append((ordersDelCmd.length() == 0
-                                                                               ? "DELETE FROM "
-                                                                                 + InternalTable.ORDERS.getTableName()
-                                                                                 + " WHERE"
-                                                                               : " OR")
-                                                    + " "
-                                                    + OrdersColumn.TABLE_PATH.getColumnName()
-                                                    + " ~ E'^"
-                                                    + tablePath
-                                                    + "(,|$)'");
-                            }
+                                                + "(?:,|$)'");
+                            fieldsDelCmd.append((fieldsDelCmd.length() == 0
+                                                                           ? "DELETE FROM "
+                                                                             + InternalTable.FIELDS.getTableName()
+                                                                             + " WHERE"
+                                                                           : " OR")
+                                                + " "
+                                                + FieldsColumn.OWNER_NAME.getColumnName()
+                                                + " ~ E'^"
+                                                + tablePath
+                                                + "(?:,|$)'");
+                            ordersDelCmd.append((ordersDelCmd.length() == 0
+                                                                           ? "DELETE FROM "
+                                                                             + InternalTable.ORDERS.getTableName()
+                                                                             + " WHERE"
+                                                                           : " OR")
+                                                + " "
+                                                + OrdersColumn.TABLE_PATH.getColumnName()
+                                                + " ~ E'^"
+                                                + tablePath
+                                                + "(?:,|$)'");
+                            String pathWithChildren = tablePath
+                                                      + "(?:,"
+                                                      + PATH_IDENT
+                                                      + ")?";
+                            assnsDelCmd.append("UPDATE "
+                                               + InternalTable.ASSOCIATIONS.getTableName()
+                                               + " SET "
+                                               + AssociationsColumn.MEMBERS.getColumnName()
+                                               + " = regexp_replace("
+                                               + AssociationsColumn.MEMBERS.getColumnName()
+                                               + ", E'^"
+                                               + pathWithChildren
+                                               + "', E'', 'g'); UPDATE "
+                                               + InternalTable.ASSOCIATIONS.getTableName()
+                                               + " SET "
+                                               + AssociationsColumn.MEMBERS.getColumnName()
+                                               + " = regexp_replace("
+                                               + AssociationsColumn.MEMBERS.getColumnName()
+                                               + ", E'"
+                                               + assnsSeparator
+                                               + pathWithChildren
+                                               + "', E'', 'g'); UPDATE "
+                                               + InternalTable.ASSOCIATIONS.getTableName()
+                                               + " SET "
+                                               + AssociationsColumn.MEMBERS.getColumnName()
+                                               + " = regexp_replace("
+                                               + AssociationsColumn.MEMBERS.getColumnName()
+                                               + ", E'^"
+                                               + assnsSeparator
+                                               + "', E'', 'g'); ");
                         }
                     }
                 }
@@ -3749,6 +4389,13 @@ public class CcddDbTableCommandHandler
             {
                 // Terminate the command
                 linksDelCmd.append("; ");
+            }
+
+            // Check if a change to the telemetry scheduler table exists
+            if (tlmDelCmd.length() != 0)
+            {
+                // Terminate the command
+                tlmDelCmd.append("; ");
             }
 
             // Check if a change to the groups table exists
@@ -3777,9 +4424,11 @@ public class CcddDbTableCommandHandler
             delCmd.append("; "
                           + valuesDelCmd.toString()
                           + linksDelCmd.toString()
+                          + tlmDelCmd.toString()
                           + groupsDelCmd.toString()
                           + fieldsDelCmd.toString()
-                          + ordersDelCmd.toString());
+                          + ordersDelCmd.toString()
+                          + assnsDelCmd.toString());
         }
 
         return delCmd.toString();
@@ -5175,8 +5824,7 @@ public class CcddDbTableCommandHandler
                                         + "\\.[^,]+,[^,]+$)' OR ");
                         tlmSchCmd.append(TlmSchedulerColumn.MEMBER.getColumnName()
                                          + " ~ E'(?:"
-                                         + "\\\\\\"
-                                         + TLM_SCH_SEPARATOR
+                                         + tlmSchSeparator
                                          + protoName
                                          + ",|[^,]+,"
                                          + protoName
@@ -6565,7 +7213,7 @@ public class CcddDbTableCommandHandler
                     // Step through each modified table
                     for (ModifiedTable modTbl : modifiedTables)
                     {
-                        // Build the additions, modification, and deletions to
+                        // Build the additions, modifications, and deletions to
                         // the table
                         modTbl.getEditor().buildUpdates();
 

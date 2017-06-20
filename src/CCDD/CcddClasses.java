@@ -6,6 +6,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.AUTO_COMPLETE_TEXT_SEPARATOR;
 import static CCDD.CcddConstants.CELL_HORIZONTAL_PADDING;
 import static CCDD.CcddConstants.CELL_VERTICAL_PADDING;
 import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
@@ -860,6 +861,8 @@ public class CcddClasses
     protected static class TableAddition
     {
         private final Object[] rowData;
+        private final int variableColumn;
+        private final int dataTypeColumn;
 
         /**********************************************************************
          * Table addition data class constructor. Rows may only be added to
@@ -867,10 +870,22 @@ public class CcddClasses
          *
          * @param rowData
          *            row of data from the table containing the changes
+         *
+         * @param variableColumn
+         *            index of the column containing the variable name; -1 if
+         *            no variable name column exists
+         *
+         * @param dataTypeColumn
+         *            index of the column containing the data type name; -1 if
+         *            no data type column exists
          *********************************************************************/
-        TableAddition(Object[] rowData)
+        TableAddition(Object[] rowData,
+                      int variableColumn,
+                      int dataTypeColumn)
         {
             this.rowData = rowData;
+            this.variableColumn = variableColumn;
+            this.dataTypeColumn = dataTypeColumn;
         }
 
         /**********************************************************************
@@ -881,6 +896,26 @@ public class CcddClasses
         protected Object[] getRowData()
         {
             return rowData;
+        }
+
+        /**********************************************************************
+         * Get the variable name column index
+         *
+         * @return Variable name column index
+         *********************************************************************/
+        protected int getVariableColumn()
+        {
+            return variableColumn;
+        }
+
+        /**********************************************************************
+         * Get the data type column index
+         *
+         * @return Data type column index
+         *********************************************************************/
+        protected int getDataTypeColumn()
+        {
+            return dataTypeColumn;
         }
     }
 
@@ -1269,10 +1304,10 @@ public class CcddClasses
             this.typeName = typeName;
             this.description = description;
 
-            // Initialize storage for the table type column information
+            // Initialize storage for the table type column and data field
+            // information
             columns = new ArrayList<Object[]>();
-
-            dataFields = new ArrayList<String[]>(); // TODO
+            dataFields = new ArrayList<String[]>();
         }
 
         /**********************************************************************
@@ -4400,27 +4435,35 @@ public class CcddClasses
     public static class CustomSplitPane extends JSplitPane
     {
         /**********************************************************************
-         * Custom split pane class constructor. Create a horizontally divided
-         * split pane using the specified components. If no divider component
-         * is provided then the divider blends in with the dialog background.
-         * If a component is specified then the divider is displayed using the
-         * supplied component
+         * Custom split pane class constructor. Create a horizontally or
+         * vertically divided split pane using the specified components. If no
+         * divider component is provided then the divider blends in with the
+         * dialog background. If a component is specified then the divider is
+         * displayed using the supplied component
          * 
-         * @param leftComp
-         *            component to display in the left side of the split pane
+         * @param leftUpperComp
+         *            component to display in the left or upper side of the
+         *            split pane
          * 
-         * @param rightComp
-         *            component to display in the right side of the split pane
+         * @param rightLowerComp
+         *            component to display in the right or lower side of the
+         *            split pane
          * 
          * @param dividerComp
          *            component to display in place of the divider; null to
          *            create a hidden divider
+         * 
+         * @param orientation
+         *            JSplitPane.HORIZONTAL_SPLIT to split the pane
+         *            horizontally or JSplitPane.VERTICAL_SPLIT to split the
+         *            pane vertically
          *********************************************************************/
-        CustomSplitPane(Component leftComp,
-                        Component rightComp,
-                        final Component dividerComp)
+        CustomSplitPane(Component leftUpperComp,
+                        Component rightLowerComp,
+                        final Component dividerComp,
+                        int orientation)
         {
-            super(JSplitPane.HORIZONTAL_SPLIT, true, leftComp, rightComp);
+            super(orientation, true, leftUpperComp, rightLowerComp);
 
             // Set the pane's UI so that the divider isn't displayed
             setUI(new BasicSplitPaneUI()
@@ -4450,7 +4493,9 @@ public class CcddClasses
                         @Override
                         public int getDividerSize()
                         {
-                            int size = LABEL_HORIZONTAL_SPACING / 2;
+                            int size = orientation == JSplitPane.HORIZONTAL_SPLIT
+                                                                                 ? LABEL_HORIZONTAL_SPACING / 2
+                                                                                 : LABEL_VERTICAL_SPACING;
 
                             // Check if a component is provided to represent
                             // the divider
@@ -4458,12 +4503,13 @@ public class CcddClasses
                             {
                                 // Set the size to the divider component's
                                 // preferred width
-                                size = dividerComp.getPreferredSize().width;
+                                size = orientation == JSplitPane.HORIZONTAL_SPLIT
+                                                                                 ? dividerComp.getPreferredSize().width
+                                                                                 : dividerComp.getPreferredSize().height;
                             }
 
                             return size;
                         }
-
                     };
 
                     // Check if a component is provided to represent the
@@ -5089,7 +5135,10 @@ public class CcddClasses
     public static class AutoCompleteTextField extends JTextField
     {
         // List containing the auto-completion text
-        private List<String> autoCompList;
+        private final List<String> autoCompList;
+
+        // Maximum number of items to maintain in teh auto-complete list
+        private final int maxItems;
 
         // Flag that determines if the text entered must match the case of the
         // text in the list
@@ -5182,7 +5231,8 @@ public class CcddClasses
         }
 
         /**********************************************************************
-         * JTextField auto-completion class constructor
+         * JTextField auto-completion class constructor. Assume 10 items are
+         * stored in the auto-complete list
          * 
          * @param autoCompList
          *            list containing the strings from which the
@@ -5190,7 +5240,24 @@ public class CcddClasses
          *********************************************************************/
         protected AutoCompleteTextField(List<String> autoCompList)
         {
+            this(autoCompList, 10);
+        }
+
+        /**********************************************************************
+         * JTextField auto-completion class constructor
+         * 
+         * @param autoCompList
+         *            list containing the strings from which the
+         *            auto-completion text is extracted
+         * 
+         * @param maxItems
+         *            maximum number of items to maintain in the auto-complete
+         *            list
+         *********************************************************************/
+        protected AutoCompleteTextField(List<String> autoCompList, int maxItems)
+        {
             this.autoCompList = autoCompList;
+            this.maxItems = maxItems;
 
             // Initialize with case sensitivity enables and allowing text other
             // than that in the auto-completion list from being entered
@@ -5305,18 +5372,6 @@ public class CcddClasses
         }
 
         /**********************************************************************
-         * Set the list of auto-completion strings
-         * 
-         * @param autoCompList
-         *            list containing the strings from which the
-         *            auto-completion text is extracted
-         *********************************************************************/
-        protected void setDataList(List<String> autoCompList)
-        {
-            this.autoCompList = autoCompList;
-        }
-
-        /**********************************************************************
          * Get the first auto-completion list string that matches the input
          * text
          * 
@@ -5372,6 +5427,61 @@ public class CcddClasses
             catch (Exception exception)
             {
             }
+        }
+
+        /**********************************************************************
+         * Update the list of auto-completion items with the specified string
+         * 
+         * @param text
+         *            item to add to the auto-completion list. The item is
+         *            placed at the head of the list. The list size is
+         *            constrained to the maximum number specified when the
+         *            field was created
+         *********************************************************************/
+        protected void updateList(String text)
+        {
+            // Check if this is a repeat of a previous text string
+            if (autoCompList.contains(text))
+            {
+                // Remove the text string from its current position in the
+                // remembered strings list so that it can be put at the head of
+                // the list
+                autoCompList.remove(text);
+            }
+            // Check if the maximum number of remembered strings has been
+            // reached
+            else if (autoCompList.size() == maxItems)
+            {
+                // Remove the oldest text string from the list
+                autoCompList.remove(autoCompList.size() - 1);
+            }
+
+            // Insert the latest text string at the beginning of the remembered
+            // strings list
+            autoCompList.add(0, text);
+        }
+
+        /**********************************************************************
+         * Get the list of auto-completion items as a single, delimited string
+         * 
+         * @return String containing the items from which the auto-completion
+         *         text is extracted, separated by delimiter characters
+         *********************************************************************/
+        protected String getListAsString()
+        {
+            String listString = "";
+
+            // Step through the remembered strings
+            for (String listItem : autoCompList)
+            {
+                // Append the item string and separator characters to the
+                // single string
+                listString += listItem + AUTO_COMPLETE_TEXT_SEPARATOR;
+            }
+
+            // Remove the trailing separator characters
+            return CcddUtilities.removeTrailer(listString,
+                                               AUTO_COMPLETE_TEXT_SEPARATOR);
         }
     }
 }

@@ -383,7 +383,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                                   true) == OK_BUTTON
                                 && (!getRadioButtonSelected().equals(dbControl.getDatabase())
                                 || (getRadioButtonSelected().equals(dbControl.getDatabase())
-                                && ccddMain.ignoreUncommittedChanges("Rename Project",
+                                && ccddMain.ignoreUncommittedChanges("Copy Project",
                                                                      "Discard changes?",
                                                                      true,
                                                                      null,

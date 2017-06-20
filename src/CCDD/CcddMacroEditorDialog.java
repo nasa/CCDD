@@ -310,7 +310,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
 
                             // Check if the macro is used in any of the data
                             // tables
-                            if (macroHandler.getMacroReferences(name, CcddMacroEditorDialog.this).length != 0)
+                            if (!name.isEmpty()
+                                && macroHandler.getMacroReferences(name, CcddMacroEditorDialog.this).length != 0)
                             {
                                 // Deselect the macro
                                 macroTable.removeRowSelectionInterval(row, row);
@@ -465,8 +466,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                 });
 
                 // Add buttons in the order in which they'll appear (left to
-                // right, top
-                // to bottom)
+                // right, top to bottom)
                 buttonPnl.add(btnInsertRow);
                 buttonPnl.add(btnMoveUp);
                 buttonPnl.add(btnUndo);
@@ -486,6 +486,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
             @Override
             protected void complete()
             {
+                // TODO
                 // Display the macro editor dialog
                 showOptionsDialog(ccddMain.getMainFrame(),
                                   editorPnl,

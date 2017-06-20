@@ -2525,7 +2525,9 @@ public class CcddDbVerificationHandler
             if (!matchFound)
             {
                 // Store the row addition information
-                additions.add(new TableAddition(tblStrg.getTableInformation().getData()[tblRow]));
+                additions.add(new TableAddition(tblStrg.getTableInformation().getData()[tblRow],
+                                                variableNameIndex,
+                                                dataTypeIndex));
             }
         }
 

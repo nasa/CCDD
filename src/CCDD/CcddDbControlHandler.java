@@ -15,6 +15,7 @@ import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_HOST;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_PORT;
 import static CCDD.CcddConstants.ENUMERATION_SEPARATOR;
 import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
+import static CCDD.CcddConstants.MACRO_IDENTIFIER;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.POSTGRESQL_SERVER_HOST;
 import static CCDD.CcddConstants.POSTGRESQL_SERVER_PORT;
@@ -53,6 +54,7 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FileExtension;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
+import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
 import CCDD.CcddConstants.SearchType;
 import CCDD.CcddConstants.ServerPropertyDialogType;
@@ -1370,7 +1372,19 @@ public class CcddDbControlHandler
                                                + enumJoin
                                                + " WHERE "
                                                + dbArraySize
-                                               + " = E'''' OR "
+                                               + " = E'''' OR (array_size ~ E''^"
+                                               + MACRO_IDENTIFIER
+                                               + "'' AND (SELECT EXISTS (SELECT "
+                                               + MacrosColumn.VALUE.getColumnName()
+                                               + " FROM "
+                                               + InternalTable.MACROS.getTableName()
+                                               + " WHERE "
+                                               + MacrosColumn.MACRO_NAME.getColumnName()
+                                               + " = replace('''' || array_size || '''', ''"
+                                               + MACRO_IDENTIFIER
+                                               + "'', '''') AND "
+                                               + MacrosColumn.VALUE.getColumnName()
+                                               + " = ''''))) OR "
                                                + dbVariableName
                                                + " ~ E''^.+]'' ORDER BY "
                                                + functionParm[1]
@@ -1473,6 +1487,42 @@ public class CcddDbControlHandler
                + intTable.getColumnCommand(true)
                + buildOwnerCommand(DatabaseObject.TABLE,
                                    intTable.getTableName());
+    }
+
+    /**************************************************************************
+     * Authenticate the specified user credentials
+     * 
+     * @param userName
+     *            user name
+     * 
+     * @param password
+     *            user password
+     * 
+     * @return true if the user name and password are valid for the currently
+     *         open database
+     *************************************************************************/
+    protected boolean authenticateUser(String userName, String password)
+    {
+        boolean valid = true;
+
+        try
+        {
+            // Check if the user credentials are valid for the currently open
+            // database by attempting to establish a connection
+            Connection validateConn = DriverManager.getConnection(getDatabaseURL(activeDatabase),
+                                                                  userName,
+                                                                  password);
+
+            // Close the connection
+            validateConn.close();
+        }
+        catch (SQLException se)
+        {
+            // Set the flag to indicate that the credentials are invalid
+            valid = false;
+        }
+
+        return valid;
     }
 
     /**************************************************************************
@@ -1967,7 +2017,9 @@ public class CcddDbControlHandler
                         eventLog.logEvent(SUCCESS_MSG,
                                           "Project database '"
                                               + oldName
-                                              + "' renamed");
+                                              + "' renamed to '"
+                                              + newName
+                                              + "'");
                     }
                 }
                 catch (SQLException se)

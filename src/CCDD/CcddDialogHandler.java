@@ -16,11 +16,11 @@ import static CCDD.CcddConstants.DIALOG_MIN_WINDOW_WIDTH;
 import static CCDD.CcddConstants.ERROR_ICON;
 import static CCDD.CcddConstants.IGNORE_BUTTON;
 import static CCDD.CcddConstants.INFORMATION_ICON;
+import static CCDD.CcddConstants.INITIAL_VIEWABLE_LIST_ROWS;
 import static CCDD.CcddConstants.LABEL_FONT_BOLD;
 import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
 import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
 import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
-import static CCDD.CcddConstants.MIN_WINDOW_HEIGHT;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.OK_ICON;
 import static CCDD.CcddConstants.QUESTION_ICON;
@@ -1476,15 +1476,21 @@ public class CcddDialogHandler extends JDialog
             scrollPane.getVerticalScrollBar().setUnitIncrement(radioButton[0].getPreferredSize().height / 2
                                                                + LABEL_VERTICAL_SPACING);
 
+            // Calculate the maximum desirable height panel containing the
+            // radio buttons (= # of rows * row height)
+            int maxRowHeight = (int) (INITIAL_VIEWABLE_LIST_ROWS
+                                      * rbtnGridPnl.getPreferredSize().getHeight()
+                                      / radioButton.length);
+
             // Check if the scrollable list exceeds the maximum desirable
             // height
-            if (rbtnGridPnl.getPreferredSize().getHeight() > MIN_WINDOW_HEIGHT)
+            if (rbtnGridPnl.getPreferredSize().getHeight() > maxRowHeight)
             {
                 // Set the size of the scrollable list; the vertical scroll bar
                 // is displayed
                 scrollPane.setPreferredSize(new Dimension((int) rbtnGridPnl.getPreferredSize().getWidth()
                                                           + LABEL_HORIZONTAL_SPACING * 2,
-                                                          MIN_WINDOW_HEIGHT));
+                                                          maxRowHeight));
             }
 
             // Add the scrollable panel containing the radio buttons to the
@@ -1590,8 +1596,8 @@ public class CcddDialogHandler extends JDialog
             // Create panels to contain the check boxes within a scroll pane
             JPanel cboxPanel = new JPanel(new GridBagLayout());
             cboxPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-            JPanel cboxGridPanel = new JPanel(new GridBagLayout());
-            cboxGridPanel.setBorder(emptyBorder);
+            JPanel cboxGridPnl = new JPanel(new GridBagLayout());
+            cboxGridPnl.setBorder(emptyBorder);
 
             // Create a listener for radio button selection changes
             ActionListener listener = new ActionListener()
@@ -1660,7 +1666,7 @@ public class CcddDialogHandler extends JDialog
                 }
 
                 // Add the check box to the dialog panel
-                cboxGridPanel.add(checkBox[index], gbc);
+                cboxGridPnl.add(checkBox[index], gbc);
 
                 // Check if a description is provided
                 if (itemInformation[index].length != 1
@@ -1671,7 +1677,7 @@ public class CcddDialogHandler extends JDialog
                     gbc.gridx++;
                     JLabel descriptionLbl = new JLabel(itemInformation[index][1]);
                     descriptionLbl.setFont(LABEL_FONT_PLAIN);
-                    cboxGridPanel.add(descriptionLbl, gbc);
+                    cboxGridPnl.add(descriptionLbl, gbc);
                     gbc.weightx = 0.0;
                 }
 
@@ -1687,22 +1693,27 @@ public class CcddDialogHandler extends JDialog
             // Create a scroll pane to house the check boxes in case there are
             // a large number to choose from. Set the scroll speed of the
             // scroll pane based on the row (i.e., check box) height
-            JScrollPane scrollPane = new JScrollPane(cboxGridPanel);
+            JScrollPane scrollPane = new JScrollPane(cboxGridPnl);
             scrollPane.setBorder(emptyBorder);
             scrollPane.setViewportBorder(emptyBorder);
             scrollPane.getVerticalScrollBar().setUnitIncrement(checkBox[0].getPreferredSize().height / 2
                                                                + LABEL_VERTICAL_SPACING);
 
+            // Calculate the maximum desirable height panel containing the
+            // check boxes (= # of rows * row height)
+            int maxRowHeight = (int) (INITIAL_VIEWABLE_LIST_ROWS
+                                      * cboxGridPnl.getPreferredSize().getHeight()
+                                      / checkBox.length);
+
             // Check if the scrollable list exceeds the maximum desirable
             // height
-            if (cboxGridPanel.getPreferredSize().getHeight() > MIN_WINDOW_HEIGHT)
+            if (cboxGridPnl.getPreferredSize().getHeight() > maxRowHeight)
             {
                 // Set the size of the scrollable list; the vertical scroll bar
                 // is displayed
-                scrollPane.setPreferredSize(new Dimension((int)
-                                                          cboxGridPanel.getPreferredSize().getWidth()
+                scrollPane.setPreferredSize(new Dimension((int) cboxGridPnl.getPreferredSize().getWidth()
                                                           + LABEL_HORIZONTAL_SPACING * 2,
-                                                          MIN_WINDOW_HEIGHT));
+                                                          maxRowHeight));
             }
 
             // Add the scrollable panel containing the check boxes to the outer

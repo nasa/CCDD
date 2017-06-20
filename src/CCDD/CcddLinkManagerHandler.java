@@ -37,6 +37,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -450,7 +451,8 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         managerPnl.add(new CustomSplitPane(treePnl,
                                            linkTree.createTreePanel("Links",
                                                                     TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION),
-                                           createArrowButtonPanel()),
+                                           createArrowButtonPanel(),
+                                           JSplitPane.HORIZONTAL_SPLIT),
                        gbc);
 
         // Create the link description label
@@ -629,7 +631,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
                 // transfers to the links tree so that the correct variable
                 // order is maintained
                 linkTree.setTreePathOrder(variableTree.getTableTreePathList(null,
-                                                                            variableTree.getNodeFromNodeName("Structures & Variables"),
+                                                                            variableTree.getNodeByNodeName("Structures & Variables"),
                                                                             -1));
             }
         });

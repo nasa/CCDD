@@ -67,6 +67,7 @@ public class CcddConstants
     protected static final String LOOK_AND_FEEL = "LookAndFeel";
     protected static final String WEB_SERVER_PORT = "WebServerPort";
     protected static final String SEARCH_STRINGS = "SearchStrings";
+    protected static final String SERVER_STRINGS = "ServerStrings";
 
     // Prefix assigned to internally created CCDD database tables
     protected static final String INTERNAL_TABLE_PREFIX = "__";
@@ -119,12 +120,16 @@ public class CcddConstants
     protected static final String TLM_SCH_SEPARATOR = "\\";
 
     // Number of search strings to store in the program preferences; used for
-    // auto-completing the search text field in teh search dialogs
+    // auto-completing the search text field in the search dialogs
     protected static final int NUM_REMEMBERED_SEARCHES = 30;
 
-    // Characters used to separate individual remembered search strings that
-    // are stored as a single string in the program preferences
-    protected static final String SEARCH_TEXT_SEPARATOR = "%~%";
+    // Number of server strings to store in the program preferences; used for
+    // auto-completing the server text field in the database server dialog
+    protected static final int NUM_REMEMBERED_SERVERS = 30;
+
+    // Characters used to separate individual remembered strings that are
+    // stored as a single string in the program preferences
+    protected static final String AUTO_COMPLETE_TEXT_SEPARATOR = "%~%";
 
     // Special character to denote that a child data table cell value is to be
     // replaced with the corresponding entry in its prototype table, and that
@@ -141,6 +146,10 @@ public class CcddConstants
     // Characters used to encompass a macro name
     protected static final String MACRO_IDENTIFIER = "##";
 
+    // Regular expression to detect reserved characters. The backslash
+    // character as a reserved character isn't included here
+    protected static final String POSTGRESQL_RESERVED_CHARS = "(.*?)([\\[\\]\\(\\)\\{\\}\\.\\+\\*\\^\\$\\|\\?\\-])(.*?)";
+
     // Regular expression patterns for matching trailing zeroes (with or
     // without a leading decimal)
     protected static final String TRAILING_ZEROES = "\\.??0*$";
@@ -154,6 +163,9 @@ public class CcddConstants
     // within a string (case insensitive)
     protected static final String CONTAINS_DESCRIPTION = "(?i).*\\s*" + COL_DESCRIPTION + "\\s*.*";
     protected static final String CONTAINS_UNITS = "(?i).*\\s*" + COL_UNITS + "\\s*.*";
+
+    // Regular expression for identifying part or all of a table and its path
+    protected static final String PATH_IDENT = "[a-zA-Z0-9_,\\\\.\\\\[\\\\]]+";
 
     // Node name for the linked and unlinked variables in trees displaying
     // (un)linked variables
@@ -302,9 +314,11 @@ public class CcddConstants
     protected static final String WARNING_ICON = "/images/warning.png";
     protected static final String ERROR_ICON = "/images/error.png";
 
-    // Number of rows for a table and data table to initially display
+    // Number of rows for a table, data table, and selection list to initially
+    // display
     protected static final int INITIAL_VIEWABLE_TABLE_ROWS = 10;
     protected static final int INITIAL_VIEWABLE_DATA_TABLE_ROWS = 16;
+    protected static final int INITIAL_VIEWABLE_LIST_ROWS = 12;
 
     // Maximum pixel width of a table column when the table is initially
     // displayed

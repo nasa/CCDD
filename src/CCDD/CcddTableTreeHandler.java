@@ -958,14 +958,17 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         // Step through each node in the parent's path
         for (TreeNode node : parentNode.getPath())
         {
-            // Check if the child is in the path
-            if (((ToolTipTreeNode) node).getUserObject().toString().equals(childNode.getUserObject().toString()))
+            if (((ToolTipTreeNode) node).getLevel() >= getTableNodeLevel())
             {
-                // Store the name of the recursively referenced node and set
-                // the error flag
-                recursionTable = childNode.getUserObject().toString();
-                recursionError = true;
-                break;
+                // Check if the child is in the path
+                if (((ToolTipTreeNode) node).getUserObject().toString().equals(childNode.getUserObject().toString()))
+                {
+                    // Store the name of the recursively referenced node and
+                    // set the error flag
+                    recursionTable = childNode.getUserObject().toString();
+                    recursionError = true;
+                    break;
+                }
             }
         }
 
@@ -1168,28 +1171,36 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // Get the node referenced
             ToolTipTreeNode tableNode = (ToolTipTreeNode) element.nextElement();
 
-            // Check if the node matches the target table's name
-            if (getTableFromNodeName(tableNode.getUserObject().toString()).equals(checkTable))
+            // Check that the node represents a table
+            if (tableNode.getLevel() >= this.getTableNodeLevel())
             {
-                // Step through each node in the table's path, skipping the
-                // database, prototype/instance, group, and type nodes
-                for (int nodeIndex = getTableNodeLevel(); nodeIndex < tableNode.getPath().length; nodeIndex++)
+                // Check if the node matches the target table's name
+                if (getTableFromNodeName(tableNode.getUserObject().toString()).equals(checkTable))
                 {
-                    // Get the table name from the node name
-                    String nodeTable = getTableFromNodeName(tableNode.getPath()[nodeIndex].toString());
-
-                    // Check if the table name matches the target table
-                    if (nodeTable.equals(targetTable))
+                    // Step through each node in the table's path, skipping the
+                    // database, prototype/instance, group, and type nodes
+                    for (int nodeIndex = getTableNodeLevel(); nodeIndex < tableNode.getPath().length; nodeIndex++)
                     {
-                        // Set the flag indicating the target table is in the
-                        // table's path and stop searching
-                        isInPath = true;
+                        // Get the table name from the node name
+                        String nodeTable = getTableFromNodeName(tableNode.getPath()[nodeIndex].toString());
+
+                        // Check if the table name matches the target table
+                        if (nodeTable.equals(targetTable))
+                        {
+                            // Set the flag indicating the target table is in
+                            // the table's path and stop searching
+                            isInPath = true;
+                            break;
+                        }
+                    }
+
+                    // Check if the target table is in the path
+                    if (isInPath)
+                    {
+                        // Stop searching since a match exists
                         break;
                     }
                 }
-
-                // Stop searching since a match was found
-                break;
             }
         }
 
@@ -1372,10 +1383,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *            name of the node to search for, in the form
      *            tableName.variableName
      * 
-     * @return TreeNode for the specified node; null if the node name doesn't
-     *         exist in the tree
+     * @return TreeNode for the specified node name; null if the node name
+     *         doesn't exist in the tree
      *************************************************************************/
-    protected ToolTipTreeNode getNodeFromNodeName(String nodeName)
+    protected ToolTipTreeNode getNodeByNodeName(String nodeName)
     {
         ToolTipTreeNode node = null;
 
@@ -1387,6 +1398,39 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
 
             // Check if the node matches the target node's name
             if (removeExtraText(tableNode.getUserObject().toString()).equals(nodeName))
+            {
+                // Store this node and stop searching
+                node = tableNode;
+                break;
+            }
+        }
+
+        return node;
+    }
+
+    /**************************************************************************
+     * Get the TreeNode for the node matching the specified node path name
+     * (table path + variable name)
+     * 
+     * @param nodeName
+     *            name of the node to search for, in the form
+     *            tableName.variableName
+     * 
+     * @return TreeNode for the specified node path; null if the node path
+     *         doesn't exist in the tree
+     *************************************************************************/
+    protected ToolTipTreeNode getNodeByNodePath(String nodeName)
+    {
+        ToolTipTreeNode node = null;
+
+        // Step through the root node's children, if any
+        for (Enumeration<?> element = getRootNode().preorderEnumeration(); element.hasMoreElements();)
+        {
+            // Get the referenced node
+            ToolTipTreeNode tableNode = (ToolTipTreeNode) element.nextElement();
+
+            // Check if the node matches the target node's name
+            if (getFullVariablePath(tableNode.getUserObjectPath()).equals(nodeName))
             {
                 // Store this node and stop searching
                 node = tableNode;

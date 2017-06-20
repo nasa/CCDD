@@ -1022,6 +1022,10 @@ public class CcddMain
         name = name.toLowerCase();
         String keyChar = KeyEvent.getKeyText(key).toLowerCase();
 
+        // Set the mnemonic key. This automatically highlights the first
+        // occurrence of the key character (if present) in the menu item name
+        menuItem.setMnemonic(key);
+
         int position = -1;
 
         do
@@ -1043,14 +1047,6 @@ public class CcddMain
             // Highlight the specified occurrence of the key character in the
             // menu item name
             menuItem.setDisplayedMnemonicIndex(position);
-        }
-        // The key character isn't in the item name or there are fewer
-        // occurrences of the key character than are specified
-        else
-        {
-            // Highlight the first occurrence of the key character (if present)
-            // in the menu item name
-            menuItem.setMnemonic(key);
         }
     }
 

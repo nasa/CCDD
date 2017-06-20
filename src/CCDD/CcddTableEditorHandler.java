@@ -3287,7 +3287,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 if (editorDialog != null)
                 {
                     // Update the change indicator for the table
-                    editorDialog.updateChangeIndicator();
+                    editorDialog.updateChangeIndicator(CcddTableEditorHandler.this);
                 }
             }
         };
@@ -4866,7 +4866,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             if (!matchFound)
             {
                 // Store the row addition information
-                additions.add(new TableAddition(tableData[tblRow]));
+                additions.add(new TableAddition(tableData[tblRow],
+                                                variableNameIndex,
+                                                dataTypeIndex));
             }
         }
 
@@ -4901,6 +4903,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     @Override
     protected void updateOwnerChangeIndicator()
     {
-        editorDialog.updateChangeIndicator();
+        editorDialog.updateChangeIndicator(this);
     }
 }

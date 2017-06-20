@@ -1127,14 +1127,16 @@ public class CcddSchedulerHandler
         // Create the split pane containing the input tree and options panel
         JSplitPane leftSpltPn = new CustomSplitPane(schedulerInput.getInputPanel(),
                                                     packPnl,
-                                                    null);
+                                                    null,
+                                                    JSplitPane.HORIZONTAL_SPLIT);
 
         // Create the split pane containing the left split pane and the split
         // pane containing the scheduler and assignment tree/list. Use the
         // arrow button panel as the split pane divider
         JSplitPane allSpltPn = new CustomSplitPane(leftSpltPn,
                                                    schedulerEditor.getSchedulerAndAssignPanel(),
-                                                   createArrowButtonPanel());
+                                                   createArrowButtonPanel(),
+                                                   JSplitPane.HORIZONTAL_SPLIT);
 
         // Set the options list to display the starting rate value
         getTelemetryOptions();
