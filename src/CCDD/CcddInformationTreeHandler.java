@@ -82,6 +82,12 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * @param filterFlag
      *            flag used to filter the tree content
      * 
+     * @param treePathOrder
+     *            list containing all of the items that potentially can appear
+     *            in the tree in the order in which they appear when added to
+     *            the tree; null if no order is specified (the order can be
+     *            specified later, if needed)
+     * 
      * @param parent
      *            GUI component calling this method
      *************************************************************************/
@@ -90,11 +96,13 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                                InternalTable infoType,
                                String filterValue,
                                boolean filterFlag,
+                               List<String> treePathOrder,
                                Component parent)
     {
         super(ccddMain);
 
         dataTypeHandler = ccddMain.getDataTypeHandler();
+        this.treePathOrder = treePathOrder;
 
         // Get the internal table definitions from the database
         List<String[]> infoDefinitions = ccddMain.getDbTableCommandHandler().retrieveInformationTable(infoType,
@@ -129,12 +137,24 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     /**************************************************************************
      * Get the node level that skips any active filter nodes
      * 
-     * @return Node level for tables
+     * @return Node level for tree nodes below the active filter nodes
      *************************************************************************/
     @Override
-    protected int getTableNodeLevel()
+    protected int getHeaderNodeLevel()
     {
         return (isFilterByApp ? 1 : 0) + (isFilterByType ? 1 : 0);
+    }
+
+    /**************************************************************************
+     * Get the node level that skips any active filter nodes and other header
+     * nodes. The default number of header nodes is 2; this method can be
+     * overridden to adjust the header levels
+     * 
+     * @return Node level for tree nodes below the filter and header nodes
+     *************************************************************************/
+    protected int getItemNodeLevel()
+    {
+        return getHeaderNodeLevel() + 2;
     }
 
     /**************************************************************************
@@ -251,13 +271,13 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * Set the list of all tree paths in the table tree in the order to be used
      * when placing a path in the information tree
      * 
-     * @param pathOrder
+     * @param treePathOrder
      *            list of all paths in the table tree in the order to be
      *            maintained in the information tree
      *************************************************************************/
-    protected void setTreePathOrder(List<String> pathOrder)
+    protected void setTreePathOrder(List<String> treePathOrder)
     {
-        treePathOrder = pathOrder;
+        this.treePathOrder = treePathOrder;
     }
 
     /**************************************************************************
@@ -323,7 +343,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                 // Get the path of the new child node and locate it within the
                 // path order list
                 int childIndex = treePathOrder.indexOf(createNameFromPath(path.toArray(new Object[0]),
-                                                                          getTableNodeLevel() + 2));
+                                                                          getItemNodeLevel()));
 
                 // Step backwards through the existing sibling nodes
                 for (int nodeIndex = parentNode.getChildCount() - 1; nodeIndex >= 0; nodeIndex--)
@@ -332,7 +352,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                     // the path order list
                     ToolTipTreeNode siblingPath = (ToolTipTreeNode) parentNode.getChildAt(nodeIndex);
                     int siblingIndex = treePathOrder.indexOf(createNameFromPath(siblingPath.getPath(),
-                                                                                getTableNodeLevel() + 2));
+                                                                                getItemNodeLevel()));
 
                     // Check if the sibling appears in the path order before
                     // the new child
@@ -596,7 +616,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         // sub-tree
         while (removeNode.getParent() != null
                && removeNode.getParent().getChildCount() == 1
-               && ((ToolTipTreeNode) removeNode.getParent()).getLevel() > getTableNodeLevel())
+               && ((ToolTipTreeNode) removeNode.getParent()).getLevel() > getHeaderNodeLevel())
         {
             // Set the node to remove to the child node's parent node
             removeNode = (ToolTipTreeNode) removeNode.getParent();
@@ -668,7 +688,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                 // with another child, step back through the child's path to
                 // find the ancestor node with only a single child node
                 while (node.getParent().getChildCount() == 1
-                       && node.getLevel() > 2 + getTableNodeLevel())
+                       && node.getLevel() > 2 + getHeaderNodeLevel())
                 {
                     // Get the parent node for the child(ren) to be removed
                     node = (ToolTipTreeNode) node.getParent();
@@ -919,7 +939,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         // is a table or primitive variable depending on the internal table
         // type)
         if (node.getChildCount() == 0
-            && node.getLevel() > 1 + getTableNodeLevel())
+            && node.getLevel() > 1 + getHeaderNodeLevel())
         {
             // Create storage for the leaf definition and path
             List<String> leafDefinition = new ArrayList<String>();
@@ -1010,7 +1030,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
 
         // Step through the nodes in the path. Skip the table type node if
         // present
-        for (int index = startAdjust + getTableNodeLevel(); index < path.length; index++)
+        for (int index = startAdjust + getHeaderNodeLevel(); index < path.length; index++)
         {
             // Store the leaf node name in the path array
             leafPath += path[index].toString() + ",";

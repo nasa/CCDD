@@ -59,8 +59,6 @@ import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddClasses.MinMaxPair;
 import CCDD.CcddClasses.PaddedComboBox;
 import CCDD.CcddClasses.RateInformation;
-import CCDD.CcddClasses.TableAddition;
-import CCDD.CcddClasses.TableDeletion;
 import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddClasses.TableModification;
 import CCDD.CcddConstants.DefaultColumn;
@@ -150,9 +148,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     private String[][] originalCellData;
 
     // Lists of table content changes to process
-    private final List<TableAddition> additions;
+    private final List<TableModification> additions;
     private final List<TableModification> modifications;
-    private final List<TableDeletion> deletions;
+    private final List<TableModification> deletions;
 
     // Flag indicating if the table can be edited
     private boolean isEditEnabled;
@@ -205,9 +203,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         setCommittedInformation(tableInfo);
 
         // Initialize the lists of table content changes
-        additions = new ArrayList<TableAddition>();
+        additions = new ArrayList<TableModification>();
         modifications = new ArrayList<TableModification>();
-        deletions = new ArrayList<TableDeletion>();
+        deletions = new ArrayList<TableModification>();
 
         // Set the row index and primary key column indices
         rowIndex = DefaultColumn.ROW_INDEX.ordinal();
@@ -577,7 +575,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      * 
      * @return List of table additions
      *************************************************************************/
-    protected List<TableAddition> getAdditions()
+    protected List<TableModification> getAdditions()
     {
         return additions;
     }
@@ -597,7 +595,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      * 
      * @return List of table deletions
      *************************************************************************/
-    protected List<TableDeletion> getDeletions()
+    protected List<TableModification> getDeletions()
     {
         return deletions;
     }
@@ -769,9 +767,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     protected void doTableUpdatesComplete(boolean commandError,
                                           List<Integer> keys,
                                           boolean applyToChild,
-                                          List<TableAddition> additions,
+                                          List<TableModification> additions,
                                           List<TableModification> modifications,
-                                          List<TableDeletion> deletions,
+                                          List<TableModification> deletions,
                                           CcddLinkHandler linkHandler)
     {
         // Check that no error occurred performing the database commands
@@ -800,7 +798,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 committedData = new ArrayList<Object[]>(Arrays.asList((Object[][]) committedInfo.getData()));
 
                 // Step through each row added to the table
-                for (TableAddition add : additions)
+                for (TableModification add : additions)
                 {
                     // Get the index at which to insert the new row
                     int row = Integer.valueOf(add.getRowData()[rowIndex].toString()) - 1;
@@ -888,14 +886,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 }
 
                 // Sort the row deletions in descending order
-                Collections.sort(deletions, new Comparator<TableDeletion>()
+                Collections.sort(deletions, new Comparator<TableModification>()
                 {
                     /**********************************************************
                      * Compare the row numbers of two deletion actions in order
                      * to sort the row deletion from highest to lowest
                      *********************************************************/
                     @Override
-                    public int compare(TableDeletion del1, TableDeletion del2)
+                    public int compare(TableModification del1, TableModification del2)
                     {
                         return Integer.compare(Integer.valueOf(del2.getRowData()[rowIndex].toString()),
                                                Integer.valueOf(del1.getRowData()[rowIndex].toString()));
@@ -903,7 +901,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 });
 
                 // Step through each row deleted from the table
-                for (TableDeletion del : deletions)
+                for (TableModification del : deletions)
                 {
                     // Step through each row in the table
                     for (int row = 0; row < tableModel.getRowCount(); row++)
@@ -2887,7 +2885,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 int variableNameIndexView = convertColumnIndexToView(variableNameIndex);
 
                 // Step through the row of data being inserted
-                for (int column = startColumn; column <= endColumn; ++column, index++)
+                for (int column = startColumn; column <= endColumn; column++, index++)
                 {
                     // Check if the column index matches the variable name
                     // column
@@ -4866,9 +4864,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             if (!matchFound)
             {
                 // Store the row addition information
-                additions.add(new TableAddition(tableData[tblRow],
-                                                variableNameIndex,
-                                                dataTypeIndex));
+                additions.add(new TableModification(tableData[tblRow],
+                                                    variableNameIndex,
+                                                    dataTypeIndex,
+                                                    arraySizeIndex,
+                                                    bitLengthIndex));
             }
         }
 
@@ -4879,11 +4879,77 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             if (!rowFound[comRow])
             {
                 // Store the row deletion information
-                deletions.add(new TableDeletion(committedInfo.getData()[comRow],
-                                                variableNameIndex,
-                                                dataTypeIndex));
+                deletions.add(new TableModification(committedInfo.getData()[comRow],
+                                                    variableNameIndex,
+                                                    dataTypeIndex,
+                                                    arraySizeIndex,
+                                                    bitLengthIndex));
             }
         }
+    }
+
+    /**************************************************************************
+     * Check that a row with contains data in the required columns
+     * 
+     * @return true if a row is missing data in a required column
+     *************************************************************************/
+    protected boolean checkForMissingColumns()
+    {
+        boolean dataIsMissing = false;
+        boolean stopCheck = false;
+
+        // Check if the table represents a structure
+        if (isStructure())
+        {
+            // Step through each row in the table
+            for (int row = 0; row < table.getRowCount() && !stopCheck; row++)
+            {
+                // Skip rows in the table that are empty
+                row = table.getNextPopulatedRowNumber(row);
+
+                // Check that the end of the table hasn't been reached and if a
+                // required column is empty
+                if (row < table.getRowCount())
+                {
+                    // Step through the columns required for a structure
+                    // variable
+                    for (int column : new int[] {variableNameIndex, dataTypeIndex})
+                    {
+                        // Convert the column to view coordinates
+                        column = table.convertColumnIndexToView(column);
+
+                        // Check if the cell is empty
+                        if (table.getValueAt(row, column).toString().isEmpty())
+                        {
+                            // Set the 'data is missing' flag
+                            dataIsMissing = true;
+
+                            // Inform the user that a row is missing required
+                            // data. If Cancel is selected then do not perform
+                            // checks on other columns and rows
+                            if (new CcddDialogHandler().showMessageDialog(editorDialog,
+                                                                          "<html><b>Data must be provided for column '"
+                                                                              + table.getColumnName(column)
+                                                                              + "' [row "
+                                                                              + (row + 1)
+                                                                              + "]",
+                                                                          "Missing Data",
+                                                                          JOptionPane.WARNING_MESSAGE,
+                                                                          DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
+                            {
+                                // Set the stop flag to prevent further error
+                                // checking
+                                stopCheck = true;
+                            }
+
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return dataIsMissing;
     }
 
     /**************************************************************************

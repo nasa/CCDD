@@ -128,6 +128,16 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
     }
 
     /**************************************************************************
+     * Get a reference to the variable tree
+     *
+     * @return Reference to the variable tree
+     *************************************************************************/
+    protected CcddTableTreeHandler getVariableTree()
+    {
+        return variableTree;
+    }
+
+    /**************************************************************************
      * Get a reference to the link tree
      *
      * @return Reference to the link tree
@@ -416,8 +426,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                     ToolTipTreeNode last = (ToolTipTreeNode) allVariableTree.getPathForRow(treeIndex).getLastPathComponent();
 
                     // Get the node indices that encompass the packed variables
-                    // (if
-                    // applicable)
+                    // (if applicable)
                     NodeIndex nodeIndex = allVariableTree.getBitPackedVariables(last);
 
                     // Update the variable index to skip the packed members, if
@@ -488,13 +497,13 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
             int numVars = nodeIndex.getLastIndex() - nodeIndex.getFirstIndex();
 
             // Check if the number of associated variables doesn't exceed the
-            // number of variable in the list provided
-            if (numVars < variables.size())
+            // number of variables in the list provided
+            if (numVars <= variables.size())
             {
                 // Step through the associated variables
                 for (int index = 1; index <= numVars; index++)
                 {
-                    // Check that this isn't a bit-wise variable (ie.e, it's a
+                    // Check that this isn't a bit-wise variable (i.e, it's a
                     // string variable)
                     if (!isBitPack)
                     {
@@ -546,29 +555,38 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
         updateVariableTree(rate);
 
         // Get all the paths of the variables in the current variable tree
-        pathList.addAll(variableTree.getPrimitiveVariablePaths(variableTree.getRootNode()));
+        pathList.addAll(variableTree.getPrimitiveVariablePaths(variableTree.getRootNode(),
+                                                               true));
 
         // Step through each path in the list
         for (String path : pathList)
         {
-            // Split the path
+            // Split the path (project name , linked/unlinked node header, and
+            // variable path)
             String[] pathParts = path.split(",");
 
             // Check if the variable is linked
             if (pathParts[1].trim().equals(LINKED_VARIABLES_NODE_NAME))
             {
-                // Create the variable and add it to the list of variables
-                varList.add(VariableGenerator.generateTelemetryData(Arrays.copyOfRange(pathParts,
-                                                                                       3,
-                                                                                       pathParts.length),
-                                                                    rateVal));
+                // Create the variable
+                TelemetryData variable = VariableGenerator.generateTelemetryData(Arrays.copyOfRange(pathParts,
+                                                                                                    3,
+                                                                                                    pathParts.length),
+
+                                                                                 rateVal);
+
+                // Set the link to which the variable belongs
+                variable.setLink(pathParts[2]);
+
+                // Add it to the list of variables
+                varList.add(variable);
             }
-            // Not linked
+            // Variable isn't linked
             else
             {
                 // Create the variable and add it to the list of variables
                 varList.add(VariableGenerator.generateTelemetryData(Arrays.copyOfRange(pathParts,
-                                                                                       variableTree.getTableNodeLevel(),
+                                                                                       variableTree.getHeaderNodeLevel(),
                                                                                        pathParts.length),
                                                                     rateVal));
             }
@@ -600,7 +618,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
             boolean isLinked = false;
 
             // Set the start of the variable path
-            int index = variableTree.getTableNodeLevel();
+            int index = variableTree.getHeaderNodeLevel();
 
             // Check if the variable is linked
             if (path[1].toString().trim().equals(LINKED_VARIABLES_NODE_NAME))
@@ -660,7 +678,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                     {
                         // Add the variable to the variable list
                         varList.add(VariableGenerator.generateTelemetryData(Arrays.copyOfRange(path,
-                                                                                               variableTree.getTableNodeLevel(),
+                                                                                               variableTree.getHeaderNodeLevel(),
                                                                                                path.length),
                                                                             CcddUtilities.convertStringToFloat(selectedRate)));
                     }

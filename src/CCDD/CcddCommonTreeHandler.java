@@ -813,7 +813,7 @@ public class CcddCommonTreeHandler extends JTree
      * 
      * @return First applicable node index
      *************************************************************************/
-    protected int getTableNodeLevel()
+    protected int getHeaderNodeLevel()
     {
         return 0;
     }
@@ -861,7 +861,7 @@ public class CcddCommonTreeHandler extends JTree
         // tree path array so as to skip the database and prototype/instance
         // nodes, and the group and/or type nodes, if filtering is active, and
         // the parent table name
-        for (int index = getTableNodeLevel() + levelAdjust; index < path.length; index++)
+        for (int index = getHeaderNodeLevel() + levelAdjust; index < path.length; index++)
         {
             // Get the node name
             String variable = path[index].toString();
@@ -902,93 +902,115 @@ public class CcddCommonTreeHandler extends JTree
         // Get this variable tree node's index in the variable tree relative to
         // its parent node
         int tblIndex = tblParent.getIndex(node);
+        int firstIndex = tblIndex;
+        int lastIndex = tblIndex;
 
-        // Get the data type for this variable and calculate the number of bits
-        // it occupies
-        String dataType = varName.substring(0, varName.indexOf("."));
-        int dataTypeBitSize = dataTypeHandler.getSizeInBits(dataType);
-
-        // Set the current index in preparation for locating other variables
-        // packed with this one
-        int curIndex = tblIndex - 1;
-
-        // Step backwards through the child nodes as long as the bit-wise
-        // variables of the same data type are found
-        while (curIndex >= 0)
+        // Check if the target variable has a bit length
+        if (varName.contains(":"))
         {
-            // Get the variable name from the node
-            varName = removeExtraText(((ToolTipTreeNode) tblParent.getChildAt(curIndex)).getUserObject().toString());
+            // Get the data type for this variable and calculate the number of
+            // bits it occupies
+            String dataType = varName.substring(0, varName.indexOf("."));
+            int dataTypeBitSize = dataTypeHandler.getSizeInBits(dataType);
 
-            // Check if this variable doesn't have a bit length or isn't the
-            // same data type as the target
-            if (!varName.contains(":") || !varName.startsWith(dataType + "."))
+            // Set the current index in preparation for locating other
+            // variables packed with this one. Note that this can result is
+            // stepping backwards into another pack; this is accounted for
+            // further down
+            int curIndex = tblIndex - 1;
+
+            // Step backwards through the child nodes as long as the bit-wise
+            // variables of the same data type are found
+            while (curIndex >= 0)
             {
-                // Stop searching
-                break;
-            }
+                // Get the variable name from the node
+                varName = removeExtraText(((ToolTipTreeNode) tblParent.getChildAt(curIndex)).getUserObject().toString());
 
-            curIndex--;
-        }
-
-        // Adjust the index and save this as the starting index, and store its
-        // associated tree node index
-        curIndex++;
-        int firstIndex = curIndex;
-
-        int bitCount = 0;
-        boolean isTargetPack = false;
-
-        // Step forward, packing the bits, in order to determine the variables
-        // in the target variable's pack
-        while (curIndex < node.getSiblingCount())
-        {
-            // Get the variable name from the node
-            varName = removeExtraText(((ToolTipTreeNode) tblParent.getChildAt(curIndex)).getUserObject().toString());
-
-            // Check if this variable doesn't have a bit length or isn't the
-            // same data type as the target
-            if (!varName.contains(":") || !varName.startsWith(dataType + "."))
-            {
-                // Stop searching
-                break;
-            }
-
-            // Add the number of bits occupied by this variable to the running
-            // count
-            int bitLength = Integer.valueOf(macroHandler.getMacroExpansion(varName.substring(varName.indexOf(":") + 1)));
-            bitCount += bitLength;
-
-            // Check if the bit count rolled over the maximum allowed
-            if (bitCount > dataTypeBitSize)
-            {
-                // Check if the target variable is included
-                if (isTargetPack)
+                // Check if this variable doesn't have a bit length or isn't
+                // the same data type as the target
+                if (!varName.contains(":") || !varName.startsWith(dataType + "."))
                 {
                     // Stop searching
                     break;
                 }
 
-                // Reset the bit count to the current row's value and store the
-                // row index for the first variable in the pack
-                bitCount = bitLength;
-                firstIndex = curIndex;
+                curIndex--;
             }
 
-            // Check if the target row is reached
-            if (curIndex == tblIndex)
-            {
-                // Set the flag indicating this pack includes the target
-                // variable
-                isTargetPack = true;
-            }
-
+            // Adjust the index and save this as the starting index, and store
+            // its associated tree node index
             curIndex++;
-        }
+            firstIndex = curIndex;
 
-        // Store the last index in the pack. If the variable isn't bit-packed
-        // (i.e., has no bit length or has no other pack members) then the last
-        // index is the same as the first index
-        int lastIndex = curIndex - (isTargetPack ? 1 : 0);
+            int bitCount = 0;
+            boolean isTargetInPack = false;
+
+            // Step forward, packing the bits, in order to determine the
+            // variables in the target variable's pack
+            while (curIndex < node.getSiblingCount())
+            {
+                // Get the variable name from the node
+                varName = removeExtraText(((ToolTipTreeNode) tblParent.getChildAt(curIndex)).getUserObject().toString());
+
+                // Check if this variable doesn't have a bit length or isn't
+                // the same data type as the target
+                if (!varName.contains(":") || !varName.startsWith(dataType + "."))
+                {
+                    // Check if the target variable is a member of this packed
+                    // group
+                    if (curIndex == tblIndex)
+                    {
+                        // Set the flag indicating this pack includes the
+                        // target variable
+                        isTargetInPack = true;
+                    }
+
+                    // Stop searching
+                    break;
+                }
+
+                // Add the number of bits occupied by this variable to the
+                // running count
+                int bitLength = Integer.valueOf(macroHandler.getMacroExpansion(varName.substring(varName.indexOf(":") + 1)));
+                bitCount += bitLength;
+
+                // Check if the bit count rolled over the maximum allowed
+                if (bitCount > dataTypeBitSize)
+                {
+                    // Check if the target variable is included in the range of
+                    // packed variables
+                    if (isTargetInPack)
+                    {
+                        // All variables packed with the target variable have
+                        // been detected, so stop searching
+                        break;
+                    }
+
+                    // Reset the bit count to the current row's value and store
+                    // the row index for the first variable in the pack. This
+                    // accounts for one or more bit-wise variables occurring
+                    // immediately prior to the pack containing the target
+                    bitCount = bitLength;
+                    firstIndex = curIndex;
+                }
+
+                // Check if the target variable is a member of this packed
+                // group
+                if (curIndex == tblIndex)
+                {
+                    // Set the flag indicating this pack includes the target
+                    // variable
+                    isTargetInPack = true;
+                }
+
+                curIndex++;
+            }
+
+            // Store the last index in the pack. If the variable isn't
+            // bit-packed (i.e., has no bit length or has no other pack
+            // members) then the last index is the same as the first index
+            lastIndex = curIndex - (isTargetInPack ? 1 : 0);
+        }
 
         return new NodeIndex(firstIndex, lastIndex, tblIndex);
     }
@@ -1138,7 +1160,7 @@ public class CcddCommonTreeHandler extends JTree
                     }
 
                     // Store the row containing the last member of the pack
-                    lastPackRow = currentRow + nodeIndex.getLastIndex();
+                    lastPackRow = nodeIndex.getLastIndex();
                 }
                 // The variable is not bit-packed
                 else

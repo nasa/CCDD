@@ -856,70 +856,6 @@ public class CcddClasses
     }
 
     /**************************************************************************
-     * Table addition data class
-     *************************************************************************/
-    protected static class TableAddition
-    {
-        private final Object[] rowData;
-        private final int variableColumn;
-        private final int dataTypeColumn;
-
-        /**********************************************************************
-         * Table addition data class constructor. Rows may only be added to
-         * prototype tables
-         *
-         * @param rowData
-         *            row of data from the table containing the changes
-         *
-         * @param variableColumn
-         *            index of the column containing the variable name; -1 if
-         *            no variable name column exists
-         *
-         * @param dataTypeColumn
-         *            index of the column containing the data type name; -1 if
-         *            no data type column exists
-         *********************************************************************/
-        TableAddition(Object[] rowData,
-                      int variableColumn,
-                      int dataTypeColumn)
-        {
-            this.rowData = rowData;
-            this.variableColumn = variableColumn;
-            this.dataTypeColumn = dataTypeColumn;
-        }
-
-        /**********************************************************************
-         * Get an array of column values for the updated row
-         *
-         * @return Array of column values for the updated row
-         *********************************************************************/
-        protected Object[] getRowData()
-        {
-            return rowData;
-        }
-
-        /**********************************************************************
-         * Get the variable name column index
-         *
-         * @return Variable name column index
-         *********************************************************************/
-        protected int getVariableColumn()
-        {
-            return variableColumn;
-        }
-
-        /**********************************************************************
-         * Get the data type column index
-         *
-         * @return Data type column index
-         *********************************************************************/
-        protected int getDataTypeColumn()
-        {
-            return dataTypeColumn;
-        }
-    }
-
-    /**************************************************************************
      * Table modification data class
      *************************************************************************/
     protected static class TableModification
@@ -933,7 +869,8 @@ public class CcddClasses
         private final List<Integer> rateColumn;
 
         /**********************************************************************
-         * Table modification data class constructor
+         * Table modification data class constructor for changes to existing
+         * rows
          *
          * @param rowData
          *            row of data from the table containing the changes
@@ -991,6 +928,43 @@ public class CcddClasses
         TableModification(Object[] rowData, Object[] originalRowData)
         {
             this(rowData, originalRowData, -1, -1, -1, -1, null);
+        }
+
+        /**********************************************************************
+         * Table update data class constructor for additions and deletions
+         *
+         * @param rowData
+         *            row of data from the macro table
+         *
+         * @param variableColumn
+         *            index of the column containing the variable name; -1 if
+         *            no variable name column exists
+         *
+         * @param dataTypeColumn
+         *            index of the column containing the data type name; -1 if
+         *            no data type column exists
+         *
+         * @param arraySizeColumn
+         *            index of the column containing the array size; -1 if no
+         *            array size column exists
+         * 
+         * @param bitLengthColumn
+         *            index of the column containing the bit length; -1 if no
+         *            bit length column exists
+         *********************************************************************/
+        TableModification(Object[] rowData,
+                          int variableColumn,
+                          int dataTypeColumn,
+                          int arraySizeColumn,
+                          int bitLengthColumn)
+        {
+            this(rowData,
+                 null,
+                 variableColumn,
+                 dataTypeColumn,
+                 arraySizeColumn,
+                 bitLengthColumn,
+                 null);
         }
 
         /**********************************************************************
@@ -1063,70 +1037,6 @@ public class CcddClasses
         protected List<Integer> getRateColumn()
         {
             return rateColumn;
-        }
-    }
-
-    /**************************************************************************
-     * Table deletion data class
-     *************************************************************************/
-    protected static class TableDeletion
-    {
-        private final Object[] rowData;
-        private final int variableColumn;
-        private final int dataTypeColumn;
-
-        /**********************************************************************
-         * Table deletion data class constructor. Rows may only be deleted from
-         * prototype tables
-         *
-         * @param rowData
-         *            row of data from the table containing the changes
-         *
-         * @param variableColumn
-         *            index of the column containing the variable name; -1 if
-         *            no variable name column exists
-         *
-         * @param dataTypeColumn
-         *            index of the column containing the data type name; -1 if
-         *            no data type column exists
-         *********************************************************************/
-        TableDeletion(Object[] rowData,
-                      int variableColumn,
-                      int dataTypeColumn)
-        {
-            this.rowData = rowData;
-            this.variableColumn = variableColumn;
-            this.dataTypeColumn = dataTypeColumn;
-        }
-
-        /**********************************************************************
-         * Get an array of column values for the updated row
-         *
-         * @return Array of column values for the updated row
-         *********************************************************************/
-        protected Object[] getRowData()
-        {
-            return rowData;
-        }
-
-        /**********************************************************************
-         * Get the variable name column index
-         *
-         * @return Variable name column index
-         *********************************************************************/
-        protected int getVariableColumn()
-        {
-            return variableColumn;
-        }
-
-        /**********************************************************************
-         * Get the data type column index
-         *
-         * @return Data type column index
-         *********************************************************************/
-        protected int getDataTypeColumn()
-        {
-            return dataTypeColumn;
         }
     }
 
@@ -3156,13 +3066,9 @@ public class CcddClasses
          * @param rate
          *            variable rate, Hertz
          *********************************************************************/
-        protected TelemetryData(String dataType,
-                                String pathName,
-                                float rate)
+        protected TelemetryData(String dataType, String pathName, float rate)
         {
-            super(dataTypeHandler.getSizeInBytes(dataType),
-                  pathName,
-                  rate);
+            super(dataTypeHandler.getSizeInBytes(dataType), pathName, rate);
             this.dataType = dataType;
 
             // Initialize the link name to indicate no link membership; the

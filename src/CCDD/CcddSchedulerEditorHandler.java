@@ -19,6 +19,7 @@ import static CCDD.CcddConstants.PROTECTED_TEXT_COLOR;
 import static CCDD.CcddConstants.SELECTED_BACK_COLOR;
 import static CCDD.CcddConstants.TABLE_BACK_COLOR;
 import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
+import static CCDD.CcddConstants.UNLINKED_VARIABLES_NODE_NAME;
 import static CCDD.CcddConstants.VALID_TEXT_COLOR;
 import static CCDD.CcddConstants.SchedulerType.APPLICATION_SCHEDULER;
 import static CCDD.CcddConstants.SchedulerType.TELEMETRY_SCHEDULER;
@@ -577,11 +578,18 @@ public class CcddSchedulerEditorHandler
         // Check if this is the telemetry scheduler
         if (schedulerHndlr.getSchedulerOption() == TELEMETRY_SCHEDULER)
         {
+            // Get a reference to the telemetry scheduler input to shorten
+            // subsequent calls
+            CcddTelemetrySchedulerInput tlmInput = (CcddTelemetrySchedulerInput) schedulerHndlr.getSchedulerInput();
+
             // Create an assignment tree specifying a null rate & message so
             // the tree is initially empty
             assignmentTree = new CcddAssignmentTreeHandler(ccddMain,
                                                            null,
-                                                           ((CcddTelemetrySchedulerInput) schedulerHndlr.getSchedulerInput()).getLinkTree().getLinkHandler(),
+                                                           tlmInput.getLinkTree().getLinkHandler(),
+                                                           tlmInput.getVariableTree().getTableTreePathList(null,
+                                                                                                           tlmInput.getVariableTree().getNodeByNodeName(UNLINKED_VARIABLES_NODE_NAME),
+                                                                                                           -1),
                                                            ccddMain.getMainFrame());
         }
         // Check if this is the application scheduler

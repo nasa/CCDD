@@ -64,6 +64,11 @@ public class CcddDbManagerDialog extends CcddDialogHandler
     // the dialog but aren't selectable
     private List<Integer> disabledItems;
 
+    // Indices into the array of arrayItemData when initially split
+    private final int DB_NAME = 0;
+    private final int DB_DESC = 1;
+    private final int DB_LOCK = 2;
+
     /**************************************************************************
      * Project database manager dialog class constructor
      * 
@@ -580,11 +585,11 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         for (String[] data : arrayItemData)
                         {
                             // Check if the item matches the selected one
-                            if (data[0].equals(name))
+                            if (data[DB_NAME].equals(name))
                             {
                                 // Store the item description and stop
                                 // searching
-                                desc = data[1];
+                                desc = data[DB_DESC];
                                 break;
                             }
                         }
@@ -775,18 +780,20 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             activeUsers = dbControl.queryActiveList(CcddDbManagerDialog.this);
         }
 
-        // Get the array containing the database names and descriptions
-        String[] databases = dbControl.queryDatabaseByUserList(CcddDbManagerDialog.this);
+        // Get the array containing the database names, lock statuses, and
+        // descriptions
+        String[] databases = dbControl.queryDatabaseByUserList(CcddDbManagerDialog.this,
+                                                               dbControl.getUser());
         arrayItemData = new String[databases.length][];
         int index = 0;
 
         // Step through each database
         for (String database : databases)
         {
-            // Separate and store the database name and lock
-            // status/description
-            arrayItemData[index] = database.split(",", 2);
-            boolean isLocked = !arrayItemData[index][1].substring(0, 1).equals("0");
+            // Separate and store the database name, lock
+            // status, and description
+            arrayItemData[index] = database.split(",", 3);
+            boolean isLocked = !arrayItemData[index][DB_LOCK].equals("0");
 
             // Check if the database is locked and that locked databases are to
             // be disabled, if the database is unlocked and that unlocked
@@ -794,7 +801,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             // as enabled
             if (((isOnlyUnlocked && isLocked)
                 || (isOnlyLocked && !isLocked))
-                && !arrayItemData[index][0].equals(enabledItem))
+                && !arrayItemData[index][DB_NAME].equals(enabledItem))
             {
                 // Add the index of the item to the disabled list
                 disabledItems.add(index);
@@ -814,7 +821,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                     String[] dataBaseAndUser = active.split(",");
 
                     // Check if the database name matches the one in the list
-                    if (arrayItemData[index][0].equals(dataBaseAndUser[0]))
+                    if (arrayItemData[index][DB_NAME].equals(dataBaseAndUser[0]))
                     {
                         // Append the user name to the status text
                         status += dataBaseAndUser[1] + ", ";
@@ -827,7 +834,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                 if (isLocked)
                 {
                     // Check if this is the currently open database
-                    if (arrayItemData[index][0].equals(dbControl.getDatabase()))
+                    if (arrayItemData[index][DB_NAME].equals(dbControl.getDatabase()))
                     {
                         status = "Current; in use by " + status;
                     }
@@ -849,14 +856,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                     status = "Unlocked; in use by " + status;
                 }
 
-                // Replace the database description with the status
-                arrayItemData[index][1] = "<html><i>" + status;
-            }
-            // Not an unlock dialog; display the project database description
-            else
-            {
-                // Remove the database's lock status from the description
-                arrayItemData[index][1] = arrayItemData[index][1].substring(1);
+                // Replace the database description with the lock status
+                arrayItemData[index][DB_DESC] = "<html><i>" + status;
             }
 
             index++;

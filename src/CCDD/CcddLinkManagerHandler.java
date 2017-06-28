@@ -96,6 +96,9 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
     // Currently selected link rate
     private String selectedRate;
 
+    // Flag indicating the first rate selection change
+    private boolean firstRateChange;
+
     /**************************************************************************
      * Link manager handler class constructor
      * 
@@ -365,9 +368,6 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
                                                                                                ? CcddUtilities.removeHTMLTags(availableRates[0])
                                                                                                : "0");
 
-        // Get the list off all linked variables
-        List<String> linkedVars = linkTree.getLinkVariables(null);
-
         // Build the variable tree that shows tables and their variables
         // for the selected rate. Use the first rate in the available rates
         // array to determine which variables to display in the tree, or, if
@@ -378,7 +378,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
                                                 TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES,
                                                 rateName,
                                                 selectedRate,
-                                                linkedVars,
+                                                linkTree.getLinkVariables(null),
                                                 ccddMain.getMainFrame())
         {
             /******************************************************************
@@ -618,23 +618,44 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
                                                 CcddLinkManagerHandler.this);
                 }
 
+                // Get the list of all variable tree paths in the variable tree
+                // and set these in the links tree. This is used to maintain
+                // the correct variable order in the links tree
+                linkTree.setTreePathOrder(variableTree.getTableTreePathList(null,
+                                                                            variableTree.getNodeByNodeName("Structures & Variables"),
+                                                                            -1));
+
+                // Check if this is the first time the rate selection occurs
+                if (firstRateChange)
+                {
+                    // Force the link tree to be rebuilt now that the tree path
+                    // order is established (via setting the rate filter). This
+                    // forces the link variables to appear in the same order as
+                    // they are listed in their prototype tables
+                    linkTree.buildTree(false,
+                                       false,
+                                       rateName,
+                                       false,
+                                       CcddLinkManagerHandler.this);
+
+                    // Set the flag to prevent rebuilding the link tree when
+                    // subsequent rate selection changes are made
+                    firstRateChange = false;
+                }
+
                 // Set the rate in the link tree to flag compatible links
                 linkTree.setSelectedRate(selectedRate);
 
                 // Add the rate and size to the link nodes and set the
                 // color based on the selected rate
                 linkTree.adjustNodeText(linkTree.getRootNode());
-
-                // Get the list of all variable tree paths in the variable tree
-                // and set these in the links tree. Set the variable path list
-                // in the links tree. This is used to compare variable
-                // transfers to the links tree so that the correct variable
-                // order is maintained
-                linkTree.setTreePathOrder(variableTree.getTableTreePathList(null,
-                                                                            variableTree.getNodeByNodeName("Structures & Variables"),
-                                                                            -1));
             }
         });
+
+        // Set the flag so that the rate change executed below triggers a
+        // rebuilding of the links tree using the tree path order in the
+        // variables tree
+        firstRateChange = true;
 
         // Set the rate filter to the selected rate. This initial setting
         // updates the link tree, but skips rebuilding the variable tree
@@ -866,7 +887,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
     {
         // Add the selected variable(s) to the link tree
         linkTree.addSourceNodesToTargetNode(variableTree.getSelectedVariables(true),
-                                            variableTree.getTableNodeLevel(),
+                                            variableTree.getHeaderNodeLevel(),
                                             true);
 
         // Clean up the links following addition of the variable

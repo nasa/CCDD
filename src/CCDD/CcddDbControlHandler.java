@@ -54,6 +54,7 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FileExtension;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
+import CCDD.CcddConstants.InternalTable.LinksColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
 import CCDD.CcddConstants.SearchType;
@@ -481,13 +482,16 @@ public class CcddDbControlHandler
      * @param parent
      *            GUI component calling this method
      * 
+     * @param userName
+     *            user name
+     * 
      * @return Array containing the database names and descriptions for which
      *         the current user has access
      *************************************************************************/
-    protected String[] queryDatabaseByUserList(Component parent)
+    protected String[] queryDatabaseByUserList(Component parent, String userName)
     {
         return dbCommand.getList(DatabaseListCommand.DATABASES_BY_USER,
-                                 new String[][] {{"_user_", activeUser}},
+                                 new String[][] {{"_user_", userName}},
                                  parent);
     }
 
@@ -1079,6 +1083,44 @@ public class CcddDbControlHandler
                                                                + "table_types text[])"),
                                        ccddMain.getMainFrame());
 
+            // Create function to reset the rate for a link that no longer has
+            // any member variables
+            dbCommand.executeDbCommand(deleteFunction("reset_link_rate")
+                                       + "CREATE FUNCTION reset_link_rate() RETURNS VOID AS "
+                                       + "$$ BEGIN DECLARE row record; BEGIN DROP TABLE IF EXISTS "
+                                       + TEMP_TABLES
+                                       + "; CREATE TEMP TABLE "
+                                       + TEMP_TABLES
+                                       + " AS SELECT "
+                                       + LinksColumn.LINK_NAME.getColumnName()
+                                       + " AS link_defn FROM (SELECT "
+                                       + LinksColumn.LINK_NAME.getColumnName()
+                                       + ", regexp_replace("
+                                       + LinksColumn.MEMBER.getColumnName()
+                                       + ", E'^([0-9])*.*', E'\\\\1') AS rate FROM "
+                                       + InternalTable.LINKS.getTableName()
+                                       + ") AS result WHERE rate != '' AND "
+                                       + "rate != '0'; FOR row IN SELECT * FROM "
+                                       + TEMP_TABLES
+                                       + " LOOP IF EXISTS (SELECT * FROM (SELECT COUNT(*) FROM "
+                                       + InternalTable.LINKS.getTableName()
+                                       + " WHERE "
+                                       + LinksColumn.LINK_NAME.getColumnName()
+                                       + " = row.link_defn ) AS alias1 WHERE "
+                                       + "count = '1') THEN EXECUTE E'UPDATE "
+                                       + InternalTable.LINKS.getTableName()
+                                       + " SET "
+                                       + LinksColumn.MEMBER.getColumnName()
+                                       + " = regexp_replace("
+                                       + LinksColumn.MEMBER.getColumnName()
+                                       + ", E''^\\\\\\\\d+'', ''0'') WHERE "
+                                       + LinksColumn.LINK_NAME.getColumnName()
+                                       + " = ''' || row.link_defn || ''''; END IF; "
+                                       + "END LOOP; END; END; $$ LANGUAGE plpgsql; "
+                                       + buildOwnerCommand(DatabaseObject.FUNCTION,
+                                                           "reset_link_rate()"),
+                                       ccddMain.getMainFrame());
+
             // Inform the user that the database table function creation
             // succeeded
             eventLog.logEvent(SUCCESS_MSG, "Database tables and functions created");
@@ -1490,7 +1532,8 @@ public class CcddDbControlHandler
     }
 
     /**************************************************************************
-     * Authenticate the specified user credentials
+     * Authenticate the specified user credentials for the PostgreSQL server
+     * and the currently open database
      * 
      * @param userName
      *            user name
@@ -1498,31 +1541,48 @@ public class CcddDbControlHandler
      * @param password
      *            user password
      * 
-     * @return true if the user name and password are valid for the currently
-     *         open database
+     * @return true if the user is allowed access to the currently open
+     *         database
      *************************************************************************/
     protected boolean authenticateUser(String userName, String password)
     {
-        boolean valid = true;
+        boolean isAllowed = false;
 
         try
         {
-            // Check if the user credentials are valid for the currently open
-            // database by attempting to establish a connection
+            // Check if the user credentials are valid for the PostgreSQL
+            // server
             Connection validateConn = DriverManager.getConnection(getDatabaseURL(activeDatabase),
                                                                   userName,
                                                                   password);
 
             // Close the connection
             validateConn.close();
+
+            // Check if the default database isn't selected
+            if (!activeDatabase.equals(DEFAULT_DATABASE))
+            {
+                // Step through each database for which the user has access
+                for (String database : queryDatabaseByUserList(ccddMain.getMainFrame(),
+                                                               userName))
+                {
+                    // Check if the database name is in the list, which
+                    // indicates that the user has access to this database
+                    if (activeDatabase.equals(database.split(",", 2)[0]))
+                    {
+                        // Set the flag indicating the user has access to the
+                        // currently open database and stop searching
+                        isAllowed = true;
+                        break;
+                    }
+                }
+            }
         }
         catch (SQLException se)
         {
-            // Set the flag to indicate that the credentials are invalid
-            valid = false;
         }
 
-        return valid;
+        return isAllowed;
     }
 
     /**************************************************************************
@@ -1588,28 +1648,37 @@ public class CcddDbControlHandler
                 // completed the flag is updated accordingly
                 connectionStatus = TO_SERVER_ONLY;
 
-                // Get the database lock status
-                Boolean isLocked = getDatabaseLockStatus(databaseName);
-
-                // Check if an error occurred obtaining the lock status
-                if (isLocked == null)
+                // Check if the GUI is visible. If the application is started
+                // with the GUI hidden (for command line script execution or as
+                // a web server) then the project database lock status is
+                // ignored
+                if (!ccddMain.isGUIHidden())
                 {
-                    // Set the error flag
-                    throw new CCDDException("");
-                }
+                    // Get the database lock status
+                    Boolean isLocked = getDatabaseLockStatus(databaseName);
 
-                // Check if the database is locked
-                if (isLocked)
-                {
-                    throw new SQLException("database is locked");
+                    // Check if an error occurred obtaining the lock status
+                    if (isLocked == null)
+                    {
+                        // Set the error flag
+                        throw new CCDDException("");
+                    }
+
+                    // Check if the database is locked
+                    if (isLocked)
+                    {
+                        throw new SQLException("database is locked");
+                    }
                 }
 
                 boolean isAllowed = false;
 
                 // Step through each database
-                for (String database : queryDatabaseByUserList(ccddMain.getMainFrame()))
+                for (String database : queryDatabaseByUserList(ccddMain.getMainFrame(),
+                                                               activeUser))
                 {
-                    // Check if the user has access to this database
+                    // Check if the database name is in the list, which
+                    // indicates that the user has access to this database
                     if (databaseName.equals(database.split(",", 2)[0]))
                     {
                         // Set the flag indicating the user has access and stop

@@ -2300,11 +2300,8 @@ public abstract class CcddJTableHandler extends JTable
      *************************************************************************/
     protected void deleteRow(boolean endEdit)
     {
-        // Get the first selected row
-        int firstRow = getSelectedRow();
-
         // Check if at least one row is selected
-        if (firstRow != -1)
+        if (getSelectedRow() != -1)
         {
             // Check if the end of the edit sequence should be flagged
             if (endEdit)
@@ -2313,12 +2310,8 @@ public abstract class CcddJTableHandler extends JTable
                 undoManager.endEditSequence();
             }
 
-            // Get the number of selected rows
-            int numRows = getSelectedRowCount();
-
             // Remove the selected rows
-            removeRows(convertRowIndexToModel(firstRow),
-                       convertRowIndexToModel(firstRow + numRows - 1));
+            removeRows(getSelectedRows());
 
             // Check if the end of the edit sequence should be flagged
             if (endEdit)
@@ -2956,25 +2949,26 @@ public abstract class CcddJTableHandler extends JTable
     /**************************************************************************
      * Remove one or more rows from the table
      * 
-     * @param startRow
-     *            row index marking the start of the selected row(s) to remove
-     *            (model coordinates)
-     * 
-     * @param endRow
-     *            row index marking the end of the selected row(s) to remove
-     *            (model coordinates)
+     * @param rows
+     *            array of indices of the rows to remove
      *************************************************************************/
-    protected void removeRows(int startRow, int endRow)
+    protected void removeRows(int[] rows)
     {
         // Get the table data array
         List<Object[]> tableData = getTableDataList(false);
 
-        // Step through each row in the table, starting at the end. Going in
-        // reverse simplifies maintaining the correct index
-        while (endRow >= startRow && tableModel.getRowCount() != 0)
+        // Get the index of the first row to remove
+        int nextRow = rows[rows.length - 1];
+
+        // Step through the rows to remove in reverse order
+        for (int row = rows.length - 1; row >= 0; row--)
         {
-            // Delete the row
-            endRow = removeRow(tableData, endRow);
+            // Check if the row to remove hasn't been removed already
+            if (rows[row] <= nextRow)
+            {
+                // Delete the row and get the index of the next row to remove
+                nextRow = removeRow(tableData, convertRowIndexToModel(rows[row]));
+            }
         }
 
         // Load the array of data, with the selected row(s) removed, into the

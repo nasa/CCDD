@@ -172,7 +172,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
                         String rateName,
                         Component parent)
     {
-        super(ccddMain, undoHandler, InternalTable.LINKS, rateName, false, parent);
+        super(ccddMain, undoHandler, InternalTable.LINKS, rateName, false, null, parent);
 
         // Create the tree icons depicting links
         validLinkIcon = new ImageIcon(getClass().getResource(OK_ICON));

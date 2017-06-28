@@ -55,8 +55,6 @@ import javax.swing.tree.TreePath;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.ArrayVariable;
-import CCDD.CcddClasses.TableAddition;
-import CCDD.CcddClasses.TableDeletion;
 import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddClasses.TableModification;
 import CCDD.CcddClasses.ToolTipTreeNode;
@@ -430,9 +428,9 @@ public class CcddDbVerificationHandler
     private class TableChange
     {
         private final TableInformation tableInformation;
-        private final List<TableAddition> additions;
+        private final List<TableModification> additions;
         private final List<TableModification> modifications;
-        private final List<TableDeletion> deletions;
+        private final List<TableModification> deletions;
 
         /**********************************************************************
          * Table change class constructor
@@ -450,9 +448,9 @@ public class CcddDbVerificationHandler
          *            list of table deletions
          *********************************************************************/
         protected TableChange(TableInformation tableInformation,
-                              List<TableAddition> additions,
+                              List<TableModification> additions,
                               List<TableModification> modifications,
-                              List<TableDeletion> deletions)
+                              List<TableModification> deletions)
         {
             this.tableInformation = tableInformation;
             this.additions = additions;
@@ -475,7 +473,7 @@ public class CcddDbVerificationHandler
          *
          * @return List of table additions
          *********************************************************************/
-        protected List<TableAddition> getAdditions()
+        protected List<TableModification> getAdditions()
         {
             return additions;
         }
@@ -495,7 +493,7 @@ public class CcddDbVerificationHandler
          *
          * @return List of table deletions
          *********************************************************************/
-        protected List<TableDeletion> getDeletions()
+        protected List<TableModification> getDeletions()
         {
             return deletions;
         }
@@ -1779,7 +1777,7 @@ public class CcddDbVerificationHandler
             TreePath path = new TreePath(tableNode.getPath());
 
             // Check if the path references a table
-            if (path.getPathCount() > tableTree.getTableNodeLevel())
+            if (path.getPathCount() > tableTree.getHeaderNodeLevel())
             {
                 // Get the information from the database for the specified
                 // table
@@ -2459,9 +2457,9 @@ public class CcddDbVerificationHandler
     private void buildUpdates(TableStorage tblStrg)
     {
         // Create storage for any changes
-        List<TableAddition> additions = new ArrayList<TableAddition>();
+        List<TableModification> additions = new ArrayList<TableModification>();
         List<TableModification> modifications = new ArrayList<TableModification>();
-        List<TableDeletion> deletions = new ArrayList<TableDeletion>();
+        List<TableModification> deletions = new ArrayList<TableModification>();
 
         // Step through each row in the table
         for (int row = 0; row < tblStrg.getTableInformation().getData().length; row++)
@@ -2525,9 +2523,11 @@ public class CcddDbVerificationHandler
             if (!matchFound)
             {
                 // Store the row addition information
-                additions.add(new TableAddition(tblStrg.getTableInformation().getData()[tblRow],
-                                                variableNameIndex,
-                                                dataTypeIndex));
+                additions.add(new TableModification(tblStrg.getTableInformation().getData()[tblRow],
+                                                    variableNameIndex,
+                                                    dataTypeIndex,
+                                                    arraySizeIndex,
+                                                    bitLengthIndex));
             }
         }
 
@@ -2538,9 +2538,11 @@ public class CcddDbVerificationHandler
             if (!rowFound[comRow])
             {
                 // Store the row deletion information
-                deletions.add(new TableDeletion(tblStrg.getCommittedData()[comRow],
-                                                variableNameIndex,
-                                                dataTypeIndex));
+                deletions.add(new TableModification(tblStrg.getCommittedData()[comRow],
+                                                    variableNameIndex,
+                                                    dataTypeIndex,
+                                                    arraySizeIndex,
+                                                    bitLengthIndex));
             }
         }
 

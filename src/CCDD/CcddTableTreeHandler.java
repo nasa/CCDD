@@ -114,9 +114,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     // List containing the selected variable paths
     private List<Object[]> selectedVariablePaths;
 
-    // List containing the path for all primitive variables
-    private List<String> allPrimitivePaths;
-
     // Flag to indicate if the table tree is being built
     private boolean isBuilding;
 
@@ -175,7 +172,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // Check if this node represents a variable
             if (leaf
                 && ((ToolTipTreeNode) value).getLevel()
-                > ((CcddTableTreeHandler) tree).getTableNodeLevel()
+                > ((CcddTableTreeHandler) tree).getHeaderNodeLevel()
                 && (treeType == STRUCTURES_WITH_PRIMITIVES
                     || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES
                     || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES))
@@ -500,7 +497,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      * @return First node index for a table
      *************************************************************************/
     @Override
-    protected int getTableNodeLevel()
+    protected int getHeaderNodeLevel()
     {
         return 2 + (isByGroup ? 1 : 0) + (isByType ? 1 : 0);
     }
@@ -958,7 +955,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         // Step through each node in the parent's path
         for (TreeNode node : parentNode.getPath())
         {
-            if (((ToolTipTreeNode) node).getLevel() >= getTableNodeLevel())
+            if (((ToolTipTreeNode) node).getLevel() >= getHeaderNodeLevel())
             {
                 // Check if the child is in the path
                 if (((ToolTipTreeNode) node).getUserObject().toString().equals(childNode.getUserObject().toString()))
@@ -1041,10 +1038,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                         else
                         {
                             // Add the variable with the node text grayed out
-                            childNode.add(new
-                                     ToolTipTreeNode(DISABLED_TEXT_COLOR
-                                                     + variable,
-                                                     ""));
+                            childNode.add(new ToolTipTreeNode(DISABLED_TEXT_COLOR
+                                                              + variable,
+                                                              ""));
                         }
                     }
                 }
@@ -1172,14 +1168,14 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             ToolTipTreeNode tableNode = (ToolTipTreeNode) element.nextElement();
 
             // Check that the node represents a table
-            if (tableNode.getLevel() >= this.getTableNodeLevel())
+            if (tableNode.getLevel() >= this.getHeaderNodeLevel())
             {
                 // Check if the node matches the target table's name
                 if (getTableFromNodeName(tableNode.getUserObject().toString()).equals(checkTable))
                 {
                     // Step through each node in the table's path, skipping the
                     // database, prototype/instance, group, and type nodes
-                    for (int nodeIndex = getTableNodeLevel(); nodeIndex < tableNode.getPath().length; nodeIndex++)
+                    for (int nodeIndex = getHeaderNodeLevel(); nodeIndex < tableNode.getPath().length; nodeIndex++)
                     {
                         // Get the table name from the node name
                         String nodeTable = getTableFromNodeName(tableNode.getPath()[nodeIndex].toString());
@@ -1261,7 +1257,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // Convert the path array to a string, stripping off the nodes
             // names prior to the start index and the HTML tags
             String variable = removeExtraText(createNameFromPath(path,
-                                                                 getTableNodeLevel()));
+                                                                 getHeaderNodeLevel()));
 
             // Check if the path is not already in the list and that the path
             // isn't blank
@@ -1412,14 +1408,14 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      * Get the TreeNode for the node matching the specified node path name
      * (table path + variable name)
      * 
-     * @param nodeName
-     *            name of the node to search for, in the form
-     *            tableName.variableName
+     * @param nodePath
+     *            path of the node to search for, in the form
+     *            rootTable,tableName.variableName(,...)
      * 
      * @return TreeNode for the specified node path; null if the node path
      *         doesn't exist in the tree
      *************************************************************************/
-    protected ToolTipTreeNode getNodeByNodePath(String nodeName)
+    protected ToolTipTreeNode getNodeByNodePath(String nodePath)
     {
         ToolTipTreeNode node = null;
 
@@ -1429,8 +1425,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // Get the referenced node
             ToolTipTreeNode tableNode = (ToolTipTreeNode) element.nextElement();
 
-            // Check if the node matches the target node's name
-            if (getFullVariablePath(tableNode.getUserObjectPath()).equals(nodeName))
+            // Check if the node matches the target node's path
+            if (getFullVariablePath(tableNode.getUserObjectPath()).equals(nodePath))
             {
                 // Store this node and stop searching
                 node = tableNode;
@@ -1538,7 +1534,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         if (selectedPaths != null)
         {
             // Determine the lowest selectable level based on the input flag
-            int lowestLevel = getTableNodeLevel() - priorLevels;
+            int lowestLevel = getHeaderNodeLevel() - priorLevels;
 
             // Step through each selected table
             for (TreePath path : selectedPaths)
@@ -1574,7 +1570,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             {
                 // Check that this node represents a structure or variable, or
                 // a header node one level above
-                if (path.getPathCount() >= getTableNodeLevel())
+                if (path.getPathCount() >= getHeaderNodeLevel())
                 {
                     // Get the node for this path
                     ToolTipTreeNode node = (ToolTipTreeNode) path.getLastPathComponent();
@@ -1583,7 +1579,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                     // represents a table (i.e., isn't a header node with no
                     // child nodes)
                     if (node.getChildCount() == 0
-                        || path.getPathCount() > getTableNodeLevel())
+                        || path.getPathCount() > getHeaderNodeLevel())
                     {
                         // Add the table path+name to the list
                         tables.add(getFullVariablePath(node.getPath()));
@@ -1643,7 +1639,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             {
                 // Check that this node represents a structure or variable, or
                 // a header node one level above
-                if (path.getPathCount() >= getTableNodeLevel() - priorLevels)
+                if (path.getPathCount() >= getHeaderNodeLevel() - priorLevels)
                 {
                     // Check if the selected variable node has children
                     addChildNodes((ToolTipTreeNode) path.getLastPathComponent(),
@@ -1659,18 +1655,24 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
 
     /**************************************************************************
      * Get a list of full node paths for all nodes that represent a primitive
-     * variable, starting at the specified node
+     * variable, starting at the specified node. Disabled nodes may be ignored
+     * if desired
      * 
      * @param startNode
      *            starting node from which to build the variable list
      * 
+     * @param ignoreDisabled
+     *            true to ignore nodes that are flagged as disabled (via HTML
+     *            color tag)
+     * 
      * @return List containing the full node paths for all nodes that represent
      *         a primitive variable, starting with the specified node
      *************************************************************************/
-    protected List<String> getPrimitiveVariablePaths(DefaultMutableTreeNode startNode)
+    protected List<String> getPrimitiveVariablePaths(DefaultMutableTreeNode startNode,
+                                                     boolean ignoreDisabled)
     {
         // Create storage for the primitive variable paths
-        allPrimitivePaths = new ArrayList<String>();
+        List<String> allPrimitivePaths = new ArrayList<String>();
 
         // Step through each element and child of this node
         for (Enumeration<?> element = startNode.preorderEnumeration(); element.hasMoreElements();)
@@ -1678,24 +1680,27 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // Get the node
             ToolTipTreeNode node = (ToolTipTreeNode) element.nextElement();
 
-            // Get the data type for this node
-            String dataType = getTableFromNodeName(removeExtraText(node.getUserObject().toString()));
-
-            // Check if the data type is a primitive (versus a structure)
-            if (dataTypeHandler.isPrimitive(dataType))
+            // Check if disabled nodes should be included, or if not, that the
+            // node isn't disabled
+            if (!ignoreDisabled
+                || !node.getUserObject().toString().contains(DISABLED_TEXT_COLOR))
             {
-                // Get the path for this node as a string array
-                String[] nodePath = CcddUtilities.convertObjectToString(node.getPath());
+                // Get the data type for this node
+                String dataType = getTableFromNodeName(ignoreDisabled
+                                                                     ? node.getUserObject().toString()
+                                                                     : removeExtraText(node.getUserObject().toString()));
 
-                // Step through each node in the path
-                for (int index = 0; index < nodePath.length; index++)
+                // Check if the data type is a primitive (versus a structure)
+                if (dataTypeHandler.isPrimitive(dataType))
                 {
-                    // Remove the HTML tags from the node
-                    nodePath[index] = removeExtraText(nodePath[index]);
-                }
+                    // Convert the node path array to a string
+                    String nodePath = CcddUtilities.convertArrayToString(node.getPath()).replaceAll(", ", ",");
 
-                // Add the variable's entire node path to the list
-                allPrimitivePaths.add(CcddUtilities.convertArrayToString(nodePath).replaceAll(", ", ","));
+                    // Add the variable's entire node path to the list
+                    allPrimitivePaths.add(ignoreDisabled
+                                                        ? nodePath
+                                                        : removeExtraText(nodePath));
+                }
             }
         }
 
@@ -1716,7 +1721,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
 
             // Check if this is node has no children, which indicates is may be
             // a variable, and that the node is for a structure or variable
-            if (node.isLeaf() && node.getLevel() >= getTableNodeLevel())
+            if (node.isLeaf() && node.getLevel() >= getHeaderNodeLevel())
             {
                 // Get the node name
                 String nodeName = node.getUserObject().toString();
@@ -1800,7 +1805,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         {
             // Check if this isn't the root node and the node doesn't represent
             // a table
-            if (node.getLevel() != 0 && node.getLevel() < getTableNodeLevel())
+            if (node.getLevel() != 0 && node.getLevel() < getHeaderNodeLevel())
             {
                 isEnabled = false;
             }

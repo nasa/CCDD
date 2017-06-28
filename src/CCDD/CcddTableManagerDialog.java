@@ -344,7 +344,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                             TreePath path = tableTree.getPathForRow(rowIndex);
 
                                             // Check that a table was selected
-                                            if (path.getPathCount() > tableTree.getTableNodeLevel())
+                                            if (path.getPathCount() > tableTree.getHeaderNodeLevel())
                                             {
                                                 // Load the selected table's
                                                 // data into
@@ -765,7 +765,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                         // Check if a table is selected
                         if (tableTree.getSelectionPath() != null
                             && tableTree.getSelectionPath().getPathCount()
-                            > tableTree.getTableNodeLevel())
+                            > tableTree.getHeaderNodeLevel())
                         {
                             // Get the name of the table selected
                             String name = getSelectionPath().getLastPathComponent().toString();

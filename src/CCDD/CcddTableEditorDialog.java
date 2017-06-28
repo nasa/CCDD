@@ -46,8 +46,6 @@ import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
-import CCDD.CcddClasses.TableAddition;
-import CCDD.CcddClasses.TableDeletion;
 import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddClasses.TableModification;
 import CCDD.CcddClasses.ValidateCellActionListener;
@@ -342,9 +340,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                                                       boolean commandError,
                                                       List<Integer> newKeys,
                                                       TableInformation tableInfo,
-                                                      List<TableAddition> additions,
+                                                      List<TableModification> additions,
                                                       List<TableModification> modifications,
-                                                      List<TableDeletion> deletions,
+                                                      List<TableModification> deletions,
                                                       boolean forceUpdate)
     {
         // Check that no error occurred modifying the table
@@ -381,8 +379,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 }
             }
 
-            // Step through each row modification
-            for (TableDeletion del : deletions)
+            // Step through each row deletion
+            for (TableModification del : deletions)
             {
                 // Check if the original data type was for a structure
                 if (del.getVariableColumn() != -1
@@ -1529,8 +1527,10 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             protected void performAction(ActionEvent ae)
             {
                 // Only update the table in the database if a cell's content
-                // has changed and the user confirms the action
+                // has changed, no required columns are empty, and the user
+                // confirms the action
                 if (activeEditor.isTableChanged()
+                    && !activeEditor.checkForMissingColumns()
                     && new CcddDialogHandler().showMessageDialog(CcddTableEditorDialog.this,
                                                                  "<html><b>Store changes in project database?",
                                                                  "Store Changes",
@@ -1803,8 +1803,10 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 // Step through each table in this editor dialog
                 for (CcddTableEditorHandler editor : tableEditors)
                 {
-                    // Check if the table has changes
-                    if (editor.isTableChanged())
+                    // Check if the table has changes and that no required
+                    // columns are empty
+                    if (editor.isTableChanged()
+                        && !activeEditor.checkForMissingColumns())
                     {
                         // Build the addition, modification, and deletion
                         // command lists

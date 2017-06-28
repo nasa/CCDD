@@ -1068,7 +1068,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     {
         // Add the selected variable(s) to the group tree
         groupTree.addSourceNodesToTargetNode(tableTree.getSelectedVariables(false),
-                                             tableTree.getTableNodeLevel(),
+                                             tableTree.getHeaderNodeLevel(),
                                              false);
 
         // Update the group dialog's change indicator

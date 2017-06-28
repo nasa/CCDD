@@ -118,32 +118,54 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
      * @param linkHandler
      *            reference to the link handler
      * 
+     * @param treePathOrder
+     *            list of all paths in the variable tree in the order to be
+     *            maintained in the assignment tree; null to not force the
+     *            order
+     * 
      * @param parent
      *            GUI component calling this method
      *************************************************************************/
     CcddAssignmentTreeHandler(CcddMain ccddMain,
                               String rateMsgFilter,
                               CcddLinkHandler linkHandler,
+                              List<String> treePathOrder,
                               Component parent)
     {
         super(ccddMain,
               null,
               InternalTable.TLM_SCHEDULER,
-              rateMsgFilter, false,
+              rateMsgFilter,
+              false,
+              treePathOrder,
               parent);
 
         this.linkHandler = linkHandler;
     }
 
     /**************************************************************************
-     * Get the first node index that represents a table
+     * Get the node index that skips the root level (there are no filters for
+     * the assignment tree)
      * 
-     * @return First node index for a table
+     * @return Node index that skips the root level
      *************************************************************************/
     @Override
-    protected int getTableNodeLevel()
+    protected int getHeaderNodeLevel()
     {
         return 1;
+    }
+
+    /**************************************************************************
+     * Get the node level that skips any active filter nodes. The assignment
+     * tree has no extra header nodes, but instead begins with the root
+     * structure tables
+     * 
+     * @return Node level for root structure tables
+     *************************************************************************/
+    @Override
+    protected int getItemNodeLevel()
+    {
+        return getHeaderNodeLevel();
     }
 
     /**************************************************************************
@@ -311,7 +333,7 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
             {
                 // Check that this node represents a structure or variable, or
                 // a header node one level above
-                if (path.getPathCount() >= getTableNodeLevel())
+                if (path.getPathCount() >= getHeaderNodeLevel())
                 {
                     // Check if the selected variable node has children
                     addChildNodes((ToolTipTreeNode) path.getLastPathComponent(),

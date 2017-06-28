@@ -425,7 +425,7 @@ public class CcddSchedulerDbIOHandler
                             }
                         }
 
-                        // Check if the variable is still null
+                        // Check if the variable doesn't already exist
                         if (variable == null)
                         {
                             // Create a new variable

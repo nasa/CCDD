@@ -231,12 +231,17 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     {
         String response = null;
 
-        // Log the web server request
+        // Log the web server request. Mask the password for authentication
+        // requests (match an expanded range in case the user mistypes the
+        // command)
         eventLog.logEvent(EventLogMessageType.SERVER_MSG,
                           "Request component '"
                               + component
                               + "' item '"
-                              + item
+                              + (component.contains("authentic")
+                                                                ? item.replaceFirst("=.*(?:;|$)",
+                                                                                    "=*****")
+                                                                : item)
                               + "'");
 
         try
@@ -554,7 +559,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         return allTablesTree.getTableTreePathList(null,
                                                   (ToolTipTreeNode) allTablesTree.getRootNode(),
                                                   isMaxLevel
-                                                            ? allTablesTree.getTableNodeLevel()
+                                                            ? allTablesTree.getHeaderNodeLevel()
                                                             : -1);
     }
 

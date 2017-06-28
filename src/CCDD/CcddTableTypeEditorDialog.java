@@ -582,9 +582,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                                                                           JOptionPane.QUESTION_MESSAGE,
                                                                           DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                             {
-                                // Remove all of the rows from the table
-                                activeEditor.getTable().removeRows(0,
-                                                                   activeEditor.getTable().getModel().getRowCount() - 1);
+                                // Select all rows and remove them
+                                activeEditor.getTable().selectAll();
+                                activeEditor.getTable().removeRows(activeEditor.getTable().getSelectedRows());
                             }
                         }
                     }

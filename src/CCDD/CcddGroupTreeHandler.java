@@ -167,6 +167,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
               InternalTable.GROUPS,
               scheduleRate,
               isApplicationOnly,
+              null,
               parent);
 
         this.isApplicationOnly = isApplicationOnly;

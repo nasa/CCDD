@@ -59,8 +59,12 @@ public class CcddLinkHandler
         this.dataTypeHandler = ccddMain.getDataTypeHandler();
         this.linkDefinitions = linkDefinitions;
 
-        structureAndVariablePaths = null;
-        structureAndVariableOffsets = null;
+        // Create the variable path and offset lists
+        buildPathAndOffsetLists();
+
+        // Remove any variable references in the link definitions that aren't
+        // found in the links tree
+        removeInvalidLinks();
     }
 
     /**************************************************************************
@@ -88,6 +92,17 @@ public class CcddLinkHandler
     protected List<String[]> getLinkDefinitions()
     {
         return linkDefinitions;
+    }
+
+    /**************************************************************************
+     * Set the link definitions
+     * 
+     * @param linkDefinitions
+     *            list containing the link definitions
+     *************************************************************************/
+    protected void setLinkDefinitions(List<String[]> linkDefinitions)
+    {
+        this.linkDefinitions = linkDefinitions;
     }
 
     /**************************************************************************
@@ -163,17 +178,6 @@ public class CcddLinkHandler
         }
 
         return definitions;
-    }
-
-    /**************************************************************************
-     * Set the link definitions
-     * 
-     * @param linkDefinitions
-     *            list containing the link definitions
-     *************************************************************************/
-    protected void setLinkDefinitions(List<String[]> linkDefinitions)
-    {
-        this.linkDefinitions = linkDefinitions;
     }
 
     /**************************************************************************
@@ -293,14 +297,6 @@ public class CcddLinkHandler
         String lastName = "";
         int lastIndex = -1;
         int lastOffset = -1;
-
-        // Check if the variable path list hasn't been created
-        if (structureAndVariablePaths == null)
-        {
-            // Create the variable path and offset lists
-            buildPathAndOffsetLists();
-        }
-
         int size = 0;
 
         // Step through each link definition
@@ -518,13 +514,6 @@ public class CcddLinkHandler
         // The data type isn't a primitive; check for a structure
         else
         {
-            // Check if the path and offset/size lists haven't been created
-            if (structureAndVariablePaths == null)
-            {
-                // Create the path and offset/size lists
-                buildPathAndOffsetLists();
-            }
-
             // Get the index in the path list for the specified structure or
             // variable. Remove the bit length if provided
             int index = structureAndVariablePaths.indexOf(dataType);
@@ -558,13 +547,6 @@ public class CcddLinkHandler
     protected int getVariableOffset(String targetVariable)
     {
         int offset = -1;
-
-        // Check if the variable path list hasn't been created
-        if (structureAndVariablePaths == null)
-        {
-            // Create the variable path and offset lists
-            buildPathAndOffsetLists();
-        }
 
         // Get the index into the variable path list for the specified
         // structure/variable. A variable's bit length is ignored if present
@@ -600,7 +582,7 @@ public class CcddLinkHandler
      * structure. The total structure size in bytes is stored in place of the
      * offset value for each root structure entry in the list
      *************************************************************************/
-    protected void buildPathAndOffsetLists()
+    private void buildPathAndOffsetLists()
     {
         // Create a tree containing all of the prototype structures and
         // variables. This is used for determining bit-packing, variable
@@ -634,7 +616,7 @@ public class CcddLinkHandler
 
             // Check if the path references a structure or variable (instead of
             // the tree's root or header nodes)
-            if (nodePath.length > allVariableTree.getTableNodeLevel())
+            if (nodePath.length > allVariableTree.getHeaderNodeLevel())
             {
                 // Get the variable path for this tree node
                 String varPath = allVariableTree.getFullVariablePath(nodePath);
@@ -784,5 +766,34 @@ public class CcddLinkHandler
         lastBitLength = bits;
 
         return offset;
+    }
+
+    /**************************************************************************
+     * Check that the variables referenced in the link definitions exist in the
+     * data tables. Remove any invalid link definitions
+     *************************************************************************/
+    private void removeInvalidLinks()
+    {
+        List<String[]> invalidLinks = new ArrayList<String[]>();
+
+        // Step through each link definition
+        for (String[] linkDefn : linkDefinitions)
+        {
+            // Get the link member
+            String linkMember = linkDefn[LinksColumn.MEMBER.ordinal()];
+
+            // Check if this is a variable reference (and not the link
+            // definition) and that the variable isn't in the link tree
+            if (linkMember.contains(".")
+                && !linkMember.matches("\\d.*")
+                && structureAndVariablePaths.indexOf(linkMember.replaceFirst(":.+$", "")) == -1)
+            {
+                // Store the invalid link
+                invalidLinks.add(linkDefn);
+            }
+        }
+
+        // Remove any invalid link definitions
+        linkDefinitions.removeAll(invalidLinks);
     }
 }

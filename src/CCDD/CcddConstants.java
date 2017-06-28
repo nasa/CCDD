@@ -552,6 +552,14 @@ public class CcddConstants
         APPLICATION_SCHEDULER
     }
 
+    // Data table update types
+    protected static enum UpdateType
+    {
+        ADDITION,
+        MODIFICATION,
+        DELETION
+    }
+
     /**************************************************************************
      * File extensions
      *************************************************************************/
@@ -4410,19 +4418,19 @@ public class CcddConstants
         ACTIVE_BY_USER("select distinct datname || ',' || usename "
                        + "AS names from pg_stat_activity ORDER BY names ASC;"),
 
-        // Get the list of databases for which the user has access. '_user-
-        // must be replaced by the user name and '_owner_' by the database
-        // owner name
-        DATABASES_BY_USER("SELECT database_and_description, allow FROM "
-                          + "(SELECT datname || E',' || split_part(description, '"
+        // Get the list of databases (in the form 'name,description,lock
+        // status') for which the user has access. '_user_' must be replaced by
+        // the user name
+        DATABASES_BY_USER("SELECT datname || E',' || substr(status_desc, 2, length("
+                          + "status_desc) - 1) || E',' || substr(status_desc, 1, 1) AS "
+                          + "name_desc_lock FROM (SELECT datname, split_part(description, '"
                           + CCDD_PROJECT_IDENTIFIER
-                          + "', 2) AS database_and_description, pg_has_role('_user_', "
-                          + "pg_catalog.pg_get_userbyid(d.datdba), 'member') AS allow "
-                          + "FROM pg_database d LEFT JOIN pg_shdescription "
-                          + "ON pg_shdescription.objoid = d.oid "
-                          + "WHERE d.datistemplate = false AND description LIKE '"
+                          + "', 2) AS status_desc FROM pg_database d LEFT JOIN "
+                          + "pg_shdescription ON pg_shdescription.objoid = d.oid WHERE "
+                          + "d.datistemplate = false AND description LIKE '"
                           + CCDD_PROJECT_IDENTIFIER
-                          + "%') AS databases WHERE allow = 't' ORDER BY databases ASC;"),
+                          + "%' AND pg_has_role('_user_', pg_catalog.pg_get_userbyid("
+                          + "d.datdba), 'member') = 't' ) AS databases ORDER BY datname ASC;"),
 
         // Get the list of users, sorted alphabetically
         USERS("SELECT u.usename FROM pg_catalog.pg_user u ORDER BY u.usename ASC;"),
