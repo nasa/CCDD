@@ -504,6 +504,10 @@ public abstract class CcddInputFieldPanelHandler
     {
         maxFieldWidth = 0;
 
+        // Set the preferred size so that the layout manager uses its default
+        // sizing
+        fieldPnlHndlrOwner.setPreferredSize(null);
+
         // Check if the data fields are already displayed
         if (fieldPnl != null)
         {
@@ -755,9 +759,10 @@ public abstract class CcddInputFieldPanelHandler
         }
 
         // Force the owner of the editor panel to redraw so that changes to the
-        // fields are displayed
+        // fields are displayed and the owner's size is adjusted
         fieldPnlHndlrOwner.revalidate();
         fieldPnlHndlrOwner.repaint();
+        fieldPnlHndlrOwner.setMinimumSize(fieldPnlHndlrOwner.getPreferredSize());
     }
 
     /**************************************************************************

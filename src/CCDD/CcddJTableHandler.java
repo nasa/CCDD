@@ -1180,7 +1180,12 @@ public abstract class CcddJTableHandler extends JTable
                                                          initialViewableRows
                                                              * (rowHeight
                                                                 + getRowMargin() * 2
-                                                                + 4)));
+                                                                + 4))); // TODO
+                                                                        // 3
+                                                                        // works
+                                                                        // for
+                                                                        // tabletype
+                                                                        // editor
 
         // Make the table fill the dialog
         setFillsViewportHeight(true);

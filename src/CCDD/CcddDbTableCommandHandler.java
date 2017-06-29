@@ -2885,8 +2885,9 @@ public class CcddDbTableCommandHandler
             // Check if references in the internal tables are to be updated
             if (!skipInternalTables && typeDefinition.isStructure())
             {
-                // Check if the table is a structure prototype
-                if (tableInfo.isPrototype())
+                // Check if the table is a structure prototype and that the
+                // table had one or more variables to begin with
+                if (tableInfo.isPrototype() && orgTableNode.getChildCount() > 0)
                 {
                     // Build the command delete bit-packed variable references
                     // in the links and telemetry scheduler tables that changed
@@ -4325,7 +4326,7 @@ public class CcddDbTableCommandHandler
      *            CcddTableTreeHandler reference describing the table tree
      * 
      * @return Copy of the specified table's table tree node and immediate
-     *         child nodes
+     *         child nodes (if any)
      *************************************************************************/
     private ToolTipTreeNode copyPrototypeTableTreeNode(String tableName,
                                                        CcddTableTreeHandler tableTree)
@@ -4333,7 +4334,8 @@ public class CcddDbTableCommandHandler
         // Create a new node for the copy
         ToolTipTreeNode orgTableNode = new ToolTipTreeNode(tableName, "");
 
-        // Get prototype table's tree node
+        // Get prototype table's tree node. If the table has no variables then
+        // it doesn't appear in the table tree and this call returns null
         ToolTipTreeNode tableNode = tableTree.getNodeByNodeName(tableName);
 
         // Step through each child node of the prototype table node; these are

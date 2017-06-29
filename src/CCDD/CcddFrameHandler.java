@@ -210,10 +210,10 @@ public class CcddFrameHandler extends JFrame
         // Set up button panel related items and combine the button and upper
         // panels
         buttonPnl = buttonHandler.assembleWindowComponents(buttonPnl,
-                                                             upperComponent,
-                                                             optionType,
-                                                             getContentPane(),
-                                                             getRootPane());
+                                                           upperComponent,
+                                                           optionType,
+                                                           getContentPane(),
+                                                           getRootPane());
 
         // Check if the title is provided
         if (title != null)

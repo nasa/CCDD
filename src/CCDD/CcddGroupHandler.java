@@ -78,6 +78,9 @@ public class CcddGroupHandler
                                                   description,
                                                   isApplication,
                                                   null));
+
+        // Sort the group information by group name
+        sortGroupInformation();
     }
 
     /**************************************************************************
@@ -152,6 +155,9 @@ public class CcddGroupHandler
                     }
                 }
             }
+
+            // Sort the group information by group name
+            sortGroupInformation();
         }
     }
 
@@ -210,6 +216,14 @@ public class CcddGroupHandler
      *************************************************************************/
     protected List<GroupInformation> getGroupInformation()
     {
+        return groupInformation;
+    }
+
+    /**************************************************************************
+     * Sort the group information list by group name
+     *************************************************************************/
+    private void sortGroupInformation()
+    {
         // Check if any groups exist
         if (groupInformation != null)
         {
@@ -237,8 +251,6 @@ public class CcddGroupHandler
                 }
             });
         }
-
-        return groupInformation;
     }
 
     /**************************************************************************

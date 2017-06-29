@@ -172,13 +172,18 @@ public class CcddConstants
     protected static final String LINKED_VARIABLES_NODE_NAME = "Linked Variables";
     protected static final String UNLINKED_VARIABLES_NODE_NAME = "Unlinked Variables";
 
-    // Main window minimum window size
-    protected static final int MIN_WINDOW_WIDTH = Math.min(Math.max(GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getWidth()
-                                                                    / 2, 750),
-                                                           GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getWidth());
-    protected static final int MIN_WINDOW_HEIGHT = Math.min(Math.max(GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getHeight()
-                                                                     / 2, 400),
-                                                            GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getHeight());
+    // Main window initial and minimum window size
+    protected static final int INIT_WINDOW_WIDTH = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getWidth() / 2;
+    protected static final int INIT_WINDOW_HEIGHT = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getHeight() / 2;
+
+    protected static final int MIN_WINDOW_WIDTH = Math.min(Math.min(Math.max(INIT_WINDOW_WIDTH,
+                                                                             750),
+                                                                    750),
+                                                           INIT_WINDOW_WIDTH * 2);
+    protected static final int MIN_WINDOW_HEIGHT = Math.min(Math.min(Math.max(INIT_WINDOW_HEIGHT,
+                                                                              400),
+                                                                     400),
+                                                            INIT_WINDOW_HEIGHT * 2);
 
     // Minimum dialog window width
     protected static final int DIALOG_MIN_WINDOW_WIDTH = 300;

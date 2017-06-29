@@ -778,7 +778,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         // Check if the only the instance node should be displayed
         else if (treeType == INSTANCE_TABLES
                  || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES
-                 || treeType == STRUCTURES_WITH_PRIMITIVES
                  || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES
                  || treeType == INSTANCE_TABLES_WITH_PRIMITIVES)
         {

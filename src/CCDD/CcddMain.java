@@ -14,6 +14,8 @@ import static CCDD.CcddConstants.DEFAULT_DATABASE;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_HOST;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_PORT;
 import static CCDD.CcddConstants.DEFAULT_SERVER;
+import static CCDD.CcddConstants.INIT_WINDOW_HEIGHT;
+import static CCDD.CcddConstants.INIT_WINDOW_WIDTH;
 import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
 import static CCDD.CcddConstants.LABEL_TEXT_COLOR;
 import static CCDD.CcddConstants.LOOK_AND_FEEL;
@@ -1133,7 +1135,7 @@ public class CcddMain
         frameCCDD = new JFrame();
         frameCCDD.setTitle("CFS Command & Data Dictionary  "
                            + ccddVersion);
-        frameCCDD.setBounds(100, 100, MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT);
+        frameCCDD.setBounds(100, 100, INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT);
         frameCCDD.setMinimumSize(new Dimension(MIN_WINDOW_WIDTH,
                                                MIN_WINDOW_HEIGHT));
 
@@ -1332,13 +1334,13 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                CcddMain.this.getSessionEventLog().printEventLog();
+                getSessionEventLog().printEventLog();
             }
         });
 
         // Enable the log search menu command only if the session's event log
         // file successfully opened and can be read
-        mntmSearchLog.setEnabled(CcddMain.this.getSessionEventLog().getEventLogFile().canRead());
+        mntmSearchLog.setEnabled(getSessionEventLog().getEventLogFile().canRead());
 
         // Add a listener for the Search log menu item
         mntmSearchLog.addActionListener(new ActionListener()
@@ -1352,7 +1354,7 @@ public class CcddMain
                 new CcddSearchDialog(CcddMain.this,
                                      SearchDialogType.LOG,
                                      null,
-                                     CcddMain.this.getSessionEventLog());
+                                     getSessionEventLog());
             }
         });
 

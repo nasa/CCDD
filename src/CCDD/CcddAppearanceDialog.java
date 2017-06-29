@@ -130,6 +130,7 @@ public class CcddAppearanceDialog extends CcddDialogHandler
                             // look & feel changes the sizes of components
                             SwingUtilities.updateComponentTreeUI(CcddAppearanceDialog.this);
                             CcddAppearanceDialog.this.setButtonWidth();
+                            CcddAppearanceDialog.this.setPreferredSize(null);
                             CcddAppearanceDialog.this.pack();
                         }
                     }

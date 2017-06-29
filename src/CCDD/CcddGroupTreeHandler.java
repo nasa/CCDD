@@ -473,7 +473,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
 
         // Reset the field handler field information reference so that no
         // fields are initially active
-        fieldHandler.setFieldInformation(null);
+        fieldHandler.getFieldInformation().clear();
     }
 
     /**************************************************************************
@@ -647,7 +647,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         getSelectionModel().setSelectionMode(selectionMode);
 
         // Create a panel to contain the table tree
-        JPanel treePnl = new JPanel(new GridBagLayout());
+        final JPanel treePnl = new JPanel(new GridBagLayout());
         treePnl.setBorder(BorderFactory.createEmptyBorder());
 
         // Create the tree labels

@@ -80,7 +80,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     private final CcddFieldTableEditorDialog fldTblEditor;
     private CcddTableTreeHandler tableTree;
     private CcddGroupTreeHandler groupTree;
-    private FieldPanel fieldPnl;
+    private FieldPanel fieldPnlHndlr;
     private CcddUndoManager undoManager;
 
     // Component referenced by multiple methods
@@ -170,7 +170,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
      *************************************************************************/
     protected CcddInputFieldPanelHandler getEditorPanelHandler()
     {
-        return fieldPnl;
+        return fieldPnlHndlr;
     }
 
     /**************************************************************************
@@ -342,7 +342,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                             // usually used to perform the update, occurs after
                             // the node selection edit and would cause the
                             // wrong description field to be changed
-                            fieldPnl.updateDescriptionField();
+                            fieldPnlHndlr.updateDescriptionField();
 
                             // Get the name of the selected group(s)
                             String[] selected = getTopLevelSelectedNodeNames();
@@ -470,18 +470,18 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                               gbc);
 
                 // Create the field panel for the description and data fields
-                fieldPnl = new FieldPanel();
+                fieldPnlHndlr = new FieldPanel();
 
                 // Set the undo/redo manager and handler for the description
                 // and data field values
-                fieldPnl.setEditPanelUndo(undoManager, undoHandler);
+                fieldPnlHndlr.setEditPanelUndo(undoManager, undoHandler);
 
                 // Create the description and data fields
-                fieldPnl.createDescAndDataFieldPanel(CcddGroupManagerDialog.this,
-                                                     null,
-                                                     null,
-                                                     "",
-                                                     groupTree.getFieldHandler());
+                fieldPnlHndlr.createDescAndDataFieldPanel(CcddGroupManagerDialog.this,
+                                                          null,
+                                                          null,
+                                                          "",
+                                                          groupTree.getFieldHandler());
 
                 // Set the modal undo manager and table references in the
                 // keyboard handler while the group manager is active
@@ -497,7 +497,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 gbc.insets.right = 0;
                 gbc.weighty = 0.0;
                 gbc.gridy++;
-                dialogPnl.add(fieldPnl.getFieldPanel(), gbc);
+                dialogPnl.add(fieldPnlHndlr.getFieldPanel(), gbc);
 
                 // Create a check box for showing/changing the group CFS
                 // application status
@@ -508,7 +508,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 gbc.insets.top = LABEL_VERTICAL_SPACING;
                 gbc.insets.left = LABEL_HORIZONTAL_SPACING;
                 gbc.gridy = 0;
-                fieldPnl.getFieldPanel().add(applicationCb, gbc, 0);
+                fieldPnlHndlr.getFieldPanel().add(applicationCb, gbc, 0);
 
                 // Add a listener for the application check box
                 applicationCb.addActionListener(new ActionListener()
@@ -559,12 +559,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                             }
 
                             // Build the data field panel
-                            fieldPnl.createDataFieldPanel(true);
-
-                            // Force the table editor to redraw in order for
-                            // the field updates to appear
-                            fieldPnl.getOwner().validate();
-                            fieldPnl.getOwner().repaint();
+                            fieldPnlHndlr.createDataFieldPanel(true);
                         }
                     }
                 });
@@ -664,7 +659,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                         // Create the field editor dialog showing the fields
                         // for this group
                         new CcddFieldEditorDialog(ccddMain,
-                                                  fieldPnl,
+                                                  fieldPnlHndlr,
                                                   CcddFieldHandler.getFieldGroupName(selectedGroup.getName()),
                                                   false,
                                                   minDialogWidth);
@@ -675,7 +670,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
                         // Enable/disable the Clear values button depending on
                         // if any data fields remain
-                        btnClearValues.setEnabled(!fieldPnl.getDataFieldHandler().getFieldInformation().isEmpty());
+                        btnClearValues.setEnabled(!fieldPnlHndlr.getDataFieldHandler().getFieldInformation().isEmpty());
                     }
                 });
 
@@ -694,7 +689,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                     public void actionPerformed(ActionEvent ae)
                     {
                         // Clear all of the data field values for the group
-                        fieldPnl.clearFieldValues();
+                        fieldPnlHndlr.clearFieldValues();
                     }
                 });
 
@@ -716,7 +711,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                         undoManager.undo();
 
                         // Update the data field background colors
-                        fieldPnl.setFieldBackgound();
+                        fieldPnlHndlr.setFieldBackgound();
                     }
                 };
 
@@ -741,7 +736,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                         undoManager.redo();
 
                         // Update the data field background colors
-                        fieldPnl.setFieldBackgound();
+                        fieldPnlHndlr.setFieldBackgound();
                     }
                 };
 
@@ -841,6 +836,11 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 // Distribute the buttons across two rows
                 setButtonRows(2);
 
+                // Update the undo manager so that all group manager edits up
+                // to the press of the Store button can be undone/redone
+                fieldPnlHndlr.storeCurrentFieldInformation();
+                undoManager.endEditSequence();
+
                 // Reset the flag now that initialization is complete
                 isInitializing = false;
 
@@ -920,19 +920,19 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // Get the data field information for this group and display the fields
         // (if any)
         groupTree.getFieldHandler().setFieldInformation(fieldInfo);
-        fieldPnl.setOwnerName(groupName);
-        fieldPnl.createDataFieldPanel(false);
+        fieldPnlHndlr.setOwnerName(groupName);
+        fieldPnlHndlr.createDataFieldPanel(false);
 
         // Update the dialog's minimum size to accommodate the change in the
         // size or number of data fields, then revalidate the dialog so that
         // the components are sized correctly
         setMinimumSize(new Dimension(Math.max(minDialogWidth,
-                                              fieldPnl.getMaxFieldWidth()),
+                                              fieldPnlHndlr.getMaxFieldWidth()),
                                      getPreferredSize().height));
         setPreferredSize(getPreferredSize());
 
         // Display and enable the group's description
-        fieldPnl.enableDescriptionField(enable, description);
+        fieldPnlHndlr.enableDescriptionField(enable, description);
 
         // Display and enable the group's CFS application status
         enableApplicationCheckBox(enable, isApplication);
@@ -974,7 +974,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         btnCopyGroup.setEnabled(enable);
         btnManageFields.setEnabled(enable);
         btnClearValues.setEnabled(enable
-                                  && !fieldPnl.getDataFieldHandler().getFieldInformation().isEmpty());
+                                  && !fieldPnlHndlr.getDataFieldHandler().getFieldInformation().isEmpty());
     }
 
     /**************************************************************************
@@ -1479,13 +1479,13 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
             // Store the rate and description is case these have changed
             groupTree.getGroupHandler().setDescription(selectedGroup.getName(),
-                                                       fieldPnl.getDescription());
+                                                       fieldPnlHndlr.getDescription());
 
             // Store the updated data field information in the group
-            selectedGroup.setFieldInformation(fieldPnl.getDataFieldHandler().getFieldInformation());
+            selectedGroup.setFieldInformation(fieldPnlHndlr.getDataFieldHandler().getFieldInformation());
 
             // Store any changes made to the data field values
-            fieldPnl.updateCurrentFields(selectedGroup.getFieldInformation());
+            fieldPnlHndlr.updateCurrentFields(selectedGroup.getFieldInformation());
         }
     }
 

@@ -140,6 +140,11 @@ public class CcddFieldHandler
      *************************************************************************/
     protected void setFieldInformation(List<FieldInformation> fieldInfo)
     {
+        if (fieldInfo == null)
+        {
+            System.out.println("setFieldInformation");// TODO
+            // Thread.dumpStack();
+        }
         fieldInformation = fieldInfo;
     }
 

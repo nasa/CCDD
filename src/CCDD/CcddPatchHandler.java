@@ -6,6 +6,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.DEFAULT_DATABASE;
 import static CCDD.CcddConstants.EventLogMessageType.SUCCESS_MSG;
 
 import java.io.File;
@@ -241,7 +242,7 @@ public class CcddPatchHandler
                                           + e.getMessage()
                                           + "'",
                                       "<html><b>Cannot convert table types table to new format (project database will be closed)");
-                dbControl.closeDatabase();
+                dbControl.openDatabase(DEFAULT_DATABASE);
             }
         }
     }
