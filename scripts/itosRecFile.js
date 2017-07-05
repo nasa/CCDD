@@ -205,11 +205,11 @@ function outputTelemetryPacket(structureNames)
 {
     // Begin the packet definition
     ccdd.writeToFileLn(tlmFile, "");
-    ccdd.writeToFileLn(tlmFile, "CfeTelemetryPacket " + ccdd.getParentStructureTableName());
+    ccdd.writeToFileLn(tlmFile, "CfeTelemetryPacket " + ccdd.getRootStructureTableNames()[0]);
     ccdd.writeToFileLn(tlmFile, "{");
     ccdd.writeToFileLn(tlmFile, 
                        "  applyWhen={FieldInRange{field = applicationId, range = "
-                       + ccdd.getTableDataFieldValue(ccdd.getParentStructureTableName(), "Message ID").replaceFirst("0x[0-9]{2}", "0x")
+                       + ccdd.getTableDataFieldValue(ccdd.getRootStructureTableNames()[0], "Message ID").replaceFirst("0x[0-9]{2}", "0x")
                        + "}},");
     
     // Build the packet definition
@@ -233,7 +233,7 @@ function outputPrototypeStructures(structureNames)
     {
         // Check that this isn't the top-level structure (i.e., it's a
         // referenced structure)
-        if (!structureNames[index].equals(ccdd.getParentStructureTableName()))
+        if (!structureNames[index].equals(ccdd.getRootStructureTableNames()[0]))
         {
             // Begin the prototype structure definition
             ccdd.writeToFileLn(tlmFile, "");
@@ -259,7 +259,7 @@ function outputCommands()
     for (var row = 0; row < ccdd.getCommandTableNumRows(); row++)
     {
         // Get the application ID data field value
-        var applicationID = ccdd.getTableDataFieldValue(ccdd.getParentCommandTableName(), "application id");
+        var applicationID = ccdd.getTableDataFieldValue(ccdd.getRootCommandTableNames()[0], "application id");
         
         // Check if the application ID data field doesn't exist
         if (applicationID == null)
@@ -421,7 +421,7 @@ function outputMnemonicDefinition(row)
                              + " " 
                              + fullVariableName 
                              + " {sourceFields = {" 
-                             + ccdd.getParentStructureTableName()
+                             + ccdd.getRootStructureTableNames()[0]
                              + "." 
                              + structurePath
                              + "_"
@@ -1017,7 +1017,7 @@ else
         if (numStructRows > 0)
         {
             // Build the telemetry output file name
-            var tlmOutputFile = ccdd.getParentStructureTableName() + "_" + endian_ext + ".rec";
+            var tlmOutputFile = ccdd.getRootStructureTableNames()[0] + "_" + endian_ext + ".rec";
             
             // Open the telemetry output file
             var tlmFile = ccdd.openOutputFile(tlmOutputFile);
@@ -1040,7 +1040,7 @@ else
                                    + "\n   Script  : "
                                    + ccdd.getScriptName()
                                    + "\n   Table(s): "
-                                   + structureNames.join(",\n             ")
+                                   + Array.prototype.join.call(structureNames, ",\n             ")
                                    + " */\n");
 
                                    // Output the telemetry packet description
@@ -1076,7 +1076,7 @@ else
         if (numCommandRows > 0)
         {
             // Build the command output file name
-            var cmdOutputFile = ccdd.getTableDataFieldValue(ccdd.getParentCommandTableName(), "system") + "_CMD" + "_" + endian_ext + ".rec";
+            var cmdOutputFile = ccdd.getTableDataFieldValue(ccdd.getRootCommandTableNames()[0], "system") + "_CMD" + "_" + endian_ext + ".rec";
             
             // Open the command output file
             var cmdFile = ccdd.openOutputFile(cmdOutputFile);
@@ -1095,7 +1095,7 @@ else
                                    + "\n   Script  : "
                                    + ccdd.getScriptName()
                                    + "\n   Table(s): "
-                                   + ccdd.getCommandTableNames().join(",\n            ")
+                                   + Array.prototype.join.call(ccdd.getCommandTableNames(), ",\n            ")
                                    + " */\n");
                 
                 // Output the enumerations

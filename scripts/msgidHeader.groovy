@@ -26,7 +26,7 @@ else
 {
     // Combine the parent structure table's "System" data field value with
     // "_msgids" to create the file identifier name
-    def msgIDName = ccdd.getTableDataFieldValue(ccdd.getParentStructureTableName(), "System") + "_msgids"
+    def msgIDName = ccdd.getTableDataFieldValue(ccdd.getRootStructureTableNames()[0], "System") + "_msgids"
     
     // Build the output file name
     def outputFile = msgIDName + ".h"
@@ -93,7 +93,7 @@ else
         for (def row = 0; row < numStructRows; row++)
         {
             // Check if the structure name in the row matches the current structure
-            if (ccdd.getParentStructureTableName().equals(ccdd.getStructureTableNameByRow(row)))
+            if (ccdd.getRootStructureTableNames()[0].equals(ccdd.getStructureTableNameByRow(row)))
             {
                 // Get the variable name for this row in the structure
                 def variableName = ccdd.getStructureTableData("variable name", row)
@@ -137,7 +137,7 @@ else
             }
         }
         
-        ccdd.writeToFileLn(file, "} " + ccdd.getParentStructureTableName() + ";")
+        ccdd.writeToFileLn(file, "} " + ccdd.getRootStructureTableNames()[0] + ";")
         ccdd.writeToFileLn(file, "")
         ccdd.writeToFileLn(file, "#endif")
         

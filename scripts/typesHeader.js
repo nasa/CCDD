@@ -27,7 +27,7 @@ if (numStructRows == 0)
 else
 {
     // Get the 'System' data field value
-    var systemName = ccdd.getTableDataFieldValue(ccdd.getParentStructureTableName(), "System")
+    var systemName = ccdd.getTableDataFieldValue(ccdd.getRootStructureTableNames()[0], "System")
     
     // Check if the table doesn't have a 'System' data field
     if (systemName == null)
@@ -44,6 +44,10 @@ else
     // Check if the output file successfully opened
     if (file != null)
     {
+        // Get an array of the structures represented in the table data in the 
+        // order in which they're referenced
+        var structureNames = ccdd.getStructureTablesByReferenceOrder();
+        
         // Add a header to the output file
         ccdd.writeToFileLn(file,
                            "/* Created : "
@@ -55,11 +59,11 @@ else
                            + "\n   Script  : "
                            + ccdd.getScriptName()
                            + "\n   Table(s): "
-                           + ccdd.getStructureTablesByReferenceOrder().join(",\n             ")
+                           + Array.prototype.join.call(structureNames, ",\n             ")
                            + " */\n");
                            
-        ccdd.writeToFileLn(file, "#ifndef _" + ccdd.getParentStructureTableName() + "_types_H_");
-        ccdd.writeToFileLn(file, "#define _" + ccdd.getParentStructureTableName() + "_types_H_");
+        ccdd.writeToFileLn(file, "#ifndef _" + ccdd.getRootStructureTableNames()[0] + "_types_H_");
+        ccdd.writeToFileLn(file, "#define _" + ccdd.getRootStructureTableNames()[0] + "_types_H_");
         ccdd.writeToFileLn(file, "");
         
         // Get the number of header files to include
@@ -77,10 +81,6 @@ else
         
             ccdd.writeToFileLn(file, "");
         }
-        
-        // Get an array of the structures represented in the table data in the 
-        // order in which they're referenced
-        var structureNames = ccdd.getStructureTablesByReferenceOrder();
         
         // Step through each structure
         for (struct = 0; struct < structureNames.length; struct++)

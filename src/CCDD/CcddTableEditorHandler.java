@@ -3327,7 +3327,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // macro name and/or value change)
         if (editorDialog != null)
         {
-            // Create the editor panel to contain the table editor
+            // Create the input field panel to contain the table editor
             createDescAndDataFieldPanel(editorDialog,
                                         scrollPane,
                                         tableInfo.getProtoVariableName(),

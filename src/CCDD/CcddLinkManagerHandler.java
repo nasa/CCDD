@@ -46,9 +46,11 @@ import javax.swing.event.DocumentListener;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
+import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.CustomSplitPane;
 import CCDD.CcddClasses.LinkInformation;
 import CCDD.CcddClasses.PaddedComboBox;
+import CCDD.CcddConstants.InternalTable.LinksColumn;
 import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddUndoHandler.UndoableTextArea;
 import CCDD.CcddUndoHandler.UndoableTreeNodeSelection;
@@ -333,7 +335,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
 
         // Store the initial link definitions. These are filtered so that only
         // those with the same data stream rate are represented
-        committedLinks = linkTree.createDefinitionsFromTree();
+        updateCommittedLinks();
 
         // Create panels to hold the components of the dialog
         managerPnl = new JPanel(new GridBagLayout());
@@ -1005,5 +1007,119 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         }
 
         return hasChanges;
+    }
+
+    /**************************************************************************
+     * Get a list of link member variables that are no longer valid for the
+     * telemetry scheduler table due to the addition of one or more new member
+     * variables. If a telemetry message references a linked variable, and a
+     * new variable is added to the link definition, then the message no longer
+     * references all of the variables that are linked. Since the additional
+     * variable(s) may not fit within the message's maximum size, all of the
+     * variable in the link are removed from the message(s). The user must add
+     * the linked variables back to the messages using the telemetry scheduler
+     * 
+     * @return List of link member variables that are no longer valid for the
+     *         telemetry scheduler table due to the addition of one or more new
+     *         member variables; and empty list if no links are invalid
+     *************************************************************************/
+    protected List<String> getInvalidatedLinkMembers()
+    {
+        List<String> checkedLinks = new ArrayList<String>();
+        List<String> invalidatedLinks = new ArrayList<String>();
+
+        CcddLinkHandler oldLinkHndlr = new CcddLinkHandler(ccddMain, committedLinks);
+        CcddLinkHandler newLinkHndlr = linkTree.getLinkHandler();
+
+        // Step through each link by name
+        for (String linkName : oldLinkHndlr.getLinkNamesByRate(rateName))
+        {
+            // Check if this link has already been processed. Two links can be
+            // checked during one pass when a variable is transferred from one
+            // link to another
+            if (!checkedLinks.contains(linkName))
+            {
+                boolean isLinkInvalid = false;
+
+                // Add the link to the list of those checked so that is isn't
+                // checked again
+                checkedLinks.add(linkName);
+
+                // Get the link definitions for this link name
+                ArrayListMultiple oldDefns = new ArrayListMultiple(LinksColumn.MEMBER.ordinal());
+                oldDefns.addAll(oldLinkHndlr.getLinkDefinitionsByName(linkName, rateName));
+
+                // Check if the link had any variables assigned to it
+                if (!oldDefns.isEmpty())
+                {
+                    // Get the name of the link to which the variable now
+                    // belongs (this may be another link)
+                    String newLinkName = newLinkHndlr.getVariableLink(oldDefns.get(0)[LinksColumn.MEMBER.ordinal()],
+                                                                      rateName);
+
+                    // Check if the variable is still a member of a link
+                    if (newLinkName != null)
+                    {
+                        // Check if this link hasn't already been added to the
+                        // list of those processed (e.g., the variable is not
+                        // within the original link)
+                        if (!checkedLinks.contains(newLinkName))
+                        {
+                            // Add the link to the list of those checked so
+                            // that is isn't checked again
+                            checkedLinks.add(newLinkName);
+                        }
+
+                        // Get the link definitions of the link for which the
+                        // variable is currently a member
+                        List<String[]> newDefns = newLinkHndlr.getLinkDefinitionsByName(newLinkName,
+                                                                                        rateName);
+
+                        // Check if link to which the variable belongs has the
+                        // same or fewer members than before
+                        if (newDefns.size() <= oldDefns.size())
+                        {
+                            // Step through each of the link's original
+                            // definitions
+                            for (String[] newDefn : newDefns)
+                            {
+                                // Check if the link to which the variable
+                                // belongs doesn't contain all of the same
+                                // members it had before
+                                if (!oldDefns.contains(newDefn[LinksColumn.MEMBER.ordinal()]))
+                                {
+                                    // Set the flag to indicate the link has
+                                    // new members and stop searching
+                                    isLinkInvalid = true;
+                                    break;
+                                }
+                            }
+                        }
+                        // The link containing the variable has more members
+                        // than before
+                        else
+                        {
+                            // Set the flag to indicate the link has new
+                            // members
+                            isLinkInvalid = true;
+                        }
+
+                        // Check if the link has new members
+                        if (isLinkInvalid)
+                        {
+                            // Step through the new link definitions
+                            for (String[] newDefn : newDefns)
+                            {
+                                // Add the variable to the invalidated links
+                                // list
+                                invalidatedLinks.add(newDefn[LinksColumn.MEMBER.ordinal()]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return invalidatedLinks;
     }
 }

@@ -2146,7 +2146,7 @@ public class CcddClasses
         /**********************************************************************
          * Set the link name
          *
-         * @param pathName
+         * @param linkName
          *            link name
          *********************************************************************/
         protected void setName(String linkName)

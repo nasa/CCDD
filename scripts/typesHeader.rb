@@ -15,7 +15,7 @@ if (numStructRows == 0)
 # Structure data is supplied
 else
     # Get the 'System' data field value
-    systemName =  $ccdd.getTableDataFieldValue($ccdd.getParentStructureTableName(), "System")
+    systemName =  $ccdd.getTableDataFieldValue($ccdd.getRootStructureTableNames()[0], "System")
   
     # Check if the table doesn't have a 'System' data field
     if systemName == nil
@@ -44,8 +44,8 @@ else
                             + $ccdd.getStructureTablesByReferenceOrder().to_a.join(",\n             ") \
                             + " */\n")
                            
-        $ccdd.writeToFileLn(file, "#ifndef _" + $ccdd.getParentStructureTableName() + "_types_H_")
-        $ccdd.writeToFileLn(file, "#define _" + $ccdd.getParentStructureTableName() + "_types_H_")
+        $ccdd.writeToFileLn(file, "#ifndef _" + $ccdd.getRootStructureTableNames()[0] + "_types_H_")
+        $ccdd.writeToFileLn(file, "#define _" + $ccdd.getRootStructureTableNames()[0] + "_types_H_")
         $ccdd.writeToFileLn(file, "")
         
         # Get the number of header files to include

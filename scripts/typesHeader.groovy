@@ -19,7 +19,7 @@ if (numStructRows == 0)
 else
 {
     // Get the 'System' data field value
-    def systemName = ccdd.getTableDataFieldValue(ccdd.getParentStructureTableName(), "System")
+    def systemName = ccdd.getTableDataFieldValue(ccdd.getRootStructureTableNames()[0], "System")
     
     // Check if the table doesn't have a 'System' data field
     if (systemName == null)
@@ -51,8 +51,8 @@ else
                            + ccdd.getStructureTablesByReferenceOrder().join(",\n             ")
                            + " */\n")
                            
-        ccdd.writeToFileLn(file, "#ifndef _" + ccdd.getParentStructureTableName() + "_types_H_")
-        ccdd.writeToFileLn(file, "#define _" + ccdd.getParentStructureTableName() + "_types_H_")
+        ccdd.writeToFileLn(file, "#ifndef _" + ccdd.getRootStructureTableNames()[0] + "_types_H_")
+        ccdd.writeToFileLn(file, "#define _" + ccdd.getRootStructureTableNames()[0] + "_types_H_")
         ccdd.writeToFileLn(file, "");
         
         // Get the number of header files to include

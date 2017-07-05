@@ -4529,6 +4529,49 @@ public class CcddDbTableCommandHandler
     }
 
     /**************************************************************************
+     * Build the command to delete the specified variable references from the
+     * telemetry scheduler table
+     * 
+     * @param variablePaths
+     *            list of variable paths to remove from the telemetry scheduler
+     *            table
+     * 
+     * @return Command to delete the specified variable references from the
+     *         telemetry scheduler table
+     *************************************************************************/
+    private String deleteTlmPathRefs(List<String> variablePaths)
+    {
+        StringBuilder tlmCommand = new StringBuilder("");
+
+        // Step through each variable path
+        for (String path : variablePaths)
+        {
+            // Add the command to delete all of the variable's references from
+            // the telemetry scheduler table
+            tlmCommand.append((tlmCommand.length() == 0
+                                                       ? "DELETE FROM "
+                                                         + InternalTable.TLM_SCHEDULER.getTableName()
+                                                         + " WHERE"
+                                                       : " OR")
+                              + " "
+                              + TlmSchedulerColumn.MEMBER.getColumnName()
+                              + " ~ E'^.*"
+                              + tlmSchSeparator
+                              + CcddUtilities.escapePostgreSQLReservedChars(path)
+                              + "$'");
+        }
+
+        // Check if a change to the telemetry scheduler table exists
+        if (tlmCommand.length() != 0)
+        {
+            // Terminate the command
+            tlmCommand.append("; ");
+        }
+
+        return tlmCommand.toString();
+    }
+
+    /**************************************************************************
      * Build the commands to delete the specified table/variable references
      * from the links and telemetry scheduler tables
      * 
@@ -4539,7 +4582,7 @@ public class CcddDbTableCommandHandler
      *            be escaped
      * 
      * @param tlmPath
-     *            table /variable path to remove from the telemetry scheduler
+     *            table/variable path to remove from the telemetry scheduler
      *            table. Leading or trailing regular expression constructs must
      *            surround the path, and any reserved PostgreSQL characters in
      *            the path must be escaped
@@ -4811,6 +4854,7 @@ public class CcddDbTableCommandHandler
                                           tableData,
                                           null,
                                           null,
+                                          null,
                                           tableComment,
                                           parent);
     }
@@ -4836,6 +4880,11 @@ public class CcddDbTableCommandHandler
      * @param deletedGroups
      *            list containing the names of groups that have been deleted
      * 
+     * @param invalidLinkVars
+     *            list containing the link member variables that should be
+     *            removed from the telemetry scheduler due to the addition of
+     *            one or more variables
+     * 
      * @param tableComment
      *            table comment; null if unchanged
      * 
@@ -4846,6 +4895,7 @@ public class CcddDbTableCommandHandler
                                                      final List<String[]> tableData,
                                                      final List<List<FieldInformation>> fieldInformationList,
                                                      final List<String> deletedGroups,
+                                                     final List<String> invalidLinkVars,
                                                      final String tableComment,
                                                      final Component parent)
     {
@@ -4862,6 +4912,7 @@ public class CcddDbTableCommandHandler
                                       tableData,
                                       fieldInformationList,
                                       deletedGroups,
+                                      invalidLinkVars,
                                       tableComment,
                                       parent);
             }
@@ -4892,6 +4943,7 @@ public class CcddDbTableCommandHandler
                               tableData,
                               null,
                               null,
+                              null,
                               tableComment,
                               parent);
     }
@@ -4914,6 +4966,11 @@ public class CcddDbTableCommandHandler
      * @param deletedGroups
      *            list containing the names of groups that have been deleted
      * 
+     * @param invalidLinkVars
+     *            list containing the link member variables that should be
+     *            removed from the telemetry scheduler due to the addition of
+     *            one or more variables
+     * 
      * @param tableComment
      *            table comment; null if unchanged
      * 
@@ -4924,6 +4981,7 @@ public class CcddDbTableCommandHandler
                                          List<String[]> tableData,
                                          List<List<FieldInformation>> fieldInformationList,
                                          List<String> deletedGroups,
+                                         List<String> invalidLinkVars,
                                          String tableComment,
                                          Component parent)
     {
@@ -4960,18 +5018,29 @@ public class CcddDbTableCommandHandler
                 case ASSOCIATIONS:
                 case DATA_TYPES:
                 case FIELDS:
-                case LINKS:
                 case MACROS:
                 case ORDERS:
                 case RESERVED_MSG_IDS:
                 case SCRIPT:
                 case TLM_SCHEDULER:
                     // Build the command for storing the script configurations,
-                    // groups, or links table
+                    // groups, links, etc. table
                     command += storeNonTableTypesInfoTableCommand(intTable,
                                                                   tableData,
                                                                   tableComment,
                                                                   parent);
+                    break;
+
+                case LINKS:
+                    // Build the commands for storing the links table and for
+                    // deleting any invalid references in the telemetry
+                    // scheduler table
+                    command += storeNonTableTypesInfoTableCommand(intTable,
+                                                                  tableData,
+                                                                  tableComment,
+                                                                  parent)
+                               + deleteTlmPathRefs(invalidLinkVars);
+
                     break;
 
                 case TABLE_TYPES:

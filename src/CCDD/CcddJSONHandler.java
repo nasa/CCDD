@@ -1117,7 +1117,13 @@ public class CcddJSONHandler implements CcddImportExportInterface
                 for (String tblName : tableNames)
                 {
                     // Get the table's information
-                    JSONObject tableInfoJO = getTableInformation(tblName, !replaceMacros);
+                    JSONObject tableInfoJO = getTableInformation(tblName,
+                                                                 !replaceMacros,
+                                                                 false,
+                                                                 null,
+                                                                 null);
+                    // TODO CAN ADD VARIABLE PATH AS OPTION IN JSON (ET AL)
+                    // EXPORT
 
                     // Check if the table's data successfully loaded
                     if (tableInfoJO != null && !tableInfoJO.isEmpty())
@@ -1314,6 +1320,19 @@ public class CcddJSONHandler implements CcddImportExportInterface
      *            true to display the macro values in place of the
      *            corresponding macro names; false to display the macro names
      * 
+     * @param isIncludePath
+     *            true to include a column, 'Variable Path', showing the
+     *            variable path for each variable in a structure table using
+     *            the user-defined separator characters
+     * 
+     * @param variableHandler
+     *            variable handler class reference
+     * 
+     * @param separators
+     *            string array containing the variable path separator
+     *            character(s), show/hide data types flag ('true' or 'false'),
+     *            and data type/variable name separator character(s)
+     * 
      * @param outputJO
      *            JSON object to which the data types are added
      * 
@@ -1325,6 +1344,9 @@ public class CcddJSONHandler implements CcddImportExportInterface
     protected JSONObject getTableData(String tableName,
                                       boolean getDescription,
                                       boolean isReplaceMacro,
+                                      boolean isIncludePath,
+                                      CcddVariableConversionHandler variableHandler,
+                                      String[] separators,
                                       JSONObject outputJO)
     {
         JSONArray tableDataJA = null;
@@ -1372,6 +1394,38 @@ public class CcddJSONHandler implements CcddImportExportInterface
                             // Add the column name and value to the cell object
                             columnJO.put(columnNames[column],
                                          tableInfo.getData()[row][column]);
+
+                            // Check if the table represents a structure, that
+                            // the variable path column is to be included, and
+                            // that a variable handler and path separators are
+                            // supplied
+                            if (typeDefn.isStructure()
+                                && isIncludePath
+                                && variableHandler != null
+                                && separators != null)
+                            {
+                                // Get the variable's data type
+                                String dataType = tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT)];
+
+                                // Check if the data type is a primitive
+                                if (dataTypeHandler.isPrimitive(dataType))
+                                {
+                                    // Build the variable's full path
+                                    String variablePath = tableInfo.getTablePath()
+                                                          + ","
+                                                          + dataType
+                                                          + "."
+                                                          + tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE)];
+
+                                    // Add the formatted path in the 'Variable
+                                    // Path' column
+                                    columnJO.put("Variable Path",
+                                                 variableHandler.getFullVariableName(variablePath,
+                                                                                     separators[0],
+                                                                                     Boolean.valueOf(separators[1]),
+                                                                                     separators[2]));
+                                }
+                            }
                         }
                     }
 
@@ -1475,16 +1529,36 @@ public class CcddJSONHandler implements CcddImportExportInterface
      *            true to display the macro values in place of the
      *            corresponding macro names; false to display the macro names
      * 
+     * @param isIncludePath
+     *            true to include a column, 'Variable Path', showing the
+     *            variable path for each variable in a structure table using
+     *            the user-defined separator characters
+     * 
+     * @param variableHandler
+     *            variable handler class reference
+     * 
+     * @param separators
+     *            string array containing the variable path separator
+     *            character(s), show/hide data types flag ('true' or 'false'),
+     *            and data type/variable name separator character(s)
+     * 
      * @return JSON encoded string containing the specified table information;
      *         null if the specified table doesn't exist or fails to load
      *************************************************************************/
     @SuppressWarnings("unchecked")
-    protected JSONObject getTableInformation(String tableName, boolean isReplaceMacro)
+    protected JSONObject getTableInformation(String tableName,
+                                             boolean isReplaceMacro,
+                                             boolean isIncludePath,
+                                             CcddVariableConversionHandler variableHandler,
+                                             String[] separators)
     {
         // Store the table's data
         JSONObject tableInformation = getTableData(tableName,
                                                    false,
                                                    isReplaceMacro,
+                                                   isIncludePath,
+                                                   variableHandler,
+                                                   separators,
                                                    new JSONObject());
 
         // Check that the table loaded successfully

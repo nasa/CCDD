@@ -61,6 +61,10 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     // replaced by the corresponding macro values
     private boolean isReplaceMacro;
 
+    // Flag that indicates if the variable paths are to be appended to
+    // structure table data
+    private boolean isIncludePath;
+
     // Flag that indicates if the table tree path list should only include
     // table names to a specified level in the tree. This is used to get the
     // root tables
@@ -216,6 +220,54 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     }
 
     /**************************************************************************
+     * Get the separator characters used to convert an application variable
+     * path to a user-defined variable path
+     * 
+     * @param variablePath
+     *            variable path + name for which to return the converted path;
+     *            blank to provide the paths for all variables
+     * 
+     * @param parameters
+     *            comma-separated string containing the variable path separator
+     *            character(s), show/hide data types flag ('true' or 'false'),
+     *            and data type/variable name separator character(s)
+     * 
+     * @return String array containing the variable path separator
+     *         character(s), show/hide data types flag ('true' or 'false'), and
+     *         data type/variable name separator character(s); the default
+     *         separators if the input parameters string is blank; null if the
+     *         parameter string format is invalid
+     *************************************************************************/
+    private String[] getVariablePathSeparators(String parameters)
+    {
+        String[] separators = null;
+
+        // Check if the parameter string is blank
+        if (parameters.isEmpty())
+        {
+            // Use the default separators
+            separators = new String[] {"_", "false", "_"};
+        }
+        // The parameters string isn't blank
+        else
+        {
+            // Separate the input parameters
+            String[] parameter = getParts(parameters, ",", 3, true);
+
+            // Check if all the input parameters are present and that they're
+            // in the expected formats
+            if (!parameter[0].matches(".*[\\[\\]].*")
+                && parameter[1].matches("(true|false)")
+                && !parameter[2].matches(".*[\\[\\]].*"))
+            {
+                separators = parameter;
+            }
+        }
+
+        return separators;
+    }
+
+    /**************************************************************************
      * Process the web query and return the results encoded as a JSON string.
      * The query is in the form [server]:[port]/[component]?[attribute][=name]
      * 
@@ -246,17 +298,26 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
         try
         {
-            // Separate the component/attribute/name from the flag to replace
-            // macros (if present)
-            String[] itemAndMacro = getParts(item, ";", 2, false);
+            String[] separators = null;
+
+            // Separate the component/attribute/name from the other flag(s) (if
+            // present)
+            String[] itemAndOther = getParts(item, ";", 2, false);
 
             // Set the flag if the text indicates the macro names (in place of
             // macro values) should be displayed
-            isReplaceMacro = !itemAndMacro[1].equalsIgnoreCase("macro")
-                             && !itemAndMacro[1].equalsIgnoreCase("macros");
+            isReplaceMacro = !itemAndOther[1].matches("(?:.*;)?macros?(?:;.*)?");
+
+            // Check if the variable paths are to be included with the
+            // structure table data
+            if (isIncludePath = itemAndOther[1].matches("(?:.*;)?paths?(?:,.+|;.*|$)"))
+            {
+                // Get the variable path separators
+                separators = getVariablePathSeparators(itemAndOther[1].replaceAll("(?:.*;)?paths?,(.+)(?:;.*)?", "$1"));
+            }
 
             // Extract the item's attribute and name
-            String[] attributeAndName = getParts(itemAndMacro[0], "=", 2, false);
+            String[] attributeAndName = getParts(itemAndOther[0], "=", 2, false);
 
             // Check if this is a table-related request
             if (component.equals("table")
@@ -284,13 +345,14 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // Get the name, type, description, data, and data
                         // fields for the specified table (or all tables if no
                         // table name is specified)
-                        response = getTableInformation(attributeAndName[1]);
+                        response = getTableInformation(attributeAndName[1],
+                                                       separators);
                         break;
 
                     case "data":
                         // Get the data for the specified table (or all tables
                         // if no table name is specified)
-                        response = getTableData(attributeAndName[1], true);
+                        response = getTableData(attributeAndName[1], true, separators);
                         break;
 
                     case "description":
@@ -575,6 +637,11 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * @param getDescription
      *            true to get the table description when loading the table data
      * 
+     * @param separators
+     *            string array containing the variable path separator
+     *            character(s), show/hide data types flag ('true' or 'false'),
+     *            and data type/variable name separator character(s)
+     * 
      * @return JSON encoded string containing the specified table cell data;
      *         null if a table name is specified and the table doesn't exist or
      *         if no data tables exist in the project database, or blank if the
@@ -583,7 +650,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *************************************************************************/
     @SuppressWarnings("unchecked")
     private String getTableData(String tableName,
-                                boolean getDescription) throws CCDDException
+                                boolean getDescription,
+                                String[] separators) throws CCDDException
     {
         String response = null;
 
@@ -610,7 +678,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // to the response array. This is needed to get the
                         // brackets and commas in the JSON formatted string
                         // correct
-                        responseJA.add(parser.parse(getTableData(name, true)));
+                        responseJA.add(parser.parse(getTableData(name,
+                                                                 true,
+                                                                 separators)));
                     }
                     catch (ParseException pe)
                     {
@@ -625,10 +695,21 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         // A table name is provided
         else
         {
+            // Check if variable paths are to be included and the variable
+            // handler hasn't been created already
+            if (isIncludePath && variableHandler == null)
+            {
+                // Create the variable handler
+                variableHandler = new CcddVariableConversionHandler(ccddMain);
+            }
+
             // Get the table data
             JSONObject tableNameAndData = jsonHandler.getTableData(tableName,
                                                                    getDescription,
                                                                    isReplaceMacro,
+                                                                   isIncludePath,
+                                                                   variableHandler,
+                                                                   separators,
                                                                    new JSONObject());
 
             // Check if the table data loaded successfully
@@ -1019,12 +1100,18 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *            rootTable[,dataType1.variable1[,...]]. Blank to return the
      *            data for all tables
      * 
+     * @param separators
+     *            string array containing the variable path separator
+     *            character(s), show/hide data types flag ('true' or 'false'),
+     *            and data type/variable name separator character(s)
+     * 
      * @return JSON encoded string containing the specified table information;
      *         null if a table name is specified and the table doesn't exist or
      *         if no data tables exist in the project database
      *************************************************************************/
     @SuppressWarnings("unchecked")
-    private String getTableInformation(String tableName) throws CCDDException
+    private String getTableInformation(String tableName,
+                                       String[] separators) throws CCDDException
     {
         JSONArray responseJA = new JSONArray();
         JSONParser parser = new JSONParser();
@@ -1052,7 +1139,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // to the response array. This is needed to get the
                         // brackets and commas in the JSON formatted string
                         // correct
-                        responseJA.add(parser.parse(getTableInformation(name)));
+                        responseJA.add(parser.parse(getTableInformation(name,
+                                                                        separators)));
                     }
                     catch (ParseException pe)
                     {
@@ -1066,9 +1154,20 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         }
         // A table name is provided
         {
+            // Check if variable paths are to be included and the variable
+            // handler hasn't been created already
+            if (isIncludePath && variableHandler == null)
+            {
+                // Create the variable handler
+                variableHandler = new CcddVariableConversionHandler(ccddMain);
+            }
+
             // Get the tables information
             JSONObject tableInfoJO = jsonHandler.getTableInformation(tableName,
-                                                                     isReplaceMacro);
+                                                                     isReplaceMacro,
+                                                                     isIncludePath,
+                                                                     variableHandler,
+                                                                     separators);
 
             // Check if the table loaded successfully
             if (tableInfoJO != null)
@@ -1775,7 +1874,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * @param parameters
      *            comma-separated string containing the variable path separator
      *            character(s), show/hide data types flag ('true' or 'false'),
-     *            and data type/variable name separator character(s)
+     *            and data type/variable name separator character(s); blank to
+     *            use the default separators
      * 
      * @return JSON encoded string containing the variable names; blank if the
      *         project doesn't contain any variables and null if any input
@@ -1787,22 +1887,20 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     {
         String response = null;
 
-        // Separate the input parameters
-        String[] parameter = getParts(parameters, ",", 3, true);
+        // Parse the variable path separators
+        String[] separators = getVariablePathSeparators(parameters);
 
         // Check if all the input parameters are present and that they're in
         // the expected formats
-        if (!parameter[0].matches(".*[\\[\\]].*")
-            && parameter[1].matches("(true|false)")
-            && !parameter[2].matches(".*[\\[\\]].*"))
+        if (separators != null)
         {
             JSONObject responseJO = new JSONObject();
             response = "";
 
             // Get the individual parameters and format them if needed
-            String varPathSeparator = parameter[0];
-            boolean hideDataTypes = Boolean.valueOf(parameter[1]);
-            String typeNameSeparator = parameter[2];
+            String varPathSeparator = separators[0];
+            boolean hideDataTypes = Boolean.valueOf(separators[1]);
+            String typeNameSeparator = separators[2];
 
             // Check if the variable handler hasn't been created already
             if (variableHandler == null)

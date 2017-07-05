@@ -106,6 +106,36 @@ public class CcddLinkHandler
     }
 
     /**************************************************************************
+     * Get the link names for the specified rate column name
+     * 
+     * @param rateName
+     *            rate column name
+     * 
+     * @return List containing the link names for the specified rate column
+     *         name; an empty list if there are no links associated with the
+     *         rate
+     *************************************************************************/
+    protected List<String> getLinkNamesByRate(String rateName)
+    {
+        List<String> linkNames = new ArrayList<String>();
+
+        // Step through the link definitions
+        for (String[] linkDefn : linkDefinitions)
+        {
+            // Check if the link's rate matches the specified rate and that
+            // this link hasn't already been included
+            if (linkDefn[LinksColumn.RATE_NAME.ordinal()].equals(rateName)
+                && !linkNames.contains(linkDefn[LinksColumn.LINK_NAME.ordinal()]))
+            {
+                // Add the link name to the list
+                linkNames.add(linkDefn[LinksColumn.LINK_NAME.ordinal()]);
+            }
+        }
+
+        return linkNames;
+    }
+
+    /**************************************************************************
      * Get the index of the link definition specified by the rate name, link
      * name, and variable path
      * 
@@ -135,9 +165,9 @@ public class CcddLinkHandler
 
             // Check if this is the definition of the current
             // variable's link
-            if (linkDefn[0].equals(rateName)
-                && linkDefn[1].equals(linkName)
-                && linkDefn[2].equals(variablePath))
+            if (linkDefn[LinksColumn.RATE_NAME.ordinal()].equals(rateName)
+                && linkDefn[LinksColumn.LINK_NAME.ordinal()].equals(linkName)
+                && linkDefn[LinksColumn.MEMBER.ordinal()].equals(variablePath))
             {
                 // Stop searching
                 break;

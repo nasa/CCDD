@@ -150,11 +150,11 @@ def outputStructureDefinition(structureName, isPacket):
 #******************************************************************************
 def outputTelemetryPacket(structureNames):
     # Begin the packet definition
-    ccdd.writeToFileLn(tlmFile, "CfeTelemetryPacket " + ccdd.getParentStructureTableName())
+    ccdd.writeToFileLn(tlmFile, "CfeTelemetryPacket " + ccdd.getRootStructureTableNames()[0])
     ccdd.writeToFileLn(tlmFile, "{")
     ccdd.writeToFileLn(tlmFile,
                        "  applyWhen={FieldInRange{field = applicationId, range = "
-                       + re.sub(r"0x[0-9]{2}", "0x", ccdd.getTableDataFieldValue(ccdd.getParentStructureTableName(), "Message ID"))
+                       + re.sub(r"0x[0-9]{2}", "0x", ccdd.getTableDataFieldValue(ccdd.getRootStructureTableNames()[0], "Message ID"))
                        + "}},")
     
     # Build the packet definition
@@ -174,7 +174,7 @@ def outputPrototypeStructures(structureNames):
     for index in range(len(structureNames)):
         # Check that this isn't the top-level structure (i.e., it's a
         # referenced structure)
-        if structureNames[index] != ccdd.getParentStructureTableName():
+        if structureNames[index] != ccdd.getRootStructureTableNames()[0]:
             # Begin the prototype structure definition
             ccdd.writeToFileLn(tlmFile, "")
             ccdd.writeToFileLn(tlmFile, "prototype Structure " + structureNames[index])
@@ -192,7 +192,7 @@ def outputPrototypeStructures(structureNames):
 #******************************************************************************
 def outputCommands():
     # Get the application ID data field value
-    applicationID = ccdd.getTableDataFieldValue(ccdd.getParentCommandTableName(), "application id")
+    applicationID = ccdd.getTableDataFieldValue(ccdd.getRootCommandTableNames()[0], "application id")
     
     # Check if the application ID data field doesn't exist
     if applicationID is None:
@@ -326,7 +326,7 @@ def outputMnemonicDefinition(row):
                              + " " 
                              + fullVariableName 
                              + " {sourceFields = {" 
-                             + ccdd.getParentStructureTableName()
+                             + ccdd.getRootStructureTableNames()[0]
                              + "." 
                              + structurePath
                              + "_"
@@ -796,7 +796,7 @@ else:
         # Check if structure data is provided
         if numStructRows > 0:
             # Build the telemetry output file name
-            tlmOutputFile = ccdd.getParentStructureTableName() + "_" + endian_ext + ".rec"
+            tlmOutputFile = ccdd.getRootStructureTableNames()[0] + "_" + endian_ext + ".rec"
             
             # Open the telemetry output file
             tlmFile = ccdd.openOutputFile(tlmOutputFile)
@@ -849,7 +849,7 @@ else:
         # Check if command data is provided
         if numCommandRows > 0:
             # Build the command output file name
-            cmdOutputFile = ccdd.getTableDataFieldValue(ccdd.getParentCommandTableName(), "system") + "_CMD" + "_" + endian_ext + ".rec"
+            cmdOutputFile = ccdd.getTableDataFieldValue(ccdd.getRootCommandTableNames()[0], "system") + "_CMD" + "_" + endian_ext + ".rec"
             
             # Open the command output file
             cmdFile = ccdd.openOutputFile(cmdOutputFile)

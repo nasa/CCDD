@@ -52,4 +52,6 @@ importClass(Packages.CCDD.CcddScriptDataAccessHandler);
 //// Close the output file
 //ccdd.closeFile(file);
 
-print(ccdd.getGroupDataFieldValue("AHRS", "Message ID") + "\n");
+//print(ccdd.getGroupDataFieldValue("AHRS", "Message ID") + "\n");
+
+ccdd.showData();

@@ -765,7 +765,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     }
 
     /**************************************************************************
-     * Rename a node
+     * Rename a top-level node (a node that is a direct child of the root node)
      * 
      * @param oldName
      *            current name of the node
@@ -775,23 +775,18 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * 
      * @return Reference to the renamed node
      *************************************************************************/
-    protected ToolTipTreeNode renameNode(Object oldName, Object newName)
+    protected ToolTipTreeNode renameRootChildNode(Object oldName, Object newName)
     {
         ToolTipTreeNode node = null;
 
         // Step through each row in the information tree
-        for (int row = 0; row < infoTreeModel.getChildCount(root); row++)
+        for (int row = 0; row < root.getChildCount(); row++)
         {
-            // Get the path for the row
-            TreePath path = getPathForRow(row);
-
-            // Check if this node represents a top level name and that the name
-            // matches the target
-            if (path.getPathCount() == 2
-                && path.getLastPathComponent().toString().equals(oldName))
+            // Check if this node's name matches the target
+            if (((ToolTipTreeNode) root.getChildAt(row)).getUserObject().toString().equals((oldName)))
             {
                 // Get the node from the path
-                node = (ToolTipTreeNode) path.getLastPathComponent();
+                node = (ToolTipTreeNode) root.getChildAt(row);
 
                 // Rename the node and update the tree, then stop searching
                 node.setUserObject(newName);

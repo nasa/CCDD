@@ -778,6 +778,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                                                       updateFields,
                                                                       deletedGroups,
                                                                       null,
+                                                                      null,
                                                                       CcddGroupManagerDialog.this);
                         }
                     }
@@ -1258,7 +1259,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             {
                 // Rename the group
                 groupTree.getGroupHandler().getGroupInformationByName(selected[0]).setName(groupNameFld.getText());
-                groupTree.renameNode(selected[0], groupNameFld.getText());
+                groupTree.renameRootChildNode(selected[0], groupNameFld.getText());
 
                 // Add the original name to the list of deleted groups so that
                 // the group's data fields are removed from the internal data

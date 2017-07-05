@@ -765,8 +765,9 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                             if (CcddUtilities.removeHTMLTags(comboBox.getItemAt(index)).equals(value))
                             {
                                 // Set the flag indicating that the cell value
-                                // is valid
+                                // is valid and stop searching
                                 found = true;
+                                break;
                             }
                         }
                     }
@@ -911,7 +912,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         // field values
         setEditPanelUndo(table.getUndoManager(), table.getUndoHandler());
 
-        // Create the editor panel to contain the type editor
+        // Create the input field panel to contain the type editor
         createDescAndDataFieldPanel(editorDialog,
                                     scrollPane,
                                     tableTypeName,

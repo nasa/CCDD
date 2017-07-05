@@ -20,7 +20,7 @@ elsif numCommandRows == 0
 else
     # Combine the parent structure table's "System" data field value with
     # "_msgids" to create the file identifier name
-    msgIDName = $ccdd.getTableDataFieldValue($ccdd.getParentStructureTableName(), "System") + "_msgids"
+    msgIDName = $ccdd.getTableDataFieldValue($ccdd.getRootStructureTableNames()[0], "System") + "_msgids"
     
     # Build the output file name
     outputFile = msgIDName + ".h"
@@ -82,7 +82,7 @@ else
         # Step through each row in the table
         for row in 0..numStructRows - 1
             # Check if the structure name in the row matches the current structure
-            if $ccdd.getParentStructureTableName() == $ccdd.getStructureTableNameByRow(row)
+            if $ccdd.getRootStructureTableNames()[0] == $ccdd.getStructureTableNameByRow(row)
                 # Get the variable name for this row in the structure
                 variableName = $ccdd.getStructureTableData("variable name", row)
                 
@@ -120,7 +120,7 @@ else
             end
         end
         
-        $ccdd.writeToFileLn(file, "} " + $ccdd.getParentStructureTableName() + ";")
+        $ccdd.writeToFileLn(file, "} " + $ccdd.getRootStructureTableNames()[0] + ";")
         $ccdd.writeToFileLn(file, "")
         $ccdd.writeToFileLn(file, "#endif")
         

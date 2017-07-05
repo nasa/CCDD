@@ -60,6 +60,7 @@ import CCDD.CcddClasses.RateInformation;
 import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
+import CCDD.CcddConstants.InternalTable.LinksColumn;
 import CCDD.CcddConstants.LinkCopyErrorColumnInfo;
 import CCDD.CcddConstants.TableSelectionMode;
 
@@ -649,11 +650,23 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                                           DialogOption.RENAME_OPTION,
                                           true) == OK_BUTTON)
             {
-                // Rename the link
-                ToolTipTreeNode renamedNode = activeHandler.getLinkTree().renameNode(selected[0],
-                                                                                     linkNameFld.getText());
+                // Step through the link's definitions
+                for (String[] linkDefn : activeHandler.getLinkTree().getLinkHandler().getLinkDefinitionsByName(nameOnly,
+                                                                                                               activeHandler.getRateName()))
+                {
+                    // Update the link definition's link name
+                    linkDefn[LinksColumn.LINK_NAME.ordinal()] = linkNameFld.getText();
+                }
+
+                // Update the link's name in the link information
+                activeHandler.getLinkTree().getLinkInformation(nameOnly).setName(linkNameFld.getText());
+
+                // Rename the link's node in the link tree
+                ToolTipTreeNode renamedNode = activeHandler.getLinkTree().renameRootChildNode(selected[0],
+                                                                                              linkNameFld.getText());
+
+                // Adjust the link node's text to add the size and rate
                 activeHandler.getLinkTree().adjustNodeText(renamedNode);
-                activeHandler.getLinkTree().getLinkInformation(selected[0]).setName(linkNameFld.getText());
 
                 // Update the link dialog's change indicator
                 updateChangeIndicator();
@@ -1080,8 +1093,9 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
      *************************************************************************/
     private void storeLinks()
     {
-        // Current link definitions
+        // Store for current link definitions and invalid link member variables
         List<String[]> currentLinks = new ArrayList<String[]>();
+        List<String> invalidatedLinkVars = new ArrayList<String>();
 
         // Step through each data stream
         for (CcddLinkManagerHandler linkHandler : linkMgrs)
@@ -1089,11 +1103,18 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
             // Add the links for this stream to the list
             // containing the links for all data streams
             currentLinks.addAll(linkHandler.getCurrentLinks());
+
+            // Update the list of link variables that are invalid due to the
+            // addition of one or more variables to a link
+            invalidatedLinkVars.addAll(linkHandler.getInvalidatedLinkMembers());
         }
 
         // Store the link list into the database
         dbTable.storeInformationTableInBackground(InternalTable.LINKS,
                                                   currentLinks,
+                                                  null,
+                                                  null,
+                                                  invalidatedLinkVars,
                                                   null,
                                                   CcddLinkManagerDialog.this);
     }

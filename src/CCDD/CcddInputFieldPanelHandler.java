@@ -63,7 +63,7 @@ public abstract class CcddInputFieldPanelHandler
 
     // Components referenced by multiple methods
     private UndoableTextArea descriptionFld;
-    private JPanel editorPnl;
+    private JPanel inputPnl;
     private Border border;
     private JPanel fieldPnl;
     private GridBagConstraints gbc;
@@ -97,7 +97,7 @@ public abstract class CcddInputFieldPanelHandler
      *************************************************************************/
     protected JPanel getFieldPanel()
     {
-        return editorPnl;
+        return inputPnl;
     }
 
     /**************************************************************************
@@ -318,7 +318,7 @@ public abstract class CcddInputFieldPanelHandler
     }
 
     /**************************************************************************
-     * Create the table editor panel
+     * Create the table input field panel
      * 
      * @param fieldPnlHndlrOwner
      *            reference to the owner of this description and data field
@@ -366,7 +366,7 @@ public abstract class CcddInputFieldPanelHandler
 
         // Create an outer panel to put the editor panel in (the border doesn't
         // appear without this) and add the table description text field
-        editorPnl = new JPanel(new GridBagLayout());
+        inputPnl = new JPanel(new GridBagLayout());
 
         // Check if this editor contains a table
         if (scrollPane != null)
@@ -376,7 +376,7 @@ public abstract class CcddInputFieldPanelHandler
             innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.X_AXIS));
             innerPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
             innerPanel.add(scrollPane);
-            editorPnl.add(innerPanel, gbc);
+            inputPnl.add(innerPanel, gbc);
         }
 
         // Create a border for the input fields
@@ -425,7 +425,7 @@ public abstract class CcddInputFieldPanelHandler
         {
             // Place the description field within a scroll pane, initially
             // disabled, and add the field to the editor
-            editorPnl.setBorder(BorderFactory.createEtchedBorder());
+            inputPnl.setBorder(BorderFactory.createEtchedBorder());
             gbc.gridy++;
             descriptionFld.setBackground(Color.LIGHT_GRAY);
             descriptionFld.setBorder(BorderFactory.createEmptyBorder());
@@ -440,7 +440,7 @@ public abstract class CcddInputFieldPanelHandler
         {
             // Place the description field within a scroll pane and add the
             // field to the editor
-            editorPnl.setBorder(BorderFactory.createEmptyBorder());
+            inputPnl.setBorder(BorderFactory.createEmptyBorder());
             gbc.gridx++;
             descriptionFld.setToolTipText("Table description");
             descriptionFld.setBackground(Color.WHITE);
@@ -454,7 +454,7 @@ public abstract class CcddInputFieldPanelHandler
         gbc.weighty = 0.0;
         gbc.gridx = 0;
         gbc.gridy++;
-        editorPnl.add(descriptionPnl, gbc);
+        inputPnl.add(descriptionPnl, gbc);
 
         // Add the data field panel to the editor
         gbc.gridy++;
@@ -463,7 +463,7 @@ public abstract class CcddInputFieldPanelHandler
         createDataFieldPanel(false);
 
         // Add a listener for changes in the editor panel's size
-        editorPnl.addComponentListener(new ComponentAdapter()
+        inputPnl.addComponentListener(new ComponentAdapter()
         {
             /******************************************************************
              * Handle resizing of the editor panel
@@ -485,7 +485,7 @@ public abstract class CcddInputFieldPanelHandler
                         // the new sizes, which causes the data fields to be
                         // correctly sized so that all of the fields are
                         // visible
-                        editorPnl.revalidate();
+                        inputPnl.revalidate();
                     }
                 });
             }
@@ -512,7 +512,7 @@ public abstract class CcddInputFieldPanelHandler
         if (fieldPnl != null)
         {
             // Remove the existing data fields
-            editorPnl.remove(fieldPnl);
+            inputPnl.remove(fieldPnl);
         }
 
         // Check if any data fields exist
@@ -744,7 +744,7 @@ public abstract class CcddInputFieldPanelHandler
             if (fieldPnl.getComponentCount() != 0)
             {
                 // Add the data field panel to the dialog
-                editorPnl.add(fieldPnl, gbc);
+                inputPnl.add(fieldPnl, gbc);
             }
         }
 
