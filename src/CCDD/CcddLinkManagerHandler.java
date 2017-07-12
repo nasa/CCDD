@@ -50,6 +50,7 @@ import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.CustomSplitPane;
 import CCDD.CcddClasses.LinkInformation;
 import CCDD.CcddClasses.PaddedComboBox;
+import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.InternalTable.LinksColumn;
 import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddUndoHandler.UndoableTextArea;
@@ -296,8 +297,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
                     // changed
                     descriptionFld.updateText();
 
-                    // Get the name of the selected link (null if more than
-                    // one link is selected)
+                    // Get the name of the selected link(s)
                     String[] selected = getTopLevelSelectedNodeNames();
 
                     // If a single link is selected then set the selected
@@ -329,9 +329,6 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         // Set the link tree reference in the undo handler so that tree edits
         // can be undone/redone
         undoHandler.setTree(linkTree);
-
-        // Clear the undo/redo tree edits stack
-        undoManager.discardAllEdits();
 
         // Store the initial link definitions. These are filtered so that only
         // those with the same data stream rate are represented
@@ -392,6 +389,12 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
                 // Check that a node selection change is not in progress
                 if (!isNodeSelectionChanging)
                 {
+                    // Select the associated link in the link tree if a linked
+                    // variable is selected in the variable tree. Note that
+                    // below any linked variables are deselected, so this call
+                    // must occur first
+                    selectLinkByVariable();
+
                     // Set the flag to prevent variable tree updates
                     isNodeSelectionChanging = true;
 
@@ -663,6 +666,9 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         // updates the link tree, but skips rebuilding the variable tree
         // unnecessarily
         rateFilter.setSelectedItem(selectedRate);
+
+        // Clear the undo/redo tree edits stack
+        undoManager.discardAllEdits();
 
         // Create the rate units label and add it to the dialog panel
         JLabel rateUnitsLbl = new JLabel("samples/second");
@@ -1121,5 +1127,55 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         }
 
         return invalidatedLinks;
+    }
+
+    /**************************************************************************
+     * Select the link in the link tree for which the selected variable in the
+     * variable tree is a member
+     *************************************************************************/
+    private void selectLinkByVariable()
+    {
+        // Check if only a single node is selected in the variable tree
+        if (variableTree.getSelectionPaths().length == 1)
+        {
+            // Clear any currently selected link(s)
+            linkTree.clearSelection();
+
+            // Get the first selected variable's path
+            String variablePath = variableTree.getFullVariablePath(variableTree.getSelectionPath().getPath());
+
+            // Check if the variable contains the HTML flags indicating it is
+            // in use; i.e., belongs to a link
+            if (variablePath.contains(DISABLED_TEXT_COLOR))
+            {
+                // Remove the HTML flags from the variable path
+                variablePath = variableTree.removeExtraText(variablePath);
+
+                // Step through the link tree nodes that show the link names
+                for (int linkIndex = 0; linkIndex < linkTree.getRootNode().getChildCount(); linkIndex++)
+                {
+                    // Get the link name node from the link tree
+                    ToolTipTreeNode linkNode = ((ToolTipTreeNode) linkTree.getRootNode().getChildAt(linkIndex));
+
+                    // Step through the variables belonging to the link
+                    for (String[] linkDefn : linkTree.getLinkHandler().getLinkDefinitionsByName(linkTree.removeExtraText(linkNode.getUserObject().toString()), rateName))
+                    {
+                        // Check if the selected variable matches the link
+                        // variable
+                        if (variablePath.equals(linkDefn[LinksColumn.MEMBER.ordinal()]))
+                        {
+                            // Select the link to which the variable belongs
+                            linkTree.setSelectionPath(CcddCommonTreeHandler.getPathFromNode(linkNode));
+
+                            // Set the index to the maximum value to force the
+                            // outer loop to end, then exit the inner loop to
+                            // stop searching this link
+                            linkIndex = linkTree.getRootNode().getChildCount();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 }

@@ -151,7 +151,6 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         maxSecPerMsgFld.setBackground(Color.WHITE);
         maxSecPerMsgFld.setBorder(border);
         maxSecPerMsgFld.setInputVerifier(verifyInputs);
-
         gbc.gridx++;
         dialogPnl.add(maxSecPerMsgFld, gbc);
 

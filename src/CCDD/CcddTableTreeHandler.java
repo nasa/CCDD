@@ -867,8 +867,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // structure instances with primitives
             if ((nameList == null
                 || nameList.contains(member.getTableName()))
-                && (treeType != INSTANCE_STRUCTURES_WITH_PRIMITIVES
-                || tableTypeHandler.getTypeDefinition(member.getTableType()).isStructure()))
+                && ((treeType != STRUCTURES_WITH_PRIMITIVES
+                     && treeType != INSTANCE_STRUCTURES_WITH_PRIMITIVES
+                     && treeType != INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES)
+                     || tableTypeHandler.getTypeDefinition(member.getTableType()).isStructure()))
             {
                 // Add the table to the prototype node
                 protoNode.add(new ToolTipTreeNode(member.getTableName(),
@@ -1425,7 +1427,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             ToolTipTreeNode tableNode = (ToolTipTreeNode) element.nextElement();
 
             // Check if the node matches the target node's path
-            if (getFullVariablePath(tableNode.getUserObjectPath()).equals(nodePath))
+            if (removeExtraText(getFullVariablePath(tableNode.getUserObjectPath())).equals(nodePath))
             {
                 // Store this node and stop searching
                 node = tableNode;
@@ -1602,7 +1604,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**************************************************************************
-     * Get the parent structure and variable path for the selected node(s)
+     * Get the root structure and variable path for the selected node(s)
      * 
      * @param isVariable
      *            true if the tree contains variables
@@ -1615,7 +1617,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**************************************************************************
-     * Get the parent structure and variable path for the selected node(s)
+     * Get the root structure and variable path for the selected node(s)
      * 
      * @param priorLevels
      *            number of levels above the start index level to include

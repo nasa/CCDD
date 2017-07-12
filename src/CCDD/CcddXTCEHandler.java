@@ -129,11 +129,12 @@ public class CcddXTCEHandler implements CcddImportExportInterface
     // values
     private boolean replaceMacros;
 
-    // Lists to contain any references to table types, data types, and macros
-    // in the exported tables
+    // Lists to contain any references to table types, data types, macros, and
+    // variable paths in the exported tables
     private List<String> referencedTableTypes;
     private List<String> referencedDataTypes;
     private List<String> referencedMacros;
+    private List<String[]> referencedVariablePaths;
 
     // XTCE data types
     private enum XTCEDataType
@@ -156,7 +157,8 @@ public class CcddXTCEHandler implements CcddImportExportInterface
         ENUMERATION("Enumeration"),
         DATA_TYPE("Data type"),
         MACRO("Macro"),
-        RESERVED_MSG_ID("Reserved Message ID");
+        RESERVED_MSG_ID("Reserved Message ID"),
+        VARIABLE_PATH("Variable Path");
 
         private String tag;
 
@@ -398,6 +400,21 @@ public class CcddXTCEHandler implements CcddImportExportInterface
      *            true to include the contents of the reserved message ID table
      *            in the export file
      * 
+     * @param includeVariablePaths
+     *            true to include the variable path for each variable in a
+     *            structure table, both in application format and using the
+     *            user-defined separator characters
+     * 
+     * @param variableHandler
+     *            variable handler class reference; null if
+     *            includeVariablePaths is false
+     * 
+     * @param separators
+     *            string array containing the variable path separator
+     *            character(s), show/hide data types flag ('true' or 'false'),
+     *            and data type/variable name separator character(s); null if
+     *            includeVariablePaths is false
+     * 
      * @param extraInfo
      *            [0] name of the data field containing the system name <br>
      *            [1] version attribute <br>
@@ -414,6 +431,9 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                 String[] tableNames,
                                 boolean replaceMacros,
                                 boolean includeReservedMsgIDs,
+                                boolean includeVariablePaths,
+                                CcddVariableConversionHandler variableHandler,
+                                String[] separators,
                                 String... extraInfo)
     {
         boolean errorFlag = false;
@@ -424,6 +444,9 @@ public class CcddXTCEHandler implements CcddImportExportInterface
             convertTablesToXTCE(tableNames,
                                 replaceMacros,
                                 includeReservedMsgIDs,
+                                includeVariablePaths,
+                                variableHandler,
+                                separators,
                                 extraInfo[0],
                                 extraInfo[1],
                                 extraInfo[2],
@@ -492,6 +515,21 @@ public class CcddXTCEHandler implements CcddImportExportInterface
      *            true to include the contents of the reserved message ID table
      *            in the export file
      * 
+     * @param includeVariablePaths
+     *            true to include the variable path for each variable in a
+     *            structure table, both in application format and using the
+     *            user-defined separator characters
+     * 
+     * @param variableHandler
+     *            variable handler class reference; null if
+     *            includeVariablePaths is false
+     * 
+     * @param separators
+     *            string array containing the variable path separator
+     *            character(s), show/hide data types flag ('true' or 'false'),
+     *            and data type/variable name separator character(s); null if
+     *            includeVariablePaths is false
+     * 
      * @param system
      *            name of the data field containing the system name
      * 
@@ -513,6 +551,9 @@ public class CcddXTCEHandler implements CcddImportExportInterface
     private void convertTablesToXTCE(String[] tableNames,
                                      boolean replaceMacros,
                                      boolean includeReservedMsgIDs,
+                                     boolean includeVariablePaths,
+                                     CcddVariableConversionHandler variableHandler,
+                                     String[] separators,
                                      String system,
                                      String version,
                                      String validationStatus,
@@ -523,6 +564,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
         referencedTableTypes = new ArrayList<String>();
         referencedDataTypes = new ArrayList<String>();
         referencedMacros = new ArrayListCaseInsensitive();
+        referencedVariablePaths = new ArrayList<String[]>();
 
         // Store the macro replacement flag, the system field name, and
         // attributes
@@ -544,7 +586,11 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                                     null);
 
         // Add the project's space systems, parameters, and commands
-        buildSpaceSystems(tableNames, rootSystem, null, -1, -1, -1, -1, -1, -1, -1);
+        buildSpaceSystems(tableNames,
+                          includeVariablePaths,
+                          variableHandler,
+                          separators,
+                          rootSystem);
 
         List<String[]> otherAttrs = new ArrayList<String[]>();
 
@@ -564,6 +610,13 @@ public class CcddXTCEHandler implements CcddImportExportInterface
         {
             // Add the reserved message ID definitions to the list
             otherAttrs.addAll(exportReservedMsgIDDefinitions());
+        }
+
+        // Check if the user elected to store the variable paths
+        if (includeVariablePaths)
+        {
+            // Add the variable paths to the list
+            otherAttrs.addAll(exportVariablePaths());
         }
 
         // Check if other attributes exist
@@ -2133,48 +2186,58 @@ public class CcddXTCEHandler implements CcddImportExportInterface
     }
 
     /**************************************************************************
+     * Get a list of variable paths
+     * 
+     * @return List of the variable paths
+     *************************************************************************/
+    private List<String[]> exportVariablePaths()
+    {
+        List<String[]> variablePaths = new ArrayList<String[]>();
+
+        // Step through each referenced variable path
+        for (String[] variablePath : referencedVariablePaths)
+        {
+            // Add the variable path to the list
+            variablePaths.add(new String[] {XTCETags.VARIABLE_PATH.getTag(),
+                                            "\""
+                                                + variablePath[0]
+                                                + "\",\""
+                                                + variablePath[1]
+                                                + "\""});
+        }
+
+        return variablePaths;
+    }
+
+    /**************************************************************************
      * Build the space systems
      * 
      * @param node
      *            current tree node
      * 
+     * @param includeVariablePaths
+     *            true to include the variable path for each variable in a
+     *            structure table, both in application format and using the
+     *            user-defined separator characters
+     * 
+     * @param variableHandler
+     *            variable handler class reference; null if
+     *            includeVariablePaths is false
+     * 
+     * @param separators
+     *            string array containing the variable path separator
+     *            character(s), show/hide data types flag ('true' or 'false'),
+     *            and data type/variable name separator character(s); null if
+     *            includeVariablePaths is false
+     * 
      * @param parentSystem
      *            parent space system for this node
-     * 
-     * @param tableType
-     *            table type: Structure, Command, or null
-     * 
-     * @param varColumn
-     *            variable name column index
-     * 
-     * @param typeColumn
-     *            data type column index
-     * 
-     * @param sizeColumn
-     *            array size column index
-     * 
-     * @param bitColumn
-     *            bit length column index
-     * 
-     * @param enumColumn
-     *            first enumeration column indices; -1 if none exists
-     * 
-     * @param unitsColumn
-     *            units column index; -1 if none exists
-     * 
-     * @param descColumn
-     *            description column index; -1 if none exists
      *************************************************************************/
     private void buildSpaceSystems(String[] tableNames,
-                                   SpaceSystemType parentSystem,
-                                   String tableType,
-                                   int varColumn,
-                                   int typeColumn,
-                                   int sizeColumn,
-                                   int bitColumn,
-                                   int enumColumn,
-                                   int unitsColumn,
-                                   int descColumn)
+                                   boolean includeVariablePaths,
+                                   CcddVariableConversionHandler variableHandler,
+                                   String[] separators,
+                                   SpaceSystemType parentSystem)
     {
         // Step through each table name
         for (String tableName : tableNames)
@@ -2200,11 +2263,11 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
                 // Get the table's basic type - structure, command, or the
                 // original table type if not structure or command table
-                tableType = typeDefn.isStructure()
-                                                  ? TYPE_STRUCTURE
-                                                  : typeDefn.isCommand()
-                                                                        ? TYPE_COMMAND
-                                                                        : tableInfo.getType();
+                String tableType = typeDefn.isStructure()
+                                                         ? TYPE_STRUCTURE
+                                                         : typeDefn.isCommand()
+                                                                               ? TYPE_COMMAND
+                                                                               : tableInfo.getType();
 
                 // Check if the table type is valid
                 if (tableType != null)
@@ -2304,13 +2367,13 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                     if (tableType.equals(TYPE_STRUCTURE))
                     {
                         // Get the default column indices
-                        varColumn = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
-                        typeColumn = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
-                        sizeColumn = typeDefn.getColumnIndexByInputType(InputDataType.ARRAY_INDEX);
-                        bitColumn = typeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH);
-                        enumColumn = typeDefn.getColumnIndexByInputType(InputDataType.ENUMERATION);
-                        descColumn = typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION);
-                        unitsColumn = typeDefn.getColumnIndexByInputType(InputDataType.UNITS);
+                        int varColumn = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
+                        int typeColumn = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
+                        int sizeColumn = typeDefn.getColumnIndexByInputType(InputDataType.ARRAY_INDEX);
+                        int bitColumn = typeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH);
+                        int enumColumn = typeDefn.getColumnIndexByInputType(InputDataType.ENUMERATION);
+                        int descColumn = typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION);
+                        int unitsColumn = typeDefn.getColumnIndexByInputType(InputDataType.UNITS);
 
                         // Get the variable description column. If the default
                         // structure description column name isn't used then
@@ -2341,6 +2404,26 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                                     descColumn,
                                                     tableInfo.getData()[row][typeColumn],
                                                     tableInfo.getData()[row][varColumn]);
+
+                            // Check if variable paths are to be output
+                            if (includeVariablePaths)
+                            {
+                                // Get the variable path
+                                String variablePath = tableInfo.getTablePath()
+                                                      + ","
+                                                      + tableInfo.getData()[row][typeColumn]
+                                                      + "."
+                                                      + tableInfo.getData()[row][varColumn];
+
+                                // Add the path, in both application and
+                                // user-defined formats, to the list to be
+                                // output
+                                referencedVariablePaths.add(new String[] {variablePath,
+                                                                          variableHandler.getFullVariableName(variablePath,
+                                                                                                              separators[0],
+                                                                                                              Boolean.parseBoolean(separators[1]),
+                                                                                                              separators[2])});
+                            }
                         }
                     }
                     // Not a structure table node; i.e., it's a command or

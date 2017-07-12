@@ -110,11 +110,12 @@ public class CcddEDSHandler implements CcddImportExportInterface
     // Conversion setup error flag
     private boolean errorFlag;
 
-    // Lists to contain any references to table types, data types, and macros
-    // in the exported tables
+    // Lists to contain any references to table types, data types, macros, and
+    // variable paths in the exported tables
     private List<String> referencedTableTypes;
     private List<String> referencedDataTypes;
     private List<String> referencedMacros;
+    private List<String[]> referencedVariablePaths;
 
     /**************************************************************************
      * EDS data type tags
@@ -130,7 +131,8 @@ public class CcddEDSHandler implements CcddImportExportInterface
         STRUCTURE("Structure"),
         DATA_TYPE("Data type"),
         MACRO("Macro"),
-        RESERVED_MSG_ID("Reserved Message ID");
+        RESERVED_MSG_ID("Reserved Message ID"),
+        VARIABLE_PATH("Variable Path");
 
         private String tag;
 
@@ -344,6 +346,21 @@ public class CcddEDSHandler implements CcddImportExportInterface
      *            true to include the contents of the reserved message ID table
      *            in the export file
      * 
+     * @param includeVariablePaths
+     *            true to include the variable path for each variable in a
+     *            structure table, both in application format and using the
+     *            user-defined separator characters
+     * 
+     * @param variableHandler
+     *            variable handler class reference; null if
+     *            includeVariablePaths is false
+     * 
+     * @param separators
+     *            string array containing the variable path separator
+     *            character(s), show/hide data types flag ('true' or 'false'),
+     *            and data type/variable name separator character(s); null if
+     *            includeVariablePaths is false
+     * 
      * @param extraInfo
      *            [0] name of the data field containing the system name
      * 
@@ -355,6 +372,9 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                 String[] tableNames,
                                 boolean replaceMacros,
                                 boolean includeReservedMsgIDs,
+                                boolean includeVariablePaths,
+                                CcddVariableConversionHandler variableHandler,
+                                String[] separators,
                                 String... extraInfo)
     {
         boolean errorFlag = false;
@@ -365,6 +385,9 @@ public class CcddEDSHandler implements CcddImportExportInterface
             convertTablesToEDS(tableNames,
                                replaceMacros,
                                includeReservedMsgIDs,
+                               includeVariablePaths,
+                               variableHandler,
+                               separators,
                                extraInfo[0]);
 
             try
@@ -428,17 +451,36 @@ public class CcddEDSHandler implements CcddImportExportInterface
      *            true to include the contents of the reserved message ID table
      *            in the export file
      * 
+     * @param includeVariablePaths
+     *            true to include the variable path for each variable in a
+     *            structure table, both in application format and using the
+     *            user-defined separator characters
+     * 
+     * @param variableHandler
+     *            variable handler class reference; null if
+     *            includeVariablePaths is false
+     * 
+     * @param separators
+     *            string array containing the variable path separator
+     *            character(s), show/hide data types flag ('true' or 'false'),
+     *            and data type/variable name separator character(s); null if
+     *            includeVariablePaths is false
+     * 
      * @param system
      *            name of the data field containing the system name
      *************************************************************************/
     private void convertTablesToEDS(String[] tableNames,
                                     boolean replaceMacros,
                                     boolean includeReservedMsgIDs,
+                                    boolean includeVariablePaths,
+                                    CcddVariableConversionHandler variableHandler,
+                                    String[] separators,
                                     String system)
     {
         referencedTableTypes = new ArrayList<String>();
         referencedDataTypes = new ArrayList<String>();
         referencedMacros = new ArrayListCaseInsensitive();
+        referencedVariablePaths = new ArrayList<String[]>();
 
         // Store the macro replacement flag and the system field name
         this.replaceMacros = replaceMacros;
@@ -453,7 +495,10 @@ public class CcddEDSHandler implements CcddImportExportInterface
         dataSheet.setDevice(device);
 
         // Add the project's name spaces, parameters, and commands
-        buildNameSpaces(tableNames);
+        buildNameSpaces(tableNames,
+                        includeVariablePaths,
+                        variableHandler,
+                        separators);
 
         // Build a name space for the table types
         buildTableTypesNameSpace();
@@ -473,6 +518,13 @@ public class CcddEDSHandler implements CcddImportExportInterface
         {
             // Build a name space for the reserved message IDs
             buildReservedMsgIDNameSpace();
+        }
+
+        // Check if the user elected to store the variable paths
+        if (includeVariablePaths)
+        {
+            // Build a name space for the variable paths (if any)
+            buildVariablePathNameSpace(variableHandler, separators);
         }
     }
 
@@ -2103,12 +2155,62 @@ public class CcddEDSHandler implements CcddImportExportInterface
     }
 
     /**************************************************************************
+     * Create a name space to contain all variable paths
+     * 
+     * @param variableHandler
+     *            variable handler class reference; null if
+     *            includeVariablePaths is false
+     * 
+     * @param separators
+     *            string array containing the variable path separator
+     *            character(s), show/hide data types flag ('true' or 'false'),
+     *            and data type/variable name separator character(s); null if
+     *            includeVariablePaths is false
+     *************************************************************************/
+    private void buildVariablePathNameSpace(CcddVariableConversionHandler variableHandler,
+                                            String[] separators)
+    {
+        // Check if a variable path exists
+        if (!referencedVariablePaths.isEmpty())
+        {
+            // Create a name space to contain the variable paths
+            NamespaceType variablePathNameSpace = addNameSpace("",
+                                                               "",
+                                                               EDSTags.VARIABLE_PATH.getTag(),
+                                                               "Variable paths");
+
+            // Store the variable paths as ancillary data
+            storeOtherAttributes(variablePathNameSpace,
+                                 EDSTags.VARIABLE_PATH,
+                                 referencedVariablePaths);
+        }
+    }
+
+    /**************************************************************************
      * Build the name spaces for the list of tables specified
      * 
-     * @param tableName
+     * @param tableNames
      *            array of table names
+     * 
+     * @param includeVariablePaths
+     *            true to include the variable path for each variable in a
+     *            structure table, both in application format and using the
+     *            user-defined separator characters
+     * 
+     * @param variableHandler
+     *            variable handler class reference; null if
+     *            includeVariablePaths is false
+     * 
+     * @param separators
+     *            string array containing the variable path separator
+     *            character(s), show/hide data types flag ('true' or 'false'),
+     *            and data type/variable name separator character(s); null if
+     *            includeVariablePaths is false
      *************************************************************************/
-    private void buildNameSpaces(String[] tableNames)
+    private void buildNameSpaces(String[] tableNames,
+                                 boolean includeVariablePaths,
+                                 CcddVariableConversionHandler variableHandler,
+                                 String[] separators)
     {
         // Step through each table name
         for (String tableName : tableNames)
@@ -2271,6 +2373,25 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                               descColumn,
                                               tableInfo.getData()[row][typeColumn],
                                               tableInfo.getData()[row][varColumn]);
+
+                        // Check if variable paths are to be output
+                        if (includeVariablePaths)
+                        {
+                            // Get the variable path
+                            String variablePath = tableInfo.getTablePath()
+                                                  + ","
+                                                  + tableInfo.getData()[row][typeColumn]
+                                                  + "."
+                                                  + tableInfo.getData()[row][varColumn];
+
+                            // Add the path, in both application and
+                            // user-defined formats, to the list to be output
+                            referencedVariablePaths.add(new String[] {variablePath,
+                                                                      variableHandler.getFullVariableName(variablePath,
+                                                                                                          separators[0],
+                                                                                                          Boolean.parseBoolean(separators[1]),
+                                                                                                          separators[2])});
+                        }
                     }
                 }
                 // Not a structure table

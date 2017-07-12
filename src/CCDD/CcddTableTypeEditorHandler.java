@@ -997,7 +997,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     }
 
     /**************************************************************************
-     * Get the input types that are defined as unique, but are references by
+     * Get the input types that are defined as unique, but are referenced by
      * more than one column definition
      * 
      * @param tableTypeInd
@@ -1011,7 +1011,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     {
         String invalidTypes = "";
 
-        // get the table type from the table type indicator
+        // Get the table type from the table type indicator
         String tableType = tableTypeInd == TableTypeIndicator.IS_STRUCTURE
                                                                           ? TYPE_STRUCTURE
                                                                           : (tableTypeInd == TableTypeIndicator.IS_COMMAND
@@ -1102,6 +1102,9 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                 // Get the input type for this row
                 String inputType = table.getModel().getValueAt(row, TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()).toString();
 
+                // Get the input name without any HTML tags
+                String inputName = CcddUtilities.removeHTMLTags(inputNames[index]);
+
                 // Check if the input type should be disabled based on the
                 // following criteria:
                 if ((
@@ -1113,18 +1116,23 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                     || (typeOfTable == TableTypeIndicator.IS_COMMAND &&
                     DefaultColumn.isInputTypeUnique(TYPE_COMMAND, inputNames[index])))))
 
+                    // The table type doesn't represent a structure and the
+                    // input type is the variable path
+                    || (typeOfTable != TableTypeIndicator.IS_STRUCTURE
+                    && inputName.equals(InputDataType.VARIABLE_PATH.getInputName()))
+
                     // The input type is for a primitive+structure data type
                     // and this is the primitive data type input type
                     || (inputType.equals(InputDataType.PRIM_AND_STRUCT.getInputName())
-                    && CcddUtilities.removeHTMLTags(inputNames[index]).equals(InputDataType.PRIMITIVE.getInputName()))
+                    && inputName.equals(InputDataType.PRIMITIVE.getInputName()))
 
                     // The input type is for a primitive data type and this is
                     // the primitive+structure data type input type
                     || (inputType.equals(InputDataType.PRIMITIVE.getInputName())
-                    && CcddUtilities.removeHTMLTags(inputNames[index]).equals(InputDataType.PRIM_AND_STRUCT.getInputName())))
+                    && inputName.equals(InputDataType.PRIM_AND_STRUCT.getInputName())))
                 {
                     // Set the input type so that it appears disabled in the
-                    // list and stop searching
+                    // list
                     inputNames[index] = DISABLED_TEXT_COLOR + inputNames[index];
                 }
             }

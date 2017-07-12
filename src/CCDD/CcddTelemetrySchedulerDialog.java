@@ -121,8 +121,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 {
                     // Convert the variable path to a string and add it to the
                     // list
-                    allVariableTreePaths.add(allVariableTree.getFullVariablePath(((ToolTipTreeNode)
-                                                            element.nextElement()).getPath()));
+                    allVariableTreePaths.add(allVariableTree.getFullVariablePath(((ToolTipTreeNode) element.nextElement()).getPath()));
                 }
 
                 // Load the stored telemetry scheduler data from the project

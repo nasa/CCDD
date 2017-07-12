@@ -614,9 +614,10 @@ public class CcddLinkHandler
      *************************************************************************/
     private void buildPathAndOffsetLists()
     {
-        // Create a tree containing all of the prototype structures and
-        // variables. This is used for determining bit-packing, variable
-        // relative position, variable offsets, and structure sizes
+        // Create a tree containing all of the structures, both prototypes and
+        // instances, including primitive variables. This is used for
+        // determining bit-packing, variable relative position, variable
+        // offsets, and structure sizes
         CcddTableTreeHandler allVariableTree = new CcddTableTreeHandler(ccddMain,
                                                                         TableTreeType.STRUCTURES_WITH_PRIMITIVES,
                                                                         ccddMain.getMainFrame());
@@ -722,11 +723,35 @@ public class CcddLinkHandler
                     lastBitLength = 0;
                 }
 
+                // Check the list for this variable path. Due to the
+                // construction of the table tree a prototype structure
+                // reference can occur twice
+                int index = structureAndVariablePaths.indexOf(varPath);
+
+                // Check if the variable path (prototype table) is already in
+                // the list
+                if (index != -1)
+                {
+                    // The first listing is the prototype table only (no
+                    // variables); the second includes the variables and is the
+                    // one required. Remove the existing reference from the
+                    // list and update the index pointer to the structure to
+                    // account for the removal
+                    structureAndVariablePaths.remove(index);
+                    structureAndVariableOffsets.remove(index);
+                    structIndex--;
+                }
+                // This is the first reference to this variable path
+                else
+                {
+                    // Update the index pointing to the last member of the
+                    // structure
+                    lastIndex++;
+                }
+
                 // Add the variable path and its offset to the lists
                 structureAndVariablePaths.add(varPath);
                 structureAndVariableOffsets.add(offset);
-
-                lastIndex++;
             }
         }
 

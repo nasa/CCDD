@@ -9,6 +9,7 @@ package CCDD;
 import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.CELL_FONT;
 import static CCDD.CcddConstants.FOCUS_COLOR;
+import static CCDD.CcddConstants.HIDE_DATA_TYPE;
 import static CCDD.CcddConstants.IGNORE_BUTTON;
 import static CCDD.CcddConstants.INITIAL_VIEWABLE_DATA_TABLE_ROWS;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
@@ -19,7 +20,9 @@ import static CCDD.CcddConstants.SELECTED_BACK_COLOR;
 import static CCDD.CcddConstants.TABLE_BACK_COLOR;
 import static CCDD.CcddConstants.TEXT_HIGHLIGHT_COLOR;
 import static CCDD.CcddConstants.TOOL_TIP_TEXT_COLOR;
+import static CCDD.CcddConstants.TYPE_NAME_SEPARATOR;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
+import static CCDD.CcddConstants.VARIABLE_PATH_SEPARATOR;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -116,8 +119,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     private TableInformation committedInfo;
 
     // Column indices for the variable name, data type, array size, bit length,
-    // enumeration, and rate columns (in model coordinates), if present. Also
-    // set the row index and primary key column indices
+    // enumeration, rate columns, and variable path (in model coordinates), if
+    // present. Also set the row index and primary key column indices
     private int variableNameIndex;
     private int dataTypeIndex;
     private int arraySizeIndex;
@@ -126,6 +129,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     private List<Integer> rateIndex;
     private final int rowIndex;
     private final int primaryKeyIndex;
+    private int variablePathIndex;
+
+    // Variable path separators and flag to show/hide the data type
+    private String varPathSep;
+    private String typeNameSep;
+    private boolean hideDataType;
 
     // Start, end, and target row indices, in model coordinates, for moving
     // rows
@@ -195,12 +204,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         dataTypeHandler = ccddMain.getDataTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
         rateHandler = ccddMain.getRateParameterHandler();
-
-        // Set the table type definition
-        setTypeDefinition();
-
-        // Create a copy of the table information
-        setCommittedInformation(tableInfo);
 
         // Initialize the lists of table content changes
         additions = new ArrayList<TableModification>();
@@ -539,7 +542,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *            table information class for extracting the current table
      *            name, type, column order, and description
      *************************************************************************/
-    protected void setCommittedInformation(TableInformation info)
+    private void setCommittedInformation(TableInformation info)
     {
         committedInfo = new TableInformation(info.getType(),
                                              info.getTablePath(),
@@ -551,12 +554,101 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                                   ? info.getFieldHandler().getFieldInformationCopy()
                                                                   : null));
 
+        // (Re)create the variable path column content, if present
+        updateVariablePaths();
+
         // Check if the table has been created
         if (table != null)
         {
             // Clear the undo/redo cell edits stack
             table.getUndoManager().discardAllEdits();
         }
+    }
+
+    /**************************************************************************
+     * Update the variable path column, if present, to use the separators
+     * currently stored in the program preferences
+     *************************************************************************/
+    protected void updateVariablePaths()
+    {
+        // Check if the variable path column is present and the table
+        // represents a structure
+        if (variablePathIndex != -1 && typeDefn.isStructure())
+        {
+            // Get the variable path separators and the show/hide data type
+            // flag from the program preferences
+            varPathSep = ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR, "_");
+            typeNameSep = ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR, "_");
+            hideDataType = Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE, "false"));
+
+            // Check if the table has been created
+            if (table != null)
+            {
+                // Step through each row of the data
+                for (int row = 0; row < tableModel.getRowCount(); row++)
+                {
+                    // Get the variable name and data type from the table data
+                    String variableName = tableModel.getValueAt(row,
+                                                                variableNameIndex).toString();
+                    String dataType = tableModel.getValueAt(row,
+                                                            dataTypeIndex).toString();
+
+                    // Check that the variable name and data type are present
+                    if (!variableName.isEmpty() && !dataType.isEmpty())
+                    {
+                        // Build the variable path and store it in the table
+                        // model's variable path column
+                        tableModel.setValueAt(getVariablePath(variableName, dataType),
+                                              row,
+                                              variablePathIndex);
+                    }
+                }
+            }
+            // The table hasn't been created (e.g., when the editor is
+            // initializing)
+            else
+            {
+                // Step through each row of the data
+                for (int row = 0; row < committedInfo.getData().length; row++)
+                {
+                    // Get the variable name and data type from the committed
+                    // data
+                    String variableName = committedInfo.getData()[row][variableNameIndex];
+                    String dataType = committedInfo.getData()[row][dataTypeIndex];
+
+                    // Check that the variable name and data type are present
+                    if (!variableName.isEmpty() && !dataType.isEmpty())
+                    {
+                        // Build the variable path and store it in the
+                        // committed data's variable path column
+                        committedInfo.getData()[row][variablePathIndex] = getVariablePath(variableName,
+                                                                                          dataType);
+                    }
+                }
+            }
+        }
+    }
+
+    /**************************************************************************
+     * Get the variable path for the specified variable name and data type
+     * 
+     * @param variableName
+     *            variable name
+     * 
+     * @param dataType
+     *            data type
+     * 
+     * @return Variable path for the specified variable name and data type
+     *************************************************************************/
+    private String getVariablePath(String variableName, String dataType)
+    {
+        return tableInfo.getTablePath()
+               + varPathSep
+               + (hideDataType
+                              ? ""
+                              : dataType
+                                + typeNameSep)
+               + variableName;
     }
 
     /**************************************************************************
@@ -650,6 +742,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             enumerationIndex = new ArrayList<Integer>();
             rateIndex = new ArrayList<Integer>();
         }
+
+        // Set the variable path column index. This column is only active for a
+        // structure table, but can appear in other table types (if the column
+        // is added to a structure type and then the type is altered to not be
+        // a structure)
+        variablePathIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE_PATH);
     }
 
     /**************************************************************************
@@ -664,8 +762,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Update the editor's type definition reference
         setTypeDefinition();
 
-        // Get the model column indices for columns with
-        // special input types
+        // Get the model column indices for columns with special input types
         getSpecialColumnIndices();
 
         // Update the committed table information
@@ -1220,8 +1317,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *************************************************************************/
     private void initialize()
     {
+        // Set the table type definition
+        setTypeDefinition();
+
         // Get the model column indices for columns with special input types
         getSpecialColumnIndices();
+
+        // Create a copy of the table information
+        setCommittedInformation(tableInfo);
 
         // Get the array size and index column indices and create a row filter
         // to show/hide the array member rows if an array size column exists
@@ -1323,14 +1426,15 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 return toolTipText;
             }
 
-            /******************************************************************
+            /**************************************************************************
              * Return true if the table data, column order, description, or a
              * data field changes. If the table isn't open in and editor (as
              * when a macro is changed) then the table description and data
              * fields are not applicable
-             *****************************************************************/
+             *************************************************************************/
             @Override
-            protected boolean isTableChanged(Object[][] data)
+            protected boolean isTableChanged(Object[][] previousData,
+                                             List<Integer> ignoreColumns)
             {
                 boolean isFieldChanged = false;
 
@@ -1376,7 +1480,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     }
                 }
 
-                return super.isTableChanged(data)
+                return super.isTableChanged(previousData, ignoreColumns)
                        || isFieldChanged
                        || !getColumnOrder().equals(committedInfo.getColumnOrder())
                        || (editorDialog != null
@@ -1538,7 +1642,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         // This is an array definition and the column input
                         // type is 'message ID'
                         || (isArrayDefinition
-                        && typeDefn.getInputTypes()[column].equals(InputDataType.MESSAGE_ID)))
+                        && typeDefn.getInputTypes()[column].equals(InputDataType.MESSAGE_ID))
+
+                        // This is the column that displays the variable path,
+                        // which is non-editable
+                        || column == variablePathIndex)
                     {
                         // Set the flag to prevent altering the data value
                         isAlterable = false;
@@ -1888,28 +1996,68 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                             bitLength = getExpandedValueAt(tableData, row, bitLengthIndex);
                         }
 
+                        // // Check if the variable name or data type has been
+                        // // changed and that teh variable is an array
+                        // if ((column == variableNameIndex || column ==
+                        // dataTypeIndex)
+                        // && arraySize != null)
+                        // {
+                        // // Check if this is the data type column, a bit
+                        // // length is present, and the bit length exceeds
+                        // // the size of the data type in bits
+                        // if (column == dataTypeIndex
+                        // && !newValueS.isEmpty()
+                        // && bitLength != null
+                        // && !bitLength.isEmpty()
+                        // && Integer.valueOf(bitLength) >
+                        // newDataTypeHandler.getSizeInBits(dataType))
+                        // {
+                        // throw new
+                        // CCDDException("Bit length exceeds the size of the data type");
+                        // }
+                        //
+                        // // Get the array index values from the array size
+                        // // column and update array members if this is an
+                        // // array definition
+                        // int[] arrayDims =
+                        // ArrayVariable.getArrayIndexFromSize(arraySize);
+                        // adjustArrayMember(tableData, arrayDims, arrayDims,
+                        // row, column);
+                        // }
                         // Check if the variable name or data type has been
-                        // changed and that an array size column exists
-                        if ((column == variableNameIndex || column == dataTypeIndex)
-                            && arraySize != null)
+                        // changed
+                        if (column == variableNameIndex || column == dataTypeIndex)
                         {
-                            // Check if this is the data type column, a bit
-                            // length is present, and the bit length exceeds
-                            // the size of the data type in bits
-                            if (column == dataTypeIndex
-                                && !newValueS.isEmpty()
-                                && bitLength != null
-                                && !bitLength.isEmpty()
-                                && Integer.valueOf(bitLength) > newDataTypeHandler.getSizeInBits(dataType))
+                            // Check if the variable is an array
+                            if (arraySize != null)
                             {
-                                throw new CCDDException("Bit length exceeds the size of the data type");
+                                // Check if this is the data type column, a bit
+                                // length is present, and the bit length
+                                // exceeds the size of the data type in bits
+                                if (column == dataTypeIndex
+                                    && !newValueS.isEmpty()
+                                    && bitLength != null
+                                    && !bitLength.isEmpty()
+                                    && Integer.valueOf(bitLength) > newDataTypeHandler.getSizeInBits(dataType))
+                                {
+                                    throw new CCDDException("Bit length exceeds the size of the data type");
+                                }
+
+                                // Get the array index values from the array
+                                // size column and update array members if this
+                                // is an array definition
+                                int[] arrayDims = ArrayVariable.getArrayIndexFromSize(arraySize);
+                                adjustArrayMember(tableData, arrayDims, arrayDims, row, column);
                             }
 
-                            // Get the array index values from the array size
-                            // column and update array members if this is an
-                            // array definition
-                            int[] arrayDims = ArrayVariable.getArrayIndexFromSize(arraySize);
-                            adjustArrayMember(tableData, arrayDims, arrayDims, row, column);
+                            // Check if the variable path column is present
+                            if (variablePathIndex != -1)
+                            {
+                                // Update the variable path with the new
+                                // variable name and/or data type
+                                tableData.get(row)[variablePathIndex] = getVariablePath(variableName,
+                                                                                        dataType);
+                            }
                         }
                         // Check if this is the array size column
                         else if (column == arraySizeIndex)
@@ -2135,12 +2283,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
                     if ((
                         // Check if this isn't the variable name, data type,
-                        // array size, bit length, or a rate column, and that
-                        // the cell is not alterable
+                        // array size, bit length, rate, or variable path
+                        // column, and that the cell is not alterable
                         (modelColumn != variableNameIndex
                          && modelColumn != dataTypeIndex
                          && modelColumn != arraySizeIndex
                          && modelColumn != bitLengthIndex
+                         && modelColumn != variablePathIndex
                          && !rateIndex.contains(modelColumn)
                          && !isDataAlterable(rowData, row, modelColumn)))
 
@@ -4296,7 +4445,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                             if (column != columnChanged
                                 && column != variableNameIndex
                                 && column != dataTypeIndex
-                                && column != arraySizeIndex)
+                                && column != arraySizeIndex
+                                && column != variablePathIndex)
                             {
                                 // Copy the column value from the original row
                                 // to the updated row
@@ -4326,6 +4476,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // Reset this array index back to zero and continue looping to
                 // adjust the next array index up the chain
                 counter[index] = 0;
+            }
+
+            // Check if the variable path column is present
+            if (variablePathIndex != -1)
+            {
+                // Update the array member variable paths
+                tableData.get(tableRow)[variablePathIndex] = getVariablePath(tableData.get(tableRow)[variableNameIndex].toString(),
+                                                                             tableData.get(tableRow)[dataTypeIndex].toString());
             }
         }
 
@@ -4752,8 +4910,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             expandMacros(false, false);
         }
 
-        // Check if the table has changes
-        isChanged = table.isTableChanged(committedInfo.getData());
+        // Check if the table has changes, ignoring the variable path column
+        // (if present)
+        isChanged = table.isTableChanged(committedInfo.getData(),
+                                         Arrays.asList(new Integer[] {variablePathIndex}));
 
         // Check if table editing is disabled. If the editor dialog command to
         // show macros is selected then the table edit flag is false and the
@@ -4819,6 +4979,15 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         {
             boolean matchFound = false;
 
+            // Check if the variable path column exists
+            if (variablePathIndex != -1)
+            {
+                // Blank the data for this column so that it isn't stored in
+                // the database (the path is constructed on-the-fly for display
+                // in the table)
+                tableData[tblRow][variablePathIndex] = "";
+            }
+
             // Step through each row in the committed version of the table data
             for (int comRow = 0; comRow < numCommitted && !matchFound; comRow++)
             {
@@ -4835,8 +5004,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     for (int column = 0; column < tableData[tblRow].length; column++)
                     {
                         // Check if the current and committed values don't
-                        // match
-                        if (!tableData[tblRow][column].equals(committedInfo.getData()[comRow][column]))
+                        // match and this isn't the variable path column
+                        if (!tableData[tblRow][column].equals(committedInfo.getData()[comRow][column])
+                            && column != variablePathIndex)
                         {
                             // Set the flag to indicate a column value changed
                             // and stop searching

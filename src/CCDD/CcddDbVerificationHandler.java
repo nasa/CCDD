@@ -1848,7 +1848,7 @@ public class CcddDbVerificationHandler
                             if (membersRemaining == 0)
                             {
                                 // Get the variable name for this row
-                                arrayName = macroHandler.getMacroExpansion(tableInfo.getData()[row][variableNameIndex]);
+                                arrayName = tableInfo.getData()[row][variableNameIndex];
 
                                 // Store the index of the array definition row
                                 definitionRow = row;
@@ -1911,7 +1911,7 @@ public class CcddDbVerificationHandler
                                     checkArraySizesMatch(tableInfo,
                                                          row,
                                                          arrayName,
-                                                         macroHandler.getMacroExpansion(tableInfo.getData()[row][arraySizeIndex]));
+                                                         tableInfo.getData()[row][arraySizeIndex]);
 
                                     // Check if the array definition and all of
                                     // its members have the same data type
@@ -1940,11 +1940,16 @@ public class CcddDbVerificationHandler
                         }
                     }
 
-                    // Check if there are remaining array members that don't
-                    // exist
-                    checkForMissingArrayMember(tableInfo,
-                                               tableInfo.getData().length,
-                                               arrayName);
+                    // TODO
+                    // Perform for each remaining missing array member
+                    while (membersRemaining != 0)
+                    {
+                        // Check if there are remaining array members that
+                        // don't exist
+                        checkForMissingArrayMember(tableInfo,
+                                                   tableInfo.getData().length,
+                                                   arrayName);
+                    }
 
                     // Check if the flag to make changes is not already set
                     if (!isChanges)
@@ -2054,7 +2059,7 @@ public class CcddDbVerificationHandler
         if (row != 0)
         {
             // Get the variable name from the preceding row
-            String previousName = macroHandler.getMacroExpansion(tableInfo.getData()[row - 1][variableNameIndex]);
+            String previousName = tableInfo.getData()[row - 1][variableNameIndex];
 
             // Check if the current and previous rows contain array members
             if (ArrayVariable.isArrayMember(arrayName)
@@ -2162,8 +2167,8 @@ public class CcddDbVerificationHandler
 
         // Check if the variable name doesn't match the expected array member
         // name
-        if (!macroHandler.getMacroExpansion(tableInfo.getData()[row][variableNameIndex]).matches(Pattern.quote(arrayName
-                                                                                                               + expectedArrayIndex)))
+        if (!tableInfo.getData()[row][variableNameIndex].matches(Pattern.quote(arrayName
+                                                                               + expectedArrayIndex)))
         {
             // Expected array member is missing
             issues.add(new TableIssue("Table '"
@@ -2207,7 +2212,7 @@ public class CcddDbVerificationHandler
                                       String arraySize)
     {
         // Check if the member's array size doesn't match the array definition
-        if (!arraySize.equals(macroHandler.getMacroExpansion(tableInfo.getData()[row][arraySizeIndex])))
+        if (!arraySize.equals(tableInfo.getData()[row][arraySizeIndex]))
         {
             // Array size doesn't match the array definition
             issues.add(new TableIssue("Table '"
@@ -2295,8 +2300,7 @@ public class CcddDbVerificationHandler
                                       + "' is missing array member "
                                       + ArrayVariable.formatArrayIndex(currentArrayIndex),
                                       "Add missing array member",
-                                      row - ArrayVariable.getArrayMemberPosition(currentArrayIndex,
-                                                                                 totalArraySize),
+                                      row, // TODO
                                       addMissingArrayRow(tableInfo,
                                                          arrayName,
                                                          currentArrayIndex),
@@ -2438,7 +2442,7 @@ public class CcddDbVerificationHandler
         arrayRow[rowIndex] = "";
         arrayRow[variableNameIndex] = arrayName;
         arrayRow[dataTypeIndex] = tableInfo.getData()[definitionRow][dataTypeIndex];
-        arrayRow[arraySizeIndex] = macroHandler.getMacroExpansion(tableInfo.getData()[definitionRow][arraySizeIndex]);
+        arrayRow[arraySizeIndex] = tableInfo.getData()[definitionRow][arraySizeIndex];
 
         // Set the flag indicating a table changed
         isChanges = true;
@@ -2514,7 +2518,7 @@ public class CcddDbVerificationHandler
                                                                 dataTypeIndex,
                                                                 arraySizeIndex,
                                                                 bitLengthIndex,
-                                                                null));
+                                                                new ArrayList<Integer>()));
                     }
                 }
             }
@@ -2956,6 +2960,9 @@ public class CcddDbVerificationHandler
                                                         tableChange.getModifications(),
                                                         tableChange.getDeletions(),
                                                         true,
+                                                        false,
+                                                        false,
+                                                        false,
                                                         false,
                                                         null,
                                                         null,

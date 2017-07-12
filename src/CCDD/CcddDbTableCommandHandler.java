@@ -790,7 +790,7 @@ public class CcddDbTableCommandHandler
                                                           + tablePath
                                                           + "' AND "
                                                           + ValuesColumn.COLUMN_NAME.getColumnName()
-                                                          + " = ''",
+                                                          + " = '';",
                                                           parent);
 
             // Check if the description exists for this table
@@ -869,7 +869,7 @@ public class CcddDbTableCommandHandler
                                                            + OrdersColumn.TABLE_PATH.getColumnName()
                                                            + " = '"
                                                            + tablePath
-                                                           + "'",
+                                                           + "';",
                                                            parent);
 
             // Check if the column order exists for this table
@@ -2369,9 +2369,8 @@ public class CcddDbTableCommandHandler
      * 
      * @param memberType
      *            Type of table members to load: TABLES_ONLY to exclude
-     *            primitive variables, INCLUDE_PRIMITIVES to include tables and
-     *            primitive variables, or ONLY_PRIMITIVES_WITH_RATES to include
-     *            tables with primitive variables that have a rate value
+     *            primitive variables or INCLUDE_PRIMITIVES to include tables
+     *            and primitive variables
      * 
      * @param sortByName
      *            true to return the table members in alphabetical order (e.g.,
@@ -2541,11 +2540,13 @@ public class CcddDbTableCommandHandler
                                         // are the same; allow the 'for' loop
                                         // to continue to the next dimension
                                     }
-                                } while (notFound);
+                                } while (notFound && addIndex > 0);
                                 // Continue to adjust the insertion index as
                                 // long as the current variable's array indices
                                 // places it prior to the that of the variable
-                                // at the current insertion index
+                                // at the current insertion index. The test for
+                                // addIndex > 0 accounts for the possibility
+                                // that array members are missing in the table
                             }
                         }
 
@@ -2698,6 +2699,18 @@ public class CcddDbTableCommandHandler
      *            to the current macro handler) if the change does not
      *            originate from the macro editor
      * 
+     * @param updateDescription
+     *            true to update the table description from the table
+     *            information; false to not change the table description
+     * 
+     * @param updateColumnOrder
+     *            true to update the table column order from the table
+     *            information; false to not change the table column order
+     * 
+     * @param updateFieldInfo
+     *            true to update the table data fields from the table
+     *            information; false to not change the table data fields
+     * 
      * @param parent
      *            reference to the GUI component over which any error dialogs
      *            should be centered
@@ -2708,6 +2721,9 @@ public class CcddDbTableCommandHandler
                                                final List<TableModification> deletions,
                                                final boolean forceUpdate,
                                                final boolean skipInternalTables,
+                                               final boolean updateDescription,
+                                               final boolean updateColumnOrder,
+                                               final boolean updateFieldInfo,
                                                final CcddDataTypeHandler newDataTypeHandler,
                                                final CcddMacroHandler newMacroHandler,
                                                final Component parent)
@@ -2726,6 +2742,9 @@ public class CcddDbTableCommandHandler
                                 modifications,
                                 deletions,
                                 forceUpdate,
+                                updateDescription,
+                                updateColumnOrder,
+                                updateFieldInfo,
                                 skipInternalTables,
                                 newDataTypeHandler,
                                 newMacroHandler,
@@ -2772,6 +2791,18 @@ public class CcddDbTableCommandHandler
      *            to the current macro handler) if the change does not
      *            originate from the macro editor
      * 
+     * @param updateDescription
+     *            true to update the table description from the table
+     *            information; false to not change the table description
+     * 
+     * @param updateColumnOrder
+     *            true to update the table column order from the table
+     *            information; false to not change the table column order
+     * 
+     * @param updateFieldInfo
+     *            true to update the table data fields from the table
+     *            information; false to not change the table data fields
+     * 
      * @param parent
      *            reference to the GUI component over which any error dialogs
      *            should be centered
@@ -2784,6 +2815,9 @@ public class CcddDbTableCommandHandler
                                       List<TableModification> deletions,
                                       boolean forceUpdate,
                                       boolean skipInternalTables,
+                                      boolean updateDescription,
+                                      boolean updateColumnOrder,
+                                      boolean updateFieldInfo,
                                       CcddDataTypeHandler newDataTypeHandler,
                                       CcddMacroHandler newMacroHandler,
                                       Component parent)
@@ -2874,12 +2908,18 @@ public class CcddDbTableCommandHandler
             // Combine the table, data fields table, table description, and
             // column order update commands, then execute the commands
             dbCommand.executeDbUpdate(command
-                                      + modifyFieldsCommand(tableInfo.getTablePath(),
-                                                            tableInfo.getFieldHandler().getFieldInformation())
-                                      + buildTableDescription(tableInfo.getTablePath(),
-                                                              description)
-                                      + buildColumnOrder(tableInfo.getTablePath(),
-                                                         tableInfo.getColumnOrder()),
+                                      + (updateFieldInfo ?
+                                                        modifyFieldsCommand(tableInfo.getTablePath(),
+                                                                            tableInfo.getFieldHandler().getFieldInformation())
+                                                        : "")
+                                      + (updateDescription ?
+                                                          buildTableDescription(tableInfo.getTablePath(),
+                                                                                description)
+                                                          : "")
+                                      + (updateColumnOrder ?
+                                                          buildColumnOrder(tableInfo.getTablePath(),
+                                                                           tableInfo.getColumnOrder())
+                                                          : ""),
                                       parent);
 
             // Check if references in the internal tables are to be updated
@@ -4338,12 +4378,16 @@ public class CcddDbTableCommandHandler
         // it doesn't appear in the table tree and this call returns null
         ToolTipTreeNode tableNode = tableTree.getNodeByNodeName(tableName);
 
-        // Step through each child node of the prototype table node; these are
-        // the prototype's variables (data type and name)
-        for (int childIndex = 0; childIndex < tableNode.getChildCount(); childIndex++)
+        // Check if the table node exists
+        if (tableNode != null)
         {
-            // Copy the node (variable)
-            orgTableNode.add(new ToolTipTreeNode(((ToolTipTreeNode) tableNode.getChildAt(childIndex)).getUserObject().toString(), ""));
+            // Step through each child node of the prototype table node; these
+            // are the prototype's variables (data type and name)
+            for (int childIndex = 0; childIndex < tableNode.getChildCount(); childIndex++)
+            {
+                // Copy the node (variable)
+                orgTableNode.add(new ToolTipTreeNode(((ToolTipTreeNode) tableNode.getChildAt(childIndex)).getUserObject().toString(), ""));
+            }
         }
 
         return orgTableNode;
@@ -6726,6 +6770,10 @@ public class CcddDbTableCommandHandler
                     editor.setUpDataTypeColumns(allStructureTables,
                                                 newTableTree);
 
+                    // Update the variable path column, if present, with the
+                    // data type changes
+                    editor.updateVariablePaths();
+
                     // Force the table to repaint to update the highlighting of
                     // the changed data types
                     editor.getTable().repaint();
@@ -6907,9 +6955,9 @@ public class CcddDbTableCommandHandler
                 // Load the table's information from the project database
                 tableInformation = loadTableData(tablePath,
                                                  !tablePath.contains(","),
+                                                 false,
                                                  true,
-                                                 true,
-                                                 true,
+                                                 false,
                                                  dialog);
 
                 // Check if this is a data type change
@@ -7446,6 +7494,9 @@ public class CcddDbTableCommandHandler
                                             modTbl.getEditor().getDeletions(),
                                             true,
                                             nameChangeOnly,
+                                            false,
+                                            false,
+                                            false,
                                             (isDataType
                                                        ? (CcddDataTypeHandler) newHandler
                                                        : null),

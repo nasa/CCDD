@@ -39,6 +39,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -88,6 +89,10 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     private JCheckBox backupFirstCb;
     private JCheckBox replaceMacrosCb;
     private JCheckBox includeReservedMsgIDsCb;
+    private JCheckBox includeVariablePaths;
+    private JTextField varPathSepFld;
+    private JTextField typeNameSepFld;
+    private JCheckBox hideDataTypeCb;
     private JLabel exportLbl;
     private JTextField versionFld;
     private JTextField validStatFld;
@@ -645,6 +650,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                   DialogOption.EXPORT_OPTION,
                                                   true) == OK_BUTTON)
                             {
+                                CcddVariableConversionHandler variableHandler = null;
+
                                 // Create storage for the list of
                                 // table+variable names, table paths, and the
                                 // parent table names
@@ -680,6 +687,13 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                     tablePaths.add(callingEditorDialog.getTableEditor().getTableInformation().getTablePath());
                                 }
 
+                                // Check if variable paths are to be included
+                                if (includeVariablePaths.isSelected())
+                                {
+                                    // Create the variable handler
+                                    variableHandler = new CcddVariableConversionHandler(ccddMain);
+                                }
+
                                 // Export the contents of the selected table(s)
                                 // in the specified format
                                 fileIOHandler.exportSelectedTables(pathFld.getText(),
@@ -689,6 +703,11 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                    singleFileCb.isSelected(),
                                                                    replaceMacrosCb.isSelected(),
                                                                    includeReservedMsgIDsCb.isSelected(),
+                                                                   includeVariablePaths.isSelected(),
+                                                                   variableHandler,
+                                                                   new String[] {varPathSepFld.getText(),
+                                                                                 Boolean.toString(hideDataTypeCb.isSelected()),
+                                                                                 typeNameSepFld.getText()},
                                                                    fileExtn,
                                                                    systemFld.getText(),
                                                                    versionFld.getText(),
@@ -985,10 +1004,75 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         // available for exporting
         if (dialogPnl != null)
         {
-            // Add the export storage path components to the dialog
-            gbc.insets.left = LABEL_HORIZONTAL_SPACING / 2;
-            gbc.weighty = 0.0;
+            int yStore = gbc.gridy;
+
+            // Create a panel to contain the separator character labels and
+            // inputs
+            JPanel separatorPnl = new JPanel(new GridBagLayout());
+
+            // Create the check box for inclusion of variable paths
+            includeVariablePaths = new JCheckBox("Include variable paths");
+            includeVariablePaths.setFont(LABEL_FONT_BOLD);
+            includeVariablePaths.setBorder(emptyBorder);
+            includeVariablePaths.setToolTipText("If checked, each variable's path in a structure table "
+                                                + "is included, both in the application format and "
+                                                + "using the separator characters specified by the user");
+            gbc.insets.left = 0;
+            gbc.insets.top = 0;
             gbc.gridy++;
+            separatorPnl.add(includeVariablePaths, gbc);
+
+            // Create the variable path separator label and input field,
+            // and add them to the dialog panel
+            final JLabel varPathSepLbl = new JLabel("Enter variable path separator character(s)");
+            varPathSepLbl.setFont(LABEL_FONT_BOLD);
+            varPathSepLbl.setEnabled(false);
+            gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+            gbc.insets.top = LABEL_VERTICAL_SPACING;
+            gbc.gridy++;
+            separatorPnl.add(varPathSepLbl, gbc);
+            varPathSepFld = new JTextField("_", 5);
+            varPathSepFld.setFont(LABEL_FONT_PLAIN);
+            varPathSepFld.setEditable(true);
+            varPathSepFld.setForeground(Color.BLACK);
+            varPathSepFld.setBackground(Color.WHITE);
+            varPathSepFld.setBorder(border);
+            varPathSepFld.setEnabled(false);
+            gbc.gridx++;
+            separatorPnl.add(varPathSepFld, gbc);
+
+            // Create the data type/variable name separator label and input
+            // field, and add them to the dialog panel
+            final JLabel typeNameSepLbl = new JLabel("Enter data type/variable name separator character(s)");
+            typeNameSepLbl.setFont(LABEL_FONT_BOLD);
+            typeNameSepLbl.setEnabled(false);
+            gbc.gridx = 0;
+            gbc.gridy++;
+            separatorPnl.add(typeNameSepLbl, gbc);
+            typeNameSepFld = new JTextField("_", 5);
+            typeNameSepFld.setFont(LABEL_FONT_PLAIN);
+            typeNameSepFld.setEditable(true);
+            typeNameSepFld.setForeground(Color.BLACK);
+            typeNameSepFld.setBackground(Color.WHITE);
+            typeNameSepFld.setBorder(border);
+            typeNameSepFld.setEnabled(false);
+            gbc.gridx++;
+            separatorPnl.add(typeNameSepFld, gbc);
+
+            // Create a check box for hiding data types
+            hideDataTypeCb = new JCheckBox("Hide data types");
+            hideDataTypeCb.setFont(LABEL_FONT_BOLD);
+            hideDataTypeCb.setBorder(BorderFactory.createEmptyBorder());
+            hideDataTypeCb.setEnabled(false);
+            gbc.insets.bottom = 0;
+            gbc.gridx = 0;
+            gbc.gridy++;
+            separatorPnl.add(hideDataTypeCb, gbc);
+
+            // Add the export storage path components to the dialog
+            gbc.insets.bottom = LABEL_VERTICAL_SPACING;
+            gbc.weighty = 0.0;
+            gbc.gridy = yStore + 1;
             dialogPnl.add(createPathSelectionPanel(fileExtn), gbc);
 
             // Create a check box for indicating existing files can be
@@ -998,7 +1082,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             overwriteFileCb.setBorder(emptyBorder);
             overwriteFileCb.setToolTipText("Select to overwrite any file(s) with the same name");
 
-            gbc.insets.top = LABEL_VERTICAL_SPACING * 2;
+            gbc.insets.top = LABEL_VERTICAL_SPACING;
             gbc.gridy++;
             dialogPnl.add(overwriteFileCb, gbc);
 
@@ -1009,7 +1093,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             singleFileCb.setBorder(emptyBorder);
             singleFileCb.setToolTipText("Select to store multiple tables in a single file");
 
-            // Add a listener for check box selection changes
+            // Add a listener for the single file check box selection changes
             singleFileCb.addActionListener(new ActionListener()
             {
                 /**************************************************************
@@ -1052,6 +1136,66 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             gbc.gridy++;
             dialogPnl.add(includeReservedMsgIDsCb, gbc);
 
+            // Add the variable path inclusion and separator character inputs
+            // panel
+            JSeparator upperSep = new JSeparator();
+            upperSep.setForeground(dialogPnl.getBackground().darker());
+            gbc.insets.top = LABEL_VERTICAL_SPACING / 2;
+            gbc.insets.bottom = LABEL_VERTICAL_SPACING / 2;
+            gbc.gridy++;
+            dialogPnl.add(upperSep, gbc);
+            gbc.fill = GridBagConstraints.VERTICAL;
+            gbc.weightx = 0.0;
+            gbc.gridy++;
+            dialogPnl.add(separatorPnl, gbc);
+            JSeparator lowerSep = new JSeparator();
+            lowerSep.setForeground(dialogPnl.getBackground().darker());
+            gbc.fill = GridBagConstraints.BOTH;
+            gbc.insets.top = LABEL_VERTICAL_SPACING / 2;
+            gbc.insets.bottom = LABEL_VERTICAL_SPACING / 2;
+            gbc.weightx = 1.0;
+            gbc.gridy++;
+            dialogPnl.add(lowerSep, gbc);
+
+            // Add a listener for the hide data type check box
+            hideDataTypeCb.addActionListener(new ActionListener()
+            {
+                /**********************************************************
+                 * Handle a change in the hide data type check box status
+                 *********************************************************/
+                @Override
+                public void actionPerformed(ActionEvent ae)
+                {
+                    // Enable/disable the data type/variable name separator
+                    // input label and field
+                    typeNameSepLbl.setEnabled(!((JCheckBox) ae.getSource()).isSelected());
+                    typeNameSepFld.setEnabled(!((JCheckBox) ae.getSource()).isSelected());
+                }
+            });
+
+            // Add a listener for the variable paths check box selection
+            // changes
+            includeVariablePaths.addActionListener(new ActionListener()
+            {
+                /**************************************************************
+                 * Respond to changes in selection of a the include variable
+                 * paths check box
+                 *************************************************************/
+                @Override
+                public void actionPerformed(ActionEvent ae)
+                {
+                    // Enable/disable the separator inputs based on the
+                    // inclusion check box state
+                    varPathSepLbl.setEnabled(((JCheckBox) ae.getSource()).isSelected());
+                    varPathSepFld.setEnabled(((JCheckBox) ae.getSource()).isSelected());
+                    typeNameSepLbl.setEnabled(((JCheckBox) ae.getSource()).isSelected()
+                                              && !hideDataTypeCb.isSelected());
+                    typeNameSepFld.setEnabled(((JCheckBox) ae.getSource()).isSelected()
+                                              && !hideDataTypeCb.isSelected());
+                    hideDataTypeCb.setEnabled(((JCheckBox) ae.getSource()).isSelected());
+                }
+            });
+
             // Create the XTCE and EDS input fields with their default
             // values. XTCE uses all of these fields; CSV and EDS use only the
             // system input
@@ -1068,6 +1212,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             // Create the system data field label
             JLabel systemLbl = new JLabel("System data field name");
             systemLbl.setFont(LABEL_FONT_BOLD);
+            gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+            gbc.insets.top = LABEL_VERTICAL_SPACING;
             gbc.insets.bottom = 0;
             gbc.weightx = 0.0;
             systemPnl.add(systemLbl, gbc);

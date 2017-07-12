@@ -9,6 +9,7 @@ package CCDD;
 import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.CELL_FONT;
 import static CCDD.CcddConstants.CLOSE_ICON;
+import static CCDD.CcddConstants.HIDE_DATA_TYPE;
 import static CCDD.CcddConstants.LABEL_FONT_BOLD;
 import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
 import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
@@ -16,7 +17,10 @@ import static CCDD.CcddConstants.LABEL_TEXT_COLOR;
 import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.PRINT_ICON;
 import static CCDD.CcddConstants.RENAME_ICON;
+import static CCDD.CcddConstants.STORE_ICON;
 import static CCDD.CcddConstants.TABLE_BACK_COLOR;
+import static CCDD.CcddConstants.TYPE_NAME_SEPARATOR;
+import static CCDD.CcddConstants.VARIABLE_PATH_SEPARATOR;
 
 import java.awt.Color;
 import java.awt.GridBagConstraints;
@@ -131,12 +135,12 @@ public class CcddVariablesDialog extends CcddDialogHandler
                                                                 0,
                                                                 1,
                                                                 1,
-                                                                1.0,
+                                                                0.0,
                                                                 0.0,
                                                                 GridBagConstraints.LINE_START,
-                                                                GridBagConstraints.BOTH,
+                                                                GridBagConstraints.NONE,
                                                                 new Insets(LABEL_VERTICAL_SPACING / 2,
-                                                                           LABEL_HORIZONTAL_SPACING,
+                                                                           0,
                                                                            LABEL_VERTICAL_SPACING / 2,
                                                                            LABEL_HORIZONTAL_SPACING),
                                                                 0,
@@ -144,47 +148,56 @@ public class CcddVariablesDialog extends CcddDialogHandler
 
                 dialogPnl.setBorder(BorderFactory.createEmptyBorder());
 
+                // Create a panel to contain the separator character labels and
+                // inputs
+                JPanel separatorPnl = new JPanel(new GridBagLayout());
+
                 // Create the variable path separator label and input field,
                 // and add them to the dialog panel
                 JLabel varPathSepLbl = new JLabel("Enter variable path separator character(s)");
                 varPathSepLbl.setFont(LABEL_FONT_BOLD);
-                dialogPnl.add(varPathSepLbl, gbc);
-                varPathSepFld = new JTextField("_", 10);
+                separatorPnl.add(varPathSepLbl, gbc);
+                varPathSepFld = new JTextField(ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR, "_"), 5);
                 varPathSepFld.setFont(LABEL_FONT_PLAIN);
                 varPathSepFld.setEditable(true);
                 varPathSepFld.setForeground(Color.BLACK);
                 varPathSepFld.setBackground(Color.WHITE);
                 varPathSepFld.setBorder(border);
-                gbc.gridwidth = GridBagConstraints.REMAINDER;
-                gbc.insets.left = LABEL_HORIZONTAL_SPACING * 2;
-                gbc.gridy++;
-                dialogPnl.add(varPathSepFld, gbc);
+                gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+                gbc.gridx++;
+                separatorPnl.add(varPathSepFld, gbc);
 
                 // Create the data type/variable name separator label and input
                 // field, and add them to the dialog panel
                 final JLabel typeNameSepLbl = new JLabel("Enter data type/variable name separator character(s)");
                 typeNameSepLbl.setFont(LABEL_FONT_BOLD);
-                gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+                gbc.insets.left = 0;
+                gbc.gridx = 0;
                 gbc.gridy++;
-                dialogPnl.add(typeNameSepLbl, gbc);
-                typeNameSepFld = new JTextField("_", 10);
+                separatorPnl.add(typeNameSepLbl, gbc);
+                typeNameSepFld = new JTextField(ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR, "_"), 5);
                 typeNameSepFld.setFont(LABEL_FONT_PLAIN);
                 typeNameSepFld.setEditable(true);
                 typeNameSepFld.setForeground(Color.BLACK);
                 typeNameSepFld.setBackground(Color.WHITE);
                 typeNameSepFld.setBorder(border);
-                gbc.gridwidth = GridBagConstraints.REMAINDER;
-                gbc.insets.left = LABEL_HORIZONTAL_SPACING * 2;
-                gbc.gridy++;
-                dialogPnl.add(typeNameSepFld, gbc);
+                gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+                gbc.gridx++;
+                separatorPnl.add(typeNameSepFld, gbc);
 
                 // Create a check box for hiding data types
-                hideDataTypeCb = new JCheckBox("Hide data types");
+                hideDataTypeCb = new JCheckBox("Hide data types",
+                                               Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE,
+                                                                                                "false")));
                 hideDataTypeCb.setFont(LABEL_FONT_BOLD);
                 hideDataTypeCb.setBorder(BorderFactory.createEmptyBorder());
                 gbc.insets.bottom = LABEL_VERTICAL_SPACING / 2;
+                gbc.gridx = 0;
                 gbc.gridy++;
-                dialogPnl.add(hideDataTypeCb, gbc);
+                separatorPnl.add(hideDataTypeCb, gbc);
+                gbc.weightx = 1.0;
+                gbc.gridy = 0;
+                dialogPnl.add(separatorPnl, gbc);
 
                 // Add a listener for the hide data type check box
                 hideDataTypeCb.addActionListener(new ActionListener()
@@ -206,6 +219,7 @@ public class CcddVariablesDialog extends CcddDialogHandler
                 JLabel variablesLbl = new JLabel("Variables");
                 variablesLbl.setFont(LABEL_FONT_BOLD);
                 variablesLbl.setForeground(LABEL_TEXT_COLOR);
+                gbc.fill = GridBagConstraints.REMAINDER;
                 gbc.insets.top = LABEL_VERTICAL_SPACING;
                 gbc.insets.left = LABEL_HORIZONTAL_SPACING;
                 gbc.insets.bottom = 0;
@@ -327,8 +341,10 @@ public class CcddVariablesDialog extends CcddDialogHandler
                                                                       JOptionPane.WARNING_MESSAGE,
                                                                       DialogOption.OK_OPTION);
                         }
-                        // The separator fields are valid
-                        else
+                        // Check if the separator values changed
+                        else if (!ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR, "_").equals(varPathSepFld.getText())
+                                 || !ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR, "_").equals(typeNameSepFld.getText())
+                                 || !ccddMain.getProgPrefs().get(HIDE_DATA_TYPE, "_").equals(String.valueOf(hideDataTypeCb.isSelected())))
                         {
                             // Convert the variables and display the results in
                             // the table
@@ -337,11 +353,11 @@ public class CcddVariablesDialog extends CcddDialogHandler
                     }
                 });
 
-                // Print inconsistencies button
+                // Print variable paths button
                 JButton btnPrint = CcddButtonPanelHandler.createButton("Print",
                                                                        PRINT_ICON,
                                                                        KeyEvent.VK_P,
-                                                                       "Print the variables list");
+                                                                       "Print the variable paths list");
 
                 // Add a listener for the Print button
                 btnPrint.addActionListener(new ActionListener()
@@ -358,6 +374,44 @@ public class CcddVariablesDialog extends CcddDialogHandler
                                                  null,
                                                  CcddVariablesDialog.this,
                                                  PageFormat.LANDSCAPE);
+                    }
+                });
+
+                // Store separators button
+                JButton btnStore = CcddButtonPanelHandler.createButton("Store",
+                                                                       STORE_ICON,
+                                                                       KeyEvent.VK_S,
+                                                                       "Store the variable path separators and hide data types flag");
+
+                // Add a listener for the Store button
+                btnStore.addActionListener(new ActionListener()
+                {
+                    /**********************************************************
+                     * Store the variable separators and hide data types flag
+                     *********************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        // Store the separator information in the program
+                        // preferences
+                        ccddMain.getProgPrefs().put(VARIABLE_PATH_SEPARATOR,
+                                                    varPathSepFld.getText());
+                        ccddMain.getProgPrefs().put(TYPE_NAME_SEPARATOR,
+                                                    typeNameSepFld.getText());
+                        ccddMain.getProgPrefs().put(HIDE_DATA_TYPE,
+                                                    String.valueOf(hideDataTypeCb.isSelected()));
+
+                        // Step through the open editor dialogs
+                        for (CcddTableEditorDialog editorDialog : ccddMain.getTableEditorDialogs())
+                        {
+                            // Step through each individual editor
+                            for (CcddTableEditorHandler editor : editorDialog.getTableEditors())
+                            {
+                                // Update the variable path column, if
+                                // present
+                                editor.updateVariablePaths();
+                            }
+                        }
                     }
                 });
 
@@ -380,11 +434,11 @@ public class CcddVariablesDialog extends CcddDialogHandler
                     }
                 });
 
-                // Create a panel for the dialog buttons and add the buttons to
-                // the panel
+                // Add the buttons to the dialog's button panel
                 buttonPnl.setBorder(BorderFactory.createEmptyBorder());
                 buttonPnl.add(btnShow);
                 buttonPnl.add(btnPrint);
+                buttonPnl.add(btnStore);
                 buttonPnl.add(btnCancel);
             }
 

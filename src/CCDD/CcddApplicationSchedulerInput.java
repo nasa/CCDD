@@ -6,6 +6,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
 import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 
 import java.awt.GridBagConstraints;
@@ -24,9 +25,11 @@ import javax.swing.tree.TreeSelectionModel;
 import CCDD.CcddClasses.ApplicationData;
 import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.GroupInformation;
+import CCDD.CcddClasses.Message;
 import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddClasses.Variable;
 import CCDD.CcddConstants.DefaultApplicationField;
+import CCDD.CcddConstants.SchedulerColumn;
 
 /******************************************************************************
  * CFS Command & Data Dictionary application scheduler input class
@@ -97,6 +100,12 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
                 // Check that a node selection change is not in progress
                 if (!isNodeSelectionChanging)
                 {
+                    // Select the associated slot(s) in the scheduler table if
+                    // an application is selected in the application tree. Note
+                    // that below any assigned applications are deselected, so
+                    // this call must occur first
+                    selectTimeSlotbyApplication();
+
                     // Set the flag to prevent application tree updates
                     isNodeSelectionChanging = true;
 
@@ -331,6 +340,9 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
         // Step through each application
         for (String application : applications)
         {
+            // Remove any HTML tags, if present
+            application = applicationTree.removeExtraText(application);
+
             // Use the application's data to create an application data object
             appList.add(new ApplicationData(application,
                                             CcddUtilities.convertStringToFloat(rate),
@@ -551,5 +563,62 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
         }
 
         return value;
+    }
+
+    /**************************************************************************
+     * Select the message(s) in the assignment tree for which the selected
+     * variable in the variable tree is a member
+     *************************************************************************/
+    private void selectTimeSlotbyApplication()
+    {
+        // Check if only a single node is selected in the application tree
+        if (applicationTree.getSelectionPaths().length == 1)
+        {
+            // Get the first selected application
+            String application = applicationTree.getFullVariablePath(applicationTree.getSelectionPath().getPath(),
+                                                                     applicationTree.getGroupNodeLevel());
+
+            // Check if the application contains the HTML flags indicating it
+            // is in use; i.e., belongs to a time slot
+            if (application.contains(DISABLED_TEXT_COLOR))
+            {
+                // Remove the HTML flags from the application name
+                application = applicationTree.removeExtraText(application);
+
+                // Clear any selected time slot(s) in the Scheduler table
+                schedulerDlg.getSchedulerHandler().getSchedulerEditor().getTable().clearSelection();
+
+                // Step through the list of current time slots. Go in reverse
+                // order so that the first time slot containing the application
+                // gets the focus
+                for (int row = schedulerDlg.getSchedulerHandler().getCurrentMessages().size() - 1; row >= 0; row--)
+                {
+                    String option = "";
+
+                    // Get the time slot reference
+                    Message slot = schedulerDlg.getSchedulerHandler().getCurrentMessages().get(row);
+
+                    // Check if the application is a member of the time slot
+                    if (slot.isVariableInMessage(application))
+                    {
+                        // Set the option to the time slot name
+                        option = slot.getName();
+
+                        // Select the time slot in the Scheduler table
+                        schedulerDlg.getSchedulerHandler().getSchedulerEditor().getTable().changeSelection(row,
+                                                                                                           SchedulerColumn.NAME.ordinal(),
+                                                                                                           true,
+                                                                                                           false);
+                    }
+
+                    // Check if a matching option was found
+                    if (!option.isEmpty())
+                    {
+                        // Select the option in the options list
+                        schedulerDlg.getSchedulerHandler().selectOptionByMessage(option);
+                    }
+                }
+            }
+        }
     }
 }

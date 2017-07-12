@@ -9,6 +9,7 @@ package CCDD;
 import static CCDD.CcddConstants.CCDD_PROJECT_IDENTIFIER;
 import static CCDD.CcddConstants.DATABASE;
 import static CCDD.CcddConstants.DATABASE_BACKUP_PATH;
+import static CCDD.CcddConstants.DATABASE_COMMENT_SEPARATOR;
 import static CCDD.CcddConstants.DATABASE_DRIVER;
 import static CCDD.CcddConstants.DEFAULT_DATABASE;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_HOST;
@@ -286,6 +287,16 @@ public class CcddDbControlHandler
     }
 
     /**************************************************************************
+     * Get the database owner name
+     * 
+     * @return The database owner name
+     *************************************************************************/
+    protected String getOwner()
+    {
+        return activeOwner;
+    }
+
+    /**************************************************************************
      * Set the database password
      * 
      * @param password
@@ -524,15 +535,16 @@ public class CcddDbControlHandler
     }
 
     /**************************************************************************
-     * Get the database comment
+     * Get the database comment without the CFS project identifier
      * 
      * @param databaseName
      *            database name
      * 
-     * @return Database comment without the CFS project identifier; null if the
-     *         comment cannot be retrieved
+     * @return Database comment in the format <lock status (0 or 1)>,<visible
+     *         project database name (with capitalization intact)>,<project
+     *         description>; null if the comment cannot be retrieved
      *************************************************************************/
-    private String getDatabaseComment(String databaseName)
+    protected String getDatabaseComment(String databaseName)
     {
         String comment = null;
 
@@ -547,17 +559,11 @@ public class CcddDbControlHandler
                                                            ccddMain.getMainFrame());
             resultSet.next();
 
-            // Split the comment to remove the CFS project identifier
-            String[] parts = resultSet.getString(1).split(CCDD_PROJECT_IDENTIFIER);
+            // Split the comment to remove the CFS project identifier, leaving
+            // the lock status, project name, and description
+            comment = resultSet.getString(1).substring(CCDD_PROJECT_IDENTIFIER.length());
 
             resultSet.close();
-
-            // Check if a lock status and description exist
-            if (parts.length > 1)
-            {
-                // Store the database lock status and description
-                comment = parts[1];
-            }
         }
         catch (SQLException se)
         {
@@ -585,16 +591,15 @@ public class CcddDbControlHandler
      * @return true if the database is locked, false if not locked, or null if
      *         the comment cannot be retrieved
      *************************************************************************/
-    private Boolean getDatabaseLockStatus(String databaseName)
+    protected Boolean getDatabaseLockStatus(String databaseName)
     {
         Boolean lockStatus = null;
 
         // Get the database comment
         String comment = getDatabaseComment(databaseName);
 
-        // Check if a comment was successfully retrieved and that the lock
-        // status exists
-        if (comment != null && comment.length() >= 1)
+        // Check if a comment was successfully retrieved
+        if (comment != null)
         {
             // Determine the database lock status
             lockStatus = comment.startsWith("1");
@@ -612,22 +617,20 @@ public class CcddDbControlHandler
      * @param lockStatus
      *            true if the database is locked; false if unlocked
      *************************************************************************/
-    protected void setDatabaseLockStatus(String databaseName,
-                                         boolean lockStatus)
+    protected void setDatabaseLockStatus(String databaseName, boolean lockStatus)
     {
-        // Get the database comment
-        String comment = getDatabaseComment(databaseName);
+        // Get the database description
+        String description = getDatabaseDescription(databaseName);
 
-        // Check if a comment was successfully retrieved and that the lock
-        // status exists
-        if (comment != null && comment.length() >= 1)
+        // Check if a comment was successfully retrieved
+        if (description != null)
         {
             try
             {
                 // Set the database comment with the specified lock status
                 dbCommand.executeDbUpdate(buildDatabaseCommentCommand(databaseName,
                                                                       lockStatus,
-                                                                      comment.substring(1)),
+                                                                      description),
                                           ccddMain.getMainFrame());
 
                 // Inform the user that the lock status update succeeded
@@ -670,12 +673,11 @@ public class CcddDbControlHandler
         // Get the database comment
         String comment = getDatabaseComment(databaseName);
 
-        // Check if a comment was successfully retrieved and if a description
-        // exists
-        if (comment != null && comment.length() > 1)
+        // Check if a comment was successfully retrieved
+        if (comment != null)
         {
             // Store the database description
-            description = comment.substring(1);
+            description = comment.split(DATABASE_COMMENT_SEPARATOR, 3)[2];
         }
 
         return description;
@@ -706,6 +708,9 @@ public class CcddDbControlHandler
                + " IS "
                + ccddMain.getDbTableCommandHandler().delimitText(CCDD_PROJECT_IDENTIFIER
                                                                  + (lockStatus ? "1" : "0")
+                                                                 + ";"
+                                                                 + databaseName
+                                                                 + ";"
                                                                  + description)
                + "; ";
     }
@@ -1679,7 +1684,7 @@ public class CcddDbControlHandler
                 {
                     // Check if the database name is in the list, which
                     // indicates that the user has access to this database
-                    if (databaseName.equals(database.split(",", 2)[0]))
+                    if (databaseName.equals(database.split(DATABASE_COMMENT_SEPARATOR, 2)[0]))
                     {
                         // Set the flag indicating the user has access and stop
                         // searching
@@ -1835,16 +1840,6 @@ public class CcddDbControlHandler
                     // not just the server (default database)
                     if (isDatabaseConnected())
                     {
-                        // Check if the GUI is visible. If the application is
-                        // started with the GUI hidden (for command line script
-                        // execution or as a web server) then the project
-                        // database is left unlocked
-                        if (!ccddMain.isGUIHidden())
-                        {
-                            // Lock the database
-                            setDatabaseLockStatus(activeDatabase, true);
-                        }
-
                         // Check if the database functions should be created;
                         // if so create the internal tables and database
                         // functions, and check if an error occurs creating
@@ -1878,6 +1873,16 @@ public class CcddDbControlHandler
                         // Perform any patches to update this project database
                         // to the latest schema
                         new CcddPatchHandler(ccddMain);
+
+                        // Check if the GUI is visible. If the application is
+                        // started with the GUI hidden (for command line script
+                        // execution or as a web server) then the project
+                        // database is left unlocked
+                        if (!ccddMain.isGUIHidden())
+                        {
+                            // Lock the database
+                            setDatabaseLockStatus(activeDatabase, true);
+                        }
 
                         // Check if the reserved word list hasn't been
                         // retrieved
@@ -2060,7 +2065,7 @@ public class CcddDbControlHandler
                     // can be closed and the default opened (required in order
                     // to make changes to the current database)
                     else if (!oldName.equals(currentDatabase)
-                             && !openDatabase(DEFAULT_DATABASE))
+                             || !openDatabase(DEFAULT_DATABASE))
                     {
                         // Rename the database to the new name and update the
                         // description

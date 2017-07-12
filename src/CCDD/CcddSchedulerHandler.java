@@ -234,6 +234,18 @@ public class CcddSchedulerHandler
     }
 
     /**************************************************************************
+     * Select the specified option in the Options list
+     * 
+     * @param option
+     *            option text to match in the Options list
+     *************************************************************************/
+    protected void selectOptionByMessage(String option)
+    {
+        optionList.clearSelection();
+        optionList.setSelectedValue(option, true);
+    }
+
+    /**************************************************************************
      * Create the scheduler handler
      *************************************************************************/
     private void initialize()

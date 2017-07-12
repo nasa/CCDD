@@ -404,7 +404,7 @@ public class CcddRateParameterHandler
                 for (int index = 0; index < typeDefn.getColumnCountDatabase(); index++)
                 {
                     // Check if the column is a sample rate
-                    if (typeDefn.getInputTypes()[index].equals(InputDataType.RATE))
+                    if (typeDefn.getInputTypes()[index] == InputDataType.RATE)
                     {
                         // Get the column's visible name
                         String colName = typeDefn.getColumnNamesUser()[index];

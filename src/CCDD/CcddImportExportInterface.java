@@ -75,6 +75,21 @@ public interface CcddImportExportInterface
      *            true to include the contents of the reserved message ID table
      *            in the export file
      * 
+     * @param includeVariablePaths
+     *            true to include the variable path for each variable in a
+     *            structure table, both in application format and using the
+     *            user-defined separator characters
+     * 
+     * @param variableHandler
+     *            variable handler class reference; null if
+     *            includeVariablePaths is false
+     * 
+     * @param separators
+     *            string array containing the variable path separator
+     *            character(s), show/hide data types flag ('true' or 'false'),
+     *            and data type/variable name separator character(s); null if
+     *            includeVariablePaths is false
+     * 
      * @param extraInfo
      *            extra parameters dependent on the export format
      * 
@@ -85,5 +100,8 @@ public interface CcddImportExportInterface
                                   String[] tableNames,
                                   boolean replaceMacros,
                                   boolean includeReservedMsgIDs,
+                                  boolean includeVariablePaths,
+                                  CcddVariableConversionHandler variableHandler,
+                                  String[] separators,
                                   String... extraInfo);
 }

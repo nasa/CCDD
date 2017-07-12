@@ -48,6 +48,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 {
     // Class references
     private final CcddMain ccddMain;
+    private final CcddDbControlHandler dbControl;
     private final CcddDbTableCommandHandler dbTable;
     private final CcddEventLogDialog eventLog;
     private CcddRateParameterHandler rateHandler;
@@ -79,6 +80,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     protected CcddWebDataAccessHandler(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
+        dbControl = ccddMain.getDbControlHandler();
         dbTable = ccddMain.getDbTableCommandHandler();
         eventLog = ccddMain.getSessionEventLog();
     }
@@ -235,10 +237,10 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * @return String array containing the variable path separator
      *         character(s), show/hide data types flag ('true' or 'false'), and
      *         data type/variable name separator character(s); the default
-     *         separators if the input parameters string is blank; null if the
-     *         parameter string format is invalid
+     *         separators if the input parameters string is blank. An exception
+     *         is thrown if the parameter string format is invalid
      *************************************************************************/
-    private String[] getVariablePathSeparators(String parameters)
+    private String[] getVariablePathSeparators(String parameters) throws CCDDException
     {
         String[] separators = null;
 
@@ -252,15 +254,24 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         else
         {
             // Separate the input parameters
-            String[] parameter = getParts(parameters, ",", 3, true);
+            separators = getParts(parameters, ",", 3, true);
 
-            // Check if all the input parameters are present and that they're
-            // in the expected formats
-            if (!parameter[0].matches(".*[\\[\\]].*")
-                && parameter[1].matches("(true|false)")
-                && !parameter[2].matches(".*[\\[\\]].*"))
+            // Check if the flag to hide the data type isn't present
+            if (separators[1].isEmpty())
             {
-                separators = parameter;
+                // Default to showing the data type
+                separators[1] = "false";
+            }
+
+            // Check if the separator characters and data type flag values are
+            // valid
+            if (separators[0].matches(".*[\\[\\]].*")
+                || !separators[1].matches("(?i:true|false)")
+                || (separators[1].matches("(?i:false)")
+                && separators[2].matches(".*[\\[\\]].*")))
+
+            {
+                throw new CCDDException("Invalid character(s) in separator field(s)");
             }
         }
 
@@ -304,16 +315,35 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // present)
             String[] itemAndOther = getParts(item, ";", 2, false);
 
-            // Set the flag if the text indicates the macro names (in place of
-            // macro values) should be displayed
-            isReplaceMacro = !itemAndOther[1].matches("(?:.*;)?macros?(?:;.*)?");
+            // Set the default macro and variable path flag values
+            isReplaceMacro = true;
+            isIncludePath = false;
 
-            // Check if the variable paths are to be included with the
-            // structure table data
-            if (isIncludePath = itemAndOther[1].matches("(?:.*;)?paths?(?:,.+|;.*|$)"))
+            // Step through the macro and/or variable path flags, if present
+            for (String macroAndPath : getParts(itemAndOther[1], ";", 2, false))
             {
-                // Get the variable path separators
-                separators = getVariablePathSeparators(itemAndOther[1].replaceAll("(?:.*;)?paths?,(.+)(?:;.*)?", "$1"));
+                // Split the macro/path option from any parameter values
+                String[] parts = getParts(macroAndPath, ",", 2, false);
+
+                switch (parts[0].toLowerCase())
+                {
+                // Display macro names command
+                    case "macro":
+                    case "macros":
+                        // Set the flag so that the macro names (in place of
+                        // macro values) are displayed
+                        isReplaceMacro = false;
+                        break;
+
+                    // Include variable paths command
+                    case "path":
+                    case "paths":
+                        // Set the flag to include the variable paths and parse
+                        // the variable path separators
+                        isIncludePath = true;
+                        separators = getVariablePathSeparators(parts[1]);
+                        break;
+                }
             }
 
             // Extract the item's attribute and name
@@ -522,6 +552,12 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 response = authenticateUser(attributeAndName[0],
                                             attributeAndName[1]);
             }
+            // Check if this is the project information request
+            else if (component.equals("project_info"))
+            {
+                // Get the project information (name, description, etc.)
+                response = getProjectInformation();
+            }
             // Check if this is a web server shutdown request
             else if (component.equals("shutdown"))
             {
@@ -594,13 +630,53 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
         // Check if the user credentials are valid for the currently open
         // database
-        if (ccddMain.getDbControlHandler().authenticateUser(userName, password))
+        if (dbControl.authenticateUser(userName, password))
         {
             // Set the response to indicate the credentials are valid
             response = "true";
         }
 
         return response;
+    }
+
+    /**************************************************************************
+     * Get the active project's information (name, description, lock status,
+     * and user)
+     * 
+     * @return JSON encoded string containing active project's information
+     *************************************************************************/
+    @SuppressWarnings("unchecked")
+    private String getProjectInformation()
+    {
+        String user = "";
+        JSONObject projectJO = new JSONObject();
+
+        // Step through the list of databases and attached users
+        for (String active : dbControl.queryActiveList(ccddMain.getMainFrame()))
+        {
+            // Separate the database name from the user name
+            String[] databaseAndUser = active.split(",");
+
+            // Check if the current database name matches the one in the list
+            if (dbControl.getDatabase().equalsIgnoreCase(databaseAndUser[0]))
+            {
+                // Add the user to the string of users
+                user += databaseAndUser[1] + ", ";
+            }
+        }
+
+        // Store the lock status, name, and description in the JSON object
+        projectJO.put("Project", dbControl.getProject());
+        projectJO.put("Description", dbControl.getDatabaseDescription(dbControl.getProject()));
+        projectJO.put("Status", (dbControl.getDatabaseLockStatus(dbControl.getProject())
+                                                                                        ? "locked"
+                                                                                        : "unlocked"));
+        projectJO.put("User", CcddUtilities.removeTrailer(user, ", "));
+        projectJO.put("Owner", dbControl.getOwner());
+        projectJO.put("Server", dbControl.getHost());
+        projectJO.put("Port", dbControl.getPort());
+
+        return projectJO.toString();
     }
 
     /**************************************************************************

@@ -68,6 +68,9 @@ public class CcddConstants
     protected static final String WEB_SERVER_PORT = "WebServerPort";
     protected static final String SEARCH_STRINGS = "SearchStrings";
     protected static final String SERVER_STRINGS = "ServerStrings";
+    protected static final String VARIABLE_PATH_SEPARATOR = "VariablePathSeparator";
+    protected static final String TYPE_NAME_SEPARATOR = "TypeNameSeparator";
+    protected static final String HIDE_DATA_TYPE = "HideDataType";
 
     // Prefix assigned to internally created CCDD database tables
     protected static final String INTERNAL_TABLE_PREFIX = "__";
@@ -108,6 +111,9 @@ public class CcddConstants
     // Information list definition item separators
     protected static final String LIST_TABLE_SEPARATOR = " + ";
     protected static final String LIST_TABLE_DESC_SEPARATOR = " : ";
+
+    // Separator for the project database comment
+    protected static final String DATABASE_COMMENT_SEPARATOR = ";";
 
     // Separator for the table description list database query
     protected static final String TABLE_DESCRIPTION_SEPARATOR = "\\\\";
@@ -993,6 +999,11 @@ public class CcddConstants
                  "text",
                  "Variable name; same constraints as for an alphanumeric (see Alphanumeric)"),
 
+        VARIABLE_PATH("Variable path",
+                      "",
+                      "variable path",
+                      "Display a variable's full path"),
+
         BREAK("Break", "", "page format", "Line break"),
         SEPARATOR("Separator", "", "page format", "Line separator");
 
@@ -1189,8 +1200,8 @@ public class CcddConstants
          * separators and breaks
          * 
          * @param includeSpecialTypes
-         *            true to include special input types (data type and
-         *            enumeration); false to exclude
+         *            true to include special input types (data type,
+         *            enumeration, and variable path); false to exclude
          * 
          * @return Array of all of the input data type names
          *********************************************************************/
@@ -1202,11 +1213,13 @@ public class CcddConstants
             // Step through each input type
             for (InputDataType inputType : InputDataType.values())
             {
-                // Check that this isn't a page format type
+                // Check that this isn't a page format type and, if special
+                // types are to be excluded, that this isn't one of those types
                 if (!inputType.inputFormat.equals("page format")
                     && (includeSpecialTypes
-                        || !inputType.inputFormat.equals("data type")
-                        || !inputType.inputFormat.equals("enumeration")))
+                    || (!inputType.inputFormat.equals("data type")
+                        && !inputType.inputFormat.equals("enumeration")
+                        && !inputType.inputFormat.equals("variable path"))))
                 {
                     // Store the input type name in the array
                     inputNames.add(inputType.inputName);
@@ -1235,7 +1248,7 @@ public class CcddConstants
             // Get the list of input names, sorted alphabetically
             String[] inputNames = getInputNames(includeSpecialTypes);
 
-            // Create an array to hold the input type names
+            // Create an array to hold the input type descriptions
             String[] inputDescriptions = new String[inputNames.length];
 
             // Step through each input type name
@@ -3010,6 +3023,69 @@ public class CcddConstants
     }
 
     /**************************************************************************
+     * Scheduler table columns
+     *************************************************************************/
+    protected static enum SchedulerColumn
+    {
+        NAME("<html><center>Message<br>Name", "Time Slot", "Column A"),
+        SIZE("<html><center>Free<br>Bytes", "Time (msec)", "Column B"),
+        ID("<html><center>Common<br>ID", "", "Column C");
+
+        private final String tlmColumn;
+        private final String appColumn;
+        private final String otherColumn;
+
+        /**********************************************************************
+         * Scheduler table columns constructor
+         * 
+         * @param tlmColumn
+         *            telemetry scheduler column name
+         * 
+         * @param appColumn
+         *            application scheduler column name
+         * 
+         * @param otherColumn
+         *            unknown scheduler type column name
+         *********************************************************************/
+        SchedulerColumn(String tlmColumn, String appColumn, String otherColumn)
+        {
+            this.tlmColumn = tlmColumn;
+            this.appColumn = appColumn;
+            this.otherColumn = otherColumn;
+        }
+
+        /**********************************************************************
+         * Get the scheduler column name based on the scheduler type
+         * 
+         * @param schType
+         *            scheduler type
+         * 
+         * @return Scheduler column name for the specified scheduler type
+         *********************************************************************/
+        protected String getColumn(SchedulerType schType)
+        {
+            String columnName;
+
+            switch (schType)
+            {
+                case TELEMETRY_SCHEDULER:
+                    columnName = tlmColumn;
+                    break;
+
+                case APPLICATION_SCHEDULER:
+                    columnName = appColumn;
+                    break;
+
+                default:
+                    columnName = otherColumn;
+                    break;
+            };
+
+            return columnName;
+        }
+    }
+
+    /**************************************************************************
      * Default application data fields
      *************************************************************************/
     protected static enum DefaultApplicationField
@@ -4320,6 +4396,7 @@ public class CcddConstants
         TABLE_TYPE_FIELD("Table Type Data Field"),
         MACRO_DEFN("Macro Definition"),
         RESERVED_MSG_ID_DEFN("Reserved Message ID Definition"),
+        VARIABLE_PATH("Variable Path"),
         TABLE_DEFN("Table Definition"),
         TABLE_NAMES("Table Names"),
         TABLE_NAME("Table Name"),
@@ -4407,35 +4484,57 @@ public class CcddConstants
         // Check if a specific table exists in the database (case insensitive)
         SPECIFIC_TABLE("SELECT 1 FROM pg_tables WHERE tablename ~* E'^_table_name_$';"),
 
-        // Get the list of command & data dictionary databases, sorted
-        // alphabetically
-        DATABASES("SELECT datname || E',' || split_part(description, '"
+        // Get the list of CCDD databases (in the form 'database name,lock
+        // status,visible name,description'), sorted alphabetically
+        DATABASES("SELECT datname || E'"
+                  + DATABASE_COMMENT_SEPARATOR
+                  + "' || split_part(description, '"
+                  + DATABASE_COMMENT_SEPARATOR
+                  + "', 2) || E'"
+                  + DATABASE_COMMENT_SEPARATOR
+                  + "' || split_part(split_part(description, '"
+                  + DATABASE_COMMENT_SEPARATOR
+                  + "', 1), '"
                   + CCDD_PROJECT_IDENTIFIER
-                  + "', 2) AS databases FROM pg_database d "
-                  + "LEFT JOIN pg_shdescription ON pg_shdescription.objoid = d.oid "
+                  + "', 2) || E'"
+                  + DATABASE_COMMENT_SEPARATOR
+                  + "' || substr(description, length(datName || '"
+                  + CCDD_PROJECT_IDENTIFIER
+                  + "') + 4) AS lock_name_desc FROM pg_database d LEFT JOIN "
+                  + "pg_shdescription ON pg_shdescription.objoid = d.oid "
                   + "WHERE d.datistemplate = false AND description LIKE '"
                   + CCDD_PROJECT_IDENTIFIER
                   + "%' ORDER BY datname ASC;"),
+
+        // Get the list of CCDD databases (in the form 'database name,lock
+        // status,visible name,description'), sorted alphabetically, for which
+        // the user has access. '_user_' must be replaced by the user name
+        DATABASES_BY_USER("SELECT datname || E'"
+                          + DATABASE_COMMENT_SEPARATOR
+                          + "' || split_part(description, '"
+                          + DATABASE_COMMENT_SEPARATOR
+                          + "', 2) || E'"
+                          + DATABASE_COMMENT_SEPARATOR
+                          + "' || split_part(split_part(description, '"
+                          + DATABASE_COMMENT_SEPARATOR
+                          + "', 1), '"
+                          + CCDD_PROJECT_IDENTIFIER
+                          + "', 2) || E'"
+                          + DATABASE_COMMENT_SEPARATOR
+                          + "' || substr(description, length(datName || '"
+                          + CCDD_PROJECT_IDENTIFIER
+                          + "') + 4) AS lock_name_desc FROM pg_database d LEFT JOIN "
+                          + "pg_shdescription ON pg_shdescription.objoid = d.oid "
+                          + "WHERE d.datistemplate = false AND description LIKE '"
+                          + CCDD_PROJECT_IDENTIFIER
+                          + "%' AND pg_has_role('_user_', pg_catalog.pg_get_userbyid("
+                          + "d.datdba), 'member') = 't' ORDER BY datname ASC;"),
 
         // Get the list of active database connections by user. The database
         // and user names are concatenated (separated by a comma) in order to
         // use the getList method
         ACTIVE_BY_USER("select distinct datname || ',' || usename "
                        + "AS names from pg_stat_activity ORDER BY names ASC;"),
-
-        // Get the list of databases (in the form 'name,description,lock
-        // status') for which the user has access. '_user_' must be replaced by
-        // the user name
-        DATABASES_BY_USER("SELECT datname || E',' || substr(status_desc, 2, length("
-                          + "status_desc) - 1) || E',' || substr(status_desc, 1, 1) AS "
-                          + "name_desc_lock FROM (SELECT datname, split_part(description, '"
-                          + CCDD_PROJECT_IDENTIFIER
-                          + "', 2) AS status_desc FROM pg_database d LEFT JOIN "
-                          + "pg_shdescription ON pg_shdescription.objoid = d.oid WHERE "
-                          + "d.datistemplate = false AND description LIKE '"
-                          + CCDD_PROJECT_IDENTIFIER
-                          + "%' AND pg_has_role('_user_', pg_catalog.pg_get_userbyid("
-                          + "d.datdba), 'member') = 't' ) AS databases ORDER BY datname ASC;"),
 
         // Get the list of users, sorted alphabetically
         USERS("SELECT u.usename FROM pg_catalog.pg_user u ORDER BY u.usename ASC;"),

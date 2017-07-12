@@ -709,6 +709,26 @@ public abstract class CcddJTableHandler extends JTable
      *************************************************************************/
     protected boolean isTableChanged(Object[][] previousData)
     {
+        return isTableChanged(previousData, null);
+    }
+
+    /**************************************************************************
+     * Determine if any changes have been made compared to the most recently
+     * committed table data, ignoring the specified columns
+     * 
+     * @param previousData
+     *            current database values for the table
+     * 
+     * @param ignoreColumns
+     *            list containing indices of columns to ignore when checking
+     *            for changes; null or an empty list if no columns are to be
+     *            ignored
+     * 
+     * @return true if any cell in the table has been changed
+     *************************************************************************/
+    protected boolean isTableChanged(Object[][] previousData,
+                                     List<Integer> ignoreColumns)
+    {
         // Get the data for the type as it exists in the database and the table
         // editor
         Object[][] currentData = getTableData(true);
@@ -726,8 +746,11 @@ public abstract class CcddJTableHandler extends JTable
                 for (int column = 0; column < currentData[row].length && !hasChanges; column++)
                 {
                     // Check if the table value doesn't match the database
-                    // value
-                    if (!currentData[row][column].equals(previousData[row][column]))
+                    // value and the column isn't in the list of those to
+                    // ignore (if present)
+                    if (!currentData[row][column].equals(previousData[row][column])
+                        && (ignoreColumns == null
+                        || !ignoreColumns.contains(column)))
                     {
                         // Set the flag indicating a change exists
                         hasChanges = true;
@@ -1601,7 +1624,7 @@ public abstract class CcddJTableHandler extends JTable
             tableColumn.setHeaderRenderer(getTableHeader().getDefaultRenderer());
 
             // Check if the column doesn't display a check box
-            if (!checkBoxColumnModel.contains(column))
+            if (!checkBoxColumnView.contains(column))
             {
                 // Set the cell renderer based on if the column is displayed in
                 // multiple lines, and if the column allows HTML formatting

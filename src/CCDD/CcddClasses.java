@@ -3668,7 +3668,9 @@ public class CcddClasses
          * @param name
          *            name of the variable
          * 
-         * @return Variable object with the specified name
+         * @return Variable object with the specified name; null if the
+         *         variable is not a member of the message or any of its
+         *         sub-messages
          *********************************************************************/
         protected Variable getVariable(String name)
         {
@@ -3680,7 +3682,7 @@ public class CcddClasses
                 // Store the variable reference
                 variable = variables.get(getVariableIndex(name));
             }
-            else
+            else if (subMessages != null)
             {
                 // Step through all the sub-messages to check if the variable
                 // is stored in a sub-message
@@ -3952,7 +3954,7 @@ public class CcddClasses
          * 
          * @return true if the message contains the specified variable
          *********************************************************************/
-        private boolean isVariableInMessage(String varName)
+        protected boolean isVariableInMessage(String varName)
         {
             boolean isInMsg = false;
 

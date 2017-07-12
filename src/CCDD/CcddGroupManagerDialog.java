@@ -55,6 +55,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
+import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
@@ -62,6 +63,7 @@ import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddClasses.CustomSplitPane;
 import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.GroupInformation;
+import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.DefaultApplicationField;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
@@ -428,6 +430,12 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                         // progress
                         if (!isNodeSelectionChanging)
                         {
+                            // Select the associated group in the group tree if
+                            // a table is selected in the table tree. Note that
+                            // below any linked variables are deselected, so
+                            // this call must occur first
+                            selectGroupByTable();
+
                             // Set the flag to prevent variable tree updates
                             isNodeSelectionChanging = true;
 
@@ -1666,5 +1674,54 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                  + (isGroupsChanged()
                                      ? "*"
                                      : ""));
+    }
+
+    /**************************************************************************
+     * Select the group in the group tree for which the selected table in the
+     * table tree is a member
+     *************************************************************************/
+    private void selectGroupByTable()
+    {
+        // Check if only a single node is selected in the table tree
+        if (tableTree.getSelectionPaths().length == 1)
+        {
+            List<TreePath> paths = new ArrayList<TreePath>();
+
+            // Clear any currently selected group(s)
+            groupTree.clearSelection();
+
+            // Get the first selected table's path
+            String tablePath = tableTree.getFullVariablePath(tableTree.getSelectionPath().getPath());
+
+            // Remove the HTML flags from the table path
+            tablePath = tableTree.removeExtraText(tablePath);
+
+            // Step through the group tree nodes that show the group names
+            for (int groupIndex = 0; groupIndex < groupTree.getRootNode().getChildCount(); groupIndex++)
+            {
+                // Get the group name node from the link tree
+                ToolTipTreeNode groupNode = ((ToolTipTreeNode) groupTree.getRootNode().getChildAt(groupIndex));
+
+                // Step through the tables belonging to the group
+                for (String table : groupTree.getGroupHandler().getGroupInformationByName(groupTree.removeExtraText(groupNode.getUserObject().toString())).getTablesAndAncestors())
+                {
+                    // Check if the selected table matches the group table
+                    if (tablePath.equals(table))
+                    {
+                        // Add the path to the node to the list and stop
+                        // searching this group
+                        paths.add(CcddCommonTreeHandler.getPathFromNode(groupNode));
+                        break;
+                    }
+                }
+            }
+
+            // Check if the table belongs to any group(s)
+            if (!paths.isEmpty())
+            {
+                // Select the group(s) to which the table belongs
+                groupTree.setSelectionPaths(paths.toArray(new TreePath[0]));
+            }
+        }
     }
 }

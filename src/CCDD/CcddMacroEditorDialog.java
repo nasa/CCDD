@@ -486,7 +486,6 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
             @Override
             protected void complete()
             {
-                // TODO
                 // Display the macro editor dialog
                 showOptionsDialog(ccddMain.getMainFrame(),
                                   editorPnl,

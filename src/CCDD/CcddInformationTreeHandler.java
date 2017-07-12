@@ -340,27 +340,35 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                 path.addAll(Arrays.asList(parentNode.getPath()));
                 path.addAll(Arrays.asList(childNode.getPath()));
 
+                // Set the insertion point to the end of the tree in the event
+                // the child isn't in the path order list
+                index = parentNode.getChildCount();
+
                 // Get the path of the new child node and locate it within the
                 // path order list
                 int childIndex = treePathOrder.indexOf(createNameFromPath(path.toArray(new Object[0]),
                                                                           getItemNodeLevel()));
 
-                // Step backwards through the existing sibling nodes
-                for (int nodeIndex = parentNode.getChildCount() - 1; nodeIndex >= 0; nodeIndex--)
+                // Check if the child is present in the path order list
+                if (childIndex != -1)
                 {
-                    // Get the path of the sibling node and locate it within
-                    // the path order list
-                    ToolTipTreeNode siblingPath = (ToolTipTreeNode) parentNode.getChildAt(nodeIndex);
-                    int siblingIndex = treePathOrder.indexOf(createNameFromPath(siblingPath.getPath(),
-                                                                                getItemNodeLevel()));
-
-                    // Check if the sibling appears in the path order before
-                    // the new child
-                    if (siblingIndex < childIndex)
+                    // Step backwards through the existing sibling nodes
+                    for (int nodeIndex = parentNode.getChildCount() - 1; nodeIndex >= 0; nodeIndex--)
                     {
-                        // Store the insertion index and stop searching
-                        index = nodeIndex + 1;
-                        break;
+                        // Get the path of the sibling node and locate it
+                        // within the path order list
+                        ToolTipTreeNode siblingPath = (ToolTipTreeNode) parentNode.getChildAt(nodeIndex);
+                        int siblingIndex = treePathOrder.indexOf(createNameFromPath(siblingPath.getPath(),
+                                                                                    getItemNodeLevel()));
+
+                        // Check if the sibling appears in the path order
+                        // before the new child
+                        if (siblingIndex < childIndex)
+                        {
+                            // Store the insertion index and stop searching
+                            index = nodeIndex + 1;
+                            break;
+                        }
                     }
                 }
 
@@ -670,8 +678,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
             for (TreePath path : getSelectionPaths())
             {
                 // Check if the selected variable node has children
-                addChildNodes((ToolTipTreeNode)
-                              path.getLastPathComponent(),
+                addChildNodes((ToolTipTreeNode) path.getLastPathComponent(),
                               selectedVariablePaths,
                               new ArrayList<String>(),
                               isVariable);
@@ -715,7 +722,6 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         {
             // Store the node name
             selectedNodeNames.add(selectedNode.getUserObject().toString());
-
         }
 
         return selectedNodeNames.toArray(new String[0]);

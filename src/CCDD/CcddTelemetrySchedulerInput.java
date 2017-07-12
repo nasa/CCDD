@@ -6,6 +6,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
 import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.LINKED_VARIABLES_NODE_NAME;
 import static CCDD.CcddConstants.UNLINKED_VARIABLES_NODE_NAME;
@@ -34,6 +35,7 @@ import CCDD.CcddClasses.Variable;
 import CCDD.CcddClasses.VariableGenerator;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable.LinksColumn;
+import CCDD.CcddConstants.SchedulerColumn;
 import CCDD.CcddConstants.TableTreeType;
 
 /******************************************************************************
@@ -218,6 +220,12 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                 // Check that a node selection change is not in progress
                 if (!isNodeSelectionChanging)
                 {
+                    // Select the associated message(s) in the scheduler table
+                    // if a variable is selected in the variable tree. Note
+                    // that below any assigned variables are deselected, so
+                    // this call must occur first
+                    selectMessagebyVariable();
+
                     // Set the flag to prevent variable tree updates
                     isNodeSelectionChanging = true;
 
@@ -641,13 +649,12 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                 for (Variable var : varList)
                 {
                     // Get the variable name from the path
-                    String name = allVariableTree.createNameFromPath(path,
-                                                                     index);
+                    String name = allVariableTree.createNameFromPath(path, index);
 
                     // Check if the variable has already been created
                     if (var.getFullName().equals(name))
                     {
-                        // Set the flag to indicate the variable already exist
+                        // Set the flag to indicate the variable already exists
                         // and stop searching
                         isFound = true;
                         break;
@@ -803,5 +810,118 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
     {
         // Return the tree panel object
         return treePnl;
+    }
+
+    /**************************************************************************
+     * Select the message(s) in the assignment tree for which the selected
+     * variable in the variable tree is a member
+     *************************************************************************/
+    private void selectMessagebyVariable()
+    {
+        // Check if only a single node is selected in the variable tree
+        if (variableTree.getSelectionPaths().length == 1)
+        {
+            Object[] path = variableTree.getSelectionPath().getPath();
+
+            // Set the start of the variable path
+            int index = 0;
+
+            // Check if the variable is linked
+            if (variableTree.removeExtraText(path[1].toString().trim()).equals(LINKED_VARIABLES_NODE_NAME))
+            {
+                // Set the start of the variable path to skip the root, link
+                // header, and link name nodes
+                index = 1;
+            }
+
+            // Get the first selected variable
+            String variablePath = variableTree.getFullVariablePath(path, index);
+
+            // Check if the variable contains the HTML flags indicating it is
+            // in use; i.e., belongs to a message
+            if (variablePath.contains(DISABLED_TEXT_COLOR))
+            {
+                // Remove the HTML flags from the variable path
+                variablePath = variableTree.removeExtraText(variablePath);
+
+                // Clear any selected message(s) in the Scheduler table
+                schedulerDlg.getSchedulerHandler().getSchedulerEditor().getTable().clearSelection();
+
+                // Step through the list of current messages. Go in reverse
+                // order so that the first message containing the variable gets
+                // the focus
+                for (int row = schedulerDlg.getSchedulerHandler().getCurrentMessages().size() - 1; row >= 0; row--)
+                {
+                    String option = "";
+
+                    // Get the message reference
+                    Message message = schedulerDlg.getSchedulerHandler().getCurrentMessages().get(row);
+
+                    // Check if the variable is a member of the message
+                    if (message.isVariableInMessage(variablePath))
+                    {
+                        // Set the option to the message name
+                        option = message.getName();
+
+                        // Select the message in the Scheduler table
+                        schedulerDlg.getSchedulerHandler().getSchedulerEditor().getTable().changeSelection(row,
+                                                                                                           SchedulerColumn.NAME.ordinal(),
+                                                                                                           true,
+                                                                                                           false);
+                    }
+                    // Check if the message has any sub-messages
+                    else if (message.getNumberOfSubMessages() > 1)
+                    {
+                        // Set the column index to the first sub-message ID
+                        // column
+                        int column = SchedulerColumn.ID.ordinal() + 1;
+
+                        // Step through each sub-message
+                        for (Message subMsg : message.getSubMessages())
+                        {
+                            // Check if the variable is a member of the
+                            // sub-message
+                            if (subMsg.isVariableInMessage(variablePath))
+                            {
+                                // Append the sub-message index to the option
+                                option += (column - 2) + ", ";
+
+                                // Select the sub-message in the Scheduler
+                                // table
+                                schedulerDlg.getSchedulerHandler().getSchedulerEditor().getTable().changeSelection(row,
+                                                                                                                   column,
+                                                                                                                   true,
+                                                                                                                   false);
+                            }
+
+                            column++;
+                        }
+
+                        // Check if a matching sub-message was found
+                        if (!option.isEmpty())
+                        {
+                            // Remove the trailing comma
+                            option = CcddUtilities.removeTrailer(option, ", ");
+
+                            // Prepend the message name and sub-message(s) text
+                            option = message.getName()
+                                     + " sub-msg"
+                                     + (option.contains(",")
+                                                            ? "s"
+                                                            : "")
+                                     + " "
+                                     + option;
+                        }
+                    }
+
+                    // Check if a matching option was found
+                    if (!option.isEmpty())
+                    {
+                        // Select the option in the options list
+                        schedulerDlg.getSchedulerHandler().selectOptionByMessage(option);
+                    }
+                }
+            }
+        }
     }
 }

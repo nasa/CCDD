@@ -64,7 +64,7 @@ import CCDD.CcddClasses.Variable;
 import CCDD.CcddClasses.VariableGenerator;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
-import CCDD.CcddConstants.SchedulerType;
+import CCDD.CcddConstants.SchedulerColumn;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddUndoHandler.UndoableTableModel;
 
@@ -122,70 +122,6 @@ public class CcddSchedulerEditorHandler
 
     // Empty message text
     private final String MESSAGE_EMPTY = "<html><i>Message is empty";
-
-    /**************************************************************************
-     * Scheduler table columns
-     *************************************************************************/
-    // Scheduler table columns
-    private enum SchedulerColumn
-    {
-        NAME("<html><center>Message<br>Name", "Time Slot", "Column A"),
-        SIZE("<html><center>Free<br>Bytes", "Time (msec)", "Column B"),
-        ID("<html><center>Common<br>ID", "", "Column C");
-
-        private String tlmColumn;
-        private String appColumn;
-        private String otherColumn;
-
-        /**********************************************************************
-         * Scheduler table columns constructor
-         * 
-         * @param tlmColumn
-         *            telemetry scheduler column name
-         * 
-         * @param appColumn
-         *            application scheduler column name
-         * 
-         * @param otherColumn
-         *            unknown scheduler type column name
-         *********************************************************************/
-        SchedulerColumn(String tlmColumn, String appColumn, String otherColumn)
-        {
-            this.tlmColumn = tlmColumn;
-            this.appColumn = appColumn;
-            this.otherColumn = otherColumn;
-        }
-
-        /**********************************************************************
-         * Get the scheduler column name based on the scheduler type
-         * 
-         * @param schType
-         *            scheduler type
-         * 
-         * @return Scheduler column name for the specified scheduler type
-         *********************************************************************/
-        protected String getColumn(SchedulerType schType)
-        {
-            String columnName;
-
-            switch (schType)
-            {
-                case TELEMETRY_SCHEDULER:
-                    columnName = tlmColumn;
-                    break;
-
-                case APPLICATION_SCHEDULER:
-                    columnName = appColumn;
-                    break;
-
-                default:
-                    columnName = otherColumn;
-                    break;
-            };
-
-            return columnName;
-        }
-    }
 
     /**************************************************************************
      * Scheduler editor handler class constructor
@@ -842,6 +778,11 @@ public class CcddSchedulerEditorHandler
             // Check if this is the telemetry scheduler
             if (schedulerHndlr.getSchedulerOption() == TELEMETRY_SCHEDULER)
             {
+                // Set the flag indicating a tabbed pane update is in progress.
+                // This flag is used to inhibit tab selection changes while the
+                // tabbed pane is updated
+                isTabUpdate = true;
+
                 // Step backwards through each tab that represents a
                 // sub-message in the tabbed pane
                 for (int index = tabbedPane.getTabCount() - 1; index > 0; index--)
@@ -849,6 +790,9 @@ public class CcddSchedulerEditorHandler
                     // Remove the sub-message tab
                     tabbedPane.remove(index);
                 }
+
+                // Reenable tab selection changes
+                isTabUpdate = false;
 
                 // Remove any nodes and display the 'empty message' text
                 assignmentTree.getRootNode().removeAllChildren();

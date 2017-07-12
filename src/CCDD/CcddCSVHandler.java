@@ -77,7 +77,8 @@ public class CcddCSVHandler implements CcddImportExportInterface
         TABLE_TYPE("_table_type_"),
         TABLE_TYPE_DATA_FIELD("_table_type_data_fields_"),
         DATA_TYPE("_data_type_"),
-        RESERVED_MSG_IDS("_reserved_msg_ids_");
+        RESERVED_MSG_IDS("_reserved_msg_ids_"),
+        VARIABLE_PATHS("_variable_paths_");
 
         private final String tag;
 
@@ -1170,6 +1171,21 @@ public class CcddCSVHandler implements CcddImportExportInterface
      *            true to include the contents of the reserved message ID table
      *            in the export file
      * 
+     * @param includeVariablePaths
+     *            true to include the variable path for each variable in a
+     *            structure table, both in application format and using the
+     *            user-defined separator characters
+     * 
+     * @param variableHandler
+     *            variable handler class reference; null if
+     *            includeVariablePaths is false
+     * 
+     * @param separators
+     *            string array containing the variable path separator
+     *            character(s), show/hide data types flag ('true' or 'false'),
+     *            and data type/variable name separator character(s); null if
+     *            includeVariablePaths is false
+     * 
      * @param extraInfo
      *            [0] name of the data field containing the system name
      * 
@@ -1181,6 +1197,9 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                 String[] tableNames,
                                 boolean replaceMacros,
                                 boolean includeReservedMsgIDs,
+                                boolean includeVariablePaths,
+                                CcddVariableConversionHandler variableHandler,
+                                String[] separators,
                                 String... extraInfo)
     {
         boolean errorFlag = false;
@@ -1196,6 +1215,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
             List<String> referencedTableTypes = new ArrayList<String>();
             List<String> referencedDataTypes = new ArrayList<String>();
             List<String> referencedMacros = new ArrayList<String>();
+            List<String[]> variablePaths = new ArrayList<String[]>();
 
             // Output the table data to the selected file. Multiple writers are
             // needed in case tables are appended to an existing file
@@ -1329,6 +1349,27 @@ public class CcddCSVHandler implements CcddImportExportInterface
                             // Get the names of the macros referenced in the
                             // cell and add them to the list
                             referencedMacros.addAll(macroHandler.getReferencedMacros(tableInfo.getData()[row][column].toString()));
+
+                            // Check if variable paths are to be output and if
+                            // this table represents a structure
+                            if (includeVariablePaths && typeDefn.isStructure())
+                            {
+                                // Get the variable path
+                                String variablePath = tableInfo.getTablePath()
+                                                      + ","
+                                                      + tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT)]
+                                                      + "."
+                                                      + tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE)];
+
+                                // Add the path, in both application and
+                                // user-defined formats, to the list to be
+                                // output
+                                variablePaths.add(new String[] {variablePath,
+                                                                variableHandler.getFullVariableName(variablePath,
+                                                                                                    separators[0],
+                                                                                                    Boolean.parseBoolean(separators[1]),
+                                                                                                    separators[2])});
+                            }
                         }
                     }
 
@@ -1474,6 +1515,23 @@ public class CcddCSVHandler implements CcddImportExportInterface
                               CcddUtilities.addEmbeddedQuotesAndCommas(reservedMsgID[ReservedMsgIDsColumn.MSG_ID.ordinal()],
                                                                        reservedMsgID[ReservedMsgIDsColumn.DESCRIPTION.ordinal()]));
 
+                }
+            }
+
+            // Check if variable paths are to be output and that any exist
+            if (includeVariablePaths && !variablePaths.isEmpty())
+            {
+                // Output the variable path marker
+                pw.printf("\n" + CSVTags.VARIABLE_PATHS.getTag() + "\n");
+
+                // Step through each variable path
+                for (String[] variablePath : variablePaths)
+                {
+                    // Output the variable path in application and user-defined
+                    // formats
+                    pw.printf("%s\n",
+                              CcddUtilities.addEmbeddedQuotesAndCommas(variablePath[0],
+                                                                       variablePath[1]));
                 }
             }
         }

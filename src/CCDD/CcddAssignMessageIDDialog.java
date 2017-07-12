@@ -867,7 +867,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         TableInformation tableInformation = dbTable.loadTableData(tablePath,
                                                                                   !tablePath.contains(","),
                                                                                   false,
-                                                                                  true,
+                                                                                  false,
                                                                                   false,
                                                                                   CcddAssignMessageIDDialog.this);
 
@@ -934,6 +934,9 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                                         editor.getModifications(),
                                                         editor.getDeletions(),
                                                         true,
+                                                        false,
+                                                        false,
+                                                        false,
                                                         false,
                                                         null,
                                                         null,

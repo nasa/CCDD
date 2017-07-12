@@ -6,6 +6,8 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.CCDD_PROJECT_IDENTIFIER;
+import static CCDD.CcddConstants.DATABASE_COMMENT_SEPARATOR;
 import static CCDD.CcddConstants.DEFAULT_DATABASE;
 import static CCDD.CcddConstants.EventLogMessageType.SUCCESS_MSG;
 
@@ -46,7 +48,82 @@ public class CcddPatchHandler
         this.ccddMain = ccddMain;
 
         // Patch #01262017: Rename the table types table and alter its content
+        // to include the database name with capitalization intact
         updateTableTypesTable();
+
+        // Patch #07112017: Update the database comment to include the project
+        // name with capitalization intact
+        updateDataBaseComment();
+    }
+
+    /**************************************************************************
+     * Update the project database comments to include the database name with
+     * capitalization intact. The project database is first backed up to the
+     * file <projectName>_<timeStamp>.dbu. The new format for the comment is
+     * <CCDD project identifier string><lock status, 0 or 1>;<project name with
+     * capitalization intact>;<project description>
+     *************************************************************************/
+    private void updateDataBaseComment()
+    {
+        CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
+        CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
+
+        try
+        {
+            CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
+            CcddDbTableCommandHandler dbTable = ccddMain.getDbTableCommandHandler();
+
+            // Get the comment for the currently open database
+            String comment = dbControl.getDatabaseComment(dbControl.getProject());
+
+            // Divide the comment into the lock status, visible name, and
+            // description
+            String[] nameAndDesc = comment.split(DATABASE_COMMENT_SEPARATOR, 3);
+
+            // Check if the comment isn't in the new format
+            if (nameAndDesc.length < 2
+                || !dbControl.getProject().equalsIgnoreCase(nameAndDesc[1]))
+            {
+                // Back up the project database before applying the patch
+                dbControl.backupDatabase(dbControl.getDatabase(),
+                                         new File(dbControl.getDatabase()
+                                                  + "_"
+                                                  + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
+                                                  + FileExtension.DBU.getExtension()));
+
+                // Update the project database comment to the new format
+                dbCommand.executeDbCommand("COMMENT ON DATABASE "
+                                           + dbControl.getProject()
+                                           + " IS "
+                                           + dbTable.delimitText(CCDD_PROJECT_IDENTIFIER
+                                                                 + comment.substring(0, 1)
+                                                                 + DATABASE_COMMENT_SEPARATOR
+                                                                 + dbControl.getProject()
+                                                                 + DATABASE_COMMENT_SEPARATOR
+                                                                 + nameAndDesc[0].substring(1))
+                                           + "; ",
+                                           ccddMain.getMainFrame());
+
+                // Inform the user that updating the database comment completed
+                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+                                  "Project '"
+                                      + dbControl.getProject()
+                                      + "' comment conversion complete");
+            }
+        }
+        catch (Exception e)
+        {
+            // Inform the user that converting the database comments failed
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Cannot convert project '"
+                                      + dbControl.getProject()
+                                      + "' comment to new format; cause '"
+                                      + e.getMessage()
+                                      + "'",
+                                  "<html><b>Cannot convert project '"
+                                      + dbControl.getProject()
+                                      + "' comment to new format");
+        }
     }
 
     /**************************************************************************

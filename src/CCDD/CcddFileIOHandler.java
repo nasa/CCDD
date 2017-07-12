@@ -976,7 +976,7 @@ public class CcddFileIOHandler
                         // and copy the prototype's data to the table
                         TableInformation protoInfo = dbTable.loadTableData(tableInfo.getPrototypeName(),
                                                                            true,
-                                                                           true,
+                                                                           false,
                                                                            false,
                                                                            false,
                                                                            ccddMain.getMainFrame());
@@ -1199,6 +1199,9 @@ public class CcddFileIOHandler
                                             tableEditor.getDeletions(),
                                             false,
                                             false,
+                                            true,
+                                            true,
+                                            true,
                                             null,
                                             null,
                                             ccddMain.getMainFrame()))
@@ -1449,6 +1452,21 @@ public class CcddFileIOHandler
      *            true to include the contents of the reserved message ID table
      *            in the export file
      * 
+     * @param includeVariablePaths
+     *            true to include the variable path for each variable in a
+     *            structure table, both in application format and using the
+     *            user-defined separator characters
+     * 
+     * @param variableHandler
+     *            variable handler class reference; null if
+     *            includeVariablePaths is false
+     * 
+     * @param separators
+     *            string array containing the variable path separator
+     *            character(s), show/hide data types flag ('true' or 'false'),
+     *            and data type/variable name separator character(s); null if
+     *            includeVariablePaths is false
+     * 
      * @param fileExtn
      *            file extension type
      * 
@@ -1480,6 +1498,9 @@ public class CcddFileIOHandler
                                         final boolean singleFile,
                                         final boolean replaceMacros,
                                         final boolean includeReservedMsgIDs,
+                                        final boolean includeVariablePaths,
+                                        final CcddVariableConversionHandler variableHandler,
+                                        final String[] separators,
                                         final FileExtension fileExtn,
                                         final String system,
                                         final String version,
@@ -1580,6 +1601,9 @@ public class CcddFileIOHandler
                                                        tablePaths,
                                                        replaceMacros,
                                                        includeReservedMsgIDs,
+                                                       includeVariablePaths,
+                                                       variableHandler,
+                                                       separators,
                                                        system,
                                                        version,
                                                        validationStatus,
@@ -1620,6 +1644,9 @@ public class CcddFileIOHandler
                                                            new String[] {tblName},
                                                            replaceMacros,
                                                            includeReservedMsgIDs,
+                                                           includeVariablePaths,
+                                                           variableHandler,
+                                                           separators,
                                                            system,
                                                            version,
                                                            validationStatus,

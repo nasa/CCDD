@@ -6,6 +6,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.DATABASE_COMMENT_SEPARATOR;
 import static CCDD.CcddConstants.DEFAULT_DATABASE;
 import static CCDD.CcddConstants.LABEL_FONT_BOLD;
 import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
@@ -23,6 +24,7 @@ import java.awt.KeyboardFocusManager;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -65,9 +67,10 @@ public class CcddDbManagerDialog extends CcddDialogHandler
     private List<Integer> disabledItems;
 
     // Indices into the array of arrayItemData when initially split
-    private final int DB_NAME = 0;
-    private final int DB_DESC = 1;
+    private final int DB_DBNAME = 0;
+    private final int DB_NAME = 1;
     private final int DB_LOCK = 2;
+    private final int DB_DESC = 3;
 
     /**************************************************************************
      * Project database manager dialog class constructor
@@ -366,7 +369,13 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                                   selectPnl,
                                                   "Rename Project",
                                                   DialogOption.RENAME_OPTION,
-                                                  true) == OK_BUTTON)
+                                                  true) == OK_BUTTON
+                                && (!getRadioButtonSelected().equals(dbControl.getDatabase())
+                                || ccddMain.ignoreUncommittedChanges("Open Project",
+                                                                     "Discard changes?",
+                                                                     true,
+                                                                     null,
+                                                                     CcddDbManagerDialog.this)))
                             {
                                 // Rename the database
                                 dbControl.renameDatabaseInBackground(getRadioButtonSelected(),
@@ -585,11 +594,11 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         for (String[] data : arrayItemData)
                         {
                             // Check if the item matches the selected one
-                            if (data[DB_NAME].equals(name))
+                            if (data[DB_NAME - 1].equals(name))
                             {
                                 // Store the item description and stop
                                 // searching
-                                desc = data[DB_DESC];
+                                desc = data[DB_DESC - 1];
                                 break;
                             }
                         }
@@ -607,11 +616,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         nameFld.setText(name);
                         descriptionFld.setText(desc);
 
-                        // Set the enable state for the input fields. If
-                        // renaming and the currently open database is selected
-                        // then disable editing of the name input field
-                        nameFld.setEditable(!(dialogType == DbManagerDialogType.RENAME
-                               && name.equals(dbControl.getDatabase())));
+                        // Set the enable state for the input fields
+                        nameFld.setEditable(true);
                         nameFld.setBackground(Color.WHITE);
                         descriptionFld.setEditable(true);
                         descriptionFld.setBackground(Color.WHITE);
@@ -770,6 +776,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                         boolean isOnlyLocked,
                                         String enabledItem)
     {
+        int index = 0;
         disabledItems = new ArrayList<Integer>();
         String[] activeUsers = null;
 
@@ -785,14 +792,37 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         String[] databases = dbControl.queryDatabaseByUserList(CcddDbManagerDialog.this,
                                                                dbControl.getUser());
         arrayItemData = new String[databases.length][];
-        int index = 0;
 
         // Step through each database
         for (String database : databases)
         {
-            // Separate and store the database name, lock
-            // status, and description
-            arrayItemData[index] = database.split(",", 3);
+            // Separate and store the database name, lock status, and
+            // description
+            arrayItemData[index] = database.split(DATABASE_COMMENT_SEPARATOR, 4);
+
+            // Check if the visible name is empty, indicating that the project
+            // database's comment hasn't been updated to the new format. This
+            // code section enables the application to parse the old format for
+            // compatibility purposes. The patch manager updates the comment
+            // format when a project database is opened that uses the old
+            // format
+            if (arrayItemData[index][DB_NAME].isEmpty())
+            {
+                // Use the database version of the project name for the visible
+                // name
+                arrayItemData[index][DB_NAME] = arrayItemData[index][DB_DBNAME];
+
+                // Check if a description follows the lock status
+                if (arrayItemData[index][DB_LOCK].length() > 1)
+                {
+                    // Copy the description to the description field and remove
+                    // it from the lock status
+                    arrayItemData[index][DB_DESC] = arrayItemData[index][DB_LOCK].substring(1);
+                    arrayItemData[index][DB_LOCK] = arrayItemData[index][DB_LOCK].substring(0, 1);
+                }
+            }
+
+            // Get the lock status
             boolean isLocked = !arrayItemData[index][DB_LOCK].equals("0");
 
             // Check if the database is locked and that locked databases are to
@@ -818,13 +848,13 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                 for (String active : activeUsers)
                 {
                     // Separate the database name from the user name
-                    String[] dataBaseAndUser = active.split(",");
+                    String[] databaseAndUser = active.split(",");
 
                     // Check if the database name matches the one in the list
-                    if (arrayItemData[index][DB_NAME].equals(dataBaseAndUser[0]))
+                    if (arrayItemData[index][DB_NAME].equalsIgnoreCase(databaseAndUser[0]))
                     {
                         // Append the user name to the status text
-                        status += dataBaseAndUser[1] + ", ";
+                        status += databaseAndUser[1] + ", ";
                     }
                 }
 
@@ -856,11 +886,22 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                     status = "Unlocked; in use by " + status;
                 }
 
-                // Replace the database description with the lock status
-                arrayItemData[index][DB_DESC] = "<html><i>" + status;
+                // Replace the lock status flag with expanded lock status
+                arrayItemData[index][DB_LOCK] = "<html><i>" + status;
+            }
+            // Not the unlock dialog
+            else
+            {
+                // Copy the description to the lock status position
+                arrayItemData[index][DB_LOCK] = arrayItemData[index][DB_DESC];
             }
 
             index++;
         }
+
+        // Remove the column containing the database version of the project
+        // name
+        arrayItemData = CcddUtilities.removeArrayListColumn(Arrays.asList(arrayItemData),
+                                                            DB_DBNAME).toArray(new String[0][0]);
     }
 }
