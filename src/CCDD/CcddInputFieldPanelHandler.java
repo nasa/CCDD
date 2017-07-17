@@ -37,6 +37,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
+import javax.swing.text.JTextComponent;
 
 import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.WrapLayout;
@@ -290,7 +291,7 @@ public abstract class CcddInputFieldPanelHandler
                 else
                 {
                     // Update the data field with the text field's contents
-                    fieldInfo.setValue(((UndoableTextField) fieldInfo.getInputFld()).getText());
+                    fieldInfo.setValue(((JTextComponent) fieldInfo.getInputFld()).getText());
                 }
             }
         }
@@ -597,6 +598,8 @@ public abstract class CcddInputFieldPanelHandler
                         break;
 
                     default:
+                        JTextComponent inputFld;
+
                         // Create a panel for a single label and text field
                         // pair. This is necessary so that the two will stay
                         // together if line wrapping occurs due to a window
@@ -612,10 +615,28 @@ public abstract class CcddInputFieldPanelHandler
                         fieldLbl.setForeground(LABEL_TEXT_COLOR);
                         singleFldPnl.add(fieldLbl);
 
-                        // Create the data field input field
-                        fieldInfo.setInputFld(undoHandler.new UndoableTextField(fieldInfo.getValue(),
-                                                                                fieldInfo.getSize()));
-                        UndoableTextField inputFld = (UndoableTextField) fieldInfo.getInputFld();
+                        // Check if the input type is for multi-line text
+                        if (fieldInfo.getInputType().equals(InputDataType.TEXT_MULTI))
+                        {
+                            // Create the data field input field as a text
+                            // area, which allows new line characters which
+                            // cause the field to be displayed in multiple rows
+                            fieldInfo.setInputFld(undoHandler.new UndoableTextArea(fieldInfo.getValue(),
+                                                                                   1,
+                                                                                   fieldInfo.getSize()));
+                            inputFld = (UndoableTextArea) fieldInfo.getInputFld();
+                        }
+                        // The input type is one other than for multi-line text
+                        else
+                        {
+                            // // Create the data field input field as a text
+                            // field, which allows a single rows
+                            fieldInfo.setInputFld(undoHandler.new UndoableTextField(fieldInfo.getValue(),
+                                                                                    fieldInfo.getSize()));
+                            inputFld = (UndoableTextField) fieldInfo.getInputFld();
+
+                        }
+
                         inputFld.setFont(LABEL_FONT_PLAIN);
                         inputFld.setEditable(true);
                         inputFld.setBorder(border);
@@ -669,7 +690,7 @@ public abstract class CcddInputFieldPanelHandler
 
                                 // Get the data field reference to shorten
                                 // subsequent calls
-                                UndoableTextField inputFld = (UndoableTextField) input;
+                                JTextComponent inputFld = (JTextComponent) input;
 
                                 // Remove leading and trailing white space
                                 // characters from the data field contents
@@ -707,10 +728,24 @@ public abstract class CcddInputFieldPanelHandler
                                         ((CcddDialogHandler) fieldPnlHndlrOwner).setControlsEnabled(true);
                                     }
 
-                                    // Restore the previous value in the data
-                                    // field and set the flag to indicate an
-                                    // invalid value was entered
-                                    inputFld.setText(lastValid, false);
+                                    // Check if the data field is a text field
+                                    if (input instanceof UndoableTextField)
+                                    {
+                                        // Restore the previous value in the
+                                        // data field
+                                        ((UndoableTextField) inputFld).setText(lastValid, false);
+                                    }
+                                    // Check if the data field is a text area
+                                    // (multi-line)
+                                    else if (input instanceof UndoableTextArea)
+                                    {
+                                        // Restore the previous value in the
+                                        // data field
+                                        ((UndoableTextArea) inputFld).setText(lastValid);
+                                    }
+
+                                    // Set the flag to indicate an invalid
+                                    // value was entered
                                     isValid = false;
                                 }
                                 // The input is valid
@@ -720,6 +755,7 @@ public abstract class CcddInputFieldPanelHandler
                                     // text field. For numeric types, reformat
                                     // the input value
                                     inputFld.setText(fieldInfo.getInputType().formatInput(inputTxt));
+                                    fieldInfo.setValue(inputFld.getText());
 
                                     // Store the new value as the last valid
                                     // value
@@ -789,8 +825,8 @@ public abstract class CcddInputFieldPanelHandler
             // Not a boolean input (check box) data field
             else
             {
-                // Get the reference to the text field
-                UndoableTextField inputFld = (UndoableTextField) fieldInfo.getInputFld();
+                // Get the reference to the data field
+                JTextComponent inputFld = (JTextComponent) fieldInfo.getInputFld();
 
                 // Clear the field value
                 fieldInfo.setValue("");
@@ -861,9 +897,9 @@ public abstract class CcddInputFieldPanelHandler
         // Set the text field background color. If the field is empty and is
         // flagged as required then set the background to indicate a value
         // should be supplied
-        ((UndoableTextField) fieldInfo.getInputFld()).setBackground(fieldInfo.getValue().isEmpty()
-                                                                    && fieldInfo.isRequired()
-                                                                                             ? Color.YELLOW
-                                                                                             : Color.WHITE);
+        ((JTextComponent) fieldInfo.getInputFld()).setBackground(fieldInfo.getValue().isEmpty()
+                                                                 && fieldInfo.isRequired()
+                                                                                          ? Color.YELLOW
+                                                                                          : Color.WHITE);
     }
 }

@@ -1476,11 +1476,12 @@ public class CcddDialogHandler extends JDialog
             scrollPane.getVerticalScrollBar().setUnitIncrement(radioButton[0].getPreferredSize().height / 2
                                                                + LABEL_VERTICAL_SPACING);
 
-            // Calculate the maximum desirable height panel containing the
-            // radio buttons (= # of rows * row height)
+            // Calculate the maximum desirable height of the panel containing
+            // the radio buttons (= # of rows * row height)
             int maxRowHeight = (int) (INITIAL_VIEWABLE_LIST_ROWS
                                       * rbtnGridPnl.getPreferredSize().getHeight()
-                                      / radioButton.length);
+                                      / radioButton.length
+                                      * gridWidth);
 
             // Check if the scrollable list exceeds the maximum desirable
             // height
@@ -1699,11 +1700,12 @@ public class CcddDialogHandler extends JDialog
             scrollPane.getVerticalScrollBar().setUnitIncrement(checkBox[0].getPreferredSize().height / 2
                                                                + LABEL_VERTICAL_SPACING);
 
-            // Calculate the maximum desirable height panel containing the
-            // check boxes (= # of rows * row height)
+            // Calculate the maximum desirable height of the panel containing
+            // the check boxes (= # of rows * row height)
             int maxRowHeight = (int) (INITIAL_VIEWABLE_LIST_ROWS
                                       * cboxGridPnl.getPreferredSize().getHeight()
-                                      / checkBox.length);
+                                      / checkBox.length
+                                      * gridWidth);
 
             // Check if the scrollable list exceeds the maximum desirable
             // height

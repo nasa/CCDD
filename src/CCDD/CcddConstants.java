@@ -173,6 +173,10 @@ public class CcddConstants
     // Regular expression for identifying part or all of a table and its path
     protected static final String PATH_IDENT = "[a-zA-Z0-9_,\\\\.\\\\[\\\\]]+";
 
+    // Regular expression that detects the strings 'true' or 'false' (case
+    // insensitive)
+    protected static final String TRUE_OR_FALSE = "(?i:true|false)";
+
     // Node name for the linked and unlinked variables in trees displaying
     // (un)linked variables
     protected static final String LINKED_VARIABLES_NODE_NAME = "Linked Variables";
@@ -202,6 +206,9 @@ public class CcddConstants
 
     // Maximum tool tip characters per line
     protected static final int TOOL_TIP_MAXIMUM_LENGTH = 40;
+
+    // Maximum character width allowed for a data field
+    protected static final int MAX_DATA_FIELD_CHARACTER_WIDTH = 100;
 
     // Disabled item highlight color
     protected static final String DISABLED_TEXT_COLOR = "<html><font color=#b0b0b0>";
@@ -988,6 +995,11 @@ public class CcddConstants
              ".*",
              "text",
              "Text, including alphabetic, numeric, and special characters"),
+
+        TEXT_MULTI("Text (multi-line)",
+                   "(?s).*",
+                   "text",
+                   "Multi-line text, including alphabetic, numeric, special, and new line characters"),
 
         UNITS("Units",
               ".*",
@@ -4630,9 +4642,10 @@ public class CcddConstants
                + TABLE_DESCRIPTION_SEPARATOR
                + "' || table_description || E'"
                + TABLE_DESCRIPTION_SEPARATOR
-               + "' || column_value AS search_result FROM "
-               + "search_tables(E'_search_text_', "
-               + "_case_insensitive_, '_selected_tables_') "
+               + "' || column_value AS search_result "
+               + "FROM search_tables(E'_search_text_', "
+               + "_case_insensitive_, _allow_regex_,"
+               + "'_selected_tables_', '{_columns_}') "
                + "ORDER BY table_name, column_name ASC;"),
 
         // ////////////////////////////////////////////////////////////////////

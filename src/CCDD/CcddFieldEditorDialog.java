@@ -13,6 +13,7 @@ import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.DOWN_ICON;
 import static CCDD.CcddConstants.INSERT_ICON;
+import static CCDD.CcddConstants.MAX_DATA_FIELD_CHARACTER_WIDTH;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.REDO_ICON;
 import static CCDD.CcddConstants.SEPARATOR_ICON;
@@ -326,6 +327,16 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                         if (!newValueS.matches(InputDataType.INT_POSITIVE.getInputMatch()))
                         {
                             throw new CCDDException("Field size must be a positive integer");
+                        }
+
+                        // Check if the character width of the data field
+                        // exceeds the maximum allowed. If the field is too
+                        // wide the rendering of the table can make the
+                        // interface unusable
+                        if (Integer.valueOf(newValueS) > MAX_DATA_FIELD_CHARACTER_WIDTH)
+                        {
+                            throw new CCDDException("Field size must be less than or equal to "
+                                                    + MAX_DATA_FIELD_CHARACTER_WIDTH);
                         }
 
                         // Remove any unneeded characters and store the cleaned

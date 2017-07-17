@@ -2460,8 +2460,9 @@ public class CcddDbTableCommandHandler
                         // Get the number of variable names in the list
                         int addIndex = variableNames.size();
 
-                        // Check if a variable name is already in the list
-                        if (addIndex != 0)
+                        // Check if a variable name is already in the list and
+                        // that the data is sorted by variable name
+                        if (addIndex != 0 && sortByName)
                         {
                             // Get the name of the last variable added to the
                             // list
@@ -2475,70 +2476,44 @@ public class CcddDbTableCommandHandler
                                                 .equals(ArrayVariable.removeArrayIndex(lastVarName)))
                             {
                                 // The PostgreSQL function that obtains the
-                                // table members sorts the members by variable
-                                // name. However, array indices are treated as
-                                // strings when sorting, so array member [10]
-                                // appears immediately after member [1] instead
-                                // of after [9]. This code section determines
-                                // the position in the list where the current
-                                // array member should be placed relative to
-                                // those members already in the list
+                                // table members sorted by variable name treats
+                                // array indices as strings, so array member
+                                // [10] appears immediately after member [1]
+                                // instead of after [9]. This code section
+                                // determines the position in the list where
+                                // the current array member should be placed
+                                // relative to those members already in the
+                                // list, sorted numerically by array dimension
+                                // value(s)
 
-                                // Get the current variable's array indices
-                                int[] varIndex = ArrayVariable.getArrayIndexFromSize(ArrayVariable.getVariableArrayIndex(variableName)
-                                                                                                  .replaceAll("\\]\\[", ",")
-                                                                                                  .replaceAll("[\\]\\[]", ""));
-
-                                boolean notFound = false;
+                                boolean notFound = true;
 
                                 do
                                 {
-                                    notFound = true;
+                                    // Compare the two array members
+                                    // numerically, by array dimension value(s)
+                                    int result = ArrayVariable.compareTo(variableName,
+                                                                         variableNames.get(addIndex - 1));
 
-                                    // Get the array indices of the previous
-                                    // variable
-                                    int[] prevIndex = ArrayVariable.getArrayIndexFromSize(ArrayVariable.getVariableArrayIndex(variableNames.get(addIndex - 1))
-                                                                                                       .replaceAll("\\]\\[", ",")
-                                                                                                       .replaceAll("[\\]\\[]", ""));
-                                    // Step through each array index, beginning
-                                    // with the leftmost one (this accounts for
-                                    // arrays with any number of dimensions)
-                                    for (int i = 0; i < varIndex.length; i++)
+                                    // Check if the array member's dimension
+                                    // value(s) places it before the comparison
+                                    // array member
+                                    if (result < 0)
                                     {
-                                        // Check if the index of the current
-                                        // variable for this array dimension is
-                                        // less than that of the same dimension
-                                        // in the comparison variable
-                                        if (varIndex[i] < prevIndex[i])
-                                        {
-                                            // The current variable should be
-                                            // placed prior to the comparison
-                                            // variable. Decrement the variable
-                                            // insertion index
-                                            addIndex--;
-                                            break;
-                                        }
-                                        // Check if the index of the current
-                                        // variable for this array dimension is
-                                        // greater than that of the same
-                                        // dimension in the comparison variable
-                                        else if (varIndex[i] > prevIndex[i])
-                                        {
-                                            // The current variable should be
-                                            // placed after the comparison
-                                            // variable. Set the flag
-                                            // indicating that the position of
-                                            // the current variable in the list
-                                            // is located and stop checking the
-                                            // dimension values
-                                            notFound = false;
-                                            break;
-                                        }
-
-                                        // The dimension values of the current
-                                        // variable and the comparison variable
-                                        // are the same; allow the 'for' loop
-                                        // to continue to the next dimension
+                                        // Decrement the variable insertion
+                                        // index
+                                        addIndex--;
+                                    }
+                                    // Check if the array member's dimension
+                                    // value(s) places it after the comparison
+                                    // array member
+                                    else if (result > 0)
+                                    {
+                                        // Set the flag indicating that the
+                                        // position of the current variable in
+                                        // the list is located and stop
+                                        // checking the dimension values
+                                        notFound = false;
                                     }
                                 } while (notFound && addIndex > 0);
                                 // Continue to adjust the insertion index as
@@ -2689,16 +2664,6 @@ public class CcddDbTableCommandHandler
      *            only the data type name has changed in order to speed up the
      *            operation
      * 
-     * @param newDataTypeHandler
-     *            data type handler with data type modifications. null (or a
-     *            reference to the current data type handler) if the change
-     *            does not originate from the data type editor
-     * 
-     * @param newMacroHandler
-     *            macro handler with macro modifications. null (or a reference
-     *            to the current macro handler) if the change does not
-     *            originate from the macro editor
-     * 
      * @param updateDescription
      *            true to update the table description from the table
      *            information; false to not change the table description
@@ -2710,6 +2675,16 @@ public class CcddDbTableCommandHandler
      * @param updateFieldInfo
      *            true to update the table data fields from the table
      *            information; false to not change the table data fields
+     * 
+     * @param newDataTypeHandler
+     *            data type handler with data type modifications. null (or a
+     *            reference to the current data type handler) if the change
+     *            does not originate from the data type editor
+     * 
+     * @param newMacroHandler
+     *            macro handler with macro modifications. null (or a reference
+     *            to the current macro handler) if the change does not
+     *            originate from the macro editor
      * 
      * @param parent
      *            reference to the GUI component over which any error dialogs
@@ -2742,10 +2717,10 @@ public class CcddDbTableCommandHandler
                                 modifications,
                                 deletions,
                                 forceUpdate,
+                                skipInternalTables,
                                 updateDescription,
                                 updateColumnOrder,
                                 updateFieldInfo,
-                                skipInternalTables,
                                 newDataTypeHandler,
                                 newMacroHandler,
                                 parent);
@@ -2781,16 +2756,6 @@ public class CcddDbTableCommandHandler
      *            only the data type name has changed in order to speed up the
      *            operation
      * 
-     * @param newDataTypeHandler
-     *            data type handler with data type modifications. null (or a
-     *            reference to the current data type handler) if the change
-     *            does not originate from the data type editor
-     * 
-     * @param newMacroHandler
-     *            macro handler with macro modifications. null (or a reference
-     *            to the current macro handler) if the change does not
-     *            originate from the macro editor
-     * 
      * @param updateDescription
      *            true to update the table description from the table
      *            information; false to not change the table description
@@ -2802,6 +2767,16 @@ public class CcddDbTableCommandHandler
      * @param updateFieldInfo
      *            true to update the table data fields from the table
      *            information; false to not change the table data fields
+     * 
+     * @param newDataTypeHandler
+     *            data type handler with data type modifications. null (or a
+     *            reference to the current data type handler) if the change
+     *            does not originate from the data type editor
+     * 
+     * @param newMacroHandler
+     *            macro handler with macro modifications. null (or a reference
+     *            to the current macro handler) if the change does not
+     *            originate from the macro editor
      * 
      * @param parent
      *            reference to the GUI component over which any error dialogs

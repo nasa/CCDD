@@ -1940,7 +1940,6 @@ public class CcddDbVerificationHandler
                         }
                     }
 
-                    // TODO
                     // Perform for each remaining missing array member
                     while (membersRemaining != 0)
                     {
@@ -2300,7 +2299,7 @@ public class CcddDbVerificationHandler
                                       + "' is missing array member "
                                       + ArrayVariable.formatArrayIndex(currentArrayIndex),
                                       "Add missing array member",
-                                      row, // TODO
+                                      row,
                                       addMissingArrayRow(tableInfo,
                                                          arrayName,
                                                          currentArrayIndex),

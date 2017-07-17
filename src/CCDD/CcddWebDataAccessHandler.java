@@ -7,6 +7,8 @@
 package CCDD;
 
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
+import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
+import static CCDD.CcddConstants.TRUE_OR_FALSE;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_DATA_FIELD_IDENT;
 
@@ -38,6 +40,8 @@ import CCDD.CcddConstants.CopyTableEntry;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.JSONTags;
+import CCDD.CcddConstants.SearchDialogType;
+import CCDD.CcddConstants.SearchResultsColumnInfo;
 import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
@@ -51,6 +55,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     private final CcddDbControlHandler dbControl;
     private final CcddDbTableCommandHandler dbTable;
     private final CcddEventLogDialog eventLog;
+    private CcddTableTypeHandler tableTypeHandler;
     private CcddRateParameterHandler rateHandler;
     private CcddVariableConversionHandler variableHandler;
     private CcddLinkHandler linkHandler;
@@ -91,6 +96,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *************************************************************************/
     protected void setHandlers()
     {
+        tableTypeHandler = ccddMain.getTableTypeHandler();
         rateHandler = ccddMain.getRateParameterHandler();
         fieldHandler = new CcddFieldHandler(ccddMain,
                                             null,
@@ -200,22 +206,37 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                               int limit,
                               boolean removeQuotes)
     {
-        int index = 0;
-
-        // Create storage for the array and initialize the contents to blanks
-        String[] parts = new String[limit];
-        Arrays.fill(parts, "");
+        String[] parts;
 
         // Extract the parts of the input string using the supplied separator
-        // and limit, then step through each part
-        for (String part : CcddUtilities.splitAndRemoveQuotes(text.trim(),
-                                                              separator,
-                                                              limit,
-                                                              removeQuotes))
+        // and limit
+        String[] splitText = CcddUtilities.splitAndRemoveQuotes(text.trim(),
+                                                                separator,
+                                                                limit,
+                                                                removeQuotes);
+
+        // Check if a limit is specified
+        if (limit > 0)
         {
-            // Store the value in the array
-            parts[index] = part.trim();
-            index++;
+            // Create storage for the specified number of array members and
+            // initialize the contents to blanks
+            parts = new String[limit];
+            Arrays.fill(parts, "");
+        }
+        // No limit is specified
+        else
+        {
+            // Create storage for the number of parts determined by the split
+            // operation
+            parts = new String[splitText.length];
+        }
+
+        // Step through each part of the split text array
+        for (int index = 0; index < splitText.length; index++)
+        {
+            // Store the value in the array, minus any leading or trailing
+            // white space characters
+            parts[index] = splitText[index].trim();
         }
 
         return parts;
@@ -266,7 +287,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // Check if the separator characters and data type flag values are
             // valid
             if (separators[0].matches(".*[\\[\\]].*")
-                || !separators[1].matches("(?i:true|false)")
+                || !separators[1].matches(TRUE_OR_FALSE)
                 || (separators[1].matches("(?i:false)")
                 && separators[2].matches(".*[\\[\\]].*")))
 
@@ -408,6 +429,11 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // (or all structure tables if no table name is
                         // specified)
                         response = getStructureSize(attributeAndName[1]);
+                        break;
+
+                    case "search":
+                        // Get the results of the specified table search
+                        response = getSearchResults(attributeAndName[1]);
                         break;
 
                     default:
@@ -634,6 +660,129 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         {
             // Set the response to indicate the credentials are valid
             response = "true";
+        }
+
+        return response;
+    }
+
+    /**************************************************************************
+     * Perform a search for the specified text in the data and internal tables
+     * 
+     * @param searchCriteria
+     *            attribute containing the search constraints in the format
+     *            <search text>,<ignore case (true or false)>,<data table cells
+     *            only (true or false)><,search table column names>. The
+     *            'ignore case' and 'data table cells only' flags default to
+     *            false if not provided. The last criterion is optional and
+     *            allows the search to be constrained to specific columns in
+     *            the data tables. The column names must be comma-separated (if
+     *            more than one) and are case sensitive
+     * 
+     * @return JSON encoded string containing the search results. An empty
+     *         string if no matches are found, and null if the search
+     *         parameters are missing or invalid
+     *************************************************************************/
+    @SuppressWarnings("unchecked")
+    private String getSearchResults(String searchCriteria)
+    {
+        String response = null;
+
+        // Separate the search criteria string into the search text, ignore
+        // case flag, allow regular expression, search data table cells only
+        // flag, and the column names in which to search
+        String[] parameter = getParts(searchCriteria, ",", 5, true);
+        String searchText = parameter[0];
+        String ignoreCase = parameter[1];
+        String allowRegex = parameter[2];
+        String dataTablesOnly = parameter[3];
+        String searchColumns = parameter[4];
+
+        // Check if the flag to ignore case isn't present
+        if (ignoreCase.isEmpty())
+        {
+            // Default to constraining matches by text case
+            ignoreCase = "false";
+        }
+
+        // Check if the flag to search only the data tables isn't present
+        if (dataTablesOnly.isEmpty())
+        {
+            // Default to searching the entire project database (data and
+            // internal table references)
+            dataTablesOnly = "false";
+        }
+
+        // Check if all the input parameters are present and that they're in
+        // the expected formats
+        if (!searchText.isEmpty()
+            && ignoreCase.matches(TRUE_OR_FALSE)
+            && dataTablesOnly.matches(TRUE_OR_FALSE))
+        {
+            String dbColumns = "";
+            JSONArray searchJA = new JSONArray();
+
+            // Check if one or more column names to which the search is
+            // constrained is provided
+            if (!searchColumns.isEmpty())
+            {
+                // Step through each column name
+                for (String column : getParts(searchColumns, ",", -1, true))
+                {
+                    // Step through each defined table type
+                    for (TypeDefinition typeDefn : tableTypeHandler.getTypeDefinitions())
+                    {
+                        // Step through each visible column in the table type
+                        for (int index = NUM_HIDDEN_COLUMNS; index < typeDefn.getColumnCountDatabase(); ++index)
+                        {
+                            // Check if the column name matches the one in the
+                            // table type definition
+                            if (column.equals(typeDefn.getColumnNamesUser()[index]))
+                            {
+                                // Add the column's corresponding database name
+                                // to the column constraints string. Stop
+                                // searching since column names can't be
+                                // duplicated within a table
+                                dbColumns += typeDefn.getColumnNamesDatabase()[index] + ",";
+                                break;
+                            }
+                        }
+
+                        // Even if a match is found in one table type
+                        // definition the search is allowed to continue in
+                        // other definitions. Under certain circumstances
+                        // involving structure table types it's possible for
+                        // the database column name to be the same in two table
+                        // types, but have different visible names
+                    }
+
+                    dbColumns = CcddUtilities.removeTrailer(dbColumns, ",");
+                }
+            }
+
+            // Create a search handler to perform the search
+            CcddSearchHandler searchHandler = new CcddSearchHandler(ccddMain,
+                                                                    SearchDialogType.TABLES);
+
+            // Perform the search and step through the results, if any
+            for (Object[] searchResult : searchHandler.searchTablesOrScripts(searchText,
+                                                                             Boolean.valueOf(ignoreCase),
+                                                                             Boolean.valueOf(allowRegex),
+                                                                             Boolean.valueOf(dataTablesOnly),
+                                                                             dbColumns))
+            {
+                // Store each search result in a JSON object and add it to the
+                // search results array
+                JSONObject searchJO = new JSONObject();
+                searchJO.put(SearchResultsColumnInfo.TARGET.getColumnName(SearchDialogType.TABLES),
+                             searchResult[SearchResultsColumnInfo.TARGET.ordinal()]);
+                searchJO.put(SearchResultsColumnInfo.LOCATION.getColumnName(SearchDialogType.TABLES),
+                             searchResult[SearchResultsColumnInfo.LOCATION.ordinal()]);
+                searchJO.put(SearchResultsColumnInfo.CONTEXT.getColumnName(SearchDialogType.TABLES),
+                             searchResult[SearchResultsColumnInfo.CONTEXT.ordinal()]);
+                searchJA.add(searchJO);
+            }
+
+            response = searchJA.toString();
         }
 
         return response;
@@ -1115,7 +1264,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             if (!isSingle || prototypeName.equalsIgnoreCase(namesAndType[0]))
             {
                 // Get the table's type definition
-                TypeDefinition typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(namesAndType[2]);
+                TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(namesAndType[2]);
 
                 // Check if the table represents a structure
                 if (typeDefn.isStructure())
@@ -1846,7 +1995,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
         // Check if all the input parameters are present and that they're in
         // the expected formats
-        if (parameter[1].matches("\\d+") && parameter[3].matches("(true|false)"))
+        if (parameter[1].matches("\\d+") && parameter[3].matches(TRUE_OR_FALSE))
         {
             JSONArray tableJA = new JSONArray();
 
@@ -2137,7 +2286,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             if (!tableInfo.isErrorFlag())
             {
                 // Get the table's type definition
-                typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(tableInfo.getType());
+                typeDefn = tableTypeHandler.getTypeDefinition(tableInfo.getType());
 
                 // CHekc if the table represents a structure
                 if (typeDefn.isStructure())
@@ -2396,7 +2545,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         lastType = tableInfo.getType();
 
                         // Get the table's type definition
-                        typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(tableInfo.getType());
+                        typeDefn = tableTypeHandler.getTypeDefinition(tableInfo.getType());
 
                         // Get the command name column
                         commandNameIndex = typeDefn.getColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.COMMAND_NAME));

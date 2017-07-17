@@ -277,7 +277,8 @@ public class CcddUtilities
      * @param limit
      *            maximum number of parts to separate the text into. This is
      *            the number of parts returned, with any missing parts returned
-     *            as blanks
+     *            as blanks. Set to -1 to split the text into as many parts as
+     *            there are separators in the text
      * 
      * @param removeQuotes
      *            true to remove excess double quotes from the individual array

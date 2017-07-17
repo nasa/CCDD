@@ -2428,6 +2428,65 @@ public class CcddClasses
 
             return position;
         }
+
+        /**********************************************************************
+         * Compare two array variable members by array dimension value(s)
+         * 
+         * @param arrayVariable1
+         *            first array variable member to compare
+         * 
+         * @param arrayVariable2
+         *            second array variable member to compare
+         * 
+         * @return 0 if the array members are the same, -1 if the first array
+         *         member occurs prior to the second array member (based the
+         *         their array dimension value(s), and 1 if the first array
+         *         member occurs after the second array member
+         *********************************************************************/
+        protected static int compareTo(String arrayVariable1, String arrayVariable2)
+        {
+            int result = 0;
+
+            // Get the array index value(s) for the array members
+            int[] varIndex1 = getArrayIndexFromSize(getVariableArrayIndex(arrayVariable1)
+                                                                                         .replaceAll("\\]\\[", ",")
+                                                                                         .replaceAll("[\\]\\[]", ""));
+            int[] varIndex2 = getArrayIndexFromSize(getVariableArrayIndex(arrayVariable2)
+                                                                                         .replaceAll("\\]\\[", ",")
+                                                                                         .replaceAll("[\\]\\[]", ""));
+            // Step through each array dimension, beginning
+            // with the leftmost one (this accounts for arrays
+            // with any number of dimensions)
+            for (int index = 0; index < varIndex1.length; index++)
+            {
+                // Check if the value of the array dimension of
+                // the first variable is less than that of the
+                // same dimension in the second variable
+                if (varIndex1[index] < varIndex2[index])
+                {
+                    // Set the comparison result to indicate
+                    // that the first variable should be placed
+                    // prior to the second variable, and stop
+                    // comparing array indices
+                    result = -1;
+                    break;
+                }
+                // Check if the value of the array dimension of
+                // the first variable is greater than that of
+                // the same dimension in the second variable
+                else if (varIndex1[index] > varIndex2[index])
+                {
+                    // Set the comparison result to indicate
+                    // that the first variable should be placed
+                    // after to the second variable, and stop
+                    // comparing array indices
+                    result = 1;
+                    break;
+                }
+            }
+
+            return result;
+        }
     }
 
     /**************************************************************************
@@ -5167,9 +5226,9 @@ public class CcddClasses
             this.autoCompList = autoCompList;
             this.maxItems = maxItems;
 
-            // Initialize with case sensitivity enables and allowing text other
-            // than that in the auto-completion list from being entered
-            isCaseSensitive = true;
+            // Initialize with case sensitivity disables and allowing text
+            // other than that in the auto-completion list from being entered
+            isCaseSensitive = false;
             isOnlyFromList = false;
 
             // Add a key press listener to the text field
@@ -5259,7 +5318,7 @@ public class CcddClasses
          * Set the case sensitivity flag
          * 
          * @param isCaseSensitive
-         *            true so match case when auto-completing a string
+         *            true to match case when auto-completing a string
          *********************************************************************/
         protected void setCaseSensitive(boolean isCaseSensitive)
         {

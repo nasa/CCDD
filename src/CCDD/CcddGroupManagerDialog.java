@@ -1682,13 +1682,13 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
      *************************************************************************/
     private void selectGroupByTable()
     {
+        // Clear any currently selected group(s)
+        groupTree.clearSelection();
+
         // Check if only a single node is selected in the table tree
         if (tableTree.getSelectionPaths().length == 1)
         {
             List<TreePath> paths = new ArrayList<TreePath>();
-
-            // Clear any currently selected group(s)
-            groupTree.clearSelection();
 
             // Get the first selected table's path
             String tablePath = tableTree.getFullVariablePath(tableTree.getSelectionPath().getPath());
