@@ -2828,6 +2828,7 @@ public class CcddDbVerificationHandler
             if (dialog.showOptionsDialog(ccddMain.getMainFrame(),
                                          dialogPnl,
                                          buttonPnl,
+                                         btnOk,
                                          "Perform Corrections",
                                          true) == OK_BUTTON)
             {

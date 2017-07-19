@@ -1996,34 +1996,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                             bitLength = getExpandedValueAt(tableData, row, bitLengthIndex);
                         }
 
-                        // // Check if the variable name or data type has been
-                        // // changed and that teh variable is an array
-                        // if ((column == variableNameIndex || column ==
-                        // dataTypeIndex)
-                        // && arraySize != null)
-                        // {
-                        // // Check if this is the data type column, a bit
-                        // // length is present, and the bit length exceeds
-                        // // the size of the data type in bits
-                        // if (column == dataTypeIndex
-                        // && !newValueS.isEmpty()
-                        // && bitLength != null
-                        // && !bitLength.isEmpty()
-                        // && Integer.valueOf(bitLength) >
-                        // newDataTypeHandler.getSizeInBits(dataType))
-                        // {
-                        // throw new
-                        // CCDDException("Bit length exceeds the size of the data type");
-                        // }
-                        //
-                        // // Get the array index values from the array size
-                        // // column and update array members if this is an
-                        // // array definition
-                        // int[] arrayDims =
-                        // ArrayVariable.getArrayIndexFromSize(arraySize);
-                        // adjustArrayMember(tableData, arrayDims, arrayDims,
-                        // row, column);
-                        // }
                         // Check if the variable name or data type has been
                         // changed
                         if (column == variableNameIndex || column == dataTypeIndex)

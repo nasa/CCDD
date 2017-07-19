@@ -313,8 +313,8 @@ public class CcddEDSHandler implements CcddImportExportInterface
         {
             // Inform the user that the database import failed
             new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Cannot import EDS XML from file<br>'</b>" +
-                                                          importFile.getAbsolutePath()
+                                                      "<html><b>Cannot import EDS XML from file<br>'</b>"
+                                                          + importFile.getAbsolutePath()
                                                           + "<b>'; cause '"
                                                           + je.getMessage()
                                                           + "'",
@@ -417,8 +417,8 @@ public class CcddEDSHandler implements CcddImportExportInterface
         {
             // Inform the user that the database export failed
             new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Cannot export as EDS XML to file<br>'</b>" +
-                                                          exportFile.getAbsolutePath()
+                                                      "<html><b>Cannot export as EDS XML to file<br>'</b>"
+                                                          + exportFile.getAbsolutePath()
                                                           + "<b>'; cause '"
                                                           + je.getMessage()
                                                           + "'",

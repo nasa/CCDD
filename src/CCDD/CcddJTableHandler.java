@@ -28,10 +28,15 @@ import java.awt.AWTException;
 import java.awt.AWTKeyStroke;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.KeyboardFocusManager;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.Toolkit;
@@ -57,6 +62,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.print.DocFlavor;
+import javax.print.PrintService;
+import javax.print.PrintServiceLookup;
+import javax.print.ServiceUI;
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintRequestAttributeSet;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JCheckBox;
@@ -83,6 +94,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.JTextComponent;
 
+import sun.print.ServiceDialog;
 import CCDD.CcddClasses.CellSelectionHandler;
 import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.SelectedCell;
@@ -4017,12 +4029,86 @@ public abstract class CcddJTableHandler extends JTable
     {
         try
         {
+            GraphicsConfiguration gc;
+
             // Create a printer job
             PrinterJob printerJob = PrinterJob.getPrinterJob();
 
+            // The native print dialog does not allow simple positioning on the
+            // screen relative to another component. However, the
+            // ServiceUI.printDialog() method, which calls
+            // PrinterJob.printDialog(), does allow setting the dialog's x and
+            // y coordinates. The dimensions of the print dialog must be known
+            // in order to center it over its parent, but the size is unknown
+            // until the dialog is instantiated. Therefore, a dummy dialog is
+            // created using the same call within ServiceUI.printDialog() and
+            // the dialog's size is taken from it. The dialog's x, y
+            // coordinates can then be determined
+            PrintRequestAttributeSet attributes = new HashPrintRequestAttributeSet();
+            DocFlavor flavor = null;
+            PrintService[] services = PrintServiceLookup.lookupPrintServices(flavor,
+                                                                             attributes);;
+            PrintService defaultService = printerJob.getPrintService();
+
+            // Get the dialog/frame that contains the table
+            Component comp = table.getTopLevelAncestor();
+
+            // Create a dummy dialog in order to obtain the print dialog's
+            // dimensions
+            ServiceDialog dialog = new ServiceDialog(comp.getGraphicsConfiguration(),
+                                                     0,
+                                                     0,
+                                                     services,
+                                                     0,
+                                                     flavor,
+                                                     attributes,
+                                                     (Dialog) null);
+            Rectangle newDlgSize = dialog.getBounds();
+            dialog.dispose();
+
+            // Get the array of graphics devices (this accounts for multiple
+            // screens)
+            GraphicsDevice[] gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
+
+            // Check if more than one screen exists
+            if (gd.length > 1)
+            {
+                // Get the graphics configuration for the screen on which the
+                // component resides
+                gc = gd[0].getDefaultConfiguration();
+            }
+            // Only one screen is present
+            else
+            {
+                // Get the component's graphics configuration
+                gc = comp.getGraphicsConfiguration();
+            }
+
+            // Now that the dialog's size is known the print dialog's position
+            // can be calculated so as to center it over calling component,
+            // adjusting the location so that the dialog appears fully on the
+            // screen in which the component resides
+            Dimension compSize = comp.getSize();
+            Point adjLocation = CcddDialogHandler.adjustDialogLocationForScreen(new Rectangle(comp.getX()
+                                                                                               + ((compSize.width
+                                                                                               - newDlgSize.width)
+                                                                                               / 2),
+                                                                                               comp.getY()
+                                                                                                   + ((compSize.height
+                                                                                                   - newDlgSize.height)
+                                                                                                   / 2),
+                                                                                               newDlgSize.width,
+                                                                                               newDlgSize.height));
+
             // Display a printer dialog to obtain the desired destination and
             // output to the selected printer
-            if (printerJob.printDialog())
+            if (ServiceUI.printDialog(gc,
+                                      adjLocation.x,
+                                      adjLocation.y,
+                                      services,
+                                      defaultService,
+                                      flavor,
+                                      attributes) != null)
             {
                 // Set the page format
                 PageFormat pageFormat = new PageFormat();
@@ -4089,8 +4175,8 @@ public abstract class CcddJTableHandler extends JTable
         {
             // Inform the user that printing failed
             new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Table '" +
-                                                          tableName
+                                                      "<html><b>Table '"
+                                                          + tableName
                                                           + "' printing failed; cause '"
                                                           + pe.getMessage()
                                                           + "'",

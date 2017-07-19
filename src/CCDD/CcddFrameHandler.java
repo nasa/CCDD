@@ -16,7 +16,9 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -193,6 +195,10 @@ public class CcddFrameHandler extends JFrame
      *            panel containing the window's buttons; null if a defined
      *            option type is used
      * 
+     * @param defaultBtn
+     *            reference to the JButton that is actuated if the Enter key is
+     *            pressed; null to have no default button
+     * 
      * @param title
      *            title to display in the window frame
      * 
@@ -204,16 +210,46 @@ public class CcddFrameHandler extends JFrame
     protected void createFrame(Component parent,
                                JComponent upperComponent,
                                JPanel buttonPnl,
+                               JButton defaultBtn,
                                String title,
                                DialogOption optionType)
     {
         // Set up button panel related items and combine the button and upper
         // panels
         buttonPnl = buttonHandler.assembleWindowComponents(buttonPnl,
+                                                           defaultBtn,
                                                            upperComponent,
                                                            optionType,
                                                            getContentPane(),
                                                            getRootPane());
+
+        // Add a listener for dialog focus gain and lost events
+        addWindowFocusListener(new WindowFocusListener()
+        {
+            /******************************************************************
+             * Handle a dialog focus gained event
+             *****************************************************************/
+            @Override
+            public void windowGainedFocus(WindowEvent we)
+            {
+                // Set the default button to the last button pressed when the
+                // dialog (re)gains the focus. This enables the special
+                // highlighting associated with the default button
+                getRootPane().setDefaultButton(buttonHandler.getLastButtonPressed());
+            }
+
+            /******************************************************************
+             * Handle a dialog focus lost event
+             *****************************************************************/
+            @Override
+            public void windowLostFocus(WindowEvent we)
+            {
+                // Set so that there is no default button while the dialog
+                // doesn't have the focus. This removes the special
+                // highlighting associated with the default button
+                getRootPane().setDefaultButton(null);
+            }
+        });
 
         // Check if the title is provided
         if (title != null)

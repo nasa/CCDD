@@ -157,6 +157,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
             // Create panels to hold the components of the dialog
             JPanel dialogPnl = new JPanel(new GridBagLayout());
             JPanel buttonPnl = new JPanel();
+            JButton btnClose;
 
             /******************************************************************
              * Build the variable link manager dialog
@@ -373,10 +374,10 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                 });
 
                 // Close button
-                JButton btnClose = CcddButtonPanelHandler.createButton("Close",
-                                                                       CLOSE_ICON,
-                                                                       KeyEvent.VK_C,
-                                                                       "Close the link manager");
+                btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                               CLOSE_ICON,
+                                                               KeyEvent.VK_C,
+                                                               "Close the link manager");
 
                 // Add a listener for the Close button
                 btnClose.addActionListener(new ActionListener()
@@ -434,6 +435,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                 showOptionsDialog(ccddMain.getMainFrame(),
                                   dialogPnl,
                                   buttonPnl,
+                                  btnClose,
                                   "Manage Links",
                                   true);
             }

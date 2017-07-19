@@ -250,6 +250,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             // Create panels to hold the components of the dialog
             JPanel dialogPnl = new JPanel(new GridBagLayout());
             JPanel buttonPnl = new JPanel();
+            JButton btnClose;
 
             /******************************************************************
              * Build the variable link manager dialog
@@ -793,10 +794,10 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 });
 
                 // Close button
-                JButton btnClose = CcddButtonPanelHandler.createButton("Close",
-                                                                       CLOSE_ICON,
-                                                                       KeyEvent.VK_C,
-                                                                       "Close the group manager");
+                btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                               CLOSE_ICON,
+                                                               KeyEvent.VK_C,
+                                                               "Close the group manager");
 
                 // Add a listener for the Close button
                 btnClose.addActionListener(new ActionListener()
@@ -884,6 +885,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 showOptionsDialog(ccddMain.getMainFrame(),
                                   dialogPnl,
                                   buttonPnl,
+                                  btnClose,
                                   DIALOG_TITLE,
                                   true);
             }

@@ -8,7 +8,6 @@
 package CCDD;
 
 import static CCDD.CcddConstants.AUTO_COMPLETE_TEXT_SEPARATOR;
-import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.LABEL_FONT_BOLD;
 import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
@@ -22,6 +21,7 @@ import static CCDD.CcddConstants.PRINT_ICON;
 import static CCDD.CcddConstants.SEARCH_ICON;
 import static CCDD.CcddConstants.SEARCH_STRINGS;
 import static CCDD.CcddConstants.TABLE_BACK_COLOR;
+import static CCDD.CcddConstants.TABLE_ICON;
 import static CCDD.CcddConstants.TEXT_HIGHLIGHT_COLOR;
 
 import java.awt.Color;
@@ -32,6 +32,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.print.PageFormat;
 import java.util.ArrayList;
@@ -63,6 +64,7 @@ import javax.swing.text.JTextComponent;
 
 import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.AutoCompleteTextField;
+import CCDD.CcddClasses.MultilineLabel;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.SearchDialogType;
 import CCDD.CcddConstants.SearchResultsColumnInfo;
@@ -74,10 +76,11 @@ import CCDD.CcddTableTypeHandler.TypeDefinition;
  * dialog class
  *****************************************************************************/
 @SuppressWarnings("serial")
-public class CcddSearchDialog extends CcddDialogHandler
+public class CcddSearchDialog extends CcddFrameHandler
 {
     // Class references
     private final CcddMain ccddMain;
+    private final CcddDbTableCommandHandler dbTable;
     private final CcddTableTypeHandler tableTypeHandler;
     private CcddJTableHandler resultsTable;
     private final CcddEventLogDialog eventLog;
@@ -89,6 +92,7 @@ public class CcddSearchDialog extends CcddDialogHandler
     private JCheckBox dataTablesOnlyCb;
     private JCheckBox selectedColumnsCb;
     private JLabel numResultsLbl;
+    private MultilineLabel selectedColumnsLbl;
 
     // String containing the names of columns, separated by commas, to which to
     // constrain a table search
@@ -125,7 +129,8 @@ public class CcddSearchDialog extends CcddDialogHandler
         this.searchDlgType = searchType;
         this.eventLog = eventLog;
 
-        // Create reference to shorten subsequent calls
+        // Create references to shorten subsequent calls
+        dbTable = ccddMain.getDbTableCommandHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
 
         // Initialize the search results table contents
@@ -196,14 +201,10 @@ public class CcddSearchDialog extends CcddDialogHandler
         dlgLbl.setFont(LABEL_FONT_BOLD);
         dialogPnl.add(dlgLbl, gbc);
 
-        // Create the auto-completion search field, using the list of
-        // remembered searches from the program preferences, and add it to the
-        // dialog panel
-        List<String> searches = new ArrayList<String>(NUM_REMEMBERED_SEARCHES);
-        searches.addAll(Arrays.asList(ccddMain.getProgPrefs().get(SEARCH_STRINGS,
-                                                                  "").split(AUTO_COMPLETE_TEXT_SEPARATOR)));
-        searchFld = new AutoCompleteTextField(searches,
-                                              NUM_REMEMBERED_SEARCHES);
+        // Create the auto-completion search field and add it to the
+        // dialog panel. The search list is initially empty as it is updated
+        // whenever a key is pressed
+        searchFld = new AutoCompleteTextField(NUM_REMEMBERED_SEARCHES);
         searchFld.setCaseSensitive(true);
         searchFld.setText("");
         searchFld.setColumns(20);
@@ -212,6 +213,37 @@ public class CcddSearchDialog extends CcddDialogHandler
         searchFld.setForeground(Color.BLACK);
         searchFld.setBackground(Color.WHITE);
         searchFld.setBorder(border);
+
+        // Add a listener for kee press events
+        searchFld.addKeyListener(new KeyAdapter()
+        {
+            /******************************************************************
+             * Handle a key press event
+             *****************************************************************/
+            @Override
+            public void keyPressed(KeyEvent ke)
+            {
+                // Check if this is a visible character
+                if (!ke.isActionKey()
+                    && ke.getKeyCode() != KeyEvent.VK_ENTER
+                    && !ke.isControlDown()
+                    && !ke.isAltDown()
+                    && !ke.isMetaDown()
+                    && LABEL_FONT_PLAIN.canDisplay(ke.getKeyCode()))
+                {
+                    // Get the list of remembered searches from the program
+                    // preferences. This is done as a key press occurs so that
+                    // the list is updated to the latest one. If multiple
+                    // search dialogs are open this allows them to 'share' the
+                    // list rather than overwriting each other
+                    List<String> searches = new ArrayList<String>(NUM_REMEMBERED_SEARCHES);
+                    searches.addAll(Arrays.asList(ccddMain.getProgPrefs().get(SEARCH_STRINGS,
+                                                                              "").split(AUTO_COMPLETE_TEXT_SEPARATOR)));
+                    searchFld.setList(searches);
+                }
+            }
+        });
+
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets.left = LABEL_HORIZONTAL_SPACING * 2;
         gbc.insets.bottom = LABEL_VERTICAL_SPACING / 2;
@@ -302,13 +334,40 @@ public class CcddSearchDialog extends CcddDialogHandler
                     }
                 });
 
-                // Create the column selection and add it to the dialog
+                // Create the column selection check box and label to display
+                // the selected column(s)
                 selectedColumnsCb = new JCheckBox("Search selected columns");
                 selectedColumnsCb.setFont(LABEL_FONT_BOLD);
                 selectedColumnsCb.setBorder(BorderFactory.createEmptyBorder());
                 selectedColumnsCb.setToolTipText("Search only selected columns in the data tables");
+                selectedColumnsLbl = new MultilineLabel();
+                selectedColumnsLbl.setFont(LABEL_FONT_PLAIN);
+
+                // Set the layout manager characteristics for the column
+                // selection panel
+                GridBagConstraints subgbc = new GridBagConstraints(0,
+                                                                   0,
+                                                                   1,
+                                                                   1,
+                                                                   0.0,
+                                                                   0.0,
+                                                                   GridBagConstraints.FIRST_LINE_START,
+                                                                   GridBagConstraints.NONE,
+                                                                   new Insets(0, 0, 0, 0),
+                                                                   LABEL_HORIZONTAL_SPACING,
+                                                                   0);
+
+                // Add the column selection check box and label to the column
+                // selection panel, then add this panel to the dialog
+                JPanel selectedColumnsPnl = new JPanel(new GridBagLayout());
+                selectedColumnsPnl.add(selectedColumnsCb, subgbc);
+                subgbc.weightx = 1.0;
+                subgbc.insets.left = LABEL_HORIZONTAL_SPACING;
+                subgbc.gridx++;
+                selectedColumnsPnl.add(selectedColumnsLbl, subgbc);
+                gbc.insets.left = LABEL_HORIZONTAL_SPACING;
                 gbc.gridy++;
-                dialogPnl.add(selectedColumnsCb, gbc);
+                dialogPnl.add(selectedColumnsPnl, gbc);
 
                 // Create a panel for the column selection pop-up dialog
                 final JPanel columnPnl = new JPanel(new GridBagLayout());
@@ -367,13 +426,30 @@ public class CcddSearchDialog extends CcddDialogHandler
                                 }
 
                                 searchColumns = CcddUtilities.removeTrailer(searchColumns, ",");
+
+                                // Set the selected column(s) label to display
+                                // the selected column(s)
+                                selectedColumnsLbl.setText("("
+                                                           + searchColumns.replaceAll(",", ", ")
+                                                           + ")");
+                            }
+
+                            // Check if no column is selected
+                            if (searchColumns.isEmpty())
+                            {
+                                // Deselect the selected columns check box and
+                                // blank the selected column(s) text
+                                selectedColumnsCb.setSelected(false);
+                                selectedColumnsLbl.setText("");
                             }
                         }
                         // The column selection check box is not selected
                         else
                         {
-                            // Blank the column constraint string
+                            // Blank the column constraint string and the
+                            // selected column(s) text
                             searchColumns = "";
+                            selectedColumnsLbl.setText("");
                         }
                     }
                 });
@@ -632,6 +708,9 @@ public class CcddSearchDialog extends CcddDialogHandler
                     // Update the search string list
                     searchFld.updateList(searchFld.getText());
 
+                    // Store the search list in the program preferences
+                    ccddMain.getProgPrefs().put(SEARCH_STRINGS, searchFld.getListAsString());
+
                     switch (searchDlgType)
                     {
                         case TABLES:
@@ -666,6 +745,32 @@ public class CcddSearchDialog extends CcddDialogHandler
             }
         });
 
+        JButton btnOpen = null;
+
+        // Check if this is the table search dialog
+        if (searchDlgType == SearchDialogType.TABLES)
+        {
+            // Open table(s) button
+            btnOpen = CcddButtonPanelHandler.createButton("Open",
+                                                          TABLE_ICON,
+                                                          KeyEvent.VK_O,
+                                                          "Open the table(s) associated with the selected search result(s)");
+
+            // Add a listener for the Open button
+            btnOpen.addActionListener(new ActionListener()
+            {
+                /******************************************************************
+                 * Open the selected table(s)
+                 *****************************************************************/
+                @Override
+                public void actionPerformed(ActionEvent ae)
+                {
+                    openTables();
+                }
+            });
+
+        }
+
         // Print inconsistencies button
         JButton btnPrint = CcddButtonPanelHandler.createButton("Print",
                                                                PRINT_ICON,
@@ -698,16 +803,12 @@ public class CcddSearchDialog extends CcddDialogHandler
         btnClose.addActionListener(new ActionListener()
         {
             /******************************************************************
-             * Store the search strings and close the search dialog
+             * Close the search dialog
              *****************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                // Store the search list in the program preferences
-                ccddMain.getProgPrefs().put(SEARCH_STRINGS, searchFld.getListAsString());
-
-                // Close the dialog
-                closeDialog(CANCEL_BUTTON);
+                CcddSearchDialog.this.closeFrame();
             }
         });
 
@@ -716,6 +817,13 @@ public class CcddSearchDialog extends CcddDialogHandler
         JPanel buttonPnl = new JPanel();
         buttonPnl.setBorder(BorderFactory.createEmptyBorder());
         buttonPnl.add(btnSearch);
+
+        // Check if this is the table search dialog
+        if (searchDlgType == SearchDialogType.TABLES)
+        {
+            buttonPnl.add(btnOpen);
+        }
+
         buttonPnl.add(btnPrint);
         buttonPnl.add(btnClose);
 
@@ -738,10 +846,57 @@ public class CcddSearchDialog extends CcddDialogHandler
         }
 
         // Display the search dialog
-        showOptionsDialog(ccddMain.getMainFrame(),
-                          dialogPnl,
-                          buttonPnl,
-                          title,
-                          true);
+        createFrame(ccddMain.getMainFrame(),
+                    dialogPnl,
+                    buttonPnl,
+                    btnSearch,
+                    title,
+                    null);
+    }
+
+    /**************************************************************************
+     * Open the table(s) associated with the selected search result(s)
+     *************************************************************************/
+    private void openTables()
+    {
+        List<String> tablePaths = new ArrayList<String>();
+
+        // Step through each row in the table
+        for (int row = 0; row < resultsTable.getRowCount(); row++)
+        {
+            // Step through each column in the table
+            for (int column = 0; column < resultsTable.getColumnCount(); column++)
+            {
+                // Get the table or object for this row. The table path for the
+                // search results uses a colon after the root table name
+                // instead of the usual comma, so this must be altered for the
+                // table path to be used to open the table
+                String tableName = resultsTable.getModel().getValueAt(row,
+                                                                      SearchResultsColumnInfo.TARGET.ordinal())
+                                               .toString().trim().replaceFirst(":", ",");
+
+                // Check if the cell at these coordinates is selected, the
+                // target is a data table, and the table isn't already in the
+                // list of those to be opened
+                if (resultsTable.isCellSelected(row, column)
+                    && dbTable.isTableExists(tableName.replaceFirst(",.*$", ""),
+                                             CcddSearchDialog.this)
+                    && !tablePaths.contains(tableName))
+                {
+                    // Add the table path to the list and stop checking the
+                    // columns in this row
+                    tablePaths.add(tableName);
+                    break;
+                }
+            }
+        }
+
+        // Check if any table is selected
+        if (!tablePaths.isEmpty())
+        {
+            // Load the selected table's data into a table editor
+            dbTable.loadTableDataInBackground(tablePaths.toArray(new String[0]),
+                                              null);
+        }
     }
 }

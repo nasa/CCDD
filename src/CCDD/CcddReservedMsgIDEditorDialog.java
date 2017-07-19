@@ -161,6 +161,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
             // Create panels to hold the components of the dialog
             JPanel editorPnl = new JPanel(new GridBagLayout());
             JPanel buttonPnl = new JPanel();
+            JButton btnClose;
 
             /******************************************************************
              * Build the data type editor dialog
@@ -351,10 +352,10 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                 });
 
                 // Close button
-                JButton btnClose = CcddButtonPanelHandler.createButton("Close",
-                                                                       CLOSE_ICON,
-                                                                       KeyEvent.VK_C,
-                                                                       "Close the reserved message ID editor");
+                btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                               CLOSE_ICON,
+                                                               KeyEvent.VK_C,
+                                                               "Close the reserved message ID editor");
 
                 // Create a listener for the Close button
                 btnClose.addActionListener(new ValidateCellActionListener(msgIDTable)
@@ -394,6 +395,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                 showOptionsDialog(ccddMain.getMainFrame(),
                                   editorPnl,
                                   buttonPnl,
+                                  btnClose,
                                   DIALOG_TITLE,
                                   true);
             }

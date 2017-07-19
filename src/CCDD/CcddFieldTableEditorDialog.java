@@ -576,6 +576,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             // Create panels to hold the components of the dialog
             JPanel dialogPnl = new JPanel(new GridBagLayout());
             JPanel buttonPnl = new JPanel();
+            JButton btnClose;
 
             /******************************************************************
              * Build the data field table editor dialog
@@ -782,10 +783,10 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 });
 
                 // Close button
-                JButton btnClose = CcddButtonPanelHandler.createButton("Close",
-                                                                       CLOSE_ICON,
-                                                                       KeyEvent.VK_C,
-                                                                       "Close the data field editor dialog");
+                btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                               CLOSE_ICON,
+                                                               KeyEvent.VK_C,
+                                                               "Close the data field editor dialog");
 
                 // Add a listener for the Close button
                 btnClose.addActionListener(new ValidateCellActionListener(dataFieldTable)
@@ -824,6 +825,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 createFrame(ccddMain.getMainFrame(),
                             dialogPnl,
                             buttonPnl,
+                            btnClose,
                             DIALOG_TITLE,
                             null);
 

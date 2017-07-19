@@ -807,6 +807,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         showOptionsDialog(fieldPnlHandler.getOwner(),
                           outerPanel,
                           buttonPnl,
+                          btnClose,
                           DIALOG_TITLE + ": " + ownerName,
                           true);
 

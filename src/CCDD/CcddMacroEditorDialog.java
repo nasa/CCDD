@@ -227,6 +227,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
             // Create panels to hold the components of the dialog
             JPanel editorPnl = new JPanel(new GridBagLayout());
             JPanel buttonPnl = new JPanel();
+            JButton btnClose;
 
             /******************************************************************
              * Build the macro editor dialog
@@ -447,10 +448,10 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                 });
 
                 // Close button
-                JButton btnClose = CcddButtonPanelHandler.createButton("Close",
-                                                                       CLOSE_ICON,
-                                                                       KeyEvent.VK_C,
-                                                                       "Close the macro editor");
+                btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                               CLOSE_ICON,
+                                                               KeyEvent.VK_C,
+                                                               "Close the macro editor");
 
                 // Create a listener for the Close button
                 btnClose.addActionListener(new ValidateCellActionListener(macroTable)
@@ -490,6 +491,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                 showOptionsDialog(ccddMain.getMainFrame(),
                                   editorPnl,
                                   buttonPnl,
+                                  btnClose,
                                   DIALOG_TITLE,
                                   true);
             }

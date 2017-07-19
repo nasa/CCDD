@@ -1089,6 +1089,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 createFrame(ccddMain.getMainFrame(),
                             tabbedPane,
                             buttonPnl,
+                            null,
                             "Table Type Editor",
                             null);
 

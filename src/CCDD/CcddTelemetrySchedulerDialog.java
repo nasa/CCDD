@@ -423,6 +423,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 showOptionsDialog(ccddMain.getMainFrame(),
                                   tabbedPane,
                                   buttonPnl,
+                                  btnClose,
                                   "Telemetry Scheduler",
                                   true);
             }

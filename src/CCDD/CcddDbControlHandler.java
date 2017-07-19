@@ -956,12 +956,15 @@ public class CcddDbControlHandler
 
             // Create function to search all tables for the input text with
             // case sensitivity determined by an input flag. A second flag
-            // determines if all tables or only the data tables (including
-            // entries in the custom values table) are searched. All
+            // determines if the search string is treated as a literal string
+            // or as a regular expression. If as a literal, then all
             // non-alphanumeric and non-space characters are escaped so that
-            // these characters can be detected correctly. Return a table
-            // giving the unique schema, table, column name, table comment, and
-            // contents of the columns in the table row where the text is found
+            // these characters can be detected correctly. A third flag
+            // determines if all tables or only the data tables (including
+            // entries in the custom values table) are searched. Returns a
+            // table giving the unique schema, table, column name, table
+            // comment, and contents of the columns in the table row where the
+            // text is found
             dbCommand.executeDbCommand(deleteFunction("search_tables")
                                        + "CREATE OR REPLACE FUNCTION search_tables("
                                        + "search_text text, no_case boolean, "

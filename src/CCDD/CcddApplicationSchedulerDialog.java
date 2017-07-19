@@ -202,6 +202,7 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
                 showOptionsDialog(ccddMain.getMainFrame(),
                                   schedulerHndlr.getSchedulerPanel(),
                                   buttonPnl,
+                                  btnClose,
                                   DIALOG_TITLE,
                                   true);
             }

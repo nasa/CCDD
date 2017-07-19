@@ -670,13 +670,14 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * 
      * @param searchCriteria
      *            attribute containing the search constraints in the format
-     *            <search text>,<ignore case (true or false)>,<data table cells
-     *            only (true or false)><,search table column names>. The
-     *            'ignore case' and 'data table cells only' flags default to
-     *            false if not provided. The last criterion is optional and
-     *            allows the search to be constrained to specific columns in
-     *            the data tables. The column names must be comma-separated (if
-     *            more than one) and are case sensitive
+     *            <search text>,<ignore case (true or false)>,<allow regular
+     *            expression (true or false)>,<data table cells only (true or
+     *            false)><,search table column names>. The 'ignore case' and
+     *            'data table cells only' flags default to false if not
+     *            provided. The last criterion is optional and allows the
+     *            search to be constrained to specific columns in the data
+     *            tables. The column names must be comma-separated (if more
+     *            than one) and are case sensitive
      * 
      * @return JSON encoded string containing the search results. An empty
      *         string if no matches are found, and null if the search

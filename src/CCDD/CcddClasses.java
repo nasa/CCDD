@@ -41,6 +41,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
@@ -498,7 +499,7 @@ public class CcddClasses
          * is a direct child of the root table
          *
          * @return Table's parent table name; blank if this is a prototype or
-         *         parent table
+         *         root table
          *********************************************************************/
         protected String getParentTable()
         {
@@ -511,7 +512,7 @@ public class CcddClasses
          * immediate descendant (child). The parent and root tables are the
          * same if this table is a child of a root table
          *
-         * @param tablePath
+         * @param path
          *            table path in the format
          *            rootTable[,dataType1.variable1[,dataType2
          *            .variable2[,...]]]. The table path for a non-structure
@@ -523,7 +524,7 @@ public class CcddClasses
          *            structure's hierarchy
          * 
          * @return Table's parent table name; blank if this is a prototype or
-         *         parent table
+         *         root table
          *********************************************************************/
         protected static String getParentTable(String path)
         {
@@ -5061,6 +5062,44 @@ public class CcddClasses
     }
 
     /**************************************************************************
+     * Multiple line label class. This uses a JTextArea to mimic a JLabel, but
+     * wraps the text to another line as needed based on the size of the
+     * component
+     *************************************************************************/
+    @SuppressWarnings("serial")
+    public static class MultilineLabel extends JTextArea
+    {
+        /**********************************************************************
+         * Multiple line label class constructor. Assumes the label text is
+         * blank
+         *********************************************************************/
+        public MultilineLabel()
+        {
+            this("");
+        }
+
+        /**********************************************************************
+         * Multiple line label class constructor
+         * 
+         * @param text
+         *            label text
+         *********************************************************************/
+        public MultilineLabel(String text)
+        {
+            super(text);
+
+            // Set the text area characteristics so as to mimic a JLabel, but
+            // with the ability to wrap the text as needed
+            setEditable(false);
+            setCursor(null);
+            setOpaque(false);
+            setFocusable(false);
+            setWrapStyleWord(true);
+            setLineWrap(true);
+        }
+    }
+
+    /**************************************************************************
      * JTextField with auto-completion class. This is a modified version of
      * Java2sAutoTextField, which carries the following copyright notice:
      * 
@@ -5102,9 +5141,9 @@ public class CcddClasses
     public static class AutoCompleteTextField extends JTextField
     {
         // List containing the auto-completion text
-        private final List<String> autoCompList;
+        private List<String> autoCompList;
 
-        // Maximum number of items to maintain in teh auto-complete list
+        // Maximum number of items to maintain in the auto-complete list
         private final int maxItems;
 
         // Flag that determines if the text entered must match the case of the
@@ -5211,6 +5250,19 @@ public class CcddClasses
         }
 
         /**********************************************************************
+         * JTextField auto-completion class constructor. Start with an empty
+         * auto-complete list
+         * 
+         * @param maxItems
+         *            maximum number of items to maintain in the auto-complete
+         *            list
+         *********************************************************************/
+        protected AutoCompleteTextField(int maxItems)
+        {
+            this(new ArrayList<String>(), maxItems);
+        }
+
+        /**********************************************************************
          * JTextField auto-completion class constructor
          * 
          * @param autoCompList
@@ -5312,6 +5364,18 @@ public class CcddClasses
             {
                 setText(autoCompList.get(0).toString());
             }
+        }
+
+        /**********************************************************************
+         * Set the auto-complete list
+         * 
+         * @param autoCompList
+         *            list containing the strings from which the
+         *            auto-completion text is extracted
+         *********************************************************************/
+        protected void setList(List<String> autoCompList)
+        {
+            this.autoCompList = autoCompList;
         }
 
         /**********************************************************************

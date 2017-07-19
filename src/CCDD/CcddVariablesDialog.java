@@ -104,6 +104,7 @@ public class CcddVariablesDialog extends CcddDialogHandler
             // Create a panel to hold the components of the dialog
             JPanel dialogPnl = new JPanel(new GridBagLayout());
             JPanel buttonPnl = new JPanel();
+            JButton btnShow;
 
             /******************************************************************
              * Build the variable paths & names dialog
@@ -310,10 +311,10 @@ public class CcddVariablesDialog extends CcddDialogHandler
                 dialogPnl.add(variablesTblPnl, gbc);
 
                 // Show variables button
-                JButton btnShow = CcddButtonPanelHandler.createButton("Show",
-                                                                      RENAME_ICON,
-                                                                      KeyEvent.VK_O,
-                                                                      "Show the project variables");
+                btnShow = CcddButtonPanelHandler.createButton("Show",
+                                                              RENAME_ICON,
+                                                              KeyEvent.VK_O,
+                                                              "Show the project variables");
 
                 // Add a listener for the Show button
                 btnShow.addActionListener(new ActionListener()
@@ -452,6 +453,7 @@ public class CcddVariablesDialog extends CcddDialogHandler
                 showOptionsDialog(ccddMain.getMainFrame(),
                                   dialogPnl,
                                   buttonPnl,
+                                  btnShow,
                                   "Variable Paths & Names (" + numVariables + " total)",
                                   true);
             }

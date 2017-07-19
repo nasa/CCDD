@@ -31,16 +31,21 @@ import static CCDD.CcddConstants.WARNING_ICON;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
+import java.awt.geom.Area;
+import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -355,6 +360,7 @@ public class CcddDialogHandler extends JDialog
         return createDialog(parent,
                             message,
                             null,
+                            null,
                             title,
                             optionType,
                             icon,
@@ -471,6 +477,7 @@ public class CcddDialogHandler extends JDialog
         return createDialog(parent,
                             message,
                             null,
+                            null,
                             title,
                             optionType,
                             icon,
@@ -489,8 +496,12 @@ public class CcddDialogHandler extends JDialog
      * @param message
      *            text message to display
      * 
-     * @param lowerPanel
+     * @param buttonPnl
      *            panel containing the dialog buttons
+     * 
+     * @param defaultBtn
+     *            reference to the JButton that is actuated if the Enter key is
+     *            pressed; null to have no default button
      * 
      * @param title
      *            title to display in the dialog window frame
@@ -505,7 +516,8 @@ public class CcddDialogHandler extends JDialog
      *************************************************************************/
     protected int showMessageDialog(Component parent,
                                     String message,
-                                    JPanel lowerPanel,
+                                    JPanel buttonPnl,
+                                    JButton defaultBtn,
                                     String title,
                                     int messageType)
     {
@@ -539,7 +551,8 @@ public class CcddDialogHandler extends JDialog
 
         return createDialog(parent,
                             message,
-                            lowerPanel,
+                            buttonPnl,
+                            defaultBtn,
                             title,
                             null,
                             icon,
@@ -659,6 +672,7 @@ public class CcddDialogHandler extends JDialog
         return showMessageDialog(parent,
                                  message,
                                  buttonPnl,
+                                 btnCancel,
                                  title,
                                  JOptionPane.QUESTION_MESSAGE);
     }
@@ -689,6 +703,7 @@ public class CcddDialogHandler extends JDialog
         // Used for the Appearance and database dialogs
         return createDialog(parent,
                             dialogPanel,
+                            null,
                             null,
                             title,
                             optionType,
@@ -734,6 +749,7 @@ public class CcddDialogHandler extends JDialog
         return createDialog(parent,
                             dialogPanel,
                             null,
+                            null,
                             title,
                             optionType,
                             null,
@@ -773,6 +789,7 @@ public class CcddDialogHandler extends JDialog
         return createDialog(parent,
                             dialogPanel,
                             null,
+                            null,
                             title,
                             optionType,
                             null,
@@ -794,6 +811,10 @@ public class CcddDialogHandler extends JDialog
      * @param lowerPanel
      *            panel containing the dialog buttons
      * 
+     * @param defaultBtn
+     *            reference to the JButton that is actuated if the Enter key is
+     *            pressed; null to have no default button
+     * 
      * @param title
      *            title to display in the dialog window frame
      * 
@@ -805,6 +826,7 @@ public class CcddDialogHandler extends JDialog
     protected int showOptionsDialog(Component parent,
                                     Object dialogPanel,
                                     JPanel lowerPanel,
+                                    JButton defaultBtn,
                                     String title,
                                     boolean resizable)
     {
@@ -812,11 +834,62 @@ public class CcddDialogHandler extends JDialog
         return createDialog(parent,
                             dialogPanel,
                             lowerPanel,
+                            defaultBtn,
                             title,
                             DialogOption.OK_OPTION,
                             null,
                             resizable,
                             true);
+    }
+
+    /**************************************************************************
+     * Display a modal, user-interactive dialog using user-supplied buttons.
+     * The dialog may be resized, based on the input flag. Return the button
+     * type selected
+     * 
+     * @param parent
+     *            window to center the dialog over
+     * 
+     * @param dialogPanel
+     *            panel containing the dialog components
+     * 
+     * @param lowerPanel
+     *            panel containing the dialog buttons
+     * 
+     * @param defaultBtn
+     *            reference to the JButton that is actuated if the Enter key is
+     *            pressed; null to have no default button
+     * 
+     * @param title
+     *            title to display in the dialog window frame
+     * 
+     * @param resizable
+     *            true to allow the dialog to be resized
+     * 
+     * @param modal
+     *            false to allow the main application window to still be
+     *            operated while the dialog is open
+     * 
+     * @return Selected button type
+     *************************************************************************/
+    protected int showOptionsDialog(Component parent,
+                                    Object dialogPanel,
+                                    JPanel lowerPanel,
+                                    JButton defaultBtn,
+                                    String title,
+                                    boolean resizable,
+                                    boolean modal)
+    {
+        // Used for the Preferences dialog
+        return createDialog(parent,
+                            dialogPanel,
+                            lowerPanel,
+                            defaultBtn,
+                            title,
+                            DialogOption.OK_OPTION,
+                            null,
+                            resizable,
+                            modal);
     }
 
     /**************************************************************************
@@ -1114,6 +1187,7 @@ public class CcddDialogHandler extends JDialog
         if (createDialog(parent,
                          dialogPanel,
                          null,
+                         null,
                          fileTitle,
                          optionType,
                          null,
@@ -1366,8 +1440,8 @@ public class CcddDialogHandler extends JDialog
 
                     // Check if the selected item differs from the one
                     // currently selected
-                    if (radioButtonSelected == null ||
-                        !radioButtonSelected.equals(buttonText))
+                    if (radioButtonSelected == null
+                        || !radioButtonSelected.equals(buttonText))
                     {
                         // Update the currently selected item
                         radioButtonSelected = buttonText;
@@ -1785,6 +1859,10 @@ public class CcddDialogHandler extends JDialog
      * @param buttonPnl
      *            panel containing the dialog buttons
      * 
+     * @param defaultBtn
+     *            reference to the JButton that is actuated if the Enter key is
+     *            pressed; null to have no default button
+     * 
      * @param title
      *            title to display in the dialog window frame
      * 
@@ -1808,6 +1886,7 @@ public class CcddDialogHandler extends JDialog
     protected int createDialog(Component parent,
                                Object upperObject,
                                JPanel buttonPnl,
+                               JButton defaultBtn,
                                String title,
                                DialogOption optionType,
                                Icon icon,
@@ -1898,10 +1977,39 @@ public class CcddDialogHandler extends JDialog
             // Set up button panel related items and combine the button and
             // upper panels
             buttonHandler.assembleWindowComponents(buttonPnl,
+                                                   defaultBtn,
                                                    upperComponent,
                                                    optionType,
                                                    getContentPane(),
                                                    getRootPane());
+
+            // Add a listener for dialog focus gain and lost events
+            addWindowFocusListener(new WindowFocusListener()
+            {
+                /**************************************************************
+                 * Handle a dialog focus gained event
+                 *************************************************************/
+                @Override
+                public void windowGainedFocus(WindowEvent we)
+                {
+                    // Set the default button to the last button pressed when
+                    // the dialog (re)gains the focus. This enables the special
+                    // highlighting associated with the default button
+                    getRootPane().setDefaultButton(buttonHandler.getLastButtonPressed());
+                }
+
+                /**************************************************************
+                 * Handle a dialog focus lost event
+                 *************************************************************/
+                @Override
+                public void windowLostFocus(WindowEvent we)
+                {
+                    // Set so that there is no default button while the dialog
+                    // doesn't have the focus. This removes the special
+                    // highlighting associated with the default button
+                    getRootPane().setDefaultButton(null);
+                }
+            });
 
             // Check if the title is provided
             if (title != null)
@@ -1990,10 +2098,9 @@ public class CcddDialogHandler extends JDialog
     }
 
     /**************************************************************************
-     * Override the setLocationRelativeTo() method in order to modify the
-     * default code so that the dialog can be positioned relative to a parent
-     * that was present, but is no longer visible. Otherwise, the dialog would
-     * be centered on the screen
+     * Override the setLocationRelativeTo() method so that the dialog can be
+     * positioned relative to a parent that was present, but is no longer
+     * visible. Otherwise, the dialog would be centered on the screen
      * 
      * @param comp
      *            component in relation to which the dialog's location is
@@ -2002,56 +2109,230 @@ public class CcddDialogHandler extends JDialog
     @Override
     public void setLocationRelativeTo(Component comp)
     {
-        // Check if the component exists, has valid size and position values,
-        // but is not visible
-        if (comp != null && comp.isPreferredSizeSet() && !comp.isShowing())
+        // Check if the component to which the dialog is to be positioned
+        // relative to exists
+        if (comp != null)
         {
-            // Get the component's graphics configuration, then determine the
-            // new dialog's position relative to the component
-            GraphicsConfiguration gc = comp.getGraphicsConfiguration();
-            Rectangle gcBounds = gc.getBounds();
+            // Determine the new dialog's position relative to the component,
+            // adjusting the location so that the dialog appears fully on the
+            // screen in which the component resides
             Dimension newDlgSize = getSize();
             Dimension compSize = comp.getSize();
-            int dx = comp.getX() + ((compSize.width - newDlgSize.width) / 2);
-            int dy = comp.getY() + ((compSize.height - newDlgSize.height) / 2);
-
-            // Check if the new dialog is off the bottom of the screen
-            if (dy + newDlgSize.height > gcBounds.y + gcBounds.height)
-            {
-                // Position the dialog against the bottom side of the screen
-                dy = gcBounds.y + gcBounds.height - newDlgSize.height;
-            }
-
-            // Check if the new dialog is off the top of the screen
-            if (dy < gcBounds.y)
-            {
-                // Position the dialog against the top side of the screen
-                dy = gcBounds.y;
-            }
-
-            // Check if the new dialog is off the right of the screen
-            if (dx + newDlgSize.width > gcBounds.x + gcBounds.width)
-            {
-                // Position the dialog against the right side of the screen
-                dx = gcBounds.x + gcBounds.width - newDlgSize.width;
-            }
-
-            // Check if the new dialog is off the left of the screen
-            if (dx < gcBounds.x)
-            {
-                // Position the dialog against the left side of the screen
-                dx = gcBounds.x;
-            }
+            Point adjLocation = adjustDialogLocationForScreen(new Rectangle(comp.getX()
+                                                                            + ((compSize.width
+                                                                            - newDlgSize.width)
+                                                                            / 2),
+                                                                            comp.getY()
+                                                                                + ((compSize.height
+                                                                                - newDlgSize.height)
+                                                                                / 2),
+                                                                            newDlgSize.width,
+                                                                            newDlgSize.height));
 
             // Position the new dialog
-            setLocation(dx, dy);
+            setLocation(adjLocation.x, adjLocation.y);
         }
-        // The component is visible, doesn't exist, or hasn't already been
-        // sized and positioned
+        // The component doesn't exist
         else
         {
             // Set the location using the default method
             super.setLocationRelativeTo(comp);
         }
+    }
+
+    /**************************************************************************
+     * Set the component location so that it is completely inside the available
+     * screen(s), if possible. Although the method makes an effort to place the
+     * component so that it is entirely visible, it may end up partially
+     * outside the screen(s), either because it's larger than all available
+     * screens or the screens are arranged badly
+     * 
+     * @param comp
+     *            rectangle representing a component's bounds for which to
+     *            adjust the location
+     * 
+     * @return Point giving the x, y coordinates of the component adjusted to
+     *         fit within the screen in which the component resides
+     *************************************************************************/
+    protected static Point adjustDialogLocationForScreen(Rectangle comp)
+    {
+        // Set the default location to the component's current location
+        Point location = new Point(comp.x, comp.y);
+
+        // Get an array of the available screens bounds
+        Rectangle[] availableRegions = getScreenRectangles();
+
+        // Check if a screen is present
+        if (availableRegions != null && availableRegions.length != 0)
+        {
+            boolean notFound = true;
+            List<Rectangle> intersecting = new ArrayList<>(3);
+
+            // Step through each screen
+            for (Rectangle region : availableRegions)
+            {
+                // Check if the component already fits within the screen
+                if (region.contains(comp))
+                {
+                    // Set the flag to indicate the location is set
+                    notFound = false;
+                }
+                // Check if the the component overlaps the screen bounds (i.e.,
+                // is partially off the screen)
+                else if (region.intersects(comp))
+                {
+                    // Add the screen to those in which the component appears
+                    intersecting.add(region);
+                }
+            }
+
+            // Check if the location hasn't been finalized
+            if (notFound)
+            {
+                // Base the position on the number of screens in which some
+                // portion of the component appears
+                switch (intersecting.size())
+                {
+                    case 0:
+                        // The component appears entirely in a single screen.
+                        // Adjust the component's location so that it is
+                        // entirely within this screen
+                        location = positionInsideRectangle(comp, availableRegions[0]);
+                        break;
+
+                    case 1:
+                        // The component appears partially in a single screen.
+                        // Adjust the component's location so that it is
+                        // entirely within the first screen in which it
+                        // partially appears
+                        location = positionInsideRectangle(comp, intersecting.get(0));
+                        break;
+
+                    default:
+                        // The component appears partially in more than one
+                        // screens. Build an area containing all of the
+                        // detected intersections and check if the bounds fall
+                        // completely into the intersection area
+                        Area area = new Area();
+
+                        // Step through each screen in which the component
+                        // appears
+                        for (Rectangle region : intersecting)
+                        {
+                            // Get the bounds for this screen as a 2D rectangle
+                            // object and add it to the total area
+                            area.add(new Area(new Rectangle2D.Double(region.x,
+                                                                     region.y,
+                                                                     region.width,
+                                                                     region.height)));
+                        }
+
+                        // Get the component bounds as a 2D rectangle object
+                        Rectangle2D boundsRect = new Rectangle2D.Double(comp.x,
+                                                                        comp.y,
+                                                                        comp.width,
+                                                                        comp.height);
+
+                        // Check if this combined area doesn't contain the
+                        // entire component
+                        if (!area.contains(boundsRect))
+                        {
+                            // Since it doesn't fit, position is as best as
+                            // possible within in the first screen in which it
+                            // appears
+                            location = positionInsideRectangle(comp,
+                                                               intersecting.get(0));
+                        }
+
+                        break;
+                }
+
+            }
+        }
+
+        return location;
+    }
+
+    /**************************************************************************
+     * Adjust the location of the specified rectangular boundary such that it
+     * is within the specified rectangle representing the screen's bounds
+     * 
+     * @param comp
+     *            rectangle representing a component's bounds for which to
+     *            adjust the location
+     * 
+     * @param screen
+     *            bounding rectangle, representing a screen, that the component
+     *            is to remain within
+     * 
+     * @return Point giving the x, y coordinates of the component rectangle
+     *         adjusted to fit within the specified screen's bounds
+     *************************************************************************/
+    protected static Point positionInsideRectangle(Rectangle comp,
+                                                   Rectangle screen)
+    {
+        // Check if the new dialog is off the right of the screen
+        if (comp.x + comp.width > screen.x + screen.width)
+        {
+            // Position the dialog against the right side of the screen
+            comp.x = screen.x + screen.width - comp.width;
+        }
+
+        // Check if the new dialog is off the left of the screen
+        if (comp.x < screen.x)
+        {
+            // Position the dialog against the left side of the screen
+            comp.x = screen.x;
+        }
+
+        // Check if the new dialog is off the bottom of the screen
+        if (comp.y + comp.height > screen.y + screen.height)
+        {
+            // Position the dialog against the bottom side of the screen
+            comp.y = screen.y + screen.height - comp.height;
+        }
+
+        // Check if the new dialog is off the top of the screen
+        if (comp.y < screen.y)
+        {
+            // Position the dialog against the top side of the screen
+            comp.y = screen.y;
+        }
+
+        return new Point(comp.x, comp.y);
+    }
+
+    /**************************************************************************
+     * Get the available display space as an array of rectangles (there is one
+     * rectangle for each screen; if the environment is headless the resulting
+     * array will be empty).
+     * 
+     * @return Array of rectangles representing the bounds of the screen(s)
+     *************************************************************************/
+    protected static Rectangle[] getScreenRectangles()
+    {
+        Rectangle[] screenBounds;
+
+        // Check that there is at least one screen
+        if (!GraphicsEnvironment.isHeadless())
+        {
+            // Get the array of screens and create storage for their bounds
+            GraphicsDevice[] devices = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
+            screenBounds = new Rectangle[devices.length];
+
+            // Step through each screen
+            for (int index = 0; index < devices.length; index++)
+            {
+                // Store the screen's bounds
+                screenBounds[index] = devices[index].getDefaultConfiguration().getBounds();
+            }
+        }
+        // There are no screens
+        else
+        {
+            screenBounds = new Rectangle[0];
+        }
+
+        return screenBounds;
     }
 }

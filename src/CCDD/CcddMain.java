@@ -32,6 +32,7 @@ import static CCDD.CcddConstants.setLaFAdjustments;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -96,7 +97,6 @@ public class CcddMain
     private CcddGroupManagerDialog groupManagerDialog;
     private final CcddFileIOHandler fileIOHandler;
     private final CcddScriptHandler scriptHandler;
-    private CcddScriptManagerDialog scriptAssnDlg;
     private CcddFieldTableEditorDialog fieldTblEditorDialog;
     private CcddRateParameterHandler rateHandler;
     private CcddApplicationParameterHandler appHandler;
@@ -104,6 +104,11 @@ public class CcddMain
     private CcddMacroHandler macroHandler;
     private CcddReservedMsgIDHandler rsvMsgIDHandler;
     private CcddWebServer webServer;
+
+    // References to the various search dialogs
+    private CcddSearchDialog searchLogDlg;
+    private CcddSearchDialog searchTableDlg;
+    private CcddSearchDialog searchScriptDlg;
 
     // List of open log files
     private final List<CcddEventLogDialog> eventLogs;
@@ -698,6 +703,91 @@ public class CcddMain
     protected void setGroupManager(CcddGroupManagerDialog groupManagerDialog)
     {
         this.groupManagerDialog = groupManagerDialog;
+    }
+
+    /**************************************************************************
+     * Display the search dialog for searching database tables or scripts
+     * 
+     * @param searchType
+     *            search dialog type: TABLES or SCRIPTS
+     *************************************************************************/
+    protected void showSearchDialog(SearchDialogType searchType)
+    {
+        showSearchDialog(searchType, null, null);
+    }
+
+    /**************************************************************************
+     * Display the search dialog for searching database tables, scripts, and
+     * event logs
+     * 
+     * @param searchType
+     *            search dialog type: TABLES, SCRIPTS, or LOG
+     * 
+     * @param targetRow
+     *            row index to match if this is an event log entry search on a
+     *            table that displays only a single log entry; null otherwise
+     * 
+     * @param eventLog
+     *            event log to search; null if not searching a log
+     *************************************************************************/
+    protected void showSearchDialog(SearchDialogType searchType,
+                                    Long targetRow,
+                                    CcddEventLogDialog eventLog)
+    {
+        CcddSearchDialog searchDialog = null;
+
+        // Get the reference to the specified search dialog
+        switch (searchType)
+        {
+            case TABLES:
+                searchDialog = searchTableDlg;
+                break;
+
+            case SCRIPTS:
+                searchDialog = searchScriptDlg;
+                break;
+
+            case LOG:
+                searchDialog = searchLogDlg;
+                break;
+        }
+
+        // Check if the dialog hasn't already been opened, or if it has that it
+        // isn't showing
+        if (searchDialog == null || !searchDialog.isShowing())
+        {
+            // Open the specified search dialog
+            switch (searchType)
+            {
+                case TABLES:
+                    searchTableDlg = new CcddSearchDialog(CcddMain.this,
+                                                          SearchDialogType.TABLES,
+                                                          null,
+                                                          null);
+                    break;
+
+                case SCRIPTS:
+                    searchScriptDlg = new CcddSearchDialog(CcddMain.this,
+                                                           SearchDialogType.SCRIPTS,
+                                                           null,
+                                                           null);
+                    break;
+
+                case LOG:
+                    searchLogDlg = new CcddSearchDialog(CcddMain.this,
+                                                        SearchDialogType.LOG,
+                                                        targetRow,
+                                                        getSessionEventLog());
+                    break;
+            }
+        }
+        // The specified search dialog is already open
+        else
+        {
+            // Bring the search dialog to the front
+            searchDialog.toFront();
+            searchDialog.repaint();
+        }
     }
 
     /**************************************************************************
@@ -1351,10 +1441,9 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddSearchDialog(CcddMain.this,
-                                     SearchDialogType.LOG,
-                                     null,
-                                     getSessionEventLog());
+                showSearchDialog(SearchDialogType.LOG,
+                                 null,
+                                 getSessionEventLog());
             }
         });
 
@@ -1732,8 +1821,22 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                tableTypeEditorDialog = new CcddTableTypeEditorDialog(CcddMain.this,
-                                                                      tableTypeHandler.getTypes());
+                // Check if the table type editor isn't already open
+                if (tableTypeEditorDialog == null || !tableTypeEditorDialog.isShowing())
+                {
+                    // Open the table type editor
+                    tableTypeEditorDialog = new CcddTableTypeEditorDialog(CcddMain.this,
+                                                                          tableTypeHandler.getTypes());
+                }
+                // The table type editor is already open
+                else
+                {
+                    // Deiconify the editor (if iconfied) and bring it to the
+                    // front
+                    tableTypeEditorDialog.setExtendedState(Frame.NORMAL);
+                    tableTypeEditorDialog.toFront();
+                    tableTypeEditorDialog.repaint();
+                }
             }
         });
 
@@ -1888,7 +1991,9 @@ public class CcddMain
                 // The editor is currently displayed
                 else
                 {
-                    // Bring the editor to the front of the other windows
+                    // Deiconify the editor (if iconfied) and bring it to the
+                    // front
+                    fieldTblEditorDialog.setExtendedState(Frame.NORMAL);
                     fieldTblEditorDialog.toFront();
                     fieldTblEditorDialog.repaint();
                 }
@@ -1918,7 +2023,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddSearchDialog(CcddMain.this, SearchDialogType.TABLES);
+                showSearchDialog(SearchDialogType.TABLES);
             }
         });
 
@@ -1931,20 +2036,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                // Check if the create script association dialog is not already
-                // displayed
-                if (scriptAssnDlg == null || !scriptAssnDlg.isShowing())
-                {
-                    // Open the manage script associations dialog
-                    scriptAssnDlg = new CcddScriptManagerDialog(CcddMain.this);
-                }
-                // The dialog is not currently displayed
-                else
-                {
-                    // Bring the dialog to the front of the other windows
-                    scriptAssnDlg.toFront();
-                    scriptAssnDlg.repaint();
-                }
+                new CcddScriptManagerDialog(CcddMain.this);
             }
         });
 
@@ -2031,7 +2123,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddSearchDialog(CcddMain.this, SearchDialogType.SCRIPTS);
+                showSearchDialog(SearchDialogType.SCRIPTS);
             }
         });
 

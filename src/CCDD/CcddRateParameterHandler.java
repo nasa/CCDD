@@ -18,6 +18,7 @@ import java.util.List;
 
 import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.RateInformation;
+import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.RateParameter;
@@ -851,7 +852,7 @@ public class CcddRateParameterHandler
             ratesInUse.addAll(dbTable.queryDatabase("SELECT DISTINCT ON (2) * FROM find_columns_by_name('"
                                                     + rateName
                                                     + "', '"
-                                                    + rateName.toLowerCase().replaceAll("[^a-z0-9_]", "_")
+                                                    + DefaultColumn.convertVisibleToDatabase(rateName, InputDataType.RATE)
                                                     + "', '{"
                                                     + Arrays.toString(tableTypeHandler.getStructureTableTypes()).replaceAll("[\\[\\]]",
                                                                                                                             "")

@@ -372,8 +372,8 @@ public class CcddXTCEHandler implements CcddImportExportInterface
         {
             // Inform the user that the database import failed
             new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Cannot import XTCE XML from file<br>'</b>" +
-                                                          importFile.getAbsolutePath()
+                                                      "<html><b>Cannot import XTCE XML from file<br>'</b>"
+                                                          + importFile.getAbsolutePath()
                                                           + "<b>'; cause '"
                                                           + je.getMessage()
                                                           + "'",
@@ -481,8 +481,8 @@ public class CcddXTCEHandler implements CcddImportExportInterface
         {
             // Inform the user that the database export failed
             new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Cannot export as XTCE XML to file<br>'</b>" +
-                                                          exportFile.getAbsolutePath()
+                                                      "<html><b>Cannot export as XTCE XML to file<br>'</b>"
+                                                          + exportFile.getAbsolutePath()
                                                           + "<b>'; cause '"
                                                           + je.getMessage()
                                                           + "'",

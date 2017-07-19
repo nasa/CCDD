@@ -558,10 +558,10 @@ public class CcddSchedulerEditorHandler
         // Set the scheduler panel size so that the panel can't be resized in
         // width less than that needed to display the default columns
         int[] colWidths = schedulerTable.getColumnWidths();
-        int prefWidth = 8 + colWidths[0] + colWidths[1] +
-                        (schedulerHndlr.getSchedulerOption() == TELEMETRY_SCHEDULER
-                                                                                   ? colWidths[2]
-                                                                                   : 0);
+        int prefWidth = 8 + colWidths[0] + colWidths[1]
+                        + (schedulerHndlr.getSchedulerOption() == TELEMETRY_SCHEDULER
+                                                                                     ? colWidths[2]
+                                                                                     : 0);
         schedulerScrollPane.setPreferredSize(new Dimension(prefWidth,
                                                            schedulerScrollPane.getPreferredSize().height));
         schedulerPnl.setMinimumSize(schedulerScrollPane.getPreferredSize());

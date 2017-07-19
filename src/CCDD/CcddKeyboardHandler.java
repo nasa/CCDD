@@ -151,11 +151,8 @@ public class CcddKeyboardHandler
                     // Check if the Enter key is pressed
                     if (ke.getKeyCode() == KeyEvent.VK_ENTER)
                     {
-                        // Check if this is a button (including a color button,
-                        // radio button, or check box
-                        if (comp instanceof JButton
-                            || comp instanceof JRadioButton
-                            || comp instanceof JCheckBox)
+                        // Check if this is a button
+                        if (comp instanceof JButton)
                         {
                             // Activate the control (same as if Space key is
                             // pressed)
@@ -442,10 +439,9 @@ public class CcddKeyboardHandler
                              && ccddMain.getMainFrame().isFocused())
                     {
                         // Open the event log search dialog
-                        new CcddSearchDialog(ccddMain,
-                                             SearchDialogType.LOG,
-                                             null,
-                                             ccddMain.getSessionEventLog());
+                        ccddMain.showSearchDialog(SearchDialogType.LOG,
+                                                  null,
+                                                  ccddMain.getSessionEventLog());
 
                         // Set the flag to indicate this key press was handled
                         handled = true;
@@ -742,10 +738,10 @@ public class CcddKeyboardHandler
             Component focusOwner = focusManager.getFocusOwner();
             // Check if the focus is in an edit panel's description or data
             // field
-            if (focusOwner != null &&
-                (focusOwner instanceof UndoableTextField
-                 || focusOwner instanceof UndoableTextArea
-                 || focusOwner instanceof UndoableCheckBox))
+            if (focusOwner != null
+                && (focusOwner instanceof UndoableTextField
+                    || focusOwner instanceof UndoableTextArea
+                    || focusOwner instanceof UndoableCheckBox))
             {
                 // Check if the focus owner is a text field data field
                 if (focusOwner instanceof UndoableTextField)
@@ -883,6 +879,14 @@ public class CcddKeyboardHandler
 
             // Set the flag to indicate that the event has been handled
             handled = true;
+        }
+
+        // Check if the event was handled above
+        if (handled)
+        {
+            // Deselect the default button since it's no longer valid after
+            // editing is initiated
+            table.getRootPane().setDefaultButton(null);
         }
 
         return handled;

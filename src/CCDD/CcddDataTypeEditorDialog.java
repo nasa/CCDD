@@ -229,6 +229,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
             // Create panels to hold the components of the dialog
             JPanel editorPnl = new JPanel(new GridBagLayout());
             JPanel buttonPnl = new JPanel();
+            JButton btnClose;
 
             /******************************************************************
              * Build the data type editor dialog
@@ -455,10 +456,10 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                 });
 
                 // Close button
-                JButton btnClose = CcddButtonPanelHandler.createButton("Close",
-                                                                       CLOSE_ICON,
-                                                                       KeyEvent.VK_C,
-                                                                       "Close the data type editor");
+                btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                               CLOSE_ICON,
+                                                               KeyEvent.VK_C,
+                                                               "Close the data type editor");
 
                 // Create a listener for the Close button
                 btnClose.addActionListener(new ValidateCellActionListener(dataTypeTable)
@@ -498,6 +499,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                 showOptionsDialog(ccddMain.getMainFrame(),
                                   editorPnl,
                                   buttonPnl,
+                                  btnClose,
                                   DIALOG_TITLE,
                                   true);
             }

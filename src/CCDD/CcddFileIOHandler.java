@@ -206,8 +206,8 @@ public class CcddFileIOHandler
                         // Inform the user that the existing backup file cannot
                         // be replaced
                         new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                                  "<html><b>Cannot replace existing backup file<br>'</b>" +
-                                                                      dataFile[0].getAbsolutePath()
+                                                                  "<html><b>Cannot replace existing backup file<br>'</b>"
+                                                                      + dataFile[0].getAbsolutePath()
                                                                       + "<b>'",
                                                                   "File Error",
                                                                   JOptionPane.ERROR_MESSAGE,
@@ -1007,8 +1007,8 @@ public class CcddFileIOHandler
         {
             // Inform the user that one or more tables were not imported
             new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Table(s) not imported<br>'</b>" +
-                                                          dbTable.getShortenedTableNames(skippedTables.toArray(new String[0]))
+                                                      "<html><b>Table(s) not imported<br>'</b>"
+                                                          + dbTable.getShortenedTableNames(skippedTables.toArray(new String[0]))
                                                           + "<b>';<br>table already exists",
                                                       "Import Error",
                                                       JOptionPane.WARNING_MESSAGE,
@@ -1672,8 +1672,8 @@ public class CcddFileIOHandler
                         // Inform the user that one or more tables were not
                         // exported
                         new CcddDialogHandler().showMessageDialog(parent,
-                                                                  "<html><b>Table(s) not exported<br>'</b>" +
-                                                                      dbTable.getShortenedTableNames(skippedTables.toArray(new String[0]))
+                                                                  "<html><b>Table(s) not exported<br>'</b>"
+                                                                      + dbTable.getShortenedTableNames(skippedTables.toArray(new String[0]))
                                                                       + "<b>';<br>output file already exists or file I/O error",
                                                                   "Export Error",
                                                                   JOptionPane.WARNING_MESSAGE,
@@ -1768,8 +1768,8 @@ public class CcddFileIOHandler
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>"
                                                           + ce.getMessage()
-                                                          + " export file<br>'</b>" +
-                                                          exportFile.getAbsolutePath()
+                                                          + " export file<br>'</b>"
+                                                          + exportFile.getAbsolutePath()
                                                           + "<b>'",
                                                       "File Error",
                                                       ce.getMessageType(),
@@ -1851,8 +1851,8 @@ public class CcddFileIOHandler
         {
             // Inform the user that the data file cannot be read
             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                      "<html><b>Cannot read script file<br>'</b>" +
-                                                          file.getAbsolutePath()
+                                                      "<html><b>Cannot read script file<br>'</b>"
+                                                          + file.getAbsolutePath()
                                                           + "<b>'",
                                                       "File Error",
                                                       JOptionPane.ERROR_MESSAGE,
@@ -2062,8 +2062,8 @@ public class CcddFileIOHandler
             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                       "<html><b>"
                                                           + ce.getMessage()
-                                                          + " output file<br>'</b>" +
-                                                          outputFileName
+                                                          + " output file<br>'</b>"
+                                                          + outputFileName
                                                           + "<b>'",
                                                       "File Error",
                                                       ce.getMessageType(),
@@ -2073,8 +2073,8 @@ public class CcddFileIOHandler
         {
             // Inform the user that the output file cannot be opened
             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                      "<html><b>Cannot open output file<br>'</b>" +
-                                                          outputFileName
+                                                      "<html><b>Cannot open output file<br>'</b>"
+                                                          + outputFileName
                                                           + "<b>'",
                                                       "File Error",
                                                       JOptionPane.ERROR_MESSAGE,

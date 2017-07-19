@@ -173,9 +173,7 @@ public class CcddSearchHandler extends CcddDialogHandler
             // comparisons below
             String hitColumnName = tblColDescAndCntxt[SearchResultsQueryColumn.COLUMN.ordinal()];
 
-            // Check that the column isn't the primary key or row index,
-            // and isn't in a stored script (unless the search scripts check
-            // box is selected)
+            // Check that the column isn't the primary key or row index
             if (!hitColumnName.equals(DefaultColumn.PRIMARY_KEY.getDbName())
                 && !hitColumnName.equals(DefaultColumn.ROW_INDEX.getDbName()))
             {
@@ -248,7 +246,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                         }
 
                         // Set the search result table values
-                        target = hitTableName;
+                        target = nameAndType[0];
                         location = "Column '"
                                    + typeDefn.getColumnNamesUser()[colIndex]
                                    + "', "

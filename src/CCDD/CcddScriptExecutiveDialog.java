@@ -223,6 +223,7 @@ public class CcddScriptExecutiveDialog extends CcddDialogHandler
                     showOptionsDialog(ccddMain.getMainFrame(),
                                       dialogPnl,
                                       buttonPnl,
+                                      btnExecute,
                                       "Execute Script(s)",
                                       true);
                 }

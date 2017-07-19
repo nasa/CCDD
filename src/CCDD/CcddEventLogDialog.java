@@ -237,10 +237,9 @@ public class CcddEventLogDialog extends CcddFrameHandler
                     @Override
                     public void actionPerformed(ActionEvent ae)
                     {
-                        new CcddSearchDialog(ccddMain,
-                                             SearchDialogType.LOG,
-                                             targetRow,
-                                             CcddEventLogDialog.this);
+                        ccddMain.showSearchDialog(SearchDialogType.LOG,
+                                                  targetRow,
+                                                  CcddEventLogDialog.this);
                     }
                 });
 
@@ -295,6 +294,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
                 createFrame(ccddMain.getMainFrame(),
                             logPanel,
                             buttonPnl,
+                            btnClose,
                             "Event Log: " + logFile.getName(),
                             null);
             }
@@ -354,10 +354,10 @@ public class CcddEventLogDialog extends CcddFrameHandler
             @Override
             protected boolean isColumnResizable(int column)
             {
-                return column == EventColumns.PROJECT.ordinal() ||
-                       column == EventColumns.SERVER.ordinal() ||
-                       column == EventColumns.USER.ordinal() ||
-                       column == EventColumns.MESSAGE.ordinal();
+                return column == EventColumns.PROJECT.ordinal()
+                       || column == EventColumns.SERVER.ordinal()
+                       || column == EventColumns.USER.ordinal()
+                       || column == EventColumns.MESSAGE.ordinal();
             }
 
             /******************************************************************
@@ -855,8 +855,8 @@ public class CcddEventLogDialog extends CcddFrameHandler
                     // Inform the user that the event log file cannot be
                     // located
                     new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                              "<html><b>Cannot locate event log file<br>'</b>" +
-                                                                  file[0].getAbsolutePath()
+                                                              "<html><b>Cannot locate event log file<br>'</b>"
+                                                                  + file[0].getAbsolutePath()
                                                                   + "<b>'",
                                                               "File Error",
                                                               JOptionPane.ERROR_MESSAGE,

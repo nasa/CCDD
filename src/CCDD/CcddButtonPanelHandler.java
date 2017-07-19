@@ -14,17 +14,13 @@ import static CCDD.CcddConstants.DIALOG_BORDER_PAD;
 import static CCDD.CcddConstants.OK_BUTTON;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Insets;
-import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -45,6 +41,9 @@ public class CcddButtonPanelHandler
 
     // Number of rows on which to arrange the buttons
     private int buttonRows;
+
+    // Reference to the last button pressed in the button panel
+    private JButton lastButtonPressed;
 
     /**************************************************************************
      * Button panel handling class constructor
@@ -69,6 +68,16 @@ public class CcddButtonPanelHandler
     protected void setButtonRows(int rows)
     {
         buttonRows = rows;
+    }
+
+    /**************************************************************************
+     * Get the reference to the last button pressed in the button panel
+     * 
+     * @return Reference to the last button pressed in the button panel
+     *************************************************************************/
+    protected JButton getLastButtonPressed()
+    {
+        return lastButtonPressed;
     }
 
     /**************************************************************************
@@ -338,6 +347,12 @@ public class CcddButtonPanelHandler
      *            panel containing the window's buttons; null if a defined
      *            option type is used
      * 
+     * @param defaultBtn
+     *            reference to the JButton that is actuated if the Enter key is
+     *            pressed; null to have no default button (unless btnPanel is
+     *            null as well, in which case the first button is set as the
+     *            default)
+     * 
      * @param upperComponent
      *            upper window components
      * 
@@ -355,6 +370,7 @@ public class CcddButtonPanelHandler
      * @return JPanel containing the window's buttons
      *************************************************************************/
     protected JPanel assembleWindowComponents(JPanel btnPanel,
+                                              JButton defaultBtn,
                                               JComponent upperComponent,
                                               DialogOption optionType,
                                               final Container contentPane,
@@ -370,6 +386,10 @@ public class CcddButtonPanelHandler
         {
             // Create the button panel based on the option type provided
             buttonPnl = createButtonPanel(optionType);
+
+            // Default to the first button when using the a button panel based
+            // on the option type
+            defaultBtn = (JButton) buttonPnl.getComponent(0);
         }
         // A button panel was provided
         else
@@ -381,43 +401,32 @@ public class CcddButtonPanelHandler
         // Size and position the window's button(s)
         setButtonWidth();
 
-        // Add a change listener to the keyboard focus manager so component
-        // focus changes can be detected
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().addPropertyChangeListener(new PropertyChangeListener()
-        {
-            Component focusOwner;
+        // Set the reference to the last button pressed to the default button
+        lastButtonPressed = defaultBtn;
 
+        // Create a listener for button press events
+        ActionListener buttonListener = new ActionListener()
+        {
             /******************************************************************
-             * Highlight a button if it has the keyboard focus and remove the
-             * highlight when it loses focus
+             * Handle a button press event
              *****************************************************************/
             @Override
-            public void propertyChange(PropertyChangeEvent pce)
+            public void actionPerformed(ActionEvent ae)
             {
-                // Turn off button highlight when it no longer has focus
-                if (focusOwner != null && pce.getOldValue() == focusOwner)
-                {
-                    if (focusOwner.getClass().getSimpleName().equals("JButton"))
-                    {
-                        rootPane.setDefaultButton(null);
-                    }
+                // Store the button reference as the last button pressed
+                lastButtonPressed = (JButton) ae.getSource();
 
-                    focusOwner = null;
-                }
-
-                // Turn on button highlight when it has focus
-                if (pce.getNewValue() != null
-                    && pce.getNewValue() != focusOwner)
-                {
-                    focusOwner = (Component) pce.getNewValue();
-
-                    if (focusOwner.getClass().getSimpleName().equals("JButton"))
-                    {
-                        rootPane.setDefaultButton((JButton) focusOwner);
-                    }
-                }
+                // Set the button pressed as the new default button
+                rootPane.setDefaultButton(lastButtonPressed);
             }
-        });
+        };
+
+        // Step through each button in the panel
+        for (int index = 0; index < buttonPnl.getComponentCount(); index++)
+        {
+            // Add the button press listener to this button
+            ((JButton) buttonPnl.getComponent(index)).addActionListener(buttonListener);
+        }
 
         // Create a panel to contain the button panel. This is necessary so
         // that the button panel remains centered as the window is resized
@@ -441,6 +450,9 @@ public class CcddButtonPanelHandler
         contentPane.setLayout(new BorderLayout());
         contentPane.add(upperComponent, BorderLayout.CENTER);
         contentPane.add(bpPanel, BorderLayout.PAGE_END);
+
+        // Set the default dialog button
+        rootPane.setDefaultButton(defaultBtn);
 
         return buttonPnl;
     }

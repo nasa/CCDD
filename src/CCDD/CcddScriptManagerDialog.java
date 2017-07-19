@@ -414,6 +414,7 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
                     showOptionsDialog(ccddMain.getMainFrame(),
                                       dialogPnl,
                                       buttonPnl,
+                                      btnExecute,
                                       "Manage Script Associations",
                                       true);
                 }

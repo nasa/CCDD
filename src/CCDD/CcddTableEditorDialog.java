@@ -875,7 +875,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddSearchDialog(ccddMain, SearchDialogType.TABLES);
+                ccddMain.showSearchDialog(SearchDialogType.TABLES);
             }
         });
 
@@ -1683,6 +1683,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         createFrame(ccddMain.getMainFrame(),
                     tabbedPane,
                     buttonPnl,
+                    null,
                     activeEditor.getOwnerName(),
                     null);
 
