@@ -707,11 +707,13 @@ public class CcddCommonTreeHandler extends JTree
         {
             boolean isAdded = false;
 
+            // Get the node name to shorten subsequent calls
+            String nodeName = node.getUserObject().toString();
+
             // Check that no exclusion list is in effect or, if one is, that
             // the node is not marked as excluded (i.e., starts with an HTML
             // tag)
-            if (excludedPaths == null
-                || !node.getUserObject().toString().startsWith("<html>"))
+            if (excludedPaths == null || !nodeName.startsWith("<html>"))
             {
                 // If this node is a bit-wise variable then all other variables
                 // that are packed with it must be selected as well. Likewise,
@@ -725,18 +727,25 @@ public class CcddCommonTreeHandler extends JTree
                     if (isVariable)
                     {
                         // Check if it represents a bit-wise variable
-                        if (node.getUserObject().toString().contains(":"))
+                        if (nodeName.contains(":"))
                         {
                             // Get the node indices that encompass the packed
                             // variables (if applicable)
                             nodeIndex = getBitPackedVariables(node);
                         }
-                        // Check if this is a string
-                        else if (dataTypeHandler.isCharacter(node.getUserObject().toString()))
+                        // Not a bit-wise variable
+                        else
                         {
-                            // Get the node indices that encompass the string
-                            // array members
-                            nodeIndex = getStringVariableMembers(node);
+                            // Extract the data type name form the node name
+                            String dataType = nodeName.substring(0, nodeName.indexOf("."));
+
+                            // Check if this is a string
+                            if (dataTypeHandler.isString(dataType))
+                            {
+                                // Get the node indices that encompass the
+                                // string array members
+                                nodeIndex = getStringVariableMembers(node);
+                            }
                         }
                     }
 

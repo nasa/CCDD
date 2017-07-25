@@ -122,13 +122,18 @@ public class CcddScriptExecutiveDialog extends CcddDialogHandler
                     gbc.weighty = 1.0;
                     gbc.insets.top = 0;
                     gbc.gridy++;
-                    dialogPnl.add(scriptHandler.createScriptAssociationPanel(null,
-                                                                             10,
-                                                                             false,
-                                                                             CcddScriptExecutiveDialog.this),
+                    dialogPnl.add(scriptHandler.getAssociationsPanel(null,
+                                                                     false,
+                                                                     CcddScriptExecutiveDialog.this),
                                   gbc);
 
                     // Execute selected script association(s) button
+                    btnExecute = CcddButtonPanelHandler.createButton("Execute",
+                                                                     EXECUTE_ICON,
+                                                                     KeyEvent.VK_E,
+                                                                     "Execute the selected script association(s)");
+
+                    // Script execution button
                     btnExecute = CcddButtonPanelHandler.createButton("Execute",
                                                                      EXECUTE_ICON,
                                                                      KeyEvent.VK_E,
@@ -143,13 +148,10 @@ public class CcddScriptExecutiveDialog extends CcddDialogHandler
                         @Override
                         public void actionPerformed(ActionEvent ae)
                         {
-                            // Check if at least one script association is
-                            // selected
-                            if (!scriptHandler.getAssociationsList().isSelectionEmpty())
-                            {
-                                scriptHandler.executeScriptAssociations(CcddScriptExecutiveDialog.this,
-                                                                        tableTree);
-                            }
+                            // Execute the selected associations
+                            scriptHandler.executeScriptAssociations(CcddScriptExecutiveDialog.this,
+                                                                    tableTree,
+                                                                    false);
                         }
                     });
 
@@ -169,25 +171,20 @@ public class CcddScriptExecutiveDialog extends CcddDialogHandler
                         public void actionPerformed(ActionEvent ae)
                         {
                             // Check if at least one script association exists
-                            if (!scriptHandler.getAssociationsModel().isEmpty()
+                            if (scriptHandler.getAssociationsTable().getRowCount() != 0
                                 && new CcddDialogHandler().showMessageDialog(CcddScriptExecutiveDialog.this,
                                                                              "<html><b>Execute all script associations?",
                                                                              "Execute All",
                                                                              JOptionPane.QUESTION_MESSAGE,
                                                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                             {
-                                // Select all script associations
-                                scriptHandler.getAssociationsList().setSelectionInterval(0,
-                                                                                         scriptHandler.getAssociationsModel().size()
-                                                                                         - 1);
-
-                                // Execute all of the script associations
+                                // Execute all script associations
                                 scriptHandler.executeScriptAssociations(CcddScriptExecutiveDialog.this,
-                                                                        tableTree);
+                                                                        tableTree,
+                                                                        true);
                             }
                         }
                     });
-
                     // Close button
                     btnClose = CcddButtonPanelHandler.createButton("Close",
                                                                    CLOSE_ICON,

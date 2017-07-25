@@ -2704,8 +2704,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
         {
             // Check if the data type is a string and if the array size column
             // isn't empty
-            if (dataTypeHandler.isCharacter(tableInfo.getData()[row][typeColumn])
-                && dataTypeHandler.getSizeInBytes(tableInfo.getData()[row][typeColumn]) > 1
+            if (dataTypeHandler.isString(tableInfo.getData()[row][typeColumn])
                 && !tableInfo.getData()[row][sizeColumn].isEmpty())
             {
                 int defnRow = row;

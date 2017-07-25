@@ -248,8 +248,8 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                     // Update the existing tables of this type to the new type
                     // name
                     dbTable.renameTableType(activeTypeName,
-                                       typeNameFld.getText(),
-                                       CcddTableTypeManagerDialog.this);
+                                            typeNameFld.getText(),
+                                            CcddTableTypeManagerDialog.this);
                 }
 
                 break;
@@ -280,8 +280,8 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
 
                         // Copy the table type to the new type name
                         dbTable.copyTableType(activeTypeName,
-                                         typeNameFld.getText(),
-                                         CcddTableTypeManagerDialog.this);
+                                              typeNameFld.getText(),
+                                              CcddTableTypeManagerDialog.this);
                     }
                 }
 
@@ -304,9 +304,9 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                     // Delete the type definition and tables of the deleted
                     // type
                     dbTable.deleteTableType(activeTypeName,
-                                       savedDefn.isStructure(),
-                                       CcddTableTypeManagerDialog.this,
-                                       editorDialog);
+                                            savedDefn.isStructure(),
+                                            CcddTableTypeManagerDialog.this,
+                                            editorDialog);
                 }
 
                 break;
@@ -421,7 +421,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                     {
                         // Check if the user-supplied name matches an existing
                         // type name (with the text forced to lower case)
-                        if (type.toLowerCase().equals(typeNameFld.getText().toLowerCase()))
+                        if (type.equalsIgnoreCase(typeNameFld.getText()))
                         {
                             // Inform the user that the name is already in use
                             throw new CCDDException("Type name is already in use");

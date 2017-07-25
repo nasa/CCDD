@@ -1330,7 +1330,8 @@ public class CcddScriptDataAccessHandler
      * are any array member variable names in the full name, replace left
      * square brackets with # underscores and remove right square brackets
      * (example: a[0],b[2] becomes a_0separatorb_2). Data types may be excluded
-     * or retained, based on the input flag
+     * or retained, based on the input flag. Any macro embedded in the variable
+     * name is expanded
      * 
      * @param fullName
      *            variable path + name in the format
@@ -1349,7 +1350,8 @@ public class CcddScriptDataAccessHandler
      * 
      * @return The variable's full path and name with each variable in the path
      *         separated by the specified separator character(s); returns a
-     *         blank is the row is invalid
+     *         blank is the row is invalid. Any macro embedded in the variable
+     *         name is expanded
      *************************************************************************/
     public String getFullVariableName(String fullName,
                                       String varPathSeparator,
@@ -1368,7 +1370,8 @@ public class CcddScriptDataAccessHandler
     }
 
     /**************************************************************************
-     * Get the path to which the specified row's data belongs
+     * Get the path to which the specified row's data belongs with any embedded
+     * macro replaced by its corresponding value
      * 
      * @param tableType
      *            table type. All structure table types are combined and are
@@ -1379,7 +1382,8 @@ public class CcddScriptDataAccessHandler
      * @param row
      *            table row index
      * 
-     * @return The path to the current row's parameter; returns a blank if an
+     * @return The path to the current row's parameter with any embedded macro
+     *         replaced by its corresponding value; returns a blank if an
      *         instance of the table type doesn't exist. The path starts with
      *         the top-level table name. For structure tables the top-level
      *         name is followed by a comma and then the parent structure and
@@ -1389,23 +1393,52 @@ public class CcddScriptDataAccessHandler
      *         format is:
      * 
      *         top-level<,variable1.parent1<,variable2.parent2<...>>>
-     * 
-     *         Any macro is replaced by its corresponding value
      *************************************************************************/
     public String getPathByRow(String tableType, int row)
     {
-        return getTablePathByRow(tableType, row, TablePathType.PARENT_AND_VARIABLE);
+        return getTablePathByRow(tableType, row, TablePathType.PARENT_AND_VARIABLE, true);
     }
 
     /**************************************************************************
-     * Get the structure path to which the specified row's data belongs,
-     * showing only the top-level structure and variable names. This format is
-     * used when referencing a structure table’s data fields
+     * Get the path to which the specified row's data belongs with any embedded
+     * macro(s) left in place
+     * 
+     * @param tableType
+     *            table type. All structure table types are combined and are
+     *            referenced by the type name "Structure", and all command
+     *            table types are combined and are referenced by the type name
+     *            "Command"
      * 
      * @param row
      *            table row index
      * 
-     * @return The path to the current row's parameter; returns a blank if an
+     * @return The path to the current row's parameter with any embedded
+     *         macro(s) left in place; returns a blank if an instance of the
+     *         table type doesn't exist. The path starts with the top-level
+     *         table name. For structure tables the top-level name is followed
+     *         by a comma and then the parent structure and variable name(s)
+     *         that define(s) the table's path. Each parent and its associated
+     *         variable name are separated by a period. Each parent/variable
+     *         pair in the path is separated by a comma. The format is:
+     * 
+     *         top-level<,variable1.parent1<,variable2.parent2<...>>>
+     *************************************************************************/
+    public String getPathByRowWithMacros(String tableType, int row)
+    {
+        return getTablePathByRow(tableType, row, TablePathType.PARENT_AND_VARIABLE, false);
+    }
+
+    /**************************************************************************
+     * Get the structure path to which the specified row's data belongs,
+     * showing only the top-level structure and variable names and with any
+     * embedded macro replaced by its corresponding value. This format is used
+     * when referencing a structure table’s data fields
+     * 
+     * @param row
+     *            table row index
+     * 
+     * @return The path to the current row's parameter with any embedded macro
+     *         replaced by its corresponding value; returns a blank if an
      *         instance of the table type doesn't exist. The path starts with
      *         the top-level table name. The top-level name is followed by a
      *         comma and then the variable name(s) that define(s) the table's
@@ -1413,35 +1446,79 @@ public class CcddScriptDataAccessHandler
      *         format is:
      * 
      *         top-level<,variable1<,variable2<...>>>
-     * 
-     *         Any macro is replaced by its corresponding value
      *************************************************************************/
     public String getStructureTableVariablePathByRow(int row)
     {
-        return getTablePathByRow(TYPE_STRUCTURE, row, TablePathType.VARIABLE_ONLY);
+        return getTablePathByRow(TYPE_STRUCTURE, row, TablePathType.VARIABLE_ONLY, true);
     }
 
     /**************************************************************************
      * Get the structure path to which the specified row's data belongs,
-     * formatted for use in an ITOS record statement
+     * showing only the top-level structure and variable names and with any
+     * embedded macro(s) left in place. This format is used when referencing a
+     * structure table’s data fields
+     * 
+     * @param row
+     *            table row index
+     * 
+     * @return The path to the current row's parameter with any embedded
+     *         macro(s) left in place; returns a blank if an instance of the
+     *         table type doesn't exist. The path starts with the top-level
+     *         table name. The top-level name is followed by a comma and then
+     *         the variable name(s) that define(s) the table's path. Each
+     *         variable in the path is separated by a comma. The format is:
+     * 
+     *         top-level<,variable1<,variable2<...>>>
+     *************************************************************************/
+    public String getStructureTableVariablePathByRowWithMacros(int row)
+    {
+        return getTablePathByRow(TYPE_STRUCTURE, row, TablePathType.VARIABLE_ONLY, false);
+    }
+
+    /**************************************************************************
+     * Get the structure path to which the specified row's data belongs,
+     * formatted for use in an ITOS record statement and with any embedded
+     * macro replaced by its corresponding value
      * 
      * @param row
      *            table row index
      * 
      * @return The path to the current row's parameter formatted for use in an
-     *         ITOS record statement; returns a blank if an instance of the
+     *         ITOS record statement and with any embedded macro replaced by
+     *         its corresponding value; returns a blank if an instance of the
      *         table type doesn't exist. The path starts with the top-level
      *         table name. The top-level name is followed by a period and then
      *         the variable name(s) that define(s) the table's path. Each
      *         variable in the path is separated by an period. The format is:
      * 
      *         top-level<.variable1_parent1<.variable2_parent2<...>>>
-     * 
-     *         Any macro is replaced by its corresponding value
      *************************************************************************/
     public String getStructureTableITOSPathByRow(int row)
     {
-        return getTablePathByRow(TYPE_STRUCTURE, row, TablePathType.ITOS_RECORD);
+        return getTablePathByRow(TYPE_STRUCTURE, row, TablePathType.ITOS_RECORD, true);
+    }
+
+    /**************************************************************************
+     * Get the structure path to which the specified row's data belongs,
+     * formatted for use in an ITOS record statement, and with any embedded
+     * macro(s) left in place
+     * 
+     * @param row
+     *            table row index
+     * 
+     * @return The path to the current row's parameter formatted for use in an
+     *         ITOS record statement and with any embedded macro(s) left in
+     *         place; returns a blank if an instance of the table type doesn't
+     *         exist. The path starts with the top-level table name. The
+     *         top-level name is followed by a period and then the variable
+     *         name(s) that define(s) the table's path. Each variable in the
+     *         path is separated by an period. The format is:
+     * 
+     *         top-level<.variable1_parent1<.variable2_parent2<...>>>
+     *************************************************************************/
+    public String getStructureTableITOSPathByRowWithMacros(int row)
+    {
+        return getTablePathByRow(TYPE_STRUCTURE, row, TablePathType.ITOS_RECORD, false);
     }
 
     /**************************************************************************
@@ -1466,14 +1543,19 @@ public class CcddScriptDataAccessHandler
      *            TablePathType.ITOS_RECORD to return the path formatted for
      *            use in an ITOS record file
      * 
+     * @param expandMacros
+     *            true to replace any macros with their corresponding value;
+     *            false to return the data with any macro names in place
+     * 
      * @return The table path, for the structure table, to the current row's
      *         parameter; returns a blank if an instance of the structure table
-     *         type doesn't exist. Any macro is replaced by its corresponding
-     *         value
+     *         type doesn't exist. Depending on the input flag, any macro is
+     *         replaced by its corresponding value or left in place
      *************************************************************************/
     private String getTablePathByRow(String tableType,
                                      int row,
-                                     TablePathType pathType)
+                                     TablePathType pathType,
+                                     boolean expandMacros)
     {
         String structurePath = "";
 
@@ -1516,7 +1598,14 @@ public class CcddScriptDataAccessHandler
             }
         }
 
-        return macroHandler.getMacroExpansion(structurePath);
+        // Check if any macros should be expanded
+        if (expandMacros)
+        {
+            // Expand any macros in the path
+            structurePath = macroHandler.getMacroExpansion(structurePath);
+        }
+
+        return structurePath;
     }
 
     /**************************************************************************
@@ -1577,7 +1666,8 @@ public class CcddScriptDataAccessHandler
      * @return Array containing the path for each structure variable. The root
      *         structures are sorted alphabetically. The variables are
      *         displayed in the order of appearance within the structure
-     *         (parent or child)
+     *         (parent or child). Any macro is replaced by its corresponding
+     *         value
      *************************************************************************/
     public String[] getVariablePaths()
     {
@@ -3061,8 +3151,7 @@ public class CcddScriptDataAccessHandler
 
     /**************************************************************************
      * Get the copy table for the messages of the specified data stream. Any
-     * macros embedded in the variable names are replaced by their
-     * corresponding values
+     * macro embedded in a variable name is replaced by its corresponding value
      * 
      * @param streamName
      *            data stream name
@@ -3081,21 +3170,57 @@ public class CcddScriptDataAccessHandler
      * 
      * @return Array containing the copy table entries; returns blank if there
      *         are no entries for the specified data stream or if data stream
-     *         name is invalid
+     *         name is invalid. Any macro embedded in a variable name is
+     *         replaced by its corresponding value
      *************************************************************************/
     public String[][] getCopyTableEntries(String streamName,
                                           int headerSize,
                                           String messageIDNameField,
                                           boolean optimize)
     {
-        // Create the copy table
-        return copyHandler.createCopyTable(fieldHandler,
-                                           linkHandler,
-                                           streamName,
-                                           headerSize,
-                                           messageIDNameField,
-                                           optimize,
-                                           true);
+        // Create the copy table with macros expanded
+        return getCopyTableEntries(streamName,
+                                   headerSize,
+                                   messageIDNameField,
+                                   optimize,
+                                   true);
+    }
+
+    /**************************************************************************
+     * Get the copy table for the messages of the specified data stream. Any
+     * macro embedded in a variable name is left in place
+     * 
+     * @param streamName
+     *            data stream name
+     * 
+     * @param headerSize
+     *            size of the message header in bytes. For example, the CCSDS
+     *            header size is 12
+     * 
+     * @param messageIDNameField
+     *            name of the message ID name data field (e.g., 'Message ID
+     *            name')
+     * 
+     * @param optimize
+     *            true to combine memory copy calls for consecutive variables
+     *            in the copy table
+     * 
+     * @return Array containing the copy table entries with any macro embedded
+     *         in a variable name left in place; returns blank if there are no
+     *         entries for the specified data stream or if data stream name is
+     *         invalid
+     *************************************************************************/
+    public String[][] getCopyTableEntriesWithMacros(String streamName,
+                                                    int headerSize,
+                                                    String messageIDNameField,
+                                                    boolean optimize)
+    {
+        // Create the copy table with macros unexpanded
+        return getCopyTableEntries(streamName,
+                                   headerSize,
+                                   messageIDNameField,
+                                   optimize,
+                                   false);
     }
 
     /**************************************************************************
@@ -3123,11 +3248,11 @@ public class CcddScriptDataAccessHandler
      *         are no entries for the specified data stream or if data stream
      *         name is invalid
      *************************************************************************/
-    public String[][] getCopyTableEntries(String streamName,
-                                          int headerSize,
-                                          String messageIDNameField,
-                                          boolean optimize,
-                                          boolean expandMacros)
+    private String[][] getCopyTableEntries(String streamName,
+                                           int headerSize,
+                                           String messageIDNameField,
+                                           boolean optimize,
+                                           boolean expandMacros)
     {
         String[][] entries = new String[0][0];
 
@@ -3207,7 +3332,7 @@ public class CcddScriptDataAccessHandler
         return groupHandler.getGroupNames(true);
     }
 
-    // TODO Remaining methods are for Nolan's application scheduler...
+    // TODO Following methods are for the application scheduler...
     /**************************************************************************
      * Get the list of defines for the scheduler table
      * 
@@ -3273,7 +3398,7 @@ public class CcddScriptDataAccessHandler
         return appHandler.getNumberOfSlots();
     }
 
-    // end TODO
+    // TODO ... end of application scheduler methods
 
     /**************************************************************************
      * *** TODO INCLUDED FOR TESTING ***

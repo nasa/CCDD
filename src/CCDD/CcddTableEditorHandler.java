@@ -67,7 +67,6 @@ import CCDD.CcddClasses.TableModification;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
-import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -838,10 +837,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     /**************************************************************************
      * Perform the steps needed following execution of database table changes
      * 
-     * @param commandError
-     *            false if the database commands successfully completed; true
-     *            if an error occurred and the changes were not made
-     * 
      * @param keys
      *            list of primary key values for each row in the table
      * 
@@ -857,423 +852,207 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      * 
      * @param deletions
      *            list of row deletion information
-     * 
-     * @param linkHandler
-     *            link handler reference
      *************************************************************************/
-    protected void doTableUpdatesComplete(boolean commandError,
-                                          List<Integer> keys,
+    protected void doTableUpdatesComplete(List<Integer> keys,
                                           boolean applyToChild,
                                           List<TableModification> additions,
                                           List<TableModification> modifications,
-                                          List<TableModification> deletions,
-                                          CcddLinkHandler linkHandler)
+                                          List<TableModification> deletions)
     {
-        // Check that no error occurred performing the database commands
-        if (!commandError)
+        List<Object[]> committedData = null;
+
+        // Check if a cell editor is active
+        if (table.getCellEditor() != null)
         {
-            List<Object[]> committedData = null;
+            // Terminate cell editing. If this is not done the cell with the
+            // active editor isn't updated
+            table.getCellEditor().stopCellEditing();
+        }
 
-            // Check if a cell editor is active
-            if (table.getCellEditor() != null)
+        // Check if this is a child table to a prototype that has been updated;
+        // if so this table needs to have the same changes applied
+        if (applyToChild)
+        {
+            // Get the child table's committed data so that it can be updated
+            // along with the table. This allows the changes made to the child
+            // (as a result of the changes to its prototype) to be considered
+            // as already stored in the database. Any other changes made
+            // specifically to the child table are still indicated as not being
+            // stored
+            committedData = new ArrayList<Object[]>(Arrays.asList((Object[][]) committedInfo.getData()));
+
+            // Step through each row added to the table
+            for (TableModification add : additions)
             {
-                // Terminate cell editing. If this is not done the cell with
-                // the active editor isn't updated
-                table.getCellEditor().stopCellEditing();
+                // Get the index at which to insert the new row
+                int row = Integer.valueOf(add.getRowData()[rowIndex].toString()) - 1;
+
+                // Insert the new table row and stop searching
+                tableModel.insertRow(row, add.getRowData(), false);
+                committedData.add(row, add.getRowData());
             }
 
-            // Check if this is a child table to a prototype that has been
-            // updated; if so this table needs to have the same changes applied
-            if (applyToChild)
-            {
-                // Get the child table's committed data so that it can be
-                // updated along with the table. This allows the changes made
-                // to the child (as a result of the changes to its prototype)
-                // to be considered as already stored in the database. Any
-                // other changes made specifically to the child table are still
-                // indicated as not being stored
-                committedData = new ArrayList<Object[]>(Arrays.asList((Object[][]) committedInfo.getData()));
-
-                // Step through each row added to the table
-                for (TableModification add : additions)
-                {
-                    // Get the index at which to insert the new row
-                    int row = Integer.valueOf(add.getRowData()[rowIndex].toString()) - 1;
-
-                    // Insert the new table row and stop searching
-                    tableModel.insertRow(row, add.getRowData(), false);
-                    committedData.add(row, add.getRowData());
-                }
-
-                // If the row order in the prototype changed then the row
-                // order of the current table must be changed to match the new
-                // order prior to comparing the column changes per the
-                // modifications. Step through each row in the table
-                for (int row = 0; row < tableModel.getRowCount(); row++)
-                {
-                    // Step through each modification
-                    for (TableModification mod : modifications)
-                    {
-                        // Check if the row isn't already in the correct
-                        // order (from a previous pass), the row index changed,
-                        // and that the primary key values match for the table
-                        // row and the modification
-                        if (!mod.getRowData()[rowIndex].equals(mod.getOriginalRowData()[rowIndex])
-                            && mod.getOriginalRowData()[primaryKeyIndex].equals(tableModel.getValueAt(row,
-                                                                                                      primaryKeyIndex)))
-                        {
-                            // Get the row's new row index
-                            int newRow = Integer.valueOf(mod.getRowData()[rowIndex].toString()) - 1;
-
-                            // Move the row from its current location to its
-                            // new location
-                            tableModel.moveRow(row, row, newRow, false);
-
-                            // Move the row in the committed data as well
-                            if (row <= newRow)
-                            {
-                                Collections.rotate(committedData.subList(row, newRow + 1), -1);
-                            }
-                            else
-                            {
-                                Collections.rotate(committedData.subList(newRow, row + 1), 1);
-                            }
-                        }
-                    }
-                }
-
-                // Step through each row modified in the table
-                for (TableModification mod : modifications)
-                {
-                    // Step through each row in the table
-                    for (int row = 0; row < tableModel.getRowCount(); row++)
-                    {
-                        // Check if the primary keys match between the
-                        // table row and the row to modify
-                        if (tableModel.getValueAt(row, primaryKeyIndex).toString().equals(mod.getRowData()[primaryKeyIndex].toString()))
-                        {
-                            // Step through each column of the updated row data
-                            for (int column = 0; column < tableModel.getColumnCount(); column++)
-                            {
-                                // Get the current value of the column in the
-                                // updated row
-                                Object currentValue = tableModel.getValueAt(row, column);
-
-                                // Check if the modification's column value
-                                // differs from this tables' current value, and
-                                // if this table's column doesn't have a custom
-                                // value
-                                if (!currentValue.equals(mod.getRowData()[column])
-                                    && currentValue.equals(mod.getOriginalRowData()[column]))
-                                {
-                                    // Replace the current column value with
-                                    // the updated column value
-                                    tableModel.setValueAt(mod.getRowData()[column],
-                                                          row,
-                                                          column,
-                                                          false);
-                                    committedData.get(row)[column] = mod.getRowData()[column];
-                                }
-                            }
-
-                            // Stop searching since the matching row was found
-                            break;
-                        }
-                    }
-                }
-
-                // Sort the row deletions in descending order
-                Collections.sort(deletions, new Comparator<TableModification>()
-                {
-                    /**********************************************************
-                     * Compare the row numbers of two deletion actions in order
-                     * to sort the row deletion from highest to lowest
-                     *********************************************************/
-                    @Override
-                    public int compare(TableModification del1, TableModification del2)
-                    {
-                        return Integer.compare(Integer.valueOf(del2.getRowData()[rowIndex].toString()),
-                                               Integer.valueOf(del1.getRowData()[rowIndex].toString()));
-                    }
-                });
-
-                // Step through each row deleted from the table
-                for (TableModification del : deletions)
-                {
-                    // Step through each row in the table
-                    for (int row = 0; row < tableModel.getRowCount(); row++)
-                    {
-                        // Check if the primary keys match between the table
-                        // row and the row to delete
-                        if (tableModel.getValueAt(row, primaryKeyIndex).toString().equals(del.getRowData()[primaryKeyIndex].toString()))
-                        {
-                            // Remove the deleted row and stop searching
-                            tableModel.removeRow(row, false);
-                            committedData.remove(row);
-                            break;
-                        }
-                    }
-                }
-            }
-            // Not a child of a prototype
-            else
-            {
-                // Set the committed data to the table's current data
-                committedData = table.getTableDataList(true);
-            }
-
-            // Any added rows in the table model don't have the primary key
-            // value set. These values are extracted from the database after
-            // the table is updated, then used here to update the table model
-            int keyRow = 0;
-
-            // Step through each row in the table model
+            // If the row order in the prototype changed then the row order of
+            // the current table must be changed to match the new order prior
+            // to comparing the column changes per the modifications. Step
+            // through each row in the table
             for (int row = 0; row < tableModel.getRowCount(); row++)
             {
-                // Check if the primary key column if empty
-                if (tableModel.getValueAt(row, primaryKeyIndex).toString().isEmpty())
+                // Step through each modification
+                for (TableModification mod : modifications)
                 {
-                    // Step through each column in the table model
-                    for (int column = 0; column < tableModel.getColumnCount(); column++)
+                    // Check if the row isn't already in the correct order
+                    // (from a previous pass), the row index changed, and that
+                    // the primary key values match for the table row and the
+                    // modification
+                    if (!mod.getRowData()[rowIndex].equals(mod.getOriginalRowData()[rowIndex])
+                        && mod.getOriginalRowData()[primaryKeyIndex].equals(tableModel.getValueAt(row,
+                                                                                                  primaryKeyIndex)))
                     {
-                        // Check if the cell is not empty. This prevents
-                        // assigning the primary key to an empty row
-                        if (!tableModel.getValueAt(row, column).toString().isEmpty())
-                        {
-                            // Set the primary key value from the list
-                            tableModel.setValueAt(keys.get(keyRow).toString(),
-                                                  row,
-                                                  primaryKeyIndex,
-                                                  false);
-                            committedData.get(row)[primaryKeyIndex] = keys.get(keyRow).toString();
+                        // Get the row's new row index
+                        int newRow = Integer.valueOf(mod.getRowData()[rowIndex].toString()) - 1;
 
-                            // Update the index to the next key value row and
-                            // stop searching
-                            keyRow++;
-                            break;
+                        // Move the row from its current location to its new
+                        // location
+                        tableModel.moveRow(row, row, newRow, false);
+
+                        // Move the row in the committed data as well
+                        if (row <= newRow)
+                        {
+                            Collections.rotate(committedData.subList(row, newRow + 1), -1);
                         }
-                    }
-                }
-                // The row has a primary key value
-                else
-                {
-                    // Update the index to the next key value row
-                    keyRow++;
-                }
-            }
-
-            // Store the table data, column order, description, and data fields
-            committedInfo.setData(CcddUtilities.convertObjectToString(committedData.toArray(new Object[0][0])));
-            committedInfo.setColumnOrder(table.getColumnOrder());
-            committedInfo.setDescription(getDescription());
-            committedInfo.getFieldHandler().setFieldInformation(tableInfo.getFieldHandler().getFieldInformationCopy());
-
-            // Make any additions to the links table due to changes in variable
-            // packing or string length
-            updateLinksTable(linkHandler);
-        }
-    }
-
-    /**************************************************************************
-     * Update the links table by adding packed variables that are missing due
-     * to changes in the pack membership
-     * 
-     * @param linkHandler
-     *            link handler reference
-     *************************************************************************/
-    private void updateLinksTable(CcddLinkHandler linkHandler)
-    {
-        // Check if this is a structure table
-        if (typeDefn.isStructure())
-        {
-            boolean isLinkChange = false;
-
-            // Get the table data as a list and the table's full path
-            List<Object[]> tblData = table.getTableDataList(false);
-            String fullPath = tableInfo.getTablePath();
-
-            // Step through each row in the table
-            for (int row = 0; row < tblData.size(); row++)
-            {
-                // Check if this row contains a bit length
-                if (!tblData.get(row)[bitLengthIndex].toString().isEmpty())
-                {
-                    // Determine the table row for the last
-                    // variable packed with the current variable
-                    int endRow = setPackedVariableRates(tblData, row, false);
-
-                    // Check if the links information changed due to changes in
-                    // the variable packing
-                    if (isLinkChanged(linkHandler,
-                                      fullPath,
-                                      tblData,
-                                      row,
-                                      endRow))
-                    {
-                        // Set the flag to indicate that the links information
-                        // changed
-                        isLinkChange = true;
-                    }
-
-                    // Update the row index to skip rows already processed as
-                    // packed variables
-                    row = endRow;
-                }
-                // Check if this is the first member of a string variable array
-                else if (dataTypeHandler.isCharacter(tblData.get(row)[dataTypeIndex].toString())
-                         && tblData.get(row)[variableNameIndex].toString().endsWith("[0]"))
-                {
-                    int endRow = row;
-
-                    // Get the string variable name without the string length
-                    // array index
-                    String variableName = ArrayVariable.removeStringSize(tblData.get(row)[variableNameIndex].toString());
-
-                    // Step forward in order to determine the ending row for
-                    // this string by comparing the variable name in the
-                    // current row to that in the first row
-                    do
-                    {
-                        endRow++;
-                    } while (endRow < tblData.size()
-                             && variableName.equals(ArrayVariable.removeStringSize(tblData.get(endRow)[variableNameIndex].toString())));
-
-                    endRow--;
-
-                    // Check if the links information changed due to changes in
-                    // the strings
-                    if (isLinkChanged(linkHandler,
-                                      fullPath,
-                                      tblData,
-                                      row,
-                                      endRow))
-                    {
-                        // Set the flag to indicate that the links information
-                        // changed
-                        isLinkChange = true;
-                    }
-
-                    // Update the row index to skip rows already processed as
-                    // string variables
-                    row = endRow;
-                }
-            }
-
-            // Check if a change exists in the link definitions
-            if (isLinkChange)
-            {
-                // Update the links table in the database
-                dbTable.storeInformationTableInBackground(InternalTable.LINKS,
-                                                          linkHandler.getLinkDefinitions(),
-                                                          null,
-                                                          editorDialog);
-            }
-        }
-    }
-
-    /**************************************************************************
-     * Determine if a change in bit-wise variable packing or string length
-     * results in a change to a link
-     * 
-     * @param linkHandler
-     *            link handler reference
-     * 
-     * @param fullPath
-     *            full path of the variable to check
-     * 
-     * @param tableData
-     *            table data array
-     * 
-     * @param row
-     *            starting model coordinate row index for the bit-wise or
-     *            string variable
-     * 
-     * @param endRow
-     *            ending model coordinate row index for the bit-wise or string
-     *            variable
-     * 
-     * @return true if changes to bit-packing or string length results in a
-     *         change to a link
-     *************************************************************************/
-    private boolean isLinkChanged(CcddLinkHandler linkHandler,
-                                  String fullPath,
-                                  List<Object[]> tableData,
-                                  int row,
-                                  int endRow)
-    {
-        boolean isLinkChange = false;
-
-        // Get the full path for this row's variable
-        String variablePath = fullPath
-                              + ","
-                              + tableData.get(row)[dataTypeIndex]
-                              + "."
-                              + tableData.get(row)[variableNameIndex]
-                              + (tableData.get(row)[bitLengthIndex].toString().isEmpty()
-                                                                                        ? ""
-                                                                                        : ":"
-                                                                                          + tableData.get(row)[bitLengthIndex]);
-
-        // Step through each link for which this variable is a member
-        for (String[] rateAndLinkName : linkHandler.getVariableLinks(variablePath, false))
-        {
-            // Get the rate and row index for this link
-            String linkRate = linkHandler.getLinkRate(rateAndLinkName[0],
-                                                      rateAndLinkName[1]);
-            int linkRow = linkHandler.getLinkDefinitionIndex(rateAndLinkName[0],
-                                                             rateAndLinkName[1],
-                                                             variablePath);
-
-            // Step through each rate column in the table
-            for (int column : rateIndex)
-            {
-                // Check if the column matches the link's rate column and that
-                // the variable's rate for this rate column matches the link's
-                // rate
-                if (typeDefn.getColumnNamesUser()[column].equals(rateAndLinkName[0])
-                    && tableData.get(row)[column].toString().equals(linkRate))
-                {
-                    // Step through each of the related variables
-                    for (int memberRow = row + 1; memberRow <= endRow; memberRow++)
-                    {
-                        // Get the full path for this row's variable
-                        variablePath = fullPath
-                                       + ","
-                                       + tableData.get(memberRow)[dataTypeIndex]
-                                       + "."
-                                       + tableData.get(memberRow)[variableNameIndex]
-                                       + (tableData.get(memberRow)[bitLengthIndex].toString().isEmpty()
-                                                                                                       ? ""
-                                                                                                       : ":"
-                                                                                                         + tableData.get(memberRow)[bitLengthIndex]);
-
-                        // Check if this variable is not already present in the
-                        // link definitions
-                        if (linkHandler.getLinkDefinitionIndex(rateAndLinkName[0],
-                                                               rateAndLinkName[1],
-                                                               variablePath) != linkRow
-                                                                                + memberRow
-                                                                                - row)
+                        else
                         {
-                            // Insert the missing packed variable into the link
-                            // definitions in the correct position and set the
-                            // flag indicating a change exists in the link
-                            // definitions. Continue processing so that the
-                            // link is completely built
-                            linkHandler.getLinkDefinitions().add(linkRow
-                                                                 + memberRow
-                                                                 - row,
-                                                                 new String[] {rateAndLinkName[0],
-                                                                               rateAndLinkName[1],
-                                                                               variablePath});
-                            isLinkChange = true;
+                            Collections.rotate(committedData.subList(newRow, row + 1), 1);
                         }
                     }
                 }
             }
+
+            // Step through each row modified in the table
+            for (TableModification mod : modifications)
+            {
+                // Step through each row in the table
+                for (int row = 0; row < tableModel.getRowCount(); row++)
+                {
+                    // Check if the primary keys match between the table row
+                    // and the row to modify
+                    if (tableModel.getValueAt(row, primaryKeyIndex).toString().equals(mod.getRowData()[primaryKeyIndex].toString()))
+                    {
+                        // Step through each column of the updated row data
+                        for (int column = 0; column < tableModel.getColumnCount(); column++)
+                        {
+                            // Get the current value of the column in the
+                            // updated row
+                            Object currentValue = tableModel.getValueAt(row, column);
+
+                            // Check if the modification's column value differs
+                            // from this tables' current value, and if this
+                            // table's column doesn't have a custom value
+                            if (!currentValue.equals(mod.getRowData()[column])
+                                && currentValue.equals(mod.getOriginalRowData()[column]))
+                            {
+                                // Replace the current column value with the
+                                // updated column value
+                                tableModel.setValueAt(mod.getRowData()[column],
+                                                      row,
+                                                      column,
+                                                      false);
+                                committedData.get(row)[column] = mod.getRowData()[column];
+                            }
+                        }
+
+                        // Stop searching since the matching row was found
+                        break;
+                    }
+                }
+            }
+
+            // Sort the row deletions in descending order
+            Collections.sort(deletions, new Comparator<TableModification>()
+            {
+                /**********************************************************
+                 * Compare the row numbers of two deletion actions in order to
+                 * sort the row deletion from highest to lowest
+                 *********************************************************/
+                @Override
+                public int compare(TableModification del1, TableModification del2)
+                {
+                    return Integer.compare(Integer.valueOf(del2.getRowData()[rowIndex].toString()),
+                                           Integer.valueOf(del1.getRowData()[rowIndex].toString()));
+                }
+            });
+
+            // Step through each row deleted from the table
+            for (TableModification del : deletions)
+            {
+                // Step through each row in the table
+                for (int row = 0; row < tableModel.getRowCount(); row++)
+                {
+                    // Check if the primary keys match between the table row
+                    // and the row to delete
+                    if (tableModel.getValueAt(row, primaryKeyIndex).toString().equals(del.getRowData()[primaryKeyIndex].toString()))
+                    {
+                        // Remove the deleted row and stop searching
+                        tableModel.removeRow(row, false);
+                        committedData.remove(row);
+                        break;
+                    }
+                }
+            }
+        }
+        // Not a child of a prototype
+        else
+        {
+            // Set the committed data to the table's current data
+            committedData = table.getTableDataList(true);
         }
 
-        return isLinkChange;
+        // Any added rows in the table model don't have the primary key value
+        // set. These values are extracted from the database after the table is
+        // updated, then used here to update the table model
+        int keyRow = 0;
+
+        // Step through each row in the table model
+        for (int row = 0; row < tableModel.getRowCount(); row++)
+        {
+            // Check if the primary key column if empty
+            if (tableModel.getValueAt(row, primaryKeyIndex).toString().isEmpty())
+            {
+                // Step through each column in the table model
+                for (int column = 0; column < tableModel.getColumnCount(); column++)
+                {
+                    // Check if the cell is not empty. This prevents assigning
+                    // the primary key to an empty row
+                    if (!tableModel.getValueAt(row, column).toString().isEmpty())
+                    {
+                        // Set the primary key value from the list
+                        tableModel.setValueAt(keys.get(keyRow).toString(),
+                                              row,
+                                              primaryKeyIndex,
+                                              false);
+                        committedData.get(row)[primaryKeyIndex] = keys.get(keyRow).toString();
+
+                        // Update the index to the next key value row and stop
+                        // searching
+                        keyRow++;
+                        break;
+                    }
+                }
+            }
+            // The row has a primary key value
+            else
+            {
+                // Update the index to the next key value row
+                keyRow++;
+            }
+        }
+
+        // Store the table data, column order, description, and data fields
+        committedInfo.setData(CcddUtilities.convertObjectToString(committedData.toArray(new Object[0][0])));
+        committedInfo.setColumnOrder(table.getColumnOrder());
+        committedInfo.setDescription(getDescription());
+        committedInfo.getFieldHandler().setFieldInformation(tableInfo.getFieldHandler().getFieldInformationCopy());
     }
 
     /**************************************************************************
@@ -1635,7 +1414,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         // 'string' other than the first array member
                         || (variableNameIndex != -1
                             && dataTypeIndex != -1
-                            && dataTypeHandler.isCharacter(rowData[dataTypeIndex].toString())
+                            && dataTypeHandler.isString(rowData[dataTypeIndex].toString())
                             && ArrayVariable.isArrayMember(rowData[variableNameIndex])
                             && !rowData[variableNameIndex].toString().endsWith("[0]"))
 
@@ -2130,8 +1909,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                  && column != dataTypeIndex
                                  && column != arraySizeIndex
                                  && !arraySize.isEmpty()
-                                 && (!variableName.endsWith("]")
-                                 || newDataTypeHandler.isCharacter(dataType)))
+                                 && (!ArrayVariable.isArrayMember(variableName)
+                                 || newDataTypeHandler.isString(dataType)))
                         {
                             // Propagate the value to all members of this
                             // array/string
@@ -4462,9 +4241,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Check if the number of array dimensions is unchanged and that this
         // is a string array
         if (arraySizeOld.length == arraySizeNew.length
-            && newDataTypeHandler.isCharacter(getExpandedValueAt(tableData,
-                                                                 definitionRow,
-                                                                 dataTypeIndex)))
+            && newDataTypeHandler.isString(getExpandedValueAt(tableData,
+                                                              definitionRow,
+                                                              dataTypeIndex)))
         {
             // Step through each array member
             for (int row = definitionRow + 1; row <= lastRow; row++)

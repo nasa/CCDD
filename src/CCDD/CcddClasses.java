@@ -2314,11 +2314,12 @@ public class CcddClasses
         }
 
         /**********************************************************************
-         * Parse an array size cell into an array of integers representing each
+         * Parse an array size into an array of integers representing each
          * array index
          * 
          * @param arrayString
-         *            array size cell value
+         *            array size value in the format [#]<[#]<...>> or
+         *            #<,#<,...>>
          * 
          * @return Array of integers representing each array index. An empty
          *         array is returned if the array size cell is blank
@@ -2326,6 +2327,15 @@ public class CcddClasses
         protected static int[] getArrayIndexFromSize(String arrayString)
         {
             int[] arrayIndex = new int[0];
+
+            // Check if the array size is in the format containing brackets
+            if (arrayString.contains("["))
+            {
+                // Reformat the array size string without the brackets,
+                // replacing internal bracket pairs (][) with commas and
+                // removing the outermost brackets
+                arrayString = arrayString.replaceAll("\\]\\[", ",").replaceAll("[\\]\\[]", "");
+            }
 
             // Check if the array size value isn't blank
             if (!arrayString.isEmpty())
@@ -2449,12 +2459,9 @@ public class CcddClasses
             int result = 0;
 
             // Get the array index value(s) for the array members
-            int[] varIndex1 = getArrayIndexFromSize(getVariableArrayIndex(arrayVariable1)
-                                                                                         .replaceAll("\\]\\[", ",")
-                                                                                         .replaceAll("[\\]\\[]", ""));
-            int[] varIndex2 = getArrayIndexFromSize(getVariableArrayIndex(arrayVariable2)
-                                                                                         .replaceAll("\\]\\[", ",")
-                                                                                         .replaceAll("[\\]\\[]", ""));
+            int[] varIndex1 = getArrayIndexFromSize(getVariableArrayIndex(arrayVariable1));
+            int[] varIndex2 = getArrayIndexFromSize(getVariableArrayIndex(arrayVariable2));
+
             // Step through each array dimension, beginning
             // with the leftmost one (this accounts for arrays
             // with any number of dimensions)

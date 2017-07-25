@@ -8,7 +8,8 @@ package CCDD;
 
 import static CCDD.CcddConstants.CCDD_PROJECT_IDENTIFIER;
 import static CCDD.CcddConstants.DATABASE_COMMENT_SEPARATOR;
-import static CCDD.CcddConstants.DEFAULT_DATABASE;
+import static CCDD.CcddConstants.LIST_TABLE_SEPARATOR;
+import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.EventLogMessageType.SUCCESS_MSG;
 
 import java.io.File;
@@ -18,7 +19,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
+import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddConstants.DefaultColumn;
+import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.FileExtension;
 import CCDD.CcddConstants.InputDataType;
@@ -42,8 +47,10 @@ public class CcddPatchHandler
      * properly and may have detrimental effects
      * 
      * * @param ccddMain main class
+     * 
+     * @throws CCDDException
      *************************************************************************/
-    CcddPatchHandler(CcddMain ccddMain)
+    CcddPatchHandler(CcddMain ccddMain) throws CCDDException
     {
         this.ccddMain = ccddMain;
 
@@ -54,6 +61,147 @@ public class CcddPatchHandler
         // Patch #07112017: Update the database comment to include the project
         // name with capitalization intact
         updateDataBaseComment();
+
+        // Patch #07121017: Update the associations table to include a
+        // description column and to change the table separator characters in
+        // the member_table column
+        updateAssociationsTable();
+    }
+
+    /**************************************************************************
+     * Update the associations table to include a description column and to
+     * change the table separator characters in the member_table column. Older
+     * versions of CCDD are not compatible with the project database after
+     * applying this patch
+     *************************************************************************/
+    private void updateAssociationsTable() throws CCDDException
+    {
+        CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
+        CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
+
+        try
+        {
+            CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
+            CcddDbTableCommandHandler dbTable = ccddMain.getDbTableCommandHandler();
+
+            // Create lists to contain the old and new table types table
+            // items
+            List<String[]> tableData = new ArrayList<String[]>();
+
+            // Read the contents of the associations table
+            ResultSet assnsData = dbCommand.executeDbQuery("SELECT * FROM "
+                                                           + InternalTable.ASSOCIATIONS.getTableName()
+                                                           + " ORDER BY OID;",
+                                                           ccddMain.getMainFrame());
+
+            // Check if the patch hasn't already been applied
+            if (assnsData.getMetaData().getColumnCount() == 2)
+            {
+                // Check if the user elects to not apply the patch
+                if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                              "<html><b>Apply patch to update the script "
+                                                                  + "associations table?<br><br></b>"
+                                                                  + "Incorporates a description column in the "
+                                                                  + "script associations table.<br><b><i>Older "
+                                                                  + "versions of CCDD will be incompatible "
+                                                                  + "with this project database after "
+                                                                  + "applying the patch",
+                                                              "Apply Patch #07212017",
+                                                              JOptionPane.QUESTION_MESSAGE,
+                                                              DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
+                {
+                    assnsData.close();
+                    throw new CCDDException("user elected to not install patch (#02212017)");
+                }
+
+                // Step through each of the query results
+                while (assnsData.next())
+                {
+                    // Create an array to contain the column values
+                    String[] columnValues = new String[3];
+
+                    // Step through each column in the row
+                    for (int column = 0; column < 2; column++)
+                    {
+                        // Add the column value to the array. Note that the
+                        // first column's index in the database is 1, not 0.
+                        // Also, shift the old data over one column to make
+                        // room for the description
+                        columnValues[column + 1] = assnsData.getString(column + 1);
+
+                        // Check if the value is null
+                        if (columnValues[column] == null)
+                        {
+                            // Replace the null with a blank
+                            columnValues[column] = "";
+                        }
+                    }
+
+                    // Add the row data to the list
+                    tableData.add(columnValues);
+                }
+
+                assnsData.close();
+
+                // Check if there are any associations in the table
+                if (tableData.size() != 0)
+                {
+                    // Indicate in the log that the old data successfully
+                    // loaded
+                    eventLog.logEvent(SUCCESS_MSG,
+                                      InternalTable.ASSOCIATIONS.getTableName()
+                                          + " retrieved");
+
+                    // Step through each script association
+                    for (int row = 0; row < tableData.size(); row++)
+                    {
+                        // Set the description to a blank and replace the table
+                        // name separator characters with the new ones
+                        tableData.set(row, new String[] {"",
+                                                         tableData.get(row)[1],
+                                                         tableData.get(row)[2].replaceAll(" \\+ ",
+                                                                                          LIST_TABLE_SEPARATOR)});
+                    }
+                }
+
+                // Back up the project database before applying the patch
+                dbControl.backupDatabase(dbControl.getDatabase(),
+                                         new File(dbControl.getDatabase()
+                                                  + "_"
+                                                  + new
+                                                  SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
+                                                  + FileExtension.DBU.getExtension()));
+
+                // Store the updated associations table
+                dbTable.storeInformationTable(InternalTable.ASSOCIATIONS,
+                                              tableData,
+                                              null,
+                                              ccddMain.getMainFrame());
+
+                // Inform the user that updating the database associations
+                // table completed
+                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+                                  "Project '"
+                                      + dbControl.getProject()
+                                      + "' associations table conversion complete");
+            }
+        }
+        catch (Exception e)
+        {
+            // Inform the user that converting the associations table failed
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Cannot convert project '"
+                                      + dbControl.getProject()
+                                      + "' associations table to new format; cause '"
+                                      + e.getMessage()
+                                      + "'",
+                                  "<html><b>Cannot convert project '"
+                                      + dbControl.getProject()
+                                      + "' associations table to new format "
+                                      + "(project database will be closed)");
+
+            throw new CCDDException();
+        }
     }
 
     /**************************************************************************
@@ -61,7 +209,8 @@ public class CcddPatchHandler
      * capitalization intact. The project database is first backed up to the
      * file <projectName>_<timeStamp>.dbu. The new format for the comment is
      * <CCDD project identifier string><lock status, 0 or 1>;<project name with
-     * capitalization intact>;<project description>
+     * capitalization intact>;<project description>. Older versions of CCDD are
+     * compatible with the project database after applying this patch
      *************************************************************************/
     private void updateDataBaseComment()
     {
@@ -132,15 +281,31 @@ public class CcddPatchHandler
      * allowed columns. If successful, the original table (__types) is renamed,
      * preserving the original information and preventing subsequent conversion
      * attempts. The project database is first backed up to the file
-     * <projectName>_<timeStamp>.dbu
+     * <projectName>_<timeStamp>.dbu. Older versions of CCDD are not compatible
+     * with the project database after applying this patch
      *************************************************************************/
-    private void updateTableTypesTable()
+    private void updateTableTypesTable() throws CCDDException
     {
         CcddDbTableCommandHandler dbTable = ccddMain.getDbTableCommandHandler();
 
         // Check if the old table exists
         if (dbTable.isTableExists("__types", ccddMain.getMainFrame()))
         {
+            // Check if the user elects to not apply the patch
+            if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                          "<html><b>Apply patch to update the table types "
+                                                              + "table?<br><br></b>Creates the new "
+                                                              + "__table_types table from the old __types "
+                                                              + "table.<br><b><i>Older versions of CCDD "
+                                                              + "will be incompatible with this project "
+                                                              + "database after applying the patch",
+                                                          "Apply Patch #01262017",
+                                                          JOptionPane.QUESTION_MESSAGE,
+                                                          DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
+            {
+                throw new CCDDException("user elected to not install patch (#01262017)");
+            }
+
             CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
             CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
             CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
@@ -318,8 +483,9 @@ public class CcddPatchHandler
                                       "Cannot convert table types table to new format; cause '"
                                           + e.getMessage()
                                           + "'",
-                                      "<html><b>Cannot convert table types table to new format (project database will be closed)");
-                dbControl.openDatabase(DEFAULT_DATABASE);
+                                      "<html><b>Cannot convert table types table to new "
+                                          + "format (project database will be closed)");
+                throw new CCDDException();
             }
         }
     }

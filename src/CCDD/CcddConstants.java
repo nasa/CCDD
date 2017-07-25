@@ -109,7 +109,7 @@ public class CcddConstants
     protected static final String COL_MAXIMUM = "Maximum";
 
     // Information list definition item separators
-    protected static final String LIST_TABLE_SEPARATOR = " + ";
+    protected static final String LIST_TABLE_SEPARATOR = ";\n";
     protected static final String LIST_TABLE_DESC_SEPARATOR = " : ";
 
     // Separator for the project database comment
@@ -1194,9 +1194,9 @@ public class CcddConstants
             // Step through each input data type
             for (InputDataType type : InputDataType.values())
             {
-                // Check if the input type name matches the target name. Lower
-                // case is forced to eliminate case as a matching criteria
-                if (type.inputName.toLowerCase().equals(name.toLowerCase()))
+                // Check if the input type name matches the target name,
+                // ignoring case
+                if (type.inputName.equalsIgnoreCase(name))
                 {
                     // Store the matching input type and stop searching
                     inputType = type;
@@ -2057,8 +2057,10 @@ public class CcddConstants
 
         // Script & data table combinations
         ASSOCIATIONS("associations",
-                     new String[][] { {AssociationsColumn.SCRIPT_FILE.columnName,
-                                       AssociationsColumn.SCRIPT_FILE.dataType},
+                     new String[][] { {AssociationsColumn.DESCRIPTION.columnName,
+                                       AssociationsColumn.DESCRIPTION.dataType},
+                                     {AssociationsColumn.SCRIPT_FILE.columnName,
+                                      AssociationsColumn.SCRIPT_FILE.dataType},
                                      {AssociationsColumn.MEMBERS.columnName,
                                       AssociationsColumn.MEMBERS.dataType}},
                      "WITH OIDS",
@@ -2278,6 +2280,7 @@ public class CcddConstants
          *********************************************************************/
         protected static enum AssociationsColumn
         {
+            DESCRIPTION("description", "text"),
             SCRIPT_FILE("script_file", "text"),
             MEMBERS("member_tables", "text");
 
@@ -3821,6 +3824,100 @@ public class CcddConstants
             }
 
             return emptyRow;
+        }
+    }
+
+    /**************************************************************************
+     * Script associations table column information
+     *************************************************************************/
+    protected static enum AssociationsTableColumnInfo
+    {
+        DESCRIPTION("Description", "Script association description"),
+        SCRIPT_FILE("Script File", "Script file name"),
+        MEMBERS("Table(s)", "Table(s) associated with the script file"),
+        AVAILABLE("Available", "Indicates if the association is available (true or false)");
+
+        private final String columnName;
+        private final String toolTip;
+
+        /**********************************************************************
+         * Script association table column information constructor
+         * 
+         * @param columnName
+         *            text to display for the table verification column name
+         * 
+         * @param toolTip
+         *            tool tip text to display for the table verification
+         *            column
+         *********************************************************************/
+        AssociationsTableColumnInfo(String columnName,
+                                    String toolTip)
+        {
+            this.columnName = columnName;
+            this.toolTip = toolTip;
+        }
+
+        /**********************************************************************
+         * Get the script association table column name
+         * 
+         * @return Script association table column name
+         *********************************************************************/
+        protected String getColumnName()
+        {
+            return columnName;
+        }
+
+        /**********************************************************************
+         * Get the script association table column tool tip
+         * 
+         * @return Script association table column tool tip
+         *********************************************************************/
+        protected String getToolTip()
+        {
+            return toolTip;
+        }
+
+        /**********************************************************************
+         * Get the script association table column names
+         * 
+         * @return Array containing the script association table column names
+         *********************************************************************/
+        protected static String[] getColumnNames()
+        {
+            String[] names = new String[AssociationsTableColumnInfo.values().length];
+            int index = 0;
+
+            // Step through each column
+            for (AssociationsTableColumnInfo type : AssociationsTableColumnInfo.values())
+            {
+                // Store the column name
+                names[index] = type.columnName;
+                index++;
+            }
+
+            return names;
+        }
+
+        /**********************************************************************
+         * Get the script association table column tool tips
+         * 
+         * @return Array containing the script association table column tool
+         *         tips
+         *********************************************************************/
+        protected static String[] getToolTips()
+        {
+            String[] toolTips = new String[AssociationsTableColumnInfo.values().length];
+            int index = 0;
+
+            // Step through each column
+            for (AssociationsTableColumnInfo type : AssociationsTableColumnInfo.values())
+            {
+                // Get the tool tip text
+                toolTips[index] = type.toolTip;
+                index++;
+            }
+
+            return toolTips;
         }
     }
 

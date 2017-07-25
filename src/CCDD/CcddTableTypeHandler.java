@@ -1426,7 +1426,7 @@ public class CcddTableTypeHandler
                 // applicability, or value don't match (the description and
                 // size are allowed to differ)
                 else if (!dataField[FieldsColumn.FIELD_TYPE.ordinal()].equals(fieldInfo.getInputType().getInputName())
-                         || !dataField[FieldsColumn.FIELD_REQUIRED.ordinal()].toLowerCase().equals(Boolean.toString(fieldInfo.isRequired()))
+                         || !dataField[FieldsColumn.FIELD_REQUIRED.ordinal()].equalsIgnoreCase(Boolean.toString(fieldInfo.isRequired()))
                          || !dataField[FieldsColumn.FIELD_APPLICABILITY.ordinal()].equals(fieldInfo.getApplicabilityType().getApplicabilityName())
                          || !dataField[FieldsColumn.FIELD_VALUE.ordinal()].equals(fieldInfo.getValue()))
                 {

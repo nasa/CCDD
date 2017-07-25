@@ -702,7 +702,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         {
                             // Check if the user-supplied name matches an
                             // existing database name
-                            if (databases[index].split(",")[0].equals(nameFld.getText()))
+                            if (databases[index].split(",")[0].equals(nameFld.getText().toLowerCase()))
                             {
                                 // Inform the user that the name is already in
                                 // use

@@ -1255,7 +1255,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
                     && SwingUtilities.isRightMouseButton(me))
                 {
                     // Get the table row that was selected
-                    long row = eventTable.rowAtPoint(me.getPoint());
+                    long row = eventTable.convertRowIndexToModel(eventTable.rowAtPoint(me.getPoint()));
 
                     // Check if the row is valid
                     if (row != -1)

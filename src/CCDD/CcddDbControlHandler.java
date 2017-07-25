@@ -467,7 +467,7 @@ public class CcddDbControlHandler
                                           Component parent)
     {
         return dbCommand.getList(DatabaseListCommand.DATABASE_OWNER,
-                                 new String[][] {{"__", databaseName}},
+                                 new String[][] {{"__", databaseName.toLowerCase()}},
                                  parent);
     }
 
@@ -518,7 +518,7 @@ public class CcddDbControlHandler
     {
         return getServer()
                + "/"
-               + databaseName;
+               + databaseName.toLowerCase();
     }
 
     /**************************************************************************
@@ -554,7 +554,7 @@ public class CcddDbControlHandler
             ResultSet resultSet = dbCommand.executeDbQuery("SELECT description FROM pg_shdescription "
                                                            + "JOIN pg_database ON objoid = "
                                                            + "pg_database.oid WHERE datname = '"
-                                                           + databaseName
+                                                           + databaseName.toLowerCase()
                                                            + "';",
                                                            ccddMain.getMainFrame());
             resultSet.next();
@@ -704,7 +704,7 @@ public class CcddDbControlHandler
                                                String description)
     {
         return "COMMENT ON DATABASE "
-               + databaseName
+               + databaseName.toLowerCase()
                + " IS "
                + ccddMain.getDbTableCommandHandler().delimitText(CCDD_PROJECT_IDENTIFIER
                                                                  + (lockStatus ? "1" : "0")
@@ -820,7 +820,7 @@ public class CcddDbControlHandler
 
             // Execute the database update
             dbCommand.executeDbUpdate("CREATE DATABASE "
-                                      + databaseName
+                                      + databaseName.toLowerCase()
                                       + "; "
                                       + buildDatabaseCommentCommand(databaseName,
                                                                     false,
@@ -1590,7 +1590,7 @@ public class CcddDbControlHandler
                 {
                     // Check if the database name is in the list, which
                     // indicates that the user has access to this database
-                    if (activeDatabase.equals(database.split(",", 2)[0]))
+                    if (activeDatabase.equalsIgnoreCase(database.split(",", 2)[0]))
                     {
                         // Set the flag indicating the user has access to the
                         // currently open database and stop searching
@@ -1701,7 +1701,7 @@ public class CcddDbControlHandler
                 {
                     // Check if the database name is in the list, which
                     // indicates that the user has access to this database
-                    if (databaseName.equals(database.split(DATABASE_COMMENT_SEPARATOR, 2)[0]))
+                    if (databaseName.equalsIgnoreCase(database.split(DATABASE_COMMENT_SEPARATOR, 2)[0]))
                     {
                         // Set the flag indicating the user has access and stop
                         // searching
@@ -2087,9 +2087,9 @@ public class CcddDbControlHandler
                         // Rename the database to the new name and update the
                         // description
                         dbCommand.executeDbUpdate("ALTER DATABASE "
-                                                  + oldName
+                                                  + oldName.toLowerCase()
                                                   + " RENAME TO "
-                                                  + newName
+                                                  + newName.toLowerCase()
                                                   + "; "
                                                   + buildDatabaseCommentCommand(newName,
                                                                                 false,
@@ -2189,9 +2189,9 @@ public class CcddDbControlHandler
 
                         // Copy the database and transfer the comment
                         dbCommand.executeDbCommand("CREATE DATABASE "
-                                                   + copyName
+                                                   + copyName.toLowerCase()
                                                    + " WITH TEMPLATE "
-                                                   + targetName
+                                                   + targetName.toLowerCase()
                                                    + "; "
                                                    + buildDatabaseCommentCommand(copyName,
                                                                                  false,
@@ -2261,7 +2261,9 @@ public class CcddDbControlHandler
             connection.setAutoCommit(true);
 
             // Delete the database
-            dbCommand.executeDbUpdate("DROP DATABASE " + databaseName + ";",
+            dbCommand.executeDbUpdate("DROP DATABASE "
+                                      + databaseName.toLowerCase()
+                                      + ";",
                                       ccddMain.getMainFrame());
 
             // Log that the database deletion succeeded
@@ -2469,7 +2471,7 @@ public class CcddDbControlHandler
         // Build the command to backup the database
         String command = "pg_dump "
                          + getUserHostAndPort()
-                         + databaseName
+                         + databaseName.toLowerCase()
                          + " -o -f ";
 
         // Get the number of command line arguments
@@ -2550,7 +2552,7 @@ public class CcddDbControlHandler
             protected void execute()
             {
                 // Create the name for the restored database
-                String restoreName = databaseName + "_restored";
+                String restoreName = databaseName.toLowerCase() + "_restored";
 
                 // Get the list of available databases
                 String[] databases = queryDatabaseList(ccddMain.getMainFrame());

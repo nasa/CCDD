@@ -2793,8 +2793,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
         // Check if the data type is a string and if the array size column
         // isn't empty
-        if (dataTypeHandler.isCharacter(tableInfo.getData()[row][typeColumn])
-            && dataTypeHandler.getSizeInBytes(tableInfo.getData()[row][typeColumn]) > 1
+        if (dataTypeHandler.isString(tableInfo.getData()[row][typeColumn])
             && !tableInfo.getData()[row][sizeColumn].isEmpty())
         {
             int defnRow = row;
@@ -3640,10 +3639,9 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                         // differentiate a 'char' from a 'string'; 1 for a
                         // 'char' and 2 for a 'string'
                         commandDescription = factory.createStringDataType();
-                        ((StringDataType) commandDescription).setCharacterWidth(BigInteger.valueOf(dataTypeHandler.isCharacter(argumentType)
-                                                                                                   && dataTypeHandler.getSizeInBytes(argumentType) == 1
-                                                                                                                                                       ? 1
-                                                                                                                                                       : 2));
+                        ((StringDataType) commandDescription).setCharacterWidth(BigInteger.valueOf(dataTypeHandler.isString(argumentType)
+                                                                                                                                         ? 2
+                                                                                                                                         : 1));
                         StringDataEncodingType stringEncodingType = factory.createStringDataEncodingType();
                         commandDescription.setStringDataEncoding(stringEncodingType);
                         break;

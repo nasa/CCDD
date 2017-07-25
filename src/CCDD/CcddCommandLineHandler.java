@@ -621,7 +621,7 @@ public class CcddCommandLineHandler
                     if (!ccddMain.getDbControlHandler().openDatabase(ccddMain.getDbControlHandler().getDatabase())
                         && ccddMain.getDbControlHandler().isDatabaseConnected())
                     {
-                        List<String[]> associationsList = new ArrayList<String[]>();
+                        List<Object[]> associations = new ArrayList<Object[]>();
 
                         // Break the supplied string of semicolon-separated
                         // associations into the individual associations
@@ -636,7 +636,7 @@ public class CcddCommandLineHandler
 
                             // Set the script and table in the association
                             // array (assumes no table(s))
-                            String[] association = new String[] {scriptAndTable[0].trim(), " "};
+                            String[] association = new String[] {"", scriptAndTable[0].trim(), " "};
 
                             // Check if one or more tables are provided
                             if (scriptAndTable.length == 2)
@@ -644,17 +644,14 @@ public class CcddCommandLineHandler
                                 // Set the association tables. If multiple
                                 // tables are provided then separate these with
                                 // the expected separator string
-                                association[1] = scriptAndTable[1].replaceAll(" ",
+                                association[2] = scriptAndTable[1].replaceAll(" ",
                                                                               "").replaceAll(Pattern.quote("+"),
                                                                                              LIST_TABLE_SEPARATOR);
                             }
 
                             // Add the association to the list
-                            associationsList.add(association);
+                            associations.add(association);
                         }
-
-                        // Convert the associations list to an array
-                        String[][] associations = associationsList.toArray(new String[0][0]);
 
                         // Execute the script association(s) and log the result
                         boolean[] isBad = ccddMain.getScriptHandler().getDataAndExecuteScript(null,

@@ -2377,7 +2377,8 @@ public class CcddDbVerificationHandler
                         // Check if the values in the columns for these two
                         // rows match and that the values aren't blank
                         if (!tableInfo.getData()[row][column].isEmpty()
-                            && macroHandler.getMacroExpansion(tableInfo.getData()[row][column]).equals(macroHandler.getMacroExpansion(tableInfo.getData()[otherRow][column])))
+                            && macroHandler.getMacroExpansion(tableInfo.getData()[row][column])
+                                           .equals(macroHandler.getMacroExpansion(tableInfo.getData()[otherRow][column])))
                         {
                             // Duplicate item exists in a column designated as
                             // having unique values

@@ -484,7 +484,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
         // Check if the lead variable is a bit-wise or string variable (and
         // hence can have other variables associated with it)
         if (isBitPack
-            || dataTypeHandler.isCharacter(((TelemetryData) variable).getDataType()))
+            || dataTypeHandler.isString(((TelemetryData) variable).getDataType()))
         {
             // Get the variable's row index in the tree containing all
             // variables

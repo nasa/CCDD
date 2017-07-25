@@ -126,9 +126,12 @@ public abstract class CcddJTableHandler extends JTable
     // Table's non-selected background color
     private Color background;
 
+    // Table cell selection mode
+    private TableSelectionMode cellSelection;
+
     // Flag that indicates if row should remain highlighted when the table
     // loses focus
-    private boolean ignoreFocus;
+    private boolean selectWithoutFocus;
 
     // Flag that indicates if the grid lines between cells is visible
     private boolean showGrid;
@@ -1078,9 +1081,9 @@ public abstract class CcddJTableHandler extends JTable
      * @param background
      *            table background color (when row not selected)
      * 
-     * @param ignoreFocus
+     * @param selectWithoutFocus
      *            true to ignore if the table has focus when determining the
-     *            row colors
+     *            row colors for selected rows
      * 
      * @param allowUndo
      *            true to allow changes to the table to be undone and redone
@@ -1098,7 +1101,7 @@ public abstract class CcddJTableHandler extends JTable
                                            TableSelectionMode cellSelection,
                                            boolean columnDragAllowed,
                                            Color background,
-                                           boolean ignoreFocus,
+                                           boolean selectWithoutFocus,
                                            boolean allowUndo,
                                            Font cellFont,
                                            boolean allowSort)
@@ -1109,8 +1112,8 @@ public abstract class CcddJTableHandler extends JTable
         // Set the table's non-selected background color
         this.background = background;
 
-        // Set to true to keep rows highlighted when the table loses focus
-        this.ignoreFocus = ignoreFocus;
+        // Set to true to keep cell(s) highlighted when the table loses focus
+        this.selectWithoutFocus = selectWithoutFocus;
 
         // Set to true to allow changes to the table to be undone/redone
         undoHandler.setAllowUndo(allowUndo);
@@ -1132,6 +1135,7 @@ public abstract class CcddJTableHandler extends JTable
 
         // Set row and column selection modes. If both are true then selection
         // is by single cell
+        this.cellSelection = cellSelection;
         setRowSelectionAllowed(cellSelection == TableSelectionMode.SELECT_BY_ROW
                                || cellSelection == TableSelectionMode.SELECT_BY_CELL);
         setColumnSelectionAllowed(cellSelection == TableSelectionMode.SELECT_BY_COLUMN
@@ -2268,7 +2272,7 @@ public abstract class CcddJTableHandler extends JTable
      * @param row
      *            row index to which to scroll, view coordinates
      *************************************************************************/
-    private void scrollToRow(final int row)
+    protected void scrollToRow(final int row)
     {
         // Create a runnable object to be executed
         SwingUtilities.invokeLater(new Runnable()
@@ -3605,24 +3609,34 @@ public abstract class CcddJTableHandler extends JTable
         // Get the index for this row's special text color, if any
         int index = rowColorIndex.indexOf(row);
 
+        // Flag that indicates that the cell is in a selected row and that all
+        // of the columns in a row should be selected if any cell in the row is
+        // selected
+        boolean isSelectedRow = cellSelection == TableSelectionMode.SELECT_BY_ROW
+                                && isRowSelected(row);
+
         // Check if this is one of the selected rows (and columns, if column
-        // selection is enabled for this table) and, if the focus isn't being
-        // ignored, that the table has the focus
-        if ((isFocusOwner() || ignoreFocus)
+        // selection is enabled for this table) and, unless selection doesn't
+        // depend on having the focus, that the table has the focus; or if the
+        // cell is in a selected row and all columns should be selected
+        if (((isFocusOwner() || selectWithoutFocus)
             && isCellSelected(row, column))
+            || isSelectedRow)
         {
             // Set the text (foreground) color for the selected cell(s)
             comp.setForeground(index == -1
                                           ? SELECTED_TEXT_COLOR
                                           : rowColor.get(index));
 
-            // Check if this cell has the focus (last cell selected)
-            if (isFocusCell(row, column))
+            // Check if this cell has the focus (last cell selected) and the
+            // only this cell should be highlighted
+            if (isFocusCell(row, column) && !isSelectedRow)
             {
                 // Color the cell background to indicate it has the focus
                 comp.setBackground(FOCUS_COLOR);
             }
-            // This cell doesn't have the focus
+            // This cell doesn't have the focus or the entire row should be
+            // highlighted
             else
             {
                 // Set the cells' background color to show it is selected
@@ -4090,15 +4104,15 @@ public abstract class CcddJTableHandler extends JTable
             // screen in which the component resides
             Dimension compSize = comp.getSize();
             Point adjLocation = CcddDialogHandler.adjustDialogLocationForScreen(new Rectangle(comp.getX()
-                                                                                               + ((compSize.width
-                                                                                               - newDlgSize.width)
-                                                                                               / 2),
-                                                                                               comp.getY()
-                                                                                                   + ((compSize.height
-                                                                                                   - newDlgSize.height)
-                                                                                                   / 2),
-                                                                                               newDlgSize.width,
-                                                                                               newDlgSize.height));
+                                                                                              + ((compSize.width
+                                                                                              - newDlgSize.width)
+                                                                                              / 2),
+                                                                                              comp.getY()
+                                                                                                  + ((compSize.height
+                                                                                                  - newDlgSize.height)
+                                                                                                  / 2),
+                                                                                              newDlgSize.width,
+                                                                                              newDlgSize.height));
 
             // Display a printer dialog to obtain the desired destination and
             // output to the selected printer

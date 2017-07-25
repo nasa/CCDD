@@ -1665,7 +1665,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             if ((dialogType == ManagerDialogType.RENAME
                 && nameInUse.equals(tableName))
                 || (dialogType != ManagerDialogType.RENAME
-                && nameInUse.toLowerCase().equals(tableName.toLowerCase())))
+                && nameInUse.equalsIgnoreCase(tableName)))
             {
                 // Inform the user that the name is already in use
                 throw new CCDDException("Table name '"

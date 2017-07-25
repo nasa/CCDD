@@ -364,6 +364,20 @@ public class CcddDataTypeHandler
     }
 
     /**************************************************************************
+     * Determine if the this primitive data type is a character string
+     * 
+     * @param dataTypeName
+     *            data type name
+     * 
+     * @return true if this data type is a character string
+     *************************************************************************/
+    protected boolean isString(String dataTypeName)
+    {
+        return getBaseDataType(dataTypeName) == BaseDataTypeInfo.CHARACTER
+               && getSizeInBytes(dataTypeName) > 1;
+    }
+
+    /**************************************************************************
      * Determine if the this primitive data type is a pointer
      * 
      * @param dataTypeName

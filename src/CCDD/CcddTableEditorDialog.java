@@ -312,10 +312,6 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      * @param dbTblCmdHndlr
      *            reference to CcddDbTableCommandHandler
      * 
-     * @param commandError
-     *            false if the database commands successfully completed; true
-     *            if an error occurred and the changes were not made
-     * 
      * @param newKeys
      *            list of primary keys for new rows in a prototype table
      * 
@@ -337,7 +333,6 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      *            originally took place
      ************************************************************************/
     protected static void doTableModificationComplete(CcddMain main,
-                                                      boolean commandError,
                                                       List<Integer> newKeys,
                                                       TableInformation tableInfo,
                                                       List<TableModification> additions,
@@ -345,136 +340,119 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                                                       List<TableModification> deletions,
                                                       boolean forceUpdate)
     {
-        // Check that no error occurred modifying the table
-        if (!commandError)
+        CcddDataTypeHandler dtHandler = main.getDataTypeHandler();
+        CcddDbTableCommandHandler dbTblCmdHndlr = main.getDbTableCommandHandler();
+
+        // Create a list to store the names of tables that are no longer valid
+        List<String[]> invalidatedEditors = new ArrayList<String[]>();
+
+        // Step through each row modification
+        for (TableModification mod : modifications)
         {
-            CcddLinkHandler linkHandler = null;
-            CcddDataTypeHandler dtHandler = main.getDataTypeHandler();
-            CcddDbTableCommandHandler dbTblCmdHndlr = main.getDbTableCommandHandler();
-
-            // Create a list to store the names of tables that are no longer
-            // valid
-            List<String[]> invalidatedEditors = new ArrayList<String[]>();
-
-            // Step through each row modification
-            for (TableModification mod : modifications)
+            // Check if the variable's original data type was a structure
+            // (meaning it could have a table editor open) and if (1) it has
+            // been changed to an array or if (2) the data type has been
+            // changed
+            if (mod.getVariableColumn() != -1
+                && mod.getDataTypeColumn() != -1
+                && !dtHandler.isPrimitive(mod.getOriginalRowData()[mod.getDataTypeColumn()].toString())
+                && ((mod.getArraySizeColumn() != -1
+                     && mod.getOriginalRowData()[mod.getArraySizeColumn()].toString().isEmpty()
+                     && !mod.getRowData()[mod.getArraySizeColumn()].toString().isEmpty())
+                     || !mod.getOriginalRowData()[mod.getDataTypeColumn()].toString().equals(mod.getRowData()[mod.getDataTypeColumn()].toString())))
             {
-                // Check if the variable's original data type was a structure
-                // (meaning it could have a table editor open) and if (1) it
-                // has been changed to an array or if (2) the data type has
-                // been changed
-                if (mod.getVariableColumn() != -1
-                    && mod.getDataTypeColumn() != -1
-                    && !dtHandler.isPrimitive(mod.getOriginalRowData()[mod.getDataTypeColumn()].toString())
-                    && ((mod.getArraySizeColumn() != -1
-                         && mod.getOriginalRowData()[mod.getArraySizeColumn()].toString().isEmpty()
-                         && !mod.getRowData()[mod.getArraySizeColumn()].toString().isEmpty())
-                         || !mod.getOriginalRowData()[mod.getDataTypeColumn()].toString().equals(mod.getRowData()[mod.getDataTypeColumn()].toString())))
-                {
-                    // Add the pattern that matches the table editor tab
-                    // names for the modified structure. The pattern is [parent
-                    // structure].__,[original structure].__[,__]
-                    invalidatedEditors.add(new String[] {tableInfo.getPrototypeName(),
-                                                         mod.getOriginalRowData()[mod.getDataTypeColumn()].toString()});
-                }
+                // Add the pattern that matches the table editor tab names for
+                // the modified structure. The pattern is [parent
+                // structure].__,[original structure].__[,__]
+                invalidatedEditors.add(new String[] {tableInfo.getPrototypeName(),
+                                                     mod.getOriginalRowData()[mod.getDataTypeColumn()].toString()});
             }
+        }
 
-            // Step through each row deletion
-            for (TableModification del : deletions)
+        // Step through each row deletion
+        for (TableModification del : deletions)
+        {
+            // Check if the original data type was for a structure
+            if (del.getVariableColumn() != -1
+                && del.getDataTypeColumn() != -1
+                && !dtHandler.isPrimitive(del.getRowData()[del.getDataTypeColumn()].toString()))
             {
-                // Check if the original data type was for a structure
-                if (del.getVariableColumn() != -1
-                    && del.getDataTypeColumn() != -1
-                    && !dtHandler.isPrimitive(del.getRowData()[del.getDataTypeColumn()].toString()))
-                {
-                    // Add the pattern that matches the table editor tab
-                    // names for the deleted structure. The pattern is [parent
-                    // structure].__,[original structure].__[,__]
-                    invalidatedEditors.add(new String[] {tableInfo.getPrototypeName(),
-                                                         del.getRowData()[del.getDataTypeColumn()].toString()});
-                }
+                // Add the pattern that matches the table editor tab names for
+                // the deleted structure. The pattern is [parent
+                // structure].__,[original structure].__[,__]
+                invalidatedEditors.add(new String[] {tableInfo.getPrototypeName(),
+                                                     del.getRowData()[del.getDataTypeColumn()].toString()});
             }
+        }
 
-            // Close the invalid table editors
-            dbTblCmdHndlr.closeDeletedTableEditors(invalidatedEditors, main.getMainFrame());
+        // Close the invalid table editors
+        dbTblCmdHndlr.closeDeletedTableEditors(invalidatedEditors, main.getMainFrame());
 
-            // Step through the open editor dialogs
-            for (CcddTableEditorDialog editorDialog : main.getTableEditorDialogs())
+        // Step through the open editor dialogs
+        for (CcddTableEditorDialog editorDialog : main.getTableEditorDialogs())
+        {
+            // Step through each individual editor
+            for (CcddTableEditorHandler editor : editorDialog.getTableEditors())
             {
-                // Step through each individual editor
-                for (CcddTableEditorHandler editor : editorDialog.getTableEditors())
+                // Check if the prototype of the editor's table matches that of
+                // the table that was updated
+                if (editor.getTableInformation().getPrototypeName().equals(tableInfo.getPrototypeName()))
                 {
-                    // Check if the prototype of the editor's table matches
-                    // that of the table that was updated
-                    if (editor.getTableInformation().getPrototypeName().equals(tableInfo.getPrototypeName()))
+                    // Flag that indicates true if a forced update is set (such
+                    // as when a macro name or value is changed), or if the
+                    // updated table is a prototype and the editor is for a
+                    // child table of the updated table
+                    boolean applyToChild = forceUpdate
+                                           || (tableInfo.isPrototype()
+                                           && !tableInfo.equals(editor.getTableInformation()));
+
+                    // Check if no link handler is already created and this
+                    // Perform the command completion steps for this table
+                    editor.doTableUpdatesComplete(newKeys,
+                                                  applyToChild,
+                                                  additions,
+                                                  modifications,
+                                                  deletions);
+                }
+
+                // Check if this is the editor for the table that was changed
+                if (tableInfo.equals(editor.getTableInformation()))
+                {
+                    // Replace any custom value deletion flags with blanks
+                    editor.clearCustomValueDeletionFlags();
+
+                    // Accept all edits for this table
+                    editor.getTable().getUndoManager().discardAllEdits();
+                }
+
+                // Step through each row modification
+                for (TableModification mod : modifications)
+                {
+                    // Check if the modification contains a variable name and
+                    // data type columns; this implies it could be a structure
+                    // table reference
+                    if (mod.getVariableColumn() != -1
+                        && mod.getDataTypeColumn() != -1)
                     {
-                        // Flag that indicates true if a forced update is set
-                        // (such as when a macro name or value is changed), or
-                        // if the updated table is a prototype and the editor
-                        // is for a child table of the updated table
-                        boolean applyToChild = forceUpdate
-                                               || (tableInfo.isPrototype()
-                                               && !tableInfo.equals(editor.getTableInformation()));
-
-                        // Check if no link handler is already created and this
-                        // table is a structure. The link handler is needed to
-                        // check for changes to the links table
-                        if (linkHandler == null && editor.isStructure())
-                        {
-                            // Create a link handler
-                            linkHandler = new CcddLinkHandler(main, main.getMainFrame());
-                        }
-
-                        // Perform the command completion steps for this table
-                        editor.doTableUpdatesComplete(commandError,
-                                                      newKeys,
-                                                      applyToChild,
-                                                      additions,
-                                                      modifications,
-                                                      deletions,
-                                                      linkHandler);
-                    }
-
-                    // Check if this is the editor for the table that was
-                    // changed
-                    if (tableInfo.equals(editor.getTableInformation()))
-                    {
-                        // Replace any custom value deletion flags with blanks
-                        editor.clearCustomValueDeletionFlags();
-
-                        // Accept all edits for this table
-                        editor.getTable().getUndoManager().discardAllEdits();
-                    }
-
-                    // Step through each row modification
-                    for (TableModification mod : modifications)
-                    {
-                        // Check if the modification contains a variable name
-                        // and data type columns; this implies it could be a
-                        // structure table reference
-                        if (mod.getVariableColumn() != -1
-                            && mod.getDataTypeColumn() != -1)
-                        {
-                            // Update the table names in the open editors
-                            updateTableNames(main,
-                                             mod.getOriginalRowData()[mod.getDataTypeColumn()].toString(),
-                                             mod.getRowData()[mod.getDataTypeColumn()].toString(),
-                                             mod.getOriginalRowData()[mod.getVariableColumn()].toString(),
-                                             mod.getRowData()[mod.getVariableColumn()].toString(),
-                                             editorDialog,
-                                             editor);
-                        }
+                        // Update the table names in the open editors
+                        updateTableNames(main,
+                                         mod.getOriginalRowData()[mod.getDataTypeColumn()].toString(),
+                                         mod.getRowData()[mod.getDataTypeColumn()].toString(),
+                                         mod.getOriginalRowData()[mod.getVariableColumn()].toString(),
+                                         mod.getRowData()[mod.getVariableColumn()].toString(),
+                                         editorDialog,
+                                         editor);
                     }
                 }
             }
+        }
 
-            // Check if the data field editor table dialog is open
-            if (main.getFieldTableEditor() != null
-                && main.getFieldTableEditor().isShowing())
-            {
-                // Update the data field editor table
-                main.getFieldTableEditor().reloadDataFieldTable();
-            }
+        // Check if the data field editor table dialog is open
+        if (main.getFieldTableEditor() != null
+            && main.getFieldTableEditor().isShowing())
+        {
+            // Update the data field editor table
+            main.getFieldTableEditor().reloadDataFieldTable();
         }
     }
 
