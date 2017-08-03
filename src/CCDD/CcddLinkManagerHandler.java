@@ -7,11 +7,6 @@
 package CCDD;
 
 import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
-import static CCDD.CcddConstants.LABEL_TEXT_COLOR;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.LAF_CHECK_BOX_HEIGHT;
 import static CCDD.CcddConstants.LEFT_ICON;
 import static CCDD.CcddConstants.RIGHT_ICON;
@@ -52,6 +47,9 @@ import CCDD.CcddClasses.LinkInformation;
 import CCDD.CcddClasses.PaddedComboBox;
 import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.InternalTable.LinksColumn;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddUndoHandler.UndoableTextArea;
 import CCDD.CcddUndoHandler.UndoableTreeNodeSelection;
@@ -238,8 +236,8 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(LABEL_VERTICAL_SPACING,
-                                                                   LABEL_HORIZONTAL_SPACING / 2,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
                                                                    0,
                                                                    0),
                                                         0,
@@ -352,7 +350,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
 
         // Create the link manager dialog labels and fields
         JLabel dlgLabel = new JLabel("Assign variables to links");
-        dlgLabel.setFont(LABEL_FONT_BOLD);
+        dlgLabel.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         titlePnl.add(dlgLabel, gbc);
 
         // Add the upper panel components to the dialog panel
@@ -438,20 +436,20 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         // Create a table tree panel and add it to another panel (in order to
         // control spacing)
         gbc.insets.top = 0;
-        gbc.insets.bottom = LABEL_VERTICAL_SPACING / 2;
+        gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         gbc.weighty = 1.0;
         treePnl.add(variableTree.createTreePanel("Variables",
                                                  TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
                                                  ccddMain.getMainFrame()),
                     gbc);
-        gbc.insets.top = LABEL_VERTICAL_SPACING / 2;
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         gbc.insets.bottom = 0;
 
         // Create a split pane containing the variable tree in the left pane
         // and the link tree in the right pane and add it to the panel. The
         // arrow button panel is used as the split pane divider
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING;
-        gbc.insets.right = LABEL_HORIZONTAL_SPACING;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+        gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.gridy++;
         managerPnl.add(new CustomSplitPane(treePnl,
                                            linkTree.createTreePanel("Links",
@@ -462,22 +460,22 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
 
         // Create the link description label
         JLabel descriptionLbl = new JLabel("Description");
-        descriptionLbl.setFont(LABEL_FONT_BOLD);
-        descriptionLbl.setForeground(LABEL_TEXT_COLOR);
-        gbc.insets.top = LABEL_VERTICAL_SPACING / 2;
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING / 2;
-        gbc.insets.bottom = LABEL_VERTICAL_SPACING / 2;
-        gbc.insets.right = LABEL_HORIZONTAL_SPACING / 2;
+        descriptionLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        descriptionLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2;
+        gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
+        gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2;
         gbc.weighty = 0.0;
         descPnl.add(descriptionLbl, gbc);
 
         // Create the link description input field
         descriptionFld = undoHandler.new UndoableTextArea("", 3, 20);
-        descriptionFld.setFont(LABEL_FONT_PLAIN);
+        descriptionFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         descriptionFld.setEditable(false);
         descriptionFld.setLineWrap(true);
-        descriptionFld.setForeground(Color.BLACK);
-        descriptionFld.setBackground(Color.LIGHT_GRAY);
+        descriptionFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        descriptionFld.setBackground(ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
         descriptionFld.setBorder(emptyBorder);
         descriptionFld.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null);
         descriptionFld.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
@@ -514,7 +512,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         });
 
         descScrollPane = new JScrollPane(descriptionFld);
-        descScrollPane.setBackground(Color.LIGHT_GRAY);
+        descScrollPane.setBackground(ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
         descScrollPane.setBorder(border);
 
         // Add the description field to the dialog panel
@@ -528,29 +526,29 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
 
         // Create the link rate labels and fields
         JLabel rateLbl = new JLabel("Link rate (Hz):");
-        rateLbl.setFont(LABEL_FONT_BOLD);
-        rateLbl.setForeground(LABEL_TEXT_COLOR);
+        rateLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        rateLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
         rateAndSizePnl.add(rateLbl);
 
         updateRateFld = new JTextField(2);
-        updateRateFld.setFont(LABEL_FONT_PLAIN);
+        updateRateFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         updateRateFld.setEditable(false);
-        updateRateFld.setForeground(Color.BLACK);
-        updateRateFld.setBackground(Color.LIGHT_GRAY);
+        updateRateFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        updateRateFld.setBackground(ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
         updateRateFld.setBorder(border);
         updateRateFld.setHorizontalAlignment(JTextField.CENTER);
         rateAndSizePnl.add(updateRateFld);
 
         JLabel bytesLbl = new JLabel("   Size in bytes:");
-        bytesLbl.setFont(LABEL_FONT_BOLD);
-        bytesLbl.setForeground(LABEL_TEXT_COLOR);
+        bytesLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        bytesLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
         rateAndSizePnl.add(bytesLbl);
 
         sizeInBytesFld = new JTextField(2);
-        sizeInBytesFld.setFont(LABEL_FONT_PLAIN);
+        sizeInBytesFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         sizeInBytesFld.setEditable(false);
-        sizeInBytesFld.setForeground(Color.BLACK);
-        sizeInBytesFld.setBackground(Color.LIGHT_GRAY);
+        sizeInBytesFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        sizeInBytesFld.setBackground(ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
         sizeInBytesFld.setBorder(border);
         sizeInBytesFld.setHorizontalAlignment(JTextField.CENTER);
         rateAndSizePnl.add(sizeInBytesFld);
@@ -561,20 +559,20 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         infoPnl.add(rateAndSizePnl, gbc);
 
         // Add the link information panel to the dialog
-        gbc.insets.top = LABEL_VERTICAL_SPACING;
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         managerPnl.add(infoPnl, gbc);
 
         // Create the rate selection label
         JLabel rateSelectLbl = new JLabel("Select rate:");
-        rateSelectLbl.setFont(LABEL_FONT_BOLD);
-        rateSelectLbl.setForeground(Color.BLACK);
-        gbc.insets.top = LABEL_VERTICAL_SPACING / 2;
+        rateSelectLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        rateSelectLbl.setForeground(ModifiableColorInfo.LABEL_TEXT.getColor());
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         rateSelectPnl.add(rateSelectLbl, gbc);
 
         // Create the combo box that displays the variable rates and add it to
         // the dialog panel
-        rateFilter = new PaddedComboBox(availableRates, LABEL_FONT_PLAIN)
+        rateFilter = new PaddedComboBox(availableRates, ModifiableFontInfo.INPUT_TEXT.getFont())
         {
             /******************************************************************
              * Override so that items flagged as disabled (grayed out) can't be
@@ -672,8 +670,8 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
 
         // Create the rate units label and add it to the dialog panel
         JLabel rateUnitsLbl = new JLabel("samples/second");
-        rateUnitsLbl.setFont(LABEL_FONT_BOLD);
-        rateUnitsLbl.setForeground(Color.BLACK);
+        rateUnitsLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        rateUnitsLbl.setForeground(ModifiableColorInfo.LABEL_TEXT.getColor());
         gbc.gridx++;
         rateSelectPnl.add(rateUnitsLbl, gbc);
 
@@ -706,7 +704,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         // single link isn't selected
         boolean enable = false;
         selectedLink = null;
-        Color fieldColor = Color.LIGHT_GRAY;
+        Color fieldColor = ModifiableColorInfo.INPUT_DISABLE_BACK.getColor();
         String description = "";
         String rate = "";
         String size = "";
@@ -723,7 +721,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         if (selectedLink != null)
         {
             enable = true;
-            fieldColor = Color.WHITE;
+            fieldColor = ModifiableColorInfo.INPUT_BACK.getColor();
 
             // Update the link size label
             updateLinkSizeField();
@@ -880,7 +878,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
 
         // Add the buttons to the panel
         buttonPnl.add(rightArrowBtn, gbc);
-        gbc.insets.bottom = LAF_CHECK_BOX_HEIGHT + LABEL_VERTICAL_SPACING;
+        gbc.insets.bottom = LAF_CHECK_BOX_HEIGHT + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
         gbc.gridy++;
         buttonPnl.add(leftArrowBtn, gbc);
 

@@ -1514,7 +1514,6 @@ public class CcddCSVHandler implements CcddImportExportInterface
                     pw.printf("%s\n",
                               CcddUtilities.addEmbeddedQuotesAndCommas(reservedMsgID[ReservedMsgIDsColumn.MSG_ID.ordinal()],
                                                                        reservedMsgID[ReservedMsgIDsColumn.DESCRIPTION.ordinal()]));
-
                 }
             }
 

@@ -8,13 +8,9 @@ package CCDD;
 
 import static CCDD.CcddConstants.CCDD_ICON;
 import static CCDD.CcddConstants.CLOSE_ICON;
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
 import static CCDD.CcddConstants.LOG_FILE_PATH;
-import static CCDD.CcddConstants.MAX_LOG_MESSAGE_LENGTH;
 import static CCDD.CcddConstants.PRINT_ICON;
 import static CCDD.CcddConstants.SEARCH_ICON;
-import static CCDD.CcddConstants.TABLE_BACK_COLOR;
 import static CCDD.CcddConstants.EventLogMessageType.FAIL_MSG;
 
 import java.awt.AlphaComposite;
@@ -64,6 +60,9 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EventColumns;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.FileExtension;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.SearchDialogType;
 import CCDD.CcddConstants.TableSelectionMode;
 
@@ -500,10 +499,10 @@ public class CcddEventLogDialog extends CcddFrameHandler
                                            ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
                                            TableSelectionMode.SELECT_BY_CELL,
                                            true,
-                                           TABLE_BACK_COLOR,
+                                           ModifiableColorInfo.TABLE_BACK.getColor(),
                                            false,
                                            false,
-                                           LABEL_FONT_PLAIN,
+                                           ModifiableFontInfo.OTHER_TABLE_CELL.getFont(),
                                            true);
 
         // Store the event table model to simplify later references
@@ -602,7 +601,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
             // Create a panel for the event filter check boxes
             JPanel filterPanel = new JPanel();
             JLabel filterLabel = new JLabel("Event filter: ");
-            filterLabel.setFont(LABEL_FONT_BOLD);
+            filterLabel.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             filterPanel.add(filterLabel);
 
             // Create the filter check box array based on the number of event
@@ -684,7 +683,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
         // Create a check box with label
         JCheckBox checkBox = new JCheckBox(eventType.getTypeName());
         checkBox.setHorizontalAlignment(JCheckBox.LEFT);
-        checkBox.setFont(LABEL_FONT_BOLD);
+        checkBox.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         checkBox.setForeground(Color.decode(eventType.getTypeColor()));
         checkBox.setSelected(true);
         checkBox.addActionListener(filterListener);
@@ -1285,14 +1284,14 @@ public class CcddEventLogDialog extends CcddFrameHandler
     private String truncateLogMessage(String logMessage)
     {
         // Check if the message length exceeds the maximum allowed
-        if (logMessage.length() > MAX_LOG_MESSAGE_LENGTH)
+        if (logMessage.length() > ModifiableSizeInfo.MAX_LOG_MESSAGE_LENGTH.getSize())
         {
             // Calculate the number of characters to be truncated
-            int numTruncated = logMessage.length() - MAX_LOG_MESSAGE_LENGTH;
+            int numTruncated = logMessage.length() - ModifiableSizeInfo.MAX_LOG_MESSAGE_LENGTH.getSize();
 
             // Truncate the log message to the maximum length and append an
             // ellipsis as a truncation indicator
-            logMessage = logMessage.substring(0, MAX_LOG_MESSAGE_LENGTH)
+            logMessage = logMessage.substring(0, ModifiableSizeInfo.MAX_LOG_MESSAGE_LENGTH.getSize())
                          + " ... ("
                          + numTruncated
                          + ")";

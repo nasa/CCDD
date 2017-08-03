@@ -6,7 +6,6 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.CELL_FONT;
 import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
@@ -39,6 +38,7 @@ import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
+import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.SearchResultsQueryColumn;
 import CCDD.CcddConstants.SearchType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -622,7 +622,7 @@ public class CcddDataTypeHandler
             Arrays.sort(structures, String.CASE_INSENSITIVE_ORDER);
 
             // Create the pop-up combo box
-            structureCbox = new PaddedComboBox(structures, CELL_FONT);
+            structureCbox = new PaddedComboBox(structures, ModifiableFontInfo.DATA_TABLE_CELL.getFont());
 
             // Set the first structure as initially selected
             structureCbox.setSelectedIndex(0);

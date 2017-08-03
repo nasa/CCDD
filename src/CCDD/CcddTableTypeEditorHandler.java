@@ -7,17 +7,10 @@
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
-import static CCDD.CcddConstants.CELL_FONT;
 import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
-import static CCDD.CcddConstants.FOCUS_COLOR;
-import static CCDD.CcddConstants.PROTECTED_BACK_COLOR;
-import static CCDD.CcddConstants.PROTECTED_TEXT_COLOR;
-import static CCDD.CcddConstants.SELECTED_BACK_COLOR;
-import static CCDD.CcddConstants.TABLE_BACK_COLOR;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -37,6 +30,8 @@ import CCDD.CcddClasses.PaddedComboBox;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -593,7 +588,6 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                                             + "' already in use (database)");
                                 }
                             }
-
                         }
                     }
                     // Check if a non-boolean value is being put into a cell
@@ -737,8 +731,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                 // Check if the cell doesn't have the focus or is selected. The
                 // focus and selection highlight colors override the invalid
                 // highlight color
-                if (comp.getBackground() != FOCUS_COLOR
-                    && comp.getBackground() != SELECTED_BACK_COLOR)
+                if (comp.getBackground() != ModifiableColorInfo.FOCUS_BACK.getColor()
+                    && comp.getBackground() != ModifiableColorInfo.SELECTED_BACK.getColor())
                 {
                     boolean found = true;
                     String value = table.getValueAt(row, column).toString();
@@ -776,14 +770,14 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                     if (!found)
                     {
                         // Change the cell's background color
-                        comp.setBackground(Color.YELLOW);
+                        comp.setBackground(ModifiableColorInfo.REQUIRED_BACK.getColor());
                     }
                     // Check if this cell is protected from changes
                     else if (!isCellEditable(row, column))
                     {
                         // Shade the cell's background
-                        comp.setForeground(PROTECTED_TEXT_COLOR);
-                        comp.setBackground(PROTECTED_BACK_COLOR);
+                        comp.setForeground(ModifiableColorInfo.PROTECTED_TEXT.getColor());
+                        comp.setBackground(ModifiableColorInfo.PROTECTED_BACK.getColor());
                     }
                 }
 
@@ -890,10 +884,10 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                       ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
                                       TableSelectionMode.SELECT_BY_CELL,
                                       false,
-                                      TABLE_BACK_COLOR,
+                                      ModifiableColorInfo.TABLE_BACK.getColor(),
                                       true,
                                       true,
-                                      CELL_FONT,
+                                      ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
                                       true);
 
         // Discard the edits created by adding the columns initially
@@ -1150,7 +1144,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         // Create a combo box for displaying table type input types
         comboBox = new PaddedComboBox(getInputTypeNames(),
                                       InputDataType.getDescriptions(true),
-                                      CELL_FONT)
+                                      ModifiableFontInfo.DATA_TABLE_CELL.getFont())
         {
             /******************************************************************
              * Override so that items flagged as disabled (grayed out) are

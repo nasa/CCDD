@@ -1037,7 +1037,6 @@ public class CcddFileIOHandler
                                                                               MacrosColumn.OID.ordinal()),
                                           null,
                                           parent);
-
         }
 
         // Check if any reserved message IDs are defined
@@ -1049,7 +1048,6 @@ public class CcddFileIOHandler
                                                                               ReservedMsgIDsColumn.OID.ordinal()),
                                           null,
                                           parent);
-
         }
     }
 

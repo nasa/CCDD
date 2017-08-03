@@ -2080,7 +2080,6 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                                               + dataType[DataTypesColumn.SIZE.ordinal()]
                                                               + ","
                                                               + dataType[DataTypesColumn.BASE_TYPE.ordinal()]});
-
                 }
             }
 

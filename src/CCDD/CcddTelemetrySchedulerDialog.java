@@ -10,7 +10,6 @@ import static CCDD.CcddConstants.AUTO_CREATE_ICON;
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.INSERT_ICON;
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.STORE_ICON;
 import static CCDD.CcddConstants.UNDO_ICON;
@@ -34,6 +33,7 @@ import CCDD.CcddClasses.RateInformation;
 import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddClasses.ValidateCellActionListener;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.SchedulerType;
 import CCDD.CcddConstants.TableTreeType;
 
@@ -388,7 +388,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 // Create a tabbed pane in which to place the scheduler
                 // handlers
                 tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-                tabbedPane.setFont(LABEL_FONT_BOLD);
+                tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
 
                 // Listen for tab selection changes
                 tabbedPane.addChangeListener(new ChangeListener()

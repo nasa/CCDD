@@ -8,10 +8,6 @@ package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_ICON;
 import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_TEXT_COLOR;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.OK_ICON;
 
 import java.awt.Color;
@@ -47,6 +43,9 @@ import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.LinksColumn;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddUndoHandler.UndoableTreeModel;
 
 /******************************************************************************
@@ -55,7 +54,7 @@ import CCDD.CcddUndoHandler.UndoableTreeModel;
 @SuppressWarnings("serial")
 public class CcddLinkTreeHandler extends CcddInformationTreeHandler
 {
-    // Class reference
+    // Class references
     private CcddLinkHandler linkHandler;
 
     // Tree icons depicting links
@@ -747,13 +746,13 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
                                                         GridBagConstraints.BOTH,
                                                         new Insets(0,
                                                                    0,
-                                                                   LABEL_VERTICAL_SPACING / 2,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
                                                                    0),
                                                         0,
                                                         0);
 
         // Set the table tree font and number of rows to display
-        setFont(LABEL_FONT_PLAIN);
+        setFont(ModifiableFontInfo.TREE_NODE.getFont());
         setVisibleRowCount(10);
 
         // Set the table tree selection mode
@@ -765,8 +764,8 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
 
         // Create the tree labels
         JLabel treeLbl = new JLabel(label);
-        treeLbl.setFont(LABEL_FONT_BOLD);
-        treeLbl.setForeground(LABEL_TEXT_COLOR);
+        treeLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        treeLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
         treePnl.add(treeLbl, gbc);
 
         // Create the tree scroll pane
@@ -811,9 +810,9 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         // Create a tree expansion check box
         final JCheckBox expandChkBx = new JCheckBox("Expand all");
         expandChkBx.setBorder(BorderFactory.createEmptyBorder());
-        expandChkBx.setFont(LABEL_FONT_BOLD);
+        expandChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         expandChkBx.setSelected(false);
-        gbc.insets.top = LABEL_VERTICAL_SPACING / 2;
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         gbc.weighty = 0.0;
         gbc.gridy++;
         treePnl.add(expandChkBx, gbc);
@@ -845,7 +844,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         hiddenChkBx.setBorder(BorderFactory.createEmptyBorder());
         gbc.gridy++;
         treePnl.add(hiddenPnl, gbc);
-        hiddenChkBx.setFont(LABEL_FONT_BOLD);
+        hiddenChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         hiddenChkBx.setFocusable(false);
         hiddenChkBx.setDisabledIcon(null);
         hiddenChkBx.setEnabled(false);

@@ -7,14 +7,9 @@
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_TEXT_COLOR;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.LIST_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.PATH_COLUMN_DELTA;
-import static CCDD.CcddConstants.TABLE_BACK_COLOR;
 import static CCDD.CcddConstants.TYPE_COLUMN_DELTA;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
@@ -67,6 +62,10 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSizeInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -289,7 +288,6 @@ public class CcddScriptHandler
                                           final boolean allowSelectDisabled,
                                           final Component parent)
     {
-
         // Set the initial layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0,
                                                         0,
@@ -299,7 +297,7 @@ public class CcddScriptHandler
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(LABEL_VERTICAL_SPACING,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
                                                                    0,
                                                                    0,
                                                                    0),
@@ -309,13 +307,13 @@ public class CcddScriptHandler
         // Define the panel to contain the table
         JPanel assnsPnl = new JPanel(new GridBagLayout());
 
-        // CHeck if a table title is provided
+        // Check if a table title is provided
         if (title != null && !title.isEmpty())
         {
             // Create the script associations label
             JLabel assnsLbl = new JLabel(title);
-            assnsLbl.setFont(LABEL_FONT_BOLD);
-            assnsLbl.setForeground(LABEL_TEXT_COLOR);
+            assnsLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            assnsLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
             assnsPnl.add(assnsLbl, gbc);
             gbc.gridy++;
         }
@@ -401,7 +399,7 @@ public class CcddScriptHandler
                     // allowed
                     if (!allowSelectDisabled)
                     {
-                        ((JTextComponent) component).setBackground(Color.WHITE);
+                        ((JTextComponent) component).setBackground(ModifiableColorInfo.TABLE_BACK.getColor());
                     }
                 }
 
@@ -445,10 +443,10 @@ public class CcddScriptHandler
                                            ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
                                            TableSelectionMode.SELECT_BY_ROW,
                                            true,
-                                           TABLE_BACK_COLOR,
+                                           ModifiableColorInfo.TABLE_BACK.getColor(),
                                            true,
                                            true,
-                                           LABEL_FONT_PLAIN,
+                                           ModifiableFontInfo.OTHER_TABLE_CELL.getFont(),
                                            true);
 
         // Define the panel to contain the table and add it to the dialog
@@ -462,9 +460,10 @@ public class CcddScriptHandler
         // Create the check box for hiding/showing the file paths in the
         // associations table script file column
         hideScriptFilePath = new JCheckBox("Hide script file path");
-        hideScriptFilePath.setFont(LABEL_FONT_BOLD);
+        hideScriptFilePath.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         hideScriptFilePath.setBorder(BorderFactory.createEmptyBorder());
-        hideScriptFilePath.setToolTipText("Remove the file paths from the script file column");
+        hideScriptFilePath.setToolTipText(CcddUtilities.wrapText("Remove the file paths from the script file column",
+                                                                 ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
 
         // Add a listener for check box selection changes
         hideScriptFilePath.addActionListener(new ActionListener()
@@ -475,7 +474,7 @@ public class CcddScriptHandler
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                assnsTable.repaint();;
+                assnsTable.repaint();
             }
         });
 
@@ -590,14 +589,13 @@ public class CcddScriptHandler
 
             // Add the information for this engine to the list
             engineInfo.add(CcddUtilities.colorHTMLText(name + ": ",
-                                                       LABEL_TEXT_COLOR)
+                                                       ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
                            + factory.getLanguageVersion()
                            + " ("
                            + factory.getEngineName()
                            + " "
                            + factory.getEngineVersion()
                            + ")");
-
         }
 
         // Sort the engines in alphabetical order
@@ -1289,7 +1287,6 @@ public class CcddScriptHandler
             throw new CCDDException("script file '"
                                     + scriptFileName
                                     + "' has no file extension");
-
         }
 
         // Extract the file extension from the file name

@@ -179,6 +179,7 @@ public class CcddBackgroundCommand
                             // Enable the dialog's controls
                             ((CcddDialogHandler) dialog).setControlsEnabled(true);
                         }
+
                         // Check if this is a frame
                         if (dialog instanceof CcddFrameHandler)
                         {

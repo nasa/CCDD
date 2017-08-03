@@ -8,10 +8,6 @@ package CCDD;
 
 import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
 import static CCDD.CcddConstants.GROUP_ICON;
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_TEXT_COLOR;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -45,6 +41,9 @@ import CCDD.CcddClasses.GroupInformation;
 import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.DefaultApplicationField;
 import CCDD.CcddConstants.InternalTable;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddUndoHandler.UndoableTreeModel;
 
 /******************************************************************************
@@ -634,13 +633,13 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                                                         GridBagConstraints.BOTH,
                                                         new Insets(0,
                                                                    0,
-                                                                   LABEL_VERTICAL_SPACING / 2,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
                                                                    0),
                                                         0,
                                                         0);
 
         // Set the table tree font and number of rows to display
-        setFont(LABEL_FONT_PLAIN);
+        setFont(ModifiableFontInfo.TREE_NODE.getFont());
         setVisibleRowCount(10);
 
         // Set the table tree selection mode
@@ -652,8 +651,8 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
 
         // Create the tree labels
         JLabel treeLbl = new JLabel(label);
-        treeLbl.setFont(LABEL_FONT_BOLD);
-        treeLbl.setForeground(LABEL_TEXT_COLOR);
+        treeLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        treeLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
         treePnl.add(treeLbl, gbc);
 
         // Create the tree scroll pane
@@ -707,9 +706,9 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
             // Create a tree expansion check box
             final JCheckBox expandChkBx = new JCheckBox("Expand all");
             expandChkBx.setBorder(BorderFactory.createEmptyBorder());
-            expandChkBx.setFont(LABEL_FONT_BOLD);
+            expandChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             expandChkBx.setSelected(false);
-            gbc.insets.top = LABEL_VERTICAL_SPACING / 2;
+            gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
             gbc.weighty = 0.0;
             gbc.gridy++;
             treePnl.add(expandChkBx, gbc);
@@ -735,7 +734,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
             // Create a type filter check box
             final JCheckBox typeFilterChkBx = new JCheckBox("Filter by type");
             typeFilterChkBx.setBorder(BorderFactory.createEmptyBorder());
-            typeFilterChkBx.setFont(LABEL_FONT_BOLD);
+            typeFilterChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             typeFilterChkBx.setSelected(false);
             gbc.gridy++;
             treePnl.add(typeFilterChkBx, gbc);
@@ -743,7 +742,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
             // Create an application filter check box
             final JCheckBox appFilterChkBx = new JCheckBox("Filter by application");
             appFilterChkBx.setBorder(BorderFactory.createEmptyBorder());
-            appFilterChkBx.setFont(LABEL_FONT_BOLD);
+            appFilterChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             appFilterChkBx.setSelected(false);
             gbc.gridy++;
             treePnl.add(appFilterChkBx, gbc);

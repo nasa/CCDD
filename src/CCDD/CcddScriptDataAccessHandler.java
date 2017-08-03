@@ -6,10 +6,6 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.PATH_COLUMN_DELTA;
 import static CCDD.CcddConstants.TYPE_COLUMN_DELTA;
@@ -43,6 +39,9 @@ import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.CopyTableEntry;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TablePathType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
@@ -2518,10 +2517,10 @@ public class CcddScriptDataAccessHandler
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.NONE,
-                                                        new Insets(LABEL_VERTICAL_SPACING,
-                                                                   LABEL_HORIZONTAL_SPACING,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
                                                                    0,
-                                                                   LABEL_HORIZONTAL_SPACING),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
                                                         0,
                                                         0);
 
@@ -2530,14 +2529,14 @@ public class CcddScriptDataAccessHandler
 
         // Create the input label and field
         JLabel typeLabel = new JLabel(labelText);
-        typeLabel.setFont(LABEL_FONT_BOLD);
+        typeLabel.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         panel.add(typeLabel, gbc);
 
         JTextField typeField = new JTextField("", 15);
-        typeField.setFont(LABEL_FONT_PLAIN);
+        typeField.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         typeField.setEditable(true);
-        typeField.setForeground(Color.BLACK);
-        typeField.setBackground(Color.WHITE);
+        typeField.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        typeField.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         typeField.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
                                                                                                Color.LIGHT_GRAY,
                                                                                                Color.GRAY),
@@ -2598,10 +2597,10 @@ public class CcddScriptDataAccessHandler
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(LABEL_VERTICAL_SPACING,
-                                                                   LABEL_HORIZONTAL_SPACING,
-                                                                   LABEL_VERTICAL_SPACING,
-                                                                   LABEL_HORIZONTAL_SPACING),
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
                                                         0,
                                                         0);
 

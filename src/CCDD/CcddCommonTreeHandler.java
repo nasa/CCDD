@@ -403,7 +403,6 @@ public class CcddCommonTreeHandler extends JTree
 
             // Finish the group name pattern
             groupPattern = CcddUtilities.removeTrailer(groupPattern, "|") + "))";
-
         }
 
         // Initialize the type name regular expression pattern assuming there
@@ -427,7 +426,6 @@ public class CcddCommonTreeHandler extends JTree
 
             // Finish the type name pattern
             typePattern = CcddUtilities.removeTrailer(typePattern, "|") + "))";
-
         }
 
         // Step through each visible path in the tree

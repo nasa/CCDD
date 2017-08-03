@@ -7,11 +7,6 @@
 package CCDD;
 
 import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
-import static CCDD.CcddConstants.LABEL_TEXT_COLOR;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.LEFT_ICON;
 import static CCDD.CcddConstants.RIGHT_ICON;
 
@@ -54,6 +49,9 @@ import CCDD.CcddClasses.PaddedComboBox;
 import CCDD.CcddClasses.RateInformation;
 import CCDD.CcddClasses.Variable;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.SchedulerType;
 
 /******************************************************************************
@@ -279,12 +277,12 @@ public class CcddSchedulerHandler
         // Create the unused bytes label and field and add them to the title
         // panel
         unusedLbl = new JLabel();
-        unusedLbl.setFont(LABEL_FONT_BOLD);
+        unusedLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         unusedFld = new JTextField(5);
-        unusedFld.setFont(LABEL_FONT_PLAIN);
+        unusedFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         unusedFld.setEditable(false);
-        unusedFld.setForeground(Color.BLACK);
-        unusedFld.setBackground(Color.WHITE);
+        unusedFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        unusedFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         unusedFld.setBorder(border);
         unusedFld.setHorizontalAlignment(JTextField.CENTER);
         setUnusedLabel();
@@ -298,12 +296,12 @@ public class CcddSchedulerHandler
 
         // Create the cycle label and field and add them to the cycle panel
         JLabel cycleLbl = new JLabel("Cycle time (sec) ");
-        cycleLbl.setFont(LABEL_FONT_BOLD);
+        cycleLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         cycleFld = new JTextField(5);
-        cycleFld.setFont(LABEL_FONT_PLAIN);
+        cycleFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         cycleFld.setEditable(false);
-        cycleFld.setForeground(Color.BLACK);
-        cycleFld.setBackground(Color.WHITE);
+        cycleFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        cycleFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         cycleFld.setBorder(border);
         cycleFld.setHorizontalAlignment(JTextField.CENTER);
         cyclePnl.add(cycleLbl);
@@ -331,8 +329,8 @@ public class CcddSchedulerHandler
         // Check if this is a telemetry scheduler
         if (getSchedulerOption() == SchedulerType.TELEMETRY_SCHEDULER)
         {
-            gbc.insets.left = LABEL_HORIZONTAL_SPACING;
-            gbc.insets.right = LABEL_HORIZONTAL_SPACING;
+            gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+            gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         }
         // Use default values for an application scheduler or unknown type
         else
@@ -949,7 +947,7 @@ public class CcddSchedulerHandler
                                                         GridBagConstraints.BOTH,
                                                         new Insets(0,
                                                                    0,
-                                                                   LABEL_VERTICAL_SPACING / 2,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
                                                                    0),
                                                         0,
                                                         0);
@@ -1011,25 +1009,25 @@ public class CcddSchedulerHandler
 
         // Create the options label and add it to the rate panel
         JLabel optionLbl = new JLabel("Options");
-        optionLbl.setFont(LABEL_FONT_BOLD);
-        optionLbl.setForeground(LABEL_TEXT_COLOR);
+        optionLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        optionLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
         optionPnl.add(optionLbl, gbc);
 
         // Create the rate label and add it to the rate panel
         JLabel rateSelectLbl = new JLabel("Rate Filter ");
-        rateSelectLbl.setFont(LABEL_FONT_BOLD);
-        rateSelectLbl.setForeground(Color.BLACK);
+        rateSelectLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        rateSelectLbl.setForeground(ModifiableColorInfo.LABEL_TEXT.getColor());
         gbc.weighty = 1.0;
         gbc.gridx++;
-        gbc.insets.top = LABEL_VERTICAL_SPACING / 2;
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         gbc.insets.bottom = (option == SchedulerType.TELEMETRY_SCHEDULER
                                                                         ? 5
-                                                                        : LABEL_VERTICAL_SPACING);
+                                                                        : ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
         rateSelectPnl.add(rateSelectLbl, gbc);
 
         // Create the combo box that displays the variable rates
         rateFilter = new PaddedComboBox(schedulerInput.getAvailableRates(),
-                                        LABEL_FONT_PLAIN)
+                                        ModifiableFontInfo.INPUT_TEXT.getFont())
         {
             /******************************************************************
              * Override so that items flagged as disabled (grayed out) can't be
@@ -1081,7 +1079,7 @@ public class CcddSchedulerHandler
         // Create a list that will contain all the telemetry options for a
         // variable
         optionList = new JList<String>(optionModel);
-        optionList.setFont(LABEL_FONT_PLAIN);
+        optionList.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
         optionList.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
 
         // Add a listener to set the message availability given the selected

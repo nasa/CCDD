@@ -6,21 +6,9 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.CELL_FONT;
-import static CCDD.CcddConstants.FOCUS_COLOR;
-import static CCDD.CcddConstants.INVALID_TEXT_COLOR;
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_TEXT_COLOR;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.OK_BUTTON;
-import static CCDD.CcddConstants.PROTECTED_BACK_COLOR;
-import static CCDD.CcddConstants.PROTECTED_TEXT_COLOR;
-import static CCDD.CcddConstants.SELECTED_BACK_COLOR;
-import static CCDD.CcddConstants.TABLE_BACK_COLOR;
 import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
 import static CCDD.CcddConstants.UNLINKED_VARIABLES_NODE_NAME;
-import static CCDD.CcddConstants.VALID_TEXT_COLOR;
 import static CCDD.CcddConstants.SchedulerType.APPLICATION_SCHEDULER;
 import static CCDD.CcddConstants.SchedulerType.TELEMETRY_SCHEDULER;
 
@@ -64,6 +52,9 @@ import CCDD.CcddClasses.Variable;
 import CCDD.CcddClasses.VariableGenerator;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.SchedulerColumn;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddUndoHandler.UndoableTableModel;
@@ -439,15 +430,15 @@ public class CcddSchedulerEditorHandler
                 // Check if the cell doesn't have the focus or is selected, and
                 // is protected from changes. The focus and selection highlight
                 // colors override the invalid highlight color
-                if (comp.getBackground() != FOCUS_COLOR
-                    && comp.getBackground() != SELECTED_BACK_COLOR
+                if (comp.getBackground() != ModifiableColorInfo.FOCUS_BACK.getColor()
+                    && comp.getBackground() != ModifiableColorInfo.SELECTED_BACK.getColor()
                     && !isCellEditable(row, column))
                 {
                     // Shade the cell's foreground and background colors
                     comp.setForeground(getValueAt(row, column).toString().startsWith("-")
-                                                                                         ? INVALID_TEXT_COLOR
-                                                                                         : PROTECTED_TEXT_COLOR);
-                    comp.setBackground(PROTECTED_BACK_COLOR);
+                                                                                         ? ModifiableColorInfo.INVALID_TEXT.getColor()
+                                                                                         : ModifiableColorInfo.PROTECTED_TEXT.getColor());
+                    comp.setBackground(ModifiableColorInfo.PROTECTED_BACK.getColor());
                 }
 
                 return comp;
@@ -499,10 +490,10 @@ public class CcddSchedulerEditorHandler
                                                ListSelectionModel.SINGLE_SELECTION,
                                                TableSelectionMode.SELECT_BY_CELL,
                                                false,
-                                               TABLE_BACK_COLOR,
+                                               ModifiableColorInfo.TABLE_BACK.getColor(),
                                                true,
                                                true,
-                                               CELL_FONT,
+                                               ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
                                                true);
 
         // Get the table model and undo manager to shorten later calls
@@ -532,11 +523,10 @@ public class CcddSchedulerEditorHandler
         else if (schedulerHndlr.getSchedulerOption() == APPLICATION_SCHEDULER)
         {
             // Initialize the assignment list and add it to a scroll pane that
-            // will
-            // be placed next to the variable list
+            // will be placed next to the variable list
             assignmentList = new JList<String>();
             assignmentList.setModel(new DefaultListModel<String>());
-            assignmentList.setFont(LABEL_FONT_PLAIN);
+            assignmentList.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
             assignScrollPane = new JScrollPane(assignmentList);
             assignScrollPane.setBorder(border);
 
@@ -568,21 +558,21 @@ public class CcddSchedulerEditorHandler
 
         // Create the scheduler table label
         JLabel schedulerLbl = new JLabel("Scheduler");
-        schedulerLbl.setFont(LABEL_FONT_BOLD);
-        schedulerLbl.setForeground(LABEL_TEXT_COLOR);
+        schedulerLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        schedulerLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
 
         // Add the scheduler label and scroll pane to the panel
         schedulerPnl.add(schedulerLbl, gbc);
         gbc.weighty = 1.0;
-        gbc.insets.top = LABEL_VERTICAL_SPACING / 2;
-        gbc.insets.bottom = LABEL_VERTICAL_SPACING / 2;
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
+        gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         gbc.gridy++;
         schedulerPnl.add(schedulerScrollPane, gbc);
 
         // Create the assignment list label and add it to the panel
         JLabel assignmentLbl = new JLabel("");
-        assignmentLbl.setFont(LABEL_FONT_BOLD);
-        assignmentLbl.setForeground(LABEL_TEXT_COLOR);
+        assignmentLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        assignmentLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
         gbc.insets.top = 0;
         gbc.weighty = 0.0;
         gbc.gridx = 0;
@@ -604,7 +594,7 @@ public class CcddSchedulerEditorHandler
             // Create a tabbed pane to contain the variable tree for the
             // message and any sub-messages
             tabbedPane = new JTabbedPane();
-            tabbedPane.setFont(LABEL_FONT_BOLD);
+            tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
 
             // Listen for tab selection changes
             tabbedPane.addChangeListener(new ChangeListener()
@@ -1705,14 +1695,16 @@ public class CcddSchedulerEditorHandler
         if (size >= 0)
         {
             // Change the row text color to indicate the message is available
-            schedulerTable.setRowTextColor(messageIndex, VALID_TEXT_COLOR);
+            schedulerTable.setRowTextColor(messageIndex,
+                                           ModifiableColorInfo.VALID_TEXT.getColor());
         }
         // The size is a negative number
         else
         {
             // Change the row text color to indicate the message is over
             // subscribed
-            schedulerTable.setRowTextColor(messageIndex, INVALID_TEXT_COLOR);
+            schedulerTable.setRowTextColor(messageIndex,
+                                           ModifiableColorInfo.INVALID_TEXT.getColor());
         }
 
         // Set the bytes to display the new size

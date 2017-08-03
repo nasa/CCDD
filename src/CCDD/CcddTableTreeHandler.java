@@ -7,10 +7,6 @@
 package CCDD;
 
 import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_TEXT_COLOR;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.LINKED_VARIABLES_NODE_NAME;
 import static CCDD.CcddConstants.UNLINKED_VARIABLES_NODE_NAME;
 import static CCDD.CcddConstants.TableMemberType.INCLUDE_PRIMITIVES;
@@ -62,6 +58,9 @@ import CCDD.CcddClasses.GroupInformation;
 import CCDD.CcddClasses.TableMembers;
 import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableTreeType;
 
 /******************************************************************************
@@ -145,7 +144,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         TableTreeCellRenderer()
         {
             // Set the node font
-            super.setFont(LABEL_FONT_PLAIN);
+            super.setFont(ModifiableFontInfo.TREE_NODE.getFont());
         }
 
         /**********************************************************************
@@ -1869,13 +1868,13 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                                                         GridBagConstraints.BOTH,
                                                         new Insets(0,
                                                                    0,
-                                                                   LABEL_VERTICAL_SPACING / 2,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
                                                                    0),
                                                         0,
                                                         0);
 
         // Set the table tree font and number of rows to display
-        setFont(LABEL_FONT_PLAIN);
+        setFont(ModifiableFontInfo.TREE_NODE.getFont());
         setVisibleRowCount(10);
 
         // Set the table tree selection mode
@@ -1890,8 +1889,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         {
             // Create the tree labels
             JLabel treeLbl = new JLabel(label);
-            treeLbl.setFont(LABEL_FONT_BOLD);
-            treeLbl.setForeground(LABEL_TEXT_COLOR);
+            treeLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            treeLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
             treePnl.add(treeLbl, gbc);
             gbc.gridy++;
         }
@@ -1961,7 +1960,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         // Create a tree expansion check box
         expandChkBx = new JCheckBox("Expand all");
         expandChkBx.setBorder(emptyBorder);
-        expandChkBx.setFont(LABEL_FONT_BOLD);
+        expandChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         expandChkBx.setSelected(false);
 
         // Check if this is the last component to add
@@ -1970,7 +1969,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             gbc.insets.bottom = 0;
         }
 
-        gbc.insets.top = LABEL_VERTICAL_SPACING / 2;
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         gbc.weighty = 0.0;
         gbc.gridy++;
         treePnl.add(expandChkBx, gbc);
@@ -2011,7 +2010,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         {
             // Create a group filter check box
             groupFilterChkBx.setBorder(emptyBorder);
-            groupFilterChkBx.setFont(LABEL_FONT_BOLD);
+            groupFilterChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             groupFilterChkBx.setSelected(false);
             groupFilterChkBx.setEnabled(!groupHandler.getGroupInformation().isEmpty());
 
@@ -2068,7 +2067,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         {
             // Create a type filter check box
             typeFilterChkBx.setBorder(emptyBorder);
-            typeFilterChkBx.setFont(LABEL_FONT_BOLD);
+            typeFilterChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             typeFilterChkBx.setSelected(false);
 
             // Check if this is the last component to add
@@ -2133,7 +2132,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             gbc.insets.bottom = 0;
             gbc.gridy++;
             treePnl.add(hiddenPnl, gbc);
-            hiddenChkBx.setFont(LABEL_FONT_BOLD);
+            hiddenChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             hiddenChkBx.setFocusable(false);
             hiddenChkBx.setDisabledIcon(null);
             hiddenChkBx.setEnabled(false);

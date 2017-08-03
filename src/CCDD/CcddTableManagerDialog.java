@@ -8,11 +8,6 @@ package CCDD;
 
 import static CCDD.CcddConstants.EXPORT_ICON;
 import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
-import static CCDD.CcddConstants.LABEL_TEXT_COLOR;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.MAX_SQL_NAME_LENGTH;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.TABLE_EXPORT_PATH;
@@ -55,6 +50,10 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FileExtension;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.ManagerDialogType;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSizeInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableTreeType;
 
 /******************************************************************************
@@ -247,8 +246,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                             0.0,
                                                             GridBagConstraints.LINE_START,
                                                             GridBagConstraints.BOTH,
-                                                            new Insets(LABEL_VERTICAL_SPACING / 2,
-                                                                       LABEL_HORIZONTAL_SPACING / 2,
+                                                            new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
                                                                        0,
                                                                        0),
                                                             0,
@@ -290,7 +289,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                             // Create the table creation dialog label and
                             // field, and add them to the dialog panel
                             addTableInputFields("Table name(s)", dialogPnl, true, gbc);
-                            nameFld.setToolTipText("Delimit multiple names using commas");
+                            nameFld.setToolTipText(CcddUtilities.wrapText("Delimit multiple names using commas",
+                                                                          ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
                         }
                         // There are no table type available from which to
                         // choose
@@ -807,10 +807,10 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                             // Enable and set the background color for the
                             // table name and description fields
                             nameFld.setEditable(true);
-                            nameFld.setBackground(Color.WHITE);
+                            nameFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                             descriptionFld.setEditable(true);
-                            descriptionFld.setBackground(Color.WHITE);
-                            descScrollPane.setBackground(Color.WHITE);
+                            descriptionFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
+                            descScrollPane.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                         }
                         // Not a rename or copy dialog, or no table is selected
                         else
@@ -820,10 +820,10 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                             nameFld.setText("");
                             descriptionFld.setText("");
                             nameFld.setEditable(false);
-                            nameFld.setBackground(Color.LIGHT_GRAY);
+                            nameFld.setBackground(ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
                             descriptionFld.setEditable(false);
-                            descriptionFld.setBackground(Color.LIGHT_GRAY);
-                            descScrollPane.setBackground(Color.LIGHT_GRAY);
+                            descriptionFld.setBackground(ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
+                            descScrollPane.setBackground(ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
                         }
                     }
 
@@ -846,19 +846,19 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
             // Create the overall dialog label and add it to the dialog
             JLabel dlgLabel = new JLabel(labelText);
-            dlgLabel.setFont(LABEL_FONT_BOLD);
+            dlgLabel.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             upperPnl.add(dlgLabel, gbc);
             allPnl.add(upperPnl, gbc);
 
             // Create the table tree panel with selection check boxes and add
             // it to the dialog
             gbc.weighty = 1.0;
-            gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+            gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
             lowerPnl.add(tableTree.createTreePanel("Tables",
                                                    tableSelect,
                                                    ccddMain.getMainFrame()),
                          gbc);
-            gbc.insets.right = LABEL_HORIZONTAL_SPACING;
+            gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
             gbc.gridy++;
             allPnl.add(lowerPnl, gbc);
         }
@@ -890,9 +890,10 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
         // Create a check box for indicating existing tables can be replaced
         replaceExistingTablesCb = new JCheckBox("Replace existing tables");
-        replaceExistingTablesCb.setFont(LABEL_FONT_BOLD);
+        replaceExistingTablesCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         replaceExistingTablesCb.setBorder(emptyBorder);
-        replaceExistingTablesCb.setToolTipText("Replace data tables that already exist with the imported table");
+        replaceExistingTablesCb.setToolTipText(CcddUtilities.wrapText("Replace data tables that already exist with the imported table",
+                                                                      ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
 
         // Add a listener for changes to the Replace Existing Tables check box
         // selection status
@@ -915,9 +916,10 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
         // Create a check box for indicating existing data fields are retained
         appendExistingFieldsCb = new JCheckBox("Append existing data fields");
-        appendExistingFieldsCb.setFont(LABEL_FONT_BOLD);
+        appendExistingFieldsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         appendExistingFieldsCb.setBorder(emptyBorder);
-        appendExistingFieldsCb.setToolTipText("Append existing data fields to those imported");
+        appendExistingFieldsCb.setToolTipText(CcddUtilities.wrapText("Append existing data fields to those imported",
+                                                                     ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         appendExistingFieldsCb.setEnabled(false);
 
         // Add a listener for changes to the Append Original Fields check box
@@ -937,30 +939,32 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             }
         });
 
-        gbc.insets.top = LABEL_VERTICAL_SPACING * 2;
-        gbc.insets.left += LABEL_HORIZONTAL_SPACING * 2;
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() * 2;
+        gbc.insets.left += ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
         gbc.gridy++;
         dialogPnl.add(appendExistingFieldsCb, gbc);
 
         // Create a check box for indicating existing tables can be replaced
         useExistingFieldsCb = new JCheckBox("Use existing field if duplicate");
-        useExistingFieldsCb.setFont(LABEL_FONT_BOLD);
+        useExistingFieldsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         useExistingFieldsCb.setBorder(emptyBorder);
-        useExistingFieldsCb.setToolTipText("Use the existing data field definition if "
-                                           + "a field with the same name is imported");
+        useExistingFieldsCb.setToolTipText(CcddUtilities.wrapText("Use the existing data field definition if "
+                                                                  + "a field with the same name is imported",
+                                                                  ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         useExistingFieldsCb.setEnabled(false);
-        gbc.insets.left += LABEL_HORIZONTAL_SPACING * 2;
+        gbc.insets.left += ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
         gbc.gridy++;
         dialogPnl.add(useExistingFieldsCb, gbc);
 
         // Create a check box for indicating that the project should be backed
         // up prior to importing tables
         backupFirstCb = new JCheckBox("Backup project before importing");
-        backupFirstCb.setFont(LABEL_FONT_BOLD);
+        backupFirstCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         backupFirstCb.setBorder(emptyBorder);
-        backupFirstCb.setToolTipText("Back up the project database prior to importing the table files");
+        backupFirstCb.setToolTipText(CcddUtilities.wrapText("Back up the project database prior to importing the table files",
+                                                            ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         gbc.insets.bottom = 0;
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING / 2;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2;
         gbc.gridy++;
         dialogPnl.add(backupFirstCb, gbc);
 
@@ -991,7 +995,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                              gbc,
                                              TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
                                              TableTreeType.TABLES);
-            gbc.insets.top = LABEL_VERTICAL_SPACING * 2;
+            gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() * 2;
         }
         // The export command originated from a table editor dialog menu
         else
@@ -1012,11 +1016,12 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
             // Create the check box for inclusion of variable paths
             includeVariablePaths = new JCheckBox("Include variable paths");
-            includeVariablePaths.setFont(LABEL_FONT_BOLD);
+            includeVariablePaths.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             includeVariablePaths.setBorder(emptyBorder);
-            includeVariablePaths.setToolTipText("If checked, each variable's path in a structure table "
-                                                + "is included, both in the application format and "
-                                                + "using the separator characters specified by the user");
+            includeVariablePaths.setToolTipText(CcddUtilities.wrapText("If checked, each variable's path in a structure table "
+                                                                       + "is included, both in the application format and "
+                                                                       + "using the separator characters specified by the user",
+                                                                       ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
             gbc.insets.left = 0;
             gbc.insets.top = 0;
             gbc.gridy++;
@@ -1025,17 +1030,17 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             // Create the variable path separator label and input field,
             // and add them to the dialog panel
             final JLabel varPathSepLbl = new JLabel("Enter variable path separator character(s)");
-            varPathSepLbl.setFont(LABEL_FONT_BOLD);
+            varPathSepLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             varPathSepLbl.setEnabled(false);
-            gbc.insets.left = LABEL_HORIZONTAL_SPACING;
-            gbc.insets.top = LABEL_VERTICAL_SPACING;
+            gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+            gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
             gbc.gridy++;
             separatorPnl.add(varPathSepLbl, gbc);
             varPathSepFld = new JTextField("_", 5);
-            varPathSepFld.setFont(LABEL_FONT_PLAIN);
+            varPathSepFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
             varPathSepFld.setEditable(true);
-            varPathSepFld.setForeground(Color.BLACK);
-            varPathSepFld.setBackground(Color.WHITE);
+            varPathSepFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+            varPathSepFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
             varPathSepFld.setBorder(border);
             varPathSepFld.setEnabled(false);
             gbc.gridx++;
@@ -1044,16 +1049,16 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             // Create the data type/variable name separator label and input
             // field, and add them to the dialog panel
             final JLabel typeNameSepLbl = new JLabel("Enter data type/variable name separator character(s)");
-            typeNameSepLbl.setFont(LABEL_FONT_BOLD);
+            typeNameSepLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             typeNameSepLbl.setEnabled(false);
             gbc.gridx = 0;
             gbc.gridy++;
             separatorPnl.add(typeNameSepLbl, gbc);
             typeNameSepFld = new JTextField("_", 5);
-            typeNameSepFld.setFont(LABEL_FONT_PLAIN);
+            typeNameSepFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
             typeNameSepFld.setEditable(true);
-            typeNameSepFld.setForeground(Color.BLACK);
-            typeNameSepFld.setBackground(Color.WHITE);
+            typeNameSepFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+            typeNameSepFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
             typeNameSepFld.setBorder(border);
             typeNameSepFld.setEnabled(false);
             gbc.gridx++;
@@ -1061,7 +1066,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
             // Create a check box for hiding data types
             hideDataTypeCb = new JCheckBox("Hide data types");
-            hideDataTypeCb.setFont(LABEL_FONT_BOLD);
+            hideDataTypeCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             hideDataTypeCb.setBorder(BorderFactory.createEmptyBorder());
             hideDataTypeCb.setEnabled(false);
             gbc.insets.bottom = 0;
@@ -1070,7 +1075,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             separatorPnl.add(hideDataTypeCb, gbc);
 
             // Add the export storage path components to the dialog
-            gbc.insets.bottom = LABEL_VERTICAL_SPACING;
+            gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
             gbc.weighty = 0.0;
             gbc.gridy = yStore + 1;
             dialogPnl.add(createPathSelectionPanel(fileExtn), gbc);
@@ -1078,20 +1083,22 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             // Create a check box for indicating existing files can be
             // replaced
             overwriteFileCb = new JCheckBox("Overwrite existing file(s)");
-            overwriteFileCb.setFont(LABEL_FONT_BOLD);
+            overwriteFileCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             overwriteFileCb.setBorder(emptyBorder);
-            overwriteFileCb.setToolTipText("Select to overwrite any file(s) with the same name");
+            overwriteFileCb.setToolTipText(CcddUtilities.wrapText("Select to overwrite any file(s) with the same name",
+                                                                  ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
 
-            gbc.insets.top = LABEL_VERTICAL_SPACING;
+            gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
             gbc.gridy++;
             dialogPnl.add(overwriteFileCb, gbc);
 
             // Create a check box for indicating existing tables can be
             // replaced
             singleFileCb = new JCheckBox("Store tables in one file");
-            singleFileCb.setFont(LABEL_FONT_BOLD);
+            singleFileCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             singleFileCb.setBorder(emptyBorder);
-            singleFileCb.setToolTipText("Select to store multiple tables in a single file");
+            singleFileCb.setToolTipText(CcddUtilities.wrapText("Select to store multiple tables in a single file",
+                                                               ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
 
             // Add a listener for the single file check box selection changes
             singleFileCb.addActionListener(new ActionListener()
@@ -1115,24 +1122,26 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
             // Create the macro replacement check box
             replaceMacrosCb = new JCheckBox("Substitute macro values for macro names");
-            replaceMacrosCb.setFont(LABEL_FONT_BOLD);
+            replaceMacrosCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             replaceMacrosCb.setBorder(emptyBorder);
-            replaceMacrosCb.setToolTipText("If checked, the macros are replaced with their "
-                                           + "corresponding values prior to exporting the "
-                                           + "table(s).  If not checked, the macro names are "
-                                           + "retained and the macro information is stored "
-                                           + "with the exported table(s)");
+            replaceMacrosCb.setToolTipText(CcddUtilities.wrapText("If checked, the macros are replaced with their "
+                                                                  + "corresponding values prior to exporting the "
+                                                                  + "table(s).  If not checked, the macro names are "
+                                                                  + "retained and the macro information is stored "
+                                                                  + "with the exported table(s)",
+                                                                  ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
             gbc.gridy++;
             dialogPnl.add(replaceMacrosCb, gbc);
 
             // Create the reserved message ID inclusion check box
             includeReservedMsgIDsCb = new JCheckBox("Include reserved message IDs");
-            includeReservedMsgIDsCb.setFont(LABEL_FONT_BOLD);
+            includeReservedMsgIDsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             includeReservedMsgIDsCb.setBorder(emptyBorder);
-            includeReservedMsgIDsCb.setToolTipText("If checked, the contents of the reserved "
-                                                   + "message ID table (IDs or ID ranges, and "
-                                                   + "their corresponding descriptions) is "
-                                                   + "included in each export file ");
+            includeReservedMsgIDsCb.setToolTipText(CcddUtilities.wrapText("If checked, the contents of the reserved "
+                                                                          + "message ID table (IDs or ID ranges, and "
+                                                                          + "their corresponding descriptions) is "
+                                                                          + "included in each export file",
+                                                                          ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
             gbc.gridy++;
             dialogPnl.add(includeReservedMsgIDsCb, gbc);
 
@@ -1140,8 +1149,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             // panel
             JSeparator upperSep = new JSeparator();
             upperSep.setForeground(dialogPnl.getBackground().darker());
-            gbc.insets.top = LABEL_VERTICAL_SPACING / 2;
-            gbc.insets.bottom = LABEL_VERTICAL_SPACING / 2;
+            gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
+            gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
             gbc.gridy++;
             dialogPnl.add(upperSep, gbc);
             gbc.fill = GridBagConstraints.VERTICAL;
@@ -1151,8 +1160,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             JSeparator lowerSep = new JSeparator();
             lowerSep.setForeground(dialogPnl.getBackground().darker());
             gbc.fill = GridBagConstraints.BOTH;
-            gbc.insets.top = LABEL_VERTICAL_SPACING / 2;
-            gbc.insets.bottom = LABEL_VERTICAL_SPACING / 2;
+            gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
+            gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
             gbc.weightx = 1.0;
             gbc.gridy++;
             dialogPnl.add(lowerSep, gbc);
@@ -1211,18 +1220,18 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
             // Create the system data field label
             JLabel systemLbl = new JLabel("System data field name");
-            systemLbl.setFont(LABEL_FONT_BOLD);
-            gbc.insets.left = LABEL_HORIZONTAL_SPACING;
-            gbc.insets.top = LABEL_VERTICAL_SPACING;
+            systemLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+            gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
             gbc.insets.bottom = 0;
             gbc.weightx = 0.0;
             systemPnl.add(systemLbl, gbc);
 
             // Create the system data field input field
             systemFld = new JTextField("System");
-            systemFld.setFont(LABEL_FONT_PLAIN);
-            systemFld.setForeground(Color.BLACK);
-            systemFld.setBackground(Color.WHITE);
+            systemFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+            systemFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+            systemFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
             systemFld.setBorder(border);
             gbc.fill = GridBagConstraints.BOTH;
             gbc.weightx = 1.0;
@@ -1245,26 +1254,26 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
                 // Create the attributes label
                 JLabel descriptionLbl = new JLabel("XTCE Attributes");
-                descriptionLbl.setFont(LABEL_FONT_BOLD);
-                descriptionLbl.setForeground(LABEL_TEXT_COLOR);
-                gbc.insets.left = LABEL_HORIZONTAL_SPACING / 2;
-                gbc.insets.right = LABEL_HORIZONTAL_SPACING / 2;
-                gbc.insets.top = LABEL_VERTICAL_SPACING * 2;
+                descriptionLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                descriptionLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
+                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2;
+                gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2;
+                gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() * 2;
                 gbc.gridy++;
                 dialogPnl.add(descriptionLbl, gbc);
 
                 // Create the version label
                 JLabel versionLbl = new JLabel("Version");
-                versionLbl.setFont(LABEL_FONT_BOLD);
-                versionLbl.setForeground(Color.BLACK);
-                gbc.insets.top = LABEL_VERTICAL_SPACING;
+                versionLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                versionLbl.setForeground(ModifiableColorInfo.LABEL_TEXT.getColor());
+                gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
                 gbc.weightx = 0.0;
                 infoPnl.add(versionLbl, gbc);
 
                 // Create the version input field
-                versionFld.setFont(LABEL_FONT_PLAIN);
-                versionFld.setForeground(Color.BLACK);
-                versionFld.setBackground(Color.WHITE);
+                versionFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+                versionFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+                versionFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                 versionFld.setBorder(border);
                 gbc.fill = GridBagConstraints.BOTH;
                 gbc.weightx = 1.0;
@@ -1273,26 +1282,26 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
                 // Create the validation status label
                 JLabel validStatLbl = new JLabel("Validation Status");
-                validStatLbl.setFont(LABEL_FONT_BOLD);
-                validStatLbl.setForeground(Color.BLACK);
-                gbc.insets.bottom = LABEL_VERTICAL_SPACING;
+                validStatLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                validStatLbl.setForeground(ModifiableColorInfo.LABEL_TEXT.getColor());
+                gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
                 gbc.weightx = 0.0;
                 gbc.gridx = 0;
                 gbc.gridy++;
                 infoPnl.add(validStatLbl, gbc);
 
                 // Create the validation status input field
-                validStatFld.setFont(LABEL_FONT_PLAIN);
-                validStatFld.setForeground(Color.BLACK);
-                validStatFld.setBackground(Color.WHITE);
+                validStatFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+                validStatFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+                validStatFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                 validStatFld.setBorder(border);
                 gbc.gridx++;
                 infoPnl.add(validStatFld, gbc);
 
                 // Create the classification label
                 JLabel classLbl = new JLabel("Classification");
-                classLbl.setFont(LABEL_FONT_BOLD);
-                classLbl.setForeground(LABEL_TEXT_COLOR);
+                classLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                classLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
                 gbc.insets.bottom = 0;
                 gbc.gridx = 0;
                 gbc.gridy++;
@@ -1300,8 +1309,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
                 // Create the first level classification label
                 JLabel class1Lbl = new JLabel("First level");
-                class1Lbl.setFont(LABEL_FONT_BOLD);
-                class1Lbl.setForeground(Color.BLACK);
+                class1Lbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                class1Lbl.setForeground(ModifiableColorInfo.LABEL_TEXT.getColor());
 
                 gbc.weightx = 0.0;
                 gbc.gridx = 0;
@@ -1309,9 +1318,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 classPnl.add(class1Lbl, gbc);
 
                 // Create the first classification input fields
-                class1Fld.setFont(LABEL_FONT_PLAIN);
-                class1Fld.setForeground(Color.BLACK);
-                class1Fld.setBackground(Color.WHITE);
+                class1Fld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+                class1Fld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+                class1Fld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                 class1Fld.setBorder(border);
                 gbc.weightx = 1.0;
                 gbc.gridx++;
@@ -1319,17 +1328,17 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
                 // Create the second level classification label
                 JLabel class2Lbl = new JLabel("Second level");
-                class2Lbl.setFont(LABEL_FONT_BOLD);
-                class2Lbl.setForeground(Color.BLACK);
+                class2Lbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                class2Lbl.setForeground(ModifiableColorInfo.LABEL_TEXT.getColor());
                 gbc.weightx = 0.0;
                 gbc.gridx = 0;
                 gbc.gridy++;
                 classPnl.add(class2Lbl, gbc);
 
                 // Create the second level classification input fields
-                class2Fld.setFont(LABEL_FONT_PLAIN);
-                class2Fld.setForeground(Color.BLACK);
-                class2Fld.setBackground(Color.WHITE);
+                class2Fld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+                class2Fld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+                class2Fld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                 class2Fld.setBorder(border);
                 gbc.weightx = 1.0;
                 gbc.gridx++;
@@ -1337,18 +1346,18 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
                 // Create the third level classification label
                 JLabel class3Lbl = new JLabel("Third level");
-                class3Lbl.setFont(LABEL_FONT_BOLD);
-                class3Lbl.setForeground(Color.BLACK);
-                gbc.insets.bottom = LABEL_VERTICAL_SPACING;
+                class3Lbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                class3Lbl.setForeground(ModifiableColorInfo.LABEL_TEXT.getColor());
+                gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
                 gbc.weightx = 0.0;
                 gbc.gridx = 0;
                 gbc.gridy++;
                 classPnl.add(class3Lbl, gbc);
 
                 // Create the third level classification input fields
-                class3Fld.setFont(LABEL_FONT_PLAIN);
-                class3Fld.setForeground(Color.BLACK);
-                class3Fld.setBackground(Color.WHITE);
+                class3Fld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+                class3Fld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+                class3Fld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                 class3Fld.setBorder(border);
                 gbc.weightx = 1.0;
                 gbc.gridx++;
@@ -1403,33 +1412,33 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.HORIZONTAL,
-                                                        new Insets(LABEL_VERTICAL_SPACING,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
                                                                    0,
-                                                                   LABEL_VERTICAL_SPACING / 2,
-                                                                   LABEL_HORIZONTAL_SPACING),
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
                                                         0,
                                                         0);
         // Create the table name label and field
         JLabel nameLbl = new JLabel(fieldText);
-        nameLbl.setFont(LABEL_FONT_BOLD);
+        nameLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         nameFld = new JTextField("", 20);
-        nameFld.setForeground(Color.BLACK);
+        nameFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
         nameFld.setBackground(enabled
-                                     ? Color.WHITE
-                                     : Color.LIGHT_GRAY);
-        nameFld.setFont(LABEL_FONT_PLAIN);
+                                     ? ModifiableColorInfo.INPUT_BACK.getColor()
+                                     : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
+        nameFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         nameFld.setEditable(true);
         nameFld.setBorder(border);
 
         // Create the description label and field
         JLabel descriptionLbl = new JLabel("Description");
-        descriptionLbl.setFont(LABEL_FONT_BOLD);
+        descriptionLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         descriptionFld = new JTextArea("", 3, 20);
-        descriptionFld.setForeground(Color.BLACK);
+        descriptionFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
         descriptionFld.setBackground(enabled
-                                            ? Color.WHITE
-                                            : Color.LIGHT_GRAY);
-        descriptionFld.setFont(LABEL_FONT_PLAIN);
+                                            ? ModifiableColorInfo.INPUT_BACK.getColor()
+                                            : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
+        descriptionFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         descriptionFld.setEditable(enabled);
         descriptionFld.setLineWrap(true);
         descriptionFld.setBorder(emptyBorder);
@@ -1437,8 +1446,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         descriptionFld.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
         descScrollPane = new JScrollPane(descriptionFld);
         descScrollPane.setBackground(enabled
-                                            ? Color.WHITE
-                                            : Color.LIGHT_GRAY);
+                                            ? ModifiableColorInfo.INPUT_BACK.getColor()
+                                            : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
         descScrollPane.setBorder(border);
 
         // Add the name and description labels and fields to a panel
@@ -1446,15 +1455,15 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         nameDescPnl.setBorder(emptyBorder);
         nameDescPnl.add(nameLbl, gbc);
         gbc.gridy++;
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING;
-        gbc.insets.bottom = LABEL_VERTICAL_SPACING;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+        gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
         nameDescPnl.add(nameFld, gbc);
         gbc.gridy++;
         gbc.insets.left = 0;
-        gbc.insets.bottom = LABEL_VERTICAL_SPACING / 2;
+        gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         nameDescPnl.add(descriptionLbl, gbc);
         gbc.gridy++;
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.insets.bottom = 0;
         nameDescPnl.add(descScrollPane, gbc);
 
@@ -1463,7 +1472,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         dialogGbc.gridy++;
         dialogGbc.gridwidth = GridBagConstraints.REMAINDER;
         dialogGbc.fill = GridBagConstraints.HORIZONTAL;
-        dialogGbc.insets.right = LABEL_HORIZONTAL_SPACING;
+        dialogGbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         dialogGbc.insets.bottom = 0;
         dialogPnl.add(nameDescPnl, dialogGbc);
     }
@@ -1487,10 +1496,10 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(LABEL_VERTICAL_SPACING / 2,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
                                                                    0,
-                                                                   LABEL_VERTICAL_SPACING / 2,
-                                                                   LABEL_HORIZONTAL_SPACING),
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
                                                         0,
                                                         0);
 
@@ -1500,18 +1509,18 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
         // Create the path selection dialog labels and fields
         exportLbl = new JLabel("Enter or select an export path");
-        exportLbl.setFont(LABEL_FONT_BOLD);
+        exportLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         pathPnl.add(exportLbl, gbc);
 
         // Create a text field for entering & displaying the path
         pathFld = new JTextField(ccddMain.getProgPrefs().get(TABLE_EXPORT_PATH,
                                                              ""));
-        pathFld.setFont(LABEL_FONT_PLAIN);
+        pathFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         pathFld.setEditable(true);
-        pathFld.setForeground(Color.BLACK);
-        pathFld.setBackground(Color.WHITE);
+        pathFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        pathFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         pathFld.setBorder(border);
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.gridy++;
         pathPnl.add(pathFld, gbc);
 

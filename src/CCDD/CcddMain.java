@@ -16,21 +16,19 @@ import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_PORT;
 import static CCDD.CcddConstants.DEFAULT_SERVER;
 import static CCDD.CcddConstants.INIT_WINDOW_HEIGHT;
 import static CCDD.CcddConstants.INIT_WINDOW_WIDTH;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_TEXT_COLOR;
 import static CCDD.CcddConstants.LOOK_AND_FEEL;
 import static CCDD.CcddConstants.MIN_WINDOW_HEIGHT;
 import static CCDD.CcddConstants.MIN_WINDOW_WIDTH;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.POSTGRESQL_SERVER_HOST;
 import static CCDD.CcddConstants.POSTGRESQL_SERVER_PORT;
-import static CCDD.CcddConstants.TOOL_TIP_TEXT_COLOR;
 import static CCDD.CcddConstants.USER;
 import static CCDD.CcddConstants.WEB_SERVER_PORT;
 import static CCDD.CcddConstants.setLaFAdjustments;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Image;
@@ -73,8 +71,13 @@ import javax.swing.UIManager.LookAndFeelInfo;
 
 import CCDD.CcddConstants.DbManagerDialogType;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.GUIUpdateType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ManagerDialogType;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSizeInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.ScriptIOType;
 import CCDD.CcddConstants.SearchDialogType;
 import CCDD.CcddConstants.ServerPropertyDialogType;
@@ -224,6 +227,9 @@ public class CcddMain
         dbCommand = new CcddDbCommandHandler(CcddMain.this);
         dbControl = new CcddDbControlHandler(CcddMain.this);
 
+        // Get the program preferences
+        getProgramPreferences();
+
         // Create the session event log and set it in the command and control
         // classes
         eventLogs.add(new CcddEventLogDialog(CcddMain.this, true));
@@ -245,11 +251,9 @@ public class CcddMain
         // the keyboard focus. Also handle table undo/redo actions
         keyboardHandler = new CcddKeyboardHandler(CcddMain.this);
 
-        // Get the program preferences
-        getProgramPreferences();
-
-        // Set the selected look & feel
+        // Set the selected look & feel and update the GUI
         setLookAndFeel(null);
+        updateGUI(GUIUpdateType.LAF, null);
 
         // Read the command line arguments and make adjustments as needed
         cmdLnHandler.parseCommand(false);
@@ -927,9 +931,10 @@ public class CcddMain
                                String toolTip)
     {
         JMenu menu = new JMenu(name);
-        menu.setFont(LABEL_FONT_PLAIN);
+        menu.setFont(ModifiableFontInfo.MENU_ITEM.getFont());
         setMnemonic(menu, name, key, occurrence);
-        menu.setToolTipText(toolTip);
+        menu.setToolTipText(CcddUtilities.wrapText(toolTip,
+                                                   ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         menuBar.add(menu);
         return menu;
     }
@@ -962,9 +967,10 @@ public class CcddMain
                                   String toolTip)
     {
         JMenu subMenu = new JMenu(name);
-        subMenu.setFont(LABEL_FONT_PLAIN);
+        subMenu.setFont(ModifiableFontInfo.MENU_ITEM.getFont());
         setMnemonic(subMenu, name, key, occurrence);
-        subMenu.setToolTipText(toolTip);
+        subMenu.setToolTipText(CcddUtilities.wrapText(toolTip,
+                                                      ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         menu.add(subMenu);
         return subMenu;
     }
@@ -998,9 +1004,10 @@ public class CcddMain
                                        String toolTip)
     {
         JMenuItem menuItem = new JMenuItem(name);
-        menuItem.setFont(LABEL_FONT_PLAIN);
+        menuItem.setFont(ModifiableFontInfo.MENU_ITEM.getFont());
         setMnemonic(menuItem, name, key, occurrence);
-        menuItem.setToolTipText(toolTip);
+        menuItem.setToolTipText(CcddUtilities.wrapText(toolTip,
+                                                       ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         menu.add(menuItem);
         return menuItem;
     }
@@ -1038,9 +1045,10 @@ public class CcddMain
                                                        boolean isSelected)
     {
         JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(name);
-        menuItem.setFont(LABEL_FONT_PLAIN);
+        menuItem.setFont(ModifiableFontInfo.MENU_ITEM.getFont());
         setMnemonic(menuItem, name, key, occurrence);
-        menuItem.setToolTipText(toolTip);
+        menuItem.setToolTipText(CcddUtilities.wrapText(toolTip,
+                                                       ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         menuItem.setSelected(isSelected);
         menu.add(menuItem);
         return menuItem;
@@ -1079,9 +1087,10 @@ public class CcddMain
                                                              boolean isSelected)
     {
         JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(name);
-        menuItem.setFont(LABEL_FONT_PLAIN);
+        menuItem.setFont(ModifiableFontInfo.MENU_ITEM.getFont());
         setMnemonic(menuItem, name, key, occurrence);
-        menuItem.setToolTipText(toolTip);
+        menuItem.setToolTipText(CcddUtilities.wrapText(toolTip,
+                                                       ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         menuItem.setSelected(isSelected);
         menu.add(menuItem);
         return menuItem;
@@ -1147,10 +1156,13 @@ public class CcddMain
      *************************************************************************/
     private void initialize()
     {
-        // Set the font and background color for all tool tip pop-ups
+        // Set the font and background color for all tool tip pop-ups. Note
+        // that some look & feels (e.g., Nimbus, GTK+) ignore the tool tip font
+        // and color settings
         UIDefaults uiDefs = UIManager.getDefaults();
-        uiDefs.put("ToolTip.font", LABEL_FONT_PLAIN);
-        uiDefs.put("ToolTip.background", TOOL_TIP_TEXT_COLOR);
+        uiDefs.put("ToolTip.font", ModifiableFontInfo.TOOL_TIP.getFont());
+        uiDefs.put("ToolTip.foreground", ModifiableColorInfo.TOOL_TIP_TEXT.getColor());
+        uiDefs.put("ToolTip.background", ModifiableColorInfo.TOOL_TIP_BACK.getColor());
 
         ccddVersion = null;
         buildDate = null;
@@ -1255,7 +1267,7 @@ public class CcddMain
         // Create the application event log window
         JPanel sessionPanel = new JPanel(new BorderLayout());
         currentDatabase = new JLabel();
-        currentDatabase.setFont(LABEL_FONT_PLAIN);
+        currentDatabase.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
         currentDatabase.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setCurrentDatabaseLabel();
         sessionPanel.add(currentDatabase, BorderLayout.PAGE_START);
@@ -1280,7 +1292,7 @@ public class CcddMain
         mntmEnableWebServer = createCheckBoxMenuItem(mnWebServer, "Enable server", KeyEvent.VK_E, 1, "Start or stop the web server", false);
         mntmWebServerPort = createMenuItem(mnWebServer, "Select port", KeyEvent.VK_O, 1, "Select the web server port");
         mnFile.addSeparator();
-        JMenuItem mntmAppearance = createMenuItem(mnFile, "Appearance", KeyEvent.VK_A, 1, "Change the application look & feel");
+        JMenuItem mntmPreferences = createMenuItem(mnFile, "Preferences", KeyEvent.VK_F, 1, "Change the application look & feel, fonts, etc.");
         mntmExit = createMenuItem(mnFile, "Exit", KeyEvent.VK_X, 1, "Exit the application");
 
         // Create the Project menu and menu items
@@ -2127,20 +2139,16 @@ public class CcddMain
             }
         });
 
-        // Add a listener for the program Appearance menu item
-        mntmAppearance.addActionListener(new ActionListener()
+        // Add a listener for the program Preferences menu item
+        mntmPreferences.addActionListener(new ActionListener()
         {
             /******************************************************************
-             * Show the program appearance dialog
+             * Show the program preferences dialog
              *****************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddAppearanceDialog(CcddMain.this);
-
-                // Store the selected look & feel in the program preferences
-                // backing store
-                progPrefs.put(LOOK_AND_FEEL, selectedLaF);
+                new CcddPreferencesDialog(CcddMain.this);
             }
         });
 
@@ -2197,27 +2205,27 @@ public class CcddMain
                                                               + CCDD_AUTHOR
                                                               + "<br>"
                                                               + CcddUtilities.colorHTMLText("Version: ",
-                                                                                            LABEL_TEXT_COLOR)
+                                                                                            ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
                                                               + ccddVersion
                                                               + "&#160;&#160;&#160;"
                                                               + buildDate
                                                               + "<br><br><b>Supporting software versions:</b><br>&#160;&#160;&#160;"
                                                               + CcddUtilities.colorHTMLText("Java: ",
-                                                                                            LABEL_TEXT_COLOR)
+                                                                                            ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
                                                               + System.getProperty("java.version")
                                                               + " ("
                                                               + System.getProperty("sun.arch.data.model")
                                                               + "-bit)<br>&#160;&#160;&#160;"
                                                               + CcddUtilities.colorHTMLText(DEFAULT_SERVER + ": ",
-                                                                                            LABEL_TEXT_COLOR)
+                                                                                            ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
                                                               + dbControl.getDatabaseVersion()
                                                               + "<br>&#160;&#160;&#160;"
                                                               + CcddUtilities.colorHTMLText("JDBC: ",
-                                                                                            LABEL_TEXT_COLOR)
+                                                                                            ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
                                                               + dbControl.getJDBCVersion()
                                                               + "<br>&#160;&#160;&#160;"
                                                               + CcddUtilities.colorHTMLText("Jetty: ",
-                                                                                            LABEL_TEXT_COLOR)
+                                                                                            ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
                                                               + org.eclipse.jetty.util.Jetty.VERSION
                                                               + "<br><br><b>Scripting language versions:</b>"
                                                               + scriptHandler.getEngineInformation()
@@ -2315,12 +2323,11 @@ public class CcddMain
     }
 
     /**************************************************************************
-     * Set the application look & feel
+     * Set the application's look & feel
      * 
      * @param laf
-     *            name of the selected look & feel
-     * 
-     * @return true if an error occurred
+     *            name of the selected look & feel; null to use the look & feel
+     *            stored in the program preferences
      *************************************************************************/
     protected void setLookAndFeel(String laf)
     {
@@ -2359,50 +2366,6 @@ public class CcddMain
 
             // Set the adjustments to the selected look & feel
             setLaFAdjustments(selectedLaF);
-
-            // Force the application to redraw
-            SwingUtilities.updateComponentTreeUI(frameCCDD);
-
-            boolean firstPass = true;
-
-            // Step through each open event log
-            for (CcddEventLogDialog eLog : eventLogs)
-            {
-                // Check if this isn't the first event log, which is the log
-                // for the current session and so exists within the main window
-                if (!firstPass)
-                {
-                    // Update the log content table to the new look & feel
-                    SwingUtilities.updateComponentTreeUI(eLog);
-                    eLog.setButtonWidth();
-                    eLog.validate();
-                }
-
-                // Restore the log grid lines
-                eLog.getEventTable().setTableGrid();
-
-                firstPass = false;
-            }
-
-            // Step through each open table editor dialog
-            for (CcddTableEditorDialog editorDialog : tableEditorDialogs)
-            {
-                // Update the table editor dialog to the new look & feel
-                SwingUtilities.updateComponentTreeUI(editorDialog);
-                editorDialog.setButtonWidth();
-                editorDialog.getTableEditor().getTable().setTableGrid();
-                editorDialog.validate();
-            }
-
-            // Check if the table type editor dialog is open
-            if (tableTypeEditorDialog != null && tableTypeEditorDialog.isShowing())
-            {
-                // Update the type editor dialog to the new look & feel
-                SwingUtilities.updateComponentTreeUI(tableTypeEditorDialog);
-                tableTypeEditorDialog.setButtonWidth();
-                tableTypeEditorDialog.getTypeEditor().getTable().setTableGrid();
-                tableTypeEditorDialog.validate();
-            }
         }
 
         // Look & feel failed to load
@@ -2416,6 +2379,169 @@ public class CcddMain
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
         }
+    }
+
+    /**************************************************************************
+     * Update the visible graphical user interface (GUI) components for a
+     * change in the specified GUI update type
+     * 
+     * @param updateType
+     *            type of GUI update - LAF for look & feel; FONT for font;
+     *            COLOR for color
+     * 
+     * @param dialogs
+     *            array of other dialogs to update. This is used to update the
+     *            Preferences dialog and its associated selection dialog (if
+     *            applicable)
+     *************************************************************************/
+    protected void updateGUI(GUIUpdateType updateType, CcddDialogHandler[] dialogs)
+    {
+        // Update the main application window
+        updateContainerGUI(updateType, frameCCDD, null);
+
+        boolean isSessionLog = true;
+
+        // Step through each open event log
+        for (CcddEventLogDialog evtLog : eventLogs)
+        {
+            // Check if this isn't the first event log, which is the log for
+            // the current session. Since it exists as part of the main window
+            // it's already updated above
+            if (!isSessionLog)
+            {
+                // Update the log entry dialog
+                updateContainerGUI(updateType, evtLog, evtLog.getEventTable());
+            }
+
+            isSessionLog = false;
+        }
+
+        // Step through each open table editor dialog
+        for (CcddTableEditorDialog editorDialog : tableEditorDialogs)
+        {
+            // Update the table editor
+            updateContainerGUI(updateType, editorDialog,
+                               editorDialog.getTableEditor().getTable());
+        }
+
+        // Check if the table type editor is open
+        if (tableTypeEditorDialog != null && tableTypeEditorDialog.isShowing())
+        {
+            // Update the table type editor
+            updateContainerGUI(updateType, tableTypeEditorDialog,
+                               tableTypeEditorDialog.getTypeEditor().getTable());
+        }
+
+        // Check if the log search dialog is open
+        if (searchLogDlg != null && searchLogDlg.isShowing())
+        {
+            // Update the log search dialog
+            updateContainerGUI(updateType, searchLogDlg, searchLogDlg.getTable());
+        }
+
+        // Check if the table search dialog is open
+        if (searchTableDlg != null && searchTableDlg.isShowing())
+        {
+            // Update the table search dialog
+            updateContainerGUI(updateType, searchTableDlg, searchTableDlg.getTable());
+        }
+
+        // Check if the script search dialog is open
+        if (searchScriptDlg != null && searchScriptDlg.isShowing())
+        {
+            // Update the script search dialog
+            updateContainerGUI(updateType, searchScriptDlg, searchScriptDlg.getTable());
+        }
+
+        // Check if a caller dialog is provided
+        if (dialogs != null)
+        {
+            for (CcddDialogHandler dialog : dialogs)
+            {
+                // Update the caller dialog
+                switch (updateType)
+                {
+                    case LAF:
+                        SwingUtilities.updateComponentTreeUI(dialog);
+                        dialog.setButtonWidth();
+                        dialog.validate();
+                        dialog.setPreferredSize(null);
+                        dialog.pack();
+                        break;
+
+                    case FONT:
+                        ModifiableFontInfo.updateFonts(dialog);
+                        dialog.setButtonWidth();
+                        dialog.validate();
+                        dialog.setPreferredSize(null);
+                        dialog.pack();
+                        break;
+
+                    case COLOR:
+                        ModifiableColorInfo.updateColors(dialog);
+                        break;
+                }
+
+                dialog.repaint();
+            }
+        }
+    }
+
+    /**************************************************************************
+     * Update the visible graphical user interface (GUI) components of the
+     * specified container for a change in the specified GUI update type
+     * 
+     * @param updateType
+     *            type of GUI update - LAF for look & feel; FONT for font;
+     *            COLOR for color
+     * 
+     * @param container
+     *            reference to the Container object to update
+     * 
+     * @param table
+     *            reference to the container's table; null if the container has
+     *            no table
+     *************************************************************************/
+    private void updateContainerGUI(GUIUpdateType updateType,
+                                    Container container,
+                                    CcddJTableHandler table)
+    {
+        // Update the container's components
+        switch (updateType)
+        {
+            case LAF:
+                SwingUtilities.updateComponentTreeUI(container);
+                break;
+
+            case FONT:
+                ModifiableFontInfo.updateFonts(container);
+                break;
+
+            case COLOR:
+                ModifiableColorInfo.updateColors(container);
+                break;
+        }
+
+        // Check if the container is a dialog
+        if (container instanceof CcddDialogHandler)
+        {
+            ((CcddDialogHandler) container).setButtonWidth();
+        }
+        // Check if the container is a frame
+        else if (container instanceof CcddFrameHandler)
+        {
+            ((CcddFrameHandler) container).setButtonWidth();
+        }
+
+        // Check if the container has a table
+        if (table != null)
+        {
+            // Update the table's grid lines
+            table.setTableGrid();
+        }
+
+        // Force the container contents to be validated
+        container.validate();
     }
 
     /**************************************************************************
@@ -2433,14 +2559,25 @@ public class CcddMain
         }
         catch (BackingStoreException bse)
         {
-            // Inform the user that there the program preferences can't be
-            // stored
+            // Inform the user that the program preferences can't be stored
             new CcddDialogHandler().showMessageDialog(frameCCDD,
                                                       "<html><b>Cannot store program preference values",
                                                       "File Warning",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
         }
+
+        // Set the modifiable fonts
+        ModifiableFontInfo.setModifiableFonts(progPrefs);
+
+        // Set the modifiable colors
+        ModifiableColorInfo.setModifiableColors(progPrefs);
+
+        // Set the modifiable size values
+        ModifiableSizeInfo.setSizes(progPrefs);
+
+        // Set the modifiable spacing values
+        ModifiableSpacingInfo.setSpacings(progPrefs);
 
         // Retrieve the preferences from the backing store
         dbControl.setHost(progPrefs.get(POSTGRESQL_SERVER_HOST,

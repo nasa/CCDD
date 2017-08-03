@@ -10,15 +10,10 @@ import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.CANCEL_ICON;
 import static CCDD.CcddConstants.DB_SAVE_POINT_NAME;
 import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.LIST_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.OK_ICON;
 import static CCDD.CcddConstants.PRINT_ICON;
-import static CCDD.CcddConstants.TABLE_BACK_COLOR;
 import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
 import static CCDD.CcddConstants.EventLogMessageType.STATUS_MSG;
 
@@ -69,6 +64,9 @@ import CCDD.CcddConstants.InternalTable.LinksColumn;
 import CCDD.CcddConstants.InternalTable.OrdersColumn;
 import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableCommentIndex;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddConstants.TableTreeType;
@@ -581,10 +579,10 @@ public class CcddDbVerificationHandler
                                                                 0.0,
                                                                 GridBagConstraints.LINE_START,
                                                                 GridBagConstraints.BOTH,
-                                                                new Insets(LABEL_VERTICAL_SPACING / 2,
-                                                                           LABEL_HORIZONTAL_SPACING,
+                                                                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
                                                                            0,
-                                                                           LABEL_HORIZONTAL_SPACING),
+                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
                                                                 0,
                                                                 0);
 
@@ -593,7 +591,7 @@ public class CcddDbVerificationHandler
                 dialogPnl.setBorder(BorderFactory.createEmptyBorder());
                 JLabel textLbl = new JLabel("<html><b>Verification in progress...<br><br>",
                                             SwingConstants.LEFT);
-                textLbl.setFont(LABEL_FONT_PLAIN);
+                textLbl.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
                 gbc.gridy++;
                 dialogPnl.add(textLbl, gbc);
                 JLabel textLbl2 = new JLabel("<html><b>"
@@ -602,7 +600,7 @@ public class CcddDbVerificationHandler
                                                                            Color.RED)
                                              + "<br><br>",
                                              SwingConstants.CENTER);
-                textLbl2.setFont(LABEL_FONT_PLAIN);
+                textLbl2.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
                 gbc.gridy++;
                 dialogPnl.add(textLbl2, gbc);
 
@@ -611,8 +609,8 @@ public class CcddDbVerificationHandler
                 progBar.setValue(0);
                 progBar.setStringPainted(true);
                 progBar.setPreferredSize(new Dimension(100, 20));
-                gbc.insets.left = LABEL_HORIZONTAL_SPACING * 2;
-                gbc.insets.right = LABEL_HORIZONTAL_SPACING * 2;
+                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
+                gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
                 gbc.insets.bottom = 0;
                 gbc.gridy++;
                 dialogPnl.add(progBar, gbc);
@@ -2584,11 +2582,11 @@ public class CcddDbVerificationHandler
                                                             0.0,
                                                             GridBagConstraints.LINE_START,
                                                             GridBagConstraints.BOTH,
-                                                            new Insets(LABEL_VERTICAL_SPACING,
+                                                            new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
                                                                        0,
                                                                        0,
                                                                        0),
-                                                            LABEL_HORIZONTAL_SPACING,
+                                                            ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
                                                             0);
 
             // Create the confirmation dialog
@@ -2605,7 +2603,7 @@ public class CcddDbVerificationHandler
             // panel
             JLabel correctLbl = new JLabel(issues.size()
                                            + " issue(s) detected; select issue(s) to correct");
-            correctLbl.setFont(LABEL_FONT_BOLD);
+            correctLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             gbc.gridy++;
             dialogPnl.add(correctLbl, gbc);
 
@@ -2695,10 +2693,10 @@ public class CcddDbVerificationHandler
                                                 ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
                                                 TableSelectionMode.SELECT_BY_CELL,
                                                 true,
-                                                TABLE_BACK_COLOR,
+                                                ModifiableColorInfo.TABLE_BACK.getColor(),
                                                 false,
                                                 true,
-                                                LABEL_FONT_PLAIN,
+                                                ModifiableFontInfo.OTHER_TABLE_CELL.getFont(),
                                                 true);
 
             // Define the panel to contain the table
@@ -2717,7 +2715,7 @@ public class CcddDbVerificationHandler
 
             // Create a check box for selecting/deselecting all updates
             final JCheckBox selectAllCb = new JCheckBox("Select all");
-            selectAllCb.setFont(LABEL_FONT_BOLD);
+            selectAllCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             selectAllCb.setBorder(emptyBorder);
 
             // Create a listener for changes in selection of 'select all' check

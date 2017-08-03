@@ -6,9 +6,7 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.CELL_FONT;
 import static CCDD.CcddConstants.MACRO_IDENTIFIER;
-import static CCDD.CcddConstants.TOOL_TIP_MAXIMUM_LENGTH;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -45,6 +43,8 @@ import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.SearchType;
 
 /******************************************************************************
@@ -334,7 +334,7 @@ public class CcddMacroHandler
                 // Create the pop-up combo box
                 macroCbox = new PaddedComboBox(validMacros.toArray(new String[0]),
                                                toolTips.toArray(new String[0]),
-                                               CELL_FONT);
+                                               ModifiableFontInfo.DATA_TABLE_CELL.getFont());
                 macroCbox.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 
                 // Set the first macro as initially selected
@@ -824,7 +824,7 @@ public class CcddMacroHandler
                 text = CcddUtilities.wrapText("<html><i><b>Macro Expansion:</b></i>"
                                               + "<br><p style=\"margin-left: 5px\">"
                                               + text,
-                                              TOOL_TIP_MAXIMUM_LENGTH);
+                                              ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize());
             }
         }
         // The text contains no macros

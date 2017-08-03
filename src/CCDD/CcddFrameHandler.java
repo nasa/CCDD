@@ -7,7 +7,6 @@
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
-import static CCDD.CcddConstants.DIALOG_BORDER_PAD;
 import static CCDD.CcddConstants.MIN_WINDOW_HEIGHT;
 import static CCDD.CcddConstants.MIN_WINDOW_WIDTH;
 import static CCDD.CcddConstants.OK_BUTTON;
@@ -24,6 +23,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 
 /******************************************************************************
  * CFS Command & Data Dictionary frame handler class
@@ -300,7 +300,8 @@ public class CcddFrameHandler extends JFrame
         // (1) the smaller of this value and (2) the screen height. Set the
         // minimum height to the default minimum window height. Finally, set
         // the initial frame size to the preferred size
-        setPreferredSize(new Dimension(Math.min(tableWidth + DIALOG_BORDER_PAD * 2,
+        setPreferredSize(new Dimension(Math.min(tableWidth
+                                                + ModifiableSpacingInfo.DIALOG_BORDER_PAD.getSpacing() * 2,
                                                 java.awt.Toolkit.getDefaultToolkit().getScreenSize().width),
                                        Math.min(Math.max(getHeight(), MIN_WINDOW_HEIGHT),
                                                 java.awt.Toolkit.getDefaultToolkit().getScreenSize().height)));

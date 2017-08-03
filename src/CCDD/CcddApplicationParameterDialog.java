@@ -7,10 +7,6 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.OK_BUTTON;
 
 import java.awt.Color;
@@ -29,6 +25,9 @@ import javax.swing.border.Border;
 import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 
 /******************************************************************************
  * CFS Command & Data Dictionary application parameter assignment dialog class
@@ -80,10 +79,10 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.NONE,
-                                                        new Insets(LABEL_VERTICAL_SPACING,
-                                                                   LABEL_HORIZONTAL_SPACING / 2,
-                                                                   LABEL_VERTICAL_SPACING,
-                                                                   LABEL_HORIZONTAL_SPACING / 2),
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
                                                         0,
                                                         0);
 
@@ -99,56 +98,56 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
 
         // Create the maximum seconds per message label
         JLabel maxSecPerMsgLbl = new JLabel("Maximum slots per message");
-        maxSecPerMsgLbl.setFont(LABEL_FONT_BOLD);
+        maxSecPerMsgLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         dialogPnl.add(maxSecPerMsgLbl, gbc);
 
         // Create the maximum seconds per message input field
         maxSlotsperMessage = new JTextField(String.valueOf(appHandler.getNumberOfSlots()), 5);
-        maxSlotsperMessage.setFont(LABEL_FONT_PLAIN);
+        maxSlotsperMessage.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         maxSlotsperMessage.setEditable(true);
-        maxSlotsperMessage.setForeground(Color.BLACK);
-        maxSlotsperMessage.setBackground(Color.WHITE);
+        maxSlotsperMessage.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        maxSlotsperMessage.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         maxSlotsperMessage.setBorder(border);
         gbc.gridx++;
         dialogPnl.add(maxSlotsperMessage, gbc);
 
         // Create the maximum seconds per message label
         JLabel maxCommandAmount = new JLabel("Maximum number of commands");
-        maxCommandAmount.setFont(LABEL_FONT_BOLD);
+        maxCommandAmount.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         gbc.gridx = 0;
         gbc.gridy++;
         dialogPnl.add(maxCommandAmount, gbc);
 
         // Create the maximum seconds per message input field
         maxCommands = new JTextField(String.valueOf(appHandler.getCommandsPerTable()), 5);
-        maxCommands.setFont(LABEL_FONT_PLAIN);
+        maxCommands.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         maxCommands.setEditable(true);
-        maxCommands.setForeground(Color.BLACK);
-        maxCommands.setBackground(Color.WHITE);
+        maxCommands.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        maxCommands.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         maxCommands.setBorder(border);
         gbc.gridx++;
         dialogPnl.add(maxCommands, gbc);
 
         // Create the maximum messages per second label
         JLabel maxMsgsPerSecLbl = new JLabel("Maximum messages per second");
-        maxMsgsPerSecLbl.setFont(LABEL_FONT_BOLD);
+        maxMsgsPerSecLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         gbc.gridx = 0;
         gbc.gridy++;
         dialogPnl.add(maxMsgsPerSecLbl, gbc);
 
         // Create the maximum messages per second input field
         maxMsgsPerSecFld = new JTextField(String.valueOf(appHandler.getMaxMsgsPerSecond()), 5);
-        maxMsgsPerSecFld.setFont(LABEL_FONT_PLAIN);
+        maxMsgsPerSecFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         maxMsgsPerSecFld.setEditable(true);
-        maxMsgsPerSecFld.setForeground(Color.BLACK);
-        maxMsgsPerSecFld.setBackground(Color.WHITE);
+        maxMsgsPerSecFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        maxMsgsPerSecFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         maxMsgsPerSecFld.setBorder(border);
         gbc.gridx++;
         dialogPnl.add(maxMsgsPerSecFld, gbc);
 
         // Create the maximum messages per cycle label
         JLabel maxMsgsPerCycleLbl = new JLabel("Maximum messages per cycle");
-        maxMsgsPerCycleLbl.setFont(LABEL_FONT_BOLD);
+        maxMsgsPerCycleLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         gbc.insets.bottom = 0;
         gbc.gridx = 0;
         gbc.gridy++;
@@ -156,10 +155,10 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
 
         // Create the maximum messages per cycle input field
         maxMsgsPerCycleFld = new JTextField(String.valueOf(appHandler.getMsgsPerCycle()), 5);
-        maxMsgsPerCycleFld.setFont(LABEL_FONT_PLAIN);
+        maxMsgsPerCycleFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         maxMsgsPerCycleFld.setEditable(true);
-        maxMsgsPerCycleFld.setForeground(Color.BLACK);
-        maxMsgsPerCycleFld.setBackground(Color.WHITE);
+        maxMsgsPerCycleFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        maxMsgsPerCycleFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         maxMsgsPerCycleFld.setBorder(border);
         gbc.gridx++;
         dialogPnl.add(maxMsgsPerCycleFld, gbc);

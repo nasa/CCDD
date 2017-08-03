@@ -7,10 +7,6 @@
 package CCDD;
 
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_OTHER;
@@ -46,6 +42,10 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.MessageIDType;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSizeInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /******************************************************************************
@@ -387,9 +387,9 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                                                 GridBagConstraints.LINE_START,
                                                                 GridBagConstraints.NONE,
                                                                 new Insets(0,
-                                                                           LABEL_HORIZONTAL_SPACING / 2,
+                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
                                                                            0,
-                                                                           LABEL_HORIZONTAL_SPACING / 2),
+                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
                                                                 0,
                                                                 0);
 
@@ -404,7 +404,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                 // parameters and add it to the dialog
                 tabbedPane = new JTabbedPane(JTabbedPane.LEFT);
 
-                tabbedPane.setFont(LABEL_FONT_BOLD);
+                tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 dialogPnl.add(tabbedPane, gbc);
                 dialogPnl.setBorder(etchBorder);
 
@@ -631,10 +631,10 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.NONE,
-                                                        new Insets(LABEL_VERTICAL_SPACING,
-                                                                   LABEL_HORIZONTAL_SPACING / 2,
-                                                                   LABEL_VERTICAL_SPACING,
-                                                                   LABEL_HORIZONTAL_SPACING / 2),
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
                                                         0,
                                                         0);
 
@@ -648,17 +648,18 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         {
             // Create the telemetry message name pattern label
             tabInfo.setPatternLbl(new JLabel("Name pattern"));
-            tabInfo.getPatternLbl().setFont(LABEL_FONT_BOLD);
+            tabInfo.getPatternLbl().setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             inputPnl.add(tabInfo.getPatternLbl(), gbc);
 
             // Create the telemetry message name pattern field
             tabInfo.setPatternFld(new JTextField("Message_%03d", 12));
-            tabInfo.getPatternFld().setFont(LABEL_FONT_PLAIN);
+            tabInfo.getPatternFld().setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
             tabInfo.getPatternFld().setEditable(true);
-            tabInfo.getPatternFld().setForeground(Color.BLACK);
-            tabInfo.getPatternFld().setBackground(Color.WHITE);
+            tabInfo.getPatternFld().setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+            tabInfo.getPatternFld().setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
             tabInfo.getPatternFld().setBorder(border);
-            tabInfo.getPatternFld().setToolTipText("<html>Format: <i>alphanumeric</i>#<i>&lt;alphanumeric&gt;");
+            tabInfo.getPatternFld().setToolTipText(CcddUtilities.wrapText("<html>Format: <i>alphanumeric</i>#<i>&lt;alphanumeric&gt;",
+                                                                          ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
             gbc.gridx++;
             inputPnl.add(tabInfo.getPatternFld(), gbc);
             gbc.gridx = 0;
@@ -670,7 +671,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                        + (isTlmName
                                                    ? "number"
                                                    : "ID")));
-        tabInfo.getStartLbl().setFont(LABEL_FONT_BOLD);
+        tabInfo.getStartLbl().setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         inputPnl.add(tabInfo.getStartLbl(), gbc);
 
         // Create the starting message number/ID field
@@ -678,12 +679,15 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                                      ? "0"
                                                      : "0x0"),
                                            7));
-        tabInfo.getStartFld().setFont(LABEL_FONT_PLAIN);
+        tabInfo.getStartFld().setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         tabInfo.getStartFld().setEditable(true);
-        tabInfo.getStartFld().setForeground(Color.BLACK);
-        tabInfo.getStartFld().setBackground(Color.WHITE);
+        tabInfo.getStartFld().setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        tabInfo.getStartFld().setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         tabInfo.getStartFld().setBorder(border);
-        tabInfo.getStartFld().setToolTipText("<html>Format: <i>&lt;</i>0x<i>&gt;hexadecimal digits");
+        tabInfo.getStartFld().setToolTipText(isTlmName
+                                                      ? null
+                                                      : CcddUtilities.wrapText("<html>Format: <i>&lt;</i>0x<i>&gt;hexadecimal digits",
+                                                                               ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         gbc.gridx++;
         inputPnl.add(tabInfo.getStartFld(), gbc);
 
@@ -692,17 +696,17 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                                     ? "Message"
                                                     : "ID")
                                           + " interval"));
-        tabInfo.getIntervalLbl().setFont(LABEL_FONT_BOLD);
+        tabInfo.getIntervalLbl().setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         gbc.gridx = 0;
         gbc.gridy++;
         inputPnl.add(tabInfo.getIntervalLbl(), gbc);
 
         // Create the message number/ID interval field
         tabInfo.setIntervalFld(new JTextField("1", 5));
-        tabInfo.getIntervalFld().setFont(LABEL_FONT_PLAIN);
+        tabInfo.getIntervalFld().setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         tabInfo.getIntervalFld().setEditable(true);
-        tabInfo.getIntervalFld().setForeground(Color.BLACK);
-        tabInfo.getIntervalFld().setBackground(Color.WHITE);
+        tabInfo.getIntervalFld().setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        tabInfo.getIntervalFld().setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         tabInfo.getIntervalFld().setBorder(border);
         gbc.gridx++;
         inputPnl.add(tabInfo.getIntervalFld(), gbc);
@@ -714,7 +718,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                            + (isTlmName
                                                        ? "names"
                                                        : "IDs")));
-        tabInfo.getAssignCbx().setFont(LABEL_FONT_BOLD);
+        tabInfo.getAssignCbx().setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
 
         // Add a listener for check box selection changes
         tabInfo.getAssignCbx().addItemListener(new ItemListener()
@@ -729,14 +733,14 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             }
         });
 
-        gbc.insets.top = LABEL_VERTICAL_SPACING / 2;
-        gbc.insets.bottom = LABEL_VERTICAL_SPACING / 2;
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
+        gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         gbc.gridx = 0;
         gbc.gridy = 0;
         tabPnl.add(tabInfo.getAssignCbx(), gbc);
 
         // Add the input panel to the tab panel
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING * 2;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
         gbc.gridy++;
         tabPnl.add(inputPnl, gbc);
 
@@ -745,7 +749,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                               + (isTlmName
                                                           ? "names"
                                                           : "IDs")));
-        tabInfo.getOverwriteCbx().setFont(LABEL_FONT_BOLD);
+        tabInfo.getOverwriteCbx().setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         gbc.gridy++;
         tabPnl.add(tabInfo.getOverwriteCbx(), gbc);
 
@@ -1200,7 +1204,6 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
      *************************************************************************/
     private int getNextMessageID(int idValue, int interval)
     {
-
         // Continue to loop as long as the ID value matches a reserved or
         // existing one. This prevents assigning a duplicate ID
         while (idsInUse.contains(idValue))

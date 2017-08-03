@@ -7,10 +7,6 @@
 package CCDD;
 
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
-import static CCDD.CcddConstants.TABLE_BACK_COLOR;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_OTHER;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
@@ -40,6 +36,9 @@ import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
@@ -475,10 +474,10 @@ public class CcddMessageIDHandler
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(LABEL_VERTICAL_SPACING / 2,
-                                                                   LABEL_HORIZONTAL_SPACING,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
                                                                    0,
-                                                                   LABEL_HORIZONTAL_SPACING),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
                                                         0,
                                                         0);
 
@@ -531,10 +530,10 @@ public class CcddMessageIDHandler
                                                 ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
                                                 TableSelectionMode.SELECT_BY_CELL,
                                                 true,
-                                                TABLE_BACK_COLOR,
+                                                ModifiableColorInfo.TABLE_BACK.getColor(),
                                                 false,
                                                 true,
-                                                LABEL_FONT_PLAIN,
+                                                ModifiableFontInfo.OTHER_TABLE_CELL.getFont(),
                                                 true);
 
         // Define the panel to contain the table

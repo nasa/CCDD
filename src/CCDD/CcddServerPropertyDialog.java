@@ -9,13 +9,7 @@ package CCDD;
 import static CCDD.CcddConstants.AUTO_COMPLETE_TEXT_SEPARATOR;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_HOST;
 import static CCDD.CcddConstants.DEFAULT_WEB_SERVER_PORT;
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
-import static CCDD.CcddConstants.NUM_REMEMBERED_SERVERS;
 import static CCDD.CcddConstants.OK_BUTTON;
-import static CCDD.CcddConstants.SEARCH_STRINGS;
 import static CCDD.CcddConstants.SERVER_STRINGS;
 import static CCDD.CcddConstants.WEB_SERVER_PORT;
 
@@ -40,6 +34,10 @@ import CCDD.CcddClasses.AutoCompleteTextField;
 import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSizeInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.ServerPropertyDialogType;
 
 /******************************************************************************
@@ -102,10 +100,10 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(LABEL_VERTICAL_SPACING,
-                                                                   LABEL_HORIZONTAL_SPACING,
-                                                                   LABEL_VERTICAL_SPACING,
-                                                                   LABEL_HORIZONTAL_SPACING),
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
                                                         0,
                                                         0);
 
@@ -153,22 +151,22 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                                               selectPanel,
                                               gbc);
 
-                    gbc.insets.top = LABEL_VERTICAL_SPACING * 2;
+                    gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() * 2;
                 }
                 // No server connection exists; the user must enter a user name
                 else
                 {
                     // Add the user label and field
                     JLabel userLabel = new JLabel("User");
-                    userLabel.setFont(LABEL_FONT_BOLD);
+                    userLabel.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                     gbc.weightx = 0.0;
                     gbc.gridx = 0;
                     selectPanel.add(userLabel, gbc);
                     userField = new JTextField(dbControl.getUser(), 15);
-                    userField.setFont(LABEL_FONT_PLAIN);
+                    userField.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                     userField.setEditable(true);
-                    userField.setForeground(Color.BLACK);
-                    userField.setBackground(Color.WHITE);
+                    userField.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+                    userField.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                     userField.setBorder(border);
                     gbc.weightx = 1.0;
                     gbc.gridx++;
@@ -182,7 +180,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                 {
                     // Add the password label and field
                     JLabel passwordLabel = new JLabel("Password");
-                    passwordLabel.setFont(LABEL_FONT_BOLD);
+                    passwordLabel.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                     gbc.weightx = 0.0;
                     gbc.gridx = 0;
                     gbc.gridy++;
@@ -190,9 +188,9 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                     selectPanel.add(passwordLabel, gbc);
 
                     passwordField = new JPasswordField("", 15);
-                    passwordField.setFont(LABEL_FONT_PLAIN);
-                    passwordField.setForeground(Color.BLACK);
-                    passwordField.setBackground(Color.WHITE);
+                    passwordField.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+                    passwordField.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+                    passwordField.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                     passwordField.setBorder(border);
                     passwordField.setEditable(true);
                     gbc.weightx = 1.0;
@@ -252,28 +250,28 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                 // remembered servers from the program preferences, and port
                 // dialog labels and fields
                 JLabel hostLabel = new JLabel("Host");
-                hostLabel.setFont(LABEL_FONT_BOLD);
+                hostLabel.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 gbc.weightx = 0.0;
                 selectPanel.add(hostLabel, gbc);
 
-                List<String> servers = new ArrayList<String>(NUM_REMEMBERED_SERVERS);
+                List<String> servers = new ArrayList<String>(ModifiableSizeInfo.NUM_REMEMBERED_SERVERS.getSize());
                 servers.addAll(Arrays.asList(ccddMain.getProgPrefs().get(SERVER_STRINGS,
                                                                          "").split(AUTO_COMPLETE_TEXT_SEPARATOR)));
                 hostField = new AutoCompleteTextField(servers,
-                                                      NUM_REMEMBERED_SERVERS);
+                                                      ModifiableSizeInfo.NUM_REMEMBERED_SERVERS.getSize());
                 hostField.setText(dbControl.getHost());
                 hostField.setColumns(15);
-                hostField.setFont(LABEL_FONT_PLAIN);
+                hostField.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                 hostField.setEditable(true);
-                hostField.setForeground(Color.BLACK);
-                hostField.setBackground(Color.WHITE);
+                hostField.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+                hostField.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                 hostField.setBorder(border);
                 gbc.weightx = 1.0;
                 gbc.gridx++;
                 selectPanel.add(hostField, gbc);
 
                 portLabel = new JLabel("Port");
-                portLabel.setFont(LABEL_FONT_BOLD);
+                portLabel.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 gbc.insets.bottom = 0;
                 gbc.weightx = 0.0;
                 gbc.gridx = 0;
@@ -281,10 +279,10 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                 selectPanel.add(portLabel, gbc);
 
                 portField = new JTextField(dbControl.getPort(), 4);
-                portField.setFont(LABEL_FONT_PLAIN);
+                portField.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                 portField.setEditable(true);
-                portField.setForeground(Color.BLACK);
-                portField.setBackground(Color.WHITE);
+                portField.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+                portField.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                 portField.setBorder(border);
                 gbc.weightx = 1.0;
                 gbc.gridx++;
@@ -299,7 +297,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                     // Update the host list and store it in the program
                     // preferences
                     hostField.updateList(hostField.getText());
-                    ccddMain.getProgPrefs().put(SEARCH_STRINGS, hostField.getListAsString());
+                    ccddMain.getProgPrefs().put(SERVER_STRINGS, hostField.getListAsString());
 
                     // Store the server host and port
                     dbControl.setHost(hostField.getText());
@@ -314,17 +312,17 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
             case WEB_SERVER:
                 // Create the web server port dialog label and field
                 portLabel = new JLabel("Port");
-                portLabel.setFont(LABEL_FONT_BOLD);
+                portLabel.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 gbc.weightx = 0.0;
                 gbc.insets.bottom = 0;
                 selectPanel.add(portLabel, gbc);
 
                 portField = new JTextField(ccddMain.getProgPrefs().get(WEB_SERVER_PORT,
                                                                        DEFAULT_WEB_SERVER_PORT), 4);
-                portField.setFont(LABEL_FONT_PLAIN);
+                portField.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                 portField.setEditable(true);
-                portField.setForeground(Color.BLACK);
-                portField.setBackground(Color.WHITE);
+                portField.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+                portField.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                 portField.setBorder(border);
                 gbc.weightx = 1.0;
                 gbc.gridx++;

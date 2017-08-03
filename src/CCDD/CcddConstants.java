@@ -6,21 +6,27 @@
  */
 package CCDD;
 
-import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JWindow;
 import javax.swing.ScrollPaneConstants;
 
 import CCDD.CcddClasses.FieldInformation;
+import CCDD.CcddClasses.ModifiableColor;
+import CCDD.CcddClasses.ModifiableFont;
 import CCDD.CcddConstants.InternalTable.TableTypesColumn;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
 
@@ -44,9 +50,6 @@ public class CcddConstants
 
     // Maximum database, table, and column name length, characters
     protected static final int MAX_SQL_NAME_LENGTH = 64;
-
-    // Maximum number of characters to display for an event log message entry
-    protected static final int MAX_LOG_MESSAGE_LENGTH = 250;
 
     // String used as a comment on the database to identify it as a CCDD
     // project
@@ -125,14 +128,6 @@ public class CcddConstants
     // table
     protected static final String TLM_SCH_SEPARATOR = "\\";
 
-    // Number of search strings to store in the program preferences; used for
-    // auto-completing the search text field in the search dialogs
-    protected static final int NUM_REMEMBERED_SEARCHES = 30;
-
-    // Number of server strings to store in the program preferences; used for
-    // auto-completing the server text field in the database server dialog
-    protected static final int NUM_REMEMBERED_SERVERS = 30;
-
     // Characters used to separate individual remembered strings that are
     // stored as a single string in the program preferences
     protected static final String AUTO_COMPLETE_TEXT_SEPARATOR = "%~%";
@@ -185,106 +180,17 @@ public class CcddConstants
     // Main window initial and minimum window size
     protected static final int INIT_WINDOW_WIDTH = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getWidth() / 2;
     protected static final int INIT_WINDOW_HEIGHT = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getHeight() / 2;
-
     protected static final int MIN_WINDOW_WIDTH = Math.min(Math.min(Math.max(INIT_WINDOW_WIDTH,
-                                                                             750),
-                                                                    750),
+                                                                             ModifiableSizeInfo.MIN_WINDOW_WIDTH.getSize()),
+                                                                    ModifiableSizeInfo.MIN_WINDOW_WIDTH.getSize()),
                                                            INIT_WINDOW_WIDTH * 2);
     protected static final int MIN_WINDOW_HEIGHT = Math.min(Math.min(Math.max(INIT_WINDOW_HEIGHT,
-                                                                              400),
-                                                                     400),
+                                                                              ModifiableSizeInfo.MIN_WINDOW_HEIGHT.getSize()),
+                                                                     ModifiableSizeInfo.MIN_WINDOW_HEIGHT.getSize()),
                                                             INIT_WINDOW_HEIGHT * 2);
-
-    // Minimum dialog window width
-    protected static final int DIALOG_MIN_WINDOW_WIDTH = 300;
-
-    // Maximum dialog message characters per line
-    protected static final int DIALOG_MAX_LINE_LENGTH = 80;
-
-    // Maximum dialog message characters
-    protected static final int DIALOG_MAX_MESSAGE_LENGTH = 400;
-
-    // Maximum tool tip characters per line
-    protected static final int TOOL_TIP_MAXIMUM_LENGTH = 40;
-
-    // Maximum character width allowed for a data field
-    protected static final int MAX_DATA_FIELD_CHARACTER_WIDTH = 100;
 
     // Disabled item highlight color
     protected static final String DISABLED_TEXT_COLOR = "<html><font color=#b0b0b0>";
-
-    // Text and background colors for selected row's table text
-    protected static final Color SELECTED_TEXT_COLOR = Color.WHITE;
-    protected static final Color SELECTED_BACK_COLOR = new Color(110, 150, 200);
-
-    // Text colors for valid and invalid row's table text
-    protected static final Color VALID_TEXT_COLOR = new Color(0, 200, 0);
-    protected static final Color INVALID_TEXT_COLOR = new Color(200, 0, 0);
-
-    // Background color for alternating rows of non-selected table text
-    protected static final Color ALTERNATE_COLOR = new Color(240, 245, 245);
-
-    // Background color for the selected cell's table text
-    protected static final Color FOCUS_COLOR = new Color(60, 100, 180);
-
-    // Text and background colors for a protected cell
-    protected static final Color PROTECTED_TEXT_COLOR = Color.BLUE;
-    protected static final Color PROTECTED_BACK_COLOR = Color.LIGHT_GRAY;
-
-    // Table text and background colors (unselected)
-    protected static final Color TABLE_TEXT_COLOR = Color.BLACK;
-    protected static final Color TABLE_BACK_COLOR = Color.WHITE;
-
-    // Color for table grid lines
-    protected static final Color GRID_COLOR = new Color(230, 240, 240);
-
-    // Text color for specific dialog labels
-    protected static final Color LABEL_TEXT_COLOR = new Color(170, 40, 80);
-
-    // Background color for tool tip pop-ups
-    protected static final Color TOOL_TIP_TEXT_COLOR = new Color(245, 245, 180);
-
-    // Color to highlight macros in data tables and matching search text in the
-    // search results table
-    protected static final Color TEXT_HIGHLIGHT_COLOR = new Color(200, 235, 245);
-
-    // Dialog text label fonts
-    protected static final Font LABEL_FONT_PLAIN = new Font("DejaVu Sans", Font.PLAIN, 13);
-    protected static final Font LABEL_FONT_BOLD = new Font("DejaVu Sans", Font.BOLD, 13);
-
-    // Table header and cell fonts
-    protected static final Font HEADER_FONT = new Font("DejaVu Sans", Font.BOLD, 13);
-    protected static final Font CELL_FONT = new Font("Monospaced", Font.PLAIN, 13);
-
-    // Dialog box button font
-    protected static final Font BUTTON_FONT = new Font("Dialog", Font.BOLD, 13);
-
-    // Dialog box button padding, in pixels, between the group of buttons and
-    // the edge of the dialog window or upper dialog components)
-    protected static final int BUTTON_PAD = 16;
-
-    // Dialog box button padding, in pixels, between individual buttons
-    protected static final int BUTTON_GAP = 4;
-
-    // Horizontal and vertical spacing, in pixels, between a text label and
-    // another component
-    protected static final int LABEL_HORIZONTAL_SPACING = 10;
-    protected static final int LABEL_VERTICAL_SPACING = 7;
-
-    // Table header horizontal and vertical padding, in pixels. The padding is
-    // split in two and applied to either side of the header text. The
-    // horizontal padding provides room for the column sort arrow
-    protected static final int HEADER_HORIZONTAL_PADDING = 28;
-    protected static final int HEADER_VERTICAL_PADDING = 4;
-
-    // Table cell horizontal and vertical padding, in pixels
-    protected static final int CELL_HORIZONTAL_PADDING = 5;
-    protected static final int CELL_VERTICAL_PADDING = 3;
-
-    // Padding between the dialog contents and the dialog's frame, and between
-    // the dialog internal components, in pixels
-    protected static final int DIALOG_BORDER_PAD = 4;
-    protected static final int DIALOG_INNER_PAD = 10;
 
     // Button and table icon file names
     protected static final String OK_ICON = "/images/ok.png";
@@ -332,22 +238,11 @@ public class CcddConstants
     protected static final String WARNING_ICON = "/images/warning.png";
     protected static final String ERROR_ICON = "/images/error.png";
 
-    // Number of rows for a table, data table, and selection list to initially
-    // display
-    protected static final int INITIAL_VIEWABLE_TABLE_ROWS = 10;
-    protected static final int INITIAL_VIEWABLE_DATA_TABLE_ROWS = 16;
-    protected static final int INITIAL_VIEWABLE_LIST_ROWS = 12;
-
-    // Maximum pixel width of a table column when the table is initially
-    // displayed
-    protected static final int MAX_INITIAL_CELL_WIDTH = 250;
-
     // Width, in pixels, of a vertical scroll bar. This is used when sizing
     // tables in dialogs
     protected static int LAF_SCROLL_BAR_WIDTH = 38;
 
-    // Size of a check box icon (width and height) in pixels. Used to size the
-    // color selection check boxes in the Preferences dialog
+    // Size of a check box icon (width and height) in pixels
     protected static int LAF_CHECK_BOX_HEIGHT = 0;
 
     // Dialog box button return values
@@ -356,6 +251,14 @@ public class CcddConstants
     protected static final int UPDATE_BUTTON = 0xfd;
     protected static final int IGNORE_BUTTON = 0xfc;
     protected static final int PRINT_BUTTON = 0xfb;
+
+    // GUI update type
+    protected static enum GUIUpdateType
+    {
+        LAF,
+        FONT,
+        COLOR
+    }
 
     // Table selection modes
     protected static enum TableSelectionMode
@@ -576,6 +479,1030 @@ public class CcddConstants
         ADDITION,
         MODIFICATION,
         DELETION
+    }
+
+    // Modifiable font information
+    protected static enum ModifiableFontInfo
+    {
+        INPUT_TEXT("Input Field", "Text input field font", "InputFieldTextFont", "DejaVu Sans", Font.PLAIN, 13),
+        LABEL_PLAIN("Label (plain)", "Label and list font (plain)", "LabelPlainFont", "DejaVu Sans", Font.PLAIN, 13),
+        LABEL_BOLD("Label (bold)", "Label font (bold); used for dialog labels", "LabelBoldFont", "DejaVu Sans", Font.BOLD, 13),
+        TABLE_HEADER("Table Header", "Table column name font", "TableHeaderFont", "DejaVu Sans", Font.BOLD, 13),
+        DATA_TABLE_CELL("Data Table Cell", "Table cell font (data tables)", "DataTableCellFont", "Monospaced", Font.PLAIN, 13),
+        OTHER_TABLE_CELL("Other Table Cell", "Table cell font (non-data tables)", "OtherTableCellFont", "DejaVu Sans", Font.PLAIN, 13),
+        DIALOG_BUTTON("Button", "Dialog box button font", "DialogButtonFont", "Dialog", Font.BOLD, 13),
+        MENU_ITEM("Menu Item", "Menu item font", "MenuItemFont", "DejaVu Sans", Font.PLAIN, 13),
+        TOOL_TIP("Tool Tip", "Tool tip font. Ignored by some look & feels", "ToolTipFont", "DejaVu Sans", Font.PLAIN, 13),
+        TREE_NODE("Tree Node", "Tree node font", "TreeNodeFont", "DejaVu Sans", Font.PLAIN, 13);
+
+        private final String name;
+        private final String description;
+        private final String preferenceKey;
+        private final String defaultFamily;
+        private final int defaultStyle;
+        private final int defaultSize;
+        private ModifiableFont font;
+
+        /**********************************************************************
+         * Modifiable font information constructor
+         *
+         * @param name
+         *            font name (for display)
+         *
+         * @param description
+         *            font description (for tool tip)
+         *
+         * @param preferenceKey
+         *            font program preferences key
+         * 
+         * @param defaultFamily
+         *            default font family
+         * 
+         * @param defaultStyle
+         *            default font style
+         * 
+         * @param defaultSize
+         *            default font size
+         *********************************************************************/
+        ModifiableFontInfo(String name,
+                           String description,
+                           String preferenceKey,
+                           String defaultFamily,
+                           int defaultStyle,
+                           int defaultSize)
+        {
+            this.name = name;
+            this.description = description;
+            this.preferenceKey = preferenceKey;
+            this.defaultFamily = defaultFamily;
+            this.defaultStyle = defaultStyle;
+            this.defaultSize = defaultSize;
+
+            // Create the modifiable font using the default settings
+            font = new ModifiableFont(preferenceKey,
+                                      defaultFamily,
+                                      defaultStyle,
+                                      defaultSize);
+        }
+
+        /**********************************************************************
+         * Get the modifiable font name
+         *
+         * @return Modifiable font name
+         *********************************************************************/
+        protected String getName()
+        {
+            return name;
+        }
+
+        /**********************************************************************
+         * Get the modifiable font description
+         *
+         * @return Modifiable font description
+         *********************************************************************/
+        protected String getDescription()
+        {
+            return description;
+        }
+
+        /**********************************************************************
+         * Get the modifiable font program preferences key
+         *
+         * @return Modifiable font program preferences key
+         *********************************************************************/
+        protected String getPreferenceKey()
+        {
+            return preferenceKey;
+        }
+
+        /**********************************************************************
+         * Get the modifiable font's default family
+         * 
+         * @return Modifiable font's default family
+         *********************************************************************/
+        protected String getDefaultFamily()
+        {
+            return defaultFamily;
+        }
+
+        /**********************************************************************
+         * Get the modifiable font's default style
+         * 
+         * @return Modifiable font's default style
+         *********************************************************************/
+        protected int getDefaultStyle()
+        {
+            return defaultStyle;
+        }
+
+        /**********************************************************************
+         * Get the modifiable font's default size
+         * 
+         * @return Modifiable font's default size
+         *********************************************************************/
+        protected int getDefaultSize()
+        {
+            return defaultSize;
+        }
+
+        /**********************************************************************
+         * Get the modifiable font
+         *
+         * @return Modifiable font
+         *********************************************************************/
+        protected ModifiableFont getFont()
+        {
+            return font;
+        }
+
+        /**********************************************************************
+         * Get the modifiable font information reference with the specified
+         * program preferences key
+         *
+         * @param prefKey
+         *            modifiable font program preferences key
+         *
+         * @return Modifiable font information reference that has a program
+         *         preferences key matching the one specified; null if no
+         *         modifiable font's key matches
+         *********************************************************************/
+        protected static ModifiableFontInfo getModifiableFontInfo(String prefKey)
+        {
+            ModifiableFontInfo modifiableFont = null;
+
+            // Step through each modifiable font
+            for (ModifiableFontInfo modFont : ModifiableFontInfo.values())
+            {
+                // Check if the font's program preferences key matches the one
+                // supplied
+                if (modFont.preferenceKey.equals(prefKey))
+                {
+                    // Store the modifiable font information reference and stop
+                    // searching
+                    modifiableFont = modFont;
+                    break;
+                }
+            }
+
+            return modifiableFont;
+        }
+
+        /**********************************************************************
+         * Set the modifiable font to the new font values and store the changes
+         * in the program preferences
+         *
+         * @param family
+         *            font family
+         * 
+         * @param style
+         *            font style
+         * 
+         * @param size
+         *            font size
+         * 
+         * @param progPrefs
+         *            reference to the program preferences
+         *********************************************************************/
+        protected void setFont(String family,
+                               int style,
+                               int size,
+                               Preferences progPrefs)
+        {
+            font = new ModifiableFont(preferenceKey, family, style, size);
+            progPrefs.put(preferenceKey, family + "," + style + "," + size);
+        }
+
+        /**********************************************************************
+         * Set the modifiable fonts to the values stored in the program
+         * preferences
+         *
+         * @param progPrefs
+         *            reference to the program preferences
+         *********************************************************************/
+        protected static void setModifiableFonts(Preferences progPrefs)
+        {
+            // Step through each modifiable font
+            for (ModifiableFontInfo modFont : ModifiableFontInfo.values())
+            {
+                // Retrieve the font information from the program preferences
+                // and use this information to set the modifiable font
+                String[] fontInfo = progPrefs.get(modFont.getPreferenceKey(),
+                                                  modFont.getDefaultFamily()
+                                                      + ","
+                                                      + modFont.getDefaultStyle()
+                                                      + ","
+                                                      + modFont.getDefaultSize()).split(",");
+                modFont.font = new ModifiableFont(modFont.getPreferenceKey(),
+                                                  fontInfo[0],
+                                                  Integer.valueOf(fontInfo[1]),
+                                                  Integer.valueOf(fontInfo[2]));
+            }
+        }
+
+        /**********************************************************************
+         * Update the components of the specified container that use a
+         * modifiable font to the updated font
+         *
+         * @param container
+         *            container in which to check the fonts of the components
+         *********************************************************************/
+        protected static void updateFonts(Container container)
+        {
+            // Step through each component in the container
+            for (Component comp : container.getComponents())
+            {
+                // Check if the component represents a Swing component and that
+                // it has child components
+                if (comp instanceof JComponent && ((JComponent) comp).getComponentCount() != 0)
+                {
+                    // Update the child's components
+                    updateFonts((Container) comp);
+                }
+
+                // Check if the component is a table
+                if (comp instanceof JTable)
+                {
+                    // Step through each row in the table
+                    for (int row = 0; row < ((JTable) comp).getRowCount(); row++)
+                    {
+                        // Step through each column in the table
+                        for (int column = 0; column < ((JTable) comp).getColumnCount(); column++)
+                        {
+                            // Set the font for the cell specified by the row
+                            // and column to the modifiable font
+                            setModifiableFont(((JTable) comp).getCellRenderer(row, column).getTableCellRendererComponent((JTable) comp,
+                                                                                                                         "",
+                                                                                                                         false,
+                                                                                                                         false,
+                                                                                                                         row,
+                                                                                                                         column));
+                        }
+                    }
+                }
+
+                // Set the component's font to the updated font
+                setModifiableFont(comp);
+            }
+        }
+
+        /**********************************************************************
+         * Compare the font for the component to the modifiable fonts. If a
+         * match is found set the component's font to the current preferred
+         * font setting
+         *
+         * @param comp
+         *            component for which to check the font
+         *********************************************************************/
+        private static void setModifiableFont(Component comp)
+        {
+            // Check if the component is using a modifiable font
+            if (comp.getFont() instanceof ModifiableFont)
+            {
+                // Step through the defined modifiable fonts
+                for (ModifiableFontInfo modFont : ModifiableFontInfo.values())
+                {
+                    // Check if the component is using this font
+                    if (((ModifiableFont) comp.getFont()).getModifiableFontIdentifier().equals(modFont.getPreferenceKey()))
+                    {
+                        // Set the component's font to the one specified by the
+                        // modifiable font and stop searching
+                        comp.setFont(modFont.getFont());
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    // Modifiable color information
+    protected static enum ModifiableColorInfo
+    {
+        INPUT_TEXT("Input field text", "Input field text color", "InputTextColor", 0, 0, 0),
+        INPUT_BACK("Input field background", "Input field background color", "InputBackgroundColor", 255, 255, 255),
+        INPUT_DISABLE_BACK("Input field background (disabled)", "Input field background color when disabled", "InputDisabledBackgroundColor", 192, 192, 192),
+        LABEL_TEXT("Label text", "General text label color", "LabelTextColor", 0, 0, 0),
+        TABLE_TEXT("Table text", "Table text color (when not selected)", "TableTextColor", 0, 0, 0),
+        TABLE_BACK("Table background", "Table background color (when not selected)", "TableBackgroundColor", 255, 255, 255),
+        ALTERNATE_BACK("Alternating table row background", "Background color for alternating table rows (when not selected)", "TableAlternateBackgroundColor", 240, 245, 245),
+        SELECTED_TEXT("Selected table cell text", "Text color for a table's selected cell(s)", "SelectedTextColor", 255, 255, 255),
+        SELECTED_BACK("Selected table cell background", "Background color for a table's selected cell(s)", "SelectedBackgroundColor", 110, 150, 200),
+        FOCUS_BACK("Focused table cell background", "Background color for the table cell that has the input focus", "FocusBackgroundColor", 60, 100, 180),
+        TABLE_GRID("Table grid lines", "Color for table grid lines. The log table grid lines use the table background color", "TableGridColor", 230, 240, 240),
+        TEXT_HIGHLIGHT("Highlighted macro and matching search text", "Highlight color for macros and matching search text", "TextHighlightColor", 200, 235, 245),
+        REQUIRED_BACK("Required cell and data field background", "Background color for input fields that are required", "RequiredBackgroundColor", 255, 255, 0),
+        PROTECTED_TEXT("Protected cell text", "Text color for a protected (non-editable) cell", "ProtectedTextColor", 0, 0, 255),
+        PROTECTED_BACK("Protected cell background", "Background color for a protected (non-editable) cell", "ProtectedBackgroundColor", 192, 192, 192),
+        VALID_TEXT("Valid table text", "Text color for valid table rows. Used in the telemetry and application scheduler tables", "ValidTextColor", 0, 200, 0),
+        INVALID_TEXT("Invalid table text", "Text color for invalid table rows. Used in the telemetry and application scheduler tables", "InvalidTextColor", 200, 0, 0),
+        SPECIAL_LABEL_TEXT("Dialog component group label", "Text color for a group of components in a dialog", "SpecialLabelTextColor", 170, 40, 80),
+        TOOL_TIP_TEXT("Tool tip text", "Text color for tool tip pop-ups. Ignored by some look & feels", "ToolTipTextColor", 0, 0, 0),
+        TOOL_TIP_BACK("Tool tip background", "Background color for tool tip pop-ups. Ignored by some look & feels", "ToolTipBackgroundColor", 245, 245, 180);
+
+        private final String name;
+        private final String description;
+        private final String preferenceKey;
+        private final int defaultRed;
+        private final int defaultGreen;
+        private final int defaultBlue;
+        private ModifiableColor color;
+
+        /**********************************************************************
+         * Modifiable color information constructor
+         *
+         * @param name
+         *            color name (for display)
+         *
+         * @param description
+         *            color description (for tool tip)
+         *
+         * @param preferenceKey
+         *            color program preferences key
+         * 
+         * @param defaultRed
+         *            default red color component
+         * 
+         * @param defaultGreen
+         *            default green color component
+         * 
+         * @param defaultBlue
+         *            default blue color component
+         *********************************************************************/
+        ModifiableColorInfo(String name,
+                            String description,
+                            String preferenceKey,
+                            int defaultRed,
+                            int defaultGreen,
+                            int defaultBlue)
+        {
+            this.name = name;
+            this.description = description;
+            this.preferenceKey = preferenceKey;
+            this.defaultRed = defaultRed;
+            this.defaultGreen = defaultGreen;
+            this.defaultBlue = defaultBlue;
+
+            // Create the modifiable color using the default settings
+            color = new ModifiableColor(preferenceKey,
+                                        defaultRed,
+                                        defaultGreen,
+                                        defaultBlue);
+        }
+
+        /**********************************************************************
+         * Get the size name (for display)
+         *
+         * @return Size value name (for display)
+         *********************************************************************/
+        protected String getName()
+        {
+            return name;
+        }
+
+        /**********************************************************************
+         * Get the modifiable color description
+         *
+         * @return Modifiable color description
+         *********************************************************************/
+        protected String getDescription()
+        {
+            return description;
+        }
+
+        /**********************************************************************
+         * Get the modifiable color program preferences key
+         *
+         * @return Modifiable color program preferences key
+         *********************************************************************/
+        protected String getPreferenceKey()
+        {
+            return preferenceKey;
+        }
+
+        /**********************************************************************
+         * Get the modifiable color's default red component
+         * 
+         * @return Modifiable color's default red component
+         *********************************************************************/
+        protected int getDefaultRed()
+        {
+            return defaultRed;
+        }
+
+        /**********************************************************************
+         * Get the modifiable color's default green component
+         * 
+         * @return Modifiable color's default green component
+         *********************************************************************/
+        protected int getDefaultGreen()
+        {
+            return defaultGreen;
+        }
+
+        /**********************************************************************
+         * Get the modifiable color's default blue component
+         * 
+         * @return Modifiable color's default blue component
+         *********************************************************************/
+        protected int getDefaultBlue()
+        {
+            return defaultBlue;
+        }
+
+        /**********************************************************************
+         * Get the modifiable color
+         *
+         * @return Modifiable color
+         *********************************************************************/
+        protected ModifiableColor getColor()
+        {
+            return color;
+        }
+
+        /**********************************************************************
+         * Set the modifiable color
+         *
+         * @param color
+         *            modifiable color
+         *********************************************************************/
+        protected void setColor(ModifiableColor color)
+        {
+            this.color = color;
+        }
+
+        /**********************************************************************
+         * Get the modifiable color information reference with the specified
+         * program preferences key
+         *
+         * @param prefKey
+         *            modifiable color program preferences key
+         *
+         * @return Modifiable color information reference that has a program
+         *         preferences key matching the one specified; null if no
+         *         modifiable color's key matches
+         *********************************************************************/
+        protected static ModifiableColorInfo getModifiableColorInfo(String prefKey)
+        {
+            ModifiableColorInfo modifiableColor = null;
+
+            // Step through each modifiable color
+            for (ModifiableColorInfo modFont : ModifiableColorInfo.values())
+            {
+                // Check if the color's program preferences key matches the one
+                // supplied
+                if (modFont.preferenceKey.equals(prefKey))
+                {
+                    // Store the modifiable color information reference and
+                    // stop searching
+                    modifiableColor = modFont;
+                    break;
+                }
+            }
+
+            return modifiableColor;
+        }
+
+        /**********************************************************************
+         * Set the modifiable color to the new color values and store the
+         * changes in the program preferences
+         *
+         * @param red
+         *            red color component
+         * 
+         * @param green
+         *            green color component
+         * 
+         * @param blue
+         *            blue color component
+         * 
+         * @param progPrefs
+         *            reference to the program preferences
+         *********************************************************************/
+        protected void setModifiableColor(int red,
+                                          int green,
+                                          int blue,
+                                          Preferences progPrefs)
+        {
+            color = new ModifiableColor(preferenceKey, red, green, blue);
+            progPrefs.put(preferenceKey, red + "," + green + "," + blue);
+        }
+
+        /**********************************************************************
+         * Set the modifiable colors to the values stored in the program
+         * preferences
+         *
+         * @param progPrefs
+         *            reference to the program preferences
+         *********************************************************************/
+        protected static void setModifiableColors(Preferences progPrefs)
+        {
+            // Step through each modifiable color
+            for (ModifiableColorInfo modColor : ModifiableColorInfo.values())
+            {
+                // Retrieve the color information from the program preferences
+                // and use this information to set the modifiable color
+                String[] fontInfo = progPrefs.get(modColor.getPreferenceKey(),
+                                                  modColor.getDefaultRed()
+                                                      + ","
+                                                      + modColor.getDefaultGreen()
+                                                      + ","
+                                                      + modColor.getDefaultBlue()).split(",");
+                modColor.color = new ModifiableColor(modColor.getPreferenceKey(),
+                                                     Integer.valueOf(fontInfo[0]),
+                                                     Integer.valueOf(fontInfo[1]),
+                                                     Integer.valueOf(fontInfo[2]));
+            }
+        }
+
+        /**********************************************************************
+         * Update the components of the specified container that use a
+         * modifiable color to the updated color
+         *
+         * @param container
+         *            container in which to check the colors of the components
+         *********************************************************************/
+        protected static void updateColors(Container container)
+        {
+            // Step through each component in the container
+            for (Component comp : container.getComponents())
+            {
+                // Check if the component represents a Swing component and that
+                // it has child components
+                if (comp instanceof JComponent && ((JComponent) comp).getComponentCount() != 0)
+                {
+                    // Update the child's components
+                    updateColors((Container) comp);
+                }
+
+                // Check if the component is a table
+                if (comp instanceof JTable)
+                {
+                    // Step through each row in the table
+                    for (int row = 0; row < ((JTable) comp).getRowCount(); row++)
+                    {
+                        // Step through each column in the table
+                        for (int column = 0; column < ((JTable) comp).getColumnCount(); column++)
+                        {
+                            // Set the font for the cell specified by the row
+                            // and column to the modifiable color
+                            setModifiableColor(((JTable) comp).getCellRenderer(row, column).getTableCellRendererComponent((JTable) comp,
+                                                                                                                          "",
+                                                                                                                          false,
+                                                                                                                          false,
+                                                                                                                          row,
+                                                                                                                          column));
+                        }
+                    }
+                }
+
+                // Set the component's color to the updated color
+                setModifiableColor(comp);
+            }
+        }
+
+        /**********************************************************************
+         * Compare the color for the component to the modifiable colors. If a
+         * match is found set the component's color to the current preferred
+         * color setting
+         *
+         * @param comp
+         *            component for which to check the color
+         *********************************************************************/
+        private static void setModifiableColor(Component comp)
+        {
+            // Check if the component is using a modifiable color as a
+            // foreground color
+            if (comp.getForeground() instanceof ModifiableColor)
+            {
+                // Step through the defined modifiable colors
+                for (ModifiableColorInfo modColor : ModifiableColorInfo.values())
+                {
+                    // Check if the component is using this color
+                    if (((ModifiableColor) comp.getForeground()).getModifiableColorIdentifier().equals(modColor.getPreferenceKey()))
+                    {
+                        // Set the component's color to the one specified by
+                        // the modifiable color and stop searching
+                        comp.setForeground(modColor.getColor());
+                        break;
+                    }
+                }
+            }
+
+            // Check if the component is using a modifiable color as a
+            // background color
+            if (comp.getBackground() instanceof ModifiableColor)
+            {
+                // Step through the defined modifiable colors
+                for (ModifiableColorInfo modColor : ModifiableColorInfo.values())
+                {
+                    // Check if the component is using this color
+                    if (((ModifiableColor) comp.getBackground()).getModifiableColorIdentifier().equals(modColor.getPreferenceKey()))
+                    {
+                        // Set the component's color to the one specified by
+                        // the modifiable color and stop searching
+                        comp.setBackground(modColor.getColor());
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    // Modifiable size information
+    protected static enum ModifiableSizeInfo
+    {
+        MAX_LOG_MESSAGE_LENGTH("Maximum log message length", "Maximum number of characters to display in the session event log", "MaximumLogMessageLength", 250, 10, 1000),
+        NUM_REMEMBERED_SEARCHES("Maximum remembered search strings", "Maximum number of remembered search strings", "NumberOfRememberedSearches", 30, 1, 100),
+        NUM_REMEMBERED_SERVERS("Maximum remembered server names", "Maximum number of remembered server names", "NumberOfRememberedServers", 30, 1, 100),
+        MIN_DIALOG_WIDTH("Minimum dialog width", "Minimum dialog window width in pixels", "MinimumDialogWidth", 300, 100, 1000),
+        MIN_WINDOW_WIDTH("Minimum frame width", "Minimum frame window width in pixels", "MinimumWindowWidth", 750, 100, 1000),
+        MIN_WINDOW_HEIGHT("Minimum frame height", "Minimum frame window height in pixels", "MinimumWindowHeight", 400, 100, 1000),
+        MAX_DIALOG_LINE_LENGTH("Maximum dialog line length", "Maximum number of characters per line in a dialog", "MaximumDialogLineLength", 80, 10, 500),
+        MAX_DIALOG_MESSAGE_LENGTH("Maximum dialog message length", "Maximum number of characters to display in a dialog", "MaximumDialogMessageLength", 400, 10, 1000),
+        MAX_TOOL_TIP_LENGTH("Maximum tool tip line length", "Maximum number of characters per line in a tool tip", "MaximumToolTipLineLength", 40, 10, 200),
+        MAX_DATA_FIELD_CHAR_WIDTH("Maximum data field length", "Maximum number of characters in a data field", "MaximumDataFieldLength", 100, 5, 200),
+        INIT_VIEWABLE_TABLE_ROWS("Initial table rows (non-data)", "Number of non-data table rows to display initially", "InitialViewableTableRows", 10, 1, 50),
+        INIT_VIEWABLE_DATA_TABLE_ROWS("Initial table rows (data)", "Number of data table rows to display initially", "InitialViewableDataTableRows", 16, 1, 50),
+        INIT_VIEWABLE_LIST_ROWS("Initial list rows", "Number of rows of radio buttons or check boxes to display initially", "InitalViewableListRows", 12, 1, 50),
+        MAX_INIT_CELL_WIDTH("Maximum initial table cell width", "Maximum initial table cell width in pixels", "MaximumInitialTableCellWidth", 250, 25, 1000);
+
+        private final String name;
+        private final String description;
+        private final String preferenceKey;
+        private final int defaultValue;
+        private final int minimumValue;
+        private final int maximumValue;
+        private int size;
+
+        /**********************************************************************
+         * Modifiable size information constructor
+         *
+         * @param name
+         *            size value name (for display)
+         * 
+         * @param description
+         *            size value description (for tool tip)
+         * 
+         * @param preferenceKey
+         *            size value program preferences key
+         * 
+         * @param defaultValue
+         *            default size value
+         * 
+         * @param minimumValue
+         *            minimum size value
+         * 
+         * @param maximumValue
+         *            maximum size value
+         *********************************************************************/
+        ModifiableSizeInfo(String name,
+                           String description,
+                           String preferenceKey,
+                           int defaultValue,
+                           int minimumValue,
+                           int maximumValue)
+        {
+            this.name = name;
+            this.description = description;
+            this.preferenceKey = preferenceKey;
+            this.defaultValue = defaultValue;
+            this.minimumValue = minimumValue;
+            this.maximumValue = maximumValue;
+            size = defaultValue;
+        }
+
+        /**********************************************************************
+         * Get the size name (for display)
+         *
+         * @return Size value name (for display)
+         *********************************************************************/
+        protected String getName()
+        {
+            return name;
+        }
+
+        /**********************************************************************
+         * Get the size description (for tool tip)
+         *
+         * @return Size value description (for tool tip)
+         *********************************************************************/
+        protected String getDescription()
+        {
+            return description;
+        }
+
+        /**********************************************************************
+         * Get the size value program preferences key
+         *
+         * @return Size value program preferences key
+         *********************************************************************/
+        protected String getPreferenceKey()
+        {
+            return preferenceKey;
+        }
+
+        /**********************************************************************
+         * Get the default size value
+         *
+         * @return Default size value
+         *********************************************************************/
+        protected int getDefault()
+        {
+            return defaultValue;
+        }
+
+        /**********************************************************************
+         * Get the minimum size value
+         *
+         * @return Minimum size value
+         *********************************************************************/
+        protected int getMinimum()
+        {
+            return minimumValue;
+        }
+
+        /**********************************************************************
+         * Get the maximum size value
+         *
+         * @return Maximum size value
+         *********************************************************************/
+        protected int getMaximum()
+        {
+            return maximumValue;
+        }
+
+        /**********************************************************************
+         * Get the current size value
+         *
+         * @return Current size value
+         *********************************************************************/
+        protected int getSize()
+        {
+            return size;
+        }
+
+        /**********************************************************************
+         * Set the size value
+         *
+         * @param size
+         *            new size value
+         * 
+         * @param progPrefs
+         *            reference to the program preferences
+         *********************************************************************/
+        protected void setSize(int size, Preferences progPrefs)
+        {
+            this.size = size;
+            progPrefs.putInt(preferenceKey, size);
+        }
+
+        /**********************************************************************
+         * Get the modifiable size information reference with the specified
+         * program preferences key
+         *
+         * @param prefKey
+         *            modifiable size program preferences key
+         *
+         * @return Modifiable size information reference that has a program
+         *         preferences key matching the one specified; null if no
+         *         modifiable size's key matches
+         *********************************************************************/
+        protected static ModifiableSizeInfo getModifiableSizeInfo(String prefKey)
+        {
+            ModifiableSizeInfo modifiableSize = null;
+
+            // Step through each modifiable size
+            for (ModifiableSizeInfo modSize : ModifiableSizeInfo.values())
+            {
+                // Check if the size's program preferences key matches the one
+                // supplied
+                if (modSize.preferenceKey.equals(prefKey))
+                {
+                    // Store the modifiable size information reference and
+                    // stop searching
+                    modifiableSize = modSize;
+                    break;
+                }
+            }
+
+            return modifiableSize;
+        }
+
+        /**********************************************************************
+         * Set the modifiable sizes to the values stored in the program
+         * preferences
+         *
+         * @param progPrefs
+         *            reference to the program preferences
+         *********************************************************************/
+        protected static void setSizes(Preferences progPrefs)
+        {
+            // Step through each modifiable size value
+            for (ModifiableSizeInfo modSize : ModifiableSizeInfo.values())
+            {
+                // Retrieve the size value from the program preferences and use
+                // this information to set the modifiable size value
+                String sizeInfo = progPrefs.get(modSize.getPreferenceKey(),
+                                                String.valueOf(modSize.getDefault()));
+                modSize.size = Integer.valueOf(sizeInfo);
+            }
+        }
+    }
+
+    // Modifiable spacing information
+    protected static enum ModifiableSpacingInfo
+    {
+        BUTTON_PAD("Button padding", "Dialog box button padding between the group of buttons and the edge of the dialog window or upper dialog components, in pixels", "ButtonPad", 16, 0, 50),
+        BUTTON_GAP("Button gap", "Dialog box button padding, between individual buttons, in pixels", "ButtonGap", 4, 0, 50),
+        LABEL_HORIZONTAL_SPACING("Label horizontal spacing", "Defines the horizontal spacing between a text label and an adjacent component, in pixels", "LabelHorizontalSpacing", 10, 1, 50),
+        LABEL_VERTICAL_SPACING("Label vertical spacing", "Defines the vertical spacing between a text label and an adjacent component, in pixels", "LabelVerticalSpacing", 7, 1, 50),
+        HEADER_HORIZONTAL_PADDING("Table header horizontal spacing", "Table header horizontal padding, in pixels. The padding is split equally between each side of the header text. This padding provides room for the column sort arrow", "HeaderHorizontalPadding", 28, 1, 50),
+        HEADER_VERTICAL_PADDING("Table header vertical spacing", "Table header vertical padding, in pixels. The padding is split equally between the top and bottom of the header text", "HeaderVerticalPadding", 4, 1, 50),
+        CELL_HORIZONTAL_PADDING("Table cell horizontal padding", "Table cell horizontal padding, in pixels", "CellHorizontalPadding", 5, 1, 50),
+        CELL_VERTICAL_PADDING("Table cell vertical padding", "Table cell vertical padding, in pixels", "CellVerticalPadding", 3, 1, 50),
+        DIALOG_BORDER_PAD("Dialog border padding", "Padding between the dialog contents and the dialog's frame, in pixels", "DialogBorderPadding", 4, 1, 50),
+        DIALOG_ICON_PAD("Dialog icon padding", "Padding between the a dialog's icon and text message, in pixels", "DialogIconPadding", 10, 1, 50);
+
+        private final String name;
+        private final String description;
+        private final String preferenceKey;
+        private final int defaultValue;
+        private final int minimumValue;
+        private final int maximumValue;
+        private int spacing;
+
+        /**********************************************************************
+         * Modifiable spacing information constructor
+         *
+         * @param name
+         *            spacing value name (for display)
+         * 
+         * @param description
+         *            spacing value description (for tool tip)
+         * 
+         * @param preferenceKey
+         *            spacing value program preferences key
+         * 
+         * @param defaultValue
+         *            default spacing value
+         * 
+         * @param minimumValue
+         *            minimum spacing value
+         * 
+         * @param maximumValue
+         *            maximum spacing value
+         *********************************************************************/
+        ModifiableSpacingInfo(String name,
+                              String description,
+                              String preferenceKey,
+                              int defaultValue,
+                              int minimumValue,
+                              int maximumValue)
+        {
+            this.name = name;
+            this.description = description;
+            this.preferenceKey = preferenceKey;
+            this.defaultValue = defaultValue;
+            this.minimumValue = minimumValue;
+            this.maximumValue = maximumValue;
+            spacing = defaultValue;
+        }
+
+        /**********************************************************************
+         * Get the spacing name (for display)
+         *
+         * @return Spacing value name (for display)
+         *********************************************************************/
+        protected String getName()
+        {
+            return name;
+        }
+
+        /**********************************************************************
+         * Get the spacing description (for tool tip)
+         *
+         * @return Spacing value description (for tool tip)
+         *********************************************************************/
+        protected String getDescription()
+        {
+            return description;
+        }
+
+        /**********************************************************************
+         * Get the spacing value program preferences key
+         *
+         * @return Spacing value program preferences key
+         *********************************************************************/
+        protected String getPreferenceKey()
+        {
+            return preferenceKey;
+        }
+
+        /**********************************************************************
+         * Get the default spacing value
+         *
+         * @return Default spacing value
+         *********************************************************************/
+        protected int getDefault()
+        {
+            return defaultValue;
+        }
+
+        /**********************************************************************
+         * Get the minimum spacing value
+         *
+         * @return Minimum spacing value
+         *********************************************************************/
+        protected int getMinimum()
+        {
+            return minimumValue;
+        }
+
+        /**********************************************************************
+         * Get the maximum spacing value
+         *
+         * @return Maximum spacing value
+         *********************************************************************/
+        protected int getMaximum()
+        {
+            return maximumValue;
+        }
+
+        /**********************************************************************
+         * Get the current spacing value
+         *
+         * @return Current spacing value
+         *********************************************************************/
+        protected int getSpacing()
+        {
+            return spacing;
+        }
+
+        /**********************************************************************
+         * Set the spacing value
+         *
+         * @param spacing
+         *            new spacing value
+         * 
+         * @param progPrefs
+         *            reference to the program preferences
+         *********************************************************************/
+        protected void setSpacing(int spacing, Preferences progPrefs)
+        {
+            this.spacing = spacing;
+            progPrefs.putInt(preferenceKey, spacing);
+        }
+
+        /**********************************************************************
+         * Get the modifiable spacing information reference with the specified
+         * program preferences key
+         *
+         * @param prefKey
+         *            modifiable spacing program preferences key
+         *
+         * @return Modifiable spacing information reference that has a program
+         *         preferences key matching the one specified; null if no
+         *         modifiable spacing's key matches
+         *********************************************************************/
+        protected static ModifiableSpacingInfo getModifiableSpacingInfo(String prefKey)
+        {
+            ModifiableSpacingInfo modifiableSpacing = null;
+
+            // Step through each modifiable spacing
+            for (ModifiableSpacingInfo modSpacing : ModifiableSpacingInfo.values())
+            {
+                // Check if the spacing's program preferences key matches the
+                // one supplied
+                if (modSpacing.preferenceKey.equals(prefKey))
+                {
+                    // Store the modifiable spacing information reference and
+                    // stop searching
+                    modifiableSpacing = modSpacing;
+                    break;
+                }
+            }
+
+            return modifiableSpacing;
+        }
+
+        /**********************************************************************
+         * Set the modifiable spacings to the values stored in the program
+         * preferences
+         *
+         * @param progPrefs
+         *            reference to the program preferences
+         *********************************************************************/
+        protected static void setSpacings(Preferences progPrefs)
+        {
+            // Step through each modifiable spacing value
+            for (ModifiableSpacingInfo modSpacing : ModifiableSpacingInfo.values())
+            {
+                // Retrieve the spacing value from the program preferences and
+                // use this information to set the modifiable spacing value
+                String spacingInfo = progPrefs.get(modSpacing.getPreferenceKey(),
+                                                   String.valueOf(modSpacing.getDefault()));
+                modSpacing.spacing = Integer.valueOf(spacingInfo);
+            }
+        }
     }
 
     /**************************************************************************
@@ -5064,7 +5991,7 @@ public class CcddConstants
         // check box height returned by the UI manager is now correct
         JWindow wndw = new JWindow();
         JCheckBox chbx = new JCheckBox();
-        chbx.setFont(LABEL_FONT_BOLD);
+        chbx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         wndw.add(chbx);
         wndw.pack();
         LAF_CHECK_BOX_HEIGHT = chbx.getHeight();

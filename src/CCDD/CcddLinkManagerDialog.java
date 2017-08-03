@@ -10,15 +10,10 @@ import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.COPY_ICON;
 import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.INSERT_ICON;
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.REDO_ICON;
 import static CCDD.CcddConstants.RENAME_ICON;
 import static CCDD.CcddConstants.STORE_ICON;
-import static CCDD.CcddConstants.TABLE_BACK_COLOR;
 import static CCDD.CcddConstants.UNDO_ICON;
 
 import java.awt.Color;
@@ -62,6 +57,9 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.LinksColumn;
 import CCDD.CcddConstants.LinkCopyErrorColumnInfo;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableSelectionMode;
 
 /******************************************************************************
@@ -187,7 +185,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                 // Create a tabbed pane to contain the rate parameters that are
                 // stream-specific
                 tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-                tabbedPane.setFont(LABEL_FONT_BOLD);
+                tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
 
                 // Listen for tab selection changes
                 tabbedPane.addChangeListener(new ChangeListener()
@@ -505,22 +503,22 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
 
         // Create the link description label
         JLabel descriptionLbl = new JLabel("Description");
-        descriptionLbl.setFont(LABEL_FONT_BOLD);
-        descriptionLbl.setForeground(Color.BLACK);
-        gbc.insets.top = LABEL_VERTICAL_SPACING;
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING / 2;
-        gbc.insets.bottom = LABEL_VERTICAL_SPACING / 2;
+        descriptionLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        descriptionLbl.setForeground(ModifiableColorInfo.LABEL_TEXT.getColor());
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2;
+        gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         gbc.weighty = 0.0;
         gbc.gridy++;
         createPnl.add(descriptionLbl, gbc);
 
         // Create the link description input field
         final JTextArea linkDescriptionFld = new JTextArea("", 3, 20);
-        linkDescriptionFld.setFont(LABEL_FONT_PLAIN);
+        linkDescriptionFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         linkDescriptionFld.setEditable(true);
         linkDescriptionFld.setLineWrap(true);
-        linkDescriptionFld.setForeground(Color.BLACK);
-        linkDescriptionFld.setBackground(Color.WHITE);
+        linkDescriptionFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        linkDescriptionFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         linkDescriptionFld.setBorder(BorderFactory.createEmptyBorder());
         linkDescriptionFld.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null);
         linkDescriptionFld.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
@@ -529,7 +527,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
 
         // Add the description field to the dialog panel
         gbc.insets.top = 0;
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.fill = GridBagConstraints.BOTH;
         gbc.gridy++;
         createPnl.add(descScrollPane, gbc);
@@ -948,9 +946,9 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                         // Create the list label and add it to the dialog
                         JLabel notCopyLbl = new JLabel("Following link(s) and/or link "
                                                        + "member(s) were not copied:");
-                        notCopyLbl.setFont(LABEL_FONT_BOLD);
-                        gbc.insets.left = LABEL_HORIZONTAL_SPACING / 2;
-                        gbc.insets.right = LABEL_HORIZONTAL_SPACING / 2;
+                        notCopyLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2;
+                        gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2;
                         gbc.gridy = 0;
                         notCopyPnl.add(notCopyLbl, gbc);
 
@@ -1057,10 +1055,10 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                                                                ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
                                                                TableSelectionMode.SELECT_BY_CELL,
                                                                true,
-                                                               TABLE_BACK_COLOR,
+                                                               ModifiableColorInfo.TABLE_BACK.getColor(),
                                                                false,
                                                                true,
-                                                               LABEL_FONT_PLAIN,
+                                                               ModifiableFontInfo.OTHER_TABLE_CELL.getFont(),
                                                                true);
 
                         // Define the panel to contain the table
@@ -1148,30 +1146,30 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.NONE,
-                                                        new Insets(LABEL_VERTICAL_SPACING,
-                                                                   LABEL_HORIZONTAL_SPACING / 2,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
                                                                    0,
-                                                                   LABEL_HORIZONTAL_SPACING / 2),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
                                                         0,
                                                         0);
 
         // Create the link name label and add it to the dialog panel
         JLabel label = new JLabel(fieldText);
-        label.setFont(LABEL_FONT_BOLD);
+        label.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         dialogPnl.add(label, gbc);
 
         // Create the link name field and add it to the dialog panel
         linkNameFld = new JTextField(currentName, 20);
-        linkNameFld.setFont(LABEL_FONT_PLAIN);
+        linkNameFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         linkNameFld.setEditable(true);
-        linkNameFld.setForeground(Color.BLACK);
-        linkNameFld.setBackground(Color.WHITE);
+        linkNameFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        linkNameFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         linkNameFld.setBorder(border);
         gbc.gridy++;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING;
-        gbc.insets.top = LABEL_VERTICAL_SPACING / 2;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         dialogPnl.add(linkNameFld, gbc);
 
         return gbc;

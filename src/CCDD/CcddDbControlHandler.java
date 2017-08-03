@@ -139,7 +139,6 @@ public class CcddDbControlHandler
                                                DefaultColumn.VARIABLE_NAME.getDbName()},
                                              {"index",
                                               DefaultColumn.ROW_INDEX.getDbName()}};
-
     }
 
     /**************************************************************************
@@ -1258,7 +1257,6 @@ public class CcddDbControlHandler
                     compareColumns = defStructCols
                                      + "column_name = '" + dbRate + "' OR "
                                      + "column_name = '" + dbEnumeration + "')";
-
                 }
                 // At least one structure table type exists
                 else

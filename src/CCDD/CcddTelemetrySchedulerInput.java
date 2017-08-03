@@ -7,7 +7,6 @@
 package CCDD;
 
 import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.LINKED_VARIABLES_NODE_NAME;
 import static CCDD.CcddConstants.UNLINKED_VARIABLES_NODE_NAME;
 
@@ -35,6 +34,7 @@ import CCDD.CcddClasses.Variable;
 import CCDD.CcddClasses.VariableGenerator;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable.LinksColumn;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.SchedulerColumn;
 import CCDD.CcddConstants.TableTreeType;
 
@@ -299,7 +299,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                                            GridBagConstraints.BOTH,
                                            new Insets(0,
                                                       0,
-                                                      LABEL_VERTICAL_SPACING / 2,
+                                                      ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
                                                       0),
                                            0,
                                            0));
@@ -642,7 +642,6 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
             // Check if the path contains a variable
             if (path.length > index)
             {
-
                 boolean isFound = false;
 
                 // Step through the created variables

@@ -7,7 +7,6 @@
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
-import static CCDD.CcddConstants.CELL_FONT;
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.DOWN_ICON;
@@ -15,12 +14,10 @@ import static CCDD.CcddConstants.INSERT_ICON;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.REDO_ICON;
 import static CCDD.CcddConstants.STORE_ICON;
-import static CCDD.CcddConstants.TABLE_BACK_COLOR;
 import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
 import static CCDD.CcddConstants.UNDO_ICON;
 import static CCDD.CcddConstants.UP_ICON;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -57,6 +54,8 @@ import CCDD.CcddConstants.DefaultPrimitiveTypeInfo;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.SearchResultsQueryColumn;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -1040,7 +1039,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                     if (!found)
                     {
                         // Change the cell's background color
-                        comp.setBackground(Color.YELLOW);
+                        comp.setBackground(ModifiableColorInfo.REQUIRED_BACK.getColor());
                     }
                 }
 
@@ -1087,10 +1086,10 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                               ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
                                               TableSelectionMode.SELECT_BY_CELL,
                                               false,
-                                              TABLE_BACK_COLOR,
+                                              ModifiableColorInfo.TABLE_BACK.getColor(),
                                               true,
                                               true,
-                                              CELL_FONT,
+                                              ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
                                               true);
 
         // Discard the edits created by adding the columns initially

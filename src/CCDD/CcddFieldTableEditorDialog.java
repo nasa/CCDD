@@ -8,18 +8,11 @@ package CCDD;
 
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.DELETE_ICON;
-import static CCDD.CcddConstants.FOCUS_COLOR;
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.OK_ICON;
 import static CCDD.CcddConstants.PRINT_ICON;
 import static CCDD.CcddConstants.REDO_ICON;
-import static CCDD.CcddConstants.SELECTED_BACK_COLOR;
 import static CCDD.CcddConstants.STORE_ICON;
-import static CCDD.CcddConstants.TABLE_BACK_COLOR;
 import static CCDD.CcddConstants.TABLE_ICON;
 import static CCDD.CcddConstants.UNDO_ICON;
 
@@ -65,6 +58,9 @@ import CCDD.CcddConstants.FieldTableEditorColumnInfo;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -324,8 +320,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                                                 0.0,
                                                                 GridBagConstraints.LINE_START,
                                                                 GridBagConstraints.BOTH,
-                                                                new Insets(LABEL_VERTICAL_SPACING / 2,
-                                                                           LABEL_HORIZONTAL_SPACING,
+                                                                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
                                                                            0,
                                                                            0),
                                                                 0,
@@ -382,7 +378,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                         // Create a Select All check box
                         final JCheckBox selectAllCb = new JCheckBox("Select all data fields",
                                                                     false);
-                        selectAllCb.setFont(LABEL_FONT_BOLD);
+                        selectAllCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                         selectAllCb.setBorder(emptyBorder);
 
                         // Create a listener for changes to the Select All
@@ -467,7 +463,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     };
 
                     // Add the tree to the selection panel
-                    gbc.insets.top = LABEL_VERTICAL_SPACING;
+                    gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
                     gbc.weighty = 1.0;
                     gbc.gridy = 0;
                     selectPnl.add(tableTree.createTreePanel("Tables",
@@ -593,11 +589,11 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                                                 1.0,
                                                                 GridBagConstraints.LINE_START,
                                                                 GridBagConstraints.HORIZONTAL,
-                                                                new Insets(LABEL_VERTICAL_SPACING,
+                                                                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
                                                                            0,
                                                                            0,
                                                                            0),
-                                                                LABEL_HORIZONTAL_SPACING,
+                                                                ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
                                                                 0);
 
                 // Define the panel to contain the table
@@ -1136,8 +1132,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // Check if the cell doesn't have the focus or is selected. The
                 // focus and selection highlight colors override the invalid
                 // highlight color
-                if (comp.getBackground() != FOCUS_COLOR
-                    && comp.getBackground() != SELECTED_BACK_COLOR
+                if (comp.getBackground() != ModifiableColorInfo.FOCUS_BACK.getColor()
+                    && comp.getBackground() != ModifiableColorInfo.SELECTED_BACK.getColor()
                     && columnModel != FieldTableEditorColumnInfo.OWNER.ordinal())
                 {
                     // Get the row index in model coordinates
@@ -1165,7 +1161,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                             // Set the cell's background color to indicate
                             // the structure path isn't applicable for this
                             // table
-                            comp.setBackground(Color.LIGHT_GRAY);
+                            comp.setBackground(ModifiableColorInfo.PROTECTED_BACK.getColor());
                         }
                     }
                     // Check if this table has the data field identified by
@@ -1217,7 +1213,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                     // Change the cell's background color to
                                     // indicate it has the same value as
                                     // another cell in the same column
-                                    comp.setBackground(Color.YELLOW);
+                                    comp.setBackground(ModifiableColorInfo.REQUIRED_BACK.getColor());
                                     break;
                                 }
                             }
@@ -1229,7 +1225,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     {
                         // Set the cell's background color to indicate the
                         // data field doesn't exist for this table
-                        comp.setBackground(Color.LIGHT_GRAY);
+                        comp.setBackground(ModifiableColorInfo.PROTECTED_BACK.getColor());
                     }
                 }
 
@@ -1264,10 +1260,10 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                                ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
                                                TableSelectionMode.SELECT_BY_CELL,
                                                true,
-                                               TABLE_BACK_COLOR,
+                                               ModifiableColorInfo.TABLE_BACK.getColor(),
                                                true,
                                                true,
-                                               LABEL_FONT_PLAIN,
+                                               ModifiableFontInfo.OTHER_TABLE_CELL.getFont(),
                                                true);
 
         // Set the reference to the cell selection container in the undo

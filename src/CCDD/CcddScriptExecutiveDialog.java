@@ -9,9 +9,6 @@ package CCDD;
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.EXECUTE_ALL_ICON;
 import static CCDD.CcddConstants.EXECUTE_ICON;
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.OK_BUTTON;
 
 import java.awt.GridBagConstraints;
@@ -29,6 +26,8 @@ import javax.swing.JPanel;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 
 /******************************************************************************
  * CFS Command & Data Dictionary script executive dialog class
@@ -102,10 +101,10 @@ public class CcddScriptExecutiveDialog extends CcddDialogHandler
                                                                     0.0,
                                                                     GridBagConstraints.LINE_START,
                                                                     GridBagConstraints.BOTH,
-                                                                    new Insets(LABEL_VERTICAL_SPACING / 2,
-                                                                               LABEL_HORIZONTAL_SPACING,
+                                                                    new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                               ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
                                                                                0,
-                                                                               LABEL_HORIZONTAL_SPACING),
+                                                                               ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
                                                                     0,
                                                                     0);
 
@@ -114,7 +113,7 @@ public class CcddScriptExecutiveDialog extends CcddDialogHandler
                     // Create the table group selection dialog labels and
                     // fields
                     JLabel scriptLbl = new JLabel("Select script association(s) to execute");
-                    scriptLbl.setFont(LABEL_FONT_BOLD);
+                    scriptLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                     dialogPnl.add(scriptLbl, gbc);
 
                     // Create the list to display the stored script

@@ -6,10 +6,6 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.SCRIPTS_ICON;
 import static CCDD.CcddConstants.SCRIPT_PATH;
@@ -35,6 +31,9 @@ import javax.swing.border.BevelBorder;
 import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.ScriptIOType;
 
 /******************************************************************************
@@ -151,10 +150,10 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                                                                 0.0,
                                                                 GridBagConstraints.LINE_START,
                                                                 GridBagConstraints.BOTH,
-                                                                new Insets(LABEL_VERTICAL_SPACING,
-                                                                           LABEL_HORIZONTAL_SPACING,
-                                                                           LABEL_VERTICAL_SPACING,
-                                                                           LABEL_HORIZONTAL_SPACING),
+                                                                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                                           ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
                                                                 0,
                                                                 0);
 
@@ -183,14 +182,13 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                                   "Select script(s)",
                                   dialogPnl))
                 {
-
                     // Check if more than one data field name check box exists
                     if (getCheckBoxes().length > 2)
                     {
                         // Create a Select All check box
                         final JCheckBox selectAllCb = new JCheckBox("Select all scripts",
                                                                     false);
-                        selectAllCb.setFont(LABEL_FONT_BOLD);
+                        selectAllCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                         selectAllCb.setBorder(BorderFactory.createEmptyBorder());
 
                         // Create a listener for changes to the Select All
@@ -255,7 +253,6 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                                 fileIOHandler.storePath(scriptFile[0].getAbsolutePath(),
                                                         false,
                                                         SCRIPT_PATH);
-
                             }
 
                             // Get an array containing the selected script
@@ -340,10 +337,10 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(LABEL_VERTICAL_SPACING / 2,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
                                                                    0,
-                                                                   LABEL_VERTICAL_SPACING / 2,
-                                                                   LABEL_HORIZONTAL_SPACING),
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
                                                         0,
                                                         0);
 
@@ -352,7 +349,7 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
 
         // Create the path selection dialog labels and fields
         JLabel scriptLbl = new JLabel("Enter or select a script storage path");
-        scriptLbl.setFont(LABEL_FONT_BOLD);
+        scriptLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         pathPnl.add(scriptLbl, gbc);
 
         // Create a text field for entering & displaying the script path
@@ -360,15 +357,15 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                                                              "").replaceAll("\\"
                                                                             + File.separator
                                                                             + "\\.$", ""));
-        pathFld.setFont(LABEL_FONT_PLAIN);
+        pathFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         pathFld.setEditable(true);
-        pathFld.setForeground(Color.BLACK);
-        pathFld.setBackground(Color.WHITE);
+        pathFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        pathFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         pathFld.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
                                                                                              Color.LIGHT_GRAY,
                                                                                              Color.GRAY),
                                                              BorderFactory.createEmptyBorder(2, 2, 2, 2)));
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.gridy++;
         pathPnl.add(pathFld, gbc);
 

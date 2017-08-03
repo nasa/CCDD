@@ -12,10 +12,6 @@ import static CCDD.CcddConstants.DOWN_ICON;
 import static CCDD.CcddConstants.EXECUTE_ALL_ICON;
 import static CCDD.CcddConstants.EXECUTE_ICON;
 import static CCDD.CcddConstants.INSERT_ICON;
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.LIST_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.REDO_ICON;
@@ -61,6 +57,9 @@ import CCDD.CcddConstants.AssociationsTableColumnInfo;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableTreeType;
 
 /******************************************************************************
@@ -173,10 +172,10 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
                                                                     0.0,
                                                                     GridBagConstraints.LINE_START,
                                                                     GridBagConstraints.BOTH,
-                                                                    new Insets(LABEL_VERTICAL_SPACING / 2,
-                                                                               LABEL_HORIZONTAL_SPACING,
-                                                                               LABEL_VERTICAL_SPACING / 2,
-                                                                               LABEL_HORIZONTAL_SPACING),
+                                                                    new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                               ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                                               ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                               ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
                                                                     0,
                                                                     0);
 
@@ -187,20 +186,20 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
                     JLabel descriptionLbl = new JLabel("Script association description");
                     dialogPnl.add(descriptionLbl, gbc);
                     descriptionFld = new JTextArea("", 2, 10);
-                    descriptionFld.setFont(LABEL_FONT_PLAIN);
+                    descriptionFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                     descriptionFld.setEditable(true);
-                    descriptionFld.setForeground(Color.BLACK);
-                    descriptionFld.setBackground(Color.WHITE);
+                    descriptionFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+                    descriptionFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                     descriptionFld.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
                                                                                                                 Color.LIGHT_GRAY,
                                                                                                                 Color.GRAY),
                                                                                 BorderFactory.createEmptyBorder(2, 2, 2, 2)));
-                    gbc.insets.left = LABEL_HORIZONTAL_SPACING * 2;
+                    gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
                     gbc.gridy++;
                     dialogPnl.add(descriptionFld, gbc);
 
                     // Add the script file selection components to the dialog
-                    gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+                    gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                     gbc.gridy++;
                     dialogPnl.add(createScriptSelectionPanel(), gbc);
 
@@ -210,9 +209,9 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
                     JSeparator separator = new JSeparator();
                     separator.setForeground(dialogPnl.getBackground().darker());
                     gbc.weighty = 1.0;
-                    gbc.insets.top = LABEL_VERTICAL_SPACING;
-                    gbc.insets.left = LABEL_HORIZONTAL_SPACING;
-                    gbc.insets.right = LABEL_HORIZONTAL_SPACING;
+                    gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+                    gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+                    gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                     gbc.gridy++;
                     dialogPnl.add(new CustomSplitPane(createSelectionPanel("Select one or more tables",
                                                                            TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION),
@@ -642,10 +641,10 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(LABEL_VERTICAL_SPACING / 2,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
                                                                    0,
-                                                                   LABEL_VERTICAL_SPACING / 2,
-                                                                   LABEL_HORIZONTAL_SPACING),
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
                                                         0,
                                                         0);
 
@@ -654,20 +653,20 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
 
         // Create the script selection dialog labels and fields
         JLabel scriptLbl = new JLabel("Enter or select a script file");
-        scriptLbl.setFont(LABEL_FONT_BOLD);
+        scriptLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         scriptPnl.add(scriptLbl, gbc);
 
         // Create a text field for entering & displaying the script file name
         scriptFld = new JTextField("");
-        scriptFld.setFont(LABEL_FONT_PLAIN);
+        scriptFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         scriptFld.setEditable(true);
-        scriptFld.setForeground(Color.BLACK);
-        scriptFld.setBackground(Color.WHITE);
+        scriptFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        scriptFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         scriptFld.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
                                                                                                Color.LIGHT_GRAY,
                                                                                                Color.GRAY),
                                                                BorderFactory.createEmptyBorder(2, 2, 2, 2)));
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.gridy++;
         scriptPnl.add(scriptFld, gbc);
 
@@ -745,9 +744,9 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(LABEL_VERTICAL_SPACING / 2,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
                                                                    0,
-                                                                   LABEL_VERTICAL_SPACING,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
                                                                    0),
                                                         0,
                                                         0);
@@ -796,12 +795,12 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
 
             // Create the table group selection dialog labels and fields
             JLabel dlgLabel = new JLabel(labelText);
-            dlgLabel.setFont(LABEL_FONT_BOLD);
+            dlgLabel.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             tablePnl.add(dlgLabel, gbc);
 
             // Create the choices and selected lists and add them to the dialog
             gbc.insets.top = 0;
-            gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+            gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
             gbc.weighty = 1.0;
             gbc.gridy++;
             tablePnl.add(tableTree.createTreePanel(null,

@@ -6,10 +6,6 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
 
 import java.awt.Color;
@@ -40,6 +36,8 @@ import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddClasses.Variable;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 
 /******************************************************************************
  * CFS Command & Data Dictionary assignment tree handler class
@@ -452,15 +450,15 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
                                                         1.0,
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(LABEL_VERTICAL_SPACING / 2,
-                                                                   LABEL_HORIZONTAL_SPACING / 2,
-                                                                   LABEL_VERTICAL_SPACING / 2,
-                                                                   LABEL_HORIZONTAL_SPACING / 2),
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
                                                         0,
                                                         0);
 
         // Set the table tree font and number of rows to display
-        setFont(LABEL_FONT_PLAIN);
+        setFont(ModifiableFontInfo.TREE_NODE.getFont());
         setVisibleRowCount(10);
 
         // Set the table tree selection mode
@@ -511,7 +509,7 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
         // Create a tree expansion check box
         final JCheckBox expandChkBx = new JCheckBox("Expand all");
         expandChkBx.setBorder(BorderFactory.createEmptyBorder());
-        expandChkBx.setFont(LABEL_FONT_BOLD);
+        expandChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         expandChkBx.setSelected(false);
         gbc.weighty = 0.0;
         gbc.gridy++;

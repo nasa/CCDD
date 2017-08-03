@@ -209,7 +209,6 @@ public class CcddWebServer
             eventLog.logEvent(EventLogMessageType.SERVER_MSG,
                               "Web server started; listening on port "
                                   + ((ServerConnector) server.getConnectors()[0]).getLocalPort());
-
         }
         catch (Exception e)
         {

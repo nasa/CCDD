@@ -7,7 +7,6 @@
 package CCDD;
 
 import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -29,6 +28,7 @@ import CCDD.CcddClasses.Message;
 import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddClasses.Variable;
 import CCDD.CcddConstants.DefaultApplicationField;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.SchedulerColumn;
 
 /******************************************************************************
@@ -142,7 +142,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
                                            GridBagConstraints.BOTH,
                                            new Insets(0,
                                                       0,
-                                                      LABEL_VERTICAL_SPACING / 2,
+                                                      ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
                                                       0),
                                            0,
                                            0));

@@ -6,10 +6,6 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.OK_BUTTON;
 
 import java.awt.Color;
@@ -30,6 +26,9 @@ import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ManagerDialogType;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /******************************************************************************
@@ -197,9 +196,9 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(LABEL_VERTICAL_SPACING / 2,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
                                                                    0,
-                                                                   LABEL_VERTICAL_SPACING / 2,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
                                                                    0),
                                                         0,
                                                         0);
@@ -345,24 +344,24 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.NONE,
-                                                        new Insets(LABEL_VERTICAL_SPACING,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
                                                                    0,
-                                                                   LABEL_VERTICAL_SPACING / 2,
-                                                                   LABEL_HORIZONTAL_SPACING),
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
                                                         0,
                                                         0);
 
         // Create the type name label and field
         JLabel label = new JLabel(labelText);
-        label.setFont(LABEL_FONT_BOLD);
+        label.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         JPanel pnl = new JPanel(new GridBagLayout());
         pnl.add(label, gbc);
 
         typeNameFld = new JTextField(intialName, 20);
-        typeNameFld.setFont(LABEL_FONT_PLAIN);
+        typeNameFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         typeNameFld.setEditable(true);
-        typeNameFld.setForeground(Color.BLACK);
-        typeNameFld.setBackground(Color.WHITE);
+        typeNameFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        typeNameFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         typeNameFld.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
                                                                                                  Color.LIGHT_GRAY,
                                                                                                  Color.GRAY),
@@ -372,14 +371,14 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
         gbc.gridy++;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.insets.bottom = 0;
         pnl.add(typeNameFld, gbc);
         dialogGbc.weighty = 0.0;
         dialogGbc.gridy++;
         dialogGbc.gridwidth = GridBagConstraints.REMAINDER;
         dialogGbc.fill = GridBagConstraints.HORIZONTAL;
-        dialogGbc.insets.right = LABEL_HORIZONTAL_SPACING;
+        dialogGbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         dialogGbc.insets.bottom = 0;
         dialogPanel.add(pnl, dialogGbc);
     }

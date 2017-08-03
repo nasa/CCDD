@@ -7,7 +7,6 @@
 package CCDD;
 
 import static CCDD.CcddConstants.DB_SAVE_POINT_NAME;
-import static CCDD.CcddConstants.DIALOG_MAX_MESSAGE_LENGTH;
 import static CCDD.CcddConstants.ENUMERATION_SEPARATOR;
 import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
 import static CCDD.CcddConstants.LIST_TABLE_SEPARATOR;
@@ -61,6 +60,7 @@ import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.InternalTable.OrdersColumn;
 import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
+import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.SearchResultsQueryColumn;
 import CCDD.CcddConstants.TableCommentIndex;
 import CCDD.CcddConstants.TableMemberType;
@@ -6819,11 +6819,11 @@ public class CcddDbTableCommandHandler
 
         // Check if the length of the table name string exceeds the specified
         // maximum
-        if (names.length() > DIALOG_MAX_MESSAGE_LENGTH)
+        if (names.length() > ModifiableSizeInfo.MAX_DIALOG_MESSAGE_LENGTH.getSize())
         {
             // Shorten the name list to the maximum length and find the index
             // to the last comma, which separates the table names
-            names = names.substring(0, DIALOG_MAX_MESSAGE_LENGTH);
+            names = names.substring(0, ModifiableSizeInfo.MAX_DIALOG_MESSAGE_LENGTH.getSize());
             int index = names.lastIndexOf(",");
 
             // Check if a comma exists

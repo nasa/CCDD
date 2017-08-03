@@ -7,19 +7,10 @@
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
-import static CCDD.CcddConstants.CELL_FONT;
-import static CCDD.CcddConstants.FOCUS_COLOR;
 import static CCDD.CcddConstants.HIDE_DATA_TYPE;
 import static CCDD.CcddConstants.IGNORE_BUTTON;
-import static CCDD.CcddConstants.INITIAL_VIEWABLE_DATA_TABLE_ROWS;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
-import static CCDD.CcddConstants.PROTECTED_BACK_COLOR;
-import static CCDD.CcddConstants.PROTECTED_TEXT_COLOR;
 import static CCDD.CcddConstants.REPLACE_INDICATOR;
-import static CCDD.CcddConstants.SELECTED_BACK_COLOR;
-import static CCDD.CcddConstants.TABLE_BACK_COLOR;
-import static CCDD.CcddConstants.TEXT_HIGHLIGHT_COLOR;
-import static CCDD.CcddConstants.TOOL_TIP_TEXT_COLOR;
 import static CCDD.CcddConstants.TYPE_NAME_SEPARATOR;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import static CCDD.CcddConstants.VARIABLE_PATH_SEPARATOR;
@@ -67,6 +58,9 @@ import CCDD.CcddClasses.TableModification;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -484,7 +478,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // as the background
         String indent = "<br>"
                         + CcddUtilities.colorHTMLText(pathTag,
-                                                      TOOL_TIP_TEXT_COLOR)
+                                                      ModifiableColorInfo.TOOL_TIP_BACK.getColor())
                         + "&#160;&#160;";
 
         // Step through each member in the table path
@@ -1110,7 +1104,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         setUpArraySizeColumn();
 
         // Define the table editor JTable
-        table = new CcddJTableHandler(INITIAL_VIEWABLE_DATA_TABLE_ROWS)
+        table = new CcddJTableHandler(ModifiableSizeInfo.INIT_VIEWABLE_DATA_TABLE_ROWS.getSize())
         {
             /******************************************************************
              * Highlight any macros or special flags in the table cells
@@ -1143,14 +1137,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 macroHandler.highlightMacro(component,
                                             text,
                                             isSelected
-                                                      ? Color.BLACK
-                                                      : TEXT_HIGHLIGHT_COLOR);
+                                                      ? ModifiableColorInfo.INPUT_TEXT.getColor()
+                                                      : ModifiableColorInfo.TEXT_HIGHLIGHT.getColor());
 
                 // Highlight the flag that indicates the custom value for this
                 // cell is to be removed and the prototype's value used
                 // instead. Create a highlighter painter
                 DefaultHighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(isSelected
-                                                                                                           ? Color.BLACK
+                                                                                                           ? ModifiableColorInfo.INPUT_TEXT.getColor()
                                                                                                            : Color.MAGENTA);
 
                 // Create the match pattern
@@ -2139,8 +2133,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // Check if the cell doesn't have the focus or is selected. The
                 // focus and selection highlight colors override the invalid
                 // highlight color
-                if (comp.getBackground() != FOCUS_COLOR
-                    && comp.getBackground() != SELECTED_BACK_COLOR)
+                if (comp.getBackground() != ModifiableColorInfo.FOCUS_BACK.getColor()
+                    && comp.getBackground() != ModifiableColorInfo.SELECTED_BACK.getColor())
                 {
                     boolean found = true;
 
@@ -2187,14 +2181,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     if (!found)
                     {
                         // Change the cell's background color
-                        comp.setBackground(Color.YELLOW);
+                        comp.setBackground(ModifiableColorInfo.REQUIRED_BACK.getColor());
                     }
                     // Check if this cell is protected from changes
                     else if (!isCellEditable(row, column))
                     {
                         // Shade the cell's background
-                        comp.setForeground(PROTECTED_TEXT_COLOR);
-                        comp.setBackground(PROTECTED_BACK_COLOR);
+                        comp.setForeground(ModifiableColorInfo.PROTECTED_TEXT.getColor());
+                        comp.setBackground(ModifiableColorInfo.PROTECTED_BACK.getColor());
                     }
                 }
 
@@ -3199,10 +3193,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                       ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
                                       TableSelectionMode.SELECT_BY_CELL,
                                       true,
-                                      TABLE_BACK_COLOR,
+                                      ModifiableColorInfo.TABLE_BACK.getColor(),
                                       true,
                                       true,
-                                      CELL_FONT,
+                                      ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
                                       true);
 
         // Get a reference to the table model to shorten later calls

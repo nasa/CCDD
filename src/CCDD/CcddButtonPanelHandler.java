@@ -6,11 +6,8 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.BUTTON_FONT;
-import static CCDD.CcddConstants.BUTTON_GAP;
 import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.CANCEL_ICON;
-import static CCDD.CcddConstants.DIALOG_BORDER_PAD;
 import static CCDD.CcddConstants.OK_BUTTON;
 
 import java.awt.BorderLayout;
@@ -30,6 +27,9 @@ import javax.swing.JPanel;
 import javax.swing.JRootPane;
 
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSizeInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 
 /******************************************************************************
  * CFS Command & Data Dictionary button panel handling class
@@ -54,8 +54,8 @@ public class CcddButtonPanelHandler
         buttonPnl = new JPanel();
         buttonPnl.setBorder(BorderFactory.createEmptyBorder());
         buttonPnl.setLayout(new FlowLayout(FlowLayout.CENTER,
-                                           BUTTON_GAP,
-                                           BUTTON_GAP));
+                                           ModifiableSpacingInfo.BUTTON_GAP.getSpacing(),
+                                           ModifiableSpacingInfo.BUTTON_GAP.getSpacing()));
         buttonRows = 1;
     }
 
@@ -158,8 +158,8 @@ public class CcddButtonPanelHandler
             // margins, and the button border
             int width = button.getIcon().getIconWidth()
                         + button.getIconTextGap()
-                        + (int) button.getFontMetrics(BUTTON_FONT).getStringBounds(button.getText(),
-                                                                                   button.getGraphics()).getWidth()
+                        + (int) button.getFontMetrics(ModifiableFontInfo.DIALOG_BUTTON.getFont()).getStringBounds(button.getText(),
+                                                                                                                  button.getGraphics()).getWidth()
                         + button.getMargin().left
                         + button.getMargin().right
                         + button.getBorder().getBorderInsets(button).left
@@ -173,8 +173,8 @@ public class CcddButtonPanelHandler
             }
 
             // Get the height of the button text
-            int height = (int) button.getFontMetrics(BUTTON_FONT).getStringBounds(button.getText(),
-                                                                                  button.getGraphics()).getHeight();
+            int height = (int) button.getFontMetrics(ModifiableFontInfo.DIALOG_BUTTON.getFont()).getStringBounds(button.getText(),
+                                                                                                                 button.getGraphics()).getHeight();
 
             // Check if the button's icon height is greater than the text
             // height
@@ -214,10 +214,10 @@ public class CcddButtonPanelHandler
         // Size the panel containing the buttons based on the buttons' widths
         // and heights
         Dimension buttonPnlCoord = new Dimension(maxWidth * numColumns
-                                                 + (BUTTON_GAP + 1)
+                                                 + (ModifiableSpacingInfo.BUTTON_GAP.getSpacing() + 1)
                                                  * (numColumns + 1),
                                                  maxHeight * buttonRows
-                                                     + (BUTTON_GAP + 1)
+                                                     + (ModifiableSpacingInfo.BUTTON_GAP.getSpacing() + 1)
                                                      * (buttonRows + 1));
 
         // Set the button panel to a fixed size so that the buttons stay
@@ -253,9 +253,10 @@ public class CcddButtonPanelHandler
         // Create button
         JButton button = new JButton(buttonText,
                                      new ImageIcon(CcddButtonPanelHandler.class.getResource(iconName)));
-        button.setFont(BUTTON_FONT);
+        button.setFont(ModifiableFontInfo.DIALOG_BUTTON.getFont());
         button.setMnemonic(key);
-        button.setToolTipText(toolTip);
+        button.setToolTipText(CcddUtilities.wrapText(toolTip,
+                                                     ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
 
         // Change the button padding
         setButtonMargins(button);
@@ -292,7 +293,7 @@ public class CcddButtonPanelHandler
         // Create the Okay button
         JButton btnOkButton = new JButton(optionType.getButtonText(),
                                           new ImageIcon(getClass().getResource(optionType.getButtonIcon())));
-        btnOkButton.setFont(BUTTON_FONT);
+        btnOkButton.setFont(ModifiableFontInfo.DIALOG_BUTTON.getFont());
         btnOkButton.setMnemonic(optionType.getButtonMnemonic());
         buttonPnl.add(btnOkButton);
 
@@ -315,7 +316,7 @@ public class CcddButtonPanelHandler
             // Create the Cancel button
             JButton btnCancelButton = new JButton(optionType.getSecondaryButtonText(),
                                                   new ImageIcon(getClass().getResource(CANCEL_ICON)));
-            btnCancelButton.setFont(BUTTON_FONT);
+            btnCancelButton.setFont(ModifiableFontInfo.DIALOG_BUTTON.getFont());
             btnCancelButton.setMnemonic(KeyEvent.VK_C);
             buttonPnl.add(btnCancelButton);
 
@@ -436,14 +437,14 @@ public class CcddButtonPanelHandler
         // Add padding to the bottom of the button panel
         bpPanel.setBorder(BorderFactory.createEmptyBorder(0,
                                                           0,
-                                                          DIALOG_BORDER_PAD,
+                                                          ModifiableSpacingInfo.DIALOG_BORDER_PAD.getSpacing(),
                                                           0));
 
         // Add padding around the window's upper component
-        upperComponent.setBorder(BorderFactory.createEmptyBorder(DIALOG_BORDER_PAD,
-                                                                 DIALOG_BORDER_PAD,
-                                                                 DIALOG_BORDER_PAD,
-                                                                 DIALOG_BORDER_PAD));
+        upperComponent.setBorder(BorderFactory.createEmptyBorder(ModifiableSpacingInfo.DIALOG_BORDER_PAD.getSpacing(),
+                                                                 ModifiableSpacingInfo.DIALOG_BORDER_PAD.getSpacing(),
+                                                                 ModifiableSpacingInfo.DIALOG_BORDER_PAD.getSpacing(),
+                                                                 ModifiableSpacingInfo.DIALOG_BORDER_PAD.getSpacing()));
 
         // Set the layout manager for the window and add the upper and lower
         // components

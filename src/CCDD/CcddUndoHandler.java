@@ -789,7 +789,6 @@ public class CcddUndoHandler
             // Add a listener for text area focus changes
             addFocusListener(new FocusListener()
             {
-
                 /**************************************************************
                  * Handle a focus gained event
                  *************************************************************/

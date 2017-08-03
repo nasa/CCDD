@@ -18,6 +18,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -509,7 +510,6 @@ public class CcddSearchHandler extends CcddDialogHandler
                         {
                             location += "ID";
                             context = columnValue[TlmSchedulerColumn.MESSAGE_ID.ordinal()];
-
                         }
                         // The match is with a message definition or member
                         else
@@ -813,6 +813,7 @@ public class CcddSearchHandler extends CcddDialogHandler
             {
                 int result = 0;
 
+                System.out.println(Arrays.toString(entry1) + "  " + Arrays.toString(entry2));// TODO
                 switch (searchDlgType)
                 {
                     case TABLES:
@@ -836,8 +837,8 @@ public class CcddSearchHandler extends CcddDialogHandler
                     // dimension (for example, a[10] will be placed immediately
                     // after a[1]). The following code sorts the array members
                     // numerically by array dimension
-                    if (entry1[1].toString().matches("Column '.*', variable '(.*\\])'")
-                        && entry2[1].toString().matches("Column '.*', variable '(.*\\])'"))
+                    if (entry1[1].toString().matches("Column '.*', variable '.*\\]'")
+                        && entry2[1].toString().matches("Column '.*', variable '.*\\]'"))
                     {
                         // Get the array variable references from the second
                         // column values
@@ -851,6 +852,13 @@ public class CcddSearchHandler extends CcddDialogHandler
                             // Compare the two array members by dimension
                             // value(s)
                             result = ArrayVariable.compareTo(arrayVariable1, arrayVariable2);
+                        }
+                        // The second column values are not references to the
+                        // same array variable
+                        else
+                        {
+                            // Compare the second column, ignoring case
+                            result = entry1[1].toString().toLowerCase().compareTo(entry2[1].toString().toLowerCase());
                         }
                     }
                     // The second column values are not both references to

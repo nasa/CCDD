@@ -9,20 +9,12 @@ package CCDD;
 
 import static CCDD.CcddConstants.AUTO_COMPLETE_TEXT_SEPARATOR;
 import static CCDD.CcddConstants.CLOSE_ICON;
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
-import static CCDD.CcddConstants.LABEL_TEXT_COLOR;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
-import static CCDD.CcddConstants.NUM_REMEMBERED_SEARCHES;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.PRINT_ICON;
 import static CCDD.CcddConstants.SEARCH_ICON;
 import static CCDD.CcddConstants.SEARCH_STRINGS;
-import static CCDD.CcddConstants.TABLE_BACK_COLOR;
 import static CCDD.CcddConstants.TABLE_ICON;
-import static CCDD.CcddConstants.TEXT_HIGHLIGHT_COLOR;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -66,6 +58,10 @@ import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.AutoCompleteTextField;
 import CCDD.CcddClasses.MultilineLabel;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSizeInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.SearchDialogType;
 import CCDD.CcddConstants.SearchResultsColumnInfo;
 import CCDD.CcddConstants.TableSelectionMode;
@@ -155,6 +151,16 @@ public class CcddSearchDialog extends CcddFrameHandler
     }
 
     /**************************************************************************
+     * Get the reference to the search results table
+     * 
+     * @return Reference to the search results table
+     *************************************************************************/
+    protected CcddJTableHandler getTable()
+    {
+        return resultsTable;
+    }
+
+    /**************************************************************************
      * Create the database table or scripts search dialog
      * 
      * @param targetRow
@@ -185,10 +191,10 @@ public class CcddSearchDialog extends CcddFrameHandler
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(LABEL_VERTICAL_SPACING / 2,
-                                                                   LABEL_HORIZONTAL_SPACING,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
                                                                    0,
-                                                                   LABEL_HORIZONTAL_SPACING),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
                                                         0,
                                                         0);
 
@@ -198,23 +204,23 @@ public class CcddSearchDialog extends CcddFrameHandler
 
         // Create the search dialog labels and fields
         JLabel dlgLbl = new JLabel("Enter search text");
-        dlgLbl.setFont(LABEL_FONT_BOLD);
+        dlgLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         dialogPnl.add(dlgLbl, gbc);
 
         // Create the auto-completion search field and add it to the
         // dialog panel. The search list is initially empty as it is updated
         // whenever a key is pressed
-        searchFld = new AutoCompleteTextField(NUM_REMEMBERED_SEARCHES);
+        searchFld = new AutoCompleteTextField(ModifiableSizeInfo.NUM_REMEMBERED_SEARCHES.getSize());
         searchFld.setCaseSensitive(true);
         searchFld.setText("");
         searchFld.setColumns(20);
-        searchFld.setFont(LABEL_FONT_PLAIN);
+        searchFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         searchFld.setEditable(true);
-        searchFld.setForeground(Color.BLACK);
-        searchFld.setBackground(Color.WHITE);
+        searchFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        searchFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         searchFld.setBorder(border);
 
-        // Add a listener for kee press events
+        // Add a listener for key press events
         searchFld.addKeyListener(new KeyAdapter()
         {
             /******************************************************************
@@ -229,14 +235,14 @@ public class CcddSearchDialog extends CcddFrameHandler
                     && !ke.isControlDown()
                     && !ke.isAltDown()
                     && !ke.isMetaDown()
-                    && LABEL_FONT_PLAIN.canDisplay(ke.getKeyCode()))
+                    && ModifiableFontInfo.INPUT_TEXT.getFont().canDisplay(ke.getKeyCode()))
                 {
                     // Get the list of remembered searches from the program
                     // preferences. This is done as a key press occurs so that
                     // the list is updated to the latest one. If multiple
                     // search dialogs are open this allows them to 'share' the
                     // list rather than overwriting each other
-                    List<String> searches = new ArrayList<String>(NUM_REMEMBERED_SEARCHES);
+                    List<String> searches = new ArrayList<String>(ModifiableSizeInfo.NUM_REMEMBERED_SEARCHES.getSize());
                     searches.addAll(Arrays.asList(ccddMain.getProgPrefs().get(SEARCH_STRINGS,
                                                                               "").split(AUTO_COMPLETE_TEXT_SEPARATOR)));
                     searchFld.setList(searches);
@@ -245,16 +251,17 @@ public class CcddSearchDialog extends CcddFrameHandler
         });
 
         gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING * 2;
-        gbc.insets.bottom = LABEL_VERTICAL_SPACING / 2;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
+        gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         gbc.gridy++;
         dialogPnl.add(searchFld, gbc);
 
         // Create a check box for ignoring the text case
         ignoreCaseCb = new JCheckBox("Ignore text case");
-        ignoreCaseCb.setFont(LABEL_FONT_BOLD);
+        ignoreCaseCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         ignoreCaseCb.setBorder(BorderFactory.createEmptyBorder());
-        ignoreCaseCb.setToolTipText("Ignore case when matching the search string");
+        ignoreCaseCb.setToolTipText(CcddUtilities.wrapText("Ignore case when matching the search string",
+                                                           ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
 
         // Add a listener for check box selection changes
         ignoreCaseCb.addActionListener(new ActionListener()
@@ -271,17 +278,18 @@ public class CcddSearchDialog extends CcddFrameHandler
             }
         });
 
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.gridy++;
         dialogPnl.add(ignoreCaseCb, gbc);
 
         // Create a check box for allow a regular expression in the search
         // string
         allowRegexCb = new JCheckBox("Allow regular expression");
-        allowRegexCb.setFont(LABEL_FONT_BOLD);
+        allowRegexCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         allowRegexCb.setBorder(BorderFactory.createEmptyBorder());
-        allowRegexCb.setToolTipText("Allow the search string to contain a regular expression");
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+        allowRegexCb.setToolTipText(CcddUtilities.wrapText("Allow the search string to contain a regular expression",
+                                                           ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.gridy++;
         dialogPnl.add(allowRegexCb, gbc);
 
@@ -293,9 +301,10 @@ public class CcddSearchDialog extends CcddFrameHandler
             // Create a check box for ignoring matches within the internal
             // tables
             dataTablesOnlyCb = new JCheckBox("Search data table cells only");
-            dataTablesOnlyCb.setFont(LABEL_FONT_BOLD);
+            dataTablesOnlyCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             dataTablesOnlyCb.setBorder(BorderFactory.createEmptyBorder());
-            dataTablesOnlyCb.setToolTipText("Search only the cells in the data tables");
+            dataTablesOnlyCb.setToolTipText(CcddUtilities.wrapText("Search only the cells in the data tables",
+                                                                   ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
             gbc.gridy++;
             dialogPnl.add(dataTablesOnlyCb, gbc);
 
@@ -337,11 +346,12 @@ public class CcddSearchDialog extends CcddFrameHandler
                 // Create the column selection check box and label to display
                 // the selected column(s)
                 selectedColumnsCb = new JCheckBox("Search selected columns");
-                selectedColumnsCb.setFont(LABEL_FONT_BOLD);
+                selectedColumnsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 selectedColumnsCb.setBorder(BorderFactory.createEmptyBorder());
-                selectedColumnsCb.setToolTipText("Search only selected columns in the data tables");
+                selectedColumnsCb.setToolTipText(CcddUtilities.wrapText("Search only selected columns in the data tables",
+                                                                        ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
                 selectedColumnsLbl = new MultilineLabel();
-                selectedColumnsLbl.setFont(LABEL_FONT_PLAIN);
+                selectedColumnsLbl.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
 
                 // Set the layout manager characteristics for the column
                 // selection panel
@@ -354,7 +364,7 @@ public class CcddSearchDialog extends CcddFrameHandler
                                                                    GridBagConstraints.FIRST_LINE_START,
                                                                    GridBagConstraints.NONE,
                                                                    new Insets(0, 0, 0, 0),
-                                                                   LABEL_HORIZONTAL_SPACING,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
                                                                    0);
 
                 // Add the column selection check box and label to the column
@@ -362,10 +372,10 @@ public class CcddSearchDialog extends CcddFrameHandler
                 JPanel selectedColumnsPnl = new JPanel(new GridBagLayout());
                 selectedColumnsPnl.add(selectedColumnsCb, subgbc);
                 subgbc.weightx = 1.0;
-                subgbc.insets.left = LABEL_HORIZONTAL_SPACING;
+                subgbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                 subgbc.gridx++;
                 selectedColumnsPnl.add(selectedColumnsLbl, subgbc);
-                gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                 gbc.gridy++;
                 dialogPnl.add(selectedColumnsPnl, gbc);
 
@@ -458,12 +468,12 @@ public class CcddSearchDialog extends CcddFrameHandler
 
         // Create the results and number of results found labels
         JLabel resultsLbl = new JLabel("Search results");
-        resultsLbl.setFont(LABEL_FONT_BOLD);
-        resultsLbl.setForeground(LABEL_TEXT_COLOR);
+        resultsLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        resultsLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
         numResultsLbl = new JLabel();
-        numResultsLbl.setFont(LABEL_FONT_PLAIN);
-        gbc.insets.top = LABEL_VERTICAL_SPACING;
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+        numResultsLbl.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.insets.bottom = 0;
         gbc.gridy++;
 
@@ -600,8 +610,8 @@ public class CcddSearchDialog extends CcddFrameHandler
 
                     // Create a highlighter painter
                     DefaultHighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(isSelected
-                                                                                                               ? Color.BLACK
-                                                                                                               : TEXT_HIGHLIGHT_COLOR);
+                                                                                                               ? ModifiableColorInfo.INPUT_TEXT.getColor()
+                                                                                                               : ModifiableColorInfo.TEXT_HIGHLIGHT.getColor());
 
                     // Check if case is to be ignored
                     if (ignoreCaseCb.isSelected())
@@ -655,10 +665,10 @@ public class CcddSearchDialog extends CcddFrameHandler
                                              ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
                                              TableSelectionMode.SELECT_BY_CELL,
                                              true,
-                                             TABLE_BACK_COLOR,
+                                             ModifiableColorInfo.TABLE_BACK.getColor(),
                                              false,
                                              true,
-                                             LABEL_FONT_PLAIN,
+                                             ModifiableFontInfo.OTHER_TABLE_CELL.getFont(),
                                              true);
 
         // Define the panel to contain the table
@@ -768,7 +778,6 @@ public class CcddSearchDialog extends CcddFrameHandler
                     openTables();
                 }
             });
-
         }
 
         // Print inconsistencies button

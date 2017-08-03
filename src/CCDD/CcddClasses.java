@@ -7,13 +7,9 @@
 package CCDD;
 
 import static CCDD.CcddConstants.AUTO_COMPLETE_TEXT_SEPARATOR;
-import static CCDD.CcddConstants.CELL_HORIZONTAL_PADDING;
-import static CCDD.CcddConstants.CELL_VERTICAL_PADDING;
-import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
+import static CCDD.CcddConstants.LAF_CHECK_BOX_HEIGHT;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
-import static CCDD.CcddConstants.TOOL_TIP_MAXIMUM_LENGTH;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -22,39 +18,61 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.JTextComponent;
 import javax.swing.text.PlainDocument;
+import javax.swing.text.Position;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DefaultApplicationField;
 import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSizeInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 
 /******************************************************************************
  * CFS Command & Data Dictionary common classes class
@@ -100,7 +118,7 @@ public class CcddClasses
          * @param messageType
          *            JOptionPane message type
          *********************************************************************/
-        CCDDException(String message, int messageType)
+        protected CCDDException(String message, int messageType)
         {
             this.message = message;
             this.messageType = messageType;
@@ -112,7 +130,7 @@ public class CcddClasses
          * @param message
          *            exception message
          *********************************************************************/
-        CCDDException(String message)
+        protected CCDDException(String message)
         {
             this(message, JOptionPane.ERROR_MESSAGE);
         }
@@ -120,7 +138,7 @@ public class CcddClasses
         /**********************************************************************
          * CCDD exception class constructor for empty error message
          *********************************************************************/
-        CCDDException()
+        protected CCDDException()
         {
             this("", JOptionPane.ERROR_MESSAGE);
         }
@@ -900,13 +918,13 @@ public class CcddClasses
          *            indices of the columns containing the sample rates; null
          *            if no rate column exists
          *********************************************************************/
-        TableModification(Object[] rowData,
-                          Object[] originalRowData,
-                          int variableColumn,
-                          int dataTypeColumn,
-                          int arraySizeColumn,
-                          int bitLengthColumn,
-                          List<Integer> rateColumn)
+        protected TableModification(Object[] rowData,
+                                    Object[] originalRowData,
+                                    int variableColumn,
+                                    int dataTypeColumn,
+                                    int arraySizeColumn,
+                                    int bitLengthColumn,
+                                    List<Integer> rateColumn)
         {
             this.rowData = rowData;
             this.originalRowData = originalRowData;
@@ -926,7 +944,7 @@ public class CcddClasses
          * @param originalRowData
          *            original contents of the row of data from the macro table
          *********************************************************************/
-        TableModification(Object[] rowData, Object[] originalRowData)
+        protected TableModification(Object[] rowData, Object[] originalRowData)
         {
             this(rowData, originalRowData, -1, -1, -1, -1, null);
         }
@@ -953,11 +971,11 @@ public class CcddClasses
          *            index of the column containing the bit length; -1 if no
          *            bit length column exists
          *********************************************************************/
-        TableModification(Object[] rowData,
-                          int variableColumn,
-                          int dataTypeColumn,
-                          int arraySizeColumn,
-                          int bitLengthColumn)
+        protected TableModification(Object[] rowData,
+                                    int variableColumn,
+                                    int dataTypeColumn,
+                                    int arraySizeColumn,
+                                    int bitLengthColumn)
         {
             this(rowData,
                  null,
@@ -1056,7 +1074,7 @@ public class CcddClasses
         /**********************************************************************
          * Table definition class constructor
          *********************************************************************/
-        TableDefinition()
+        protected TableDefinition()
         {
             // Initialize storage for the table information
             data = new ArrayList<String>();
@@ -1073,7 +1091,7 @@ public class CcddClasses
          * @param description
          *            table description
          *********************************************************************/
-        TableDefinition(String tableName, String description)
+        protected TableDefinition(String tableName, String description)
         {
             this();
 
@@ -1210,7 +1228,7 @@ public class CcddClasses
          * @param description
          *            table type description
          *********************************************************************/
-        TableTypeDefinition(String typeName, String description)
+        protected TableTypeDefinition(String typeName, String description)
         {
             this.typeName = typeName;
             this.description = description;
@@ -1329,13 +1347,13 @@ public class CcddClasses
          *            list of other associated column indices, model
          *            coordinates; null if none
          *********************************************************************/
-        AssociatedColumns(boolean useViewIndex,
-                          int name,
-                          int dataType,
-                          int enumeration,
-                          int minimum,
-                          int maximum,
-                          List<Integer> other)
+        protected AssociatedColumns(boolean useViewIndex,
+                                    int name,
+                                    int dataType,
+                                    int enumeration,
+                                    int minimum,
+                                    int maximum,
+                                    List<Integer> other)
         {
             // Store the column indices. Adjust to view coordinates based on
             // the input flag
@@ -1545,7 +1563,7 @@ public class CcddClasses
             }
 
             this.toolTipText = CcddUtilities.wrapText(toolTipText,
-                                                      TOOL_TIP_MAXIMUM_LENGTH);
+                                                      ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize());
         }
 
         /**********************************************************************
@@ -2515,7 +2533,7 @@ public class CcddClasses
          * @param rateName
          *            rate column name (viewable) for this data stream
          *********************************************************************/
-        RateInformation(String rateName)
+        protected RateInformation(String rateName)
         {
             this.rateName = rateName;
 
@@ -2683,7 +2701,7 @@ public class CcddClasses
          * @param isRemoveAll
          *            true if all nodes should be removed
          *********************************************************************/
-        NodeCheckResults(boolean isRemoved, boolean isRemoveAll)
+        protected NodeCheckResults(boolean isRemoved, boolean isRemoveAll)
         {
             this.isRemoved = isRemoved;
             this.isRemoveAll = isRemoveAll;
@@ -2842,7 +2860,7 @@ public class CcddClasses
     /**************************************************************************
      * Variable generator class
      *************************************************************************/
-    public static class VariableGenerator
+    protected static class VariableGenerator
     {
         /**********************************************************************
          * Generate a telemetry data object
@@ -2926,7 +2944,7 @@ public class CcddClasses
     /**************************************************************************
      * Variable class. Used to denote a variable that is downlinked
      *************************************************************************/
-    public static class Variable implements Comparable<Variable>
+    protected static class Variable implements Comparable<Variable>
     {
         private int size;
         private String pathName;
@@ -4172,7 +4190,7 @@ public class CcddClasses
          * provide the specific table to validate. If no table is specified
          * then the action is performed
          *********************************************************************/
-        ValidateCellActionListener()
+        protected ValidateCellActionListener()
         {
             table = null;
         }
@@ -4185,7 +4203,7 @@ public class CcddClasses
          *            cell validation; null perform the action with no
          *            validation check
          *********************************************************************/
-        ValidateCellActionListener(CcddJTableHandler table)
+        protected ValidateCellActionListener(CcddJTableHandler table)
         {
             this.table = table;
         }
@@ -4226,7 +4244,7 @@ public class CcddClasses
      * Custom combo box with padding for the list items and tool tip text
      *************************************************************************/
     @SuppressWarnings("serial")
-    public static class PaddedComboBox extends JComboBox<String>
+    protected static class PaddedComboBox extends JComboBox<String>
     {
         private boolean inLayOut = false;
 
@@ -4236,7 +4254,7 @@ public class CcddClasses
          * @param font
          *            combo box list item font
          *********************************************************************/
-        PaddedComboBox(Font font)
+        protected PaddedComboBox(Font font)
         {
             setListItemCharacteristics(null, font);
         }
@@ -4251,7 +4269,7 @@ public class CcddClasses
          * @param font
          *            combo box list item font
          *********************************************************************/
-        PaddedComboBox(String[] items, Font font)
+        protected PaddedComboBox(String[] items, Font font)
         {
             super(items);
 
@@ -4271,7 +4289,7 @@ public class CcddClasses
          * @param font
          *            combo box list item font
          *********************************************************************/
-        PaddedComboBox(String[] items, String[] toolTips, Font font)
+        protected PaddedComboBox(String[] items, String[] toolTips, Font font)
         {
             super(items);
 
@@ -4353,10 +4371,10 @@ public class CcddClasses
                                                                              cellHasFocus);
 
                     // Add padding to the list item
-                    lbl.setBorder(BorderFactory.createEmptyBorder(CELL_VERTICAL_PADDING - 2,
-                                                                  CELL_HORIZONTAL_PADDING - 2,
-                                                                  CELL_VERTICAL_PADDING - 2,
-                                                                  CELL_HORIZONTAL_PADDING - 2));
+                    lbl.setBorder(BorderFactory.createEmptyBorder(ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() - 2,
+                                                                  ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() - 2,
+                                                                  ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() - 2,
+                                                                  ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() - 2));
 
                     // Check if the list item is valid and if it has tool tip
                     // text associated with it
@@ -4366,7 +4384,8 @@ public class CcddClasses
                         && value != null)
                     {
                         // Set the item's tool tip text
-                        list.setToolTipText(toolTips[index]);
+                        list.setToolTipText(CcddUtilities.wrapText(toolTips[index],
+                                                                   ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
                     }
 
                     return lbl;
@@ -4404,10 +4423,241 @@ public class CcddClasses
     }
 
     /**************************************************************************
+     * Modifiable font class
+     *************************************************************************/
+    @SuppressWarnings("serial")
+    protected static class ModifiableFont extends Font
+    {
+        private final String fontIdentifier;
+
+        /**********************************************************************
+         * Modifiable font class constructor. Allows assigning an identifier to
+         * the font for the purpose of identifying those Swing components that
+         * utilize the font in the event the font's characteristics are changed
+         * 
+         * @param fontIdentifier
+         *            font identifier. The identifier must be unique for each
+         *            modifiable font since this name is used to identify the
+         *            font as being used by a particular Swing component. The
+         *            program preferences key for the modifiable font
+         *            information is used as the identifier
+         * 
+         * @param fontFamily
+         *            font family
+         * 
+         * @param fontStyle
+         *            font style
+         * 
+         * @param fontSize
+         *            font size
+         *********************************************************************/
+        protected ModifiableFont(String fontIdentifier,
+                                 String fontFamily,
+                                 int fontStyle,
+                                 int fontSize)
+        {
+            // Create the font
+            super(fontFamily, fontStyle, fontSize);
+
+            // Store the font's identifier
+            this.fontIdentifier = fontIdentifier;
+        }
+
+        /**********************************************************************
+         * Get the modifiable font's identifier
+         * 
+         * @return Modifiable font's identifier
+         *********************************************************************/
+        protected String getModifiableFontIdentifier()
+        {
+            return fontIdentifier;
+        }
+    }
+
+    /**************************************************************************
+     * Modifiable color class
+     *************************************************************************/
+    @SuppressWarnings("serial")
+    protected static class ModifiableColor extends Color
+    {
+        private final String colorIdentifier;
+
+        /**********************************************************************
+         * Modifiable color class constructor. Allows assigning an identifier
+         * to the color for the purpose of identifying those Swing components
+         * that utilize the color in the event the color's characteristics are
+         * changed
+         * 
+         * @param colorIdentifier
+         *            color identifier. The identifier must be unique for each
+         *            modifiable color since this name is used to identify the
+         *            color as being used by a particular Swing component. The
+         *            program preferences key for the modifiable color
+         *            information is used as the identifier
+         * 
+         * @param red
+         *            red color component
+         * 
+         * @param green
+         *            green color component
+         * 
+         * @param blue
+         *            blue color component
+         *********************************************************************/
+        protected ModifiableColor(String colorIdentifier,
+                                  int red,
+                                  int green,
+                                  int blue)
+        {
+            // Create the color
+            super(red, green, blue);
+
+            // Store the color's identifier
+            this.colorIdentifier = colorIdentifier;
+        }
+
+        /**********************************************************************
+         * Get the modifiable color's identifier
+         * 
+         * @return Modifiable color's identifier
+         *********************************************************************/
+        protected String getModifiableColorIdentifier()
+        {
+            return colorIdentifier;
+        }
+    }
+
+    /**************************************************************************
+     * Create a color selection component based on a check box. In place of the
+     * check box a color box is displayed
+     *************************************************************************/
+    @SuppressWarnings("serial")
+    protected static class ColorCheckBox extends JCheckBox
+    {
+        private Color checkBoxColor;
+        private ImageIcon noFocusIcon;
+        private ImageIcon focusIcon;
+
+        /**********************************************************************
+         * Color check box constructor
+         * 
+         * @param text
+         *            label to display along with the check box
+         * 
+         * @param color
+         *            check box color
+         *********************************************************************/
+        protected ColorCheckBox(String text, ModifiableColor color)
+        {
+            // Set the check box icon color
+            setIconColor(color);
+
+            // Create a label for the button. Adjust the label so that only the
+            // initial character is capitalized. The initial caps version is
+            // used when displaying the color selection dialog
+            text = text.toLowerCase();
+            text = Character.toUpperCase(text.charAt(0)) + text.substring(1);
+            setHorizontalAlignment(JCheckBox.LEFT);
+            setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            setText(text);
+        }
+
+        /**********************************************************************
+         * Return the color selected for the check box
+         *********************************************************************/
+        protected Color getIconColor()
+        {
+            return checkBoxColor;
+        }
+
+        /**********************************************************************
+         * Create the icons to display for the check box in the selected color
+         * 
+         * @param color
+         *            color in which to display the check box icon
+         *********************************************************************/
+        protected void setIconColor(Color color)
+        {
+            // Store the selected color
+            checkBoxColor = color;
+
+            // Create the icon for when the check box does not have the
+            // keyboard focus and the mouse cursor is not positioned over the
+            // check box
+            noFocusIcon = createIcon(Color.BLACK);
+
+            // Create the icon for when the check box has the keyboard focus
+            // and the mouse cursor is not positioned over the check box
+            focusIcon = createIcon(Color.WHITE);
+
+            // Create the icon for when the mouse cursor is positioned over the
+            // check box
+            setRolloverIcon(createIcon(Color.LIGHT_GRAY));
+            setRolloverSelectedIcon(createIcon(Color.LIGHT_GRAY));
+
+            // Select the icons created for use with the check box. This
+            // ensures the color check boxes are drawn as color check boxes and
+            // not regular check boxes initially
+            setIconFocus(false);
+        }
+
+        /**********************************************************************
+         * Create a check box color icon
+         * 
+         * @param size
+         *            width and height of the icon in pixels
+         * 
+         * @param borderColor
+         *            color with which to outline the icon
+         * 
+         * @return Icon in the selected color with a border in the color
+         *         specified
+         *********************************************************************/
+        private ImageIcon createIcon(Color borderColor)
+        {
+            // Create an image to work with
+            BufferedImage image = new BufferedImage(LAF_CHECK_BOX_HEIGHT,
+                                                    LAF_CHECK_BOX_HEIGHT,
+                                                    BufferedImage.TYPE_INT_ARGB);
+
+            // Create the graphics object from the image
+            Graphics2D g2 = image.createGraphics();
+
+            // Draw the icon image
+            g2.setColor(borderColor);
+            g2.drawRect(0, 0, LAF_CHECK_BOX_HEIGHT - 1, LAF_CHECK_BOX_HEIGHT - 1);
+            g2.setColor(checkBoxColor);
+            g2.fillRect(1, 1, LAF_CHECK_BOX_HEIGHT - 2, LAF_CHECK_BOX_HEIGHT - 2);
+
+            // Delete the graphics object
+            g2.dispose();
+
+            return new ImageIcon(image);
+        }
+
+        /**********************************************************************
+         * Update the color check box icon depending whether or not it has the
+         * keyboard focus
+         * 
+         * @param isFocus
+         *            true if the check box has the key board focus
+         *********************************************************************/
+        protected void setIconFocus(boolean isFocus)
+        {
+            // Select the icon to use based on the focus flag
+            ImageIcon icon = isFocus ? focusIcon : noFocusIcon;
+
+            // Set the icon to display
+            setIcon(icon);
+            setSelectedIcon(icon);
+        }
+    }
+
+    /**************************************************************************
      * Custom split pane class
      *************************************************************************/
     @SuppressWarnings("serial")
-    public static class CustomSplitPane extends JSplitPane
+    protected static class CustomSplitPane extends JSplitPane
     {
         /**********************************************************************
          * Custom split pane class constructor. Create a horizontally or
@@ -4433,10 +4683,10 @@ public class CcddClasses
          *            horizontally or JSplitPane.VERTICAL_SPLIT to split the
          *            pane vertically
          *********************************************************************/
-        CustomSplitPane(Component leftUpperComp,
-                        Component rightLowerComp,
-                        final Component dividerComp,
-                        int orientation)
+        protected CustomSplitPane(Component leftUpperComp,
+                                  Component rightLowerComp,
+                                  final Component dividerComp,
+                                  int orientation)
         {
             super(orientation, true, leftUpperComp, rightLowerComp);
 
@@ -4469,8 +4719,8 @@ public class CcddClasses
                         public int getDividerSize()
                         {
                             int size = orientation == JSplitPane.HORIZONTAL_SPLIT
-                                                                                 ? LABEL_HORIZONTAL_SPACING / 2
-                                                                                 : LABEL_VERTICAL_SPACING;
+                                                                                 ? ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2
+                                                                                 : ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
 
                             // Check if a component is provided to represent
                             // the divider
@@ -4797,7 +5047,7 @@ public class CcddClasses
          * @param compareColumn
          *            index of the column for indexOf and contains comparisons
          **********************************************************************/
-        ArrayListMultiple(int compareColumn)
+        protected ArrayListMultiple(int compareColumn)
         {
             this.compareColumn = compareColumn;
         }
@@ -4806,7 +5056,7 @@ public class CcddClasses
          * Array list class constructor with string arrays; assumes the first
          * column is the comparison column
          **********************************************************************/
-        ArrayListMultiple()
+        protected ArrayListMultiple()
         {
             this(0);
         }
@@ -4871,7 +5121,7 @@ public class CcddClasses
          * WrapLayout constructor. Creates a new WrapLayout with a left
          * alignment and a default 5-unit horizontal and vertical gap.
          *********************************************************************/
-        public WrapLayout()
+        protected WrapLayout()
         {
             super();
         }
@@ -4885,7 +5135,7 @@ public class CcddClasses
          * @param align
          *            the alignment value
          *********************************************************************/
-        WrapLayout(int align)
+        protected WrapLayout(int align)
         {
             super(align);
         }
@@ -4989,7 +5239,7 @@ public class CcddClasses
                             m.setPreferredSize(new Dimension(maxWidth,
                                                              ((JSeparator) m).getOrientation() == JSeparator.HORIZONTAL
                                                                                                                        ? 3
-                                                                                                                       : -LABEL_VERTICAL_SPACING
+                                                                                                                       : -ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing()
                                                                                                                        * 2
                                                                                                                        / 3
                                                                                                                        - 1));
@@ -5074,13 +5324,13 @@ public class CcddClasses
      * component
      *************************************************************************/
     @SuppressWarnings("serial")
-    public static class MultilineLabel extends JTextArea
+    protected static class MultilineLabel extends JTextArea
     {
         /**********************************************************************
          * Multiple line label class constructor. Assumes the label text is
          * blank
          *********************************************************************/
-        public MultilineLabel()
+        protected MultilineLabel()
         {
             this("");
         }
@@ -5091,7 +5341,7 @@ public class CcddClasses
          * @param text
          *            label text
          *********************************************************************/
-        public MultilineLabel(String text)
+        protected MultilineLabel(String text)
         {
             super(text);
 
@@ -5145,7 +5395,7 @@ public class CcddClasses
      * nuclear facility.
      *************************************************************************/
     @SuppressWarnings("serial")
-    public static class AutoCompleteTextField extends JTextField
+    protected static class AutoCompleteTextField extends JTextField
     {
         // List containing the auto-completion text
         private List<String> autoCompList;
@@ -5164,7 +5414,7 @@ public class CcddClasses
         /**********************************************************************
          * Auto-complete document class
          *********************************************************************/
-        class AutoDocument extends PlainDocument
+        private class AutoDocument extends PlainDocument
         {
             /******************************************************************
              * Replace text in the text field
@@ -5521,5 +5771,819 @@ public class CcddClasses
             return CcddUtilities.removeTrailer(listString,
                                                AUTO_COMPLETE_TEXT_SEPARATOR);
         }
+    }
+
+    /**************************************************************************
+     * Font chooser class. This open source class allows creation and
+     * manipulation of a dialog component for selection of a font based on
+     * family, style, and size. The code has modifications to the original
+     * source code taken from https://sourceforge.net/projects/jfontchooser
+     * 
+     * Copyright 2004-2008 Masahiko SAWAI All Rights Reserved.
+     * 
+     * Permission is hereby granted, free of charge, to any person obtaining a
+     * copy of this software and associated documentation files (the
+     * "Software"), to deal in the Software without restriction, including
+     * without limitation the rights to use, copy, modify, merge, publish,
+     * distribute, sublicense, and/or sell copies of the Software, and to
+     * permit persons to whom the Software is furnished to do so, subject to
+     * the following conditions:
+     * 
+     * The above copyright notice and this permission notice shall be included
+     * in all copies or substantial portions of the Software.
+     * 
+     * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+     * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+     * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+     * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+     * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+     * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+     * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+     *************************************************************************/
+    @SuppressWarnings("serial")
+    protected static class JFontChooser extends JComponent
+    {
+        // Default selected font and controls font
+        private static final Font DEFAULT_SELECTED_FONT = new Font("Monospaced", Font.PLAIN, 13);
+        private static final Font DEFAULT_FONT = ModifiableFontInfo.LABEL_PLAIN.getFont();
+
+        // Font styles
+        private static final int[] FONT_STYLE_CODES =
+        {
+         Font.PLAIN, Font.BOLD, Font.ITALIC, Font.BOLD | Font.ITALIC
+        };
+
+        // Default font sizes
+        private static final String[] DEFAULT_FONT_SIZE_STRINGS =
+        {
+         "8", "9", "10", "11", "12", "13", "14", "16", "18", "20", "22", "24", "26", "28", "36", "48", "72",
+        };
+
+        // Arrays containing the available font families, styles, and sizes
+        private String[] fontStyleNames;
+        private String[] fontFamilyNames;
+        private final String[] fontSizeStrings;
+
+        // Components referenced by multiple methods
+        private JTextField fontFamilyTextField;
+        private JTextField fontStyleTextField;
+        private JTextField fontSizeTextField;
+        private JList<String> fontNameList;
+        private JList<String> fontStyleList;
+        private JList<String> fontSizeList;
+        private JTextField sampleText;
+        private final Border borderPnl;
+        private final Border borderLbl;
+        private final Border borderFld;
+
+        /**********************************************************************
+         * Font chooser constructor. Uses a default list of font sizes
+         *********************************************************************/
+        protected JFontChooser()
+        {
+            this(DEFAULT_FONT_SIZE_STRINGS);
+        }
+
+        /**********************************************************************
+         * Font chooser constructor
+         * 
+         * @param fontSizeStrings
+         *            array containing the available font sizes; null to use
+         *            the default sizes
+         *********************************************************************/
+        protected JFontChooser(String[] fontSizeStrings)
+        {
+            if (fontSizeStrings == null)
+            {
+                fontSizeStrings = DEFAULT_FONT_SIZE_STRINGS;
+            }
+
+            this.fontSizeStrings = fontSizeStrings;
+
+            borderPnl = BorderFactory.createEmptyBorder(0,
+                                                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                        ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2);
+            borderLbl = BorderFactory.createEmptyBorder(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                        0,
+                                                        ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                        0);
+            borderFld = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                           Color.LIGHT_GRAY,
+                                                                                           Color.GRAY),
+                                                           BorderFactory.createEmptyBorder(2, 2, 2, 2));
+
+            JPanel selectPanel = new JPanel();
+            selectPanel.setLayout(new BoxLayout(selectPanel, BoxLayout.X_AXIS));
+            selectPanel.setBorder(BorderFactory.createEmptyBorder());
+            selectPanel.add(getFontFamilyPanel());
+            selectPanel.add(getFontStylePanel());
+            selectPanel.add(getFontSizePanel());
+
+            JPanel contentsPanel = new JPanel();
+            contentsPanel.setBorder(BorderFactory.createEmptyBorder());
+            contentsPanel.setLayout(new BorderLayout());
+            contentsPanel.add(selectPanel, BorderLayout.CENTER);
+            contentsPanel.add(getSamplePanel(), BorderLayout.SOUTH);
+
+            setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+            setBorder(BorderFactory.createEmptyBorder());
+            add(contentsPanel);
+            setSelectedFont(DEFAULT_SELECTED_FONT);
+        }
+
+        /**********************************************************************
+         * Get the font family text field
+         * 
+         * @return Reference to the font family text field
+         *********************************************************************/
+        private JTextField getFontFamilyTextField()
+        {
+            if (fontFamilyTextField == null)
+            {
+                fontFamilyTextField = new JTextField();
+                fontFamilyTextField.setBorder(borderFld);
+                fontFamilyTextField.addFocusListener(new TextFieldFocusHandlerForTextSelection(fontFamilyTextField));
+                fontFamilyTextField.addKeyListener(new TextFieldKeyHandlerForListSelectionUpDown(getFontFamilyList()));
+                fontFamilyTextField.getDocument().addDocumentListener(new ListSearchTextFieldDocumentHandler(getFontFamilyList()));
+                fontFamilyTextField.setFont(DEFAULT_FONT);
+            }
+
+            return fontFamilyTextField;
+        }
+
+        /**********************************************************************
+         * Get the font style text field
+         * 
+         * @return Reference to the font style text field
+         *********************************************************************/
+        private JTextField getFontStyleTextField()
+        {
+            if (fontStyleTextField == null)
+            {
+                fontStyleTextField = new JTextField();
+                fontStyleTextField.setBorder(borderFld);
+                fontStyleTextField.addFocusListener(new TextFieldFocusHandlerForTextSelection(fontStyleTextField));
+                fontStyleTextField.addKeyListener(new TextFieldKeyHandlerForListSelectionUpDown(getFontStyleList()));
+                fontStyleTextField.getDocument().addDocumentListener(new ListSearchTextFieldDocumentHandler(getFontStyleList()));
+                fontStyleTextField.setFont(DEFAULT_FONT);
+            }
+
+            return fontStyleTextField;
+        }
+
+        /**********************************************************************
+         * Get the font size text field
+         * 
+         * @return Reference to the font size text field
+         *********************************************************************/
+        private JTextField getFontSizeTextField()
+        {
+            if (fontSizeTextField == null)
+            {
+                fontSizeTextField = new JTextField();
+                fontSizeTextField.setBorder(borderFld);
+                fontSizeTextField.addFocusListener(new TextFieldFocusHandlerForTextSelection(fontSizeTextField));
+                fontSizeTextField.addKeyListener(new TextFieldKeyHandlerForListSelectionUpDown(getFontSizeList()));
+                fontSizeTextField.getDocument().addDocumentListener(new ListSearchTextFieldDocumentHandler(getFontSizeList()));
+                fontSizeTextField.setFont(DEFAULT_FONT);
+            }
+
+            return fontSizeTextField;
+        }
+
+        /**********************************************************************
+         * Get the font family list
+         * 
+         * @return List containing the font families
+         *********************************************************************/
+        private JList<String> getFontFamilyList()
+        {
+            if (fontNameList == null)
+            {
+                fontNameList = new JList<String>(getFontFamilies());
+                fontNameList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                fontNameList.addListSelectionListener(new ListSelectionHandler(getFontFamilyTextField()));
+                fontNameList.setSelectedIndex(0);
+                fontNameList.setFont(DEFAULT_FONT);
+                fontNameList.setFocusable(false);
+            }
+
+            return fontNameList;
+        }
+
+        /**********************************************************************
+         * Get the font style list
+         * 
+         * @return List containing the font styles
+         *********************************************************************/
+        private JList<String> getFontStyleList()
+        {
+            if (fontStyleList == null)
+            {
+                fontStyleList = new JList<String>(getFontStyleNames());
+                fontStyleList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                fontStyleList.addListSelectionListener(new ListSelectionHandler(getFontStyleTextField()));
+                fontStyleList.setSelectedIndex(0);
+                fontStyleList.setFont(DEFAULT_FONT);
+                fontStyleList.setFocusable(false);
+            }
+
+            return fontStyleList;
+        }
+
+        /**********************************************************************
+         * Get the font size list
+         * 
+         * @return List containing the font sizes
+         *********************************************************************/
+        private JList<String> getFontSizeList()
+        {
+            if (fontSizeList == null)
+            {
+                fontSizeList = new JList<String>(fontSizeStrings);
+                fontSizeList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                fontSizeList.addListSelectionListener(new ListSelectionHandler(getFontSizeTextField()));
+                fontSizeList.setSelectedIndex(0);
+                fontSizeList.setFont(DEFAULT_FONT);
+                fontSizeList.setFocusable(false);
+            }
+
+            return fontSizeList;
+        }
+
+        /**********************************************************************
+         * Get the selected font's family
+         * 
+         * @return Family of the selected font
+         *********************************************************************/
+        protected String getSelectedFontFamily()
+        {
+            String fontName = getFontFamilyList().getSelectedValue();
+            return fontName;
+        }
+
+        /**********************************************************************
+         * Set the selected font's family
+         * 
+         * @param family
+         *            font family
+         *********************************************************************/
+        protected void setSelectedFontFamily(String family)
+        {
+            String[] families = getFontFamilies();
+
+            for (int index = 0; index < families.length; index++)
+            {
+                if (families[index].toLowerCase().equals(family.toLowerCase()))
+                {
+                    getFontFamilyList().setSelectedIndex(index);
+                    break;
+                }
+            }
+
+            updateSampleFont();
+        }
+
+        /**********************************************************************
+         * Get the selected font's style
+         * 
+         * @return Style of the selected font
+         *********************************************************************/
+        protected int getSelectedFontStyle()
+        {
+            return FONT_STYLE_CODES[getFontStyleList().getSelectedIndex()];
+        }
+
+        /**********************************************************************
+         * Set the selected font's style
+         * 
+         * @param style
+         *            font style: Font.PLAIN, Font.BOLD, Font.ITALIC, or
+         *            Font.BOLD|Font.ITALIC
+         *********************************************************************/
+        protected void setSelectedFontStyle(int style)
+        {
+            for (int index = 0; index < FONT_STYLE_CODES.length; index++)
+            {
+                if (FONT_STYLE_CODES[index] == style)
+                {
+                    getFontStyleList().setSelectedIndex(index);
+                    break;
+                }
+            }
+
+            updateSampleFont();
+        }
+
+        /**********************************************************************
+         * Get the selected font's size
+         * 
+         * @return Size of the selected font
+         *********************************************************************/
+        protected int getSelectedFontSize()
+        {
+            int fontSize = 1;
+            String fontSizeString = getFontSizeTextField().getText();
+
+            while (true)
+            {
+                try
+                {
+                    fontSize = Integer.parseInt(fontSizeString);
+                    break;
+                }
+                catch (NumberFormatException nfe)
+                {
+                    fontSizeString = getFontSizeList().getSelectedValue();
+                    getFontSizeTextField().setText(fontSizeString);
+                }
+            }
+
+            return fontSize;
+        }
+
+        /**********************************************************************
+         * Set the selected font's size
+         * 
+         * @param size
+         *            font size
+         *********************************************************************/
+        protected void setSelectedFontSize(int size)
+        {
+            String sizeString = String.valueOf(size);
+
+            for (int index = 0; index < fontSizeStrings.length; index++)
+            {
+                if (fontSizeStrings[index].equals(sizeString))
+                {
+                    getFontSizeList().setSelectedIndex(index);
+                    break;
+                }
+            }
+
+            getFontSizeTextField().setText(sizeString);
+            updateSampleFont();
+        }
+
+        /**********************************************************************
+         * Get the selected font
+         * 
+         * @return Reference to the selected font
+         *********************************************************************/
+        protected Font getSelectedFont()
+        {
+            return new Font(getSelectedFontFamily(),
+                            getSelectedFontStyle(),
+                            getSelectedFontSize());
+        }
+
+        /**********************************************************************
+         * Set the selected font
+         * 
+         * @param font
+         *            font to select
+         *********************************************************************/
+        protected void setSelectedFont(Font font)
+        {
+            setSelectedFontFamily(font.getFamily());
+            setSelectedFontStyle(font.getStyle());
+            setSelectedFontSize(font.getSize());
+        }
+
+        /**********************************************************************
+         * Font chooser control list class
+         *********************************************************************/
+        private class ListSelectionHandler implements ListSelectionListener
+        {
+            private final JTextComponent textComponent;
+
+            /******************************************************************
+             * Font chooser control list class constructor
+             *****************************************************************/
+            ListSelectionHandler(JTextComponent textComponent)
+            {
+                this.textComponent = textComponent;
+            }
+
+            /******************************************************************
+             * Handle a value change in the list
+             *****************************************************************/
+            @Override
+            public void valueChanged(ListSelectionEvent lse)
+            {
+                if (lse.getValueIsAdjusting() == false)
+                {
+                    @SuppressWarnings("unchecked")
+                    JList<String> list = (JList<String>) lse.getSource();
+                    String selectedValue = CcddUtilities.removeHTMLTags(list.getSelectedValue());
+
+                    String oldValue = textComponent.getText();
+                    textComponent.setText(selectedValue);
+
+                    if (!oldValue.equalsIgnoreCase(selectedValue))
+                    {
+                        textComponent.selectAll();
+                        textComponent.requestFocus();
+                    }
+
+                    updateSampleFont();
+                }
+            }
+        }
+
+        /**********************************************************************
+         * Font chooser text field focus handling class
+         *********************************************************************/
+        private class TextFieldFocusHandlerForTextSelection extends FocusAdapter
+        {
+            private final JTextComponent textComponent;
+
+            /******************************************************************
+             * Font chooser text field focus handling class constructor
+             *****************************************************************/
+            public TextFieldFocusHandlerForTextSelection(JTextComponent textComponent)
+            {
+                this.textComponent = textComponent;
+            }
+
+            /******************************************************************
+             * Handle a focus gained event
+             *****************************************************************/
+            @Override
+            public void focusGained(FocusEvent fe)
+            {
+                textComponent.selectAll();
+            }
+
+            /******************************************************************
+             * Handle a focus lost event
+             *****************************************************************/
+            @Override
+            public void focusLost(FocusEvent fe)
+            {
+                textComponent.select(0, 0);
+                updateSampleFont();
+            }
+        }
+
+        /**********************************************************************
+         * Font chooser text field key handling class
+         *********************************************************************/
+        private class TextFieldKeyHandlerForListSelectionUpDown extends KeyAdapter
+        {
+            private final JList<String> targetList;
+
+            /******************************************************************
+             * Font chooser text field key handling class constructor
+             *****************************************************************/
+            public TextFieldKeyHandlerForListSelectionUpDown(JList<String> list)
+            {
+                targetList = list;
+            }
+
+            /******************************************************************
+             * Handle a key press event
+             *****************************************************************/
+            @Override
+            public void keyPressed(KeyEvent ke)
+            {
+                int index = targetList.getSelectedIndex();
+
+                switch (ke.getKeyCode())
+                {
+                    case KeyEvent.VK_UP:
+                        index = targetList.getSelectedIndex() - 1;
+
+                        if (index < 0)
+                        {
+                            index = 0;
+                        }
+
+                        targetList.setSelectedIndex(index);
+                        break;
+
+                    case KeyEvent.VK_DOWN:
+                        int listSize = targetList.getModel().getSize();
+                        index = targetList.getSelectedIndex() + 1;
+
+                        if (index >= listSize)
+                        {
+                            index = listSize - 1;
+                        }
+
+                        targetList.setSelectedIndex(index);
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        }
+
+        /**********************************************************************
+         * Font chooser list search handling class
+         *********************************************************************/
+        private class ListSearchTextFieldDocumentHandler implements DocumentListener
+        {
+            JList<String> targetList;
+
+            /******************************************************************
+             * Font chooser list selector class
+             *****************************************************************/
+            public class ListSelector implements Runnable
+            {
+                private final int index;
+
+                /**************************************************************
+                 * Font chooser list selector class constructor
+                 *************************************************************/
+                public ListSelector(int index)
+                {
+                    this.index = index;
+                }
+
+                /**************************************************************
+                 * Execute in a separate thread
+                 *************************************************************/
+                @Override
+                public void run()
+                {
+                    targetList.setSelectedIndex(index);
+                }
+            }
+
+            /******************************************************************
+             * Font chooser list search handling class constructor
+             *****************************************************************/
+            public ListSearchTextFieldDocumentHandler(JList<String> targetList)
+            {
+                this.targetList = targetList;
+            }
+
+            /******************************************************************
+             * Handle a list item insertion event
+             *****************************************************************/
+            @Override
+            public void insertUpdate(DocumentEvent de)
+            {
+                update(de);
+            }
+
+            /******************************************************************
+             * Handle a list item deletion event
+             *****************************************************************/
+            @Override
+            public void removeUpdate(DocumentEvent de)
+            {
+                update(de);
+            }
+
+            /******************************************************************
+             * Handle a list item change event
+             *****************************************************************/
+            @Override
+            public void changedUpdate(DocumentEvent de)
+            {
+                update(de);
+            }
+
+            /******************************************************************
+             * Update the list
+             *****************************************************************/
+            private void update(DocumentEvent de)
+            {
+                String newValue = "";
+
+                try
+                {
+                    Document doc = de.getDocument();
+                    newValue = doc.getText(0, doc.getLength());
+                }
+                catch (BadLocationException ble)
+                {
+                    ble.printStackTrace();
+                }
+
+                if (newValue.length() > 0)
+                {
+                    int index = targetList.getNextMatch(newValue, 0, Position.Bias.Forward);
+
+                    if (index < 0)
+                    {
+                        index = 0;
+                    }
+
+                    targetList.ensureIndexIsVisible(index);
+
+                    String matchedName = targetList.getModel().getElementAt(index).toString();
+
+                    if (newValue.equalsIgnoreCase(matchedName))
+                    {
+                        if (index != targetList.getSelectedIndex())
+                        {
+                            SwingUtilities.invokeLater(new ListSelector(index));
+                        }
+                    }
+                }
+            }
+        }
+
+        /**********************************************************************
+         * Refresh the sample text field
+         *********************************************************************/
+        private void updateSampleFont()
+        {
+            getSampleTextField().setFont(getSelectedFont());
+        }
+
+        /**********************************************************************
+         * Get the panel containing the font family selection controls
+         * 
+         * @return JPanel containing the font family selection controls
+         *********************************************************************/
+        private JPanel getFontFamilyPanel()
+        {
+            JPanel fontNamePnl = new JPanel();
+            fontNamePnl.setLayout(new BorderLayout());
+            fontNamePnl.setBorder(borderPnl);
+
+            JScrollPane scrollPane = new JScrollPane(getFontFamilyList());
+            scrollPane.getVerticalScrollBar().setFocusable(false);
+            scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+            JPanel familyPnl = new JPanel();
+            familyPnl.setLayout(new BorderLayout());
+            familyPnl.add(getFontFamilyTextField(), BorderLayout.NORTH);
+            familyPnl.add(scrollPane, BorderLayout.CENTER);
+
+            JLabel familyLbl = new JLabel(("Font Name"));
+            familyLbl.setBorder(borderLbl);
+            familyLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            familyLbl.setHorizontalAlignment(JLabel.LEFT);
+            familyLbl.setHorizontalTextPosition(JLabel.LEFT);
+            familyLbl.setLabelFor(getFontFamilyTextField());
+
+            fontNamePnl.add(familyLbl, BorderLayout.NORTH);
+            fontNamePnl.add(familyPnl, BorderLayout.CENTER);
+            return fontNamePnl;
+        }
+
+        /**********************************************************************
+         * Get the panel containing the font style selection controls
+         * 
+         * @return JPanel containing the font style selection controls
+         *********************************************************************/
+        private JPanel getFontStylePanel()
+        {
+            JPanel fontStylePnl = new JPanel();
+            fontStylePnl.setLayout(new BorderLayout());
+            fontStylePnl.setBorder(borderPnl);
+
+            JScrollPane scrollPane = new JScrollPane(getFontStyleList());
+            scrollPane.getVerticalScrollBar().setFocusable(false);
+            scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+            JPanel stylePnl = new JPanel();
+            stylePnl.setLayout(new BorderLayout());
+            stylePnl.add(getFontStyleTextField(), BorderLayout.NORTH);
+            stylePnl.add(scrollPane, BorderLayout.CENTER);
+
+            JLabel styleLbl = new JLabel(("Font Style"));
+            styleLbl.setBorder(borderLbl);
+            styleLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            styleLbl.setHorizontalAlignment(JLabel.LEFT);
+            styleLbl.setHorizontalTextPosition(JLabel.LEFT);
+            styleLbl.setLabelFor(getFontStyleTextField());
+
+            fontStylePnl.add(styleLbl, BorderLayout.NORTH);
+            fontStylePnl.add(stylePnl, BorderLayout.CENTER);
+            return fontStylePnl;
+        }
+
+        /**********************************************************************
+         * Get the panel containing the font size selection controls
+         * 
+         * @return JPanel containing the font size selection controls
+         *********************************************************************/
+        private JPanel getFontSizePanel()
+        {
+            JPanel fontSizePnl = new JPanel();
+            fontSizePnl.setLayout(new BorderLayout());
+            fontSizePnl.setBorder(borderPnl);
+
+            JScrollPane scrollPane = new JScrollPane(getFontSizeList());
+            scrollPane.getVerticalScrollBar().setFocusable(false);
+            scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+            JPanel sizePnl = new JPanel();
+            sizePnl.setLayout(new BorderLayout());
+            sizePnl.add(getFontSizeTextField(), BorderLayout.NORTH);
+            sizePnl.add(scrollPane, BorderLayout.CENTER);
+
+            JLabel sizeLbl = new JLabel(("Font Size"));
+            sizeLbl.setBorder(borderLbl);
+            sizeLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            sizeLbl.setHorizontalAlignment(JLabel.LEFT);
+            sizeLbl.setHorizontalTextPosition(JLabel.LEFT);
+            sizeLbl.setLabelFor(getFontSizeTextField());
+
+            fontSizePnl.add(sizeLbl, BorderLayout.NORTH);
+            fontSizePnl.add(sizePnl, BorderLayout.CENTER);
+            return fontSizePnl;
+        }
+
+        /**********************************************************************
+         * Get the panel containing the sample text field
+         * 
+         * @return JPanel containing the sample text field
+         *********************************************************************/
+        private JPanel getSamplePanel()
+        {
+            JPanel samplePnl = new JPanel();
+            samplePnl.setLayout(new BorderLayout());
+            samplePnl.setBorder(BorderFactory.createEmptyBorder(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                                0,
+                                                                ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2));
+            JLabel sampleLbl = new JLabel(("Sample"));
+            sampleLbl.setBorder(borderLbl);
+            sampleLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            sampleLbl.setHorizontalAlignment(JLabel.LEFT);
+            sampleLbl.setHorizontalTextPosition(JLabel.LEFT);
+            sampleLbl.setLabelFor(getFontSizeTextField());
+            samplePnl.add(sampleLbl, BorderLayout.NORTH);
+            samplePnl.add(getSampleTextField(), BorderLayout.CENTER);
+            samplePnl.setPreferredSize(new Dimension(samplePnl.getPreferredSize().width,
+                                                     samplePnl.getFontMetrics(new Font("DejaVu Sans",
+                                                                                       Font.BOLD,
+                                                                                       72)).getHeight() * 3 / 2));
+            return samplePnl;
+        }
+
+        /**********************************************************************
+         * Get the sample text field
+         * 
+         * @return reference to the sample text field
+         *********************************************************************/
+        private JTextField getSampleTextField()
+        {
+            if (sampleText == null)
+            {
+                sampleText = new JTextField(("Sample text 12345"));
+                sampleText.setBorder(borderFld);
+            }
+
+            return sampleText;
+        }
+
+        /**********************************************************************
+         * Get the array of available font families
+         * 
+         * @return Array of available font families
+         *********************************************************************/
+        private String[] getFontFamilies()
+        {
+            if (fontFamilyNames == null)
+            {
+                GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+                fontFamilyNames = env.getAvailableFontFamilyNames();
+            }
+
+            return fontFamilyNames;
+        }
+
+        /**********************************************************************
+         * Get the array of font style names
+         * 
+         * @return Array of font style names
+         *********************************************************************/
+        private String[] getFontStyleNames()
+        {
+            if (fontStyleNames == null)
+            {
+                fontStyleNames = new String[] {"Plain",
+                                               "<html><b>Bold",
+                                               "<html><i>Italic",
+                                               "<html><b><i>BoldItalic"};
+            }
+
+            return fontStyleNames;
+        }
+
+        // CCDD: Added method to create the chooser panel
+        /**********************************************************************
+         * Create a font chooser panel for insertion into a dialog, etc.
+         * 
+         * @return JPanel containing the font chooser components
+         *********************************************************************/
+        protected JPanel createChooserPanel()
+        {
+            JPanel chooserPnl = new JPanel();
+            chooserPnl.setBorder(BorderFactory.createEmptyBorder());
+            chooserPnl.add(this, BorderLayout.CENTER);
+            return chooserPnl;
+        }
+        // CCDD: End modification
     }
 }

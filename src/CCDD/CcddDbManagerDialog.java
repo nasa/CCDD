@@ -8,10 +8,6 @@ package CCDD;
 
 import static CCDD.CcddConstants.DATABASE_COMMENT_SEPARATOR;
 import static CCDD.CcddConstants.DEFAULT_DATABASE;
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.MAX_SQL_NAME_LENGTH;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.RADIO_BUTTON_CHANGE_EVENT;
@@ -42,6 +38,9 @@ import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddConstants.DbManagerDialogType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 
 /******************************************************************************
  * CFS Command & Data Dictionary project database manager dialog class
@@ -121,10 +120,10 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                                             0.0,
                                                             GridBagConstraints.LINE_START,
                                                             GridBagConstraints.BOTH,
-                                                            new Insets(LABEL_VERTICAL_SPACING,
-                                                                       LABEL_HORIZONTAL_SPACING,
-                                                                       LABEL_VERTICAL_SPACING,
-                                                                       LABEL_HORIZONTAL_SPACING),
+                                                            new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                                       ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
                                                             0,
                                                             0);
 
@@ -218,7 +217,6 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                                    selectPnl,
                                                    false,
                                                    gbc);
-
                         }
                         // No database exists to choose
                         else
@@ -506,34 +504,34 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.HORIZONTAL,
-                                                        new Insets(LABEL_VERTICAL_SPACING,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
                                                                    0,
-                                                                   LABEL_VERTICAL_SPACING / 2,
-                                                                   LABEL_HORIZONTAL_SPACING),
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
                                                         0,
                                                         0);
 
         // Create the name label and field
         JLabel nameLbl = new JLabel(nameText);
-        nameLbl.setFont(LABEL_FONT_BOLD);
+        nameLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         nameFld = new JTextField("", 20);
-        nameFld.setForeground(Color.BLACK);
+        nameFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
         nameFld.setBackground(enabled
-                                     ? Color.WHITE
-                                     : Color.LIGHT_GRAY);
-        nameFld.setFont(LABEL_FONT_PLAIN);
+                                     ? ModifiableColorInfo.INPUT_BACK.getColor()
+                                     : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
+        nameFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         nameFld.setEditable(enabled);
         nameFld.setBorder(border);
 
         // Create the description label and field
         JLabel descriptionLbl = new JLabel("Description");
-        descriptionLbl.setFont(LABEL_FONT_BOLD);
+        descriptionLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         descriptionFld = new JTextArea("", 3, 20);
-        descriptionFld.setForeground(Color.BLACK);
+        descriptionFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
         descriptionFld.setBackground(enabled
-                                            ? Color.WHITE
-                                            : Color.LIGHT_GRAY);
-        descriptionFld.setFont(LABEL_FONT_PLAIN);
+                                            ? ModifiableColorInfo.INPUT_BACK.getColor()
+                                            : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
+        descriptionFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         descriptionFld.setEditable(enabled);
         descriptionFld.setLineWrap(true);
         descriptionFld.setBorder(BorderFactory.createEmptyBorder());
@@ -541,23 +539,23 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         descriptionFld.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
         descScrollPane = new JScrollPane(descriptionFld);
         descScrollPane.setBackground(enabled
-                                            ? Color.WHITE
-                                            : Color.LIGHT_GRAY);
+                                            ? ModifiableColorInfo.INPUT_BACK.getColor()
+                                            : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
         descScrollPane.setBorder(border);
 
         // Add the name and description labels and fields to a panel
         JPanel nameDescPnl = new JPanel(new GridBagLayout());
         nameDescPnl.add(nameLbl, gbc);
         gbc.gridy++;
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING;
-        gbc.insets.bottom = LABEL_VERTICAL_SPACING;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+        gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
         nameDescPnl.add(nameFld, gbc);
         gbc.gridy++;
         gbc.insets.left = 0;
-        gbc.insets.bottom = LABEL_VERTICAL_SPACING / 2;
+        gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         nameDescPnl.add(descriptionLbl, gbc);
         gbc.gridy++;
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.insets.bottom = 0;
         nameDescPnl.add(descScrollPane, gbc);
 
@@ -618,10 +616,10 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
                         // Set the enable state for the input fields
                         nameFld.setEditable(true);
-                        nameFld.setBackground(Color.WHITE);
+                        nameFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                         descriptionFld.setEditable(true);
-                        descriptionFld.setBackground(Color.WHITE);
-                        descScrollPane.setBackground(Color.WHITE);
+                        descriptionFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
+                        descScrollPane.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                     }
                 }
             }

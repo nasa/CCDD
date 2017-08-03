@@ -10,17 +10,9 @@ import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.CANCEL_ICON;
 import static CCDD.CcddConstants.CHECK_BOX_CHANGE_EVENT;
 import static CCDD.CcddConstants.DELETE_ICON;
-import static CCDD.CcddConstants.DIALOG_INNER_PAD;
-import static CCDD.CcddConstants.DIALOG_MAX_LINE_LENGTH;
-import static CCDD.CcddConstants.DIALOG_MIN_WINDOW_WIDTH;
 import static CCDD.CcddConstants.ERROR_ICON;
 import static CCDD.CcddConstants.IGNORE_BUTTON;
 import static CCDD.CcddConstants.INFORMATION_ICON;
-import static CCDD.CcddConstants.INITIAL_VIEWABLE_LIST_ROWS;
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.OK_ICON;
 import static CCDD.CcddConstants.QUESTION_ICON;
@@ -28,9 +20,12 @@ import static CCDD.CcddConstants.RADIO_BUTTON_CHANGE_EVENT;
 import static CCDD.CcddConstants.UPDATE_BUTTON;
 import static CCDD.CcddConstants.WARNING_ICON;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
@@ -60,6 +55,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -69,15 +65,20 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
+import javax.swing.colorchooser.AbstractColorChooserPanel;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSizeInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 
 /******************************************************************************
  * CFS Command & Data Dictionary dialog handler class
@@ -1327,6 +1328,168 @@ public class CcddDialogHandler extends JDialog
     }
 
     /**************************************************************************
+     * Create a color choice and preview panel
+     * 
+     * @param chooser
+     *            reference to a JColorChooser
+     * 
+     * @param initialColor
+     *            color initially selected when the dialog appears
+     * 
+     * @return Reference to a JPanel containing the color choice and preview
+     *         panels
+     *************************************************************************/
+    protected JPanel getColorChoicePanel(final JColorChooser chooser, Color initialColor)
+    {
+        // Create a panel to hold the color preview text and color boxes
+        JPanel previewPanel = new JPanel(new BorderLayout());
+        JLabel previewLabel = new JLabel("Preview", SwingConstants.CENTER);
+        previewLabel.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+
+        // Calculate the size of the color preview boxes based on the width of
+        // the preview label text
+        int previewWidth = (int) previewLabel.getFontMetrics(ModifiableFontInfo.LABEL_BOLD.getFont()).getStringBounds(previewLabel.getText(),
+                                                                                                                      previewLabel.getGraphics()).getWidth() / 2 - 1;
+        Dimension previewSize = new Dimension(previewWidth, previewWidth);
+
+        // Create a panel to show the original color
+        JPanel initialPanel = new JPanel();
+        initialPanel.setOpaque(true);
+        initialPanel.setBackground(initialColor);
+        initialPanel.setPreferredSize(previewSize);
+
+        // Create a panel to show the new color
+        final JPanel newPanel = new JPanel();
+        newPanel.setOpaque(true);
+        newPanel.setBackground(initialColor);
+        newPanel.setPreferredSize(previewSize);
+
+        // Add the preview text and color boxes to the preview panel
+        previewPanel.add(previewLabel, BorderLayout.PAGE_START);
+        previewPanel.add(initialPanel, BorderLayout.LINE_START);
+        previewPanel.add(newPanel, BorderLayout.LINE_END);
+
+        // Add a listener for changes to the preview panel in order to capture
+        // color change events. These are generated when the user changes the
+        // color in the color chooser panel
+        previewPanel.addPropertyChangeListener("foreground", new PropertyChangeListener()
+        {
+            /******************************************************************
+             * Handle foreground color change events
+             *****************************************************************/
+            @Override
+            public void propertyChange(PropertyChangeEvent pce)
+            {
+                // Update the preview color to the current choice
+                newPanel.setBackground(chooser.getColor());
+            }
+        });
+
+        // Set the color chooser's color preview panel
+        chooser.setPreviewPanel(previewPanel);
+
+        // Create the panel for holding the color chooser(s) and the
+        // preview panel
+        JPanel colorPanel = new JPanel(new FlowLayout(FlowLayout.CENTER,
+                                                      20,
+                                                      5));
+
+        // Get the color chooser panels available to the current look & feel
+        AbstractColorChooserPanel[] chooserPanel = chooser.getChooserPanels();
+
+        // Check if there's only a single color chooser panel
+        if (chooserPanel.length == 1)
+        {
+            // Add the color chooser panel to the dialog panel
+            colorPanel.add(chooserPanel[0]);
+        }
+        // There's more than one color chooser panel
+        else
+        {
+            // Create a tabbed pane
+            JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+            tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            colorPanel.add(tabbedPane);
+
+            // Create a border for the tabbed panes
+            Border border = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
+
+            // Step through the available color chooser panels
+            for (int index = 0; index < chooserPanel.length; index++)
+            {
+                // Create a panel to hold the chooser so that it's centered in
+                // the tab panel
+                JPanel pnl = new JPanel(new GridBagLayout());
+                pnl.setBorder(border);
+                pnl.add(chooserPanel[index]);
+
+                // Set the name, component, and tool tip text (if extant) of
+                // the tab for each color chooser panel
+                tabbedPane.addTab(chooserPanel[index].getDisplayName(),
+                                  null,
+                                  pnl,
+                                  chooserPanel[index].getToolTipText());
+            }
+
+            // Add the color preview panel
+            colorPanel.add(previewPanel);
+        }
+
+        return colorPanel;
+    }
+
+    /**************************************************************************
+     * Display a non-resizable, modal, user-interactive color choice dialog
+     * using buttons defined by the supplied option type and return the color
+     * selected (null if the Cancel button is pressed)
+     * 
+     * @param parent
+     *            window to center the dialog over
+     * 
+     * @param title
+     *            title to display in the dialog window frame
+     * 
+     * @param optionType
+     *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION,
+     *            READ_OPTION, PRINT_OPTION, CLOSE_OPTION, OK_OPTION, or
+     *            OK_CANCEL_OPTION
+     * 
+     * @param initialColor
+     *            color initially selected when the dialog appears
+     * 
+     * @return Selected color (null if Cancel button pressed)
+     *************************************************************************/
+    protected Color showColorDialog(Component parent,
+                                    String title,
+                                    DialogOption optionType,
+                                    Color initialColor)
+    {
+        Color selectedColor = null;
+
+        // Create a color chooser and set the selected color to the initial
+        // color
+        final JColorChooser chooser = new JColorChooser(initialColor);
+
+        // Display the color choice dialog and check if the user selected the
+        // Okay button
+        if (createDialog(parent,
+                         getColorChoicePanel(chooser, initialColor),
+                         null,
+                         null,
+                         title,
+                         optionType,
+                         null,
+                         false,
+                         true) == OK_BUTTON)
+        {
+            // Set the color to the one chosen
+            selectedColor = chooser.getColor();
+        }
+
+        return selectedColor;
+    }
+
+    /**************************************************************************
      * Placeholder for method to verify the the dialog box selection(s) prior
      * to closing
      * 
@@ -1390,7 +1553,7 @@ public class CcddDialogHandler extends JDialog
         {
             // Create a copy of the layout constraints and update them
             GridBagConstraints dlgGbc = (GridBagConstraints) dialogGbc.clone();
-            dlgGbc.insets.top = LABEL_VERTICAL_SPACING;
+            dlgGbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
             dlgGbc.insets.bottom = 0;
             dlgGbc.gridwidth = GridBagConstraints.REMAINDER;
             dlgGbc.weighty = 0.0;
@@ -1398,7 +1561,7 @@ public class CcddDialogHandler extends JDialog
 
             // Create the label for the radio button panel
             JLabel rbtnLabel = new JLabel(rbtnText);
-            rbtnLabel.setFont(LABEL_FONT_BOLD);
+            rbtnLabel.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             dialogPanel.add(rbtnLabel, dlgGbc);
 
             // Set the layout manager characteristics
@@ -1410,10 +1573,10 @@ public class CcddDialogHandler extends JDialog
                                                             0.0,
                                                             GridBagConstraints.LINE_START,
                                                             GridBagConstraints.BOTH,
-                                                            new Insets(LABEL_VERTICAL_SPACING,
-                                                                       LABEL_HORIZONTAL_SPACING,
-                                                                       LABEL_VERTICAL_SPACING,
-                                                                       LABEL_HORIZONTAL_SPACING),
+                                                            new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                                       ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
                                                             0,
                                                             0);
 
@@ -1486,7 +1649,7 @@ public class CcddDialogHandler extends JDialog
             {
                 radioButton[index] = new JRadioButton(itemInformation[index][0],
                                                       false);
-                radioButton[index].setFont(LABEL_FONT_BOLD);
+                radioButton[index].setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 radioButton[index].setBorder(emptyBorder);
                 radioButton[index].addActionListener(listener);
 
@@ -1521,7 +1684,7 @@ public class CcddDialogHandler extends JDialog
                     gbc.weightx = 1.0;
                     gbc.gridx++;
                     JLabel descriptionLbl = new JLabel(itemInformation[index][1]);
-                    descriptionLbl.setFont(LABEL_FONT_PLAIN);
+                    descriptionLbl.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
                     rbtnGridPnl.add(descriptionLbl, gbc);
                     gbc.weightx = 0.0;
                 }
@@ -1548,11 +1711,11 @@ public class CcddDialogHandler extends JDialog
             scrollPane.setBorder(emptyBorder);
             scrollPane.setViewportBorder(emptyBorder);
             scrollPane.getVerticalScrollBar().setUnitIncrement(radioButton[0].getPreferredSize().height / 2
-                                                               + LABEL_VERTICAL_SPACING);
+                                                               + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
 
             // Calculate the maximum desirable height of the panel containing
             // the radio buttons (= # of rows * row height)
-            int maxRowHeight = (int) (INITIAL_VIEWABLE_LIST_ROWS
+            int maxRowHeight = (int) (ModifiableSizeInfo.INIT_VIEWABLE_LIST_ROWS.getSize()
                                       * rbtnGridPnl.getPreferredSize().getHeight()
                                       / radioButton.length
                                       * gridWidth);
@@ -1564,7 +1727,7 @@ public class CcddDialogHandler extends JDialog
                 // Set the size of the scrollable list; the vertical scroll bar
                 // is displayed
                 scrollPane.setPreferredSize(new Dimension((int) rbtnGridPnl.getPreferredSize().getWidth()
-                                                          + LABEL_HORIZONTAL_SPACING * 2,
+                                                          + ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2,
                                                           maxRowHeight));
             }
 
@@ -1637,16 +1800,16 @@ public class CcddDialogHandler extends JDialog
                                                                0.0,
                                                                GridBagConstraints.LINE_START,
                                                                GridBagConstraints.BOTH,
-                                                               new Insets(LABEL_VERTICAL_SPACING,
-                                                                          LABEL_HORIZONTAL_SPACING,
+                                                               new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                          ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
                                                                           0,
-                                                                          LABEL_HORIZONTAL_SPACING),
+                                                                          ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
                                                                0,
                                                                0);
 
             // Create the label for the check box panel
             JLabel cboxLabel = new JLabel(cboxText);
-            cboxLabel.setFont(LABEL_FONT_BOLD);
+            cboxLabel.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             dialogPanel.add(cboxLabel, dlgGbc);
 
             // Set the layout manager characteristics
@@ -1658,10 +1821,10 @@ public class CcddDialogHandler extends JDialog
                                                             0.0,
                                                             GridBagConstraints.LINE_START,
                                                             GridBagConstraints.BOTH,
-                                                            new Insets(LABEL_VERTICAL_SPACING,
-                                                                       LABEL_HORIZONTAL_SPACING,
-                                                                       LABEL_VERTICAL_SPACING,
-                                                                       LABEL_HORIZONTAL_SPACING),
+                                                            new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                                       ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
                                                             0,
                                                             0);
 
@@ -1721,7 +1884,7 @@ public class CcddDialogHandler extends JDialog
             for (int index = 0; index < itemInformation.length; index++)
             {
                 checkBox[index] = new JCheckBox(itemInformation[index][0], false);
-                checkBox[index].setFont(LABEL_FONT_BOLD);
+                checkBox[index].setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 checkBox[index].setBorder(emptyBorder);
                 checkBox[index].addActionListener(listener);
 
@@ -1751,7 +1914,7 @@ public class CcddDialogHandler extends JDialog
                     gbc.weightx = 1.0;
                     gbc.gridx++;
                     JLabel descriptionLbl = new JLabel(itemInformation[index][1]);
-                    descriptionLbl.setFont(LABEL_FONT_PLAIN);
+                    descriptionLbl.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
                     cboxGridPnl.add(descriptionLbl, gbc);
                     gbc.weightx = 0.0;
                 }
@@ -1772,11 +1935,11 @@ public class CcddDialogHandler extends JDialog
             scrollPane.setBorder(emptyBorder);
             scrollPane.setViewportBorder(emptyBorder);
             scrollPane.getVerticalScrollBar().setUnitIncrement(checkBox[0].getPreferredSize().height / 2
-                                                               + LABEL_VERTICAL_SPACING);
+                                                               + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
 
             // Calculate the maximum desirable height of the panel containing
             // the check boxes (= # of rows * row height)
-            int maxRowHeight = (int) (INITIAL_VIEWABLE_LIST_ROWS
+            int maxRowHeight = (int) (ModifiableSizeInfo.INIT_VIEWABLE_LIST_ROWS.getSize()
                                       * cboxGridPnl.getPreferredSize().getHeight()
                                       / checkBox.length
                                       * gridWidth);
@@ -1788,7 +1951,7 @@ public class CcddDialogHandler extends JDialog
                 // Set the size of the scrollable list; the vertical scroll bar
                 // is displayed
                 scrollPane.setPreferredSize(new Dimension((int) cboxGridPnl.getPreferredSize().getWidth()
-                                                          + LABEL_HORIZONTAL_SPACING * 2,
+                                                          + ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2,
                                                           maxRowHeight));
             }
 
@@ -1799,7 +1962,7 @@ public class CcddDialogHandler extends JDialog
             cboxPanel.add(scrollPane, gbc);
 
             // Add the check box panel to the dialog
-            dlgGbc.insets.top = LABEL_VERTICAL_SPACING / 2;
+            dlgGbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
             dlgGbc.weighty = 1.0;
             dlgGbc.gridy++;
             dialogPanel.add(cboxPanel, dlgGbc);
@@ -1950,15 +2113,15 @@ public class CcddDialogHandler extends JDialog
                 iconPanel.setBorder(BorderFactory.createEmptyBorder(0,
                                                                     0,
                                                                     0,
-                                                                    DIALOG_INNER_PAD));
+                                                                    ModifiableSpacingInfo.DIALOG_ICON_PAD.getSpacing()));
                 iconPanel.add(new JLabel(icon));
 
                 // Create a label to hold the text message. Format the message
                 // to constrain the character width to a specified maximum
                 JLabel textLbl = new JLabel(CcddUtilities.wrapText(upperObject.toString(),
-                                                                   DIALOG_MAX_LINE_LENGTH),
+                                                                   ModifiableSizeInfo.MAX_DIALOG_LINE_LENGTH.getSize()),
                                             SwingConstants.LEFT);
-                textLbl.setFont(LABEL_FONT_PLAIN);
+                textLbl.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
 
                 // Place the icon and text message into the upper panel
                 textPnl.add(iconPanel);
@@ -2074,7 +2237,7 @@ public class CcddDialogHandler extends JDialog
                 // added to this width to prevent the dialog from being resized
                 // smaller than its original width). Set the minimum height to
                 // the packed height of the dialog components
-                setMinimumSize(new Dimension(Math.max(DIALOG_MIN_WINDOW_WIDTH,
+                setMinimumSize(new Dimension(Math.max(ModifiableSizeInfo.MIN_DIALOG_WIDTH.getSize(),
                                                       getWidth() + 1),
                                              getHeight()));
             }
@@ -2246,7 +2409,6 @@ public class CcddDialogHandler extends JDialog
 
                         break;
                 }
-
             }
         }
 

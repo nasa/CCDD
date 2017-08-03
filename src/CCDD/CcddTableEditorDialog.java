@@ -10,7 +10,6 @@ import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.DOWN_ICON;
 import static CCDD.CcddConstants.INSERT_ICON;
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
 import static CCDD.CcddConstants.LEFT_ICON;
 import static CCDD.CcddConstants.MIN_WINDOW_WIDTH;
 import static CCDD.CcddConstants.OK_BUTTON;
@@ -51,6 +50,8 @@ import CCDD.CcddClasses.TableModification;
 import CCDD.CcddClasses.ValidateCellActionListener;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ManagerDialogType;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.SearchDialogType;
 
 /******************************************************************************
@@ -192,7 +193,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     private void setTabText(int tabIndex, String tabName, String tabToolTip)
     {
         tabbedPane.setTitleAt(tabIndex, tabName);
-        tabbedPane.setToolTipTextAt(tabIndex, tabToolTip);
+        tabbedPane.setToolTipTextAt(tabIndex,
+                                    CcddUtilities.wrapText(tabToolTip,
+                                                           ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
     }
 
     /**************************************************************************
@@ -708,7 +711,6 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 new CcddTableManagerDialog(ccddMain,
                                            ManagerDialogType.EXPORT_CSV,
                                            CcddTableEditorDialog.this);
-
             }
 
             /******************************************************************
@@ -1623,7 +1625,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         // Table Editors //////////////////////////////////////////////////////
         // Create a tabbed pane for the editors to appear in
         tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-        tabbedPane.setFont(LABEL_FONT_BOLD);
+        tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
 
         // Listen for tab selection changes
         tabbedPane.addChangeListener(new ChangeListener()
@@ -1826,9 +1828,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         {
             // Create an editor for this table and add it to the list of
             // editors
-            final CcddTableEditorHandler editor = new CcddTableEditorHandler(ccddMain,
-                                                                             tableInfo,
-                                                                             this);
+            CcddTableEditorHandler editor = new CcddTableEditorHandler(ccddMain,
+                                                                       tableInfo,
+                                                                       this);
             tableEditors.add(editor);
 
             // Create a tab for each table

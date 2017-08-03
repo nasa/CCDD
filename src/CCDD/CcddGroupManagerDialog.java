@@ -13,10 +13,6 @@ import static CCDD.CcddConstants.COPY_ICON;
 import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.FIELD_ICON;
 import static CCDD.CcddConstants.INSERT_ICON;
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.LAF_CHECK_BOX_HEIGHT;
 import static CCDD.CcddConstants.LEFT_ICON;
 import static CCDD.CcddConstants.OK_BUTTON;
@@ -67,6 +63,9 @@ import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.DefaultApplicationField;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddUndoHandler.UndoableTreeNodeSelection;
 
@@ -278,8 +277,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                                                 0.0,
                                                                 GridBagConstraints.LINE_START,
                                                                 GridBagConstraints.BOTH,
-                                                                new Insets(LABEL_VERTICAL_SPACING / 2,
-                                                                           LABEL_HORIZONTAL_SPACING / 2,
+                                                                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
                                                                            0,
                                                                            0),
                                                                 0,
@@ -404,7 +403,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
                 // Create the group manager dialog labels and fields
                 JLabel dlgLabel = new JLabel("Assign tables to groups");
-                dlgLabel.setFont(LABEL_FONT_BOLD);
+                dlgLabel.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 titlePnl.add(dlgLabel, gbc);
 
                 // Add the upper panel components to the dialog panel
@@ -453,21 +452,21 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 // Create a table tree panel and add it to another panel (in
                 // order to control spacing)
                 gbc.insets.top = 0;
-                gbc.insets.bottom = LABEL_VERTICAL_SPACING / 2;
+                gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
                 gbc.weighty = 1.0;
                 treePnl.add(tableTree.createTreePanel("Tables",
                                                       TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
                                                       ccddMain.getMainFrame()),
                             gbc);
-                gbc.insets.top = LABEL_VERTICAL_SPACING / 2;
+                gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
                 gbc.insets.bottom = 0;
 
                 // Create a split pane containing the table tree in the left
                 // pane and the group tree in the right pane and add it to the
                 // panel. The arrow button panel is used as the split pane
                 // divider
-                gbc.insets.left = LABEL_HORIZONTAL_SPACING;
-                gbc.insets.right = LABEL_HORIZONTAL_SPACING;
+                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+                gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                 gbc.gridy++;
                 dialogPnl.add(new CustomSplitPane(treePnl,
                                                   groupTree.createTreePanel("Groups",
@@ -500,7 +499,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 undoManager.discardAllEdits();
 
                 // Add the field panel to the dialog
-                gbc.insets.top = LABEL_VERTICAL_SPACING / 2;
+                gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
                 gbc.insets.left = 0;
                 gbc.insets.bottom = 0;
                 gbc.insets.right = 0;
@@ -511,11 +510,11 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 // Create a check box for showing/changing the group CFS
                 // application status
                 applicationCb = new JCheckBox("Group represents a CFS application");
-                applicationCb.setFont(LABEL_FONT_BOLD);
+                applicationCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 applicationCb.setBorder(emptyBorder);
                 applicationCb.setEnabled(false);
-                gbc.insets.top = LABEL_VERTICAL_SPACING;
-                gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+                gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                 gbc.gridy = 0;
                 fieldPnlHndlr.getFieldPanel().add(applicationCb, gbc, 0);
 
@@ -1064,7 +1063,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
         // Add the buttons to the panel
         buttonPnl.add(rightArrowBtn, gbc);
-        gbc.insets.bottom = LAF_CHECK_BOX_HEIGHT * 2 + LABEL_VERTICAL_SPACING;
+        gbc.insets.bottom = LAF_CHECK_BOX_HEIGHT * 2 + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
         gbc.gridy++;
         buttonPnl.add(leftArrowBtn, gbc);
 
@@ -1113,22 +1112,22 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
         // Create the group description label
         JLabel descriptionLbl = new JLabel("Description");
-        descriptionLbl.setFont(LABEL_FONT_BOLD);
-        descriptionLbl.setForeground(Color.BLACK);
-        gbc.insets.top = LABEL_VERTICAL_SPACING;
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING / 2;
-        gbc.insets.bottom = LABEL_VERTICAL_SPACING / 2;
+        descriptionLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        descriptionLbl.setForeground(ModifiableColorInfo.LABEL_TEXT.getColor());
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2;
+        gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         gbc.weighty = 0.0;
         gbc.gridy++;
         dialogPnl.add(descriptionLbl, gbc);
 
         // Create the group description input field
         final JTextArea descriptionFld = new JTextArea("", 3, 20);
-        descriptionFld.setFont(LABEL_FONT_PLAIN);
+        descriptionFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         descriptionFld.setEditable(true);
         descriptionFld.setLineWrap(true);
-        descriptionFld.setForeground(Color.BLACK);
-        descriptionFld.setBackground(Color.WHITE);
+        descriptionFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        descriptionFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         descriptionFld.setBorder(emptyBorder);
         descriptionFld.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null);
         descriptionFld.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
@@ -1138,16 +1137,16 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
         // Add the description field to the dialog panel
         gbc.insets.top = 0;
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.fill = GridBagConstraints.BOTH;
         gbc.gridy++;
         dialogPnl.add(descScrollPane, gbc);
 
         // Create a check box for setting the group as an application
         JCheckBox appCb = new JCheckBox("Group represents a CFS application");
-        appCb.setFont(LABEL_FONT_BOLD);
+        appCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         appCb.setBorder(emptyBorder);
-        gbc.insets.top = LABEL_VERTICAL_SPACING;
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
         gbc.gridy++;
         dialogPnl.add(appCb, gbc);
 
@@ -1386,30 +1385,30 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(LABEL_VERTICAL_SPACING,
-                                                                   LABEL_HORIZONTAL_SPACING / 2,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
                                                                    0,
-                                                                   LABEL_HORIZONTAL_SPACING / 2),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
                                                         0,
                                                         0);
 
         // Create the group name label and add it to the dialog panel
         JLabel label = new JLabel(fieldText);
-        label.setFont(LABEL_FONT_BOLD);
+        label.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         dialogPnl.add(label, gbc);
 
         // Create the group name field and add it to the dialog panel
         groupNameFld = new JTextField(currentName, 20);
-        groupNameFld.setFont(LABEL_FONT_PLAIN);
+        groupNameFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         groupNameFld.setEditable(true);
-        groupNameFld.setForeground(Color.BLACK);
-        groupNameFld.setBackground(Color.WHITE);
+        groupNameFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        groupNameFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         groupNameFld.setBorder(border);
         gbc.gridy++;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING;
-        gbc.insets.top = LABEL_VERTICAL_SPACING / 2;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         gbc.insets.bottom = 0;
         dialogPnl.add(groupNameFld, gbc);
 

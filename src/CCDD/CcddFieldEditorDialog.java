@@ -8,21 +8,17 @@ package CCDD;
 
 import static CCDD.CcddConstants.BREAK_ICON;
 import static CCDD.CcddConstants.CANCEL_BUTTON;
-import static CCDD.CcddConstants.CELL_FONT;
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.DOWN_ICON;
 import static CCDD.CcddConstants.INSERT_ICON;
-import static CCDD.CcddConstants.MAX_DATA_FIELD_CHARACTER_WIDTH;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.REDO_ICON;
 import static CCDD.CcddConstants.SEPARATOR_ICON;
 import static CCDD.CcddConstants.STORE_ICON;
-import static CCDD.CcddConstants.TABLE_BACK_COLOR;
 import static CCDD.CcddConstants.UNDO_ICON;
 import static CCDD.CcddConstants.UP_ICON;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -55,6 +51,9 @@ import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FieldEditorColumnInfo;
 import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.TableSelectionMode;
 
 /******************************************************************************
@@ -333,10 +332,10 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                         // exceeds the maximum allowed. If the field is too
                         // wide the rendering of the table can make the
                         // interface unusable
-                        if (Integer.valueOf(newValueS) > MAX_DATA_FIELD_CHARACTER_WIDTH)
+                        if (Integer.valueOf(newValueS) > ModifiableSizeInfo.MAX_DATA_FIELD_CHAR_WIDTH.getSize())
                         {
                             throw new CCDDException("Field size must be less than or equal to "
-                                                    + MAX_DATA_FIELD_CHARACTER_WIDTH);
+                                                    + ModifiableSizeInfo.MAX_DATA_FIELD_CHAR_WIDTH.getSize());
                         }
 
                         // Remove any unneeded characters and store the cleaned
@@ -469,7 +468,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                     if (!found)
                     {
                         // Change the cell's background color
-                        comp.setBackground(Color.YELLOW);
+                        comp.setBackground(ModifiableColorInfo.REQUIRED_BACK.getColor());
                     }
                 }
 
@@ -516,10 +515,10 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                                            ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
                                            TableSelectionMode.SELECT_BY_CELL,
                                            false,
-                                           TABLE_BACK_COLOR,
+                                           ModifiableColorInfo.TABLE_BACK.getColor(),
                                            true,
                                            true,
-                                           CELL_FONT,
+                                           ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
                                            true);
 
         // Create a drop-down combo box to display the available field input
@@ -932,7 +931,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Create a combo box for displaying field input types
         inputTypeCbox = new PaddedComboBox(InputDataType.getInputNames(false),
                                            InputDataType.getDescriptions(true),
-                                           CELL_FONT);
+                                           ModifiableFontInfo.DATA_TABLE_CELL.getFont());
 
         // Add a listener to the combo box for focus changes
         inputTypeCbox.addFocusListener(new FocusAdapter()
@@ -980,7 +979,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
 
             // Create a combo box for displaying field applicability types
             applicabilityCBox = new PaddedComboBox(ApplicabilityType.getApplicabilityNames(),
-                                                   CELL_FONT);
+                                                   ModifiableFontInfo.DATA_TABLE_CELL.getFont());
 
             // Add a listener to the combo box for focus changes
             applicabilityCBox.addFocusListener(new FocusAdapter()

@@ -6,11 +6,6 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
-import static CCDD.CcddConstants.LABEL_TEXT_COLOR;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.OK_BUTTON;
 
 import java.awt.Color;
@@ -42,6 +37,9 @@ import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddClasses.RateInformation;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 
 /******************************************************************************
  * CFS Command & Data Dictionary rate parameter assignment dialog class
@@ -121,10 +119,10 @@ public class CcddRateParameterDialog extends CcddDialogHandler
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.HORIZONTAL,
-                                                        new Insets(LABEL_VERTICAL_SPACING,
-                                                                   LABEL_HORIZONTAL_SPACING / 2,
-                                                                   LABEL_VERTICAL_SPACING,
-                                                                   LABEL_HORIZONTAL_SPACING / 2),
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
                                                         0,
                                                         0);
 
@@ -140,15 +138,15 @@ public class CcddRateParameterDialog extends CcddDialogHandler
 
         // Create the maximum seconds per message label
         JLabel maxSecPerMsgLbl = new JLabel("Maximum seconds per message");
-        maxSecPerMsgLbl.setFont(LABEL_FONT_BOLD);
+        maxSecPerMsgLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         dialogPnl.add(maxSecPerMsgLbl, gbc);
 
         // Create the maximum seconds per message input field
         maxSecPerMsgFld = new JTextField(String.valueOf(rateHandler.getMaxSecondsPerMsg()), 7);
-        maxSecPerMsgFld.setFont(LABEL_FONT_PLAIN);
+        maxSecPerMsgFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         maxSecPerMsgFld.setEditable(true);
-        maxSecPerMsgFld.setForeground(Color.BLACK);
-        maxSecPerMsgFld.setBackground(Color.WHITE);
+        maxSecPerMsgFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        maxSecPerMsgFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         maxSecPerMsgFld.setBorder(border);
         maxSecPerMsgFld.setInputVerifier(verifyInputs);
         gbc.gridx++;
@@ -156,17 +154,17 @@ public class CcddRateParameterDialog extends CcddDialogHandler
 
         // Create the maximum messages per second label
         JLabel maxMsgsPerSecLbl = new JLabel("Maximum messages per second");
-        maxMsgsPerSecLbl.setFont(LABEL_FONT_BOLD);
+        maxMsgsPerSecLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         gbc.gridx = 0;
         gbc.gridy++;
         dialogPnl.add(maxMsgsPerSecLbl, gbc);
 
         // Create the maximum messages per second input field
         maxMsgsPerSecFld = new JTextField(String.valueOf(rateHandler.getMaxMsgsPerSecond()), 7);
-        maxMsgsPerSecFld.setFont(LABEL_FONT_PLAIN);
+        maxMsgsPerSecFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         maxMsgsPerSecFld.setEditable(true);
-        maxMsgsPerSecFld.setForeground(Color.BLACK);
-        maxMsgsPerSecFld.setBackground(Color.WHITE);
+        maxMsgsPerSecFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        maxMsgsPerSecFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         maxMsgsPerSecFld.setBorder(border);
         maxMsgsPerSecFld.setInputVerifier(verifyInputs);
         gbc.gridx++;
@@ -184,7 +182,7 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         // Create a tabbed pane to contain the rate parameters that are
         // stream-specific
         tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-        tabbedPane.setFont(LABEL_FONT_BOLD);
+        tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
 
         // Create a tab for each stream
         addStreamTabs(rateInformation);
@@ -199,7 +197,7 @@ public class CcddRateParameterDialog extends CcddDialogHandler
 
         // Create a panel for the uneven check box
         JPanel unevenPnl = new JPanel(new FlowLayout(FlowLayout.LEFT,
-                                                     LABEL_HORIZONTAL_SPACING / 2,
+                                                     ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
                                                      0));
         unevenPnl.setBorder(BorderFactory.createEmptyBorder());
 
@@ -207,7 +205,7 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         // sample rates
         unevenCb = new JCheckBox("Include unevenly time-spaced rates");
         unevenCb.setBorder(BorderFactory.createEmptyBorder());
-        unevenCb.setFont(LABEL_FONT_BOLD);
+        unevenCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         unevenCb.setSelected(rateHandler.isIncludeUneven()
                                                           ? true
                                                           : false);
@@ -223,7 +221,7 @@ public class CcddRateParameterDialog extends CcddDialogHandler
             }
         });
 
-        gbc.insets.left = LABEL_HORIZONTAL_SPACING / 2;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2;
         gbc.gridwidth = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
         gbc.gridy++;
@@ -329,10 +327,10 @@ public class CcddRateParameterDialog extends CcddDialogHandler
                                                             0.0,
                                                             GridBagConstraints.LINE_START,
                                                             GridBagConstraints.HORIZONTAL,
-                                                            new Insets(LABEL_VERTICAL_SPACING / 2,
-                                                                       LABEL_HORIZONTAL_SPACING / 2,
-                                                                       LABEL_VERTICAL_SPACING / 2,
-                                                                       LABEL_HORIZONTAL_SPACING / 2),
+                                                            new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                                       ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
                                                             0,
                                                             0);
 
@@ -340,16 +338,16 @@ public class CcddRateParameterDialog extends CcddDialogHandler
             JPanel availRatesPnl = new JPanel(new GridBagLayout());
             availRatesPnl.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
             JLabel availRatesLbl = new JLabel("Available rates");
-            availRatesLbl.setFont(LABEL_FONT_BOLD);
-            availRatesLbl.setForeground(LABEL_TEXT_COLOR);
+            availRatesLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            availRatesLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
             availRatesPnl.add(availRatesLbl, gbc);
 
             // Create the available rates field and add it to the rates panel
             availRatesFld[index] = new JTextField("", 1);
-            availRatesFld[index].setFont(LABEL_FONT_PLAIN);
+            availRatesFld[index].setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
             availRatesFld[index].setEditable(false);
-            availRatesFld[index].setForeground(Color.BLACK);
-            availRatesFld[index].setBackground(Color.WHITE);
+            availRatesFld[index].setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+            availRatesFld[index].setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
             availRatesFld[index].setBorder(border);
             gbc.gridwidth = GridBagConstraints.REMAINDER;
             gbc.weightx = 1.0;
@@ -359,36 +357,36 @@ public class CcddRateParameterDialog extends CcddDialogHandler
             // Create a panel to contain the stream's text fields
             JPanel streamPnl = new JPanel(new GridBagLayout());
             JLabel streamNameLbl = new JLabel("Data stream name");
-            streamNameLbl.setFont(LABEL_FONT_BOLD);
-            gbc.insets.top = LABEL_VERTICAL_SPACING;
-            gbc.insets.bottom = LABEL_VERTICAL_SPACING;
+            streamNameLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+            gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
             gbc.gridwidth = 1;
             gbc.gridx = 0;
             streamPnl.add(streamNameLbl, gbc);
 
             // Create the data stream name input field
             streamNameFld[index] = new JTextField(String.valueOf(rateInfo.get(index).getStreamName()), 7);
-            streamNameFld[index].setFont(LABEL_FONT_PLAIN);
+            streamNameFld[index].setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
             streamNameFld[index].setEditable(true);
-            streamNameFld[index].setForeground(Color.BLACK);
-            streamNameFld[index].setBackground(Color.WHITE);
+            streamNameFld[index].setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+            streamNameFld[index].setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
             streamNameFld[index].setBorder(border);
             gbc.gridx++;
             streamPnl.add(streamNameFld[index], gbc);
 
             // Create the maximum messages per cycle label
             JLabel maxMsgsPerCycleLbl = new JLabel("Maximum messages per cycle");
-            maxMsgsPerCycleLbl.setFont(LABEL_FONT_BOLD);
+            maxMsgsPerCycleLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             gbc.gridx = 0;
             gbc.gridy++;
             streamPnl.add(maxMsgsPerCycleLbl, gbc);
 
             // Create the maximum messages per cycle input field
             maxMsgsPerCycleFld[index] = new JTextField(String.valueOf(rateInfo.get(index).getMaxMsgsPerCycle()), 7);
-            maxMsgsPerCycleFld[index].setFont(LABEL_FONT_PLAIN);
+            maxMsgsPerCycleFld[index].setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
             maxMsgsPerCycleFld[index].setEditable(true);
-            maxMsgsPerCycleFld[index].setForeground(Color.BLACK);
-            maxMsgsPerCycleFld[index].setBackground(Color.WHITE);
+            maxMsgsPerCycleFld[index].setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+            maxMsgsPerCycleFld[index].setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
             maxMsgsPerCycleFld[index].setBorder(border);
             maxMsgsPerCycleFld[index].setInputVerifier(verifyInputs);
             gbc.gridx++;
@@ -396,17 +394,17 @@ public class CcddRateParameterDialog extends CcddDialogHandler
 
             // Create the maximum bytes per second label
             JLabel bytesPerSecLbl = new JLabel("Maximum bytes per second");
-            bytesPerSecLbl.setFont(LABEL_FONT_BOLD);
+            bytesPerSecLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             gbc.gridx = 0;
             gbc.gridy++;
             streamPnl.add(bytesPerSecLbl, gbc);
 
             // Create the maximum bytes per second input field
             maxBytesPerSecFld[index] = new JTextField(String.valueOf(rateInfo.get(index).getMaxBytesPerSec()), 7);
-            maxBytesPerSecFld[index].setFont(LABEL_FONT_PLAIN);
+            maxBytesPerSecFld[index].setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
             maxBytesPerSecFld[index].setEditable(true);
-            maxBytesPerSecFld[index].setForeground(Color.BLACK);
-            maxBytesPerSecFld[index].setBackground(Color.WHITE);
+            maxBytesPerSecFld[index].setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+            maxBytesPerSecFld[index].setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
             maxBytesPerSecFld[index].setBorder(border);
             maxBytesPerSecFld[index].setInputVerifier(verifyInputs);
             gbc.gridx++;

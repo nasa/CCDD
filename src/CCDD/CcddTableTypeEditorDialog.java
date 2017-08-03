@@ -10,7 +10,6 @@ import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.DOWN_ICON;
 import static CCDD.CcddConstants.INSERT_ICON;
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
 import static CCDD.CcddConstants.MIN_WINDOW_WIDTH;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.REDO_ICON;
@@ -45,6 +44,7 @@ import CCDD.CcddClasses.ValidateCellActionListener;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ManagerDialogType;
+import CCDD.CcddConstants.ModifiableFontInfo;
 
 /******************************************************************************
  * CFS Command & Data Dictionary table type editor dialog class
@@ -401,7 +401,6 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     {
                         return getActiveTable();
                     }
-
                 });
 
                 // Add a listener for the Rename Type command
@@ -753,7 +752,6 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
-
                         activeEditor.getTable().deleteRow(true);
                     }
 
@@ -1029,7 +1027,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // ////////////////////////////////////////////////////////////
                 // Create a tabbed pane for the editors to appear in
                 tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-                tabbedPane.setFont(LABEL_FONT_BOLD);
+                tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
 
                 // Listen for tab selection changes
                 tabbedPane.addChangeListener(new ChangeListener()

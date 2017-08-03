@@ -6,23 +6,9 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.ALTERNATE_COLOR;
 import static CCDD.CcddConstants.BOOLEAN_CELL_RENDERER;
-import static CCDD.CcddConstants.CELL_HORIZONTAL_PADDING;
-import static CCDD.CcddConstants.CELL_VERTICAL_PADDING;
-import static CCDD.CcddConstants.FOCUS_COLOR;
-import static CCDD.CcddConstants.GRID_COLOR;
-import static CCDD.CcddConstants.HEADER_FONT;
-import static CCDD.CcddConstants.HEADER_HORIZONTAL_PADDING;
-import static CCDD.CcddConstants.HEADER_VERTICAL_PADDING;
-import static CCDD.CcddConstants.INITIAL_VIEWABLE_TABLE_ROWS;
 import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
-import static CCDD.CcddConstants.MAX_INITIAL_CELL_WIDTH;
 import static CCDD.CcddConstants.REPLACE_INDICATOR;
-import static CCDD.CcddConstants.SELECTED_BACK_COLOR;
-import static CCDD.CcddConstants.SELECTED_TEXT_COLOR;
-import static CCDD.CcddConstants.TABLE_TEXT_COLOR;
-import static CCDD.CcddConstants.TOOL_TIP_MAXIMUM_LENGTH;
 
 import java.awt.AWTException;
 import java.awt.AWTKeyStroke;
@@ -97,8 +83,13 @@ import javax.swing.text.JTextComponent;
 import sun.print.ServiceDialog;
 import CCDD.CcddClasses.CellSelectionHandler;
 import CCDD.CcddClasses.FieldInformation;
+import CCDD.CcddClasses.ModifiableColor;
 import CCDD.CcddClasses.SelectedCell;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSizeInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddUndoHandler.UndoableTableColumnModel;
 import CCDD.CcddUndoHandler.UndoableTableModel;
@@ -122,9 +113,6 @@ public abstract class CcddJTableHandler extends JTable
 
     // Column header tool tip text
     private String[] toolTips;
-
-    // Table's non-selected background color
-    private Color background;
 
     // Table cell selection mode
     private TableSelectionMode cellSelection;
@@ -205,7 +193,7 @@ public abstract class CcddJTableHandler extends JTable
     protected CcddJTableHandler()
     {
         // Set the number of rows to initially display to the default value
-        this(INITIAL_VIEWABLE_TABLE_ROWS);
+        this(ModifiableSizeInfo.INIT_VIEWABLE_TABLE_ROWS.getSize());
     }
 
     /**************************************************************************
@@ -260,10 +248,10 @@ public abstract class CcddJTableHandler extends JTable
         setColumnModel(undoHandler.new UndoableTableColumnModel());
 
         // Create the border used to pad the table cells
-        cellBorder = BorderFactory.createEmptyBorder(CELL_VERTICAL_PADDING,
-                                                     CELL_HORIZONTAL_PADDING,
-                                                     CELL_VERTICAL_PADDING,
-                                                     CELL_HORIZONTAL_PADDING);
+        cellBorder = BorderFactory.createEmptyBorder(ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing(),
+                                                     ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing(),
+                                                     ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing(),
+                                                     ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing());
         // Create the cell selection container
         selectedCells = new CellSelectionHandler();
         focusRow = -1;
@@ -1002,7 +990,7 @@ public abstract class CcddJTableHandler extends JTable
             {
                 // Get the header's preferred size and add the vertical padding
                 Dimension headerSize = super.getPreferredSize();
-                headerSize.height += HEADER_VERTICAL_PADDING;
+                headerSize.height += ModifiableSpacingInfo.HEADER_VERTICAL_PADDING.getSpacing();
 
                 return headerSize;
             }
@@ -1020,7 +1008,7 @@ public abstract class CcddJTableHandler extends JTable
                 // Perform the column drag operation
                 super.setDraggedColumn(column);
 
-                // CHeck if the column drag operation is complete
+                // Check if the column drag operation is complete
                 if (finished)
                 {
                     // End the edit sequence and flag that a change occurred
@@ -1045,7 +1033,7 @@ public abstract class CcddJTableHandler extends JTable
             {
                 // Wrap the text at the specified number of characters
                 toolTips[index] = CcddUtilities.wrapText(toolTips[index],
-                                                         TOOL_TIP_MAXIMUM_LENGTH);
+                                                         ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize());
             }
         }
     }
@@ -1100,7 +1088,7 @@ public abstract class CcddJTableHandler extends JTable
                                            int intervalSelection,
                                            TableSelectionMode cellSelection,
                                            boolean columnDragAllowed,
-                                           Color background,
+                                           ModifiableColor background,
                                            boolean selectWithoutFocus,
                                            boolean allowUndo,
                                            Font cellFont,
@@ -1110,7 +1098,7 @@ public abstract class CcddJTableHandler extends JTable
         this.scrollPane = scrollPane;
 
         // Set the table's non-selected background color
-        this.background = background;
+        setBackground(background);
 
         // Set to true to keep cell(s) highlighted when the table loses focus
         this.selectWithoutFocus = selectWithoutFocus;
@@ -1159,7 +1147,7 @@ public abstract class CcddJTableHandler extends JTable
 
         // Set the table header font and calculate the header height. The
         // column widths are calculated elsewhere
-        getTableHeader().setFont(HEADER_FONT);
+        getTableHeader().setFont(ModifiableFontInfo.TABLE_HEADER.getFont());
 
         // Set the font for the table cells
         setFont(cellFont);
@@ -1383,8 +1371,8 @@ public abstract class CcddJTableHandler extends JTable
         // Check if the width should be calculated
         if (calcTotalWidth)
         {
-            // Calculate and set the widths of the tab columns and get
-            // the minimum width needed to display the tab's table
+            // Calculate and set the widths of the tab columns and get the
+            // minimum width needed to display the tab's table
             totalWidth = calcColumnWidths(showScrollBar);
         }
 
@@ -1692,7 +1680,7 @@ public abstract class CcddJTableHandler extends JTable
 
             // Save the width required to hold the header text
             minHeaderWidth[column] = comp.getPreferredSize().width
-                                     + HEADER_HORIZONTAL_PADDING;
+                                     + ModifiableSpacingInfo.HEADER_HORIZONTAL_PADDING.getSpacing();
             minDataWidth[column] = minHeaderWidth[column];
 
             // Step through each row in the table
@@ -1708,9 +1696,9 @@ public abstract class CcddJTableHandler extends JTable
                 // so far and store it if it's larger, but no larger than a
                 // specified maximum starting width
                 minDataWidth[column] = Math.min(Math.max(comp.getPreferredSize().width
-                                                         + CELL_HORIZONTAL_PADDING * 2,
+                                                         + ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() * 2,
                                                          minDataWidth[column]),
-                                                MAX_INITIAL_CELL_WIDTH);
+                                                ModifiableSizeInfo.MAX_INIT_CELL_WIDTH.getSize());
             }
         }
 
@@ -3145,11 +3133,11 @@ public abstract class CcddJTableHandler extends JTable
         // padding is reduced to account for the outline. The bottom padding
         // must be reduced an extra amount so that any character descenders
         // aren't clipped
-        textFieldMulti.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(FOCUS_COLOR),
-                                                                    BorderFactory.createEmptyBorder(CELL_VERTICAL_PADDING - 1,
-                                                                                                    CELL_HORIZONTAL_PADDING - 1,
-                                                                                                    CELL_VERTICAL_PADDING - 3,
-                                                                                                    CELL_HORIZONTAL_PADDING - 1)));
+        textFieldMulti.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(ModifiableColorInfo.FOCUS_BACK.getColor()),
+                                                                    BorderFactory.createEmptyBorder(ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() - 1,
+                                                                                                    ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() - 1,
+                                                                                                    ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() - 3,
+                                                                                                    ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() - 1)));
 
         // Add a listener for cell focus changes
         textFieldMulti.addFocusListener(focusListener);
@@ -3163,11 +3151,11 @@ public abstract class CcddJTableHandler extends JTable
         // initiated
         JTextField textFieldSingle = new JTextField();
         textFieldSingle.setFont(cellFont);
-        textFieldSingle.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(FOCUS_COLOR),
-                                                                     BorderFactory.createEmptyBorder(CELL_VERTICAL_PADDING - 3,
-                                                                                                     CELL_HORIZONTAL_PADDING - 1,
-                                                                                                     CELL_VERTICAL_PADDING - 3,
-                                                                                                     CELL_HORIZONTAL_PADDING - 1)));
+        textFieldSingle.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(ModifiableColorInfo.FOCUS_BACK.getColor()),
+                                                                     BorderFactory.createEmptyBorder(ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() - 3,
+                                                                                                     ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() - 1,
+                                                                                                     ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() - 3,
+                                                                                                     ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() - 1)));
 
         // Add a listener for cell focus changes
         textFieldSingle.addFocusListener(focusListener);
@@ -3207,8 +3195,8 @@ public abstract class CcddJTableHandler extends JTable
         public SingleLineCellRenderer(boolean centerText)
         {
             // Set the renderer name so that the key handler in
-            // CcddMain:tableEditCellHandler() can recognize that this is not a
-            // boolean cell
+            // CcddKeyboardHandler:tableEditCellHandler() can recognize cell
+            // type
             setName("SingleLineCellRenderer");
 
             // Set the font
@@ -3222,6 +3210,7 @@ public abstract class CcddJTableHandler extends JTable
             setHorizontalAlignment(centerText
                                              ? JLabel.CENTER
                                              : JLabel.LEFT);
+
             // Set to paint every pixel within the cell. This is needed to
             // prevent a border appearing around the cell for some look & feels
             setOpaque(true);
@@ -3267,8 +3256,8 @@ public abstract class CcddJTableHandler extends JTable
         public MultiLineCellRenderer()
         {
             // Set the renderer name so that the key handler in
-            // CcddMain:tableEditCellHandler() can recognize this is not a
-            // boolean cell
+            // CcddKeyboardHandler:tableEditCellHandler() can recognize this
+            // cell type
             setName("MultiLineCellRenderer");
 
             // Set the cell to be non-editable and for the text to
@@ -3343,6 +3332,11 @@ public abstract class CcddJTableHandler extends JTable
          *********************************************************************/
         public BooleanCellRenderer()
         {
+            // Set the renderer name so that the key handler in
+            // CcddKeyboardHandler:tableEditCellHandler() can recognize this
+            // cell type
+            setName(BOOLEAN_CELL_RENDERER);
+
             // Create a check box in which the cell renderer can display
             // boolean values. If the default boolean renderer is used the cell
             // background flashes when the check box is toggled
@@ -3354,11 +3348,6 @@ public abstract class CcddJTableHandler extends JTable
             // Set the opaque flag for the check box so that the background
             // color of the cell is displayed correctly for alternating rows
             checkBox.setOpaque(true);
-
-            // Set the renderer name so that the key handler in
-            // CcddMain:tableEditCellHandler() can recognize that this is a
-            // boolean cell
-            setName(BOOLEAN_CELL_RENDERER);
 
             // Add inset space around the cell's perimeter to provide padding
             // between it and the cell's contents
@@ -3402,6 +3391,166 @@ public abstract class CcddJTableHandler extends JTable
 
             return checkBox;
         }
+    }
+
+    /**************************************************************************
+     * Set the text color for the specified row
+     * 
+     * @param row
+     *            row index
+     * 
+     * @param color
+     *            row color; null to reset this row to the normal color scheme
+     *************************************************************************/
+    protected void setRowTextColor(int row, Color color)
+    {
+        // Get the index of the specified row in the lists
+        int index = rowColorIndex.indexOf(row);
+
+        // Check if the row already is in the lists
+        if (index != -1)
+        {
+            // Check if no color is specified, or if the color is the normal
+            // text color
+            if (color == null || color.equals(ModifiableColorInfo.TABLE_TEXT.getColor()))
+            {
+                // Remove this row's entries from the list
+                rowColorIndex.remove(index);
+                rowColor.remove(index);
+            }
+            // A special color is specified
+            else
+            {
+                // Update the row's color in the list
+                rowColor.set(index, color);
+            }
+        }
+        // The row isn't already in the lists. Check if a color is specified
+        // and is not the normal text color
+        else if (color != null && !color.equals(ModifiableColorInfo.TABLE_TEXT.getColor()))
+        {
+            // Add the row and color to the lists
+            rowColorIndex.add(row);
+            rowColor.add(color);
+        }
+
+        // Force the table to redraw so that the color change takes effect
+        repaint();
+    }
+
+    /**************************************************************************
+     * Override prepareRenderer to allow adjusting the foreground and
+     * background colors of the table's cells
+     *************************************************************************/
+    @Override
+    public Component prepareRenderer(TableCellRenderer renderer,
+                                     int row,
+                                     int column)
+    {
+        JComponent comp = (JComponent) super.prepareRenderer(renderer,
+                                                             row,
+                                                             column);
+
+        // Get the index for this row's special text color, if any
+        int index = rowColorIndex.indexOf(row);
+
+        // Flag that indicates that the cell is in a selected row and that all
+        // of the columns in a row should be selected if any cell in the row is
+        // selected
+        boolean isSelectedRow = cellSelection == TableSelectionMode.SELECT_BY_ROW
+                                && isRowSelected(row);
+
+        // Check if this is one of the selected rows (and columns, if column
+        // selection is enabled for this table) and, unless selection doesn't
+        // depend on having the focus, that the table has the focus; or if the
+        // cell is in a selected row and all columns should be selected
+        if (((isFocusOwner() || selectWithoutFocus)
+            && isCellSelected(row, column))
+            || isSelectedRow)
+        {
+            // Set the text (foreground) color for the selected cell(s)
+            comp.setForeground(index == -1
+                                          ? ModifiableColorInfo.SELECTED_TEXT.getColor()
+                                          : rowColor.get(index));
+
+            // Check if this cell has the focus (last cell selected) and the
+            // only this cell should be highlighted
+            if (isFocusCell(row, column) && !isSelectedRow)
+            {
+                // Color the cell background to indicate it has the focus
+                comp.setBackground(ModifiableColorInfo.FOCUS_BACK.getColor());
+            }
+            // This cell doesn't have the focus or the entire row should be
+            // highlighted
+            else
+            {
+                // Set the cells' background color to show it is selected
+                comp.setBackground(ModifiableColorInfo.SELECTED_BACK.getColor());
+            }
+        }
+        // Row is not selected and/or the table does not have the focus
+        else
+        {
+            // Set the fore- and background colors for the non-selected row.
+            // Alternate the row background colors every other row
+            comp.setForeground(index == -1
+                                          ? ModifiableColorInfo.TABLE_TEXT.getColor()
+                                          : rowColor.get(index));
+            comp.setBackground(row % 2 == 0
+                                           ? getBackground()
+                                           : ModifiableColorInfo.ALTERNATE_BACK.getColor());
+        }
+
+        // Check if this cell displays a text component
+        if (renderer instanceof JTextComponent)
+        {
+            // Perform any special rendering on this cell
+            doSpecialRendering(comp,
+                               getValueAt(row, column).toString(),
+                               isCellSelected(row, column),
+                               row,
+                               column);
+        }
+
+        return comp;
+    }
+
+    /**************************************************************************
+     * Placeholder for performing any special cell text rendering in multi-line
+     * table cells
+     * 
+     * @param renderer
+     *            reference to the table cell renderer
+     * 
+     * @param text
+     *            cell text
+     * 
+     * @param isSelected
+     *            true if the cell is to be rendered with the selection
+     *            highlighted
+     * 
+     * @param int row cell row, view coordinates
+     * 
+     * @param column
+     *            cell column, view coordinates
+     *************************************************************************/
+    protected void doSpecialRendering(Component component,
+                                      String text,
+                                      boolean isSelected,
+                                      int row,
+                                      int column)
+    {
+    }
+
+    /**************************************************************************
+     * Enable the table grid and set the spacing and color
+     *************************************************************************/
+    protected void setTableGrid()
+    {
+        // Set up the table grid lines
+        setShowGrid(showGrid);
+        setIntercellSpacing(new Dimension(1, 1));
+        setGridColor(ModifiableColorInfo.TABLE_GRID.getColor());
     }
 
     /**************************************************************************
@@ -3546,166 +3695,6 @@ public abstract class CcddJTableHandler extends JTable
                 }
             }
         }
-    }
-
-    /**************************************************************************
-     * Set the text color for the specified row
-     * 
-     * @param row
-     *            row index
-     * 
-     * @param color
-     *            row color; null to reset this row to the normal color scheme
-     *************************************************************************/
-    protected void setRowTextColor(int row, Color color)
-    {
-        // Get the index of the specified row in the lists
-        int index = rowColorIndex.indexOf(row);
-
-        // Check if the row already is in the lists
-        if (index != -1)
-        {
-            // Check if no color is specified, or if the color is the normal
-            // text color
-            if (color == null || color.equals(TABLE_TEXT_COLOR))
-            {
-                // Remove this row's entries from the list
-                rowColorIndex.remove(index);
-                rowColor.remove(index);
-            }
-            // A special color is specified
-            else
-            {
-                // Update the row's color in the list
-                rowColor.set(index, color);
-            }
-        }
-        // The row isn't already in the lists. Check if a color is specified
-        // and is not the normal text color
-        else if (color != null && !color.equals(TABLE_TEXT_COLOR))
-        {
-            // Add the row and color to the lists
-            rowColorIndex.add(row);
-            rowColor.add(color);
-        }
-
-        // Force the table to redraw so that the color change takes effect
-        repaint();
-    }
-
-    /**************************************************************************
-     * Override prepareRenderer to allow adjusting the foreground and
-     * background colors of the table's cells
-     *************************************************************************/
-    @Override
-    public Component prepareRenderer(TableCellRenderer renderer,
-                                     int row,
-                                     int column)
-    {
-        JComponent comp = (JComponent) super.prepareRenderer(renderer,
-                                                             row,
-                                                             column);
-
-        // Get the index for this row's special text color, if any
-        int index = rowColorIndex.indexOf(row);
-
-        // Flag that indicates that the cell is in a selected row and that all
-        // of the columns in a row should be selected if any cell in the row is
-        // selected
-        boolean isSelectedRow = cellSelection == TableSelectionMode.SELECT_BY_ROW
-                                && isRowSelected(row);
-
-        // Check if this is one of the selected rows (and columns, if column
-        // selection is enabled for this table) and, unless selection doesn't
-        // depend on having the focus, that the table has the focus; or if the
-        // cell is in a selected row and all columns should be selected
-        if (((isFocusOwner() || selectWithoutFocus)
-            && isCellSelected(row, column))
-            || isSelectedRow)
-        {
-            // Set the text (foreground) color for the selected cell(s)
-            comp.setForeground(index == -1
-                                          ? SELECTED_TEXT_COLOR
-                                          : rowColor.get(index));
-
-            // Check if this cell has the focus (last cell selected) and the
-            // only this cell should be highlighted
-            if (isFocusCell(row, column) && !isSelectedRow)
-            {
-                // Color the cell background to indicate it has the focus
-                comp.setBackground(FOCUS_COLOR);
-            }
-            // This cell doesn't have the focus or the entire row should be
-            // highlighted
-            else
-            {
-                // Set the cells' background color to show it is selected
-                comp.setBackground(SELECTED_BACK_COLOR);
-            }
-        }
-        // Row is not selected and/or the table does not have the focus
-        else
-        {
-            // Set the fore- and background colors for the non-selected row.
-            // Alternate the row background colors every other row
-            comp.setForeground(index == -1
-                                          ? TABLE_TEXT_COLOR
-                                          : rowColor.get(index));
-            comp.setBackground(row % 2 == 0
-                                           ? background
-                                           : ALTERNATE_COLOR);
-        }
-
-        // Check if this cell displays a text component
-        if (renderer instanceof JTextComponent)
-        {
-            // Perform any special rendering on this cell
-            doSpecialRendering(comp,
-                               getValueAt(row, column).toString(),
-                               isCellSelected(row, column),
-                               row,
-                               column);
-        }
-
-        return comp;
-    }
-
-    /**************************************************************************
-     * Placeholder for performing any special cell text rendering in multi-line
-     * table cells
-     * 
-     * @param renderer
-     *            reference to the table cell renderer
-     * 
-     * @param text
-     *            cell text
-     * 
-     * @param isSelected
-     *            true if the cell is to be rendered with the selection
-     *            highlighted
-     * 
-     * @param int row cell row, view coordinates
-     * 
-     * @param column
-     *            cell column, view coordinates
-     *************************************************************************/
-    protected void doSpecialRendering(Component component,
-                                      String text,
-                                      boolean isSelected,
-                                      int row,
-                                      int column)
-    {
-    }
-
-    /**************************************************************************
-     * Enable the table grid and set the spacing and color
-     *************************************************************************/
-    protected void setTableGrid()
-    {
-        // Set up the table grid lines
-        setShowGrid(showGrid);
-        setIntercellSpacing(new Dimension(1, 1));
-        setGridColor(GRID_COLOR);
     }
 
     /**************************************************************************
@@ -4061,7 +4050,7 @@ public abstract class CcddJTableHandler extends JTable
             PrintRequestAttributeSet attributes = new HashPrintRequestAttributeSet();
             DocFlavor flavor = null;
             PrintService[] services = PrintServiceLookup.lookupPrintServices(flavor,
-                                                                             attributes);;
+                                                                             attributes);
             PrintService defaultService = printerJob.getPrintService();
 
             // Get the dialog/frame that contains the table

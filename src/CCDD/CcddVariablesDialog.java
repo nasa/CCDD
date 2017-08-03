@@ -7,18 +7,11 @@
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
-import static CCDD.CcddConstants.CELL_FONT;
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.HIDE_DATA_TYPE;
-import static CCDD.CcddConstants.LABEL_FONT_BOLD;
-import static CCDD.CcddConstants.LABEL_FONT_PLAIN;
-import static CCDD.CcddConstants.LABEL_HORIZONTAL_SPACING;
-import static CCDD.CcddConstants.LABEL_TEXT_COLOR;
-import static CCDD.CcddConstants.LABEL_VERTICAL_SPACING;
 import static CCDD.CcddConstants.PRINT_ICON;
 import static CCDD.CcddConstants.RENAME_ICON;
 import static CCDD.CcddConstants.STORE_ICON;
-import static CCDD.CcddConstants.TABLE_BACK_COLOR;
 import static CCDD.CcddConstants.TYPE_NAME_SEPARATOR;
 import static CCDD.CcddConstants.VARIABLE_PATH_SEPARATOR;
 
@@ -48,6 +41,9 @@ import javax.swing.border.EtchedBorder;
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddConstants.DefaultPrimitiveTypeInfo;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableSelectionMode;
 
 /******************************************************************************
@@ -140,10 +136,10 @@ public class CcddVariablesDialog extends CcddDialogHandler
                                                                 0.0,
                                                                 GridBagConstraints.LINE_START,
                                                                 GridBagConstraints.NONE,
-                                                                new Insets(LABEL_VERTICAL_SPACING / 2,
+                                                                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
                                                                            0,
-                                                                           LABEL_VERTICAL_SPACING / 2,
-                                                                           LABEL_HORIZONTAL_SPACING),
+                                                                           ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
                                                                 0,
                                                                 0);
 
@@ -156,33 +152,33 @@ public class CcddVariablesDialog extends CcddDialogHandler
                 // Create the variable path separator label and input field,
                 // and add them to the dialog panel
                 JLabel varPathSepLbl = new JLabel("Enter variable path separator character(s)");
-                varPathSepLbl.setFont(LABEL_FONT_BOLD);
+                varPathSepLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 separatorPnl.add(varPathSepLbl, gbc);
                 varPathSepFld = new JTextField(ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR, "_"), 5);
-                varPathSepFld.setFont(LABEL_FONT_PLAIN);
+                varPathSepFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                 varPathSepFld.setEditable(true);
-                varPathSepFld.setForeground(Color.BLACK);
-                varPathSepFld.setBackground(Color.WHITE);
+                varPathSepFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+                varPathSepFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                 varPathSepFld.setBorder(border);
-                gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                 gbc.gridx++;
                 separatorPnl.add(varPathSepFld, gbc);
 
                 // Create the data type/variable name separator label and input
                 // field, and add them to the dialog panel
                 final JLabel typeNameSepLbl = new JLabel("Enter data type/variable name separator character(s)");
-                typeNameSepLbl.setFont(LABEL_FONT_BOLD);
+                typeNameSepLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 gbc.insets.left = 0;
                 gbc.gridx = 0;
                 gbc.gridy++;
                 separatorPnl.add(typeNameSepLbl, gbc);
                 typeNameSepFld = new JTextField(ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR, "_"), 5);
-                typeNameSepFld.setFont(LABEL_FONT_PLAIN);
+                typeNameSepFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                 typeNameSepFld.setEditable(true);
-                typeNameSepFld.setForeground(Color.BLACK);
-                typeNameSepFld.setBackground(Color.WHITE);
+                typeNameSepFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+                typeNameSepFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                 typeNameSepFld.setBorder(border);
-                gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                 gbc.gridx++;
                 separatorPnl.add(typeNameSepFld, gbc);
 
@@ -190,9 +186,9 @@ public class CcddVariablesDialog extends CcddDialogHandler
                 hideDataTypeCb = new JCheckBox("Hide data types",
                                                Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE,
                                                                                                 "false")));
-                hideDataTypeCb.setFont(LABEL_FONT_BOLD);
+                hideDataTypeCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 hideDataTypeCb.setBorder(BorderFactory.createEmptyBorder());
-                gbc.insets.bottom = LABEL_VERTICAL_SPACING / 2;
+                gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
                 gbc.gridx = 0;
                 gbc.gridy++;
                 separatorPnl.add(hideDataTypeCb, gbc);
@@ -218,11 +214,11 @@ public class CcddVariablesDialog extends CcddDialogHandler
 
                 // Create the variables dialog labels and fields
                 JLabel variablesLbl = new JLabel("Variables");
-                variablesLbl.setFont(LABEL_FONT_BOLD);
-                variablesLbl.setForeground(LABEL_TEXT_COLOR);
+                variablesLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                variablesLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
                 gbc.fill = GridBagConstraints.REMAINDER;
-                gbc.insets.top = LABEL_VERTICAL_SPACING;
-                gbc.insets.left = LABEL_HORIZONTAL_SPACING;
+                gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                 gbc.insets.bottom = 0;
                 gbc.gridy++;
                 dialogPnl.add(variablesLbl, gbc);
@@ -272,8 +268,10 @@ public class CcddVariablesDialog extends CcddDialogHandler
                                                     null,
                                                     null,
                                                     null,
-                                                    new String[] {"Variable name with structure path as defined within the application",
-                                                                  "Variable name with structure path as specified by user input"},
+                                                    new String[] {"Variable name with structure path "
+                                                                  + "as defined within the application",
+                                                                  "Variable name with structure path "
+                                                                      + "as specified by user input"},
                                                     false,
                                                     true,
                                                     true,
@@ -290,10 +288,10 @@ public class CcddVariablesDialog extends CcddDialogHandler
                                                       ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
                                                       TableSelectionMode.SELECT_BY_CELL,
                                                       true,
-                                                      TABLE_BACK_COLOR,
+                                                      ModifiableColorInfo.TABLE_BACK.getColor(),
                                                       true,
                                                       false,
-                                                      CELL_FONT,
+                                                      ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
                                                       true);
 
                 // Define the panel to contain the table

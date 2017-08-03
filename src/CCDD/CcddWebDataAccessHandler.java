@@ -2289,7 +2289,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 // Get the table's type definition
                 typeDefn = tableTypeHandler.getTypeDefinition(tableInfo.getType());
 
-                // CHekc if the table represents a structure
+                // Check if the table represents a structure
                 if (typeDefn.isStructure())
                 {
                     // Check if the table type changed. This accounts for
