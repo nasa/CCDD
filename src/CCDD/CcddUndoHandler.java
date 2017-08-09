@@ -1013,6 +1013,27 @@ public class CcddUndoHandler
         }
 
         /**********************************************************************
+         * Placeholder for performing any clean-up of the cell value prior to
+         * setting the cell contents. This can include, for example, removal of
+         * leading and trailing white space characters
+         * 
+         * @param value
+         *            new cell value
+         * 
+         * @param row
+         *            table row, model coordinates
+         * 
+         * @param column
+         *            table column, model coordinates
+         * 
+         * @return Cell value following any clean-up actions
+         *********************************************************************/
+        protected Object cleanUpCellValue(Object value, int row, int column)
+        {
+            return value;
+        }
+
+        /**********************************************************************
          * Override the default method with a method that includes a flag to
          * store the edit in the undo stack
          *********************************************************************/
@@ -1030,10 +1051,10 @@ public class CcddUndoHandler
          *            new cell value
          * 
          * @param row
-         *            table row
+         *            table row, model coordinates
          * 
          * @param column
-         *            table column
+         *            table column, model coordinates
          * 
          * @param undoable
          *            true if the change can be undone
@@ -1043,12 +1064,8 @@ public class CcddUndoHandler
                                   int column,
                                   boolean undoable)
         {
-            // Check if the value is text. For check boxes the value is boolean
-            if (value instanceof String)
-            {
-                // Remove any leading and trailing whitespace
-                value = value.toString().trim();
-            }
+            // Perform any clean-up actions on the cell
+            value = cleanUpCellValue(value, row, column);
 
             // Get the cell's current value
             Object oldValue = getValueAt(row, column);

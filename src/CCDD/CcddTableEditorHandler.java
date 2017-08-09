@@ -3033,12 +3033,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                     int columnModel = convertColumnIndexToModel(column);
 
                                     // Get the value to be pasted into the
-                                    // cell, removing any leading or trailing
-                                    // white space characters. If the number of
-                                    // cells to be filled exceeds the stored
-                                    // values then insert a blank
+                                    // cell, cleaning up the value if needed.
+                                    // If the number of cells to be filled
+                                    // exceeds the stored values then insert a
+                                    // blank
                                     Object newValue = index < cellData.length
-                                                                             ? cellData[index].toString().trim()
+                                                                             ? cleanUpCellValue(cellData[index],
+                                                                                                adjustedRow,
+                                                                                                columnModel)
                                                                              : "";
 
                                     // For the first pass through this row's
@@ -3166,6 +3168,47 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 setLastCellValid(true);
 
                 return showMessage == null;
+            }
+
+            /******************************************************************
+             * Override the method for cleaning-up of the cell value. The
+             * default is to remove any leading and trailing white space
+             * characters. This method skips removal of white space characters
+             * for cells having input types that allow it
+             * 
+             * @param value
+             *            new cell value
+             * 
+             * @param row
+             *            table row, model coordinates
+             * 
+             * @param column
+             *            table column, model coordinates
+             * 
+             * @return Cell value following clean-up
+             *****************************************************************/
+            @Override
+            protected Object cleanUpCellValue(Object value, int row, int column)
+            {
+                // Check if the cell value represents a string (i.e., it isn't
+                // boolean, etc.)
+                if (value instanceof String)
+                {
+                    // Get the input type for this column
+                    InputDataType inputType = typeDefn.getInputTypes()[column];
+
+                    // Check if the column's input type doesn't allow leading
+                    // and trailing white space characters
+                    if (inputType != InputDataType.TEXT_WHT_SPC
+                        && inputType != InputDataType.TEXT_MULTI_WHT_SPC)
+                    {
+                        // Perform the default clean-up (remove leading and
+                        // trailing white space characters)
+                        value = super.cleanUpCellValue(value, row, column);
+                    }
+                }
+
+                return value;
             }
 
             /******************************************************************

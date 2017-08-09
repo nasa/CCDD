@@ -28,6 +28,7 @@ public class CcddLinkHandler
     // Class references
     private final CcddMain ccddMain;
     private final CcddDataTypeHandler dataTypeHandler;
+    private final CcddMacroHandler macroHandler;
 
     // List to contain the link definitions (link names and variable paths)
     // retrieved from the database
@@ -57,6 +58,7 @@ public class CcddLinkHandler
     {
         this.ccddMain = ccddMain;
         this.dataTypeHandler = ccddMain.getDataTypeHandler();
+        this.macroHandler = ccddMain.getMacroHandler();
         this.linkDefinitions = linkDefinitions;
 
         // Create the variable path and offset lists
@@ -241,7 +243,8 @@ public class CcddLinkHandler
             // Check if this is not a link description entry (these are
             // indicated if the first character is a digit, which is the link
             // rate) and if the link member matches the target variable
-            if (!linkMember.matches("\\d.*") && variable.equals(linkMember))
+            if (!linkMember.matches("\\d.*")
+                && macroHandler.getMacroExpansion(variable).equals(macroHandler.getMacroExpansion(linkMember)))
             {
                 // Check if the data stream name should be returned instead of
                 // the rate column name
@@ -344,13 +347,9 @@ public class CcddLinkHandler
                 && linkMember.contains(".")
                 && !linkMember.matches("\\d.*"))
             {
-                // Get the data type from the variable name
-                String dataType = linkMember.substring(linkMember.lastIndexOf(",") + 1,
-                                                       linkMember.lastIndexOf("."));
-
                 // Get the offset of this variable relative to its root
                 // structure. A variable's bit length is ignored if provided
-                int index = structureAndVariablePaths.indexOf(linkMember.replaceFirst(":.+$", ""));
+                int index = structureAndVariablePaths.indexOf(macroHandler.getMacroExpansion(linkMember).replaceFirst(":.+$", ""));
                 int offset = structureAndVariableOffsets.get(index);
 
                 // Check if this variable is not bit-packed with the previous
@@ -362,6 +361,10 @@ public class CcddLinkHandler
                       && index == lastIndex + 1
                       && offset == lastOffset))
                 {
+                    // Get the data type from the variable name
+                    String dataType = linkMember.substring(linkMember.lastIndexOf(",") + 1,
+                                                           linkMember.lastIndexOf("."));
+
                     // Add the size of this data type to the link size total
                     size += dataTypeHandler.getSizeInBytes(dataType);
                 }
@@ -580,7 +583,7 @@ public class CcddLinkHandler
 
         // Get the index into the variable path list for the specified
         // structure/variable. A variable's bit length is ignored if present
-        int index = structureAndVariablePaths.indexOf(targetVariable.replaceFirst(":.+$", ""));
+        int index = structureAndVariablePaths.indexOf(macroHandler.getMacroExpansion(targetVariable).replaceFirst(":.+$", ""));
 
         // Check that the structure/variable exists
         if (index != -1)
@@ -649,8 +652,9 @@ public class CcddLinkHandler
             // the tree's root or header nodes)
             if (nodePath.length > allVariableTree.getHeaderNodeLevel())
             {
-                // Get the variable path for this tree node
-                String varPath = allVariableTree.getFullVariablePath(nodePath);
+                // Get the variable path for this tree node. Expand any macros
+                // contained in the variable name(s)
+                String varPath = macroHandler.getMacroExpansion(allVariableTree.getFullVariablePath(nodePath));
 
                 // Check if the path contains a data type
                 if (varPath.matches(".+,.+\\..+"))
@@ -670,7 +674,7 @@ public class CcddLinkHandler
                         if (bitIndex != -1)
                         {
                             // Extract the bit length from the variable path
-                            bitLength = ccddMain.getMacroHandler().getMacroExpansion(varPath.substring(bitIndex + 1));
+                            bitLength = varPath.substring(bitIndex + 1);
 
                             // Remove the bit length from the variable path
                             varPath = varPath.substring(0, bitIndex);

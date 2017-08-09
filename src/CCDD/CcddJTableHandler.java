@@ -90,6 +90,7 @@ import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
+import CCDD.CcddConstants.TableInsertionPoint;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddUndoHandler.UndoableTableColumnModel;
 import CCDD.CcddUndoHandler.UndoableTableModel;
@@ -1161,7 +1162,18 @@ public abstract class CcddJTableHandler extends JTable
 
         // Create the table model. The data and column headers are added later
         // in case these need to be adjusted
-        tableModel = undoHandler.new UndoableTableModel();
+        tableModel = undoHandler.new UndoableTableModel()
+        {
+            /******************************************************************
+             * Override the cell clean-up method
+             *****************************************************************/
+            @Override
+            protected Object cleanUpCellValue(Object value, int row, int column)
+            {
+                return table.cleanUpCellValue(value, row, column);
+            }
+        };
+
         setModel(tableModel);
 
         // Exit the cell's editor, if active, when the cell loses focus
@@ -1230,6 +1242,35 @@ public abstract class CcddJTableHandler extends JTable
                 tableChanged(null);
             }
         });
+    }
+
+    /**************************************************************************
+     * Clean-up of the cell value by removing any leading and trailing white
+     * space characters
+     * 
+     * @param value
+     *            new cell value
+     * 
+     * @param row
+     *            table row, model coordinates
+     * 
+     * @param column
+     *            table column, model coordinates
+     * 
+     * @return Cell value following removal of any leading and trailing white
+     *         space characters
+     *************************************************************************/
+    protected Object cleanUpCellValue(Object value, int row, int column)
+    {
+        // Check if the cell value represents a string (i.e., it isn't boolean,
+        // etc.)
+        if (value instanceof String)
+        {
+            // Remove any leading and trailing white space characters
+            value = value.toString().trim();
+        }
+
+        return value;
     }
 
     /**************************************************************************
@@ -2169,7 +2210,7 @@ public abstract class CcddJTableHandler extends JTable
      *************************************************************************/
     protected void insertEmptyRow(boolean endEdit)
     {
-        insertRow(endEdit, false, null);
+        insertRow(endEdit, TableInsertionPoint.SELECTION, null);
     }
 
     /**************************************************************************
@@ -2179,22 +2220,22 @@ public abstract class CcddJTableHandler extends JTable
      *            true to end the editing sequence at the end of the insert for
      *            undo/redo purposes
      * 
-     * @param insertAtEnd
-     *            false to insert the data below the currently selected row(s);
-     *            true to force insertion of the new data at the end of the
-     *            table
+     * @param insertionPoint
+     *            START to insert the data as the new first row in the table;
+     *            END to force insertion of the new data at the end of the
+     *            table; SELECTION to insert the data below the currently
+     *            selected row(s)
      * 
      * @param data
      *            data with which to populate the inserted row; null to insert
      *            an empty row
      *************************************************************************/
     protected void insertRow(boolean endEdit,
-                             boolean insertAtEnd,
+                             TableInsertionPoint insertionPoint,
                              Object[] data)
     {
         // Storage for the indices of the row below which to insert the new
         // row, in view and model coordinates
-        // int viewRow;
         int viewRow;
         int modelRow;
 
@@ -2208,9 +2249,15 @@ public abstract class CcddJTableHandler extends JTable
         // Set the row index to the last row selected by the user (if any)
         viewRow = getSelectedRow() + getSelectedRowCount() - 1;
 
+        // Check if the new row is to be inserted at the start of the table
+        if (insertionPoint == TableInsertionPoint.START)
+        {
+            // Insert the new row at the start of the table
+            modelRow = -1;
+        }
         // Check if no row is selected or if the flag is set to add the row at
         // the end of the table
-        if (viewRow < 0 || insertAtEnd)
+        else if (viewRow < 0 || insertionPoint == TableInsertionPoint.END)
         {
             // Insert the new row at the end of the table
             modelRow = tableModel.getRowCount() - 1;
@@ -2617,10 +2664,6 @@ public abstract class CcddJTableHandler extends JTable
                 // Step through each cell
                 for (int index = 0; index < cellData.length; index++)
                 {
-                    // Clean up the cell value by removing any leading or
-                    // trailing white space characters
-                    cellData[index] = cellData[index].trim();
-
                     // Check if the cell contains an embedded new line
                     // character place holder
                     if (cellData[index].contains(embeddedNewline))
@@ -2809,11 +2852,14 @@ public abstract class CcddJTableHandler extends JTable
                     // The cell displays text
                     else
                     {
-                        // Get the new cell value as text. If the number of
-                        // cells to be filled exceeds the stored values then
-                        // use a blank as the default
+                        // Get the new cell value as text, cleaning up the
+                        // value if needed. If the number of cells to be filled
+                        // exceeds the stored values then use a blank as the
+                        // default
                         newValue = index < cellData.length
-                                                          ? cellData[index].toString().trim()
+                                                          ? cleanUpCellValue(cellData[index],
+                                                                             modelRow,
+                                                                             modelColumn)
                                                           : "";
                     }
 
@@ -3863,25 +3909,24 @@ public abstract class CcddJTableHandler extends JTable
                     // Reset the flag that indicates editing completed
                     wasEditing = false;
 
-                    // Check if this cell contains a check box
-                    if (checkBoxColumnModel.contains(editColumn))
-                    {
-                        // Get the new check box state
-                        newValue = tableModel.getValueAt(editRow, editColumn);
-                    }
-                    // Cell does not contain a check box
-                    else
-                    {
-                        // Get the cell value from the table; delete leading
-                        // and trailing whitespace
-                        newValue = tableModel.getValueAt(editRow,
-                                                         editColumn).toString().trim();
+                    // Get the cell value from the table
+                    newValue = tableModel.getValueAt(editRow, editColumn);
 
-                        // Store the 'cleaned' value back in the table
+                    // Check if this cell isn't a check box
+                    if (!checkBoxColumnModel.contains(editColumn))
+                    {
+                        // Store the value back in the table; this causes any
+                        // clean-up steps dictated by the table model to be
+                        // performed (e.g., removal of leading and trailing
+                        // white space characters)
                         tableModel.setValueAt(newValue,
                                               editRow,
                                               editColumn,
                                               false);
+
+                        // Reload the value in case any clean-up steps were
+                        // performed
+                        newValue = tableModel.getValueAt(editRow, editColumn);
                     }
 
                     // Check if the data has changed

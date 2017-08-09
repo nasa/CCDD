@@ -54,6 +54,7 @@ import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
+import CCDD.CcddConstants.TableInsertionPoint;
 import CCDD.CcddConstants.TableSelectionMode;
 
 /******************************************************************************
@@ -657,7 +658,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             protected void performAction(ActionEvent ae)
             {
                 fieldTable.insertRow(true,
-                                     false,
+                                     TableInsertionPoint.SELECTION,
                                      new Object[] {InputDataType.SEPARATOR.getInputName(),
                                                    "Line separator",
                                                    0,
@@ -684,7 +685,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             protected void performAction(ActionEvent ae)
             {
                 fieldTable.insertRow(true,
-                                     false,
+                                     TableInsertionPoint.SELECTION,
                                      new Object[] {InputDataType.BREAK.getInputName(),
                                                    "Line break",
                                                    0,

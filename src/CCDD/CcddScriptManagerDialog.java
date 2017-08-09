@@ -11,6 +11,7 @@ import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.DOWN_ICON;
 import static CCDD.CcddConstants.EXECUTE_ALL_ICON;
 import static CCDD.CcddConstants.EXECUTE_ICON;
+import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.INSERT_ICON;
 import static CCDD.CcddConstants.LIST_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.OK_BUTTON;
@@ -60,6 +61,7 @@ import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
+import CCDD.CcddConstants.TableInsertionPoint;
 import CCDD.CcddConstants.TableTreeType;
 
 /******************************************************************************
@@ -276,9 +278,22 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
                                     // Step through each table name
                                     for (String tableName : tableNames)
                                     {
-                                        // Get the node in the table tree for
-                                        // this table name
-                                        ToolTipTreeNode node = tableTree.getNodeByNodePath(tableName);
+                                        ToolTipTreeNode node;
+
+                                        // Check if the name refers to a group
+                                        if (tableName.startsWith(GROUP_DATA_FIELD_IDENT))
+                                        {
+                                            // Get the node in the table tree
+                                            // for this group
+                                            node = tableTree.getNodeByNodeName(tableName.substring(GROUP_DATA_FIELD_IDENT.length()));
+                                        }
+                                        // The name refers to a table
+                                        else
+                                        {
+                                            // Get the node in the table tree
+                                            // for this table name
+                                            node = tableTree.getNodeByNodePath(tableName);
+                                        }
 
                                         // Check if the table name is in the
                                         // tree
@@ -777,7 +792,7 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
                     isNodeSelectionChanging = true;
 
                     // Deselect any nodes that don't represent a table
-                    tableTree.clearNonTableNodes(1);
+                    clearNonTableNodes(1);
 
                     // Reset the flag to allow table tree updates
                     isNodeSelectionChanging = false;
@@ -830,30 +845,45 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
      *************************************************************************/
     private void addAssociation()
     {
-        // Get an array of the selected table names
-        String[] tables = tableTree.getSelectedTablesWithoutChildren().toArray(new String[0]);
+        List<String> members = new ArrayList<String>();
 
-        // Check if no tables are selected
-        if (tables.length == 0)
+        // Check if the tree is filtered by group
+        if (tableTree.isFilteredByGroup())
+        {
+            // Step through each selected group
+            for (String group : tableTree.getSelectedGroups())
+            {
+                // Add the group to the list. Any table belonging to the group
+                // is deselected
+                members.add(GROUP_DATA_FIELD_IDENT + group);
+            }
+        }
+
+        // Add the selected table names
+        members.addAll(tableTree.getSelectedTablesWithoutChildren());
+
+        // Check if no group(s) or table(s) is selected
+        if (members.isEmpty())
         {
             // Use a blank for the table name
-            tables = new String[] {" "};
+            members.add(" ");
         }
 
         // Get a file descriptor for the script file name
         File scriptFile = new File(scriptFld.getText());
 
         // Check that the script association doesn't already exist in the list
-        if (!isAssociationExists(scriptFile.getAbsolutePath(), tables))
+        if (!isAssociationExists(scriptFile.getAbsolutePath(),
+                                 members.toArray(new String[0])))
         {
             // Create the script association strings
             String assn = "";
 
-            // Step through each selected table in the tree
-            for (String table : tables)
+            // Step through each selected table/group in the tree
+            for (String member : members)
             {
-                // Add the table name to the script association
-                assn += table + LIST_TABLE_SEPARATOR;
+                // Add the table/group name to the script association
+                assn += member + LIST_TABLE_SEPARATOR;
             }
 
             // Remove the trailing table separator
@@ -862,7 +892,7 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
             // Insert the new script association at the end of the associations
             // table, then select it and scroll to it
             assnsTable.insertRow(true,
-                                 true,
+                                 TableInsertionPoint.START,
                                  new Object[] {descriptionFld.getText().trim(),
                                                scriptFile.getAbsolutePath(),
                                                assn,

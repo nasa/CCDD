@@ -120,11 +120,15 @@ public class CcddCopyTableHandler
                     if (msgIDNameFieldInfo != null)
                     {
                         // Build the copy table entry array for this variable.
-                        // Include an array member showing the variable's
-                        // root and path
+                        // The fields are: Input message ID name, input offset,
+                        // output message ID name (the sub-message separator
+                        // character, a period, is replaced with an
+                        // underscore), output offset (initialized to a blank;
+                        // the value is computed later), variable size,
+                        // variable root table, and variable path
                         messageTable.add(new String[] {msgIDNameFieldInfo.getValue(),
                                                        String.valueOf(structureOffset),
-                                                       subMsg.getName().replace(" ", "_"),
+                                                       subMsg.getName().replace(".", "_"),
                                                        "",
                                                        String.valueOf(variable.getSize()),
                                                        parentAndPath[0],

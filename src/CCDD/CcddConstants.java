@@ -382,10 +382,18 @@ public class CcddConstants
     }
 
     // Table member types
-    enum TableMemberType
+    protected static enum TableMemberType
     {
         TABLES_ONLY,
         INCLUDE_PRIMITIVES
+    }
+
+    // Table row insertion point
+    protected static enum TableInsertionPoint
+    {
+        START,
+        END,
+        SELECTION
     }
 
     // Script store/retrieve types
@@ -1928,6 +1936,16 @@ public class CcddConstants
                    "text",
                    "Multi-line text, including alphabetic, numeric, special, and new line characters"),
 
+        TEXT_WHT_SPC("Text (spaces)",
+                     ".*",
+                     "text",
+                     "Text (see Text) with leading/traling white space characters preserved"),
+
+        TEXT_MULTI_WHT_SPC("Text (multi-line, spaces)",
+                           ".*",
+                           "text",
+                           "Multi-line text (see Text (multi-line)) with leading/traling white space characters preserved"),
+
         UNITS("Units",
               ".*",
               "text",
@@ -2109,7 +2127,7 @@ public class CcddConstants
          * Get the input data type with the name that matches the one specified
          * 
          * @param name
-         *            input data type name to match
+         *            input data type name to match (case insensitive)
          * 
          * @return Input data type with the name that matches the one
          *         specified; returns null if the input type doesn't exist

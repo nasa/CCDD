@@ -39,6 +39,7 @@ import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.CopyTableEntry;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
@@ -75,6 +76,9 @@ public class CcddScriptDataAccessHandler
     // Name of the script file being executed
     private final String scriptFileName;
 
+    // List of group names references in the script association
+    private final List<String> groupNames;
+
     // Data table information array
     private final TableInformation[] tableInformation;
 
@@ -103,6 +107,10 @@ public class CcddScriptDataAccessHandler
      * @param scriptFileName
      *            name of the script file being executed
      * 
+     * @param groupNames
+     *            list containing the names of any groups referenced in the
+     *            script association
+     * 
      * @param scriptDialog
      *            reference to the GUI component from which this class was
      *            generated (script dialog if executing from within the CCDD
@@ -115,6 +123,7 @@ public class CcddScriptDataAccessHandler
                                           CcddFieldHandler fieldHandler,
                                           CcddGroupHandler groupHandler,
                                           String scriptFileName,
+                                          List<String> groupNames,
                                           Component scriptDialog)
     {
         this.ccddMain = ccddMain;
@@ -123,6 +132,7 @@ public class CcddScriptDataAccessHandler
         this.fieldHandler = fieldHandler;
         this.groupHandler = groupHandler;
         this.scriptFileName = scriptFileName;
+        this.groupNames = groupNames;
         this.parent = scriptDialog;
         dbTable = ccddMain.getDbTableCommandHandler();
         dbControl = ccddMain.getDbControlHandler();
@@ -432,6 +442,32 @@ public class CcddScriptDataAccessHandler
     }
 
     /**************************************************************************
+     * Get the C type for the specified data type
+     * 
+     * @param dataType
+     *            primitive data type
+     * 
+     * @return C type for the specified data type; returns null if the data
+     *         type doesn't exist or isn't a primitive type
+     *************************************************************************/
+    public String getCDataType(String dataType)
+    {
+        String cType = null;
+
+        // Get the base data type information based on the data type
+        String[] dataTypeInfo = dataTypeHandler.getDataTypeInfo(dataType);
+
+        // Check if the data type exists
+        if (dataTypeInfo != null)
+        {
+            // Get the C type for the data type
+            cType = dataTypeInfo[DataTypesColumn.C_NAME.ordinal()];
+        }
+
+        return cType;
+    }
+
+    /**************************************************************************
      * Get the base type for the specified data type
      * 
      * @param dataType
@@ -451,7 +487,7 @@ public class CcddScriptDataAccessHandler
         if (baseTypeInfo != null)
         {
             // Get the base type for the data type
-            baseType = dataTypeHandler.getBaseDataType(dataType).getName();
+            baseType = baseTypeInfo.getName();
         }
 
         return baseType;
@@ -753,9 +789,9 @@ public class CcddScriptDataAccessHandler
     /**************************************************************************
      * Get the number of rows of data in the structure table
      * 
-     * @return Number of rows of data in the table of the type "structure";
-     *         return -1 if an instance of the structure table type doesn't
-     *         exist
+     * @return Number of rows of data in the table for the table type
+     *         "structure"; -1 if an instance of the structure table type
+     *         doesn't exist
      *************************************************************************/
     public int getStructureTableNumRows()
     {
@@ -765,8 +801,8 @@ public class CcddScriptDataAccessHandler
     /**************************************************************************
      * Get the number of rows of data in the command table
      * 
-     * @return Number of rows of data in the table of the type "command";
-     *         return -1 if an instance of the command table type doesn't exist
+     * @return Number of rows of data in the table of the type "command"; -1 if
+     *         an instance of the command table type doesn't exist
      *************************************************************************/
     public int getCommandTableNumRows()
     {
@@ -774,7 +810,7 @@ public class CcddScriptDataAccessHandler
     }
 
     /**************************************************************************
-     * Get the number of rows of data in the table
+     * Get the number of rows of data in the table for the specified table type
      * 
      * @param tableType
      *            table type. All structure table types are combined and are
@@ -782,8 +818,8 @@ public class CcddScriptDataAccessHandler
      *            table types are combined and are referenced by the type name
      *            "Command"
      * 
-     * @return Number of rows of data in the table of the type specified;
-     *         return -1 if an instance of the table type doesn't exist
+     * @return Number of rows of data in the table for the table type
+     *         specified; -1 if an instance of the table type doesn't exist
      *************************************************************************/
     public int getTableNumRows(String tableType)
     {
@@ -798,6 +834,26 @@ public class CcddScriptDataAccessHandler
         {
             // Store the number of rows for the table
             numRows = tableInfo.getData().length;
+        }
+
+        return numRows;
+    }
+
+    /**************************************************************************
+     * Get the number of rows of data for all table types
+     * 
+     * @return Number of rows of data for all table types; 0 if there is no
+     *         table data
+     *************************************************************************/
+    public int getTableNumRows()
+    {
+        int numRows = 0;
+
+        // Step through the available table information instances
+        for (TableInformation info : tableInformation)
+        {
+            // Add the table's number of rows to the total
+            numRows += info.getData().length;
         }
 
         return numRows;
@@ -2025,8 +2081,8 @@ public class CcddScriptDataAccessHandler
      * 
      * @return Contents of the specified structure table's array at the row and
      *         column name provided, with any macro name(s) left in place;
-     *         returns null if an instance of the structure table type doesn't
-     *         exist
+     *         returns null if an instance of the structure table type, the
+     *         column name, or the row doesn't exist
      *************************************************************************/
     public String getStructureTableDataWithMacros(String columnName, int row)
     {
@@ -2046,8 +2102,8 @@ public class CcddScriptDataAccessHandler
      * 
      * @return Contents of the specified command table's array at the row and
      *         column name provided, with any macro name(s) left in place;
-     *         returns null if an instance of the command table type doesn't
-     *         exist
+     *         returns null if an instance of the command table type, the
+     *         column name, or the row doesn't exist
      *************************************************************************/
     public String getCommandTableDataWithMacros(String columnName, int row)
     {
@@ -2139,6 +2195,233 @@ public class CcddScriptDataAccessHandler
                 {
                     // Expand any macros in the data
                     tableData = macroHandler.getMacroExpansion(tableData);
+                }
+            }
+        }
+
+        return tableData;
+    }
+
+    /**************************************************************************
+     * Get the structure table data at the row and column indicated, with any
+     * macro replaced by its corresponding value. The column is specified by
+     * input type name. Convenience method that assumes the table type is
+     * "structure"
+     * 
+     * @param inputType
+     *            column input type name (case insensitive)
+     * 
+     * @param row
+     *            row index
+     * 
+     * @return Contents of the specified structure table's array at the row and
+     *         column input type name provided, with any macro replaced by its
+     *         corresponding value; returns null if an instance of the
+     *         structure table type, the column input type name, or the row
+     *         doesn't exist. If more than one column has the specified input
+     *         type then then first one defined by that type is returned
+     *************************************************************************/
+    public String getStructureTableDataByInputType(String inputType, int row)
+    {
+        return getTableDataByInputType(TYPE_STRUCTURE, inputType, row);
+    }
+
+    /**************************************************************************
+     * Get the command table data at the row and column indicated, with any
+     * macro replaced by its corresponding value. The column is specified by
+     * input type name. Convenience method that assumes the table type is
+     * "command"
+     * 
+     * @param inputType
+     *            column input type name (case insensitive)
+     * 
+     * @param row
+     *            row index
+     * 
+     * @return Contents of the specified command table's array at the row and
+     *         column input type name provided, with any macro replaced by its
+     *         corresponding value; returns null if an instance of the command
+     *         table type, the column input type name, or the row doesn't
+     *         exist. If more than one column has the specified input type then
+     *         then first one defined by that type is returned
+     *************************************************************************/
+    public String getCommandTableDataByInputType(String inputType, int row)
+    {
+        return getTableDataByInputType(TYPE_COMMAND, inputType, row);
+    }
+
+    /**************************************************************************
+     * Get the data at the row and column indicated, with any macro replaced by
+     * its corresponding value, for the table type specified. The column is
+     * specified by input type name
+     * 
+     * @param tableType
+     *            table type. All structure table types are combined and are
+     *            referenced by the type name "Structure", and all command
+     *            table types are combined and are referenced by the type name
+     *            "Command"
+     * 
+     * @param inputType
+     *            column input type name (case insensitive)
+     * 
+     * @param row
+     *            row index
+     * 
+     * @return Contents of the specified table's array at the row and column
+     *         input type name provided, with any macro replaced by its
+     *         corresponding value; returns null if an instance of the table
+     *         type, the column input type name, or the row doesn't exist. If
+     *         more than one column has the specified input type then then
+     *         first one defined by that type is returned
+     *************************************************************************/
+    public String getTableDataByInputType(String tableType, String inputType, int row)
+    {
+        return getTableDataByInputType(tableType, inputType, row, true);
+    }
+
+    /**************************************************************************
+     * Get the structure table data at the row and column indicated, with any
+     * macro name(s) left in place. The column is specified by input type name.
+     * Convenience method that assumes the table type is "structure"
+     * 
+     * @param inputType
+     *            column input type name (case insensitive)
+     * 
+     * @param row
+     *            row index
+     * 
+     * @return Contents of the specified structure table's array at the row and
+     *         column input type name provided, with any macro name(s) left in
+     *         place; returns null if an instance of the structure table type,
+     *         the column input type name, or the row doesn't exist. If more
+     *         than one column has the specified input type then then first one
+     *         defined by that type is returned
+     *************************************************************************/
+    public String getStructureTableDataByInputTypeWithMacros(String inputType, int row)
+    {
+        return getTableDataByInputTypeWithMacros(TYPE_STRUCTURE, inputType, row);
+    }
+
+    /**************************************************************************
+     * Get the command table data at the row and column indicated, with any
+     * macro name(s) left in place. The column is specified by input type name.
+     * Convenience method that assumes the table type is "command"
+     * 
+     * @param inputType
+     *            column input type name (case insensitive)
+     * 
+     * @param row
+     *            row index
+     * 
+     * @return Contents of the specified command table's array at the row and
+     *         column input type name provided, with any macro name(s) left in
+     *         place; returns null if an instance of the command table type,
+     *         the column input type name, or the row doesn't exist. If more
+     *         than one column has the specified input type then then first one
+     *         defined by that type is returned
+     *************************************************************************/
+    public String getCommandTableDataByInputTypeWithMacros(String inputType, int row)
+    {
+        return getTableDataByInputTypeWithMacros(TYPE_COMMAND, inputType, row);
+    }
+
+    /**************************************************************************
+     * Get the data at the row and column indicated, with any macro name(s)
+     * left in place, for the table type specified. The column is specified by
+     * input type name
+     * 
+     * @param tableType
+     *            table type. All structure table types are combined and are
+     *            referenced by the type name "Structure", and all command
+     *            table types are combined and are referenced by the type name
+     *            "Command"
+     * 
+     * @param inputType
+     *            column input type name (case insensitive)
+     * 
+     * @param row
+     *            row index
+     * 
+     * @return Contents of the specified table's array at the row and column
+     *         input type name provided, with any macro name(s) left in place;
+     *         returns null if an instance of the table type, the column input
+     *         type name, or the row doesn't exist. If more than one column has
+     *         the specified input type then then first one defined by that
+     *         type is returned
+     *************************************************************************/
+    public String getTableDataByInputTypeWithMacros(String tableType, String inputType, int row)
+    {
+        return getTableDataByInputType(tableType, inputType, row, false);
+    }
+
+    /**************************************************************************
+     * Get the data at the row and column indicated for the table type
+     * specified. The column is specified by input type name. Macro expansion
+     * is controlled by the input flag
+     * 
+     * @param tableType
+     *            table type. All structure table types are combined and are
+     *            referenced by the type name "Structure", and all command
+     *            table types are combined and are referenced by the type name
+     *            "Command"
+     * 
+     * @param inputType
+     *            column input type name (case insensitive)
+     * 
+     * @param row
+     *            row index
+     * 
+     * @param expandMacros
+     *            true to replace any macros with their corresponding value;
+     *            false to return the data with any macro names in place
+     * 
+     * @return Contents of the specified table's array at the row and column
+     *         input type name provided; returns null if an instance of the
+     *         table type, the column input type name, or the row doesn't
+     *         exist. If more than one column has the specified input type then
+     *         then first one defined by that type is returned
+     *************************************************************************/
+    private String getTableDataByInputType(String tableType,
+                                           String inputType,
+                                           int row,
+                                           boolean expandMacros)
+    {
+        String tableData = null;
+
+        // Get the reference to the table information class for the requested
+        // table type
+        TableInformation tableInfo = getTableInformation(tableType);
+
+        // Check that the table type exists and the row index is valid
+        if (tableInfo != null && row < tableInfo.getData().length)
+        {
+            // Get the type definition based on the table's specific type name
+            TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getTypeNameByRow(tableType,
+                                                                                          row));
+
+            // Get the input data type based on its supplied name
+            InputDataType inputDataType = InputDataType.getInputTypeByName(inputType);
+
+            // Check if the input type is valid
+            if (inputDataType != null)
+            {
+                // Get the column index matching the requested column input
+                // type name
+                int column = typeDefn.getColumnIndexByInputType(inputDataType);
+
+                // Check that the column name exists in the table
+                if (column != -1)
+                {
+                    // Store the contents of the table at the specified row and
+                    // column
+                    tableData = tableInfo.getData()[row][column];
+
+                    // Check if any macros should be expanded
+                    if (expandMacros)
+                    {
+                        // Expand any macros in the data
+                        tableData = macroHandler.getMacroExpansion(tableData);
+                    }
                 }
             }
         }
@@ -3030,6 +3313,17 @@ public class CcddScriptDataAccessHandler
     {
         return linkHandler.getApplicationNames(tableInformation[0].getFieldHandler(),
                                                dataFieldName);
+    }
+
+    /**************************************************************************
+     * Get the array of group names referenced in the script association
+     * 
+     * @return Array of group names referenced in the script association; empty
+     *         array if no groups are referenced
+     *************************************************************************/
+    public String[] getAssociatedGroupNames()
+    {
+        return groupNames.toArray(new String[0]);
     }
 
     /**************************************************************************

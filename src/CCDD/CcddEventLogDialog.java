@@ -64,6 +64,7 @@ import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.SearchDialogType;
+import CCDD.CcddConstants.TableInsertionPoint;
 import CCDD.CcddConstants.TableSelectionMode;
 
 /******************************************************************************
@@ -1165,7 +1166,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
         // Insert the event at the end of the event log table
         eventTable.insertRow(false,
-                             true,
+                             TableInsertionPoint.END,
                              new Object[] {indexNum,
                                            getServerLog(server),
                                            database,

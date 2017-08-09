@@ -694,9 +694,19 @@ public abstract class CcddInputFieldPanelHandler
                                 // subsequent calls
                                 JTextComponent inputFld = (JTextComponent) input;
 
-                                // Remove leading and trailing white space
-                                // characters from the data field contents
-                                String inputTxt = inputFld.getText().trim();
+                                // Get the data field contents
+                                String inputTxt = inputFld.getText();
+
+                                // Check if the field's input type doesn't
+                                // allow leading and trailing white space
+                                // characters
+                                if (fieldInfo.getInputType() != InputDataType.TEXT_WHT_SPC
+                                    && fieldInfo.getInputType() != InputDataType.TEXT_MULTI_WHT_SPC)
+                                {
+                                    // Remove leading and trailing white space
+                                    // characters
+                                    inputTxt = inputTxt.trim();
+                                }
 
                                 // Check if the field contains an illegal
                                 // character

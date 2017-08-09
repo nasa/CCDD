@@ -1199,7 +1199,7 @@ public class CcddDialogHandler extends JDialog
             // Spaces may appear in the names only if the name is within double
             // quotes. The names are split on spaces outside of quotes, at
             // every second quote, or at commas. First any leading or trailing
-            // whitespace characters are removed
+            // white space characters are removed
             String names = nameField.getText().trim();
 
             // Create a flag to keep track of whether or not the character

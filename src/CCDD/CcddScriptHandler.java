@@ -7,6 +7,7 @@
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
+import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.LIST_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.PATH_COLUMN_DELTA;
@@ -153,6 +154,9 @@ public class CcddScriptHandler
         ArrayListMultiple protoNamesAndTableTypes = new ArrayListMultiple();
         protoNamesAndTableTypes.addAll(dbTable.queryTableAndTypeList(parent));
 
+        // Load the group information from the database
+        CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain, parent);
+
         // Step through each script association
         for (String[] assn : committedAssociations)
         {
@@ -169,16 +173,21 @@ public class CcddScriptHandler
                     throw new CCDDException();
                 }
 
-                // Step through each table referenced in this association
-                for (String tableName : assn[AssociationsColumn.MEMBERS.ordinal()].trim().split(Pattern.quote(LIST_TABLE_SEPARATOR)))
+                // Get the list of association table paths
+                List<String> tablePaths = getAssociationTablePaths(assn[AssociationsColumn.MEMBERS.ordinal()].toString(),
+                                                                   groupHandler);
+
+                // Check if at least one table is assigned to this script
+                // association
+                if (!tablePaths.isEmpty())
                 {
-                    // Check that at least one table is referenced
-                    if (!tableName.isEmpty())
+                    // Step through each table referenced in this association
+                    for (String tablePath : tablePaths)
                     {
                         String parentTable = "";
 
                         // Step through each data type and variable name pair
-                        for (String variable : tableName.split(","))
+                        for (String variable : tablePath.split(","))
                         {
                             // Split the variable reference into the data type
                             // and variable name
@@ -488,7 +497,7 @@ public class CcddScriptHandler
     /**************************************************************************
      * Check if the script association on the specified row in the associations
      * table is available. An association is unavailable if the script or
-     * tables(s) is not present
+     * tables is not present
      * 
      * @param row
      *            table row (model coordinates)
@@ -500,6 +509,51 @@ public class CcddScriptHandler
         return Boolean.parseBoolean(assnsTable.getModel().getValueAt(row,
                                                                      AssociationsTableColumnInfo.AVAILABLE.ordinal())
                                               .toString());
+    }
+
+    /**************************************************************************
+     * Get the list of a script association's member table paths. If a group is
+     * referenced then its member tables are included
+     * 
+     * @param associationMembers
+     *            association members as a single string (as stored in the
+     *            database)
+     * 
+     * @param groupHandler
+     *            group handler reference
+     * 
+     * @return List containing the tables (path+name) from the association
+     *         member string
+     *************************************************************************/
+    private List<String> getAssociationTablePaths(String associationMembers,
+                                                  CcddGroupHandler groupHandler)
+    {
+        List<String> tablePaths = new ArrayList<String>();
+
+        // Separate the individual table path+names
+        String[] members = associationMembers.split(Pattern.quote(LIST_TABLE_SEPARATOR));
+
+        // Step through each table path+name or group
+        for (String member : members)
+        {
+            // Check if this is a reference to a group
+            if (member.startsWith(GROUP_DATA_FIELD_IDENT))
+            {
+                // Extract the group name
+                String groupName = member.substring(GROUP_DATA_FIELD_IDENT.length());
+
+                // Add the group member table(s) to the list
+                tablePaths.addAll(groupHandler.getGroupInformationByName(groupName).getTablesAndAncestors());
+            }
+            // Check if the table path isn't blank
+            else if (!member.isEmpty())
+            {
+                // Add the table path
+                tablePaths.add(member);
+            }
+        }
+
+        return tablePaths;
     }
 
     /**************************************************************************
@@ -849,6 +903,19 @@ public class CcddScriptHandler
         List<TableInformation> tableInformation = new ArrayList<TableInformation>();
         List<String> loadedTablePaths = new ArrayList<String>();
 
+        // Get the link assignment information, if any
+        CcddLinkHandler linkHandler = new CcddLinkHandler(ccddMain,
+                                                          component);
+
+        // Load the data field information from the database
+        CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain,
+                                                             null,
+                                                             component);
+
+        // Load the group information from the database
+        CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain,
+                                                             component);
+
         // To reduce database access and speed script execution when executing
         // multiple associations, first load all of the associated tables,
         // making sure each is loaded only once. Step through each script
@@ -857,16 +924,14 @@ public class CcddScriptHandler
         {
             try
             {
-                // Remove any leading or trailing white space characters
-                assn[AssociationsColumn.MEMBERS.ordinal()] = assn[AssociationsColumn.MEMBERS.ordinal()].toString().trim();
+                // Get the list of association table paths
+                List<String> tablePaths = getAssociationTablePaths(assn[AssociationsColumn.MEMBERS.ordinal()].toString(),
+                                                                   groupHandler);
 
                 // Check if at least one table is assigned to this script
                 // association
-                if (!assn[AssociationsColumn.MEMBERS.ordinal()].toString().isEmpty())
+                if (!tablePaths.isEmpty())
                 {
-                    // Separate the individual table path+names
-                    String[] tablePaths = assn[AssociationsColumn.MEMBERS.ordinal()].toString().split(Pattern.quote(LIST_TABLE_SEPARATOR));
-
                     // Step through each table path+name
                     for (String tablePath : tablePaths)
                     {
@@ -969,19 +1034,6 @@ public class CcddScriptHandler
             assnIndex++;
         }
 
-        // Get the link assignment information, if any
-        CcddLinkHandler linkHandler = new CcddLinkHandler(ccddMain,
-                                                          component);
-
-        // Load the data field information from the database
-        CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain,
-                                                             null,
-                                                             component);
-
-        // Load the group information from the database
-        CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain,
-                                                             component);
-
         assnIndex = 0;
 
         // Once all table information is loaded then gather the data for each
@@ -995,16 +1047,33 @@ public class CcddScriptHandler
             {
                 TableInformation[] combinedTableInfo = null;
 
+                // Get the list of association table paths
+                List<String> tablePaths = getAssociationTablePaths(assn[AssociationsColumn.MEMBERS.ordinal()].toString(),
+                                                                   groupHandler);
+
+                // TODO
+                List<String> groupNames = new ArrayList<String>();
+
+                String[] members = assn[AssociationsColumn.MEMBERS.ordinal()].toString().split(Pattern.quote(LIST_TABLE_SEPARATOR));
+
+                // Step through each table path+name or group
+                for (String member : members)
+                {
+                    // Check if this is a reference to a group
+                    if (member.startsWith(GROUP_DATA_FIELD_IDENT))
+                    {
+                        // Add the group name to the list of referenced groups
+                        groupNames.add(member.substring(GROUP_DATA_FIELD_IDENT.length()));
+                    }
+                }
+
                 // Check if at least one table is assigned to this script
                 // association
-                if (!assn[AssociationsColumn.MEMBERS.ordinal()].toString().isEmpty())
+                if (!tablePaths.isEmpty())
                 {
                     // Create storage for the table types used by this script
                     // association
                     List<String> tableTypes = new ArrayList<String>();
-
-                    // Separate the individual table names
-                    List<String> tableNames = Arrays.asList(assn[AssociationsColumn.MEMBERS.ordinal()].toString().split(Pattern.quote(LIST_TABLE_SEPARATOR)));
 
                     // Create a list of the table types referenced by this
                     // association. This is used to create the storage for the
@@ -1013,7 +1082,7 @@ public class CcddScriptHandler
                     for (TableInformation tableInfo : tableInformation)
                     {
                         // Check if this table is a member of the association
-                        if (tableNames.contains(tableInfo.getTablePath()))
+                        if (tablePaths.contains(tableInfo.getTablePath()))
                         {
                             // Check if the type for this table is not
                             // already in the list
@@ -1042,7 +1111,7 @@ public class CcddScriptHandler
                         {
                             // Check if this table is a member of the
                             // association
-                            if (tableNames.contains(tableInfo.getTablePath()))
+                            if (tablePaths.contains(tableInfo.getTablePath()))
                             {
                                 // Check if the table types match
                                 if (tableTypes.get(typeIndex).equals(tableInfo.getType()))
@@ -1097,6 +1166,7 @@ public class CcddScriptHandler
                     executeScript(component,
                                   assn[AssociationsColumn.SCRIPT_FILE.ordinal()].toString(),
                                   combinedTableInfo,
+                                  groupNames,
                                   linkHandler,
                                   fieldHandler,
                                   groupHandler);
@@ -1249,6 +1319,10 @@ public class CcddScriptHandler
      * @param tableInformation
      *            array of table information
      * 
+     * @param groupNames
+     *            list containing the names of any groups referenced in the
+     *            script association
+     * 
      * @param linkHandler
      *            link handler reference
      * 
@@ -1263,6 +1337,7 @@ public class CcddScriptHandler
     private void executeScript(Component component,
                                String scriptFileName,
                                TableInformation[] tableInformation,
+                               List<String> groupNames,
                                CcddLinkHandler linkHandler,
                                CcddFieldHandler fieldHandler,
                                CcddGroupHandler groupHandler) throws CCDDException
@@ -1326,6 +1401,7 @@ public class CcddScriptHandler
                                                                        fieldHandler,
                                                                        groupHandler,
                                                                        scriptFileName,
+                                                                       groupNames,
                                                                        component));
                     scriptEngine.setBindings(scriptBindings,
                                              ScriptContext.ENGINE_SCOPE);

@@ -1584,8 +1584,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                         // Add the table path+name to the list
                         tables.add(getFullVariablePath(node.getPath()));
                     }
-                    // The node is a header node (i.e., a node with tables
-                    // nodes as children)
+                    // The node is a header node (i.e., a node with table nodes
+                    // as children)
                     else
                     {
                         // Step through each child node
@@ -1600,6 +1600,43 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         }
 
         return tables;
+    }
+
+    /**************************************************************************
+     * Get a list of the group nodes that are selected. Deselect of the group's
+     * child nodes and the group node itself
+     * 
+     * @return List containing the selected group name(s)
+     *************************************************************************/
+    protected List<String> getSelectedGroups()
+    {
+        // Create storage for the group names
+        List<String> groups = new ArrayList<String>();
+
+        // Check if the table tree is filtered by group and if any nodes are
+        // selected
+        if (isByGroup && getSelectionPaths() != null)
+        {
+            // Step through each selected table in the tree
+            for (TreePath path : getSelectionPaths())
+            {
+                // Check that this node represents a group
+                if (path.getPathCount() == 3)
+                {
+                    // Get the node for this path
+                    ToolTipTreeNode node = (ToolTipTreeNode) path.getLastPathComponent();
+
+                    // Add the group name to the list. Remove the HTML tags in
+                    // case the node is disabled
+                    groups.add(removeExtraText(node.getUserObject().toString()));
+
+                    // Deselect the group and any children of the group
+                    removeDescendantSelectedPaths(path, true);
+                }
+            }
+        }
+
+        return groups;
     }
 
     /**************************************************************************

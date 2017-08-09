@@ -736,7 +736,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                 if (targetRow == null || row == targetRow)
                 {
                     // Get the line from the file and strip any leading or
-                    // trailing whitespace
+                    // trailing white space
                     String line = lineMatch.group().toString();
 
                     // Break the input line into its separate columns
