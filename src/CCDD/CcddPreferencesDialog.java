@@ -23,6 +23,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 
 import javax.swing.BorderFactory;
 import javax.swing.InputVerifier;
@@ -50,6 +51,7 @@ import CCDD.CcddConstants.GUIUpdateType;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 
@@ -66,12 +68,9 @@ public class CcddPreferencesDialog extends CcddDialogHandler
     private JTabbedPane tabbedPane;
     private Border emptyBorder;
     private JButton btnClose;
-    private JScrollPane fontScrollPane;
-    private JScrollPane colorScrollPane;
-    private JScrollPane sizeScrollPane;
-    private JScrollPane spacingScrollPane;
     private JTextField[] sizeFld;
     private JTextField[] spacingFld;
+    private JTextField[] pathFld;
 
     // Maximum height, in pixels, based on all of the individual tabs' scroll
     // panes
@@ -83,6 +82,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
     private final String COLOR = "Color";
     private final String SIZE = "Size";
     private final String SPACING = "Spacing";
+    private final String PATH = "Path";
 
     /**************************************************************************
      * Program preferences dialog class constructor
@@ -118,6 +118,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         addColorTab();
         addSizeTab();
         addSpacingTab();
+        addPathTab();
 
         // Create a panel for the preference dialog buttons
         JPanel buttonPnl = new JPanel();
@@ -190,6 +191,33 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                         }
 
                         break;
+
+                    case PATH:
+                        // Update the program path preference. Step through
+                        // each modifiable path
+                        for (ModifiablePathInfo modPath : ModifiablePathInfo.values())
+                        {
+                            // Get the current path from the path text field
+                            String currentPath = pathFld[index].getText().trim();
+
+                            // Check if the path has changed
+                            if (!modPath.getPath().equals(currentPath))
+                            {
+                                // Store the path in the program preferences
+                                // backing store
+                                CcddFileIOHandler.storePath(ccddMain,
+                                                            currentPath,
+                                                            false,
+                                                            modPath.getPreferenceKey());
+
+                                // Update the path to the new path
+                                modPath.setPath(currentPath);
+                            }
+
+                            index++;
+                        }
+
+                        break;
                 }
             }
         });
@@ -241,6 +269,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
 
                         case SIZE:
                         case SPACING:
+                        case PATH:
                             // Show the update button
                             btnUpdateAll.setVisible(true);
                             break;
@@ -288,9 +317,9 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.NONE,
                                                         new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
                                                                    ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
                                                         0,
                                                         0);
 
@@ -402,9 +431,9 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.HORIZONTAL,
                                                         new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
                                                                    ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
                                                         0,
                                                         0);
 
@@ -413,7 +442,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         innerFontPnl.setBorder(emptyBorder);
 
         // Create a scroll pane in which to display the font selection buttons
-        fontScrollPane = new JScrollPane(innerFontPnl);
+        JScrollPane fontScrollPane = new JScrollPane(innerFontPnl);
         fontScrollPane.setBorder(emptyBorder);
         fontScrollPane.setViewportBorder(emptyBorder);
 
@@ -624,9 +653,9 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.HORIZONTAL,
                                                         new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
                                                                    ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
                                                         0,
                                                         0);
 
@@ -640,7 +669,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
 
         // Create a scroll pane in which to display the color selection check
         // boxes
-        colorScrollPane = new JScrollPane(innerColorPnl);
+        JScrollPane colorScrollPane = new JScrollPane(innerColorPnl);
         colorScrollPane.setBorder(emptyBorder);
         colorScrollPane.setViewportBorder(emptyBorder);
 
@@ -855,9 +884,9 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.HORIZONTAL,
                                                         new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
                                                                    ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
                                                         0,
                                                         0);
 
@@ -878,7 +907,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         innerSizePnl.setBorder(emptyBorder);
 
         // Create a scroll pane in which to display the size labels and fields
-        sizeScrollPane = new JScrollPane(innerSizePnl);
+        JScrollPane sizeScrollPane = new JScrollPane(innerSizePnl);
         sizeScrollPane.setBorder(emptyBorder);
         sizeScrollPane.setViewportBorder(emptyBorder);
 
@@ -1065,9 +1094,9 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.HORIZONTAL,
                                                         new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
                                                                    ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
                                                         0,
                                                         0);
 
@@ -1089,7 +1118,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
 
         // Create a scroll pane in which to display the spacing labels and
         // fields
-        spacingScrollPane = new JScrollPane(innerSpacingPnl);
+        JScrollPane spacingScrollPane = new JScrollPane(innerSpacingPnl);
         spacingScrollPane.setBorder(emptyBorder);
         spacingScrollPane.setViewportBorder(emptyBorder);
 
@@ -1105,7 +1134,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         noteLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         noteLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
         noteLbl.setBorder(BorderFactory.createEmptyBorder(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() * 2,
-                                                          ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                          ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
                                                           ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()));
         spacingPnl.add(noteLbl, BorderLayout.PAGE_END);
@@ -1271,6 +1300,141 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         // spacing labels and fields (= # of rows * row height)
         maxScrollPaneHeight = Math.max(maxScrollPaneHeight,
                                        10 * spacingScrollPane.getPreferredSize().height / spacingFld.length);
+    }
+
+    /**************************************************************************
+     * Add the path update tab to the tabbed pane
+     *************************************************************************/
+    private void addPathTab()
+    {
+        // Set the initial layout manager characteristics
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        0.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
+                                                        GridBagConstraints.HORIZONTAL,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
+                                                        0,
+                                                        0);
+
+        // Create a border for the input fields
+        Border border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                           Color.LIGHT_GRAY,
+                                                                                           Color.GRAY),
+                                                           BorderFactory.createEmptyBorder(2, 2, 2, 2));
+
+        // Create storage for the description and input field representing each
+        // modifiable path
+        JLabel[] pathLbl = new JLabel[ModifiablePathInfo.values().length];
+        JButton[] pathBtn = new JButton[ModifiablePathInfo.values().length];
+        pathFld = new JTextField[ModifiablePathInfo.values().length];
+
+        // Create a panel to contain the path components
+        JPanel innerPathPnl = new JPanel(new GridBagLayout());
+        innerPathPnl.setBorder(emptyBorder);
+
+        // Create a scroll pane in which to display the path labels and fields
+        JScrollPane pathScrollPane = new JScrollPane(innerPathPnl);
+        pathScrollPane.setBorder(emptyBorder);
+        pathScrollPane.setViewportBorder(emptyBorder);
+
+        // Use an outer panel so that the components can be forced to the top
+        // of the tab area
+        JPanel pathPnl = new JPanel(new BorderLayout());
+        pathPnl.setBorder(emptyBorder);
+        pathPnl.add(pathScrollPane, BorderLayout.PAGE_START);
+
+        // Add the path update tab to the tabbed pane
+        tabbedPane.addTab(PATH,
+                          null,
+                          pathPnl,
+                          "Change program paths");
+
+        // Create a listener for the path selection buttons
+        ActionListener defaultListener = new ActionListener()
+        {
+            /******************************************************************
+             * Update the path to the selection
+             *****************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                // Get the index of the path field array, which is stored as
+                // the button's name
+                int index = Integer.valueOf(((JButton) ae.getSource()).getName());
+
+                // Allow the user to select the script file path + name
+                File[] pathFile = new CcddDialogHandler().choosePathFile(ccddMain,
+                                                                         CcddPreferencesDialog.this,
+                                                                         "Select Path",
+                                                                         pathFld[index].getText(),
+                                                                         DialogOption.OK_CANCEL_OPTION);
+
+                // Check if a path is selected
+                if (pathFile != null && pathFile[0] != null)
+                {
+                    // Display the file name in the path name field
+                    pathFld[index].setText(pathFile[0].getAbsolutePath());
+                }
+            }
+        };
+
+        int index = 0;
+
+        // Step through each modifiable path
+        for (final ModifiablePathInfo modPath : ModifiablePathInfo.values())
+        {
+            // Create the path label and input field
+            pathLbl[index] = new JLabel(modPath.getName());
+            pathLbl[index].setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            pathLbl[index].setToolTipText(CcddUtilities.wrapText(modPath.getDescription(),
+                                                                 ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+            innerPathPnl.add(pathLbl[index], gbc);
+            pathFld[index] = new JTextField(String.valueOf(modPath.getPath()), 40);
+            pathFld[index].setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+            pathFld[index].setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+            pathFld[index].setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
+            pathFld[index].setBorder(border);
+            pathFld[index].setName(modPath.getPreferenceKey());
+            pathFld[index].setToolTipText(CcddUtilities.wrapText(modPath.getDescription(),
+                                                                 ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+
+            // Add the path field to the path panel
+            gbc.gridx++;
+            innerPathPnl.add(pathFld[index], gbc);
+            pathBtn[index] = new JButton("Select...");
+            pathBtn[index].setFont(ModifiableFontInfo.DIALOG_BUTTON.getFont());
+            pathBtn[index].setName(String.valueOf(index));
+            pathBtn[index].addActionListener(defaultListener);
+            gbc.insets.right = 0;
+            gbc.gridx++;
+            innerPathPnl.add(pathBtn[index], gbc);
+            gbc.insets.left = 0;
+            gbc.weightx = 1.0;
+            gbc.gridx++;
+            innerPathPnl.add(new JLabel(""), gbc);
+            gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2;
+            gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2;
+            gbc.weightx = 0.0;
+            gbc.gridx = 0;
+            gbc.gridy++;
+            index++;
+        }
+
+        // Set the scroll bar scroll increment
+        pathScrollPane.getVerticalScrollBar().setUnitIncrement(pathFld[0].getPreferredSize().height / 2
+                                                               + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
+
+        // Calculate the maximum required height of the panel containing the
+        // path labels and fields (= # of rows * row height)
+        maxScrollPaneHeight = Math.max(maxScrollPaneHeight,
+                                       10 * pathScrollPane.getPreferredSize().height / pathFld.length);
     }
 
     /**************************************************************************

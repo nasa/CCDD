@@ -57,6 +57,7 @@ import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.ArrayVariable;
 import CCDD.CcddClasses.CCDDException;
+import CCDD.CcddClasses.GroupInformation;
 import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddConstants.AssociationsTableColumnInfo;
 import CCDD.CcddConstants.DialogOption;
@@ -539,14 +540,26 @@ public class CcddScriptHandler
             // Check if this is a reference to a group
             if (member.startsWith(GROUP_DATA_FIELD_IDENT))
             {
-                // Extract the group name
-                String groupName = member.substring(GROUP_DATA_FIELD_IDENT.length());
+                // Extract the group name and use it to get the group's
+                // information reference
+                GroupInformation groupInfo = groupHandler.getGroupInformationByName(member.substring(GROUP_DATA_FIELD_IDENT.length()));
 
-                // Add the group member table(s) to the list
-                tablePaths.addAll(groupHandler.getGroupInformationByName(groupName).getTablesAndAncestors());
+                // Check if the group exists
+                if (groupInfo != null)
+                {
+                    // Add the group member table(s) to the list
+                    tablePaths.addAll(groupInfo.getTablesAndAncestors());
+                }
+                // The group doesn't exist
+                else
+                {
+                    // Add an invalid table so that he association is flagged
+                    // as unavailable
+                    tablePaths.add(" ");
+                }
             }
             // Check if the table path isn't blank
-            else if (!member.isEmpty())
+            else if (!member.trim().isEmpty())
             {
                 // Add the table path
                 tablePaths.add(member);
@@ -1046,13 +1059,11 @@ public class CcddScriptHandler
             if (!isBad[assnIndex])
             {
                 TableInformation[] combinedTableInfo = null;
+                List<String> groupNames = new ArrayList<String>();
 
                 // Get the list of association table paths
                 List<String> tablePaths = getAssociationTablePaths(assn[AssociationsColumn.MEMBERS.ordinal()].toString(),
                                                                    groupHandler);
-
-                // TODO
-                List<String> groupNames = new ArrayList<String>();
 
                 String[] members = assn[AssociationsColumn.MEMBERS.ordinal()].toString().split(Pattern.quote(LIST_TABLE_SEPARATOR));
 
@@ -1153,7 +1164,7 @@ public class CcddScriptHandler
                     combinedTableInfo = new TableInformation[1];
                     combinedTableInfo[0] = new TableInformation("",
                                                                 "",
-                                                                null,
+                                                                new String[0][0],
                                                                 null,
                                                                 null,
                                                                 false,

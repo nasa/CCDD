@@ -6,10 +6,8 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.DATABASE_BACKUP_PATH;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.SCRIPT_DESCRIPTION_TAG;
-import static CCDD.CcddConstants.TABLE_EXPORT_PATH;
 import static CCDD.CcddConstants.USERS_GUIDE;
 
 import java.awt.Component;
@@ -50,6 +48,7 @@ import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.InternalTable.ReservedMsgIDsColumn;
+import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddImportExportInterface.ImportType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
@@ -172,17 +171,14 @@ public class CcddFileIOHandler
         // Allow the user to select the backup file path + name
         File[] dataFile = new CcddDialogHandler().choosePathFile(ccddMain,
                                                                  ccddMain.getMainFrame(),
-                                                                 databaseName
-                                                                     + FileExtension.DBU.getExtension(),
+                                                                 databaseName + FileExtension.DBU.getExtension(),
                                                                  null,
                                                                  new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.DBU.getDescription(),
                                                                                                                             FileExtension.DBU.getExtensionName())},
 
                                                                  false,
-                                                                 false,
-                                                                 "Backup Project "
-                                                                     + databaseName,
-                                                                 DATABASE_BACKUP_PATH,
+                                                                 "Backup Project " + databaseName,
+                                                                 ccddMain.getProgPrefs().get(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPreferenceKey(), null),
                                                                  DialogOption.BACKUP_OPTION);
 
         // Check if a file was chosen
@@ -258,9 +254,8 @@ public class CcddFileIOHandler
                                                                  new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.DBU.getDescription(),
                                                                                                                             FileExtension.DBU.getExtensionName())},
                                                                  false,
-                                                                 false,
                                                                  "Restore Project",
-                                                                 DATABASE_BACKUP_PATH,
+                                                                 ccddMain.getProgPrefs().get(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPreferenceKey(), null),
                                                                  DialogOption.RESTORE_OPTION);
 
         // Check if a file was chosen
@@ -764,7 +759,10 @@ public class CcddFileIOHandler
                 {
                     // Store the data file path in the program preferences
                     // backing store
-                    storePath(dataFile[0].getAbsolutePath(), true, TABLE_EXPORT_PATH);
+                    storePath(ccddMain,
+                              dataFile[0].getAbsolutePath(),
+                              true,
+                              ModifiablePathInfo.TABLE_EXPORT_PATH.getPath());
 
                     // Update any open editor's data type columns to include
                     // the new table(s), if applicable
@@ -1236,9 +1234,8 @@ public class CcddFileIOHandler
                                                                                                 new FileNameExtensionFilter(FileExtension.XTCE.getDescription(),
                                                                                                                             FileExtension.XTCE.getExtensionName())},
                                                                  false,
-                                                                 false,
                                                                  "Load Table Data",
-                                                                 TABLE_EXPORT_PATH,
+                                                                 ccddMain.getProgPrefs().get(ModifiablePathInfo.TABLE_EXPORT_PATH.getPreferenceKey(), null),
                                                                  DialogOption.LOAD_OPTION);
 
         // Check if a file was chosen
@@ -1320,7 +1317,10 @@ public class CcddFileIOHandler
 
                         // Store the data file path in the program preferences
                         // backing store
-                        storePath(dataFile[0].getAbsolutePath(), false, TABLE_EXPORT_PATH);
+                        storePath(ccddMain,
+                                  dataFile[0].getAbsolutePath(),
+                                  false,
+                                  ModifiablePathInfo.TABLE_EXPORT_PATH.getPath());
                     }
                 }
             }
@@ -1680,7 +1680,10 @@ public class CcddFileIOHandler
 
                     // Store the export file path in the program preferences
                     // backing store
-                    storePath(filePath, singleFile, TABLE_EXPORT_PATH);
+                    storePath(ccddMain,
+                              filePath,
+                              singleFile,
+                              ModifiablePathInfo.TABLE_EXPORT_PATH.getPath());
                 }
                 // An error occurred creating the format conversion handler
                 else
@@ -1987,6 +1990,9 @@ public class CcddFileIOHandler
     /**************************************************************************
      * Store the specified file path in the program preferences backing store
      * 
+     * @param ccddMain
+     *            main class reference
+     * 
      * @param pathName
      *            file path
      * 
@@ -1998,7 +2004,10 @@ public class CcddFileIOHandler
      *            key to store the file path into the program preferences
      *            backing store
      ************************************************************************/
-    protected void storePath(String pathName, boolean hasFileName, String fileKey)
+    protected static void storePath(CcddMain ccddMain,
+                                    String pathName,
+                                    boolean hasFileName,
+                                    String fileKey)
     {
         // Check if the file path includes a file name
         if (hasFileName)
@@ -2007,12 +2016,12 @@ public class CcddFileIOHandler
             pathName = pathName.substring(0, pathName.lastIndexOf(File.separator));
         }
 
-        // Check if the path name doesn't end with a period
-        if (!pathName.endsWith("."))
+        // Check if the path name ends with a period
+        if (pathName.endsWith("."))
         {
-            // Append "/." (or "\.") to the path name so that next time the
-            // file chooser will go all the way into the selected path
-            pathName += File.separator + ".";
+            // Remove file separator (if present) and the period the at the end
+            // of the path
+            pathName = pathName.replaceFirst(File.separator + "?\\.", "");
         }
 
         // Store the file path in the program preferences backing store

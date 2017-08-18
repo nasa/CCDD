@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddConstants.CommandLineType;
 import CCDD.CcddConstants.EventLogMessageType;
+import CCDD.CcddConstants.ModifiablePathInfo;
 
 /******************************************************************************
  * CFS Command & Data Dictionary command line argument handler class
@@ -51,6 +52,9 @@ public class CcddCommandLineHandler
 
     // Session event log file path command name
     private static final String LOG_PATH = "logPath";
+
+    // Session script output file path command name
+    private static final String SCRIPT_OUTPUT_PATH = "scriptOutPath";
 
     /**************************************************************************
      * Individual command line argument handler class
@@ -288,7 +292,10 @@ public class CcddCommandLineHandler
             @Override
             protected void doCommand(Object parmVal)
             {
-                ccddMain.setLogPath((String) parmVal);
+                CcddFileIOHandler.storePath(ccddMain,
+                                            (String) parmVal,
+                                            false,
+                                            ModifiablePathInfo.SESSION_LOG_FILE_PATH.getPreferenceKey());
             }
         });
 
@@ -581,6 +588,26 @@ public class CcddCommandLineHandler
             protected void doCommand(Object parmVal)
             {
                 ccddMain.setWebServerPort((String) parmVal);
+            }
+        });
+
+        // Script output file path command
+        argument.add(new CommandHandler(SCRIPT_OUTPUT_PATH,
+                                        "Set script output file path",
+                                        "file path",
+                                        CommandLineType.NAME,
+                                        1)
+        {
+            /******************************************************************
+             * Set the script output file path
+             *****************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                CcddFileIOHandler.storePath(ccddMain,
+                                            (String) parmVal,
+                                            false,
+                                            ModifiablePathInfo.SCRIPT_OUTPUT_PATH.getPreferenceKey());
             }
         });
 

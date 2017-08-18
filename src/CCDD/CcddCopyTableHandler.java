@@ -9,6 +9,7 @@ package CCDD;
 import java.util.ArrayList;
 import java.util.List;
 
+import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.Message;
 import CCDD.CcddClasses.Variable;
@@ -64,7 +65,14 @@ public class CcddCopyTableHandler
      *            size of the packet header in bytes
      * 
      * @param messageIDNameField
-     *            name of the data field containing the message ID name
+     *            name of the structure table data field containing the message
+     *            ID name. If provided this is used instead of the
+     *            tlmMessageIDs list
+     * 
+     * @param tlmMessageIDs
+     *            list containing string array entries giving the structure
+     *            table path+name and the table's associated message ID name.
+     *            Used if messageIDNameField is null
      * 
      * @param optimize
      *            true to create copy table with memory copies optimized
@@ -79,6 +87,7 @@ public class CcddCopyTableHandler
                                          String dataStreamName,
                                          int headerSize,
                                          String messageIDNameField,
+                                         ArrayListMultiple tlmMessageIDs,
                                          boolean optimize,
                                          boolean expandMacros)
     {
@@ -96,6 +105,8 @@ public class CcddCopyTableHandler
                 // Step through each packet definition
                 for (Variable variable : subMsg.getVariablesWithParent())
                 {
+                    String tlmMsgID = null;
+
                     // Split the packet definition's variable string into the
                     // parent structure name and variable reference string
                     String[] parentAndPath = variable.getFullName().split(",", 2);
@@ -111,13 +122,39 @@ public class CcddCopyTableHandler
                     // indicated by the packet definition
                     int structureOffset = linkHandler.getVariableOffset(variable.getFullName());
 
-                    // Get the field information for the message ID name field
-                    FieldInformation msgIDNameFieldInfo = fieldHandler.getFieldInformationByName(parentAndPath[0],
-                                                                                                 messageIDNameField);
+                    // CHeck if the message ID name field name is provided
+                    if (messageIDNameField != null)
+                    {
+                        // Get the field information for the message ID name
+                        // field
+                        FieldInformation msgIDNameFieldInfo = fieldHandler.getFieldInformationByName(parentAndPath[0],
+                                                                                                     messageIDNameField);
 
-                    // Check that the message ID name field exists for the
-                    // specified table
-                    if (msgIDNameFieldInfo != null)
+                        // Check that the message ID name field exists for the
+                        // specified table
+                        if (msgIDNameFieldInfo != null)
+                        {
+                            // Get the message ID name associated with the
+                            // table
+                            tlmMsgID = msgIDNameFieldInfo.getValue();
+                        }
+                    }
+                    // Check if the telemetry message ID names list is provided
+                    else if (tlmMessageIDs != null)
+                    {
+                        // Get the index of the table in the list provided
+                        int index = tlmMessageIDs.indexOf(parentAndPath[0]);
+
+                        // Check if the table exists in the list
+                        if (index != -1)
+                        {
+                            // Get the message ID name associated with the
+                            // table
+                            tlmMsgID = tlmMessageIDs.get(index)[1];
+                        }
+                    }
+
+                    if (tlmMsgID != null)
                     {
                         // Build the copy table entry array for this variable.
                         // The fields are: Input message ID name, input offset,
@@ -126,7 +163,7 @@ public class CcddCopyTableHandler
                         // underscore), output offset (initialized to a blank;
                         // the value is computed later), variable size,
                         // variable root table, and variable path
-                        messageTable.add(new String[] {msgIDNameFieldInfo.getValue(),
+                        messageTable.add(new String[] {tlmMsgID,
                                                        String.valueOf(structureOffset),
                                                        subMsg.getName().replace(".", "_"),
                                                        "",

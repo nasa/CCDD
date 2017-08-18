@@ -10,7 +10,6 @@ import static CCDD.CcddConstants.EXPORT_ICON;
 import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
 import static CCDD.CcddConstants.MAX_SQL_NAME_LENGTH;
 import static CCDD.CcddConstants.OK_BUTTON;
-import static CCDD.CcddConstants.TABLE_EXPORT_PATH;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -52,6 +51,7 @@ import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableTreeType;
@@ -617,7 +617,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                              false,
                                                              true,
                                                              "Import Table(s)",
-                                                             TABLE_EXPORT_PATH,
+                                                             ccddMain.getProgPrefs().get(ModifiablePathInfo.TABLE_EXPORT_PATH.getPreferenceKey(), null),
                                                              DialogOption.IMPORT_OPTION,
                                                              createImportPanel(gbc));
 
@@ -1513,8 +1513,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         pathPnl.add(exportLbl, gbc);
 
         // Create a text field for entering & displaying the path
-        pathFld = new JTextField(ccddMain.getProgPrefs().get(TABLE_EXPORT_PATH,
-                                                             ""));
+        pathFld = new JTextField(ModifiablePathInfo.TABLE_EXPORT_PATH.getPath());
         pathFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         pathFld.setEditable(true);
         pathFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
@@ -1544,7 +1543,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 // Check if tables should be exported to a single file
                 if (singleFileCb.isSelected())
                 {
-                    // Allow the user to select the export storage path
+                    // Allow the user to select the export storage path+file
                     filePath = new CcddDialogHandler().choosePathFile(ccddMain,
                                                                       CcddTableManagerDialog.this,
                                                                       null,
@@ -1552,9 +1551,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                       new FileNameExtensionFilter[] {new FileNameExtensionFilter(fileExtn.getDescription(),
                                                                                                                                  fileExtn.getExtensionName())},
                                                                       false,
-                                                                      false,
                                                                       "Select File for Exported Table(s)",
-                                                                      TABLE_EXPORT_PATH,
+                                                                      ccddMain.getProgPrefs().get(ModifiablePathInfo.TABLE_EXPORT_PATH.getPreferenceKey(), null),
                                                                       DialogOption.OK_CANCEL_OPTION);
                 }
                 // Export tables to individual files
@@ -1563,13 +1561,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                     // Allow the user to select the export storage path
                     filePath = new CcddDialogHandler().choosePathFile(ccddMain,
                                                                       CcddTableManagerDialog.this,
-                                                                      null,
-                                                                      null,
-                                                                      null,
-                                                                      true,
-                                                                      false,
                                                                       "Select Location for Exported Table(s)",
-                                                                      TABLE_EXPORT_PATH,
+                                                                      ccddMain.getProgPrefs().get(ModifiablePathInfo.TABLE_EXPORT_PATH.getPreferenceKey(),
+                                                                                                  null),
                                                                       DialogOption.OK_CANCEL_OPTION);
                 }
 

@@ -894,8 +894,7 @@ public class CcddDialogHandler extends JDialog
     }
 
     /**************************************************************************
-     * Display a dialog that allows the user to select one or more files or a
-     * folder
+     * Display a dialog that allows the user to select one or more files
      * 
      * @param main
      *            main class
@@ -917,18 +916,14 @@ public class CcddDialogHandler extends JDialog
      *            valid file extensions with description. Use null to allow any
      *            extension. Ignored if folderOnly is true
      * 
-     * @param folderOnly
-     *            true to allow only folders to be selected
-     * 
      * @param multipleFiles
      *            true to allow selection of more than one file
      * 
-     * @param fileTitle
+     * @param dialogTitle
      *            title to display in the dialog window frame
      * 
-     * @param filePathKey
-     *            key to extract the file path name from the program
-     *            preferences backing store
+     * @param folder
+     *            file path to use as the initial folder to display
      * 
      * @param optionType
      *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION,
@@ -944,10 +939,9 @@ public class CcddDialogHandler extends JDialog
                                     String fileName,
                                     String fileType,
                                     FileNameExtensionFilter[] fileExtensions,
-                                    boolean folderOnly,
                                     boolean multipleFiles,
-                                    String fileTitle,
-                                    String filePathKey,
+                                    String dialogTitle,
+                                    String folder,
                                     DialogOption optionType)
     {
         return choosePathFile(main,
@@ -955,10 +949,53 @@ public class CcddDialogHandler extends JDialog
                               fileName,
                               fileType,
                               fileExtensions,
-                              folderOnly,
+                              false,
                               multipleFiles,
-                              fileTitle,
-                              filePathKey,
+                              dialogTitle,
+                              folder,
+                              optionType,
+                              null);
+    }
+
+    /**************************************************************************
+     * Display a dialog that allows the user to select a file folder
+     * 
+     * @param main
+     *            main class
+     * 
+     * @param parent
+     *            window to center the dialog over
+     * 
+     * @param dialogTitle
+     *            title to display in the dialog window frame
+     * 
+     * @param folder
+     *            file path to use as the initial folder to display
+     * 
+     * @param optionType
+     *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION,
+     *            READ_OPTION, PRINT_OPTION, CLOSE_OPTION, OK_OPTION, or
+     *            OK_CANCEL_OPTION
+     * 
+     * @return Array containing the selected file handle(s). null if the Cancel
+     *         button is selected. The first file reference is null if Okay is
+     *         selected and the file name list is empty
+     *************************************************************************/
+    protected File[] choosePathFile(CcddMain main,
+                                    Component parent,
+                                    String dialogTitle,
+                                    String folder,
+                                    DialogOption optionType)
+    {
+        return choosePathFile(main,
+                              parent,
+                              null,
+                              null,
+                              null,
+                              true,
+                              false,
+                              dialogTitle,
+                              folder,
                               optionType,
                               null);
     }
@@ -977,29 +1014,29 @@ public class CcddDialogHandler extends JDialog
      * @param fileName
      *            file name to display in the input field chosen; null if no
      *            file name is initially displayed. Ignored if folderOnly is
-     *            true
+     *            true (may be null)
      * 
      * @param fileType
      *            describes the type of files when more than one file extension
      *            is supplied; null if only one (or no) file extension is
-     *            provided. Ignored if folderOnly is true
+     *            provided. Ignored if folderOnly is true (may be null)
      * 
      * @param fileExtensions
      *            valid file extensions with description. Use null to allow any
-     *            extension. Ignored if folderOnly is true
+     *            extension. Ignored if folderOnly is true (may be null)
      * 
      * @param folderOnly
      *            true to allow only folders to be selected
      * 
      * @param multipleFiles
-     *            true to allow selection of more than one file
+     *            true to allow selection of more than one file. Unused if
+     *            folderOnly is true
      * 
-     * @param fileTitle
+     * @param dialogTitle
      *            title to display in the dialog window frame
      * 
-     * @param filePathKey
-     *            key to extract the file path from the program preferences
-     *            backing store
+     * @param folder
+     *            file path to use as the initial folder to display
      * 
      * @param optionType
      *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION,
@@ -1022,8 +1059,8 @@ public class CcddDialogHandler extends JDialog
                                     FileNameExtensionFilter[] fileExtensions,
                                     boolean folderOnly,
                                     boolean multipleFiles,
-                                    String fileTitle,
-                                    String filePathKey,
+                                    String dialogTitle,
+                                    String folder,
                                     DialogOption optionType,
                                     JPanel lowerPanel)
     {
@@ -1032,7 +1069,9 @@ public class CcddDialogHandler extends JDialog
         // Create the file chooser. Set the path to the one from the back store
         // per the provided key; if no entry exists for the key then use the
         // default path (the default location is operating system dependent)
-        final JFileChooser chooser = new JFileChooser(main.getProgPrefs().get(filePathKey, null));
+        final JFileChooser chooser = new JFileChooser(folder
+                                                      + File.separator
+                                                      + ".");
 
         // True to allow multiple files to be selected
         chooser.setMultiSelectionEnabled(multipleFiles);
@@ -1189,7 +1228,7 @@ public class CcddDialogHandler extends JDialog
                          dialogPanel,
                          null,
                          null,
-                         fileTitle,
+                         dialogTitle,
                          optionType,
                          null,
                          true,
@@ -1201,6 +1240,14 @@ public class CcddDialogHandler extends JDialog
             // every second quote, or at commas. First any leading or trailing
             // white space characters are removed
             String names = nameField.getText().trim();
+
+            // Check if only a folder is allowed to be chosen
+            if (folderOnly)
+            {
+                // Surround the names with quotes, if not already, in order to
+                // preserve any spaces in the path
+                names = names.replaceFirst("^\"?([^\"]*)\"?$", "\"$1\"");
+            }
 
             // Create a flag to keep track of whether or not the character
             // being checked is inside or outside a pair of quotes
@@ -1219,7 +1266,7 @@ public class CcddDialogHandler extends JDialog
                     isQuoted = !isQuoted;
                 }
 
-                // Check if the character is a space outside of a pair or
+                // Check if the character is a space outside of a pair of
                 // quotes, or is the second quote of a pair of quotes
                 if ((c == ' ' || c == '"') && !isQuoted)
                 {
@@ -1639,10 +1686,11 @@ public class CcddDialogHandler extends JDialog
 
             // Calculate the number of columns in the radio button grid based
             // on if there are descriptions and the number of items to display,
-            // up to a maximum of 5 columns
+            // up to a maximum of x columns (default is 5)
             int gridWidth = isDescriptions
                                           ? 1
-                                          : (int) Math.min(Math.sqrt(itemInformation.length), 5);
+                                          : (int) Math.min(Math.sqrt(itemInformation.length),
+                                                           ModifiableSizeInfo.MAX_GRID_WIDTH.getSize());
 
             // Create radio buttons for each available item
             for (int index = 0; index < itemInformation.length; index++)
@@ -1875,10 +1923,11 @@ public class CcddDialogHandler extends JDialog
 
             // Calculate the number of columns in the check box grid based on
             // if there are descriptions and the number of items to display, up
-            // to a maximum of 5 columns
+            // to a maximum of x columns (default is 5)
             int gridWidth = isDescriptions
                                           ? 1
-                                          : (int) Math.min(Math.sqrt(itemInformation.length), 5);
+                                          : (int) Math.min(Math.sqrt(itemInformation.length),
+                                                           ModifiableSizeInfo.MAX_GRID_WIDTH.getSize());
 
             // Create check boxes for each available item
             for (int index = 0; index < itemInformation.length; index++)

@@ -2029,6 +2029,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                                                rateInfo.getStreamName(),
                                                                headerSize,
                                                                messageIDNameField,
+                                                               null,
                                                                optimize,
                                                                isReplaceMacro);
 

@@ -1,124 +1,263 @@
 #******************************************************************************
 # Description: Output a message ID header file
-# 
-# This Python script generates a message ID header file from the supplied table
-# information
+#
+# This Python script generates a message ID header file from the supplied
+# table information
+#
+# Copyright 2017 United States Government as represented by the Administrator
+# of the National Aeronautics and Space Administration. No copyright is claimed
+# in the United States under Title 17, U.S. Code. All Other Rights Reserved.
 #******************************************************************************
+
 from CCDD import CcddScriptDataAccessHandler
+import re
+
+# Get the array of structure names by the order in which they are referenced
+structureNames = ccdd.getStructureTablesByReferenceOrder()
 
 # Get the number of structure and command table rows
 numStructRows = ccdd.getStructureTableNumRows()
 numCommandRows = ccdd.getCommandTableNumRows()
 
-# Check if no structure data is supplied
-if numStructRows == 0:
-    showErrorDialog("No structure data supplied to script " + ccdd.getScriptName())
-# Check if no command data is supplied
-elif numCommandRows == 0:
-    showErrorDialog("No command data supplied to script " + ccdd.getScriptName())
-# Structure and command data is supplied
-else:
-    # Combine the parent structure table's "System" data field value with
-    # "_msgids" to create the file identifier name
-    msgIDName = ccdd.getTableDataFieldValue(ccdd.getRootStructureTableNames()[0], "System") + "_msgids"
-    
-    # Build the output file name
-    outputFile = msgIDName + ".h"
-    
-    # Open the output file
-    file = ccdd.openOutputFile(outputFile)
-    
-    # Check if the output file successfully opened
-    if file is not None:
-        # Add a header to the output file
-        ccdd.writeToFileLn(file,
-                           "/* Created : "
-                           + ccdd.getDateAndTime()
-                           + "\n   User    : "
-                           + ccdd.getUser()
-                           + "\n   Project : "
-                           + ccdd.getProject()
-                           + "\n   Script  : "
-                           + ccdd.getScriptName()
-                           + "\n   Table(s): "
-                           + (",\n             ").join(ccdd.getStructureTableNames())
-                           + (",\n             ").join(ccdd.getCommandTableNames())
-                           + " */\n")
-                           
-        ccdd.writeToFileLn(file, "#ifndef _" + msgIDName + "_H_")
-        ccdd.writeToFileLn(file, "#define _" + msgIDName + "_H_")
-        ccdd.writeToFileLn(file, "")
-        
-        # Get the number of header files to include
-        numInclude = ccdd.getTableNumRows("header")
-        
-        # Check if there are any header files to include
-        if numInclude != 0:
-            # Step through each header file name
-            for row in range(numInclude):
-                # Output the include header statement
-                ccdd.writeToFileLn(file, "#include " + str(ccdd.getTableData("header", "header file", row)))
-        
-            ccdd.writeToFileLn(file, "")
-        
-        ccdd.writeToFileLn(file, "/* Define message IDs */")
-        
-        # Step through each command
-        for row in range(numCommandRows):
-            # Output the command ID name and ID value
-            ccdd.writeToFileLn(file,
-                               "#define "
-                               + str(ccdd.getCommandTableData("command name", row))
-                               + "  "
-                               + str(ccdd.getTableDataFieldValue("application id", ccdd.getStructureTableNameByRow(row))))
-        
-        ccdd.writeToFileLn(file, "")
-        ccdd.writeToFileLn(file, "typedef struct")
-        ccdd.writeToFileLn(file, "{")
-            
-        # Step through each row in the table
-        for row in range(numStructRows):
-            # Check if the structure name in the row matches the current structure
-            if ccdd.getRootStructureTableNames()[0] == ccdd.getStructureTableNameByRow(row):
-                # Get the variable name for this row in the structure
-                variableName = str(ccdd.getStructureTableData("variable name", row))
-                
-                # Check if this is not an array member; array definitions are
-                # output, but not members
-                if not variableName.endswith("]"):
-                    # Output the data type and variable name
-                    ccdd.writeToFile(file,
-                                     "  "
-                                     + str(ccdd.getStructureTableData("data type", row))
-                                     + "  "
-                                     + variableName)
-                    
-                    # Get the index of the array size column
-                    arraySize = str(ccdd.getStructureTableData("array size", row))
-                    
-                    # Check if the array size is provided
-                    if arraySize is not None and arraySize:
-                        # Output the array size
-                        ccdd.writeToFile(file, "[" + arraySize + "]")
-                    # No array size for this row
-                    else:
-                        # Get the index of the bit length column
-                        bitLength = str(ccdd.getStructureTableData("bit length", row))
-                    
-                        # Check if the bit length is provided
-                        if bitLength is not None and bitLength:
-                            # Output the bit length
-                            ccdd.writeToFile(file, ":" + bitLength)
-                    
-                    ccdd.writeToFileLn(file, ";")
-        
-        ccdd.writeToFileLn(file, "} " + ccdd.getRootStructureTableNames()[0] + ";")
-        ccdd.writeToFileLn(file, "")
-        ccdd.writeToFileLn(file, "#endif")
-        
-        # Close the output file
-        ccdd.closeFile(file)
-    # The output file cannot be opened
+# Get the name of the project database
+projectName = ccdd.getProject()
+
+#** Functions *****************************************************************
+
+#******************************************************************************
+# Output the script association details to the specified file
+#
+# @param file
+#            reference to the output file
+#******************************************************************************
+def outputAssociationInfo(file):
+    # Add the build information and header to the output file
+    ccdd.writeToFileLn(tlmFile, "/* Created : " + ccdd.getDateAndTime() + "\n   User    : " + ccdd.getUser() + "\n   Project : " + ccdd.getProject() + "\n   Script  : " + ccdd.getScriptName())
+
+    # Check if any table is associated with the script
+    if ccdd.getTableNumRows() != 0:
+        ccdd.writeToFileLn(tlmFile, "   Table(s): " + (",\n             ").join(sorted(ccdd.getTableNames())))
+
+    # Check if any groups is associated with the script
+    if len(ccdd.getAssociatedGroupNames()) != 0:
+        ccdd.writeToFileLn(tlmFile, "   Group(s): " + (",\n             ").join(sorted(ccdd.getAssociatedGroupNames())))
+
+    ccdd.writeToFileLn(tlmFile, "*/\n")
+
+#******************************************************************************
+# Output the telemetry message IDs file
+#
+# @param baseFileName
+#            base for the telemetry IDs output file name
+#******************************************************************************
+def makeTelemetryFile(baseFileName):
+    # Build the telemetry message IDs output file name and include flag
+    tlmFileName = ccdd.getOutputPath() + baseFileName + ".h"
+    headerIncludeFlag = "_" + baseFileName.upper() + "_H_"
+
+    # Open the telemetry message IDs output file
+    tlmFile = ccdd.openOutputFile(tlmFileName)
+
+    # Check if the telemetry message IDs file successfully opened
+    if tlmFile is not None:
+        # Add the build information to the output file
+        outputAssociationInfo(tlmFile)
+
+        # Add the header include to prevent loading the file more than once
+        ccdd.writeToFileLn(tlmFile, "#ifndef " + headerIncludeFlag)
+        ccdd.writeToFileLn(tlmFile, "#define " + headerIncludeFlag)
+        ccdd.writeToFileLn(tlmFile, "")
+
+        ccdd.writeToFileLn(tlmFile, "#include \"" + projectName + "_base_ids.h\"")
+        ccdd.writeToFileLn(tlmFile, "")
+
+        # Get an array containing all group names
+        groupNames = ccdd.getGroupNames(False)
+
+        minimumLength = 12
+
+        # Step through each structure name
+        for nameIndex in range(len(structureNames)):
+            # Get the value of the structure's message ID name data field
+            msgIDName = ccdd.getTableDataFieldValue(structureNames[nameIndex], "Message ID Name")
+
+            # Check if the field exists and isn't empty, and the length exceeds
+            # the minimum length found thus far
+            if msgIDName is not None and msgIDName and len(msgIDName) > minimumLength:
+                # Store the new minimum length
+                minimumLength = len(msgIDName)
+
+        # Step through each group name
+        for groupIndex in range(len(groupNames)):
+            # Get the value of the group's message ID name data field
+            msgIDName = ccdd.getGroupDataFieldValue(groupNames[groupIndex], "Message ID Name")
+
+            # Check if the field exists and isn't empty, and the length exceeds
+            # the minimum length found thus far
+            if msgIDName is not None and msgIDName and len(msgIDName) > minimumLength:
+                # Store the new minimum length
+                minimumLength = len(msgIDName)
+
+        # Build the format string used to align the message ID definitions
+        format = "#define %-" + str(minimumLength + 1) + "s %s\n"
+
+        ccdd.writeToFileLn(tlmFile, "/* Structure message IDs: " + str(len(structureNames)) + " structures */")
+
+        # Step through each structure name
+        for nameIndex in range(len(structureNames)):
+            # Get the values of the structure's message ID and ID name data
+            # fields
+            msgID = ccdd.getTableDataFieldValue(structureNames[nameIndex], "Message ID")
+            msgIDName = ccdd.getTableDataFieldValue(structureNames[nameIndex], "Message ID Name")
+
+            # Output the telemetry message ID to the file
+            outputIDDefine(tlmFile, format, msgID, msgIDName)
+
+        ccdd.writeToFileLn(tlmFile, "")
+        ccdd.writeToFileLn(tlmFile, "/* Group message IDs: " + str(len(groupNames)) + " groups */")
+
+        # Step through each group
+        for groupIndex in range(len(groupNames)):
+            # Get the values of the group's message ID and ID name data fields
+            msgID = ccdd.getGroupDataFieldValue(groupNames[groupIndex], "Message ID")
+            msgIDName = ccdd.getGroupDataFieldValue(groupNames[groupIndex], "Message ID Name")
+
+            # Output the telemetry message ID to the file
+            outputIDDefine(tlmFile, format, msgID, msgIDName)
+
+        # Finish and close the telemetry message IDs output file
+        ccdd.writeToFileLn(tlmFile, "")
+        ccdd.writeToFileLn(tlmFile, "#endif /* #ifndef " + headerIncludeFlag + " */")
+        ccdd.closeFile(tlmFile)
+    # The telemetry message IDs file failed to open
     else:
         # Display an error dialog
-        ccdd.showErrorDialog("<html><b>Error opening output file '</b>" + outputFile + "<b>'")
+        ccdd.showErrorDialog("<html><b>Error opening telemetry message IDs output file '</b>" + tlmFileName + "<b>'")
+
+#******************************************************************************
+# Output the command codes file
+#
+# @param baseFileName
+#            base for the command codes output file name \
+#******************************************************************************
+def makeCommandFile(baseFileName):
+    # Build the command codes output file name and include flag
+    cmdFileName = ccdd.getOutputPath() + baseFileName + ".h"
+    headerIncludeFlag = "_" + baseFileName.upper() + "_H_"
+
+    # Open the command codes output file
+    cmdFile = ccdd.openOutputFile(cmdFileName)
+
+    # Check if the command codes file successfully opened
+    if cmdFile is not None:
+        # Add the build information to the output file
+        outputAssociationInfo(cmdFile)
+
+        # Add the header include to prevent loading the file more than once
+        ccdd.writeToFileLn(cmdFile, "#ifndef " + headerIncludeFlag)
+        ccdd.writeToFileLn(cmdFile, "#define " + headerIncludeFlag)
+        ccdd.writeToFileLn(cmdFile, "")
+
+        minimumLength = 10
+
+        # Step through each command table row
+        for row in range(numCommandRows):
+            # Get the command name
+            cmdName = ccdd.getCommandTableData("command name", row)
+
+            # Check if the command name is present and the length exceeds the
+            # minimum length found thus far
+            if cmdName is not None and len(cmdName) > minimumLength:
+                # Store the new minimum length
+                minimumLength = len(cmdName)
+
+        # Build the format string used to align the command code definitions
+        format = "#define %-" + str(minimumLength + 1) + "s %s\n"
+
+        # Step through each command
+        for row in range(numCommandRows):
+            # Get the command ID name and ID value
+            cmdName = ccdd.getCommandTableData("command name", row)
+            cmdCode = ccdd.getCommandTableData("command code", row)
+
+            # Check if the name and ID exist
+            if cmdCode is not None and cmdName is not None:
+                # Output the formatted command code definition to the file
+                ccdd.writeToFileFormat(cmdFile, format, cmdName, cmdCode)
+
+        # Finish and close the command codes output file
+        ccdd.writeToFileLn(cmdFile, "")
+        ccdd.writeToFileLn(cmdFile, "#endif /* #ifndef " + headerIncludeFlag + " */")
+        ccdd.closeFile(cmdFile)
+    # The command codes file failed to open
+    else:
+        # Display an error dialog
+        ccdd.showErrorDialog("<html><b>Error opening command codes output file '</b>" + cmdFileName + "<b>'")
+
+#******************************************************************************
+# Get the last 12 bits of a hexadecimal message ID
+#
+# @param msgID
+#            message ID
+#
+# @return Last 12 bits of a message ID formatted as a 4 digit hex number (i.e.
+#         0x031f); '0x0000' if the message ID isn't an integer or hexadecimal
+#         value
+#******************************************************************************
+def extractMessageID(msgID):
+    retVal = "0000"
+
+    # Check if the ID is a hexadecimal number
+    if re.match("(0x)?[0-9a-fA-F]+", msgID):
+        # Convert the message ID from a string to a value
+        val = int(msgID, 16)
+
+        # Strip off all but the last 12 bits and convert the value to a
+        # hexadecimal string
+        retVal = "{0:04x}".format(val & 0x7ff)
+
+    return "0x" + retVal
+
+#******************************************************************************
+# Output the message ID definition to the specified file with a base value
+# added
+#
+# @param file
+#            reference to the file to which to output the message ID
+#            information
+#
+# @param format
+#            output format string
+#
+# @param msgId
+#            message ID
+#
+# @param msgIDName
+#            message ID name
+#******************************************************************************
+def outputIDDefine(file, format, msgID, msgIDName):
+    # Check if the message ID and ID name are present
+    if msgID is not None and msgID and msgIDName is not None and msgIDName:
+        # Remove all but the last 12 bits of the ID, format it, and output the
+        # #define for the ID to the file with a base value added
+        ccdd.writeToFileFormat(file, format, msgIDName, "( " + ccdd.getProject().upper() + "_TLM_MID_BASE_1 + " + extractMessageID(msgID) + " )")
+
+#** End functions *************************************************************
+
+#** Main **********************************************************************
+
+# Check if structure and/or command data is supplied
+if numStructRows != 0 or numCommandRows != 0:
+    # Check if structure data is supplied
+    if numStructRows != 0:
+        # Output the telemetry message IDs file
+        makeTelemetryFile(projectName + "_tlm_ids")
+
+    # Check if command data is supplied
+    if numCommandRows != 0:
+        # Output the command codes file
+        makeCommandFile(projectName + "_cmd_codes")
+# No structure or command data is supplied
+else:
+    # Display an error dialog
+    ccdd.showErrorDialog("<html><b>No structure or command data supplied for script '</b>" + ccdd.getScriptName() + "<b>'")

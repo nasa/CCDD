@@ -17,6 +17,7 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +32,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 
+import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.GroupInformation;
 import CCDD.CcddClasses.RateInformation;
@@ -42,6 +44,7 @@ import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TablePathType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -221,12 +224,12 @@ public class CcddScriptDataAccessHandler
      * Get the table information for the table type specified
      * 
      * @param tableType
-     *            table type. All structure table types are combined and are
-     *            referenced by the type name "Structure", and all command
-     *            table types are combined and are referenced by the type name
-     *            "Command". The table type is converted to the generic type
-     *            ("Structure" or "Command") if the specified type is a
-     *            representative of the generic type
+     *            table type (case insensitive). All structure table types are
+     *            combined and are referenced by the type name "Structure", and
+     *            all command table types are combined and are referenced by
+     *            the type name "Command". The table type is converted to the
+     *            generic type ("Structure" or "Command") if the specified type
+     *            is a representative of the generic type
      * 
      * @return Table information class for the type specified; return null if
      *         an instance of the table type doesn't exist
@@ -299,6 +302,19 @@ public class CcddScriptDataAccessHandler
     public String getProject()
     {
         return dbControl.getDatabase();
+    }
+
+    /**************************************************************************
+     * Get the script output folder path
+     * 
+     * @return Script output folder path
+     *************************************************************************/
+    public String getOutputPath()
+    {
+        return ModifiablePathInfo.SCRIPT_OUTPUT_PATH.getPath().isEmpty()
+                                                                        ? ""
+                                                                        : ModifiablePathInfo.SCRIPT_OUTPUT_PATH.getPath()
+                                                                          + File.separator;
     }
 
     /**************************************************************************
@@ -745,10 +761,10 @@ public class CcddScriptDataAccessHandler
      * Get the array of the root table names for the supplied table type
      * 
      * @param tableType
-     *            table type. All structure table types are combined and are
-     *            referenced by the type name "Structure", and all command
-     *            table types are combined and are referenced by the type name
-     *            "Command"
+     *            table type (case insensitive). All structure table types are
+     *            combined and are referenced by the type name "Structure", and
+     *            all command table types are combined and are referenced by
+     *            the type name "Command"
      * 
      * @return Array of root table names for the type specified; returns a
      *         blank if an instance of the table type doesn't exist
@@ -813,10 +829,10 @@ public class CcddScriptDataAccessHandler
      * Get the number of rows of data in the table for the specified table type
      * 
      * @param tableType
-     *            table type. All structure table types are combined and are
-     *            referenced by the type name "Structure", and all command
-     *            table types are combined and are referenced by the type name
-     *            "Command"
+     *            table type (case insensitive). All structure table types are
+     *            combined and are referenced by the type name "Structure", and
+     *            all command table types are combined and are referenced by
+     *            the type name "Command"
      * 
      * @return Number of rows of data in the table for the table type
      *         specified; -1 if an instance of the table type doesn't exist
@@ -896,10 +912,10 @@ public class CcddScriptDataAccessHandler
      * parameter belongs
      * 
      * @param tableType
-     *            table type. All structure table types are combined and are
-     *            referenced by the type name "Structure", and all command
-     *            table types are combined and are referenced by the type name
-     *            "Command"
+     *            table type (case insensitive). All structure table types are
+     *            combined and are referenced by the type name "Structure", and
+     *            all command table types are combined and are referenced by
+     *            the type name "Command"
      * 
      * @param row
      *            table row index
@@ -956,10 +972,10 @@ public class CcddScriptDataAccessHandler
      * table type
      * 
      * @param tableType
-     *            table type. All structure table types are combined and are
-     *            referenced by the type name "Structure", and all command
-     *            table types are combined and are referenced by the type name
-     *            "Command"
+     *            table type (case insensitive). All structure table types are
+     *            combined and are referenced by the type name "Structure", and
+     *            all command table types are combined and are referenced by
+     *            the type name "Command"
      * 
      * @return Array of all table names represented by the table type; returns
      *         an empty array if an instance of the table type doesn't exist
@@ -1068,10 +1084,10 @@ public class CcddScriptDataAccessHandler
      * table type to which the row data belongs based on its "generic" type
      * 
      * @param tableType
-     *            table type. All structure table types are combined and are
-     *            referenced by the type name "Structure", and all command
-     *            table types are combined and are referenced by the type name
-     *            "Command"
+     *            table type (case insensitive). All structure table types are
+     *            combined and are referenced by the type name "Structure", and
+     *            all command table types are combined and are referenced by
+     *            the type name "Command"
      * 
      * @param row
      *            row index
@@ -1429,10 +1445,10 @@ public class CcddScriptDataAccessHandler
      * macro replaced by its corresponding value
      * 
      * @param tableType
-     *            table type. All structure table types are combined and are
-     *            referenced by the type name "Structure", and all command
-     *            table types are combined and are referenced by the type name
-     *            "Command"
+     *            table type (case insensitive). All structure table types are
+     *            combined and are referenced by the type name "Structure", and
+     *            all command table types are combined and are referenced by
+     *            the type name "Command"
      * 
      * @param row
      *            table row index
@@ -1459,10 +1475,10 @@ public class CcddScriptDataAccessHandler
      * macro(s) left in place
      * 
      * @param tableType
-     *            table type. All structure table types are combined and are
-     *            referenced by the type name "Structure", and all command
-     *            table types are combined and are referenced by the type name
-     *            "Command"
+     *            table type (case insensitive). All structure table types are
+     *            combined and are referenced by the type name "Structure", and
+     *            all command table types are combined and are referenced by
+     *            the type name "Command"
      * 
      * @param row
      *            table row index
@@ -1581,10 +1597,10 @@ public class CcddScriptDataAccessHandler
      * specified format
      * 
      * @param tableType
-     *            table type. All structure table types are combined and are
-     *            referenced by the type name "Structure", and all command
-     *            table types are combined and are referenced by the type name
-     *            "Command"
+     *            table type (case insensitive). All structure table types are
+     *            combined and are referenced by the type name "Structure", and
+     *            all command table types are combined and are referenced by
+     *            the type name "Command"
      * 
      * @param row
      *            table row index
@@ -1786,10 +1802,10 @@ public class CcddScriptDataAccessHandler
      * the specified data field
      * 
      * @param tableType
-     *            table type. All structure table types are combined and are
-     *            referenced by the type name "Structure", and all command
-     *            table types are combined and are referenced by the type name
-     *            "Command". null to include tables of any type
+     *            table type (case insensitive). All structure table types are
+     *            combined and are referenced by the type name "Structure", and
+     *            all command table types are combined and are referenced by
+     *            the type name "Command". null to include tables of any type
      * 
      * @param fieldName
      *            data field name
@@ -2047,10 +2063,10 @@ public class CcddScriptDataAccessHandler
      * specified by name
      * 
      * @param tableType
-     *            table type. All structure table types are combined and are
-     *            referenced by the type name "Structure", and all command
-     *            table types are combined and are referenced by the type name
-     *            "Command"
+     *            table type (case insensitive). All structure table types are
+     *            combined and are referenced by the type name "Structure", and
+     *            all command table types are combined and are referenced by
+     *            the type name "Command"
      * 
      * @param columnName
      *            column name (case insensitive)
@@ -2116,10 +2132,10 @@ public class CcddScriptDataAccessHandler
      * name
      * 
      * @param tableType
-     *            table type. All structure table types are combined and are
-     *            referenced by the type name "Structure", and all command
-     *            table types are combined and are referenced by the type name
-     *            "Command"
+     *            table type (case insensitive). All structure table types are
+     *            combined and are referenced by the type name "Structure", and
+     *            all command table types are combined and are referenced by
+     *            the type name "Command"
      * 
      * @param columnName
      *            column name (case insensitive)
@@ -2143,10 +2159,10 @@ public class CcddScriptDataAccessHandler
      * controlled by the input flag
      * 
      * @param tableType
-     *            table type. All structure table types are combined and are
-     *            referenced by the type name "Structure", and all command
-     *            table types are combined and are referenced by the type name
-     *            "Command"
+     *            table type (case insensitive). All structure table types are
+     *            combined and are referenced by the type name "Structure", and
+     *            all command table types are combined and are referenced by
+     *            the type name "Command"
      * 
      * @param columnName
      *            column name (case insensitive)
@@ -2256,10 +2272,10 @@ public class CcddScriptDataAccessHandler
      * specified by input type name
      * 
      * @param tableType
-     *            table type. All structure table types are combined and are
-     *            referenced by the type name "Structure", and all command
-     *            table types are combined and are referenced by the type name
-     *            "Command"
+     *            table type (case insensitive). All structure table types are
+     *            combined and are referenced by the type name "Structure", and
+     *            all command table types are combined and are referenced by
+     *            the type name "Command"
      * 
      * @param inputType
      *            column input type name (case insensitive)
@@ -2331,10 +2347,10 @@ public class CcddScriptDataAccessHandler
      * input type name
      * 
      * @param tableType
-     *            table type. All structure table types are combined and are
-     *            referenced by the type name "Structure", and all command
-     *            table types are combined and are referenced by the type name
-     *            "Command"
+     *            table type (case insensitive). All structure table types are
+     *            combined and are referenced by the type name "Structure", and
+     *            all command table types are combined and are referenced by
+     *            the type name "Command"
      * 
      * @param inputType
      *            column input type name (case insensitive)
@@ -2360,10 +2376,10 @@ public class CcddScriptDataAccessHandler
      * is controlled by the input flag
      * 
      * @param tableType
-     *            table type. All structure table types are combined and are
-     *            referenced by the type name "Structure", and all command
-     *            table types are combined and are referenced by the type name
-     *            "Command"
+     *            table type (case insensitive). All structure table types are
+     *            combined and are referenced by the type name "Structure", and
+     *            all command table types are combined and are referenced by
+     *            the type name "Command"
      * 
      * @param inputType
      *            column input type name (case insensitive)
@@ -2468,10 +2484,10 @@ public class CcddScriptDataAccessHandler
      * name replaced by its corresponding value
      * 
      * @param tableType
-     *            table type. All structure table types are combined and are
-     *            referenced by the type name "Structure", and all command
-     *            table types are combined and are referenced by the type name
-     *            "Command"
+     *            table type (case insensitive). All structure table types are
+     *            combined and are referenced by the type name "Structure", and
+     *            all command table types are combined and are referenced by
+     *            the type name "Command"
      * 
      * @param tablePath
      *            full table path
@@ -2548,10 +2564,10 @@ public class CcddScriptDataAccessHandler
      * name(s) left in place
      * 
      * @param tableType
-     *            table type. All structure table types are combined and are
-     *            referenced by the type name "Structure", and all command
-     *            table types are combined and are referenced by the type name
-     *            "Command"
+     *            table type (case insensitive). All structure table types are
+     *            combined and are referenced by the type name "Structure", and
+     *            all command table types are combined and are referenced by
+     *            the type name "Command"
      * 
      * @param tablePath
      *            full table path
@@ -2596,10 +2612,10 @@ public class CcddScriptDataAccessHandler
      * controlled by the input flag
      * 
      * @param tableType
-     *            table type. All structure table types are combined and are
-     *            referenced by the type name "Structure", and all command
-     *            table types are combined and are referenced by the type name
-     *            "Command"
+     *            table type (case insensitive). All structure table types are
+     *            combined and are referenced by the type name "Structure", and
+     *            all command table types are combined and are referenced by
+     *            the type name "Command"
      * 
      * @param tablePath
      *            full table path
@@ -2690,10 +2706,10 @@ public class CcddScriptDataAccessHandler
      * specified
      * 
      * @param tableType
-     *            table type. All structure table types are combined and are
-     *            referenced by the type name "Structure", and all command
-     *            table types are combined and are referenced by the type name
-     *            "Command"
+     *            table type (case insensitive). All structure table types are
+     *            combined and are referenced by the type name "Structure", and
+     *            all command table types are combined and are referenced by
+     *            the type name "Command"
      * 
      * @param row
      *            row index
@@ -3475,6 +3491,7 @@ public class CcddScriptDataAccessHandler
         return getCopyTableEntries(streamName,
                                    headerSize,
                                    messageIDNameField,
+                                   null,
                                    optimize,
                                    true);
     }
@@ -3512,6 +3529,93 @@ public class CcddScriptDataAccessHandler
         return getCopyTableEntries(streamName,
                                    headerSize,
                                    messageIDNameField,
+                                   null,
+                                   optimize,
+                                   false);
+    }
+
+    /**************************************************************************
+     * Get the copy table for the messages of the specified data stream. Any
+     * macro embedded in a variable name is replaced by its corresponding value
+     * 
+     * @param streamName
+     *            data stream name
+     * 
+     * @param headerSize
+     *            size of the message header in bytes. For example, the CCSDS
+     *            header size is 12
+     * 
+     * @param tlmMessageIDs
+     *            array containing string array entries giving the structure
+     *            table path+name and the table's associated message ID name
+     * 
+     * @param optimize
+     *            true to combine memory copy calls for consecutive variables
+     *            in the copy table
+     * 
+     * @return Array containing the copy table entries; returns blank if there
+     *         are no entries for the specified data stream or if data stream
+     *         name is invalid. Any macro embedded in a variable name is
+     *         replaced by its corresponding value
+     *************************************************************************/
+    public String[][] getCopyTableEntries(String streamName,
+                                          int headerSize,
+                                          String[][] tlmMessageIDs,
+                                          boolean optimize)
+    {
+        // Convert the array of structure tables and their message ID names to
+        // a list
+        ArrayListMultiple tlmMessageIDsList = new ArrayListMultiple();
+        tlmMessageIDsList.addAll(Arrays.asList(tlmMessageIDs));
+
+        // Create the copy table with macros expanded
+        return getCopyTableEntries(streamName,
+                                   headerSize,
+                                   null,
+                                   tlmMessageIDsList,
+                                   optimize,
+                                   true);
+    }
+
+    /**************************************************************************
+     * Get the copy table for the messages of the specified data stream. Any
+     * macro embedded in a variable name is left in place
+     * 
+     * @param streamName
+     *            data stream name
+     * 
+     * @param headerSize
+     *            size of the message header in bytes. For example, the CCSDS
+     *            header size is 12
+     * 
+     * @param tlmMessageIDs
+     *            array containing string array entries giving the structure
+     *            table path+name and the table's associated message ID name
+     * 
+     * @param optimize
+     *            true to combine memory copy calls for consecutive variables
+     *            in the copy table
+     * 
+     * @return Array containing the copy table entries with any macro embedded
+     *         in a variable name left in place; returns blank if there are no
+     *         entries for the specified data stream or if data stream name is
+     *         invalid
+     *************************************************************************/
+    public String[][] getCopyTableEntriesWithMacros(String streamName,
+                                                    int headerSize,
+                                                    String[][] tlmMessageIDs,
+                                                    boolean optimize)
+    {
+        // Convert the array of structure tables and their message ID names to
+        // a list
+        ArrayListMultiple tlmMessageIDsList = new ArrayListMultiple();
+        tlmMessageIDsList.addAll(Arrays.asList(tlmMessageIDs));
+
+        // Create the copy table with macros unexpanded
+        return getCopyTableEntries(streamName,
+                                   headerSize,
+                                   null,
+                                   tlmMessageIDsList,
                                    optimize,
                                    false);
     }
@@ -3527,8 +3631,14 @@ public class CcddScriptDataAccessHandler
      *            header size is 12
      * 
      * @param messageIDNameField
-     *            name of the message ID name data field (e.g., 'Message ID
-     *            name')
+     *            name of the structure table data field containing the message
+     *            ID name. If provided this is used instead of the
+     *            tlmMessageIDs list
+     * 
+     * @param tlmMessageIDs
+     *            list containing string array entries giving the structure
+     *            table path+name and the table's associated message ID name.
+     *            Used if messageIDNameField is null
      * 
      * @param optimize
      *            true to combine memory copy calls for consecutive variables
@@ -3544,6 +3654,7 @@ public class CcddScriptDataAccessHandler
     private String[][] getCopyTableEntries(String streamName,
                                            int headerSize,
                                            String messageIDNameField,
+                                           ArrayListMultiple tlmMessageIDs,
                                            boolean optimize,
                                            boolean expandMacros)
     {
@@ -3565,6 +3676,7 @@ public class CcddScriptDataAccessHandler
                                                   streamName,
                                                   headerSize,
                                                   messageIDNameField,
+                                                  tlmMessageIDs,
                                                   optimize,
                                                   expandMacros);
         }

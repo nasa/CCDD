@@ -61,12 +61,9 @@ public class CcddConstants
     // Program preferences backing store keys
     protected static final String POSTGRESQL_SERVER_HOST = "PostgreSQLServerHost";
     protected static final String POSTGRESQL_SERVER_PORT = "PostgreSQLServerPort";
+    protected static final String POSTGRESQL_SERVER_SSL = "PostgreSQLServerSSL";
     protected static final String DATABASE = "Database";
     protected static final String USER = "User";
-    protected static final String LOG_FILE_PATH = "LogFilePath";
-    protected static final String DATABASE_BACKUP_PATH = "DatabaseBackupPath";
-    protected static final String TABLE_EXPORT_PATH = "TableExportPath";
-    protected static final String SCRIPT_PATH = "ScriptPath";
     protected static final String LOOK_AND_FEEL = "LookAndFeel";
     protected static final String WEB_SERVER_PORT = "WebServerPort";
     protected static final String SEARCH_STRINGS = "SearchStrings";
@@ -1131,7 +1128,8 @@ public class CcddConstants
         INIT_VIEWABLE_TABLE_ROWS("Initial table rows (non-data)", "Number of non-data table rows to display initially", "InitialViewableTableRows", 10, 1, 50),
         INIT_VIEWABLE_DATA_TABLE_ROWS("Initial table rows (data)", "Number of data table rows to display initially", "InitialViewableDataTableRows", 16, 1, 50),
         INIT_VIEWABLE_LIST_ROWS("Initial list rows", "Number of rows of radio buttons or check boxes to display initially", "InitalViewableListRows", 12, 1, 50),
-        MAX_INIT_CELL_WIDTH("Maximum initial table cell width", "Maximum initial table cell width in pixels", "MaximumInitialTableCellWidth", 250, 25, 1000);
+        MAX_INIT_CELL_WIDTH("Maximum initial table cell width", "Maximum initial table cell width in pixels", "MaximumInitialTableCellWidth", 250, 25, 1000),
+        MAX_GRID_WIDTH("Maximum radio button/check box grid width", "Maximum number of radio buttons or check boxes to display in a column in a dialog", "MaxGridWidth", 5, 1, 20);
 
         private final String name;
         private final String description;
@@ -1509,6 +1507,146 @@ public class CcddConstants
                 String spacingInfo = progPrefs.get(modSpacing.getPreferenceKey(),
                                                    String.valueOf(modSpacing.getDefault()));
                 modSpacing.spacing = Integer.valueOf(spacingInfo);
+            }
+        }
+    }
+
+    // Modifiable path information
+    protected static enum ModifiablePathInfo
+    {
+        SESSION_LOG_FILE_PATH("Session event log", "File path for the session event log", "SessionLogFilePath"),
+        READ_LOG_FILE_PATH("Read event log", "File path for reading previous event logs", "ReadLogFilePath"),
+        DATABASE_BACKUP_PATH("Project back-up", "File path for project back-ups", "DatabaseBackupPath"),
+        TABLE_EXPORT_PATH("Table export", "File path for exporting tables", "TableExportPath"),
+        SCRIPT_PATH("Script", "File path for scripts", "ScriptPath"),
+        SCRIPT_OUTPUT_PATH("Script output", "File path for script output", "ScriptOutputPath");
+
+        private final String name;
+        private final String description;
+        private final String preferenceKey;
+        private String path;
+
+        /**********************************************************************
+         * Modifiable path information constructor
+         *
+         * @param name
+         *            path name (for display)
+         * 
+         * @param description
+         *            path description (for tool tip)
+         * 
+         * @param preferenceKey
+         *            path program preferences key
+         *********************************************************************/
+        ModifiablePathInfo(String name,
+                           String description,
+                           String preferenceKey)
+        {
+            this.name = name;
+            this.description = description;
+            this.preferenceKey = preferenceKey;
+            path = "";
+        }
+
+        /**********************************************************************
+         * Get the path name (for display)
+         *
+         * @return Path name (for display)
+         *********************************************************************/
+        protected String getName()
+        {
+            return name;
+        }
+
+        /**********************************************************************
+         * Get the path description (for tool tip)
+         *
+         * @return Path value description (for tool tip)
+         *********************************************************************/
+        protected String getDescription()
+        {
+            return description;
+        }
+
+        /**********************************************************************
+         * Get the path program preferences key
+         *
+         * @return Path program preferences key
+         *********************************************************************/
+        protected String getPreferenceKey()
+        {
+            return preferenceKey;
+        }
+
+        /**********************************************************************
+         * Get the current path
+         *
+         * @return Current path
+         *********************************************************************/
+        protected String getPath()
+        {
+            return path;
+        }
+
+        /**********************************************************************
+         * Set the path
+         *
+         * @param path
+         *            new path
+         *********************************************************************/
+        protected void setPath(String path)
+        {
+            this.path = path;
+        }
+
+        /**********************************************************************
+         * Get the modifiable path information reference with the specified
+         * program preferences key
+         *
+         * @param prefKey
+         *            modifiable path program preferences key
+         *
+         * @return Modifiable path information reference that has a program
+         *         preferences key matching the one specified; null if no
+         *         modifiable path's key matches
+         *********************************************************************/
+        protected static ModifiablePathInfo getModifiablePathInfo(String prefKey)
+        {
+            ModifiablePathInfo modifiablePath = null;
+
+            // Step through each modifiable path
+            for (ModifiablePathInfo modPath : ModifiablePathInfo.values())
+            {
+                // Check if the path's program preferences key matches the one
+                // supplied
+                if (modPath.preferenceKey.equals(prefKey))
+                {
+                    // Store the modifiable path information reference and stop
+                    // searching
+                    modifiablePath = modPath;
+                    break;
+                }
+            }
+
+            return modifiablePath;
+        }
+
+        /**********************************************************************
+         * Set the modifiable paths to the values stored in the program
+         * preferences
+         *
+         * @param progPrefs
+         *            reference to the program preferences
+         *********************************************************************/
+        protected static void setPaths(Preferences progPrefs)
+        {
+            // Step through each modifiable path
+            for (ModifiablePathInfo modPath : ModifiablePathInfo.values())
+            {
+                // Retrieve the path from the program preferences and use this
+                // information to set the modifiable path
+                String pathInfo = progPrefs.get(modPath.getPreferenceKey(), "");
+                modPath.path = pathInfo;
             }
         }
     }
@@ -2481,7 +2619,7 @@ public class CcddConstants
                     COL_ARGUMENT + " 1 " + COL_ENUMERATION,
                     "Command argument 1 enumeration",
                     InputDataType.ENUMERATION,
-                    true,
+                    false,// TODO
                     false,
                     false,
                     false,
@@ -2491,7 +2629,7 @@ public class CcddConstants
                   COL_ARGUMENT + " 1 " + COL_MINIMUM,
                   "Command argument 1 minimum value",
                   InputDataType.MINIMUM,
-                  true,
+                  false,// TODO
                   false,
                   false,
                   false,
@@ -2501,7 +2639,7 @@ public class CcddConstants
                   COL_ARGUMENT + " 1 " + COL_MAXIMUM,
                   "Command argument 1 maximum value",
                   InputDataType.MAXIMUM,
-                  true,
+                  false,// TODO
                   false,
                   false,
                   false,

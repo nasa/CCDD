@@ -22,6 +22,7 @@ import static CCDD.CcddConstants.MIN_WINDOW_WIDTH;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.POSTGRESQL_SERVER_HOST;
 import static CCDD.CcddConstants.POSTGRESQL_SERVER_PORT;
+import static CCDD.CcddConstants.POSTGRESQL_SERVER_SSL;
 import static CCDD.CcddConstants.USER;
 import static CCDD.CcddConstants.WEB_SERVER_PORT;
 import static CCDD.CcddConstants.setLaFAdjustments;
@@ -76,6 +77,7 @@ import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.ScriptIOType;
@@ -181,9 +183,6 @@ public class CcddMain
 
     // Program preferences backing store node
     private final Preferences progPrefs;
-
-    // File path to where the session log is stored
-    private String logFilePath;
 
     // Look and feel currently selected by the user
     private String selectedLaF;
@@ -340,29 +339,6 @@ public class CcddMain
     protected boolean isGUIHidden()
     {
         return isHideGUI;
-    }
-
-    /**************************************************************************
-     * Get the session event log file path
-     * 
-     * @return Session event log file path; if no log file path is set then
-     *         return blank to point to the folder in which the application
-     *         starts
-     *************************************************************************/
-    protected String getLogPath()
-    {
-        return logFilePath == null ? "" : logFilePath;
-    }
-
-    /**************************************************************************
-     * Set the session event log file path
-     * 
-     * @param logFilePath
-     *            session event log file path
-     *************************************************************************/
-    protected void setLogPath(String logFilePath)
-    {
-        this.logFilePath = logFilePath;
     }
 
     /**************************************************************************
@@ -2579,11 +2555,15 @@ public class CcddMain
         // Set the modifiable spacing values
         ModifiableSpacingInfo.setSpacings(progPrefs);
 
+        // Set the modifiable paths
+        ModifiablePathInfo.setPaths(progPrefs);
+
         // Retrieve the preferences from the backing store
         dbControl.setHost(progPrefs.get(POSTGRESQL_SERVER_HOST,
                                         DEFAULT_POSTGRESQL_HOST));
         dbControl.setPort(progPrefs.get(POSTGRESQL_SERVER_PORT,
                                         DEFAULT_POSTGRESQL_PORT));
+        dbControl.setSSL(progPrefs.getBoolean(POSTGRESQL_SERVER_SSL, false));
         dbControl.setDatabase(progPrefs.get(DATABASE, DEFAULT_DATABASE));
         dbControl.setUser(progPrefs.get(USER, System.getProperty("user.name")));
     }

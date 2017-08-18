@@ -8,7 +8,6 @@ package CCDD;
 
 import static CCDD.CcddConstants.CCDD_PROJECT_IDENTIFIER;
 import static CCDD.CcddConstants.DATABASE;
-import static CCDD.CcddConstants.DATABASE_BACKUP_PATH;
 import static CCDD.CcddConstants.DATABASE_COMMENT_SEPARATOR;
 import static CCDD.CcddConstants.DATABASE_DRIVER;
 import static CCDD.CcddConstants.DEFAULT_DATABASE;
@@ -20,6 +19,7 @@ import static CCDD.CcddConstants.MACRO_IDENTIFIER;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.POSTGRESQL_SERVER_HOST;
 import static CCDD.CcddConstants.POSTGRESQL_SERVER_PORT;
+import static CCDD.CcddConstants.POSTGRESQL_SERVER_SSL;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import static CCDD.CcddConstants.USER;
 import static CCDD.CcddConstants.ConnectionType.NO_CONNECTION;
@@ -58,6 +58,7 @@ import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.LinksColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
+import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddConstants.SearchType;
 import CCDD.CcddConstants.ServerPropertyDialogType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -96,6 +97,9 @@ public class CcddDbControlHandler
     // SQL database connection
     private Connection connection;
 
+    // Flag that indicates is an SSL connection is enabled
+    private boolean isSSL;
+
     // File path and name to automatically backup the database to on first
     // connection
     private String backupFileName;
@@ -128,6 +132,7 @@ public class CcddDbControlHandler
         activeUser = "";
         activePassword = "";
         backupFileName = "";
+        isSSL = false;
 
         // Reset the flag that indicates a connection failure occurred due to a
         // missing password
@@ -220,10 +225,10 @@ public class CcddDbControlHandler
     }
 
     /**************************************************************************
-     * Set the SQL server host
+     * Set the PostgreSQL server host
      * 
      * @param host
-     *            SQL server host
+     *            PostgreSQL server host
      *************************************************************************/
     protected void setHost(String host)
     {
@@ -262,6 +267,29 @@ public class CcddDbControlHandler
                + (serverPort.isEmpty()
                                       ? ""
                                       : ":" + serverPort);
+    }
+
+    /**************************************************************************
+     * Get the status of the flag that indicates if an SSL connection is
+     * enabled
+     * 
+     * @return true if SSL is enabled
+     *************************************************************************/
+    protected boolean isSSL()
+    {
+        return isSSL;
+    }
+
+    /**************************************************************************
+     * Set the status of the flag that indicates if an SSL connection is
+     * enabled
+     * 
+     * @param enable
+     *            true to enable an SSL connection
+     *************************************************************************/
+    protected void setSSL(boolean enable)
+    {
+        isSSL = enable;
     }
 
     /**************************************************************************
@@ -521,16 +549,21 @@ public class CcddDbControlHandler
     }
 
     /**************************************************************************
-     * Get the database URL
+     * Get the database URL. If SSL is enabled the appropriate properties are
+     * set; certificate validation is bypassed.
      * 
      * @param databaseName
      *            database name
      * 
-     * @return database URL
+     * @return Database URL
      *************************************************************************/
     protected String getDatabaseURL(String databaseName)
     {
-        return "jdbc:postgresql://" + getServerAndDatabase(databaseName);
+        return "jdbc:postgresql://"
+               + getServerAndDatabase(databaseName)
+               + (isSSL
+                       ? "?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
+                       : "");
     }
 
     /**************************************************************************
@@ -1754,9 +1787,9 @@ public class CcddDbControlHandler
         }
         catch (SQLException se)
         {
-            // Check if the connection failed due to a missing password
-            if (activePassword.isEmpty()
-                && se.getMessage().contains("password authentication failed")
+            // Check if the connection failed due to a missing or invalid
+            // password
+            if (se.getMessage().contains("authentication failed")
                 && !ccddMain.isGUIHidden())
             {
                 // Set the flag that indicates a connection failure occurred
@@ -1812,7 +1845,7 @@ public class CcddDbControlHandler
     }
 
     /**************************************************************************
-     * Open a database
+     * Open a database using the current host, port, and SSL settings
      * 
      * @param databaseName
      *            name of the database to open
@@ -1824,7 +1857,41 @@ public class CcddDbControlHandler
      * @return true if an error occurred opening the database; false if the
      *         database successfully opened
      *************************************************************************/
-    protected boolean openDatabase(final String databaseName,
+    protected boolean openDatabase(String databaseName, boolean createFunctions)
+    {
+        return openDatabase(databaseName,
+                            serverHost,
+                            serverPort,
+                            isSSL,
+                            createFunctions);
+    }
+
+    /**************************************************************************
+     * Open a database using the host, port, and SSL settings provided
+     * 
+     * @param databaseName
+     *            name of the database to open
+     * 
+     * @param serverHost
+     *            PostgreSQL server host
+     * 
+     * @param serverPort
+     *            PostgreSQL server port
+     * 
+     * @param isSSL
+     *            true if an SSL connection is enabled
+     * 
+     * @param createFunctions
+     *            true to create the database functions; false if reopening a
+     *            database (so the functions already exist)
+     * 
+     * @return true if an error occurred opening the database; false if the
+     *         database successfully opened
+     *************************************************************************/
+    protected boolean openDatabase(String databaseName,
+                                   String serverHost,
+                                   String serverPort,
+                                   boolean isSSL,
                                    boolean createFunctions)
     {
         boolean errorFlag = false;
@@ -1842,6 +1909,12 @@ public class CcddDbControlHandler
             {
                 try
                 {
+                    // Store the host, port, and SSL settings as the new
+                    // defaults
+                    this.serverHost = serverHost;
+                    this.serverPort = serverPort;
+                    this.isSSL = isSSL;
+
                     // Register the JDBC driver
                     Class.forName(DATABASE_DRIVER);
 
@@ -1949,14 +2022,17 @@ public class CcddDbControlHandler
                 {
                     try
                     {
-                        // Store the database name, user name, server host, and
-                        // server port in the program preferences backing store
+                        // Store the database name, user name, server host,
+                        // server port, and SSL state in the program
+                        // preferences backing store
                         ccddMain.getProgPrefs().put(DATABASE, activeDatabase);
                         ccddMain.getProgPrefs().put(USER, activeUser);
                         ccddMain.getProgPrefs().put(POSTGRESQL_SERVER_HOST,
                                                     serverHost);
                         ccddMain.getProgPrefs().put(POSTGRESQL_SERVER_PORT,
                                                     serverPort);
+                        ccddMain.getProgPrefs().putBoolean(POSTGRESQL_SERVER_SSL,
+                                                           isSSL);
                     }
                     catch (Exception e)
                     {
@@ -1990,15 +2066,46 @@ public class CcddDbControlHandler
     }
 
     /**************************************************************************
-     * Open a database. This command is executed in a separate thread since it
-     * can take a noticeable amount time to complete, and by using a separate
-     * thread the GUI is allowed to continue to update. The GUI menu commands,
-     * however, are disabled until the database command completes execution
+     * Open a database using the current host, port, and SSL settings provided.
+     * This command is executed in a separate thread since it can take a
+     * noticeable amount time to complete, and by using a separate thread the
+     * GUI is allowed to continue to update. The GUI menu commands, however,
+     * are disabled until the database command completes execution
      * 
      * @param databaseName
      *            name of the database to open
      *************************************************************************/
     protected void openDatabaseInBackground(final String databaseName)
+    {
+        openDatabaseInBackground(databaseName,
+                                 serverHost,
+                                 serverPort,
+                                 isSSL);
+    }
+
+    /**************************************************************************
+     * Open a database using the host, port, and SSL settings provided. This
+     * command is executed in a separate thread since it can take a noticeable
+     * amount time to complete, and by using a separate thread the GUI is
+     * allowed to continue to update. The GUI menu commands, however, are
+     * disabled until the database command completes execution
+     * 
+     * @param databaseName
+     *            name of the database to open
+     * 
+     * @param serverHost
+     *            PostgreSQL server host
+     * 
+     * @param serverPort
+     *            PostgreSQL server port
+     * 
+     * @param isSSL
+     *            true if an SSL connection is enabled
+     *************************************************************************/
+    protected void openDatabaseInBackground(final String databaseName,
+                                            final String serverHost,
+                                            final String serverPort,
+                                            final boolean isSSL)
     {
         // Execute the command in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
@@ -2012,7 +2119,11 @@ public class CcddDbControlHandler
             protected void execute()
             {
                 // Open the new database
-                errorFlag = openDatabase(databaseName);
+                errorFlag = openDatabase(databaseName,
+                                         serverHost,
+                                         serverPort,
+                                         isSSL,
+                                         true);
             }
 
             /******************************************************************
@@ -2026,6 +2137,7 @@ public class CcddDbControlHandler
                 {
                     // Get the user and password
                     new CcddServerPropertyDialog(ccddMain,
+                                                 !databaseName.equals(DEFAULT_DATABASE),
                                                  ServerPropertyDialogType.LOGIN);
                 }
             }
@@ -2490,9 +2602,10 @@ public class CcddDbControlHandler
         {
             // Store the backup file path in the program preferences backing
             // store
-            ccddMain.getFileIOHandler().storePath(backupFile.getAbsolutePath(),
-                                                  true,
-                                                  DATABASE_BACKUP_PATH);
+            CcddFileIOHandler.storePath(ccddMain,
+                                        backupFile.getAbsolutePath(),
+                                        true,
+                                        ModifiablePathInfo.DATABASE_BACKUP_PATH.getPreferenceKey());
 
             // Log that backing up the database succeeded
             eventLog.logEvent(SUCCESS_MSG,

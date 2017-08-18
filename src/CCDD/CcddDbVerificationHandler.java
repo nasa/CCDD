@@ -9,6 +9,7 @@ package CCDD;
 import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.CANCEL_ICON;
 import static CCDD.CcddConstants.DB_SAVE_POINT_NAME;
+import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
 import static CCDD.CcddConstants.LIST_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.OK_BUTTON;
@@ -1098,6 +1099,9 @@ public class CcddDbVerificationHandler
 
         try
         {
+            // Load the group names from the database
+            List<String> groupNames = Arrays.asList(new CcddGroupHandler(ccddMain, ccddMain.getMainFrame()).getGroupNames(false));
+
             // Get the list of table and variable paths and names, retaining
             // any macros and bit lengths
             CcddVariableConversionHandler variableHandler = new CcddVariableConversionHandler(ccddMain,
@@ -1139,8 +1143,50 @@ public class CcddDbVerificationHandler
                             // Step through each table in the association
                             for (String table : member[0].split(Pattern.quote(LIST_TABLE_SEPARATOR)))
                             {
+                                // TODO CHECK IF IT STARTS WITH "Group:"; IF SO
+                                // THEN VERIFY THE GROUP NAME IS VALID, BUT
+                                // DON"T TEST IT AS A TABLE
+                                // Check if this is a reference to a group
+                                if (table.startsWith(GROUP_DATA_FIELD_IDENT))
+                                {
+                                    // Extract the group name
+                                    String groupName = table.substring(GROUP_DATA_FIELD_IDENT.length());
+
+                                    // Check if the group name is valid
+                                    if (!groupNames.contains(groupName))
+                                    {
+                                        // Association table reference is
+                                        // invalid
+                                        issues.add(new TableIssue("Internal table '"
+                                                                  + tableNameDb
+                                                                  + "' references a non-existent group, '"
+                                                                  + groupName
+                                                                  + "', associated with script '"
+                                                                  + member[1]
+                                                                  + "'",
+                                                                  "Delete script association",
+                                                                  "DELETE FROM "
+                                                                      + tableNameDb
+                                                                      + " WHERE "
+                                                                      + AssociationsColumn.SCRIPT_FILE.getColumnName()
+                                                                      + " = "
+                                                                      + dbTable.delimitText(member[1])
+                                                                      + " AND "
+                                                                      + AssociationsColumn.MEMBERS.getColumnName()
+                                                                      + " = "
+                                                                      + dbTable.delimitText(member[0])
+                                                                      + "; "));
+
+                                        // Skip any other invalid references in
+                                        // this association; this prevents
+                                        // allowing the user to select removal
+                                        // of the same association more than
+                                        // once
+                                        break;
+                                    }
+                                }
                                 // Check if the table doesn't exist
-                                if (!variableHandler.getAllVariableNameList().contains(table))
+                                else if (!variableHandler.getAllVariableNameList().contains(table))
                                 {
                                     // Association table reference is invalid
                                     issues.add(new TableIssue("Internal table '"
@@ -1163,10 +1209,10 @@ public class CcddDbVerificationHandler
                                                                   + dbTable.delimitText(member[0])
                                                                   + "; "));
 
-                                    // Skip any other invalid table references
-                                    // in this association; this prevents
-                                    // allowing the user to select removal of
-                                    // the same association more than once
+                                    // Skip any other invalid references in
+                                    // this association; this prevents allowing
+                                    // the user to select removal of the same
+                                    // association more than once
                                     break;
                                 }
                             }

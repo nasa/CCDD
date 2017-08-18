@@ -8,7 +8,6 @@ package CCDD;
 
 import static CCDD.CcddConstants.CCDD_ICON;
 import static CCDD.CcddConstants.CLOSE_ICON;
-import static CCDD.CcddConstants.LOG_FILE_PATH;
 import static CCDD.CcddConstants.PRINT_ICON;
 import static CCDD.CcddConstants.SEARCH_ICON;
 import static CCDD.CcddConstants.EventLogMessageType.FAIL_MSG;
@@ -62,6 +61,7 @@ import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.FileExtension;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.SearchDialogType;
 import CCDD.CcddConstants.TableInsertionPoint;
@@ -787,10 +787,10 @@ public class CcddEventLogDialog extends CcddFrameHandler
                 // Create the session log file using the date and time stamp as
                 // part of the name, and the log file path if set by command
                 // line command
-                logFile = new File((!ccddMain.getLogPath().isEmpty()
-                                                                    ? ccddMain.getLogPath()
-                                                                      + File.separator
-                                                                    : "")
+                logFile = new File((!ModifiablePathInfo.SESSION_LOG_FILE_PATH.getPath().isEmpty()
+                                                                                                 ? ModifiablePathInfo.SESSION_LOG_FILE_PATH.getPath()
+                                                                                                   + File.separator
+                                                                                                 : "")
                                    + "CCDD-"
                                    + getDateTimeStamp("yyyyMMdd_HHmmss")
                                    + ".log");
@@ -841,9 +841,8 @@ public class CcddEventLogDialog extends CcddFrameHandler
                                                                  new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.LOG.getDescription(),
                                                                                                                             FileExtension.LOG.getExtensionName())},
                                                                  false,
-                                                                 false,
                                                                  "Open Event Log",
-                                                                 LOG_FILE_PATH,
+                                                                 ccddMain.getProgPrefs().get(ModifiablePathInfo.READ_LOG_FILE_PATH.getPreferenceKey(), null),
                                                                  DialogOption.OPEN_OPTION);
 
             // Check if a file was chosen
@@ -871,8 +870,13 @@ public class CcddEventLogDialog extends CcddFrameHandler
                     isOpen = true;
                     isLogWrite = false;
                     logFile = file[0];
-                    ccddMain.getProgPrefs().put(LOG_FILE_PATH,
-                                                logFile.getAbsolutePath());
+
+                    // Store the log path path in the program preferences
+                    // backing store
+                    CcddFileIOHandler.storePath(ccddMain,
+                                                logFile.getAbsolutePath(),
+                                                true,
+                                                ModifiablePathInfo.READ_LOG_FILE_PATH.getPreferenceKey());
                 }
             }
         }

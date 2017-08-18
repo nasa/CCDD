@@ -17,7 +17,6 @@ import static CCDD.CcddConstants.LIST_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.REDO_ICON;
 import static CCDD.CcddConstants.SCRIPTS_ICON;
-import static CCDD.CcddConstants.SCRIPT_PATH;
 import static CCDD.CcddConstants.STORE_ICON;
 import static CCDD.CcddConstants.UNDO_ICON;
 import static CCDD.CcddConstants.UP_ICON;
@@ -60,6 +59,7 @@ import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableInsertionPoint;
 import CCDD.CcddConstants.TableTreeType;
@@ -75,7 +75,6 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
     private final CcddDbTableCommandHandler dbTable;
     private final CcddDbControlHandler dbControl;
     private final CcddScriptHandler scriptHandler;
-    private final CcddFileIOHandler fileIOHandler;
     private CcddTableTreeHandler tableTree;
     private CcddJTableHandler assnsTable;
 
@@ -105,7 +104,6 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
         dbTable = ccddMain.getDbTableCommandHandler();
         dbControl = ccddMain.getDbControlHandler();
         scriptHandler = ccddMain.getScriptHandler();
-        fileIOHandler = ccddMain.getFileIOHandler();
 
         // Create the file output selection dialog
         initialize();
@@ -707,9 +705,9 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
                                                                            "script",
                                                                            scriptHandler.getExtensions(),
                                                                            false,
-                                                                           false,
                                                                            "Select Script",
-                                                                           SCRIPT_PATH,
+                                                                           ccddMain.getProgPrefs().get(ModifiablePathInfo.SCRIPT_PATH.getPreferenceKey(),
+                                                                                                       null),
                                                                            DialogOption.OK_CANCEL_OPTION);
 
                 // Check if a script file is selected
@@ -717,9 +715,10 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
                 {
                     // Store the script file path in the program preferences
                     // backing store
-                    fileIOHandler.storePath(scriptFile[0].getAbsolutePath(),
-                                            true,
-                                            SCRIPT_PATH);
+                    CcddFileIOHandler.storePath(ccddMain,
+                                                scriptFile[0].getAbsolutePath(),
+                                                true,
+                                                ModifiablePathInfo.SCRIPT_PATH.getPreferenceKey());
 
                     // Display the file name in the script name field
                     scriptFld.setText(scriptFile[0].getAbsolutePath());
@@ -861,13 +860,6 @@ public class CcddScriptManagerDialog extends CcddDialogHandler
 
         // Add the selected table names
         members.addAll(tableTree.getSelectedTablesWithoutChildren());
-
-        // Check if no group(s) or table(s) is selected
-        if (members.isEmpty())
-        {
-            // Use a blank for the table name
-            members.add(" ");
-        }
 
         // Get a file descriptor for the script file name
         File scriptFile = new File(scriptFld.getText());

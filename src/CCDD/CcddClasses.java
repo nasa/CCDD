@@ -5411,6 +5411,9 @@ public class CcddClasses
         // false then input other than what's in the list is valid
         private boolean isOnlyFromList;
 
+        // Flag that indicates if auto-completion should be disabled
+        private boolean noAutoComp = false;
+
         /**********************************************************************
          * Auto-complete document class
          *********************************************************************/
@@ -5443,7 +5446,7 @@ public class CcddClasses
                     String s2 = getMatch(s1 + insertTxt);
                     int newStartIndex = (startIndex + insertTxt.length()) - 1;
 
-                    if (!isOnlyFromList && s2 == null)
+                    if ((!isOnlyFromList && s2 == null) || noAutoComp)
                     {
                         super.insertString(startIndex, insertTxt, attributeset);
                     }
@@ -5469,6 +5472,7 @@ public class CcddClasses
             @Override
             public void remove(int startIndex, int length) throws BadLocationException
             {
+                System.out.println("remove");// TODO
                 int selectStart = getSelectionStart();
 
                 if (selectStart > 0)
@@ -5534,8 +5538,9 @@ public class CcddClasses
         {
             this.autoCompList = autoCompList;
             this.maxItems = maxItems;
+            noAutoComp = false;
 
-            // Initialize with case sensitivity disables and allowing text
+            // Initialize with case sensitivity disabled and allowing text
             // other than that in the auto-completion list from being entered
             isCaseSensitive = false;
             isOnlyFromList = false;
@@ -5770,6 +5775,21 @@ public class CcddClasses
             // Remove the trailing separator characters
             return CcddUtilities.removeTrailer(listString,
                                                AUTO_COMPLETE_TEXT_SEPARATOR);
+        }
+
+        /**********************************************************************
+         * Override so that text inserted into the field isn't altered by
+         * auto-completion
+         *********************************************************************/
+        @Override
+        public void setText(String text)
+        {
+            // Set the flag to disable auto-completion, set the field's text,
+            // then re-enable auto-completion. This prevents auto-completion
+            // from replacing the text being inserted into the field
+            noAutoComp = true;
+            super.setText(text);
+            noAutoComp = false;
         }
     }
 

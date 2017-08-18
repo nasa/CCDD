@@ -8,7 +8,6 @@ package CCDD;
 
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.SCRIPTS_ICON;
-import static CCDD.CcddConstants.SCRIPT_PATH;
 
 import java.awt.Color;
 import java.awt.GridBagConstraints;
@@ -33,6 +32,7 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.ScriptIOType;
 
@@ -99,10 +99,10 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                                                                     null,
                                                                     "script",
                                                                     scriptHandler.getExtensions(),
-                                                                    false,
                                                                     true,
                                                                     "Select Script(s) to Store",
-                                                                    SCRIPT_PATH,
+                                                                    ccddMain.getProgPrefs().get(ModifiablePathInfo.SCRIPT_PATH.getPreferenceKey(),
+                                                                                                null),
                                                                     DialogOption.STORE_OPTION);
 
                 // Check if the Cancel button wasn't selected
@@ -116,7 +116,10 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
 
                         // Remove the script file name and store the script
                         // file path in the program preferences backing store
-                        fileIOHandler.storePath(pathName, true, SCRIPT_PATH);
+                        CcddFileIOHandler.storePath(ccddMain,
+                                                    pathName,
+                                                    true,
+                                                    ModifiablePathInfo.SCRIPT_PATH.getPreferenceKey());
 
                         // Step through each selected script
                         for (File file : scriptFile)
@@ -242,17 +245,17 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                             {
                                 // Get a file reference using the last accessed
                                 // file path
-                                scriptFile = new File[] {new File(ccddMain.getProgPrefs().get(SCRIPT_PATH,
-                                                                                              ""))};
+                                scriptFile = new File[] {new File(ModifiablePathInfo.SCRIPT_PATH.getPath())};
                             }
                             // A script file path is selected
                             else
                             {
                                 // Store the script file path in the program
                                 // preferences backing store
-                                fileIOHandler.storePath(scriptFile[0].getAbsolutePath(),
-                                                        false,
-                                                        SCRIPT_PATH);
+                                CcddFileIOHandler.storePath(ccddMain,
+                                                            scriptFile[0].getAbsolutePath(),
+                                                            false,
+                                                            ModifiablePathInfo.SCRIPT_PATH.getPreferenceKey());
                             }
 
                             // Get an array containing the selected script
@@ -353,10 +356,9 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
         pathPnl.add(scriptLbl, gbc);
 
         // Create a text field for entering & displaying the script path
-        pathFld = new JTextField(ccddMain.getProgPrefs().get(SCRIPT_PATH,
-                                                             "").replaceAll("\\"
-                                                                            + File.separator
-                                                                            + "\\.$", ""));
+        pathFld = new JTextField(ModifiablePathInfo.SCRIPT_PATH.getPath().replaceAll("\\"
+                                                                                     + File.separator
+                                                                                     + "\\.$", ""));
         pathFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         pathFld.setEditable(true);
         pathFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
@@ -387,13 +389,9 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                 // Allow the user to select the script storage path
                 scriptFile = new CcddDialogHandler().choosePathFile(ccddMain,
                                                                     CcddScriptStorageDialog.this,
-                                                                    null,
-                                                                    null,
-                                                                    null,
-                                                                    true,
-                                                                    false,
                                                                     "Select Location for Script(s)",
-                                                                    SCRIPT_PATH,
+                                                                    ccddMain.getProgPrefs().get(ModifiablePathInfo.SCRIPT_PATH.getPreferenceKey(),
+                                                                                                null),
                                                                     DialogOption.OK_CANCEL_OPTION);
 
                 // Check if a script path is selected
