@@ -82,13 +82,13 @@ public class CcddJSONHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * JSON handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class reference
-     * 
+     *
      * @param fieldHandler
      *            reference to a data field handler
-     * 
+     *
      * @param parent
      *            GUI component instantiating this class
      *************************************************************************/
@@ -111,7 +111,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Get the status of the conversion setup error flag
-     * 
+     *
      * @return Always returns false for the JSON conversion
      *************************************************************************/
     @Override
@@ -122,7 +122,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Get the table definitions
-     * 
+     *
      * @return List of table definitions
      *************************************************************************/
     @Override
@@ -134,13 +134,13 @@ public class CcddJSONHandler implements CcddImportExportInterface
     /**************************************************************************
      * Get the JSON object referred to by the supplied key from the supplied
      * JSON object
-     * 
+     *
      * @param jsonObj
      *            JSON object
-     * 
+     *
      * @param key
      *            JSON object key
-     * 
+     *
      * @return JSON object referred to by the supplied key; null if the JSON
      *         object with the supplied key does not exist
      *************************************************************************/
@@ -152,13 +152,13 @@ public class CcddJSONHandler implements CcddImportExportInterface
     /**************************************************************************
      * Get the string representation of an object; return a blank if the object
      * is null
-     * 
+     *
      * @param jsonObj
      *            JSON object
-     * 
+     *
      * @param key
      *            JSON object key
-     * 
+     *
      * @return String representation of the supplied object; blank if the
      *         object is null
      *************************************************************************/
@@ -182,10 +182,10 @@ public class CcddJSONHandler implements CcddImportExportInterface
     /**************************************************************************
      * Parse the supplied JSON array into a list of its constituent JSON
      * objects
-     * 
+     *
      * @param arrayObj
      *            object representing a JSON array
-     * 
+     *
      * @return List containing the parsed JSON objects in the supplied JSON
      *         array
      *************************************************************************/
@@ -223,10 +223,10 @@ public class CcddJSONHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Parse the supplied JSON object
-     * 
+     *
      * @param jsonObj
      *            JSON object
-     * 
+     *
      * @return Parsed JSON object
      *************************************************************************/
     @SuppressWarnings("unchecked")
@@ -269,10 +269,10 @@ public class CcddJSONHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Build the information from the table definition(s) in the current file
-     * 
+     *
      * @param importFile
      *            import file reference
-     * 
+     *
      * @param importAll
      *            ImportType.IMPORT_ALL to import the table type, data type,
      *            and macro definitions, and the data from all the table
@@ -282,8 +282,8 @@ public class CcddJSONHandler implements CcddImportExportInterface
     @Override
     public void importFromFile(File importFile,
                                ImportType importType) throws CCDDException,
-                                                     IOException,
-                                                     Exception
+                                                      IOException,
+                                                      Exception
     {
         BufferedReader br = null;
 
@@ -413,11 +413,11 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                 // name is missing
                                 int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                     "<html><b>Table type '"
-                                                                                                        + typeName
-                                                                                                        + "' definition has missing or extra "
-                                                                                                        + "input(s) in import file '</b>"
-                                                                                                        + importFile.getAbsolutePath()
-                                                                                                        + "<b>'; continue?",
+                                                                                                            + typeName
+                                                                                                            + "' definition has missing or extra "
+                                                                                                            + "input(s) in import file '</b>"
+                                                                                                            + importFile.getAbsolutePath()
+                                                                                                            + "<b>'; continue?",
                                                                                                     "Table Type Error",
                                                                                                     "Ignore this table type",
                                                                                                     "Ignore this and any remaining invalid table types",
@@ -508,11 +508,11 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                     // data field inputs are missing
                                     int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                         "<html><b>Table type '</b>"
-                                                                                                            + tableTypeDefn.getTypeName()
-                                                                                                            + "<b>' has missing or extra data field "
-                                                                                                            + "input(s) in import file '</b>"
-                                                                                                            + importFile.getAbsolutePath()
-                                                                                                            + "<b>'; continue?",
+                                                                                                                + tableTypeDefn.getTypeName()
+                                                                                                                + "<b>' has missing or extra data field "
+                                                                                                                + "input(s) in import file '</b>"
+                                                                                                                + importFile.getAbsolutePath()
+                                                                                                                + "<b>'; continue?",
                                                                                                         "Table Type Error",
                                                                                                         "Ignore this table type",
                                                                                                         "Ignore this and any remaining invalid table types",
@@ -605,9 +605,9 @@ public class CcddJSONHandler implements CcddImportExportInterface
                             // incorrect
                             int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                 "<html><b>Missing or extra data type definition "
-                                                                                                    + "input(s) in import file '</b>"
-                                                                                                    + importFile.getAbsolutePath()
-                                                                                                    + "<b>'; continue?",
+                                                                                                        + "input(s) in import file '</b>"
+                                                                                                        + importFile.getAbsolutePath()
+                                                                                                        + "<b>'; continue?",
                                                                                                 "Data Type Error",
                                                                                                 "Ignore this data type",
                                                                                                 "Ignore this and any remaining invalid data types",
@@ -661,9 +661,9 @@ public class CcddJSONHandler implements CcddImportExportInterface
                             // Inform the user that the macro name is missing
                             int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                 "<html><b>Missing or extra macro definition "
-                                                                                                    + "input(s) in import file '</b>"
-                                                                                                    + importFile.getAbsolutePath()
-                                                                                                    + "<b>'; continue?",
+                                                                                                        + "input(s) in import file '</b>"
+                                                                                                        + importFile.getAbsolutePath()
+                                                                                                        + "<b>'; continue?",
                                                                                                 "Macro Error",
                                                                                                 "Ignore this macro",
                                                                                                 "Ignore this and any remaining invalid macros",
@@ -718,9 +718,9 @@ public class CcddJSONHandler implements CcddImportExportInterface
                             // missing
                             int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                 "<html><b>Missing or extra reserved message ID "
-                                                                                                    + "definition input(s) in import file '</b>"
-                                                                                                    + importFile.getAbsolutePath()
-                                                                                                    + "<b>'; continue?",
+                                                                                                        + "definition input(s) in import file '</b>"
+                                                                                                        + importFile.getAbsolutePath()
+                                                                                                        + "<b>'; continue?",
                                                                                                 "Reserved Message ID Error",
                                                                                                 "Ignore this reserved message ID",
                                                                                                 "Ignore this and any remaining invalid reserved message IDs",
@@ -856,12 +856,12 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                     // invalid
                                     int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                         "<html><b>Table '</b>"
-                                                                                                            + tableName
-                                                                                                            + "<b>' column name '</b>"
-                                                                                                            + columnName
-                                                                                                            + "<b>' unrecognized in import file '</b>"
-                                                                                                            + importFile.getAbsolutePath()
-                                                                                                            + "<b>'; continue?",
+                                                                                                                + tableName
+                                                                                                                + "<b>' column name '</b>"
+                                                                                                                + columnName
+                                                                                                                + "<b>' unrecognized in import file '</b>"
+                                                                                                                + importFile.getAbsolutePath()
+                                                                                                                + "<b>'; continue?",
                                                                                                         "Column Error",
                                                                                                         "Ignore this invalid column name",
                                                                                                         "Ignore this and any remaining invalid column names",
@@ -965,11 +965,11 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                     // is missing
                                     int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                         "<html><b>Table '</b>"
-                                                                                                            + tableName
-                                                                                                            + "<b>' has missing or extra data field "
-                                                                                                            + "input(s) in import file '</b>"
-                                                                                                            + importFile.getAbsolutePath()
-                                                                                                            + "<b>'; continue?",
+                                                                                                                + tableName
+                                                                                                                + "<b>' has missing or extra data field "
+                                                                                                                + "input(s) in import file '</b>"
+                                                                                                                + importFile.getAbsolutePath()
+                                                                                                                + "<b>'; continue?",
                                                                                                         "Data Field Error",
                                                                                                         "Ignore this invalid data field",
                                                                                                         "Ignore this and any remaining invalid data fields",
@@ -1013,10 +1013,10 @@ public class CcddJSONHandler implements CcddImportExportInterface
             // Inform the user that the file cannot be closed
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Cannot parse import file<br>'</b>"
-                                                          + importFile.getAbsolutePath()
-                                                          + "<b>'; cause '"
-                                                          + pe.getMessage()
-                                                          + "'",
+                                                              + importFile.getAbsolutePath()
+                                                              + "<b>'; cause '"
+                                                              + pe.getMessage()
+                                                              + "'",
                                                       "File Warning",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -1037,8 +1037,8 @@ public class CcddJSONHandler implements CcddImportExportInterface
                 // Inform the user that the file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
                                                           "<html><b>Cannot close import file<br>'</b>"
-                                                              + importFile.getAbsolutePath()
-                                                              + "<b>'",
+                                                                  + importFile.getAbsolutePath()
+                                                                  + "<b>'",
                                                           "File Warning",
                                                           JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
@@ -1048,39 +1048,39 @@ public class CcddJSONHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Export the project in JSON format to the specified file
-     * 
+     *
      * @param exportFile
      *            reference to the user-specified output file
-     * 
+     *
      * @param tableNames
      *            array of table names to convert
-     * 
+     *
      * @param replaceMacros
      *            true to replace any embedded macros with their corresponding
      *            values
-     * 
+     *
      * @param includeReservedMsgIDs
      *            true to include the contents of the reserved message ID table
      *            in the export file
-     * 
+     *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a
      *            structure table, both in application format and using the
      *            user-defined separator characters
-     * 
+     *
      * @param variableHandler
      *            variable handler class reference; null if
      *            includeVariablePaths is false
-     * 
+     *
      * @param separators
      *            string array containing the variable path separator
      *            character(s), show/hide data types flag ('true' or 'false'),
      *            and data type/variable name separator character(s); null if
      *            includeVariablePaths is false
-     * 
+     *
      * @param extraInfo
      *            [0] name of the data field containing the system name
-     * 
+     *
      * @return true if an error occurred preventing exporting the project to
      *         the file
      *************************************************************************/
@@ -1119,13 +1119,13 @@ public class CcddJSONHandler implements CcddImportExportInterface
             JSONObject outputJO = new JSONObject();
             outputJO.put(JSONTags.FILE_DESCRIPTION.getTag(),
                          "Created "
-                             + new Date().toString()
-                             + " : project = "
-                             + dbControl.getDatabase()
-                             + " : host = "
-                             + dbControl.getServer()
-                             + " : user = "
-                             + dbControl.getUser());
+                                                             + new Date().toString()
+                                                             + " : project = "
+                                                             + dbControl.getDatabase()
+                                                             + " : host = "
+                                                             + dbControl.getServer()
+                                                             + " : user = "
+                                                             + dbControl.getUser());
 
             // Check if any tables are provided
             if (tableNames.length != 0)
@@ -1277,8 +1277,8 @@ public class CcddJSONHandler implements CcddImportExportInterface
             // Inform the user that the data file cannot be written to
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Cannot write to export file<br>'</b>"
-                                                          + exportFile.getAbsolutePath()
-                                                          + "<b>'",
+                                                              + exportFile.getAbsolutePath()
+                                                              + "<b>'",
                                                       "File Error",
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -1289,8 +1289,8 @@ public class CcddJSONHandler implements CcddImportExportInterface
             // Inform the user that formatting the JSON output failed
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Cannot format JSON output using JavaScript; cause '"
-                                                          + se.getMessage()
-                                                          + "'",
+                                                              + se.getMessage()
+                                                              + "'",
                                                       "JavaScript Error",
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -1332,8 +1332,8 @@ public class CcddJSONHandler implements CcddImportExportInterface
                 // Inform the user that the data file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
                                                           "<html><b>Cannot close export file<br>'</b>"
-                                                              + exportFile.getAbsolutePath()
-                                                              + "<b>'",
+                                                                  + exportFile.getAbsolutePath()
+                                                                  + "<b>'",
                                                           "File Warning",
                                                           JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
@@ -1345,37 +1345,37 @@ public class CcddJSONHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Get the data for the specified data table
-     * 
+     *
      * @param tableName
      *            table name and path in the format
      *            rootTable[,dataType1.variable1[,...]]. Blank to return the
      *            data for all tables
-     * 
+     *
      * @param getDescription
      *            true to get the table description when loading the table data
-     * 
+     *
      * @param replaceMacros
      *            true to display the macro values in place of the
      *            corresponding macro names; false to display the macro names
-     * 
+     *
      * @param includeVariablePaths
      *            true to include a column, 'Variable Path', showing the
      *            variable path for each variable in a structure table using
      *            the user-defined separator characters
-     * 
+     *
      * @param variableHandler
      *            variable handler class reference; null if isIncludePath is
      *            false
-     * 
+     *
      * @param separators
      *            string array containing the variable path separator
      *            character(s), show/hide data types flag ('true' or 'false'),
      *            and data type/variable name separator character(s); null if
      *            isIncludePath is false
-     * 
+     *
      * @param outputJO
      *            JSON object to which the data types are added
-     * 
+     *
      * @return The supplied JSON object, with the table data added (if any);
      *         null if the table doesn't exists or an error occurs when loading
      *         the data. Empty table cells are omitted
@@ -1495,17 +1495,17 @@ public class CcddJSONHandler implements CcddImportExportInterface
     /**************************************************************************
      * Get the data field information for the specified owner (table, table
      * type, or group)
-     * 
+     *
      * @param ownerName
      *            table name and path in the format
      *            rootTable[,dataType1.variable1[,...]] (if blank then every
      *            data table's data fields are returned), table type name in
      *            the format tableTypeTag:tableTypepName, or group owner in the
      *            format groupTag:groupName
-     * 
+     *
      * @param outputJO
      *            JSON object to which the data fields are added
-     * 
+     *
      * @return The supplied JSON object, with the data field(s) added (if any)
      *************************************************************************/
     @SuppressWarnings("unchecked")
@@ -1560,28 +1560,28 @@ public class CcddJSONHandler implements CcddImportExportInterface
     /**************************************************************************
      * Get the type, description, size, data, and data fields for the specified
      * data table
-     * 
+     *
      * @param tableName
      *            table name and path in the format
      *            rootTable[,dataType1.variable1[,...]]
-     * 
+     *
      * @param replaceMacros
      *            true to display the macro values in place of the
      *            corresponding macro names; false to display the macro names
-     * 
+     *
      * @param includeVariablePaths
      *            true to include a column, 'Variable Path', showing the
      *            variable path for each variable in a structure table using
      *            the user-defined separator characters
-     * 
+     *
      * @param variableHandler
      *            variable handler class reference
-     * 
+     *
      * @param separators
      *            string array containing the variable path separator
      *            character(s), show/hide data types flag ('true' or 'false'),
      *            and data type/variable name separator character(s)
-     * 
+     *
      * @return JSON encoded string containing the specified table information;
      *         null if the specified table doesn't exist or fails to load
      *************************************************************************/
@@ -1635,14 +1635,14 @@ public class CcddJSONHandler implements CcddImportExportInterface
      * Add the table type definition(s) corresponding to the supplied table
      * type name(s) to the specified JSON object. If no table type is provided,
      * or if none are recognized, then nothing is added to the JSON object
-     * 
+     *
      * @param tableTypeNames
      *            names of the table types to add; null to include all defined
      *            table types
-     * 
+     *
      * @param outputJO
      *            JSON object to which the data types are added
-     * 
+     *
      * @return The supplied JSON object, with the table type definitions added
      *         (if any)
      *************************************************************************/
@@ -1669,7 +1669,6 @@ public class CcddJSONHandler implements CcddImportExportInterface
         // Check if any table types are referenced
         if (!tableTypeNames.isEmpty())
         {
-            JSONArray typeDefnJA = new JSONArray();
             tableTypeJA = new JSONArray();
 
             // Step through each referenced table type
@@ -1681,6 +1680,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
                 // Check if the table type exists
                 if (tableTypeDefn != null)
                 {
+                    JSONArray typeDefnJA = new JSONArray();
                     JSONObject tableTypeJO;
 
                     // Step through each column definition in the table type,
@@ -1740,14 +1740,14 @@ public class CcddJSONHandler implements CcddImportExportInterface
      * Add the data type definition(s) corresponding to the supplied data type
      * name(s) to the specified JSON object. If no data type is provided, or if
      * none are recognized, then nothing is added to the JSON object
-     * 
+     *
      * @param dataTypeNames
      *            names of the data types to add; null to include all defined
      *            data types
-     * 
+     *
      * @param outputJO
      *            JSON object to which the data types are added
-     * 
+     *
      * @return The supplied JSON object, with the data type definitions added
      *         (if any)
      *************************************************************************/
@@ -1817,14 +1817,14 @@ public class CcddJSONHandler implements CcddImportExportInterface
      * Add the macro definition(s) corresponding to the supplied macro name(s)
      * to the specified JSON object. If no macro is provided, or if none are
      * recognized, then nothing is added to the JSON object
-     * 
+     *
      * @param macroNames
      *            names of the macros to add; null to include all defined
      *            macros
-     * 
+     *
      * @param outputJO
      *            JSON object to which the macros are added
-     * 
+     *
      * @return The supplied JSON object, with the macro definitions added (if
      *         any)
      *************************************************************************/
@@ -1887,10 +1887,10 @@ public class CcddJSONHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Add the reserved message ID definition(s)
-     * 
+     *
      * @param outputJO
      *            JSON object to which the reserved message IDs are added
-     * 
+     *
      * @return The supplied JSON object, with the reserved message ID
      *         definitions added (if any)
      *************************************************************************/
@@ -1931,14 +1931,14 @@ public class CcddJSONHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Add the variable paths
-     * 
+     *
      * @param variablePaths
      *            list containing arrays of the variable path in both
      *            application and user0defined formats
-     * 
+     *
      * @param outputJO
      *            JSON object to which the variable paths are added
-     * 
+     *
      * @return The supplied JSON object, with the variable paths added (if any)
      *************************************************************************/
     @SuppressWarnings("unchecked")

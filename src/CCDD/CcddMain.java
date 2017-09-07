@@ -72,6 +72,7 @@ import javax.swing.UIManager.LookAndFeelInfo;
 
 import CCDD.CcddConstants.DbManagerDialogType;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.GUIUpdateType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ManagerDialogType;
@@ -103,6 +104,8 @@ public class CcddMain
     private final CcddFileIOHandler fileIOHandler;
     private final CcddScriptHandler scriptHandler;
     private CcddFieldTableEditorDialog fieldTblEditorDialog;
+    private CcddScriptExecutiveDialog scriptExecutiveDialog;
+    private CcddScriptManagerDialog scriptManagerDialog;
     private CcddRateParameterHandler rateHandler;
     private CcddApplicationParameterHandler appHandler;
     private final CcddKeyboardHandler keyboardHandler;
@@ -244,6 +247,18 @@ public class CcddMain
         // Build the main window
         initialize();
 
+        // Log the CCDD and Java versions
+        getSessionEventLog().logEvent(EventLogMessageType.STATUS_MSG,
+                                      "CCDD: "
+                                                                      + ccddVersion
+                                                                      + " ("
+                                                                      + buildDate
+                                                                      + ")  ***  Java: "
+                                                                      + System.getProperty("java.version")
+                                                                      + " ("
+                                                                      + System.getProperty("sun.arch.data.model")
+                                                                      + "-bit)");
+
         // Create a keyboard handler to adjust the response to the Enter key to
         // act like the Space key to activate certain control types and to
         // adjust the response to the arrow keys based on the component with
@@ -281,7 +296,7 @@ public class CcddMain
 
     /**************************************************************************
      * Launch the application
-     * 
+     *
      * @param args
      *            array of command line arguments
      *************************************************************************/
@@ -309,7 +324,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the main application frame
-     * 
+     *
      * @return Main application frame; null if the flag is set to hide the GUI
      *************************************************************************/
     protected JFrame getMainFrame()
@@ -321,7 +336,7 @@ public class CcddMain
      * Set the flag that indicates if the GUI is hidden. If so, dialog messages
      * are sent to the command line or a dialog box. Any dialogs requiring user
      * input, including question message dialogs, are displayed in dialog boxes
-     * 
+     *
      * @param isHideGUI
      *            true if dialog messages should appear on the command line;
      *            false to display the message in a dialog box
@@ -333,7 +348,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the status of the flag that indicates if the GUI is hidden
-     * 
+     *
      * @return true if the GUI is not visible
      *************************************************************************/
     protected boolean isGUIHidden()
@@ -343,7 +358,7 @@ public class CcddMain
 
     /**************************************************************************
      * Start the web server
-     * 
+     *
      * @param gui
      *            'gui' if the graphical user interface should be displayed;
      *            any other text to not show the user interface and to direct
@@ -351,6 +366,10 @@ public class CcddMain
      *************************************************************************/
     protected void setWebServer(String gui)
     {
+        // Log the Jetty version
+        getSessionEventLog().logEvent(EventLogMessageType.STATUS_MSG,
+                                      "Jetty: "
+                                                                      + org.eclipse.jetty.util.Jetty.VERSION);
         // Create the web server
         webServer = new CcddWebServer(this);
 
@@ -371,7 +390,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the reference to the web server
-     * 
+     *
      * @return Reference to the web server
      *************************************************************************/
     protected CcddWebServer getWebServer()
@@ -381,7 +400,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the status of the flag that indicates if the web server is enabled
-     * 
+     *
      * @return true if the web server is enabled
      *************************************************************************/
     protected boolean isWebServer()
@@ -391,7 +410,7 @@ public class CcddMain
 
     /**************************************************************************
      * Set the web server port
-     * 
+     *
      * @param port
      *            web server port
      *************************************************************************/
@@ -402,7 +421,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the program preferences
-     * 
+     *
      * @return Program preferences
      *************************************************************************/
     protected Preferences getProgPrefs()
@@ -412,7 +431,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the session event log
-     * 
+     *
      * @return Session event log
      *************************************************************************/
     protected CcddEventLogDialog getSessionEventLog()
@@ -422,7 +441,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the database control handler
-     * 
+     *
      * @return Database control handler
      *************************************************************************/
     protected CcddDbControlHandler getDbControlHandler()
@@ -432,7 +451,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the database command handler
-     * 
+     *
      * @return Database command handler
      *************************************************************************/
     protected CcddDbCommandHandler getDbCommandHandler()
@@ -442,7 +461,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the table command handler
-     * 
+     *
      * @return Database table command handler
      *************************************************************************/
     protected CcddDbTableCommandHandler getDbTableCommandHandler()
@@ -493,7 +512,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the type handler
-     * 
+     *
      * @return Type handler
      *************************************************************************/
     protected CcddTableTypeHandler getTableTypeHandler()
@@ -503,7 +522,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the macro handler
-     * 
+     *
      * @return Macro handler
      *************************************************************************/
     protected CcddMacroHandler getMacroHandler()
@@ -513,7 +532,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the data type handler
-     * 
+     *
      * @return Data type handler
      *************************************************************************/
     protected CcddDataTypeHandler getDataTypeHandler()
@@ -523,7 +542,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the file handler
-     * 
+     *
      * @return File handler
      *************************************************************************/
     protected CcddFileIOHandler getFileIOHandler()
@@ -533,7 +552,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the reserved message ID handler
-     * 
+     *
      * @return Reserved message ID handler
      *************************************************************************/
     protected CcddReservedMsgIDHandler getReservedMsgIDHandler()
@@ -543,7 +562,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the script handler
-     * 
+     *
      * @return Script handler
      *************************************************************************/
     protected CcddScriptHandler getScriptHandler()
@@ -553,7 +572,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the rate parameter handler
-     * 
+     *
      * @return Rate parameter handler
      *************************************************************************/
     protected CcddRateParameterHandler getRateParameterHandler()
@@ -563,7 +582,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the application parameter handler
-     * 
+     *
      * @return Rate parameter handler
      *************************************************************************/
     protected CcddApplicationParameterHandler getApplicationParameterHandler()
@@ -573,7 +592,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the keyboard handler
-     * 
+     *
      * @return Keyboard handler reference
      *************************************************************************/
     protected CcddKeyboardHandler getKeyboardHandler()
@@ -583,7 +602,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the reference to the table type editor dialog
-     * 
+     *
      * @return Reference to the table type editor dialog
      *************************************************************************/
     protected CcddTableTypeEditorDialog getTableTypeEditor()
@@ -593,7 +612,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the reference to the data type editor dialog
-     * 
+     *
      * @return Reference to the data type editor dialog
      *************************************************************************/
     protected CcddDataTypeEditorDialog getDataTypeEditor()
@@ -603,7 +622,7 @@ public class CcddMain
 
     /**************************************************************************
      * Set the reference to the data type editor dialog
-     * 
+     *
      * @param dataTypeEditorDialog
      *            reference to the data type editor dialog
      *************************************************************************/
@@ -614,7 +633,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the reference to the macro editor dialog
-     * 
+     *
      * @return Reference to the macro editor dialog
      *************************************************************************/
     protected CcddMacroEditorDialog getMacroEditor()
@@ -624,7 +643,7 @@ public class CcddMain
 
     /**************************************************************************
      * Set the reference to the macro editor dialog
-     * 
+     *
      * @param macroEditorDialog
      *            reference to the macro editor dialog
      *************************************************************************/
@@ -635,7 +654,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the data field table editor
-     * 
+     *
      * @return Data field table editor
      *************************************************************************/
     protected CcddFieldTableEditorDialog getFieldTableEditor()
@@ -645,7 +664,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the reference to the reserved message ID editor dialog
-     * 
+     *
      * @return Reference to the reserved message ID editor dialog
      *************************************************************************/
     protected CcddReservedMsgIDEditorDialog getReservedMsgIDEditor()
@@ -655,7 +674,7 @@ public class CcddMain
 
     /**************************************************************************
      * Set the reference to the reserved message ID editor dialog
-     * 
+     *
      * @param msgIDEditorDialog
      *            reference to the reserved message ID editor dialog
      *************************************************************************/
@@ -666,7 +685,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the reference to the group manager dialog
-     * 
+     *
      * @return Reference to the group manager dialog
      *************************************************************************/
     protected CcddGroupManagerDialog getGroupManager()
@@ -676,7 +695,7 @@ public class CcddMain
 
     /**************************************************************************
      * Set the reference to the group manager dialog
-     * 
+     *
      * @param groupManagerDialog
      *            reference to the group manager dialog
      *************************************************************************/
@@ -687,7 +706,7 @@ public class CcddMain
 
     /**************************************************************************
      * Display the search dialog for searching database tables or scripts
-     * 
+     *
      * @param searchType
      *            search dialog type: TABLES or SCRIPTS
      *************************************************************************/
@@ -699,14 +718,14 @@ public class CcddMain
     /**************************************************************************
      * Display the search dialog for searching database tables, scripts, and
      * event logs
-     * 
+     *
      * @param searchType
      *            search dialog type: TABLES, SCRIPTS, or LOG
-     * 
+     *
      * @param targetRow
      *            row index to match if this is an event log entry search on a
      *            table that displays only a single log entry; null otherwise
-     * 
+     *
      * @param eventLog
      *            event log to search; null if not searching a log
      *************************************************************************/
@@ -767,6 +786,38 @@ public class CcddMain
             // Bring the search dialog to the front
             searchDialog.toFront();
             searchDialog.repaint();
+        }
+    }
+
+    /**************************************************************************
+     * Get the reference to the script manager dialog
+     *
+     * @return Reference to the script manager dialog
+     *************************************************************************/
+    protected CcddScriptManagerDialog getScriptManager()
+    {
+        return scriptManagerDialog;
+    }
+
+    /**************************************************************************
+     * Update the script manager and executive dialogs' associations tables
+     * following a data table addition, deletion, or name change, and for a
+     * group deletion or name change
+     *************************************************************************/
+    protected void updateScriptAsscociationsDialogs()
+    {
+        // Check if the script association manager dialog is open
+        if (scriptManagerDialog != null && scriptManagerDialog.isShowing())
+        {
+            // Update the script association manager dialog table
+            scriptManagerDialog.reloadAssociationsTable();
+        }
+
+        // Check if the script association executive dialog is open
+        if (scriptExecutiveDialog != null && scriptExecutiveDialog.isShowing())
+        {
+            // Update the script association executive dialog table
+            scriptExecutiveDialog.reloadAssociationsTable();
         }
     }
 
@@ -855,13 +906,13 @@ public class CcddMain
     {
         currentDatabase.setText("<html>Project:<b> "
                                 + (dbControl.isDatabaseConnected()
-                                                                  ? dbControl.getDatabase()
-                                                                  : "<i>not connected"));
+                                                                   ? dbControl.getDatabase()
+                                                                   : "<i>not connected"));
     }
 
     /**************************************************************************
      * Get the list of currently open event logs
-     * 
+     *
      * @return List of open event logs
      *************************************************************************/
     protected List<CcddEventLogDialog> getEventLogs()
@@ -871,7 +922,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the list of currently open table editor dialogs
-     * 
+     *
      * @return List of open table editor dialogs
      *************************************************************************/
     protected List<CcddTableEditorDialog> getTableEditorDialogs()
@@ -881,23 +932,23 @@ public class CcddMain
 
     /**************************************************************************
      * Create a menu and add it to a menu bar
-     * 
+     *
      * @param menuBar
      *            menu bar to add the menu to
-     * 
+     *
      * @param name
      *            menu name
-     * 
+     *
      * @param key
      *            key mnemonic for the menu
-     * 
+     *
      * @param occurrence
      *            specifies which occurrence of the character in the item name
      *            to highlight; set to < 2 to use the first occurrence
-     * 
+     *
      * @param toolTip
      *            tool tip text
-     * 
+     *
      * @return Menu created
      *************************************************************************/
     protected JMenu createMenu(JMenuBar menuBar,
@@ -917,23 +968,23 @@ public class CcddMain
 
     /**************************************************************************
      * Create a sub-menu and add it to another menu
-     * 
+     *
      * @param menu
      *            menu to add the sub-menu to
-     * 
+     *
      * @param name
      *            sub-menu name
-     * 
+     *
      * @param key
      *            key mnemonic for the sub-menu
-     * 
+     *
      * @param occurrence
      *            specifies which occurrence of the character in the item name
      *            to highlight; set to < 2 to use the first occurrence
-     * 
+     *
      * @param toolTip
      *            tool tip text
-     * 
+     *
      * @return Sub-menu created
      *************************************************************************/
     protected JMenu createSubMenu(JMenu menu,
@@ -954,23 +1005,23 @@ public class CcddMain
     /**************************************************************************
      * Create a menu item and add it to a menu. Specify the occurrence of the
      * key character in the menu item name to highlight
-     * 
+     *
      * @param menu
      *            menu to add the item to
-     * 
+     *
      * @param name
      *            menu item name
-     * 
+     *
      * @param key
      *            key mnemonic for the menu item
-     * 
+     *
      * @param occurrence
      *            specifies which occurrence of the character in the item name
      *            to highlight; set to < 2 to use the first occurrence
-     * 
+     *
      * @param toolTip
      *            tool tip text
-     * 
+     *
      * @return Menu item created
      *************************************************************************/
     protected JMenuItem createMenuItem(JMenu menu,
@@ -991,26 +1042,26 @@ public class CcddMain
     /**************************************************************************
      * Create a check box menu item and add it to a menu. Specify the
      * occurrence of the key character in the menu item name to highlight
-     * 
+     *
      * @param menu
      *            menu to add the item to
-     * 
+     *
      * @param name
      *            menu item name
-     * 
+     *
      * @param key
      *            key mnemonic for the menu item
-     * 
+     *
      * @param occurrence
      *            specifies which occurrence of the character in the item name
      *            to highlight; set to < 2 to use the first occurrence
-     * 
+     *
      * @param toolTip
      *            tool tip text
-     * 
+     *
      * @param isChecked
      *            true to have the check box selected initially
-     * 
+     *
      * @return Check box menu item created
      *************************************************************************/
     protected JCheckBoxMenuItem createCheckBoxMenuItem(JMenu menu,
@@ -1033,26 +1084,26 @@ public class CcddMain
     /**************************************************************************
      * Create a radio button menu item and add it to a menu. Specify the
      * occurrence of the key character in the menu item name to highlight
-     * 
+     *
      * @param menu
      *            menu to add the item to
-     * 
+     *
      * @param name
      *            menu item name
-     * 
+     *
      * @param key
      *            key mnemonic for the menu item
-     * 
+     *
      * @param occurrence
      *            specifies which occurrence of the character in the item name
      *            to highlight; set to < 2 to use the first occurrence
-     * 
+     *
      * @param toolTip
      *            tool tip text
-     * 
+     *
      * @param isSelected
      *            true to have the radio button selected initially
-     * 
+     *
      * @return Radio button menu item created
      *************************************************************************/
     protected JRadioButtonMenuItem createRadioButtonMenuItem(JMenu menu,
@@ -1075,16 +1126,16 @@ public class CcddMain
     /**************************************************************************
      * Set the key mnemonic for the supplied menu item. Specify the occurrence
      * of the key character in the menu item name to highlight
-     * 
+     *
      * @param menuItem
      *            menu item for which to set the mnemonic
-     * 
+     *
      * @param name
      *            menu item name
-     * 
+     *
      * @param key
      *            key mnemonic for the menu item
-     * 
+     *
      * @param occurrence
      *            specifies which occurrence of the character in the item name
      *            to highlight; set to < 2 to use the first occurrence
@@ -2024,7 +2075,29 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddScriptManagerDialog(CcddMain.this);
+                // Check if the script association executive is already open
+                if (scriptExecutiveDialog != null && scriptExecutiveDialog.isShowing())
+                {
+                    // Close the script executive
+                    scriptExecutiveDialog.closeFrame();
+                }
+
+                // Check if the script association manager dialog isn't already
+                // open
+                if (scriptManagerDialog == null || !scriptManagerDialog.isShowing())
+                {
+                    // Open the script association manager dialog
+                    scriptManagerDialog = new CcddScriptManagerDialog(CcddMain.this);
+                }
+                // The script association manager dialog is already open
+                else
+                {
+                    // Deiconify the dialog (if iconfied) and bring it to the
+                    // front
+                    scriptManagerDialog.setExtendedState(Frame.NORMAL);
+                    scriptManagerDialog.toFront();
+                    scriptManagerDialog.repaint();
+                }
             }
         });
 
@@ -2037,26 +2110,75 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                // Get the list of script association definitions stored in the
-                // database
-                String[][] associations = dbTable.retrieveInformationTable(InternalTable.ASSOCIATIONS,
-                                                                           frameCCDD).toArray(new String[0][0]);
+                boolean isOkayToOpen = true;
 
-                // Check that at least one script association definition exists
-                if (associations.length != 0)
+                // Check if the script association manager is already open
+                if (scriptManagerDialog != null && scriptManagerDialog.isShowing())
                 {
-                    // Open the script association executive dialog
-                    new CcddScriptExecutiveDialog(CcddMain.this);
+                    // Check if there are no changes to the script associations
+                    // or if the user elects to discard the changes
+                    if (!scriptManagerDialog.isAssociationsChanged()
+                        || new CcddDialogHandler().showMessageDialog(frameCCDD,
+                                                                     "<html><b>Discard script association changes?",
+                                                                     "Discard Changes",
+                                                                     JOptionPane.QUESTION_MESSAGE,
+                                                                     DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                    {
+                        // Close the script manager
+                        scriptManagerDialog.closeFrame();
+                    }
+                    // There are changes in the script manager that the user
+                    // doesn't want to discard
+                    else
+                    {
+                        // Set the flag to prevent opening the script executive
+                        isOkayToOpen = false;
+                    }
                 }
-                // No script association definitions are stored in the database
-                else
+
+                // Check if the script manager isn't preventing opening the
+                // script executive
+                if (isOkayToOpen)
                 {
-                    // Inform the user that no scripts exist
-                    new CcddDialogHandler().showMessageDialog(frameCCDD,
-                                                              "<html><b>No script association exists in the database",
-                                                              "File Generation",
-                                                              JOptionPane.INFORMATION_MESSAGE,
-                                                              DialogOption.OK_OPTION);
+                    // Get the list of script association definitions stored in
+                    // the database
+                    String[][] associations = dbTable.retrieveInformationTable(InternalTable.ASSOCIATIONS,
+                                                                               frameCCDD)
+                                                     .toArray(new String[0][0]);
+
+                    // Check that at least one script association definition
+                    // exists
+                    if (associations.length != 0)
+                    {
+                        // Check if the script association executive dialog
+                        // isn't already open
+                        if (scriptExecutiveDialog == null || !scriptExecutiveDialog.isShowing())
+                        {
+                            // Open the script association executive dialog
+                            scriptExecutiveDialog = new CcddScriptExecutiveDialog(CcddMain.this);
+                        }
+                        // The script association executive dialog is already
+                        // open
+                        else
+                        {
+                            // Deiconify the dialog (if iconfied) and bring it
+                            // to the front
+                            scriptExecutiveDialog.setExtendedState(Frame.NORMAL);
+                            scriptExecutiveDialog.toFront();
+                            scriptExecutiveDialog.repaint();
+                        }
+                    }
+                    // No script association definitions are stored in the
+                    // database
+                    else
+                    {
+                        // Inform the user that no scripts exist
+                        new CcddDialogHandler().showMessageDialog(frameCCDD,
+                                                                  "<html><b>No script association exists in the database",
+                                                                  "File Generation",
+                                                                  JOptionPane.INFORMATION_MESSAGE,
+                                                                  DialogOption.OK_OPTION);
+                    }
                 }
             }
         });
@@ -2166,50 +2288,49 @@ public class CcddMain
                 // Create the icon to display in the dialog by scaling the CCDD
                 // logo
                 int iconWidth = 250;
-                ImageIcon icon = new
-                    ImageIcon(getClass().getResource(CCDD_ICON));
+                ImageIcon icon = new ImageIcon(getClass().getResource(CCDD_ICON));
                 Image image = icon.getImage().getScaledInstance(iconWidth,
                                                                 icon.getIconHeight()
-                                                                    * iconWidth
-                                                                    / icon.getIconWidth(),
+                                                                           * iconWidth
+                                                                           / icon.getIconWidth(),
                                                                 Image.SCALE_SMOOTH);
                 icon = new ImageIcon(image);
 
                 // Display the application name, author, and version
                 new CcddDialogHandler().showMessageDialog(frameCCDD,
                                                           "<html><b>Core Flight System<br>Command & Data Dictionary</b><br>"
-                                                              + CCDD_AUTHOR
-                                                              + "<br>"
-                                                              + CcddUtilities.colorHTMLText("Version: ",
-                                                                                            ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
-                                                              + ccddVersion
-                                                              + "&#160;&#160;&#160;"
-                                                              + buildDate
-                                                              + "<br><br><b>Supporting software versions:</b><br>&#160;&#160;&#160;"
-                                                              + CcddUtilities.colorHTMLText("Java: ",
-                                                                                            ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
-                                                              + System.getProperty("java.version")
-                                                              + " ("
-                                                              + System.getProperty("sun.arch.data.model")
-                                                              + "-bit)<br>&#160;&#160;&#160;"
-                                                              + CcddUtilities.colorHTMLText(DEFAULT_SERVER + ": ",
-                                                                                            ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
-                                                              + dbControl.getDatabaseVersion()
-                                                              + "<br>&#160;&#160;&#160;"
-                                                              + CcddUtilities.colorHTMLText("JDBC: ",
-                                                                                            ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
-                                                              + dbControl.getJDBCVersion()
-                                                              + "<br>&#160;&#160;&#160;"
-                                                              + CcddUtilities.colorHTMLText("Jetty: ",
-                                                                                            ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
-                                                              + org.eclipse.jetty.util.Jetty.VERSION
-                                                              + "<br><br><b>Scripting language versions:</b>"
-                                                              + scriptHandler.getEngineInformation()
-                                                              + "<br><br>Copyright 2017 United States Government "
-                                                              + "as represented by the<br>Administrator of the "
-                                                              + "National Aeronautics and Space Administration.<br>"
-                                                              + "No copyright is claimed in the United States "
-                                                              + "under Title 17, U.S. Code.<br>All Other Rights Reserved.",
+                                                                     + CCDD_AUTHOR
+                                                                     + "<br>"
+                                                                     + CcddUtilities.colorHTMLText("Version: ",
+                                                                                                   ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
+                                                                     + ccddVersion
+                                                                     + "&#160;&#160;&#160;"
+                                                                     + buildDate
+                                                                     + "<br><br><b>Supporting software versions:</b><br>&#160;&#160;&#160;"
+                                                                     + CcddUtilities.colorHTMLText("Java: ",
+                                                                                                   ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
+                                                                     + System.getProperty("java.version")
+                                                                     + " ("
+                                                                     + System.getProperty("sun.arch.data.model")
+                                                                     + "-bit)<br>&#160;&#160;&#160;"
+                                                                     + CcddUtilities.colorHTMLText(DEFAULT_SERVER + ": ",
+                                                                                                   ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
+                                                                     + dbControl.getDatabaseVersion()
+                                                                     + "<br>&#160;&#160;&#160;"
+                                                                     + CcddUtilities.colorHTMLText("JDBC: ",
+                                                                                                   ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
+                                                                     + dbControl.getJDBCVersion()
+                                                                     + "<br>&#160;&#160;&#160;"
+                                                                     + CcddUtilities.colorHTMLText("Jetty: ",
+                                                                                                   ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
+                                                                     + org.eclipse.jetty.util.Jetty.VERSION
+                                                                     + "<br><br><b>Scripting language versions:</b>"
+                                                                     + scriptHandler.getEngineInformation()
+                                                                     + "<br><br>Copyright 2017 United States Government "
+                                                                     + "as represented by the<br>Administrator of the "
+                                                                     + "National Aeronautics and Space Administration.<br>"
+                                                                     + "No copyright is claimed in the United States "
+                                                                     + "under Title 17, U.S. Code.<br>All Other Rights Reserved.",
                                                           "About CCDD",
                                                           DialogOption.OK_OPTION,
                                                           icon);
@@ -2258,11 +2379,11 @@ public class CcddMain
 
     /**************************************************************************
      * Exit the CCDD application
-     * 
+     *
      * @param withConfirm
      *            true to ask for confirmation to exit; false to exit without
      *            confirmation
-     * 
+     *
      * @param status
      *            exit status value: 0 for normal exit, non-zero for abnormal
      *************************************************************************/
@@ -2277,11 +2398,11 @@ public class CcddMain
                                                           "Exit CCDD",
                                                           JOptionPane.QUESTION_MESSAGE,
                                                           DialogOption.OK_CANCEL_OPTION) == OK_BUTTON
-            && ignoreUncommittedChanges("Exit application",
-                                        "Discard changes?",
-                                        true,
-                                        null,
-                                        frameCCDD)))
+                && ignoreUncommittedChanges("Exit application",
+                                            "Discard changes?",
+                                            true,
+                                            null,
+                                            frameCCDD)))
         {
             // Exit the program
             System.exit(status);
@@ -2290,7 +2411,7 @@ public class CcddMain
 
     /**************************************************************************
      * Get the application look & feel
-     * 
+     *
      * @return name of the selected look & feel
      *************************************************************************/
     protected String getLookAndFeel()
@@ -2300,7 +2421,7 @@ public class CcddMain
 
     /**************************************************************************
      * Set the application's look & feel
-     * 
+     *
      * @param laf
      *            name of the selected look & feel; null to use the look & feel
      *            stored in the program preferences
@@ -2350,7 +2471,7 @@ public class CcddMain
             // Inform the user that there was an error setting the look & feel
             new CcddDialogHandler().showMessageDialog(frameCCDD,
                                                       "<html><b>Problem occurred when setting the look & feel to </b>"
-                                                          + selectedLaF,
+                                                                 + selectedLaF,
                                                       "L&F Warning",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -2360,11 +2481,11 @@ public class CcddMain
     /**************************************************************************
      * Update the visible graphical user interface (GUI) components for a
      * change in the specified GUI update type
-     * 
+     *
      * @param updateType
      *            type of GUI update - LAF for look & feel; FONT for font;
      *            COLOR for color
-     * 
+     *
      * @param dialogs
      *            array of other dialogs to update. This is used to update the
      *            Preferences dialog and its associated selection dialog (if
@@ -2466,14 +2587,14 @@ public class CcddMain
     /**************************************************************************
      * Update the visible graphical user interface (GUI) components of the
      * specified container for a change in the specified GUI update type
-     * 
+     *
      * @param updateType
      *            type of GUI update - LAF for look & feel; FONT for font;
      *            COLOR for color
-     * 
+     *
      * @param container
      *            reference to the Container object to update
-     * 
+     *
      * @param table
      *            reference to the container's table; null if the container has
      *            no table
@@ -2571,23 +2692,23 @@ public class CcddMain
     /**************************************************************************
      * Check if any of the open editors has uncommitted changes, and if so, ask
      * the user if the operation should continue
-     * 
+     *
      * @param dialogType
      *            text to display in the dialog's header
-     * 
+     *
      * @param dialogMessage
      *            message to display in the dialog box
-     * 
+     *
      * @param closeEditors
      *            true to close any open table editors
-     * 
+     *
      * @param tableTypes
      *            list of tables types that are being changed; null or an empty
      *            list if the caller is not the table type editor
-     * 
+     *
      * @param parent
      *            GUI component over which to center the confirmation dialog
-     * 
+     *
      * @return true if there are no uncommitted changes or if the user elects
      *         to ignore the changes and continue with the operation; false if
      *         changes exist and the user cancels the operation
@@ -2611,7 +2732,7 @@ public class CcddMain
             // changes
             if (editorDialog.isTablesChanged()
                 && (tableTypes == null
-                || tableTypes.contains(editorDialog.getTableEditor().getTableInformation().getType())))
+                    || tableTypes.contains(editorDialog.getTableEditor().getTableInformation().getType())))
             {
                 // Set the flag to indicate that there are uncommitted changes
                 // and stop searching
@@ -2629,9 +2750,12 @@ public class CcddMain
                  && tableTypeEditorDialog != null
                  && tableTypeEditorDialog.isShowing()
                  && tableTypeEditorDialog.isTypesChanged())
-                 || (fieldTblEditorDialog != null
-                     && fieldTblEditorDialog.isShowing()
-                     && fieldTblEditorDialog.isFieldTableChanged())))
+                || (fieldTblEditorDialog != null
+                    && fieldTblEditorDialog.isShowing()
+                    && fieldTblEditorDialog.isFieldTableChanged())
+                || (scriptManagerDialog != null
+                    && scriptManagerDialog.isShowing()
+                    && scriptManagerDialog.isAssociationsChanged())))
         {
             // Set the flag to indicate that there are uncommitted changes
             isChanged = true;
@@ -2641,7 +2765,7 @@ public class CcddMain
         // the changes should be ignored
         if (isChanged && new CcddDialogHandler().showMessageDialog(parent,
                                                                    "<html><b>"
-                                                                       + dialogMessage,
+                                                                           + dialogMessage,
                                                                    dialogType,
                                                                    JOptionPane.QUESTION_MESSAGE,
                                                                    DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
@@ -2674,6 +2798,20 @@ public class CcddMain
             {
                 // Close the editor dialog
                 fieldTblEditorDialog.closeFrame();
+            }
+
+            // Check if the script association manager is already open
+            if (scriptManagerDialog != null && scriptManagerDialog.isShowing())
+            {
+                // Close the manager dialog
+                scriptManagerDialog.closeFrame();
+            }
+
+            // Check if the script association executive is already open
+            if (scriptExecutiveDialog != null && scriptExecutiveDialog.isShowing())
+            {
+                // Close the executive dialog
+                scriptExecutiveDialog.closeFrame();
             }
         }
 

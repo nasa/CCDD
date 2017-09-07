@@ -1,0 +1,24 @@
+# cFE ES start-up script table type definition and sample table. The sample
+# script cFEESStartup.js (.groovy, .py, .rb) uses this table to create the
+# executive services start-up script
+
+_name_type_
+"cfe_es_startup","ES Start-up Script",""
+_description_
+"cFE ES start-up script"
+_column_data_
+"Module Type","Path & File","Entry Point","cFE Name","Priority","Stack Size","Exception Action"
+"CFE_LIB","/cf/apps/cfs_lib.so","CFS_LibInit","CFS_LIB","0","0","0"
+"CFE_APP","/cf/apps/sch.so","SCH_AppMain","SCH_APP","10","32768","0"
+"CFE_APP","/cf/apps/ci.so","CI_AppMain","CI_APP","11","4096","0"
+"CFE_APP","/cf/apps/to.so","TO_AppMain","TO_APP","12","4096","0"
+
+_table_type_
+"ES Start-up Script",""
+"Module Type","CFE_APP, CFE_LIB, CFE_DRV. CFE_APP is the standard cFE application. CFE_LIB is for a cFE shared library. CFE_DRV is for a cFE device driver (not currently implemented)","Text","false","true","false","false"
+"Path & File","Path to the loadable module on the system (ex: /cf/apps/abc.so)","Text","true","true","false","false"
+"Entry Point","Entry point to the start of the code of the module (such as its initialization function or main function)","Alphanumeric","false","true","false","false"
+"cFE Name","cFE name for the application or library","Text","true","true","false","false"
+"Priority","Application's starting priority. Priorities can range from 0 to 255 (0 being highest)","Non-negative integer","true","true","false","false"
+"Stack Size","Application's stack size","Non-negative integer","false","true","false","false"
+"Exception Action","Action taken by the application if the cFE application causes an exception. '1' means that the cFE performs processor reset. '0' means that the cFE resets the application  without stopping the rest of the cFE applications","Non-negative integer","false","true","false","false"

@@ -1,23 +1,21 @@
 /*******************************************************************************
  * Description: Output a structure types header file
- *
+ * 
  * This JavaScript script generates a structure types header file from the
  * supplied structure table(s). A companion source code file is also generated
  * that provides byte- and bit-swapping functions for the structures
- *
- * Assumptions: The structure tables use "Variable Name" for the variable name
- * column, "Data Type" for the data type column, "Array Size" for the array size
- * column, "Bit Length" for the bit length column, and "Description" for the
- * description column (case insensitive). If the structure has a non-empty data
- * field named "Message ID" then it is assumed to require a CCSDS header which
- * is automatically added. If a table containing extra text to include is
- * provided then its table type is "Includes" and has the column "Includes". The
- * output file names are prepended with a name taken from a data field,
- * "System", found either in the first group associated with the script, or, if
- * not found there then in the first structure table associated with the script;
- * if no "System" data field exists or is empty the name is blank. The project's
- * data type definitions are output to the types header file
- *
+ * 
+ * Assumptions: The structure tables use "Description" for the description
+ * column (case insensitive). If the structure has a non-empty data field named
+ * "Message ID" then it is assumed to require a CCSDS header which is
+ * automatically added. If a table containing extra text to include is provided
+ * then its table type is "Includes" and has the column "Includes". The output
+ * file names are prepended with a name taken from a data field, "System", found
+ * either in the first group associated with the script, or, if not found there
+ * then in the first structure table associated with the script; if no "System"
+ * data field exists or is empty the name is blank. The project's data type
+ * definitions are output to the types header file
+ * 
  * Copyright 2017 United States Government as represented by the Administrator
  * of the National Aeronautics and Space Administration. No copyright is claimed
  * in the United States under Title 17, U.S. Code. All Other Rights Reserved.
@@ -45,7 +43,7 @@ var dataStreams = ccdd.getDataStreamNames();
 
 /*******************************************************************************
  * Output the script association details to the specified file
- *
+ * 
  * @param file
  *            reference to the output file
  ******************************************************************************/
@@ -53,28 +51,28 @@ function outputAssociationInfo(file)
 {
     // Add the build information and header to the output file
     ccdd.writeToFileLn(file, "/* Created : " + ccdd.getDateAndTime() + "\n   User    : " + ccdd.getUser() + "\n   Project : " + ccdd.getProject() + "\n   Script  : " + ccdd.getScriptName());
-    
+
     // Check if any table is associated with the script
     if (ccdd.getTableNumRows() != 0)
     {
         ccdd.writeToFileLn(file, "   Table(s): " + ccdd.getTableNames().sort().join(",\n             "));
     }
-    
+
     // Check if any groups is associated with the script
     if (ccdd.getAssociatedGroupNames().length != 0)
     {
         ccdd.writeToFileLn(file, "   Group(s): " + ccdd.getAssociatedGroupNames().sort().join(",\n             "));
     }
-    
+
     ccdd.writeToFileLn(file, "*/\n");
 }
 
 /*******************************************************************************
  * Output a structure's type definition to the specified file
- *
+ * 
  * @param file
  *            reference to the types header output file
- *
+ * 
  * @param structIndex
  *            index of the structure in the structure name array
  ******************************************************************************/
@@ -123,14 +121,14 @@ function outputStructure(file, structIndex)
             }
 
             // Get the variable name for this row
-            var variableName = ccdd.getStructureTableData("variable name", row);
+            var variableName = ccdd.getStructureVariableName(row);
 
             // Check that this isn't an array member; only array definitions
             // appear in the type definition
             if (!variableName.endsWith("]"))
             {
                 // Get the variable's array size
-                var arraySize = ccdd.getStructureTableData("array size", row);
+                var arraySize = ccdd.getStructureArraySize(row);
 
                 // Check if the variable is an array
                 if (!arraySize.isEmpty())
@@ -145,7 +143,7 @@ function outputStructure(file, structIndex)
                 }
 
                 // Get the variable's bit length
-                var bitLength = ccdd.getStructureTableData("bit length", row);
+                var bitLength = ccdd.getStructureBitLength(row);
 
                 // Check if the variable has a bit length
                 if (!bitLength.isEmpty())
@@ -156,7 +154,7 @@ function outputStructure(file, structIndex)
 
                 // Determine the length of the variable definition by adding up
                 // the individual parts
-                var defnLength = ("   " + ccdd.getStructureTableData("data type", row) + " " + variableName + arraySize + bitLength + "; ").length;
+                var defnLength = ("   " + ccdd.getStructureDataType(row) + " " + variableName + arraySize + bitLength + "; ").length;
 
                 // Check if the length exceeds the minimum length found thus far
                 if (defnLength > minimumLength)
@@ -179,7 +177,7 @@ function outputStructure(file, structIndex)
         if (structureNames[structIndex].equals(ccdd.getStructureTableNameByRow(row)))
         {
             // Get the variable name for this row in the structure
-            var variableName = ccdd.getStructureTableData("variable name", row);
+            var variableName = ccdd.getStructureVariableName(row);
 
             // Check if this is the first pass through the structure data
             if (firstPass)
@@ -235,7 +233,7 @@ function outputStructure(file, structIndex)
                     var comment = "#CCSDS_PriHdr_t";
                     var sizeString = "(6 bytes)";
                     ccdd.writeToFileFormat(file, "%-" + minimumLength + "s /* [%5s] " + sizeString + "  " + comment + " */\n", ccsdsVar, offsetStr);
-                
+
                     // Output the variable array that contains the secondary
                     // header values
                     offsetStr = "6";
@@ -263,9 +261,9 @@ function outputStructure(file, structIndex)
                 usedVariableNames.push(String(variableName))
 
                 // Get the variable's data type, array size, and description
-                var dataType = ccdd.getStructureTableData("data type", row);
-                var arraySize = ccdd.getStructureTableData("array size", row);
-                var description = ccdd.getStructureTableData("description", row);
+                var dataType = ccdd.getStructureDataType(row);
+                var arraySize = ccdd.getStructureArraySize(row);
+                var description = ccdd.getStructureDescription(row);
 
                 // Determine the size of the variable, in bytes
                 var byteSize = ccdd.getDataTypeSizeInBytes(dataType);
@@ -339,7 +337,7 @@ function outputStructure(file, structIndex)
                     varOffset = ccdd.getVariableOffset(variablePath);
 
                     // Get the variable's bit length
-                    bitLength = ccdd.getStructureTableData("bit length", row);
+                    bitLength = ccdd.getStructureBitLength(row);
 
                     // Check if the bit length is provided
                     if (!bitLength.isEmpty())
@@ -407,12 +405,12 @@ function outputStructure(file, structIndex)
 
     // Conclude the structure's type definition, pad it for length and add the
     // structure's total size, then output this to the types header file
-    ccdd.writeToFileFormat(file, "%-" + minimumLength +"s /* Total size of " + structSize + " bytes */\n", "} " + structureNames[structIndex] + ";");
+    ccdd.writeToFileFormat(file, "%-" + minimumLength + "s /* Total size of " + structSize + " bytes */\n", "} " + structureNames[structIndex] + ";");
 }
 
 /*******************************************************************************
  * Create the types header file
- *
+ * 
  * @param baseFileName
  *            base for the types header output file name
  ******************************************************************************/
@@ -430,7 +428,7 @@ function makeHeaders(baseFileName)
     {
         // Add the build information to the output file
         outputAssociationInfo(typesFile);
-        
+
         // Add the header include to prevent loading the file more than once
         ccdd.writeToFileLn(typesFile, "#ifndef " + headerIncludeFlag);
         ccdd.writeToFileLn(typesFile, "#define " + headerIncludeFlag);
@@ -507,7 +505,7 @@ function makeHeaders(baseFileName)
 
 /*******************************************************************************
  * Create the byte and bit swapping function source code file
- *
+ * 
  * @param baseFileName
  *            base for the swap output file name
  ******************************************************************************/
@@ -525,7 +523,7 @@ function makeSwapFile(baseFileName)
 
         // Add the build information to the output file
         outputAssociationInfo(swapFile);
-        
+
         // Output the source for the bit field swap and bit reversal functions
         ccdd.writeToFileLn(swapFile, "#include <byteswap.h>");
         ccdd.writeToFileLn(swapFile, "#include <string.h>");
@@ -590,7 +588,7 @@ function makeSwapFile(baseFileName)
                 if (structureNames[structIndex].equals(ccdd.getStructureTableNameByRow(row)))
                 {
                     // Get the variable name for this row in the structure
-                    var variableName = ccdd.getStructureTableData("variable name", row);
+                    var variableName = ccdd.getStructureVariableName(row);
 
                     // Check if this is not an array member; array definitions
                     // are output, but not members
@@ -615,9 +613,9 @@ function makeSwapFile(baseFileName)
 
                         // Get the variable's data type, bit length, and array
                         // size
-                        var dataType = ccdd.getStructureTableData("data type", row);
-                        var bitLength = ccdd.getStructureTableData("bit length", row);
-                        var arraySize = ccdd.getStructureTableData("array size", row);
+                        var dataType = ccdd.getStructureDataType(row);
+                        var bitLength = ccdd.getStructureBitLength(row);
+                        var arraySize = ccdd.getStructureArraySize(row);
 
                         // Flag that's 'true' if the variable is an array
                         var isArray = !arraySize.isEmpty();
@@ -857,11 +855,11 @@ function makeSwapFile(baseFileName)
                     if (structureNames[structIndex].equals(ccdd.getStructureTableNameByRow(row)))
                     {
                         // Get the variable name for this row in the structure
-                        var variableName = ccdd.getStructureTableData("variable name", row);
+                        var variableName = ccdd.getStructureVariableName(row);
 
                         // Get the variable's path and use it to get the byte
                         // offset
-                        var variablePath = structureNames[structIndex] + "," + ccdd.getStructureTableData("data type", row) + "." + ccdd.getStructureTableData("variable name", row);
+                        var variablePath = structureNames[structIndex] + "," + ccdd.getStructureDataType(row) + "." + ccdd.getStructureVariableName(row);
                         var varOffset = ccdd.getVariableOffset(variablePath);
 
                         // Check if this is not an array member; array
@@ -887,9 +885,9 @@ function makeSwapFile(baseFileName)
 
                             // Get the variable's data type, bit length, and
                             // array size
-                            var dataType = ccdd.getStructureTableData("data type", row);
-                            var bitLength = ccdd.getStructureTableData("bit length", row);
-                            var arraySize = ccdd.getStructureTableData("array size", row);
+                            var dataType = ccdd.getStructureDataType(row);
+                            var bitLength = ccdd.getStructureBitLength(row);
+                            var arraySize = ccdd.getStructureArraySize(row);
 
                             // Flag that's 'true' if it's an array
                             var isArray = !arraySize.isEmpty();

@@ -52,6 +52,7 @@ import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.DatabaseObject;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.FileExtension;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
@@ -112,7 +113,7 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Database control handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
@@ -140,8 +141,8 @@ public class CcddDbControlHandler
 
         // Create the parameters for the the 'by name' and 'by index'
         // postgreSQL functions
-        functionParameters = new String[][] { {"name",
-                                               DefaultColumn.VARIABLE_NAME.getDbName()},
+        functionParameters = new String[][] {{"name",
+                                              DefaultColumn.VARIABLE_NAME.getDbName()},
                                              {"index",
                                               DefaultColumn.ROW_INDEX.getDbName()}};
     }
@@ -158,7 +159,7 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Get the server connection status
-     * 
+     *
      * @return true if a connection to a database exists
      *************************************************************************/
     protected boolean isServerConnected()
@@ -168,7 +169,7 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Get the database connection status
-     * 
+     *
      * @return true if a connection to a database other than the default exists
      *************************************************************************/
     protected boolean isDatabaseConnected()
@@ -178,7 +179,7 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Get the database name
-     * 
+     *
      * @return The database name
      *************************************************************************/
     protected String getDatabase()
@@ -188,7 +189,7 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Set the database name
-     * 
+     *
      * @param database
      *            database name
      *************************************************************************/
@@ -199,7 +200,7 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Get the PostgreSQL project database name
-     * 
+     *
      * @return Name of the active PostgreSQL project database; returns
      *         '*server*' if no project database is open, but a connection to
      *         the PostgreSQL server is active, or '*none*' if no connection to
@@ -208,15 +209,15 @@ public class CcddDbControlHandler
     protected String getProject()
     {
         return isDatabaseConnected()
-                                    ? getDatabase()
-                                    : (isServerConnected()
-                                                          ? "*server*"
-                                                          : "*none*");
+                                     ? getDatabase()
+                                     : (isServerConnected()
+                                                            ? "*server*"
+                                                            : "*none*");
     }
 
     /**************************************************************************
      * Get the PostgreSQL server host
-     * 
+     *
      * @return PostgreSQL server host
      *************************************************************************/
     protected String getHost()
@@ -226,7 +227,7 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Set the PostgreSQL server host
-     * 
+     *
      * @param host
      *            PostgreSQL server host
      *************************************************************************/
@@ -237,7 +238,7 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Get the PostgreSQL server port
-     * 
+     *
      * @return PostgreSQL server port
      *************************************************************************/
     protected String getPort()
@@ -247,7 +248,7 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Set the PostgreSQL server port
-     * 
+     *
      * @param port
      *            PostgreSQL server port
      *************************************************************************/
@@ -258,21 +259,21 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Set the PostgreSQL server information
-     * 
+     *
      * @return PostgreSQL server information
      *************************************************************************/
     protected String getServer()
     {
         return serverHost
                + (serverPort.isEmpty()
-                                      ? ""
-                                      : ":" + serverPort);
+                                       ? ""
+                                       : ":" + serverPort);
     }
 
     /**************************************************************************
      * Get the status of the flag that indicates if an SSL connection is
      * enabled
-     * 
+     *
      * @return true if SSL is enabled
      *************************************************************************/
     protected boolean isSSL()
@@ -283,7 +284,7 @@ public class CcddDbControlHandler
     /**************************************************************************
      * Set the status of the flag that indicates if an SSL connection is
      * enabled
-     * 
+     *
      * @param enable
      *            true to enable an SSL connection
      *************************************************************************/
@@ -294,7 +295,7 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Get the server user name
-     * 
+     *
      * @return The server user name
      *************************************************************************/
     protected String getUser()
@@ -304,7 +305,7 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Set the database user
-     * 
+     *
      * @param user
      *            database user
      *************************************************************************/
@@ -315,7 +316,7 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Get the database owner name
-     * 
+     *
      * @return The database owner name
      *************************************************************************/
     protected String getOwner()
@@ -325,7 +326,7 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Set the database password
-     * 
+     *
      * @param password
      *            database password
      *************************************************************************/
@@ -337,7 +338,7 @@ public class CcddDbControlHandler
     /**************************************************************************
      * Set the file path and name to automatically backup the database to on
      * first connecting
-     * 
+     *
      * @param backupFileName
      *            backup file path and name
      *************************************************************************/
@@ -348,7 +349,7 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Get the list of database reserved words
-     * 
+     *
      * @return String array containing the reserved words
      *************************************************************************/
     protected String[] getKeyWords()
@@ -358,7 +359,7 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Get the database server version number
-     * 
+     *
      * @return String containing the database server version number; returns
      *         '*not connected*' if not connected to the PostgreSQL server
      *************************************************************************/
@@ -385,8 +386,8 @@ public class CcddDbControlHandler
                 // unavailable
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
                                       "Cannot obtain database version number; cause '"
-                                          + se.getMessage()
-                                          + "'",
+                                                               + se.getMessage()
+                                                               + "'",
                                       "<html><b>Cannot obtain database version number");
             }
         }
@@ -396,7 +397,7 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Get the JDBC version number
-     * 
+     *
      * @return String containing the JDBC version number; returns '*not
      *         connected*' if if not connected to the PostgreSQL server
      *************************************************************************/
@@ -423,8 +424,8 @@ public class CcddDbControlHandler
                 // Inform the user that the JDBC version number is unavailable
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
                                       "Cannot obtain JDBC version number; cause '"
-                                          + se.getMessage()
-                                          + "'",
+                                                               + se.getMessage()
+                                                               + "'",
                                       "<html><b>Cannot obtain JDBC version number");
             }
         }
@@ -434,10 +435,10 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Retrieve a list of all users registered on the server
-     * 
+     *
      * @param parent
      *            GUI component calling this method
-     * 
+     *
      * @return String array containing the user names
      *************************************************************************/
     protected String[] queryUserList(Component parent)
@@ -449,10 +450,10 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Retrieve a list of databases with active connections by user
-     * 
+     *
      * @param parent
      *            GUI component calling this method
-     * 
+     *
      * @return String array containing the database names and connected user
      *         names
      *************************************************************************/
@@ -465,10 +466,10 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Retrieve a list of all roles registered on the server
-     * 
+     *
      * @param parent
      *            GUI component calling this method
-     * 
+     *
      * @return String array containing the role names
      *************************************************************************/
     protected String[] queryRoleList(Component parent)
@@ -480,13 +481,13 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Retrieve the name of the specified database's owner
-     * 
+     *
      * @param databaseName
      *            name of the database for which the owner is requested
-     * 
+     *
      * @param parent
      *            GUI component calling this method
-     * 
+     *
      * @return String array containing the name of the specified database's
      *         owner
      *************************************************************************/
@@ -500,10 +501,10 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Retrieve a list of all databases registered on the server
-     * 
+     *
      * @param parent
      *            GUI component calling this method
-     * 
+     *
      * @return Array containing the database names and descriptions
      *************************************************************************/
     protected String[] queryDatabaseList(Component parent)
@@ -516,13 +517,13 @@ public class CcddDbControlHandler
     /**************************************************************************
      * Retrieve a list of the databases registered on the server for which the
      * current user has access
-     * 
+     *
      * @param parent
      *            GUI component calling this method
-     * 
+     *
      * @param userName
      *            user name
-     * 
+     *
      * @return Array containing the database names and descriptions for which
      *         the current user has access
      *************************************************************************/
@@ -535,10 +536,10 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Get the server + database
-     * 
+     *
      * @param databaseName
      *            database name
-     * 
+     *
      * @return server + database
      *************************************************************************/
     private String getServerAndDatabase(String databaseName)
@@ -551,10 +552,10 @@ public class CcddDbControlHandler
     /**************************************************************************
      * Get the database URL. If SSL is enabled the appropriate properties are
      * set; certificate validation is bypassed.
-     * 
+     *
      * @param databaseName
      *            database name
-     * 
+     *
      * @return Database URL
      *************************************************************************/
     protected String getDatabaseURL(String databaseName)
@@ -562,16 +563,16 @@ public class CcddDbControlHandler
         return "jdbc:postgresql://"
                + getServerAndDatabase(databaseName)
                + (isSSL
-                       ? "?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
-                       : "");
+                        ? "?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
+                        : "");
     }
 
     /**************************************************************************
      * Get the database comment without the CFS project identifier
-     * 
+     *
      * @param databaseName
      *            database name
-     * 
+     *
      * @return Database comment in the format <lock status (0 or 1)>,<visible
      *         project database name (with capitalization intact)>,<project
      *         description>; null if the comment cannot be retrieved
@@ -602,13 +603,13 @@ public class CcddDbControlHandler
             // Inform the user that loading the database comment failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Cannot obtain comment for project database '"
-                                      + databaseName
-                                      + "'; cause '"
-                                      + se.getMessage()
-                                      + "'",
+                                                           + databaseName
+                                                           + "'; cause '"
+                                                           + se.getMessage()
+                                                           + "'",
                                   "<html><b>Cannot obtain comment for project database '</b>"
-                                      + databaseName
-                                      + "<b>'");
+                                                                  + databaseName
+                                                                  + "<b>'");
         }
 
         return comment;
@@ -616,10 +617,10 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Get the database lock status
-     * 
+     *
      * @param databaseName
      *            database name
-     * 
+     *
      * @return true if the database is locked, false if not locked, or null if
      *         the comment cannot be retrieved
      *************************************************************************/
@@ -642,10 +643,10 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Set the database lock status
-     * 
+     *
      * @param databaseName
      *            database name
-     * 
+     *
      * @param lockStatus
      *            true if the database is locked; false if unlocked
      *************************************************************************/
@@ -668,34 +669,34 @@ public class CcddDbControlHandler
                 // Inform the user that the lock status update succeeded
                 eventLog.logEvent(SUCCESS_MSG,
                                   "Project database '"
-                                      + databaseName
-                                      + "' "
-                                      + (lockStatus
-                                                   ? "locked"
-                                                   : "unlocked"));
+                                               + databaseName
+                                               + "' "
+                                               + (lockStatus
+                                                             ? "locked"
+                                                             : "unlocked"));
             }
             catch (SQLException se)
             {
                 // Inform the user that setting the database comment failed
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
                                       "Cannot set comment for project database '"
-                                          + databaseName
-                                          + "'; cause '"
-                                          + se.getMessage()
-                                          + "'",
+                                                               + databaseName
+                                                               + "'; cause '"
+                                                               + se.getMessage()
+                                                               + "'",
                                       "<html><b>Cannot set comment for project database '</b>"
-                                          + databaseName
-                                          + "<b>'");
+                                                                      + databaseName
+                                                                      + "<b>'");
             }
         }
     }
 
     /**************************************************************************
      * Get the database description
-     * 
+     *
      * @param databaseName
      *            database name
-     * 
+     *
      * @return The database description; null if no description exists
      *************************************************************************/
     protected String getDatabaseDescription(String databaseName)
@@ -719,16 +720,16 @@ public class CcddDbControlHandler
      * Build the command to create the database comment. Delimit the text so
      * that special characters (e.g., single quotes) can be placed in the
      * description
-     * 
+     *
      * @param databaseName
      *            database name
-     * 
+     *
      * @param lockStatus
      *            true if the database is locked; false if unlocked
-     * 
+     *
      * @param description
      *            database description
-     * 
+     *
      * @return Command to create the database comment
      *************************************************************************/
     private String buildDatabaseCommentCommand(String databaseName,
@@ -750,13 +751,13 @@ public class CcddDbControlHandler
     /**************************************************************************
      * Build the command to change a database object's owner and grant access
      * privileges to the currently active database owner
-     * 
+     *
      * @param object
      *            DatabaseObjects (DATABASE, TABLE, or FUNCTION)
-     * 
+     *
      * @param objectName
      *            name of the database object to alter
-     * 
+     *
      * @return Command to change a database object's owner and grant access
      *         privileges to the current group
      *************************************************************************/
@@ -769,17 +770,17 @@ public class CcddDbControlHandler
     /**************************************************************************
      * Build the command to change a database object's owner and grant access
      * privileges to the specified database owner
-     * 
+     *
      * @param ownerName
      *            name of the role or user that owns the database and its
      *            objects
-     * 
+     *
      * @param object
      *            DatabaseObjects (DATABASE, TABLE, or FUNCTION)
-     * 
+     *
      * @param objectName
      *            name of the database object to alter
-     * 
+     *
      * @return Command to change a database object's owner and grant access
      *         privileges to the specified group
      *************************************************************************/
@@ -818,25 +819,25 @@ public class CcddDbControlHandler
             // failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Cannot disable auto-commit; cause '"
-                                      + se.getMessage()
-                                      + "'",
+                                                           + se.getMessage()
+                                                           + "'",
                                   "<html><b>Cannot disable auto-commit");
         }
     }
 
     /**************************************************************************
      * Create a database
-     * 
+     *
      * @param databaseName
      *            name of the database to create
-     * 
+     *
      * @param ownerName
      *            name of the role or user that owns the database and its
      *            objects
-     * 
+     *
      * @param description
      *            database description
-     * 
+     *
      * @return true if the command completes successfully; false otherwise
      *************************************************************************/
     private boolean createDatabase(final String databaseName,
@@ -865,21 +866,21 @@ public class CcddDbControlHandler
             // Inform the user that the update succeeded
             eventLog.logEvent(SUCCESS_MSG,
                               "Project database '"
-                                  + databaseName
-                                  + "' created");
+                                           + databaseName
+                                           + "' created");
         }
         catch (SQLException se)
         {
             // Inform the user that the database command failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Cannot create project database '"
-                                      + getServerAndDatabase(databaseName)
-                                      + "'; cause '"
-                                      + se.getMessage()
-                                      + "'",
+                                                           + getServerAndDatabase(databaseName)
+                                                           + "'; cause '"
+                                                           + se.getMessage()
+                                                           + "'",
                                   "<html><b>Cannot create project database '</b>"
-                                      + databaseName
-                                      + "<b>'");
+                                                                  + databaseName
+                                                                  + "<b>'");
             successFlag = false;
         }
         finally
@@ -897,14 +898,14 @@ public class CcddDbControlHandler
      * separate thread the GUI is allowed to continue to update. The GUI menu
      * commands, however, are disabled until the database command completes
      * execution
-     * 
+     *
      * @param databaseName
      *            name of the database to create
-     * 
+     *
      * @param ownerName
      *            name of the role or user that owns the database and its
      *            objects
-     * 
+     *
      * @param description
      *            database description
      *************************************************************************/
@@ -930,7 +931,7 @@ public class CcddDbControlHandler
     /**************************************************************************
      * Create the reusable database functions and default tables. This does not
      * include the default column functions
-     * 
+     *
      * @return true if an error occurs creating the database functions or
      *         tables
      *************************************************************************/
@@ -1067,11 +1068,11 @@ public class CcddDbControlHandler
                                        + "END LOOP; END; $$ LANGUAGE plpgsql; "
                                        + buildOwnerCommand(DatabaseObject.FUNCTION,
                                                            "search_tables(search_text "
-                                                               + "text, no_case boolean, "
-                                                               + "allow_regex boolean, "
-                                                               + "selected_tables text, "
-                                                               + "columns name[],"
-                                                               + "all_schema name[])"),
+                                                                                    + "text, no_case boolean, "
+                                                                                    + "allow_regex boolean, "
+                                                                                    + "selected_tables text, "
+                                                                                    + "columns name[],"
+                                                                                    + "all_schema name[])"),
                                        ccddMain.getMainFrame());
 
             // Create function to retrieve all table names and column values
@@ -1104,7 +1105,7 @@ public class CcddDbControlHandler
                                        + "END IF; END LOOP; END; END; $$ LANGUAGE plpgsql; "
                                        + buildOwnerCommand(DatabaseObject.FUNCTION,
                                                            "find_prototype_columns_by_name(column_name_db "
-                                                               + "text, table_types text[])"),
+                                                                                    + "text, table_types text[])"),
                                        ccddMain.getMainFrame());
 
             // Create function to retrieve all table names and column values
@@ -1133,8 +1134,8 @@ public class CcddDbControlHandler
                                        + "LANGUAGE plpgsql; "
                                        + buildOwnerCommand(DatabaseObject.FUNCTION,
                                                            "find_columns_by_name(column_name_user "
-                                                               + "text, column_name_db text, "
-                                                               + "table_types text[])"),
+                                                                                    + "text, column_name_db text, "
+                                                                                    + "table_types text[])"),
                                        ccddMain.getMainFrame());
 
             // Create function to reset the rate for a link that no longer has
@@ -1184,15 +1185,15 @@ public class CcddDbControlHandler
             // Inform the user that creating the database functions failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Cannot create tables and functions in project database '"
-                                      + activeDatabase
-                                      + "' as user '"
-                                      + activeUser
-                                      + "'; cause '"
-                                      + se.getMessage()
-                                      + "'",
+                                                           + activeDatabase
+                                                           + "' as user '"
+                                                           + activeUser
+                                                           + "'; cause '"
+                                                           + se.getMessage()
+                                                           + "'",
                                   "<html><b>Cannot create tables and functions in project database '</b>"
-                                      + activeDatabase
-                                      + "<b>'");
+                                                                  + activeDatabase
+                                                                  + "<b>'");
             errorFlag = true;
         }
 
@@ -1202,7 +1203,7 @@ public class CcddDbControlHandler
     /**************************************************************************
      * Create the reusable database functions for obtaining structure table
      * members and structure-defining column values
-     * 
+     *
      * @return true if an error occurs creating the structure functions
      *************************************************************************/
     protected boolean createStructureColumnFunctions()
@@ -1338,8 +1339,8 @@ public class CcddDbControlHandler
                                                + "END LOOP; END; END; $$ LANGUAGE plpgsql; "
                                                + buildOwnerCommand(DatabaseObject.FUNCTION,
                                                                    "get_table_members_by_"
-                                                                       + functionParm[0]
-                                                                       + "()"),
+                                                                                            + functionParm[0]
+                                                                                            + "()"),
                                                ccddMain.getMainFrame());
                 }
 
@@ -1486,8 +1487,8 @@ public class CcddDbControlHandler
                                                + " ASC'; END $$ LANGUAGE plpgsql; "
                                                + buildOwnerCommand(DatabaseObject.FUNCTION,
                                                                    "get_def_columns_by_"
-                                                                       + functionParm[0]
-                                                                       + "(name text)"),
+                                                                                            + functionParm[0]
+                                                                                            + "(name text)"),
                                                ccddMain.getMainFrame());
                 }
 
@@ -1520,7 +1521,7 @@ public class CcddDbControlHandler
                                            + "END LOOP; END; END; $$ LANGUAGE plpgsql; "
                                            + buildOwnerCommand(DatabaseObject.FUNCTION,
                                                                "update_data_type_names(oldType text,"
-                                                                   + " newType text)"),
+                                                                                        + " newType text)"),
                                            ccddMain.getMainFrame());
 
                 // Inform the user that the database function creation
@@ -1532,15 +1533,15 @@ public class CcddDbControlHandler
                 // Inform the user that creating the database functions failed
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
                                       "Cannot create structure functions in project database '"
-                                          + activeDatabase
-                                          + "' as user '"
-                                          + activeUser
-                                          + "'; cause '"
-                                          + se.getMessage()
-                                          + "'",
+                                                               + activeDatabase
+                                                               + "' as user '"
+                                                               + activeUser
+                                                               + "'; cause '"
+                                                               + se.getMessage()
+                                                               + "'",
                                       "<html><b>Cannot create structure functions in project database '</b>"
-                                          + activeDatabase
-                                          + "<b>'");
+                                                                      + activeDatabase
+                                                                      + "<b>'");
                 errorFlag = true;
             }
         }
@@ -1551,10 +1552,10 @@ public class CcddDbControlHandler
     /**************************************************************************
      * Build the command to delete a database function. This deletes the
      * function whether or not the input parameters match
-     * 
+     *
      * @param functionName
      *            name of the function to delete
-     * 
+     *
      * @return Command to delete the specified database function
      *************************************************************************/
     private String deleteFunction(String functionName)
@@ -1568,10 +1569,10 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Build the command to create an internal table
-     * 
+     *
      * @param intTable
      *            type of internal table to build
-     * 
+     *
      * @return Command to build the specified internal table
      *************************************************************************/
     protected String buildInformationTableCommand(InternalTable intTable)
@@ -1587,13 +1588,13 @@ public class CcddDbControlHandler
     /**************************************************************************
      * Authenticate the specified user credentials for the PostgreSQL server
      * and the currently open database
-     * 
+     *
      * @param userName
      *            user name
-     * 
+     *
      * @param password
      *            user password
-     * 
+     *
      * @return true if the user is allowed access to the currently open
      *         database
      *************************************************************************/
@@ -1640,10 +1641,10 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Connect to a database
-     * 
+     *
      * @param databaseName
      *            name of the database to open
-     * 
+     *
      * @return true if the connection attempt failed
      *************************************************************************/
     private boolean connectToDatabase(String databaseName)
@@ -1689,8 +1690,8 @@ public class CcddDbControlHandler
                 // Inform the user that the server connection succeeded
                 eventLog.logEvent(SUCCESS_MSG,
                                   "Connected to server as user '"
-                                      + activeUser
-                                      + "'");
+                                               + activeUser
+                                               + "'");
             }
             // A database other than the default is selected
             else
@@ -1779,10 +1780,10 @@ public class CcddDbControlHandler
                 // Inform the user that the database connection succeeded
                 eventLog.logEvent(SUCCESS_MSG,
                                   "Connected to project database '"
-                                      + databaseName
-                                      + "' as user '"
-                                      + activeUser
-                                      + "'");
+                                               + databaseName
+                                               + "' as user '"
+                                               + activeUser
+                                               + "'");
             }
         }
         catch (SQLException se)
@@ -1802,22 +1803,22 @@ public class CcddDbControlHandler
                 // Inform the user that the database connection failed
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
                                       "Cannot connect to "
-                                          + (activeDatabase.equals(DEFAULT_DATABASE)
-                                                                                    ? "server"
-                                                                                    : "project database '"
-                                                                                      + getServerAndDatabase(databaseName)
-                                                                                      + "'")
-                                          + " as user '"
-                                          + activeUser
-                                          + "'; cause '"
-                                          + se.getMessage()
-                                          + "'",
+                                                               + (activeDatabase.equals(DEFAULT_DATABASE)
+                                                                                                          ? "server"
+                                                                                                          : "project database '"
+                                                                                                            + getServerAndDatabase(databaseName)
+                                                                                                            + "'")
+                                                               + " as user '"
+                                                               + activeUser
+                                                               + "'; cause '"
+                                                               + se.getMessage()
+                                                               + "'",
                                       "<html><b>Cannot connect to "
-                                          + (activeDatabase.equals(DEFAULT_DATABASE)
-                                                                                    ? "server"
-                                                                                    : "project database '</b>"
-                                                                                      + getServerAndDatabase(databaseName)
-                                                                                      + "<b>'"));
+                                                                      + (activeDatabase.equals(DEFAULT_DATABASE)
+                                                                                                                 ? "server"
+                                                                                                                 : "project database '</b>"
+                                                                                                                   + getServerAndDatabase(databaseName)
+                                                                                                                   + "<b>'"));
             }
 
             errorFlag = true;
@@ -1827,15 +1828,26 @@ public class CcddDbControlHandler
             errorFlag = true;
         }
 
+        // Check if a connection is established
+        if (!errorFlag)
+        {
+            // Log the PostgreSQL and JDBC versions
+            eventLog.logEvent(EventLogMessageType.STATUS_MSG,
+                              "PostgreSQL: "
+                                                              + getDatabaseVersion()
+                                                              + "  *** JDBC: "
+                                                              + getJDBCVersion());
+        }
+
         return errorFlag;
     }
 
     /**************************************************************************
      * Open a database. Create the database functions
-     * 
+     *
      * @param databaseName
      *            name of the database to open
-     * 
+     *
      * @return true if an error occurred opening the database; false if the
      *         database successfully opened
      *************************************************************************/
@@ -1846,14 +1858,14 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Open a database using the current host, port, and SSL settings
-     * 
+     *
      * @param databaseName
      *            name of the database to open
-     * 
+     *
      * @param createFunctions
      *            true to create the database functions; false if reopening a
      *            database (so the functions already exist)
-     * 
+     *
      * @return true if an error occurred opening the database; false if the
      *         database successfully opened
      *************************************************************************/
@@ -1868,23 +1880,23 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Open a database using the host, port, and SSL settings provided
-     * 
+     *
      * @param databaseName
      *            name of the database to open
-     * 
+     *
      * @param serverHost
      *            PostgreSQL server host
-     * 
+     *
      * @param serverPort
      *            PostgreSQL server port
-     * 
+     *
      * @param isSSL
      *            true if an SSL connection is enabled
-     * 
+     *
      * @param createFunctions
      *            true to create the database functions; false if reopening a
      *            database (so the functions already exist)
-     * 
+     *
      * @return true if an error occurred opening the database; false if the
      *         database successfully opened
      *************************************************************************/
@@ -2002,10 +2014,10 @@ public class CcddDbControlHandler
                     // failed
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
                                           "Cannot register database driver '"
-                                              + DATABASE_DRIVER
-                                              + "'; cause '"
-                                              + le.getMessage()
-                                              + "'",
+                                                                   + DATABASE_DRIVER
+                                                                   + "'; cause '"
+                                                                   + le.getMessage()
+                                                                   + "'",
                                           "<html><b>Cannot register database driver");
                     errorFlag = true;
                 }
@@ -2040,8 +2052,8 @@ public class CcddDbControlHandler
                         // can't be stored
                         new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                                   "<html><b>Cannot store program preference values; cause '"
-                                                                      + e.getMessage()
-                                                                      + "'",
+                                                                                           + e.getMessage()
+                                                                                           + "'",
                                                                   "File Warning",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);
@@ -2071,7 +2083,7 @@ public class CcddDbControlHandler
      * noticeable amount time to complete, and by using a separate thread the
      * GUI is allowed to continue to update. The GUI menu commands, however,
      * are disabled until the database command completes execution
-     * 
+     *
      * @param databaseName
      *            name of the database to open
      *************************************************************************/
@@ -2089,16 +2101,16 @@ public class CcddDbControlHandler
      * amount time to complete, and by using a separate thread the GUI is
      * allowed to continue to update. The GUI menu commands, however, are
      * disabled until the database command completes execution
-     * 
+     *
      * @param databaseName
      *            name of the database to open
-     * 
+     *
      * @param serverHost
      *            PostgreSQL server host
-     * 
+     *
      * @param serverPort
      *            PostgreSQL server port
-     * 
+     *
      * @param isSSL
      *            true if an SSL connection is enabled
      *************************************************************************/
@@ -2150,13 +2162,13 @@ public class CcddDbControlHandler
      * amount time to complete, and by using a separate thread the GUI is
      * allowed to continue to update. The GUI menu commands, however, are
      * disabled until the database command completes execution
-     * 
+     *
      * @param oldName
      *            current name of the database
-     * 
+     *
      * @param newName
      *            new name of the database
-     * 
+     *
      * @param description
      *            database description
      *************************************************************************/
@@ -2217,10 +2229,10 @@ public class CcddDbControlHandler
                         // Log that the renaming the database succeeded
                         eventLog.logEvent(SUCCESS_MSG,
                                           "Project database '"
-                                              + oldName
-                                              + "' renamed to '"
-                                              + newName
-                                              + "'");
+                                                       + oldName
+                                                       + "' renamed to '"
+                                                       + newName
+                                                       + "'");
                     }
                 }
                 catch (SQLException se)
@@ -2228,13 +2240,13 @@ public class CcddDbControlHandler
                     // Inform the user that the database cannot be renamed
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
                                           "Cannot rename project database '"
-                                              + getServerAndDatabase(oldName)
-                                              + "'; cause '"
-                                              + se.getMessage()
-                                              + "'",
+                                                                   + getServerAndDatabase(oldName)
+                                                                   + "'; cause '"
+                                                                   + se.getMessage()
+                                                                   + "'",
                                           "<html><b>Cannot rename project database '</b>"
-                                              + oldName
-                                              + "<b>'");
+                                                                          + oldName
+                                                                          + "<b>'");
 
                     // Check if the currently open database is the one that was
                     // attempted to be renamed
@@ -2253,13 +2265,13 @@ public class CcddDbControlHandler
      * can take a noticeable amount time to complete, and by using a separate
      * thread the GUI is allowed to continue to update. The GUI menu commands,
      * however, are disabled until the database command completes execution
-     * 
+     *
      * @param targetName
      *            name of the database to copy
-     * 
+     *
      * @param copyName
      *            name of the database copy
-     * 
+     *
      * @param description
      *            database description
      *************************************************************************/
@@ -2290,9 +2302,9 @@ public class CcddDbControlHandler
                         // Get the owner of the database being copied; the copy
                         // will have the same owner
                         String ownerName = targetName.equals(currentDatabase)
-                                                                             ? activeOwner
-                                                                             : queryDatabaseOwner(targetName,
-                                                                                                  ccddMain.getMainFrame())[0];
+                                                                              ? activeOwner
+                                                                              : queryDatabaseOwner(targetName,
+                                                                                                   ccddMain.getMainFrame())[0];
 
                         // Enable auto-commit for database changes
                         connection.setAutoCommit(true);
@@ -2323,8 +2335,8 @@ public class CcddDbControlHandler
                         // Log that the copying the database succeeded
                         eventLog.logEvent(SUCCESS_MSG,
                                           "Project database '"
-                                              + targetName
-                                              + "' copied");
+                                                       + targetName
+                                                       + "' copied");
                     }
                 }
                 catch (SQLException se)
@@ -2332,13 +2344,13 @@ public class CcddDbControlHandler
                     // Inform the user that the database cannot be copied
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
                                           "Cannot copy project database '"
-                                              + getServerAndDatabase(targetName)
-                                              + "'; cause '"
-                                              + se.getMessage()
-                                              + "'",
+                                                                   + getServerAndDatabase(targetName)
+                                                                   + "'; cause '"
+                                                                   + se.getMessage()
+                                                                   + "'",
                                           "<html><b>Cannot copy project database '</b>"
-                                              + targetName
-                                              + "<b>'");
+                                                                          + targetName
+                                                                          + "<b>'");
 
                     // Check if the currently open database is the one that was
                     // attempted to be copied
@@ -2359,7 +2371,7 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Delete the database
-     * 
+     *
      * @param databaseName
      *            name of the database to delete
      *************************************************************************/
@@ -2379,21 +2391,21 @@ public class CcddDbControlHandler
             // Log that the database deletion succeeded
             eventLog.logEvent(SUCCESS_MSG,
                               "Project database '"
-                                  + databaseName
-                                  + "' deleted");
+                                           + databaseName
+                                           + "' deleted");
         }
         catch (SQLException se)
         {
             // Inform the user that the database deletion failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Cannot delete project database '"
-                                      + getServerAndDatabase(databaseName)
-                                      + "'; cause '"
-                                      + se.getMessage()
-                                      + "'",
+                                                           + getServerAndDatabase(databaseName)
+                                                           + "'; cause '"
+                                                           + se.getMessage()
+                                                           + "'",
                                   "<html><b>Cannot delete project database '</b>"
-                                      + databaseName
-                                      + "<b>'");
+                                                                  + databaseName
+                                                                  + "<b>'");
         }
         finally
         {
@@ -2408,7 +2420,7 @@ public class CcddDbControlHandler
      * separate thread the GUI is allowed to continue to update. The GUI menu
      * commands, however, are disabled until the database command completes
      * execution
-     * 
+     *
      * @param databaseName
      *            name of the database to delete
      *************************************************************************/
@@ -2417,8 +2429,8 @@ public class CcddDbControlHandler
         // Have the user confirm deleting the selected database
         if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                       "<html><b>Delete database </b>"
-                                                          + databaseName
-                                                          + "<b>?<br><i>Warning: This action cannot be undone!",
+                                                                               + databaseName
+                                                                               + "<b>?<br><i>Warning: This action cannot be undone!",
                                                       "Delete Database",
                                                       JOptionPane.QUESTION_MESSAGE,
                                                       DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
@@ -2441,7 +2453,7 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Close the currently open database
-     * 
+     *
      * @return true if no database is connected
      *************************************************************************/
     protected boolean closeDatabase()
@@ -2472,11 +2484,11 @@ public class CcddDbControlHandler
                 // update the connection status
                 eventLog.logEvent(SUCCESS_MSG,
                                   (activeDatabase.equals(DEFAULT_DATABASE)
-                                                                          ? "Server connection"
-                                                                          : "Project database '"
-                                                                            + activeDatabase
-                                                                            + "'")
-                                      + " closed");
+                                                                           ? "Server connection"
+                                                                           : "Project database '"
+                                                                             + activeDatabase
+                                                                             + "'")
+                                               + " closed");
                 connectionStatus = NO_CONNECTION;
             }
             catch (SQLException se)
@@ -2484,20 +2496,20 @@ public class CcddDbControlHandler
                 // Inform the user that the database failed to close
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
                                       "Cannot close "
-                                          + (activeDatabase.equals(DEFAULT_DATABASE)
-                                                                                    ? "server connection"
-                                                                                    : "project database '"
-                                                                                      + getServerAndDatabase(activeDatabase)
-                                                                                      + "'")
-                                          + "; cause '"
-                                          + se.getMessage()
-                                          + "'",
+                                                               + (activeDatabase.equals(DEFAULT_DATABASE)
+                                                                                                          ? "server connection"
+                                                                                                          : "project database '"
+                                                                                                            + getServerAndDatabase(activeDatabase)
+                                                                                                            + "'")
+                                                               + "; cause '"
+                                                               + se.getMessage()
+                                                               + "'",
                                       "<html><b>Cannot close "
-                                          + (activeDatabase.equals(DEFAULT_DATABASE)
-                                                                                    ? "server connection"
-                                                                                    : "project database '</b>"
-                                                                                      + activeDatabase
-                                                                                      + "<b>'"));
+                                                                      + (activeDatabase.equals(DEFAULT_DATABASE)
+                                                                                                                 ? "server connection"
+                                                                                                                 : "project database '</b>"
+                                                                                                                   + activeDatabase
+                                                                                                                   + "<b>'"));
             }
         }
 
@@ -2507,7 +2519,7 @@ public class CcddDbControlHandler
     /**************************************************************************
      * Build the portion of the backup and restore commands that specifies the
      * user name, server host, and server port
-     * 
+     *
      * @return Portion of the backup and restore commands that specifies the
      *         user name, server host, and server port
      *************************************************************************/
@@ -2539,10 +2551,10 @@ public class CcddDbControlHandler
      * separate thread the GUI is allowed to continue to update. The GUI menu
      * commands, however, are disabled until the database command completes
      * execution
-     * 
+     *
      * @param databaseName
      *            name of the database to backup
-     * 
+     *
      * @param backupFile
      *            file to which to backup the database
      *************************************************************************/
@@ -2566,10 +2578,10 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Backup a database
-     * 
+     *
      * @param databaseName
      *            name of the database to backup
-     * 
+     *
      * @param backupFile
      *            file to which to backup the database
      *************************************************************************/
@@ -2605,13 +2617,13 @@ public class CcddDbControlHandler
             CcddFileIOHandler.storePath(ccddMain,
                                         backupFile.getAbsolutePath(),
                                         true,
-                                        ModifiablePathInfo.DATABASE_BACKUP_PATH.getPreferenceKey());
+                                        ModifiablePathInfo.DATABASE_BACKUP_PATH);
 
             // Log that backing up the database succeeded
             eventLog.logEvent(SUCCESS_MSG,
                               "project database '"
-                                  + databaseName
-                                  + "' backed up");
+                                           + databaseName
+                                           + "' backed up");
         }
 
         // An error occurred backing up the database
@@ -2620,13 +2632,13 @@ public class CcddDbControlHandler
             // Inform the user that the database could not be backed up
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Project database '"
-                                      + databaseName
-                                      + "' backup failed;  cause '"
-                                      + errorType
-                                      + "'",
+                                                           + databaseName
+                                                           + "' backup failed;  cause '"
+                                                           + errorType
+                                                           + "'",
                                   "<html><b>Project database '</b>"
-                                      + databaseName
-                                      + "<b>' backup failed");
+                                                                  + databaseName
+                                                                  + "<b>' backup failed");
         }
     }
 
@@ -2636,14 +2648,14 @@ public class CcddDbControlHandler
      * separate thread the GUI is allowed to continue to update. The GUI menu
      * commands, however, are disabled until the database command completes
      * execution
-     * 
+     *
      * @param databaseName
      *            name of the database to restore
-     * 
+     *
      * @param ownerName
      *            name of the role or user that owns the database and its
      *            objects
-     * 
+     *
      * @param restoreFile
      *            file to restore the database from
      *************************************************************************/
@@ -2735,10 +2747,10 @@ public class CcddDbControlHandler
                         // Log that the database restoration succeeded
                         eventLog.logEvent(SUCCESS_MSG,
                                           "Project database '"
-                                              + databaseName
-                                              + "' restored as '"
-                                              + restoreName
-                                              + "'");
+                                                       + databaseName
+                                                       + "' restored as '"
+                                                       + restoreName
+                                                       + "'");
                     }
                 }
                 // Database restoration failed
@@ -2761,13 +2773,13 @@ public class CcddDbControlHandler
                     // Inform the user that the database could not be restored
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
                                           "Project database '"
-                                              + databaseName
-                                              + "' restore failed; cause '"
-                                              + errorType
-                                              + "'",
+                                                                   + databaseName
+                                                                   + "' restore failed; cause '"
+                                                                   + errorType
+                                                                   + "'",
                                           "<html><b>Project database '</b>"
-                                              + databaseName
-                                              + "<b>' restore failed");
+                                                                          + databaseName
+                                                                          + "<b>' restore failed");
                 }
             }
         });
@@ -2775,13 +2787,13 @@ public class CcddDbControlHandler
 
     /**************************************************************************
      * Execute an operating system command
-     * 
+     *
      * @param command
      *            command to process
-     * 
+     *
      * @param numArgs
      *            number of arguments in the command
-     * 
+     *
      * @return Error message text if an error occurs; empty string is the
      *         command completed successfully
      *************************************************************************/

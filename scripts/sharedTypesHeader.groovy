@@ -103,14 +103,14 @@ def outputStructure(file, structIndex)
             }
 
             // Get the variable name for this row
-            def variableName = ccdd.getStructureTableData("variable name", row)
+            def variableName = ccdd.getStructureVariableName(row)
 
             // Check that this isn't an array member; only array definitions
             // appear in the type definition
             if (!variableName.endsWith("]"))
             {
                 // Get the variable's array size
-                def arraySize = ccdd.getStructureTableData("array size", row)
+                def arraySize = ccdd.getStructureArraySize(row)
 
                 // Check if the variable is an array
                 if (!arraySize.isEmpty())
@@ -125,7 +125,7 @@ def outputStructure(file, structIndex)
                 }
 
                 // Get the variable's bit length
-                def bitLength = ccdd.getStructureTableData("bit length", row)
+                def bitLength = ccdd.getStructureBitLength(row)
 
                 // Check if the variable has a bit length
                 if (!bitLength.isEmpty())
@@ -136,7 +136,7 @@ def outputStructure(file, structIndex)
 
                 // Determine the length of the variable definition by adding up
                 // the individual parts
-                def defnLength = ("   " + ccdd.getStructureTableData("data type", row) + " " + variableName + arraySize + bitLength + "; ").length()
+                def defnLength = ("   " + ccdd.getStructureDataType(row) + " " + variableName + arraySize + bitLength + "; ").length()
 
                 // Check if the length exceeds the minimum length found thus far
                 if (defnLength > minimumLength)
@@ -159,7 +159,7 @@ def outputStructure(file, structIndex)
         if (structureNames[structIndex].equals(ccdd.getStructureTableNameByRow(row)))
         {
             // Get the variable name for this row in the structure
-            def variableName = ccdd.getStructureTableData("variable name", row)
+            def variableName = ccdd.getStructureVariableName(row)
 
             // Check if this is the first pass through the structure data
             if (firstPass)
@@ -189,7 +189,7 @@ def outputStructure(file, structIndex)
                 ccdd.writeToFile(file, "/* Structure: " + structureNames[structIndex] + " (" + structSize + " bytes total)")
 
                 // Check if the structure has a description
-                if (structDescription != "")
+                if (!structDescription.isEmpty())
                 {
                     // Display the structure's description
                     ccdd.writeToFile(file, "\n   Description: " + structDescription)
@@ -243,9 +243,9 @@ def outputStructure(file, structIndex)
                 usedVariableNames.push(variableName)
 
                 // Get the variable's data type, array size, and description
-                def dataType = ccdd.getStructureTableData("data type", row)
-                def arraySize = ccdd.getStructureTableData("array size", row)
-                def description = ccdd.getStructureTableData("description", row)
+                def dataType = ccdd.getStructureDataType(row)
+                def arraySize = ccdd.getStructureArraySize(row)
+                def description = ccdd.getStructureDescription(row)
 
                 // Determine the size of the variable, in bytes
                 def byteSize = ccdd.getDataTypeSizeInBytes(dataType)
@@ -319,7 +319,7 @@ def outputStructure(file, structIndex)
                     varOffset = ccdd.getVariableOffset(variablePath)
 
                     // Get the variable's bit length
-                    bitLength = ccdd.getStructureTableData("bit length", row)
+                    bitLength = ccdd.getStructureBitLength(row)
 
                     // Check if the bit length is provided
                     if (!bitLength.isEmpty())

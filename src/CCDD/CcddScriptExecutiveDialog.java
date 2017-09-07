@@ -33,7 +33,7 @@ import CCDD.CcddConstants.ModifiableSpacingInfo;
  * CFS Command & Data Dictionary script executive dialog class
  *****************************************************************************/
 @SuppressWarnings("serial")
-public class CcddScriptExecutiveDialog extends CcddDialogHandler
+public class CcddScriptExecutiveDialog extends CcddFrameHandler
 {
     // Class references
     private final CcddMain ccddMain;
@@ -47,7 +47,7 @@ public class CcddScriptExecutiveDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Script executive dialog class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
@@ -199,7 +199,7 @@ public class CcddScriptExecutiveDialog extends CcddDialogHandler
                         @Override
                         public void actionPerformed(ActionEvent ae)
                         {
-                            closeDialog();
+                            closeFrame();
                         }
                     });
 
@@ -216,14 +216,23 @@ public class CcddScriptExecutiveDialog extends CcddDialogHandler
                 protected void complete()
                 {
                     // Display the script execution dialog
-                    showOptionsDialog(ccddMain.getMainFrame(),
-                                      dialogPnl,
-                                      buttonPnl,
-                                      btnExecute,
-                                      "Execute Script(s)",
-                                      true);
+                    createFrame(ccddMain.getMainFrame(),
+                                dialogPnl,
+                                buttonPnl,
+                                btnExecute,
+                                "Execute Script(s)",
+                                null);
                 }
             });
         }
+    }
+
+    /**************************************************************************
+     * Update the associations table with the latest script associations
+     * information
+     *************************************************************************/
+    protected void reloadAssociationsTable()
+    {
+        scriptHandler.getAssociationsTable().loadAndFormatData();
     }
 }

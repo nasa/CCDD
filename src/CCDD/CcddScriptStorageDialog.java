@@ -61,10 +61,10 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Script storage dialog class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param dialogType
      *            ScriptIOType.STORE or ScriptIOType.RETRIEVE
      *************************************************************************/
@@ -119,7 +119,7 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                         CcddFileIOHandler.storePath(ccddMain,
                                                     pathName,
                                                     true,
-                                                    ModifiablePathInfo.SCRIPT_PATH.getPreferenceKey());
+                                                    ModifiablePathInfo.SCRIPT_PATH);
 
                         // Step through each selected script
                         for (File file : scriptFile)
@@ -255,7 +255,7 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                                 CcddFileIOHandler.storePath(ccddMain,
                                                             scriptFile[0].getAbsolutePath(),
                                                             false,
-                                                            ModifiablePathInfo.SCRIPT_PATH.getPreferenceKey());
+                                                            ModifiablePathInfo.SCRIPT_PATH);
                             }
 
                             // Get an array containing the selected script
@@ -310,12 +310,12 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                     // script to retrieve/delete
                     new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                               "<html><b>Project '</b>"
-                                                                  + dbControl.getDatabase()
-                                                                  + "<b>' has no scripts",
+                                                                                       + dbControl.getDatabase()
+                                                                                       + "<b>' has no scripts",
                                                               (dialogType == ScriptIOType.RETRIEVE
-                                                                                                  ? "Retrieve"
-                                                                                                  : "Delete")
-                                                                  + " Script(s)",
+                                                                                                   ? "Retrieve"
+                                                                                                   : "Delete")
+                                                                                                                + " Script(s)",
                                                               JOptionPane.WARNING_MESSAGE,
                                                               DialogOption.OK_OPTION);
                 }
@@ -326,7 +326,7 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Create the path selection panel
-     * 
+     *
      * @return JPanel containing the script selection panel
      *************************************************************************/
     private JPanel createPathSelectionPanel()
@@ -414,7 +414,7 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Verify that the dialog content is valid
-     * 
+     *
      * @return true if the input values are valid
      *************************************************************************/
     @Override
@@ -464,7 +464,7 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
             // Inform the user that the input value is invalid
             new CcddDialogHandler().showMessageDialog(CcddScriptStorageDialog.this,
                                                       "<html><b>"
-                                                          + ce.getMessage(),
+                                                                                    + ce.getMessage(),
                                                       "Missing Input",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);

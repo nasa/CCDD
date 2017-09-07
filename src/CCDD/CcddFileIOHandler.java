@@ -73,7 +73,7 @@ public class CcddFileIOHandler
 
     /**************************************************************************
      * File I/O handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
@@ -143,10 +143,10 @@ public class CcddFileIOHandler
                     // user's guide
                     new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                               "<html><b>User's guide '"
-                                                                  + USERS_GUIDE
-                                                                  + "' cannot be opened; cause<br>'"
-                                                                  + e.getMessage()
-                                                                  + "'",
+                                                                                       + USERS_GUIDE
+                                                                                       + "' cannot be opened; cause<br>'"
+                                                                                       + e.getMessage()
+                                                                                       + "'",
                                                               "File Error",
                                                               JOptionPane.WARNING_MESSAGE,
                                                               DialogOption.OK_OPTION);
@@ -159,7 +159,7 @@ public class CcddFileIOHandler
      * Backup the currently open project's database to a user-selected file
      * using the pg_dump utility. The backup data is stored in plain text
      * format
-     * 
+     *
      * @param doInBackground
      *            true to perform the operation in a background process
      *************************************************************************/
@@ -203,8 +203,8 @@ public class CcddFileIOHandler
                         // be replaced
                         new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                                   "<html><b>Cannot replace existing backup file<br>'</b>"
-                                                                      + dataFile[0].getAbsolutePath()
-                                                                      + "<b>'",
+                                                                                           + dataFile[0].getAbsolutePath()
+                                                                                           + "<b>'",
                                                                   "File Error",
                                                                   JOptionPane.ERROR_MESSAGE,
                                                                   DialogOption.OK_OPTION);
@@ -379,7 +379,7 @@ public class CcddFileIOHandler
                 // Inform the user that the backup file error occurred
                 new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                           "<html><b>"
-                                                              + ce.getMessage(),
+                                                                                   + ce.getMessage(),
                                                           "File Error",
                                                           ce.getMessageType(),
                                                           DialogOption.OK_OPTION);
@@ -389,10 +389,10 @@ public class CcddFileIOHandler
                 // Inform the user that the backup file cannot be read
                 new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                           "<html><b>Cannot read backup file<br>'</b>"
-                                                              + dataFile[0].getAbsolutePath()
-                                                              + "<b>'; cause '"
-                                                              + e.getMessage()
-                                                              + "'",
+                                                                                   + dataFile[0].getAbsolutePath()
+                                                                                   + "<b>'; cause '"
+                                                                                   + e.getMessage()
+                                                                                   + "'",
                                                           "File Error",
                                                           JOptionPane.ERROR_MESSAGE,
                                                           DialogOption.OK_OPTION);
@@ -413,8 +413,8 @@ public class CcddFileIOHandler
                     // Inform the user that the file channel cannot be closed
                     new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                               "<html><b>Cannot close backup file<br>'</b>"
-                                                                  + dataFile[0].getAbsolutePath()
-                                                                  + "<b>' (file channel)",
+                                                                                       + dataFile[0].getAbsolutePath()
+                                                                                       + "<b>' (file channel)",
                                                               "File Warning",
                                                               JOptionPane.WARNING_MESSAGE,
                                                               DialogOption.OK_OPTION);
@@ -436,8 +436,8 @@ public class CcddFileIOHandler
                         // closed
                         new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                                   "<html><b>Cannot close backup file<br>'</b>"
-                                                                      + dataFile[0].getAbsolutePath()
-                                                                      + "<b>' (file input stream)",
+                                                                                           + dataFile[0].getAbsolutePath()
+                                                                                           + "<b>' (file input stream)",
                                                                   "File Warning",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);
@@ -454,27 +454,27 @@ public class CcddFileIOHandler
      * noticeable amount time to complete, and by using a separate thread the
      * GUI is allowed to continue to update. The GUI menu commands, however,
      * are disabled until the database method completes execution
-     * 
+     *
      * @param dataFile
      *            array of files to import
-     * 
+     *
      * @param backupFirst
      *            true to create a backup of the database before importing
      *            tables
-     * 
+     *
      * @param replaceExisting
      *            true to replace a table that already exists in the database
-     * 
+     *
      * @param appendExistingFields
      *            true to append the existing data fields for a table (if any)
      *            to the imported ones (if any). Only valid when
      *            replaceExisting is true
-     * 
+     *
      * @param useExistingFields
      *            true to replace an existing data field with the imported ones
      *            if the field names match. Only valid when replaceExisting and
      *            appendExistingFields are true
-     * 
+     *
      * @param parent
      *            GUI component calling this method
      *************************************************************************/
@@ -683,8 +683,8 @@ public class CcddFileIOHandler
                         // Inform the user that the data file cannot be read
                         new CcddDialogHandler().showMessageDialog(parent,
                                                                   "<html><b>Cannot read import file<br>'</b>"
-                                                                      + file.getAbsolutePath()
-                                                                      + "<b>'",
+                                                                          + file.getAbsolutePath()
+                                                                          + "<b>'",
                                                                   "File Error",
                                                                   JOptionPane.ERROR_MESSAGE,
                                                                   DialogOption.OK_OPTION);
@@ -699,7 +699,7 @@ public class CcddFileIOHandler
                             // the import file
                             new CcddDialogHandler().showMessageDialog(parent,
                                                                       "<html><b>"
-                                                                          + ce.getMessage(),
+                                                                              + ce.getMessage(),
                                                                       "File Error",
                                                                       ce.getMessageType(),
                                                                       DialogOption.OK_OPTION);
@@ -743,7 +743,7 @@ public class CcddFileIOHandler
                             // the import file
                             new CcddDialogHandler().showMessageDialog(parent,
                                                                       "<html><b>"
-                                                                          + ce.getMessage(),
+                                                                              + ce.getMessage(),
                                                                       "File Error",
                                                                       ce.getMessageType(),
                                                                       DialogOption.OK_OPTION);
@@ -762,7 +762,7 @@ public class CcddFileIOHandler
                     storePath(ccddMain,
                               dataFile[0].getAbsolutePath(),
                               true,
-                              ModifiablePathInfo.TABLE_EXPORT_PATH.getPath());
+                              ModifiablePathInfo.TABLE_EXPORT_PATH);
 
                     // Update any open editor's data type columns to include
                     // the new table(s), if applicable
@@ -778,7 +778,7 @@ public class CcddFileIOHandler
                         // definitions were detected
                         new CcddDialogHandler().showMessageDialog(parent,
                                                                   "<html><b>Ignored the following duplicate table definition(s):</b><br>"
-                                                                      + dbTable.getShortenedTableNames(duplicateDefinitions.toArray(new String[0])),
+                                                                          + dbTable.getShortenedTableNames(duplicateDefinitions.toArray(new String[0])),
                                                                   "Duplicate Table(s)",
                                                                   JOptionPane.INFORMATION_MESSAGE,
                                                                   DialogOption.OK_OPTION);
@@ -810,13 +810,13 @@ public class CcddFileIOHandler
 
     /**************************************************************************
      * Create one or more data tables from the supplied table definitions
-     * 
+     *
      * @param tableDefinitions
      *            list of table definitions for the table(s) to create
-     * 
+     *
      * @param replaceExisting
      *            true to replace a table that already exists in the database
-     * 
+     *
      * @param parent
      *            GUI component calling this method
      *************************************************************************/
@@ -929,8 +929,8 @@ public class CcddFileIOHandler
                                                              numColumns,
                                                              replaceExisting,
                                                              "Cannot create prototype '"
-                                                                 + descendantInfo.getPrototypeName()
-                                                                 + "' of child table",
+                                                                              + descendantInfo.getPrototypeName()
+                                                                              + "' of child table",
                                                              parent))
                                     {
                                         // Add the skipped table to the list
@@ -959,8 +959,8 @@ public class CcddFileIOHandler
                                                              numColumns,
                                                              replaceExisting,
                                                              "Cannot create prototype '"
-                                                                 + descendantInfo.getPrototypeName()
-                                                                 + "' of child table's ancestor",
+                                                                              + descendantInfo.getPrototypeName()
+                                                                              + "' of child table's ancestor",
                                                              parent))
                                     {
                                         // Add the skipped table to the list
@@ -987,8 +987,8 @@ public class CcddFileIOHandler
                                              numColumns,
                                              replaceExisting,
                                              "Cannot create prototype '"
-                                                 + tableInfo.getPrototypeName()
-                                                 + "'",
+                                                              + tableInfo.getPrototypeName()
+                                                              + "'",
                                              parent))
                     {
                         // Add the skipped table to the list
@@ -1006,8 +1006,8 @@ public class CcddFileIOHandler
             // Inform the user that one or more tables were not imported
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Table(s) not imported<br>'</b>"
-                                                          + dbTable.getShortenedTableNames(skippedTables.toArray(new String[0]))
-                                                          + "<b>';<br>table already exists",
+                                                              + dbTable.getShortenedTableNames(skippedTables.toArray(new String[0]))
+                                                              + "<b>';<br>table already exists",
                                                       "Import Error",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -1052,29 +1052,29 @@ public class CcddFileIOHandler
     /**************************************************************************
      * Create a new data table or replace an existing one and paste the
      * supplied cell data into it
-     * 
+     *
      * @param tableInfo
      *            table information for the table to create
-     * 
+     *
      * @param cellData
      *            array containing the cell data
-     * 
+     *
      * @param numColumns
      *            number of columns in the table
-     * 
+     *
      * @param replaceExisting
      *            true to replace a table that already exists in the database
-     * 
+     *
      * @param errorMsg
      *            error message prefix used in the event an error occurs
-     * 
+     *
      * @return true if the table is successfully imported; false if the table
      *         is an existing prototype and the replaceExisting flag is not
      *         true
-     * 
+     *
      * @param parent
      *            GUI component calling this method
-     * 
+     *
      * @return ImportResult.SUCCESSFUL if the table is imported,
      *         ImportResult.SKIPPED if the table exists and the flag is not set
      *         to replace existing tables, or ImportResult.CANCELED if an error
@@ -1213,7 +1213,7 @@ public class CcddFileIOHandler
     /**************************************************************************
      * Import the contents of a file selected by the user into the specified
      * existing table
-     * 
+     *
      * @param tableHandler
      *            reference to the table handler for the table into which to
      *            import the data
@@ -1320,7 +1320,7 @@ public class CcddFileIOHandler
                         storePath(ccddMain,
                                   dataFile[0].getAbsolutePath(),
                                   false,
-                                  ModifiablePathInfo.TABLE_EXPORT_PATH.getPath());
+                                  ModifiablePathInfo.TABLE_EXPORT_PATH);
                     }
                 }
             }
@@ -1329,8 +1329,8 @@ public class CcddFileIOHandler
                 // Inform the user that the data file cannot be read
                 new CcddDialogHandler().showMessageDialog(tableHandler.getOwner(),
                                                           "<html><b>Cannot read import file<br>'</b>"
-                                                              + dataFile[0].getAbsolutePath()
-                                                              + "<b>'",
+                                                                                   + dataFile[0].getAbsolutePath()
+                                                                                   + "<b>'",
                                                           "File Error",
                                                           JOptionPane.ERROR_MESSAGE,
                                                           DialogOption.OK_OPTION);
@@ -1344,7 +1344,7 @@ public class CcddFileIOHandler
                     // import file
                     new CcddDialogHandler().showMessageDialog(tableHandler.getOwner(),
                                                               "<html><b>"
-                                                                  + ce.getMessage(),
+                                                                                       + ce.getMessage(),
                                                               "File Error",
                                                               ce.getMessageType(),
                                                               DialogOption.OK_OPTION);
@@ -1361,14 +1361,14 @@ public class CcddFileIOHandler
 
     /**************************************************************************
      * Paste the data in a table definition into the specified table
-     * 
+     *
      * @param tableHandler
      *            reference to the table handler for the table into which to
      *            import the data
-     * 
+     *
      * @param tableDefn
      *            table definition containing the data to paste
-     * 
+     *
      * @param parent
      *            GUI component calling this method
      *************************************************************************/
@@ -1403,9 +1403,9 @@ public class CcddFileIOHandler
                 // Let the user know how many rows were added
                 new CcddDialogHandler().showMessageDialog(tableHandler.getOwner(),
                                                           "<html><b>"
-                                                              + (tableHandler.getTableModel().getRowCount()
-                                                              - numRows)
-                                                              + " row(s) added",
+                                                                                   + (tableHandler.getTableModel().getRowCount()
+                                                                                      - numRows)
+                                                                                   + " row(s) added",
                                                           "Paste Table Data",
                                                           JOptionPane.INFORMATION_MESSAGE,
                                                           DialogOption.OK_OPTION);
@@ -1422,70 +1422,70 @@ public class CcddFileIOHandler
      * noticeable amount time to complete, and by using a separate thread the
      * GUI is allowed to continue to update. The GUI menu commands, however,
      * are disabled until the database method completes execution
-     * 
+     *
      * @param filePath
      *            path to the folder in which to store the exported tables.
      *            Includes the name if storing the tables to a single file
-     * 
+     *
      * @param tblVarNames
      *            array of the combined table and variable name for the
      *            table(s) to load
-     * 
+     *
      * @param tablePaths
      *            table path for each table to load
-     * 
+     *
      * @param overwriteFile
      *            true to store overwrite an existing file; false skip
      *            exporting a table to a file that already exists
-     * 
+     *
      * @param singleFile
      *            true to store multiple tables in a single file; false to
      *            store each table in a separate file
-     * 
+     *
      * @param replaceMacros
      *            true to replace macros with their corresponding values; false
      *            to leave the macros intact
-     * 
+     *
      * @param includeReservedMsgIDs
      *            true to include the contents of the reserved message ID table
      *            in the export file
-     * 
+     *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a
      *            structure table, both in application format and using the
      *            user-defined separator characters
-     * 
+     *
      * @param variableHandler
      *            variable handler class reference; null if
      *            includeVariablePaths is false
-     * 
+     *
      * @param separators
      *            string array containing the variable path separator
      *            character(s), show/hide data types flag ('true' or 'false'),
      *            and data type/variable name separator character(s); null if
      *            includeVariablePaths is false
-     * 
+     *
      * @param fileExtn
      *            file extension type
-     * 
+     *
      * @param system
      *            name of the data field containing the system name
-     * 
+     *
      * @param version
      *            version attribute (XTCE only)
-     * 
+     *
      * @param validationStatus
      *            validation status attribute (XTCE only)
-     * 
+     *
      * @param classification1
      *            first level classification attribute (XTCE only)
-     * 
+     *
      * @param classification2
      *            second level classification attribute (XTCE only)
-     * 
+     *
      * @param classification3
      *            third level classification attribute (XTCE only)
-     * 
+     *
      * @param parent
      *            GUI component calling this method
      *************************************************************************/
@@ -1671,8 +1671,8 @@ public class CcddFileIOHandler
                         // exported
                         new CcddDialogHandler().showMessageDialog(parent,
                                                                   "<html><b>Table(s) not exported<br>'</b>"
-                                                                      + dbTable.getShortenedTableNames(skippedTables.toArray(new String[0]))
-                                                                      + "<b>';<br>output file already exists or file I/O error",
+                                                                          + dbTable.getShortenedTableNames(skippedTables.toArray(new String[0]))
+                                                                          + "<b>';<br>output file already exists or file I/O error",
                                                                   "Export Error",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);
@@ -1683,7 +1683,7 @@ public class CcddFileIOHandler
                     storePath(ccddMain,
                               filePath,
                               singleFile,
-                              ModifiablePathInfo.TABLE_EXPORT_PATH.getPath());
+                              ModifiablePathInfo.TABLE_EXPORT_PATH);
                 }
                 // An error occurred creating the format conversion handler
                 else
@@ -1719,16 +1719,16 @@ public class CcddFileIOHandler
     /**************************************************************************
      * Check if the specified data file exists and, if so, whether or not the
      * user elects to overwrite it
-     * 
+     *
      * @param exportFile
      *            reference to the file
-     * 
+     *
      * @param overwriteFile
      *            true to overwrite an existing file
-     * 
+     *
      * @param parent
      *            GUI component calling this method
-     * 
+     *
      * @return true if the file doesn't exist, or if it does exist and the user
      *         elects to overwrite it; false if the file exists and the user
      *         elects not to overwrite it, or if an error occurs deleting the
@@ -1768,10 +1768,10 @@ public class CcddFileIOHandler
             // Inform the user that the data file cannot be created
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>"
-                                                          + ce.getMessage()
-                                                          + " export file<br>'</b>"
-                                                          + exportFile.getAbsolutePath()
-                                                          + "<b>'",
+                                                              + ce.getMessage()
+                                                              + " export file<br>'</b>"
+                                                              + exportFile.getAbsolutePath()
+                                                              + "<b>'",
                                                       "File Error",
                                                       ce.getMessageType(),
                                                       DialogOption.OK_OPTION);
@@ -1781,8 +1781,8 @@ public class CcddFileIOHandler
             // Inform the user that the data file cannot be written to
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Cannot write to export file<br>'</b>"
-                                                          + exportFile.getAbsolutePath()
-                                                          + "<b>'",
+                                                              + exportFile.getAbsolutePath()
+                                                              + "<b>'",
                                                       "File Error",
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -1793,7 +1793,7 @@ public class CcddFileIOHandler
 
     /**************************************************************************
      * Store the contents of the specified script file into the database
-     * 
+     *
      * @param file
      *            reference to the file to store
      *************************************************************************/
@@ -1830,7 +1830,8 @@ public class CcddFileIOHandler
                     {
                         // Extract the description from the file line
                         description = line.substring(index
-                                                     + SCRIPT_DESCRIPTION_TAG.length()).trim();
+                                                     + SCRIPT_DESCRIPTION_TAG.length())
+                                          .trim();
                     }
                 }
 
@@ -1853,8 +1854,8 @@ public class CcddFileIOHandler
             // Inform the user that the data file cannot be read
             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                       "<html><b>Cannot read script file<br>'</b>"
-                                                          + file.getAbsolutePath()
-                                                          + "<b>'",
+                                                                               + file.getAbsolutePath()
+                                                                               + "<b>'",
                                                       "File Error",
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -1875,8 +1876,8 @@ public class CcddFileIOHandler
                 // Inform the user that the file cannot be closed
                 new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                           "<html><b>Cannot close script file<br>'</b>"
-                                                              + file.getAbsolutePath()
-                                                              + "<b>'",
+                                                                                   + file.getAbsolutePath()
+                                                                                   + "<b>'",
                                                           "File Warning",
                                                           JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
@@ -1887,10 +1888,10 @@ public class CcddFileIOHandler
     /**************************************************************************
      * Retrieve the contents of the specified script from the database and save
      * it to a file
-     * 
+     *
      * @param script
      *            name of the script to retrieve
-     * 
+     *
      * @param file
      *            reference to the script file
      *************************************************************************/
@@ -1957,10 +1958,10 @@ public class CcddFileIOHandler
             // Inform the user that the script file cannot be created
             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                       "<html><b>"
-                                                          + ce.getMessage()
-                                                          + " script file<br>'</b>"
-                                                          + file.getAbsolutePath()
-                                                          + "<b>'",
+                                                                               + ce.getMessage()
+                                                                               + " script file<br>'</b>"
+                                                                               + file.getAbsolutePath()
+                                                                               + "<b>'",
                                                       "File Error",
                                                       ce.getMessageType(),
                                                       DialogOption.OK_OPTION);
@@ -1970,8 +1971,8 @@ public class CcddFileIOHandler
             // Inform the user that the script file cannot be written to
             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                       "<html><b>Cannot write to script file<br>'</b>"
-                                                          + file.getAbsolutePath()
-                                                          + "<b>'",
+                                                                               + file.getAbsolutePath()
+                                                                               + "<b>'",
                                                       "File Error",
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -1989,25 +1990,24 @@ public class CcddFileIOHandler
 
     /**************************************************************************
      * Store the specified file path in the program preferences backing store
-     * 
+     *
      * @param ccddMain
      *            main class reference
-     * 
+     *
      * @param pathName
      *            file path
-     * 
+     *
      * @param hasFileName
      *            true if the file path includes a file name. The file name is
      *            removed before storing the path
-     * 
-     * @param fileKey
-     *            key to store the file path into the program preferences
-     *            backing store
+     *
+     * @param modPath
+     *            ModifiablePathInfo reference for the path being updated
      ************************************************************************/
     protected static void storePath(CcddMain ccddMain,
                                     String pathName,
                                     boolean hasFileName,
-                                    String fileKey)
+                                    ModifiablePathInfo modPath)
     {
         // Check if the file path includes a file name
         if (hasFileName)
@@ -2024,16 +2024,16 @@ public class CcddFileIOHandler
             pathName = pathName.replaceFirst(File.separator + "?\\.", "");
         }
 
-        // Store the file path in the program preferences backing store
-        ccddMain.getProgPrefs().put(fileKey, pathName);
+        // Store the file path
+        modPath.setPath(ccddMain, pathName);
     }
 
     /**************************************************************************
      * Open the specified file for writing
-     * 
+     *
      * @param outputFileName
      *            output file path + name
-     * 
+     *
      * @return PrintWriter object; null if the file could not be opened
      *************************************************************************/
     public PrintWriter openOutputFile(String outputFileName)
@@ -2068,10 +2068,10 @@ public class CcddFileIOHandler
             // Inform the user that the output file cannot be created
             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                       "<html><b>"
-                                                          + ce.getMessage()
-                                                          + " output file<br>'</b>"
-                                                          + outputFileName
-                                                          + "<b>'",
+                                                                               + ce.getMessage()
+                                                                               + " output file<br>'</b>"
+                                                                               + outputFileName
+                                                                               + "<b>'",
                                                       "File Error",
                                                       ce.getMessageType(),
                                                       DialogOption.OK_OPTION);
@@ -2081,8 +2081,8 @@ public class CcddFileIOHandler
             // Inform the user that the output file cannot be opened
             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                       "<html><b>Cannot open output file<br>'</b>"
-                                                          + outputFileName
-                                                          + "<b>'",
+                                                                               + outputFileName
+                                                                               + "<b>'",
                                                       "File Error",
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -2093,10 +2093,10 @@ public class CcddFileIOHandler
 
     /**************************************************************************
      * Write the supplied text to the specified output file PrintWriter object
-     * 
+     *
      * @param printWriter
      *            output file PrintWriter object
-     * 
+     *
      * @param text
      *            text to write to the output file
      *************************************************************************/
@@ -2113,10 +2113,10 @@ public class CcddFileIOHandler
     /**************************************************************************
      * Write the supplied text to the specified output file PrintWriter object
      * and append a line feed character
-     * 
+     *
      * @param printWriter
      *            output file PrintWriter object
-     * 
+     *
      * @param text
      *            text to write to the output file
      *************************************************************************/
@@ -2133,13 +2133,13 @@ public class CcddFileIOHandler
     /**************************************************************************
      * Write the supplied text in the indicated format to the specified output
      * file PrintWriter object
-     * 
+     *
      * @param printWriter
      *            output file PrintWriter object
-     * 
+     *
      * @param format
      *            print format
-     * 
+     *
      * @param args
      *            arguments referenced by the format specifiers in the format
      *            string
@@ -2158,7 +2158,7 @@ public class CcddFileIOHandler
 
     /**************************************************************************
      * Close the specified output file
-     * 
+     *
      * @param printWriter
      *            output file PrintWriter object
      *************************************************************************/

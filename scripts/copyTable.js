@@ -19,6 +19,25 @@ catch (e)
 
 importClass(Packages.CCDD.CcddScriptDataAccessHandler);
 
+var usedHKNames = [];
+var usedHKValues = [];
+
+// Maximum number of lines for a copy table. Should match #define
+// HK_COPY_TABLE_ENTRIES value (in hk_platform_cfg.h)
+var HK_COPY_TABLE_ENTRIES = 1800;
+
+// Copy table entry array indices
+var INPUT_MSG_ID = 0;
+var INPUT_OFFSET = 1;
+var OUTPUT_MSG_ID = 2;
+var OUTPUT_OFFSET = 3;
+var VARIABLE_BYTES = 4;
+var VARIABLE_PARENT = 5;
+var VARIABLE_NAME = 6;
+
+// Length of the CCSDS header in bytes
+var CCSDS_HEADER_LENGTH = 12;
+
 /*******************************************************************************
  * Output the script association details to the specified file
  * 
@@ -50,24 +69,6 @@ function outputAssociationInfo(file)
  ******************************************************************************/
 function makeCopyTableFile()
 {
-    // Maximum number of lines for a copy table. Should match #define
-    // HK_COPY_TABLE_ENTRIES value (in hk_platform_cfg.h)
-    var HK_COPY_TABLE_ENTRIES = 1800;
-
-    // Copy table entry array indices
-    var INPUT_MSG_ID = 0;
-    var INPUT_OFFSET = 1;
-    var OUTPUT_MSG_ID = 2;
-    var OUTPUT_OFFSET = 3;
-    var VARIABLE_BYTES = 4;
-    var VARIABLE_PARENT = 5;
-    var VARIABLE_NAME = 6;
-
-    // Length of the CCSDS header in bytes
-    var CCSDS_HEADER_LENGTH = 12;
-
-    var allTableEntries = [];
-
     // Create the copy table output file name
     var copyTableFileName = ccdd.getOutputPath() + "hk_cpy_tbl.c";
 
@@ -77,6 +78,8 @@ function makeCopyTableFile()
     // Check if the copy table file successfully opened
     if (copyTableFile != null)
     {
+        var allTableEntries = [];
+
         // Add the build information to the output file
         outputAssociationInfo(copyTableFile);
 
@@ -94,15 +97,15 @@ function makeCopyTableFile()
             var tlmMsgIDs = ccdd.getTelemetryMessageIDs(copyTables[copyTable]);
 
             // Step through each of the telemetry message IDs
-            for (var index = 0; index < tlmMsgIDs.length; index++)
+            for (var msgIndex = 0; msgIndex < tlmMsgIDs.length; msgIndex++)
             {
                 var isFound = false;
 
                 // Step through the list of names already used
-                for (var i = 0; i < usedHKNames.length; i++)
+                for (var index = 0; index < usedHKNames.length; index++)
                 {
                     // Check if the message ID name is in the list
-                    if (tlmMsgIDs[index][0] == usedHKNames[i])
+                    if (tlmMsgIDs[index][0] == usedHKNames[index])
                     {
                         // Set the flag to indicate the name is already in the
                         // list and stop searching
@@ -112,11 +115,11 @@ function makeCopyTableFile()
                 }
 
                 // Check if the message ID name isn't in the list
-                if (isFound == false)
+                if (!isFound)
                 {
                     // Add the telemetry message ID name and ID to the lists
-                    usedHKNames.push(tlmMsgIDs[index][0]);
-                    usedHKValues.push(tlmMsgIDs[index][1]);
+                    usedHKNames.push(tlmMsgIDs[msgIndex][0]);
+                    usedHKValues.push(tlmMsgIDs[msgIndex][1]);
                 }
             }
 
@@ -136,11 +139,11 @@ function makeCopyTableFile()
         }
 
         // Build the format strings so that the columns in each row are aligned
-        var formatBody = "  {%-" + (Number(columnWidth[INPUT_MSG_ID]) + 1) + "s, %" + (Number(columnWidth[INPUT_OFFSET]) + 1) + "s, %-" + (Number(columnWidth[OUTPUT_MSG_ID]) + 1) + "s, %" + (Number(columnWidth[OUTPUT_OFFSET]) + 1) + "s, %" + (Number(columnWidth[VARIABLE_BYTES]) + 1) + "s}%s  /* %s : %s */\n";
-        var formatHeader = "/* %-" + (Number(columnWidth[INPUT_MSG_ID]) + 1) + "s| %-" + (Number(columnWidth[INPUT_OFFSET]) + 1) + "s| %-" + (Number(columnWidth[OUTPUT_MSG_ID]) + 1) + "s| %-" + (Number(columnWidth[OUTPUT_OFFSET]) + 1) + "s| %-" + (Number(columnWidth[VARIABLE_BYTES]) + 1) + "s */\n";
+        var formatHeader = "/* %-" + columnWidth[INPUT_MSG_ID] + "s| %-" + columnWidth[INPUT_OFFSET] + "s| %-" + columnWidth[OUTPUT_MSG_ID] + "s| %-" + columnWidth[OUTPUT_OFFSET] + "s| %-" + columnWidth[VARIABLE_BYTES] + "s */\n";
+        var formatBody = "  {%-" + columnWidth[INPUT_MSG_ID] + "s, %" + columnWidth[INPUT_OFFSET] + "s, %-" + columnWidth[OUTPUT_MSG_ID] + "s, %" + columnWidth[OUTPUT_OFFSET] + "s, %" + columnWidth[VARIABLE_BYTES] + "s}%s  /* %s : %s */\n";
 
         // Write the copy table definition statement
-        ccdd.writeToFileLn(copyTableFile, "\n\nhk_copy_table_entry_t HK_CopyTable[HK_COPY_TABLE_ENTRIES] =");
+        ccdd.writeToFileLn(copyTableFile, "hk_copy_table_entry_t HK_CopyTable[HK_COPY_TABLE_ENTRIES] =");
         ccdd.writeToFileLn(copyTableFile, "{");
         ccdd.writeToFileFormat(copyTableFile, formatHeader, "Input", "Input", "Output", "Output", "Num");
         ccdd.writeToFileFormat(copyTableFile, formatHeader, "Message ID", "Offset", "Message ID", "Offset", "Bytes");
@@ -149,7 +152,7 @@ function makeCopyTableFile()
         var rowsRemaining = +HK_COPY_TABLE_ENTRIES - 1;
 
         // Step through each entry in the copy table
-        for (var copyTable = 0; copyTable < copyTables.length; copyTable++)
+        for (copyTable = 0; copyTable < copyTables.length; copyTable++)
         {
             // Get the copy table entries for this data stream
             var copyTableEntries = allTableEntries[copyTable];
@@ -268,7 +271,7 @@ function makeIDDefinitionFile()
         // Step through the list of names that are used
         for (var index = 0; index < usedHKNames.length; index++)
         {
-            // Output the ID name and ID to the file 
+            // Output the ID name and ID to the file
             ccdd.writeToFileFormat(idDefinesFile, "#define %-" + minimumLength + "s  (%7s + FC_OFFSET )\n", usedHKNames[index], usedHKValues[index]);
         }
 
@@ -290,9 +293,6 @@ function makeIDDefinitionFile()
 /** End functions *********************************************************** */
 
 /** Main ******************************************************************** */
-
-var usedHKNames = [];
-var usedHKValues = [];
 
 // Output the copy table file
 makeCopyTableFile();

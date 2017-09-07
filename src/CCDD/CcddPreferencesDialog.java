@@ -86,7 +86,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Program preferences dialog class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
@@ -208,10 +208,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                                 CcddFileIOHandler.storePath(ccddMain,
                                                             currentPath,
                                                             false,
-                                                            modPath.getPreferenceKey());
-
-                                // Update the path to the new path
-                                modPath.setPath(currentPath);
+                                                            modPath);
                             }
 
                             index++;
@@ -599,19 +596,19 @@ public class CcddPreferencesDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Update a font
-     * 
+     *
      * @param modFont
      *            reference to the modifiable font's information
-     * 
+     *
      * @param family
      *            font family
-     * 
+     *
      * @param style
      *            font style
-     * 
+     *
      * @param size
      *            font size
-     * 
+     *
      * @param dialogs
      *            array of preference dialogs to update
      *************************************************************************/
@@ -818,19 +815,19 @@ public class CcddPreferencesDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Update a color
-     * 
+     *
      * @param modColor
      *            reference to the modifiable color's information
-     * 
+     *
      * @param red
      *            red component
-     * 
+     *
      * @param green
      *            green component
-     * 
+     *
      * @param blue
      *            blue component
-     * 
+     *
      * @param dialogs
      *            array of preference dialogs to update
      *************************************************************************/
@@ -1032,7 +1029,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                         // Inform the user that the input value is invalid
                         new CcddDialogHandler().showMessageDialog(CcddPreferencesDialog.this,
                                                                   "<html><b>The value for '</b>"
-                                                                      + ce.getMessage(),
+                                                                                              + ce.getMessage(),
                                                                   "Missing/Invalid Input",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);
@@ -1254,7 +1251,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                         // Inform the user that the input value is invalid
                         new CcddDialogHandler().showMessageDialog(CcddPreferencesDialog.this,
                                                                   "<html><b>The value for '</b>"
-                                                                      + ce.getMessage(),
+                                                                                              + ce.getMessage(),
                                                                   "Missing/Invalid Input",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);
@@ -1440,17 +1437,17 @@ public class CcddPreferencesDialog extends CcddDialogHandler
     /**************************************************************************
      * Create the button panel for the font/color chooser dialogs containing
      * the Okay, Default, and Close buttons
-     * 
+     *
      * @param okayAction
      *            reference to the action listener to handle Okay button events
-     * 
+     *
      * @param defaultAction
      *            reference to the action listener to handle Default button
      *            events
-     * 
+     *
      * @param dialog
      *            reference to the dialog calling this method
-     * 
+     *
      * @return Reference to the font/color chooser button panel
      *************************************************************************/
     private JPanel getButtonPanel(ActionListener okayAction,

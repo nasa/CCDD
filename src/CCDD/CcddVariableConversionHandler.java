@@ -251,6 +251,14 @@ public class CcddVariableConversionHandler
                 // name has one or more underscores appended since it would
                 // otherwise duplicate another variable's name
                 fullName = convertedVariableNameList.get(index);
+
+                // Check if data types are to be excluded
+                if (excludeDataTypes)
+                {
+                    // Remove the data types from the variable path + name
+                    fullName = fullName.replaceAll(",[^\\.]*\\.", ",");
+                }
+
             }
             // The separator character isn't an underscore or the variable
             // name isn't in the list

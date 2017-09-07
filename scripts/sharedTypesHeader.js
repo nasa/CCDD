@@ -109,14 +109,14 @@ function outputStructure(file, structIndex)
             }
 
             // Get the variable name for this row
-            var variableName = ccdd.getStructureTableData("variable name", row);
+            var variableName = ccdd.getStructureVariableName(row);
 
             // Check that this isn't an array member; only array definitions
             // appear in the type definition
             if (!variableName.endsWith("]"))
             {
                 // Get the variable's array size
-                var arraySize = ccdd.getStructureTableData("array size", row);
+                var arraySize = ccdd.getStructureArraySize(row);
 
                 // Check if the variable is an array
                 if (!arraySize.isEmpty())
@@ -131,7 +131,7 @@ function outputStructure(file, structIndex)
                 }
 
                 // Get the variable's bit length
-                var bitLength = ccdd.getStructureTableData("bit length", row);
+                var bitLength = ccdd.getStructureBitLength(row);
 
                 // Check if the variable has a bit length
                 if (!bitLength.isEmpty())
@@ -142,7 +142,7 @@ function outputStructure(file, structIndex)
 
                 // Determine the length of the variable definition by adding up
                 // the individual parts
-                var defnLength = ("   " + ccdd.getStructureTableData("data type", row) + " " + variableName + arraySize + bitLength + "; ").length;
+                var defnLength = ("   " + ccdd.getStructureDataType(row) + " " + variableName + arraySize + bitLength + "; ").length;
 
                 // Check if the length exceeds the minimum length found thus far
                 if (defnLength > minimumLength)
@@ -165,7 +165,7 @@ function outputStructure(file, structIndex)
         if (structureNames[structIndex].equals(ccdd.getStructureTableNameByRow(row)))
         {
             // Get the variable name for this row in the structure
-            var variableName = ccdd.getStructureTableData("variable name", row);
+            var variableName = ccdd.getStructureVariableName(row);
 
             // Check if this is the first pass through the structure data
             if (firstPass)
@@ -195,7 +195,7 @@ function outputStructure(file, structIndex)
                 ccdd.writeToFile(file, "/* Structure: " + structureNames[structIndex] + " (" + structSize + " bytes total)");
 
                 // Check if the structure has a description
-                if (structDescription != "")
+                if (!structDescription.isEmpty())
                 {
                     // Display the structure's description
                     ccdd.writeToFile(file, "\n   Description: " + structDescription);
@@ -246,12 +246,12 @@ function outputStructure(file, structIndex)
             if (!variableName.endsWith("]") && usedVariableNames.indexOf(String(variableName)) == -1)
             {
                 // Add the variable name to the list of those already processed
-                usedVariableNames.push(String(variableName))
+                usedVariableNames.push(String(variableName));
 
                 // Get the variable's data type, array size, and description
-                var dataType = ccdd.getStructureTableData("data type", row);
-                var arraySize = ccdd.getStructureTableData("array size", row);
-                var description = ccdd.getStructureTableData("description", row);
+                var dataType = ccdd.getStructureDataType(row);
+                var arraySize = ccdd.getStructureArraySize(row);
+                var description = ccdd.getStructureDescription(row);
 
                 // Determine the size of the variable, in bytes
                 var byteSize = ccdd.getDataTypeSizeInBytes(dataType);
@@ -325,7 +325,7 @@ function outputStructure(file, structIndex)
                     varOffset = ccdd.getVariableOffset(variablePath);
 
                     // Get the variable's bit length
-                    bitLength = ccdd.getStructureTableData("bit length", row);
+                    bitLength = ccdd.getStructureBitLength(row);
 
                     // Check if the bit length is provided
                     if (!bitLength.isEmpty())

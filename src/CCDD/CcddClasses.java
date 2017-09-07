@@ -85,10 +85,10 @@ public class CcddClasses
 
     /**************************************************************************
      * Set the data type and macro handler references
-     * 
+     *
      * @param dtHandler
      *            reference to the data type handler
-     * 
+     *
      * @param mHandler
      *            reference to the macro handler
      *************************************************************************/
@@ -167,7 +167,7 @@ public class CcddClasses
 
     /**************************************************************************
      * Table information class
-     * 
+     *
      * A table can be one (or possibly more) of the following: prototype, root,
      * parent, and child. A prototype table is produced whenever the Data | New
      * table(s) menu command is used to create a table. The prototype becomes a
@@ -439,7 +439,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the table's prototype table name
-         * 
+         *
          * @return Table's prototype table name
          *********************************************************************/
         protected String getPrototypeName()
@@ -482,7 +482,7 @@ public class CcddClasses
          * table from which this table descends. The first data type/variable
          * name pair is from the root table, with each succeeding pair coming
          * from the next level down in the structure's hierarchy
-         * 
+         *
          *
          * @return Table path
          *********************************************************************/
@@ -540,7 +540,7 @@ public class CcddClasses
          *            type/variable name pair is from the root table, with each
          *            succeeding pair coming from the next level down in the
          *            structure's hierarchy
-         * 
+         *
          * @return Table's parent table name; blank if this is a prototype or
          *         root table
          *********************************************************************/
@@ -909,11 +909,11 @@ public class CcddClasses
          * @param arraySizeColumn
          *            index of the column containing the array size; -1 if no
          *            array size column exists
-         * 
+         *
          * @param bitLengthColumn
          *            index of the column containing the bit length; -1 if no
          *            bit length column exists
-         * 
+         *
          * @param rateColumn
          *            indices of the columns containing the sample rates; null
          *            if no rate column exists
@@ -966,7 +966,7 @@ public class CcddClasses
          * @param arraySizeColumn
          *            index of the column containing the array size; -1 if no
          *            array size column exists
-         * 
+         *
          * @param bitLengthColumn
          *            index of the column containing the bit length; -1 if no
          *            bit length column exists
@@ -1083,11 +1083,11 @@ public class CcddClasses
 
         /**********************************************************************
          * Table definition class constructor
-         * 
+         *
          * @param tableName
          *            table name, including the path (for a structure child
          *            table)
-         * 
+         *
          * @param description
          *            table description
          *********************************************************************/
@@ -1103,7 +1103,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the table name (including path, if applicable)
-         * 
+         *
          * @return Table name (including path, if applicable)
          *********************************************************************/
         protected String getName()
@@ -1113,7 +1113,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the table name (including path, if applicable)
-         * 
+         *
          * @param tableName
          *            table name (including path, if applicable)
          *********************************************************************/
@@ -1124,7 +1124,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the table type
-         * 
+         *
          * @return Table type
          *********************************************************************/
         protected String getType()
@@ -1134,7 +1134,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the table type
-         * 
+         *
          * @param type
          *            table type
          *********************************************************************/
@@ -1145,7 +1145,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the table description
-         * 
+         *
          * @return Table description; return a blank if the description is null
          *********************************************************************/
         protected String getDescription()
@@ -1155,7 +1155,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the table description
-         * 
+         *
          * @param description
          *            table description
          *********************************************************************/
@@ -1166,7 +1166,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the table data
-         * 
+         *
          * @return Table data
          *********************************************************************/
         protected List<String> getData()
@@ -1176,7 +1176,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Add the specified row of data to the table data
-         * 
+         *
          * @param rowData
          *            row of table data to add to the table's data
          *********************************************************************/
@@ -1187,7 +1187,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the list containing the table data field information
-         * 
+         *
          * @return List containing the table data field information
          *********************************************************************/
         protected List<String[]> getDataFields()
@@ -1197,7 +1197,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Add a data field information to the list of table data fields
-         * 
+         *
          * @param fieldInfo
          *            data field information
          *********************************************************************/
@@ -1221,10 +1221,10 @@ public class CcddClasses
 
         /**********************************************************************
          * Table definition class constructor
-         * 
+         *
          * @param typeName
          *            table type name
-         * 
+         *
          * @param description
          *            table type description
          *********************************************************************/
@@ -1241,7 +1241,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the table type name
-         * 
+         *
          * @return Table type name
          *********************************************************************/
         protected String getTypeName()
@@ -1251,7 +1251,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the table type description
-         * 
+         *
          * @return Table type description
          *********************************************************************/
         protected String getDescription()
@@ -1261,7 +1261,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the list containing the table type column information
-         * 
+         *
          * @return List containing the table type column information
          *********************************************************************/
         protected List<Object[]> getColumns()
@@ -1271,7 +1271,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Add a table type column
-         * 
+         *
          * @param column
          *            array of table type column information
          *********************************************************************/
@@ -1282,7 +1282,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the list containing the table type data field information
-         * 
+         *
          * @return List containing the table type data field information
          *********************************************************************/
         protected List<String[]> getDataFields()
@@ -1292,7 +1292,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Add a table type data field
-         * 
+         *
          * @param dataField
          *            array of table type data field information
          *********************************************************************/
@@ -1318,31 +1318,31 @@ public class CcddClasses
         /**********************************************************************
          * Command argument class constructor for setting associated command
          * argument columns
-         * 
+         *
          * @param useViewIndex
          *            true to adjust the column indices to view coordinates;
          *            false to keep the coordinates in model coordinates
-         * 
+         *
          * @param name
          *            command argument name data type column index, model
          *            coordinates; -1 if none
-         * 
+         *
          * @param dataType
          *            command argument data type column index, model
          *            coordinates; -1 if none
-         * 
+         *
          * @param enumeration
          *            command argument enumeration column index, model
          *            coordinates; -1 if none
-         * 
+         *
          * @param minimum
          *            command argument minimum value column index, model
          *            coordinates; -1 if none
-         * 
+         *
          * @param maximum
          *            command argument maximum value column index, model
          *            coordinates; -1 if none
-         * 
+         *
          * @param other
          *            list of other associated column indices, model
          *            coordinates; null if none
@@ -1359,24 +1359,24 @@ public class CcddClasses
             // the input flag
             this.name = name
                         - (useViewIndex
-                                       ? NUM_HIDDEN_COLUMNS
-                                       : 0);
+                                        ? NUM_HIDDEN_COLUMNS
+                                        : 0);
             this.dataType = dataType
                             - (useViewIndex
-                                           ? NUM_HIDDEN_COLUMNS
-                                           : 0);
+                                            ? NUM_HIDDEN_COLUMNS
+                                            : 0);
             this.enumeration = enumeration
                                - (useViewIndex
-                                              ? NUM_HIDDEN_COLUMNS
-                                              : 0);
+                                               ? NUM_HIDDEN_COLUMNS
+                                               : 0);
             this.minMax = new MinMaxPair(minimum
                                          - (useViewIndex
-                                                        ? NUM_HIDDEN_COLUMNS
-                                                        : 0),
+                                                         ? NUM_HIDDEN_COLUMNS
+                                                         : 0),
                                          maximum
-                                             - (useViewIndex
-                                                            ? NUM_HIDDEN_COLUMNS
-                                                            : 0));
+                                                               - (useViewIndex
+                                                                               ? NUM_HIDDEN_COLUMNS
+                                                                               : 0));
 
             // Check if other associated columns are provided
             if (other != null)
@@ -1390,8 +1390,8 @@ public class CcddClasses
                     // on the input flag
                     this.other.add(column
                                    - (useViewIndex
-                                                  ? NUM_HIDDEN_COLUMNS
-                                                  : 0));
+                                                   ? NUM_HIDDEN_COLUMNS
+                                                   : 0));
                 }
             }
             // No other columns are provided
@@ -1404,11 +1404,11 @@ public class CcddClasses
         /**********************************************************************
          * Command argument class constructor for setting structure table data
          * type and enumeration pairings
-         * 
+         *
          * @param dataType
          *            command argument data type column index, model
          *            coordinates
-         * 
+         *
          * @param enumeration
          *            command argument enumeration column index, model
          *            coordinates
@@ -1420,7 +1420,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the command argument name column index
-         * 
+         *
          * @return Command argument name column index
          *********************************************************************/
         protected int getName()
@@ -1430,7 +1430,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the command argument data type column index
-         * 
+         *
          * @return Command argument data type column index
          *********************************************************************/
         protected int getDataType()
@@ -1440,7 +1440,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the command argument enumeration column index
-         * 
+         *
          * @return Command argument enumeration column index
          *********************************************************************/
         protected int getEnumeration()
@@ -1450,7 +1450,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the command argument minimum column index
-         * 
+         *
          * @return Command argument minimum column index
          *********************************************************************/
         protected int getMinimum()
@@ -1460,7 +1460,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the command argument maximum column index
-         * 
+         *
          * @return Command argument maximum column index
          *********************************************************************/
         protected int getMaximum()
@@ -1470,7 +1470,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the other command argument index(ices)
-         * 
+         *
          * @return Other command argument index(ices)
          *********************************************************************/
         protected List<Integer> getOther()
@@ -1490,10 +1490,10 @@ public class CcddClasses
 
         /**********************************************************************
          * Minimum/maximum pairing class constructor
-         * 
+         *
          * @param minimum
          *            minimum value column index
-         * 
+         *
          * @param maximum
          *            maximum value column index
          *********************************************************************/
@@ -1505,7 +1505,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the minimum column index
-         * 
+         *
          * @return Minimum column index
          *********************************************************************/
         protected int getMinimum()
@@ -1515,7 +1515,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the maximum column index
-         * 
+         *
          * @return Maximum column index
          *********************************************************************/
         protected int getMaximum()
@@ -1555,11 +1555,11 @@ public class CcddClasses
                 // the node name
                 toolTipText = toolTipText == null
                               || toolTipText.isEmpty()
-                                                      ? expanded
-                                                      : "("
-                                                        + expanded
-                                                        + ") "
-                                                        + toolTipText;
+                                                       ? expanded
+                                                       : "("
+                                                         + expanded
+                                                         + ") "
+                                                         + toolTipText;
             }
 
             this.toolTipText = CcddUtilities.wrapText(toolTipText,
@@ -1862,10 +1862,10 @@ public class CcddClasses
          *
          * @param description
          *            group description
-         * 
+         *
          * @param isApplication
          *            flag indicating if the group represents a CFS application
-         * 
+         *
          * @param fieldInformation
          *            data field information
          *********************************************************************/
@@ -1888,11 +1888,11 @@ public class CcddClasses
          *
          * @param isApplication
          *            flag indicating if the group represents a CFS application
-         * 
+         *
          * @param tables
          *            list of tables (with full paths( belonging to this group;
          *            null if creating a new, empty group
-         * 
+         *
          * @param fieldInformation
          *            data field information
          *********************************************************************/
@@ -2025,7 +2025,7 @@ public class CcddClasses
          * Add the specified group table to the lists that include each
          * parent.child table pair and the member table along with its ancestor
          * tables
-         * 
+         *
          * @param table
          *            group table member (full table path)
          *********************************************************************/
@@ -2127,7 +2127,7 @@ public class CcddClasses
          *
          * @param sampleRate
          *            link rate in samples per second
-         * 
+         *
          * @param description
          *            link description
          *********************************************************************/
@@ -2225,10 +2225,10 @@ public class CcddClasses
         /**********************************************************************
          * Remove the array variable index, if present, from the supplied
          * variable name
-         * 
+         *
          * @param variableName
          *            variable name
-         * 
+         *
          * @return The variable name, with the array index removed
          *********************************************************************/
         protected static String removeArrayIndex(String variableName)
@@ -2249,10 +2249,10 @@ public class CcddClasses
         /**********************************************************************
          * Remove the string size array variable index, if present, from the
          * supplied variable name
-         * 
+         *
          * @param variableName
          *            variable name
-         * 
+         *
          * @return The variable name, with the string size array index removed
          *********************************************************************/
         protected static String removeStringSize(String variableName)
@@ -2274,10 +2274,10 @@ public class CcddClasses
         /**********************************************************************
          * Get the array variable index, if present, from the supplied variable
          * name
-         * 
+         *
          * @param variableName
          *            variable name
-         * 
+         *
          * @return The array index, with the variable name removed
          *********************************************************************/
         protected static String getVariableArrayIndex(String variableName)
@@ -2297,10 +2297,10 @@ public class CcddClasses
 
         /**********************************************************************
          * Check if a variable name represents an array member
-         * 
+         *
          * @param variableName
          *            variable name
-         * 
+         *
          * @return true if the variable is an array member
          *********************************************************************/
         protected static boolean isArrayMember(Object variableName)
@@ -2310,10 +2310,10 @@ public class CcddClasses
 
         /**********************************************************************
          * Add brackets to encompass a variable array index value(s)
-         * 
+         *
          * @param arrayIndex
          *            array of array variable index value(s)
-         * 
+         *
          * @return Array index value(s), surrounded by brackets
          *********************************************************************/
         protected static String formatArrayIndex(int[] arrayIndex)
@@ -2334,11 +2334,11 @@ public class CcddClasses
         /**********************************************************************
          * Parse an array size into an array of integers representing each
          * array index
-         * 
+         *
          * @param arrayString
          *            array size value in the format [#]<[#]<...>> or
          *            #<,#<,...>>
-         * 
+         *
          * @return Array of integers representing each array index. An empty
          *         array is returned if the array size cell is blank
          *********************************************************************/
@@ -2377,10 +2377,10 @@ public class CcddClasses
         /**********************************************************************
          * Get the total number of array members using the data tables array
          * size cell text
-         * 
+         *
          * @param arraySizeS
          *            string representing the array variable dimension sizes
-         * 
+         *
          * @return Total number of members in the array; 0 if not an array
          *         variable
          *********************************************************************/
@@ -2392,10 +2392,10 @@ public class CcddClasses
         /**********************************************************************
          * Get the total number of array members using the array dimension
          * values
-         * 
+         *
          * @param arraySize
          *            array of the array variable dimension sizes
-         * 
+         *
          * @return Total number of members in the array; 0 if not an array
          *         variable
          *********************************************************************/
@@ -2422,14 +2422,14 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the index position of the specified array member
-         * 
+         *
          * @param arrayIndex
          *            array giving the dimension indices for the specified
          *            array member
-         * 
+         *
          * @param arraySize
          *            array giving the size of each of the array's dimensions
-         * 
+         *
          * @return Index position of the array member
          *********************************************************************/
         protected static int getArrayMemberPosition(int[] arrayIndex,
@@ -2460,13 +2460,13 @@ public class CcddClasses
 
         /**********************************************************************
          * Compare two array variable members by array dimension value(s)
-         * 
+         *
          * @param arrayVariable1
          *            first array variable member to compare
-         * 
+         *
          * @param arrayVariable2
          *            second array variable member to compare
-         * 
+         *
          * @return 0 if the array members are the same, -1 if the first array
          *         member occurs prior to the second array member (based the
          *         their array dimension value(s), and 1 if the first array
@@ -2529,7 +2529,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Data stream rate parameter information class constructor
-         * 
+         *
          * @param rateName
          *            rate column name (viewable) for this data stream
          *********************************************************************/
@@ -2547,7 +2547,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the number of table types referencing this rate column name
-         * 
+         *
          * @return Number of table types referencing this rate column name
          *********************************************************************/
         protected int getNumSharedTableTypes()
@@ -2557,7 +2557,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the number of table types referencing this rate column name
-         * 
+         *
          * @param numSharedTableTypes
          *            number of table types referencing this rate column name
          *********************************************************************/
@@ -2580,7 +2580,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the rate column name
-         * 
+         *
          * @return Rate column name
          *********************************************************************/
         protected String getRateName()
@@ -2590,7 +2590,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the rate column name
-         * 
+         *
          * @param rateName
          *            rate column name
          *********************************************************************/
@@ -2601,7 +2601,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the data stream name
-         * 
+         *
          * @return Data stream name
          *********************************************************************/
         protected String getStreamName()
@@ -2611,7 +2611,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the data stream name
-         * 
+         *
          * @param streamName
          *            data stream name
          *********************************************************************/
@@ -2622,7 +2622,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the stream maximum messages per cycle
-         * 
+         *
          * @return Stream maximum messages per cycle
          *********************************************************************/
         protected int getMaxMsgsPerCycle()
@@ -2632,7 +2632,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the stream maximum messages per cycle
-         * 
+         *
          * @param rateName
          *            stream maximum messages per cycle
          *********************************************************************/
@@ -2643,7 +2643,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the stream maximum bytes per second
-         * 
+         *
          * @return Stream maximum bytes per second
          *********************************************************************/
         protected int getMaxBytesPerSec()
@@ -2653,7 +2653,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the stream maximum bytes per second
-         * 
+         *
          * @param rateName
          *            stream maximum bytes per second
          *********************************************************************/
@@ -2664,7 +2664,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the stream sample rate array
-         * 
+         *
          * @return Stream sample rate array
          *********************************************************************/
         protected String[] getSampleRates()
@@ -2674,7 +2674,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the stream sample rate array
-         * 
+         *
          * @param rateName
          *            stream sample rate array
          *********************************************************************/
@@ -2694,10 +2694,10 @@ public class CcddClasses
 
         /**********************************************************************
          * Node removal results class constructor
-         * 
+         *
          * @param isRemoved
          *            true if one or more nodes have been removed
-         * 
+         *
          * @param isRemoveAll
          *            true if all nodes should be removed
          *********************************************************************/
@@ -2710,7 +2710,7 @@ public class CcddClasses
         /**********************************************************************
          * Get the status of the flag that indicates if one or more nodes have
          * been removed
-         * 
+         *
          * @return true if one or more nodes have been removed
          *********************************************************************/
         protected boolean isRemoved()
@@ -2721,7 +2721,7 @@ public class CcddClasses
         /**********************************************************************
          * Get the status of the flag that indicates all nodes should be
          * removed
-         * 
+         *
          * @return true if all nodes should be removed
          *********************************************************************/
         protected boolean isRemoveAll()
@@ -2732,7 +2732,7 @@ public class CcddClasses
         /**********************************************************************
          * Set the status of the flag that indicates all nodes should be
          * removed
-         * 
+         *
          * @param isRemoveAll
          *            true if all nodes should be removed
          *********************************************************************/
@@ -2753,15 +2753,15 @@ public class CcddClasses
 
         /**********************************************************************
          * Node indices for bit-packed variables class constructor
-         * 
+         *
          * @param firstIndex
          *            node index for the first member in a group of bit-packed
          *            variable
-         * 
+         *
          * @param lastIndex
          *            node index for the last member in a group of bit-packed
          *            variables
-         * 
+         *
          * @param tableIndex
          *            node index for the selected member in a group of
          *            bit-packed variables
@@ -2776,7 +2776,7 @@ public class CcddClasses
         /**********************************************************************
          * Get the node index for the first member in a group of bit-packed
          * variable
-         * 
+         *
          * @return Node index for the first member in a group of bit-packed
          *         variable
          *********************************************************************/
@@ -2788,7 +2788,7 @@ public class CcddClasses
         /**********************************************************************
          * Get the node index for the last member in a group of bit-packed
          * variable
-         * 
+         *
          * @return Node index for the last member in a group of bit-packed
          *         variable
          *********************************************************************/
@@ -2800,7 +2800,7 @@ public class CcddClasses
         /**********************************************************************
          * Get the node index for the selected member in a group of bit-packed
          * variables
-         * 
+         *
          * @return Node index for the selected member in a group of bit-packed
          *         variable
          *********************************************************************/
@@ -2822,11 +2822,11 @@ public class CcddClasses
          * Associated variables class constructor. Variables are considered
          * 'associated' if they are bit-wise variables that are packed together
          * or are members of a string
-         * 
+         *
          * @param totalSize
          *            node index for the first member in a group of bit-packed
          *            variable
-         * 
+         *
          * @param associates
          *            list of associated variables
          *********************************************************************/
@@ -2838,7 +2838,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the total size in bytes of the associated variables
-         * 
+         *
          * @return Total size in bytes of the associated variables
          *********************************************************************/
         protected int getTotalSize()
@@ -2848,7 +2848,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the list of associated variables
-         * 
+         *
          * @return List of associated variables
          *********************************************************************/
         protected List<Variable> getAssociates()
@@ -2864,10 +2864,10 @@ public class CcddClasses
     {
         /**********************************************************************
          * Generate a telemetry data object
-         * 
+         *
          * @param data
          *            member column value
-         * 
+         *
          * @return Telemetry data object based on the supplied data
          *********************************************************************/
         static Variable generateTelemetryData(String data)
@@ -2885,13 +2885,13 @@ public class CcddClasses
          * Create list of variables based on the path and rate passed in. If
          * the path is a unlinked variable it will return a list of one, else
          * it will return a list of the link's variables
-         * 
+         *
          * @param path
          *            tree path to the variable
-         * 
+         *
          * @param rate
          *            rate of the variable
-         * 
+         *
          * @return Telemetry data object
          *********************************************************************/
         static TelemetryData generateTelemetryData(Object[] path, float rate)
@@ -2917,10 +2917,10 @@ public class CcddClasses
 
         /**********************************************************************
          * Generate an application data object
-         * 
+         *
          * @param data
          *            member column value
-         * 
+         *
          * @return Application data object based on the supplied data
          *********************************************************************/
         static Variable generateApplicationData(String data)
@@ -2955,13 +2955,13 @@ public class CcddClasses
 
         /**********************************************************************
          * Variable class constructor
-         * 
+         *
          * @param size
          *            variable size, bytes
-         * 
+         *
          * @param pathName
          *            variable path and name
-         * 
+         *
          * @param rate
          *            variable rate, Hertz
          *********************************************************************/
@@ -2975,7 +2975,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the size of the variable in bytes
-         * 
+         *
          * @return Size of the variable in bytes
          *********************************************************************/
         protected int getSize()
@@ -2985,7 +2985,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the size of the variable in bytes
-         * 
+         *
          * @param size
          *            size of the variable
          *********************************************************************/
@@ -2997,7 +2997,7 @@ public class CcddClasses
         /**********************************************************************
          * Get the full path and name of the variable. This includes the root
          * structure and all of the variables in this variable's path
-         * 
+         *
          * @return Variable's full path and name
          *********************************************************************/
         protected String getFullName()
@@ -3007,7 +3007,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the full path and the name of the variable
-         * 
+         *
          * @param pathName
          *            variable's full path and name
          *********************************************************************/
@@ -3018,7 +3018,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the variable name
-         * 
+         *
          * @return Variable name
          *********************************************************************/
         protected String getName()
@@ -3028,7 +3028,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the bit length of the variable
-         * 
+         *
          * @return Bit length of the variable
          *********************************************************************/
         protected String getBitLength()
@@ -3038,7 +3038,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the rate of the variable
-         * 
+         *
          * @return Rate of the variable, Hertz
          *********************************************************************/
         protected float getRate()
@@ -3048,7 +3048,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the indices of the messages in which the variable is contained
-         * 
+         *
          * @return List containing the indices of the messages in which the
          *         variable is contained
          *********************************************************************/
@@ -3059,7 +3059,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the indices for the messages in which the variable is contained
-         * 
+         *
          * @param msgIndices
          *            array of indices in which the variable is contained
          *********************************************************************/
@@ -3076,7 +3076,7 @@ public class CcddClasses
         /**********************************************************************
          * Add an index to the list of message indices. Duplicate indices are
          * ignored
-         * 
+         *
          * @param index
          *            index to add
          *********************************************************************/
@@ -3093,10 +3093,10 @@ public class CcddClasses
         /**********************************************************************
          * Implement the compareTo method so a variable can be sorted based on
          * byte size
-         * 
+         *
          * @param compVar
          *            variable to be compared
-         * 
+         *
          * @return 0 if the sizes are the same; -1 if the comparison variable's
          *         size if greater than this variable's size; 1 if this
          *         variable's size is greater than the comparison variable's
@@ -3122,7 +3122,7 @@ public class CcddClasses
         /**********************************************************************
          * Get the name of the link to which the item belongs. Override this
          * function if the sub-class can have linked data
-         * 
+         *
          * @return Link name; null if the item is not a link member
          *********************************************************************/
         protected String getLink()
@@ -3141,13 +3141,13 @@ public class CcddClasses
 
         /**********************************************************************
          * Telemetry data class constructor
-         * 
+         *
          * @param dataType
          *            variable data type
-         * 
+         *
          * @param pathName
          *            variable path and name
-         * 
+         *
          * @param rate
          *            variable rate, Hertz
          *********************************************************************/
@@ -3164,7 +3164,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Gets the variable data type
-         * 
+         *
          * @return Variable data type
          *********************************************************************/
         protected String getDataType()
@@ -3174,7 +3174,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the variable data type
-         * 
+         *
          * @param dataType
          *            variable data type
          *********************************************************************/
@@ -3191,7 +3191,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the name of the link for which this variable is a member
-         * 
+         *
          * @return Name of the link for which this variable is a member; null
          *         if the variable is not a member of a link
          *********************************************************************/
@@ -3203,7 +3203,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the name of the link for which this variable is a member
-         * 
+         *
          * @param link
          *            name of the link for which this variable is a member;
          *            null if the variable is not a member of a link
@@ -3230,37 +3230,37 @@ public class CcddClasses
 
         /**********************************************************************
          * Application data class constructor
-         * 
+         *
          * @param name
          *            application name
-         * 
+         *
          * @param rate
          *            application run rate
-         * 
+         *
          * @param runTime
          *            application run time
-         * 
+         *
          * @param priority
          *            application execution priority
-         * 
+         *
          * @param messageRate
          *            message rate
-         * 
+         *
          * @param wakeUpName
          *            application wake-up name
-         * 
+         *
          * @param wakeUpID
          *            application wake up ID
-         * 
+         *
          * @param hkSendRate
          *            application housekeeping send rate
-         * 
+         *
          * @param hkWakeUpName
          *            application wake-up name
-         * 
+         *
          * @param hkWakeUpID
          *            application wake up ID
-         * 
+         *
          * @param schGroup
          *            application schedule group
          *********************************************************************/
@@ -3291,7 +3291,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the application priority
-         * 
+         *
          * @return Application priority
          *********************************************************************/
         protected int getPriority()
@@ -3301,7 +3301,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the application priority
-         * 
+         *
          * @param priority
          *            new application priority
          *********************************************************************/
@@ -3312,7 +3312,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the application priority
-         * 
+         *
          * @return Application priority
          *********************************************************************/
         protected int getMessageRate()
@@ -3322,7 +3322,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the application message rate
-         * 
+         *
          * @param priority
          *            new application message rate
          *********************************************************************/
@@ -3333,7 +3333,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the application wake-up name
-         * 
+         *
          * @return Application wake-up name
          *********************************************************************/
         protected String getWakeUpName()
@@ -3343,7 +3343,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the application wake-up name
-         * 
+         *
          * @param schGroup
          *            new application wake-up name
          *********************************************************************/
@@ -3354,7 +3354,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the application wake up ID
-         * 
+         *
          * @return Application wake up ID
          *********************************************************************/
         protected String getWakeUpID()
@@ -3364,7 +3364,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the application wake up ID
-         * 
+         *
          * @param wakeUpID
          *            new application wake up ID
          *********************************************************************/
@@ -3375,7 +3375,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the application housekeeping send rate
-         * 
+         *
          * @return Application housekeeping send rate
          *********************************************************************/
         protected int getHkSendRate()
@@ -3385,7 +3385,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the application housekeeping send rate
-         * 
+         *
          * @param schGroup
          *            new application housekeeping send rate
          *********************************************************************/
@@ -3396,7 +3396,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the application housekeeping wake-up name
-         * 
+         *
          * @return Application housekeeping wake-up name
          *********************************************************************/
         protected String getHkWakeUpName()
@@ -3406,7 +3406,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the application housekeeping wake-up name
-         * 
+         *
          * @param schGroup
          *            new application housekeeping wake-up name
          *********************************************************************/
@@ -3417,7 +3417,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the application housekeeping wake-up ID
-         * 
+         *
          * @return Application housekeeping wake-up ID
          *********************************************************************/
         protected String getHkWakeUpID()
@@ -3427,7 +3427,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the application housekeeping wake-up ID
-         * 
+         *
          * @param schGroup
          *            new application housekeeping wake-up ID
          *********************************************************************/
@@ -3438,7 +3438,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the application schedule group
-         * 
+         *
          * @return Application schedule group
          *********************************************************************/
         protected String getSchGroup()
@@ -3448,7 +3448,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the application schedule group
-         * 
+         *
          * @param schGroup
          *            new application schedule group
          *********************************************************************/
@@ -3475,17 +3475,17 @@ public class CcddClasses
          *
          * @param messageName
          *            message name
-         * 
+         *
          * @param messageID
          *            message ID
-         * 
+         *
          * @param totalBytes
          *            size of the initial number of bytes in the message
-         * 
+         *
          * @param parentMessage
          *            parent of the sub-message; null if this is not a
          *            sub-message
-         * 
+         *
          * @param subMessages
          *            sub-message initialization; null if this is not a parent
          *            message
@@ -3509,10 +3509,10 @@ public class CcddClasses
          *
          * @param messageName
          *            message name
-         * 
+         *
          * @param messageID
          *            message ID
-         * 
+         *
          * @param bytes
          *            size of the initial amount of bytes in the message
          *********************************************************************/
@@ -3530,13 +3530,13 @@ public class CcddClasses
          *
          * @param subMessageName
          *            sub-message name
-         * 
+         *
          * @param subMsgID
          *            sub-message ID
-         * 
+         *
          * @param bytes
          *            size of the initial amount of bytes in the message
-         * 
+         *
          * @param msg
          *            parent of the sub-message
          *********************************************************************/
@@ -3550,7 +3550,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the message name
-         * 
+         *
          * @return Message name
          *********************************************************************/
         protected String getName()
@@ -3562,7 +3562,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the message name
-         * 
+         *
          * @param name
          *            message name
          *********************************************************************/
@@ -3585,7 +3585,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the message ID
-         * 
+         *
          * @return Message ID
          *********************************************************************/
         protected String getID()
@@ -3595,7 +3595,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the message ID
-         * 
+         *
          * @param messageID
          *            message ID
          *********************************************************************/
@@ -3619,7 +3619,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the list of sub-messages
-         * 
+         *
          * @return List of sub-messages
          *********************************************************************/
         protected List<Message> getSubMessages()
@@ -3629,7 +3629,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the parent message
-         * 
+         *
          * @return Parent message
          *********************************************************************/
         protected Message getParentMessage()
@@ -3639,7 +3639,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Create a new sub-message
-         * 
+         *
          * @param subMsgID
          *            sub-message ID
          *********************************************************************/
@@ -3660,7 +3660,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Delete the sub-message at the specified index
-         * 
+         *
          * @param index
          *            sub-message index
          *********************************************************************/
@@ -3676,10 +3676,10 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the sub-message at the specified index
-         * 
+         *
          * @param index
          *            message index
-         * 
+         *
          * @return The sub-message at the specified index
          *********************************************************************/
         protected Message getSubMessage(int index)
@@ -3689,7 +3689,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the number of sub-messages
-         * 
+         *
          * @return Number of sub-messages; 0 if there are no sub-messages
          *********************************************************************/
         protected int getNumberOfSubMessages()
@@ -3708,10 +3708,10 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the variable at the specified index
-         * 
+         *
          * @param index
          *            index of the variable
-         * 
+         *
          * @return Specified variable object
          *********************************************************************/
         protected Variable getVariable(int index)
@@ -3721,10 +3721,10 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the index of a variable with the specified name
-         * 
+         *
          * @param name
          *            name of the variable
-         * 
+         *
          * @return Index of the variable with the specified name; -1 if the
          *         variable doesn't exist
          *********************************************************************/
@@ -3749,10 +3749,10 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the variable with the specified name
-         * 
+         *
          * @param name
          *            name of the variable
-         * 
+         *
          * @return Variable object with the specified name; null if the
          *         variable is not a member of the message or any of its
          *         sub-messages
@@ -3787,7 +3787,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get a list of the variables for this message
-         * 
+         *
          * @return List of message's variables
          *********************************************************************/
         protected List<Variable> getVariables()
@@ -3798,7 +3798,7 @@ public class CcddClasses
         /**********************************************************************
          * Get the list of all the variables including those within the
          * sub-messages (if applicable)
-         * 
+         *
          * @return All variables including sub-message variables
          *********************************************************************/
         protected List<Variable> getAllVariables()
@@ -3835,7 +3835,7 @@ public class CcddClasses
         /**********************************************************************
          * Get all variables for the message including its parent's (if
          * applicable)
-         * 
+         *
          * @return All variables for the message its parent
          *********************************************************************/
         protected List<Variable> getVariablesWithParent()
@@ -3857,7 +3857,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the number of variables in the message
-         * 
+         *
          * @return Number of variables in the message
          *********************************************************************/
         protected int getNumberOfVariables()
@@ -3868,7 +3868,7 @@ public class CcddClasses
         /**********************************************************************
          * Add a variable to the message. Append the variable to the end of the
          * list
-         * 
+         *
          * @param variable
          *            variable to add
          *********************************************************************/
@@ -3880,10 +3880,10 @@ public class CcddClasses
         /**********************************************************************
          * Add a variable to the message. Insert the variable into the list at
          * the specified index
-         * 
+         *
          * @param variable
          *            variable to add
-         * 
+         *
          * @param index
          *            position in the variable list to insert the variable; -1
          *            to append the variable to the end of the list
@@ -3904,10 +3904,10 @@ public class CcddClasses
 
         /**********************************************************************
          * Remove the variable with the specified name
-         * 
+         *
          * @param varName
          *            name of the variable to remove
-         * 
+         *
          * @return Variable object that is removed
          *********************************************************************/
         protected Variable removeVariable(String varName)
@@ -3940,7 +3940,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the number of bytes remaining in the message
-         * 
+         *
          * @return Number of bytes remaining
          *********************************************************************/
         protected int getBytesRemaining()
@@ -3960,7 +3960,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the number of bytes remaining in the message
-         * 
+         *
          * @param bytesRemaining
          *            number of bytes remaining
          *********************************************************************/
@@ -3972,7 +3972,7 @@ public class CcddClasses
         /**********************************************************************
          * Get the byte count for the sub-message with the least number of
          * bytes remaining
-         * 
+         *
          * @return Number of bytes remaining
          *********************************************************************/
         private int getSmallestSubMessageBytesRemaining()
@@ -3999,7 +3999,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Add bytes to the message
-         * 
+         *
          * @param bytes
          *            number of bytes to add
          *********************************************************************/
@@ -4013,7 +4013,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Add bytes to the sub-messages
-         * 
+         *
          * @param bytes
          *            bytes to add
          *********************************************************************/
@@ -4033,10 +4033,10 @@ public class CcddClasses
 
         /**********************************************************************
          * Check if a variable is in the message
-         * 
+         *
          * @param varName
          *            name of variable
-         * 
+         *
          * @return true if the message contains the specified variable
          *********************************************************************/
         protected boolean isVariableInMessage(String varName)
@@ -4061,10 +4061,10 @@ public class CcddClasses
 
         /**********************************************************************
          * Swap the position of two variables
-         * 
+         *
          * @param index1
          *            first index
-         * 
+         *
          * @param index2
          *            second index
          *********************************************************************/
@@ -4086,13 +4086,13 @@ public class CcddClasses
 
         /**********************************************************************
          * Data steam class constructor
-         * 
+         *
          * @param messages
          *            list of messages for the data stream
-         * 
+         *
          * @param varList
          *            list of variables in the data stream
-         * 
+         *
          * @param rateName
          *            rate column name
          *********************************************************************/
@@ -4107,10 +4107,10 @@ public class CcddClasses
 
         /**********************************************************************
          * Data steam class constructor
-         * 
+         *
          * @param messages
          *            list of messages for the data stream
-         * 
+         *
          * @param varList
          *            list of variables in the data stream
          *********************************************************************/
@@ -4121,7 +4121,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Data steam class constructor
-         * 
+         *
          * @param rateName
          *            rate column name
          *********************************************************************/
@@ -4132,10 +4132,10 @@ public class CcddClasses
 
         /**********************************************************************
          * Data steam class constructor
-         * 
+         *
          * @param messages
          *            list of messages for the data stream
-         * 
+         *
          * @param rateName
          *            rate column name
          *********************************************************************/
@@ -4146,7 +4146,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the variable list for the data stream
-         * 
+         *
          * @return List of variables in the data stream
          *********************************************************************/
         protected List<Variable> getVariableList()
@@ -4156,7 +4156,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the messages in the data stream
-         * 
+         *
          * @return List of messages in the data stream
          *********************************************************************/
         protected List<Message> getMessages()
@@ -4166,7 +4166,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the rate column name
-         * 
+         *
          * @return Rate column name
          *********************************************************************/
         protected String getRateName()
@@ -4197,7 +4197,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Validate cell action listener
-         * 
+         *
          * @param table
          *            reference to the CcddJTableHandler table to check for
          *            cell validation; null perform the action with no
@@ -4231,7 +4231,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the table for which the action is performed
-         * 
+         *
          * @return Table for which the action is performed
          *********************************************************************/
         protected CcddJTableHandler getTable()
@@ -4250,7 +4250,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Padded combo box constructor with an empty list
-         * 
+         *
          * @param font
          *            combo box list item font
          *********************************************************************/
@@ -4262,10 +4262,10 @@ public class CcddClasses
         /**********************************************************************
          * Padded combo box constructor with initial list items and no tool tip
          * text
-         * 
+         *
          * @param items
          *            combo box list items
-         * 
+         *
          * @param font
          *            combo box list item font
          *********************************************************************/
@@ -4279,13 +4279,13 @@ public class CcddClasses
         /**********************************************************************
          * Padded combo box constructor with initial list items and tool tip
          * text
-         * 
+         *
          * @param items
          *            combo box list items
-         * 
+         *
          * @param toolTips
          *            combo box list items
-         * 
+         *
          * @param font
          *            combo box list item font
          *********************************************************************/
@@ -4311,7 +4311,7 @@ public class CcddClasses
         /**********************************************************************
          * Override in order to set the combo box width to that of the longest
          * list item
-         * 
+         *
          * @return Combo box size
          *********************************************************************/
         @Override
@@ -4333,10 +4333,10 @@ public class CcddClasses
 
         /**********************************************************************
          * Set up list item characteristics
-         * 
+         *
          * @param toolTips
          *            combo box list items
-         * 
+         *
          * @param font
          *            combo box list item font
          *********************************************************************/
@@ -4395,10 +4395,10 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the list index of the specified list item
-         * 
+         *
          * @param itemName
          *            name of the list item for which to search
-         * 
+         *
          * @return the index of the specified item in the list; -1 if the item
          *         isn't in the list
          *********************************************************************/
@@ -4434,20 +4434,20 @@ public class CcddClasses
          * Modifiable font class constructor. Allows assigning an identifier to
          * the font for the purpose of identifying those Swing components that
          * utilize the font in the event the font's characteristics are changed
-         * 
+         *
          * @param fontIdentifier
          *            font identifier. The identifier must be unique for each
          *            modifiable font since this name is used to identify the
          *            font as being used by a particular Swing component. The
          *            program preferences key for the modifiable font
          *            information is used as the identifier
-         * 
+         *
          * @param fontFamily
          *            font family
-         * 
+         *
          * @param fontStyle
          *            font style
-         * 
+         *
          * @param fontSize
          *            font size
          *********************************************************************/
@@ -4465,7 +4465,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the modifiable font's identifier
-         * 
+         *
          * @return Modifiable font's identifier
          *********************************************************************/
         protected String getModifiableFontIdentifier()
@@ -4487,20 +4487,20 @@ public class CcddClasses
          * to the color for the purpose of identifying those Swing components
          * that utilize the color in the event the color's characteristics are
          * changed
-         * 
+         *
          * @param colorIdentifier
          *            color identifier. The identifier must be unique for each
          *            modifiable color since this name is used to identify the
          *            color as being used by a particular Swing component. The
          *            program preferences key for the modifiable color
          *            information is used as the identifier
-         * 
+         *
          * @param red
          *            red color component
-         * 
+         *
          * @param green
          *            green color component
-         * 
+         *
          * @param blue
          *            blue color component
          *********************************************************************/
@@ -4518,7 +4518,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the modifiable color's identifier
-         * 
+         *
          * @return Modifiable color's identifier
          *********************************************************************/
         protected String getModifiableColorIdentifier()
@@ -4540,10 +4540,10 @@ public class CcddClasses
 
         /**********************************************************************
          * Color check box constructor
-         * 
+         *
          * @param text
          *            label to display along with the check box
-         * 
+         *
          * @param color
          *            check box color
          *********************************************************************/
@@ -4572,7 +4572,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Create the icons to display for the check box in the selected color
-         * 
+         *
          * @param color
          *            color in which to display the check box icon
          *********************************************************************/
@@ -4603,13 +4603,13 @@ public class CcddClasses
 
         /**********************************************************************
          * Create a check box color icon
-         * 
+         *
          * @param size
          *            width and height of the icon in pixels
-         * 
+         *
          * @param borderColor
          *            color with which to outline the icon
-         * 
+         *
          * @return Icon in the selected color with a border in the color
          *         specified
          *********************************************************************/
@@ -4638,7 +4638,7 @@ public class CcddClasses
         /**********************************************************************
          * Update the color check box icon depending whether or not it has the
          * keyboard focus
-         * 
+         *
          * @param isFocus
          *            true if the check box has the key board focus
          *********************************************************************/
@@ -4665,19 +4665,19 @@ public class CcddClasses
          * divider component is provided then the divider blends in with the
          * dialog background. If a component is specified then the divider is
          * displayed using the supplied component
-         * 
+         *
          * @param leftUpperComp
          *            component to display in the left or upper side of the
          *            split pane
-         * 
+         *
          * @param rightLowerComp
          *            component to display in the right or lower side of the
          *            split pane
-         * 
+         *
          * @param dividerComp
          *            component to display in place of the divider; null to
          *            create a hidden divider
-         * 
+         *
          * @param orientation
          *            JSplitPane.HORIZONTAL_SPLIT to split the pane
          *            horizontally or JSplitPane.VERTICAL_SPLIT to split the
@@ -4719,8 +4719,8 @@ public class CcddClasses
                         public int getDividerSize()
                         {
                             int size = orientation == JSplitPane.HORIZONTAL_SPLIT
-                                                                                 ? ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2
-                                                                                 : ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+                                                                                  ? ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2
+                                                                                  : ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
 
                             // Check if a component is provided to represent
                             // the divider
@@ -4729,8 +4729,8 @@ public class CcddClasses
                                 // Set the size to the divider component's
                                 // preferred width
                                 size = orientation == JSplitPane.HORIZONTAL_SPLIT
-                                                                                 ? dividerComp.getPreferredSize().width
-                                                                                 : dividerComp.getPreferredSize().height;
+                                                                                  ? dividerComp.getPreferredSize().width
+                                                                                  : dividerComp.getPreferredSize().height;
                             }
 
                             return size;
@@ -4767,10 +4767,10 @@ public class CcddClasses
         /**********************************************************************
          * Selected table cell class constructor. An instance is created for
          * each selected cell in the table
-         * 
+         *
          * @param row
          *            cell row in view coordinates
-         * 
+         *
          * @param column
          *            cell column in view coordinates
          *********************************************************************/
@@ -4782,7 +4782,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the cell's row index
-         * 
+         *
          * @return Cell's row index
          *********************************************************************/
         protected int getRow()
@@ -4792,7 +4792,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the cell's row index
-         * 
+         *
          * @param row
          *            cell's row index
          *********************************************************************/
@@ -4803,7 +4803,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the cell's column index
-         * 
+         *
          * @return Cell's column index
          *********************************************************************/
         protected int getColumn()
@@ -4813,7 +4813,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the cell's column index
-         * 
+         *
          * @param column
          *            cell's column index
          *********************************************************************/
@@ -4824,15 +4824,15 @@ public class CcddClasses
 
         /**********************************************************************
          * Determine if the cell coordinates match the ones supplied
-         * 
+         *
          * @param checkRow
          *            row index in view coordinates to compare to this cell's
          *            row index
-         * 
+         *
          * @param checkColumn
          *            column index in view coordinates to compare to this
          *            cell's column index
-         * 
+         *
          * @return true if the cell's row and column indices match the
          *         specified ones
          *********************************************************************/
@@ -4860,13 +4860,13 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the reference for the specified selected cell
-         * 
+         *
          * @param row
          *            cell row in view coordinates
-         * 
+         *
          * @param column
          *            cell column in view coordinates
-         * 
+         *
          * @return Reference to the specified cell
          *********************************************************************/
         protected SelectedCell getSelectedCell(int row, int column)
@@ -4890,7 +4890,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the list of selected cells
-         * 
+         *
          * @return List of selected cells
          *********************************************************************/
         protected ArrayList<SelectedCell> getSelectedCells()
@@ -4901,10 +4901,10 @@ public class CcddClasses
         /**********************************************************************
          * Add the cell, specified by the supplied coordinates, to the list of
          * selected cells if it s not already in the list
-         * 
+         *
          * @param row
          *            cell row in view coordinates
-         * 
+         *
          * @param column
          *            cell column in view coordinates
          *********************************************************************/
@@ -4921,10 +4921,10 @@ public class CcddClasses
         /**********************************************************************
          * Remove the cell, specified by the supplied coordinates, from the
          * list of selected cells
-         * 
+         *
          * @param row
          *            cell row in view coordinates
-         * 
+         *
          * @param column
          *            cell column in view coordinates
          *********************************************************************/
@@ -4946,10 +4946,10 @@ public class CcddClasses
         /**********************************************************************
          * Remove any cells in the selected cells list, then add the cell,
          * specified by the supplied coordinates, to the list
-         * 
+         *
          * @param row
          *            cell row in view coordinates
-         * 
+         *
          * @param column
          *            cell column in view coordinates
          *********************************************************************/
@@ -4973,13 +4973,13 @@ public class CcddClasses
         /**********************************************************************
          * Determine if the cell specified by the supplied coordinates is
          * already in the list
-         * 
+         *
          * @param row
          *            cell row in view coordinates
-         * 
+         *
          * @param column
          *            cell column in view coordinates
-         * 
+         *
          * @return true if the cell is already in the selection list
          *********************************************************************/
         protected boolean contains(int row, int column)
@@ -4989,7 +4989,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Determine if only one or no cells are currently selected
-         * 
+         *
          * @return true is one or no cells are currently selected
          *********************************************************************/
         protected boolean isOneOrNone()
@@ -5043,7 +5043,7 @@ public class CcddClasses
         /**********************************************************************
          * Array list class constructor with string arrays; sets the comparison
          * column
-         * 
+         *
          * @param compareColumn
          *            index of the column for indexOf and contains comparisons
          **********************************************************************/
@@ -5238,17 +5238,17 @@ public class CcddClasses
                         {
                             m.setPreferredSize(new Dimension(maxWidth,
                                                              ((JSeparator) m).getOrientation() == JSeparator.HORIZONTAL
-                                                                                                                       ? 3
-                                                                                                                       : -ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing()
-                                                                                                                       * 2
-                                                                                                                       / 3
-                                                                                                                       - 1));
+                                                                                                                        ? 3
+                                                                                                                        : -ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing()
+                                                                                                                          * 2
+                                                                                                                          / 3
+                                                                                                                          - 1));
                         }
                         // CCDD: End modification
 
                         Dimension d = preferred
-                                               ? m.getPreferredSize()
-                                               : m.getMinimumSize();
+                                                ? m.getPreferredSize()
+                                                : m.getMinimumSize();
 
                         // Can't add the component to current row. Start a new
                         // row
@@ -5337,7 +5337,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Multiple line label class constructor
-         * 
+         *
          * @param text
          *            label text
          *********************************************************************/
@@ -5359,7 +5359,7 @@ public class CcddClasses
     /**************************************************************************
      * JTextField with auto-completion class. This is a modified version of
      * Java2sAutoTextField, which carries the following copyright notice:
-     * 
+     *
      * Copyright (c) 2006 Sun Microsystems, Inc. All Rights Reserved.
      *
      * Redistribution and use in source and binary forms, with or without
@@ -5472,7 +5472,6 @@ public class CcddClasses
             @Override
             public void remove(int startIndex, int length) throws BadLocationException
             {
-                System.out.println("remove");// TODO
                 int selectStart = getSelectionStart();
 
                 if (selectStart > 0)
@@ -5500,7 +5499,7 @@ public class CcddClasses
         /**********************************************************************
          * JTextField auto-completion class constructor. Assume 10 items are
          * stored in the auto-complete list
-         * 
+         *
          * @param autoCompList
          *            list containing the strings from which the
          *            auto-completion text is extracted
@@ -5513,7 +5512,7 @@ public class CcddClasses
         /**********************************************************************
          * JTextField auto-completion class constructor. Start with an empty
          * auto-complete list
-         * 
+         *
          * @param maxItems
          *            maximum number of items to maintain in the auto-complete
          *            list
@@ -5525,11 +5524,11 @@ public class CcddClasses
 
         /**********************************************************************
          * JTextField auto-completion class constructor
-         * 
+         *
          * @param autoCompList
          *            list containing the strings from which the
          *            auto-completion text is extracted
-         * 
+         *
          * @param maxItems
          *            maximum number of items to maintain in the auto-complete
          *            list
@@ -5630,7 +5629,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the auto-complete list
-         * 
+         *
          * @param autoCompList
          *            list containing the strings from which the
          *            auto-completion text is extracted
@@ -5642,7 +5641,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the case sensitivity flag
-         * 
+         *
          * @param isCaseSensitive
          *            true to match case when auto-completing a string
          *********************************************************************/
@@ -5654,7 +5653,7 @@ public class CcddClasses
         /**********************************************************************
          * Set the flag that determines if text other than the auto-completion
          * strings can be entered into the text field
-         * 
+         *
          * @param isOnlyFromList
          *            true to only allow text from he auto-completion strings
          *            to be entered into the text field
@@ -5667,10 +5666,10 @@ public class CcddClasses
         /**********************************************************************
          * Get the first auto-completion list string that matches the input
          * text
-         * 
+         *
          * @param inputTxt
          *            text for which to find a match
-         * 
+         *
          * @return First auto-completion list string that matches the input
          *         text; null if no match is found
          *********************************************************************/
@@ -5724,7 +5723,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Update the list of auto-completion items with the specified string
-         * 
+         *
          * @param text
          *            item to add to the auto-completion list. The item is
          *            placed at the head of the list. The list size is
@@ -5756,7 +5755,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the list of auto-completion items as a single, delimited string
-         * 
+         *
          * @return String containing the items from which the auto-completion
          *         text is extracted, separated by delimiter characters
          *********************************************************************/
@@ -5798,9 +5797,9 @@ public class CcddClasses
      * manipulation of a dialog component for selection of a font based on
      * family, style, and size. The code has modifications to the original
      * source code taken from https://sourceforge.net/projects/jfontchooser
-     * 
+     *
      * Copyright 2004-2008 Masahiko SAWAI All Rights Reserved.
-     * 
+     *
      * Permission is hereby granted, free of charge, to any person obtaining a
      * copy of this software and associated documentation files (the
      * "Software"), to deal in the Software without restriction, including
@@ -5808,10 +5807,10 @@ public class CcddClasses
      * distribute, sublicense, and/or sell copies of the Software, and to
      * permit persons to whom the Software is furnished to do so, subject to
      * the following conditions:
-     * 
+     *
      * The above copyright notice and this permission notice shall be included
      * in all copies or substantial portions of the Software.
-     * 
+     *
      * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
      * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
      * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -5828,15 +5827,13 @@ public class CcddClasses
         private static final Font DEFAULT_FONT = ModifiableFontInfo.LABEL_PLAIN.getFont();
 
         // Font styles
-        private static final int[] FONT_STYLE_CODES =
-        {
-         Font.PLAIN, Font.BOLD, Font.ITALIC, Font.BOLD | Font.ITALIC
+        private static final int[] FONT_STYLE_CODES = {
+                                                       Font.PLAIN, Font.BOLD, Font.ITALIC, Font.BOLD | Font.ITALIC
         };
 
         // Default font sizes
-        private static final String[] DEFAULT_FONT_SIZE_STRINGS =
-        {
-         "8", "9", "10", "11", "12", "13", "14", "16", "18", "20", "22", "24", "26", "28", "36", "48", "72",
+        private static final String[] DEFAULT_FONT_SIZE_STRINGS = {
+                                                                   "8", "9", "10", "11", "12", "13", "14", "16", "18", "20", "22", "24", "26", "28", "36", "48", "72",
         };
 
         // Arrays containing the available font families, styles, and sizes
@@ -5866,7 +5863,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Font chooser constructor
-         * 
+         *
          * @param fontSizeStrings
          *            array containing the available font sizes; null to use
          *            the default sizes
@@ -5914,7 +5911,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the font family text field
-         * 
+         *
          * @return Reference to the font family text field
          *********************************************************************/
         private JTextField getFontFamilyTextField()
@@ -5934,7 +5931,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the font style text field
-         * 
+         *
          * @return Reference to the font style text field
          *********************************************************************/
         private JTextField getFontStyleTextField()
@@ -5954,7 +5951,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the font size text field
-         * 
+         *
          * @return Reference to the font size text field
          *********************************************************************/
         private JTextField getFontSizeTextField()
@@ -5974,7 +5971,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the font family list
-         * 
+         *
          * @return List containing the font families
          *********************************************************************/
         private JList<String> getFontFamilyList()
@@ -5994,7 +5991,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the font style list
-         * 
+         *
          * @return List containing the font styles
          *********************************************************************/
         private JList<String> getFontStyleList()
@@ -6014,7 +6011,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the font size list
-         * 
+         *
          * @return List containing the font sizes
          *********************************************************************/
         private JList<String> getFontSizeList()
@@ -6034,7 +6031,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the selected font's family
-         * 
+         *
          * @return Family of the selected font
          *********************************************************************/
         protected String getSelectedFontFamily()
@@ -6045,7 +6042,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the selected font's family
-         * 
+         *
          * @param family
          *            font family
          *********************************************************************/
@@ -6067,7 +6064,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the selected font's style
-         * 
+         *
          * @return Style of the selected font
          *********************************************************************/
         protected int getSelectedFontStyle()
@@ -6077,7 +6074,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the selected font's style
-         * 
+         *
          * @param style
          *            font style: Font.PLAIN, Font.BOLD, Font.ITALIC, or
          *            Font.BOLD|Font.ITALIC
@@ -6098,7 +6095,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the selected font's size
-         * 
+         *
          * @return Size of the selected font
          *********************************************************************/
         protected int getSelectedFontSize()
@@ -6125,7 +6122,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the selected font's size
-         * 
+         *
          * @param size
          *            font size
          *********************************************************************/
@@ -6148,7 +6145,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the selected font
-         * 
+         *
          * @return Reference to the selected font
          *********************************************************************/
         protected Font getSelectedFont()
@@ -6160,7 +6157,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Set the selected font
-         * 
+         *
          * @param font
          *            font to select
          *********************************************************************/
@@ -6419,7 +6416,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the panel containing the font family selection controls
-         * 
+         *
          * @return JPanel containing the font family selection controls
          *********************************************************************/
         private JPanel getFontFamilyPanel()
@@ -6451,7 +6448,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the panel containing the font style selection controls
-         * 
+         *
          * @return JPanel containing the font style selection controls
          *********************************************************************/
         private JPanel getFontStylePanel()
@@ -6483,7 +6480,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the panel containing the font size selection controls
-         * 
+         *
          * @return JPanel containing the font size selection controls
          *********************************************************************/
         private JPanel getFontSizePanel()
@@ -6515,7 +6512,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the panel containing the sample text field
-         * 
+         *
          * @return JPanel containing the sample text field
          *********************************************************************/
         private JPanel getSamplePanel()
@@ -6537,13 +6534,14 @@ public class CcddClasses
             samplePnl.setPreferredSize(new Dimension(samplePnl.getPreferredSize().width,
                                                      samplePnl.getFontMetrics(new Font("DejaVu Sans",
                                                                                        Font.BOLD,
-                                                                                       72)).getHeight() * 3 / 2));
+                                                                                       72))
+                                                              .getHeight() * 3 / 2));
             return samplePnl;
         }
 
         /**********************************************************************
          * Get the sample text field
-         * 
+         *
          * @return reference to the sample text field
          *********************************************************************/
         private JTextField getSampleTextField()
@@ -6559,7 +6557,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the array of available font families
-         * 
+         *
          * @return Array of available font families
          *********************************************************************/
         private String[] getFontFamilies()
@@ -6575,7 +6573,7 @@ public class CcddClasses
 
         /**********************************************************************
          * Get the array of font style names
-         * 
+         *
          * @return Array of font style names
          *********************************************************************/
         private String[] getFontStyleNames()
@@ -6594,7 +6592,7 @@ public class CcddClasses
         // CCDD: Added method to create the chooser panel
         /**********************************************************************
          * Create a font chooser panel for insertion into a dialog, etc.
-         * 
+         *
          * @return JPanel containing the font chooser components
          *********************************************************************/
         protected JPanel createChooserPanel()

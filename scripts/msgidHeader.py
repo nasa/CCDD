@@ -32,17 +32,17 @@ projectName = ccdd.getProject()
 #******************************************************************************
 def outputAssociationInfo(file):
     # Add the build information and header to the output file
-    ccdd.writeToFileLn(tlmFile, "/* Created : " + ccdd.getDateAndTime() + "\n   User    : " + ccdd.getUser() + "\n   Project : " + ccdd.getProject() + "\n   Script  : " + ccdd.getScriptName())
+    ccdd.writeToFileLn(file, "/* Created : " + ccdd.getDateAndTime() + "\n   User    : " + ccdd.getUser() + "\n   Project : " + ccdd.getProject() + "\n   Script  : " + ccdd.getScriptName())
 
     # Check if any table is associated with the script
     if ccdd.getTableNumRows() != 0:
-        ccdd.writeToFileLn(tlmFile, "   Table(s): " + (",\n             ").join(sorted(ccdd.getTableNames())))
+        ccdd.writeToFileLn(file, "   Table(s): " + (",\n             ").join(sorted(ccdd.getTableNames())))
 
     # Check if any groups is associated with the script
     if len(ccdd.getAssociatedGroupNames()) != 0:
-        ccdd.writeToFileLn(tlmFile, "   Group(s): " + (",\n             ").join(sorted(ccdd.getAssociatedGroupNames())))
+        ccdd.writeToFileLn(file, "   Group(s): " + (",\n             ").join(sorted(ccdd.getAssociatedGroupNames())))
 
-    ccdd.writeToFileLn(tlmFile, "*/\n")
+    ccdd.writeToFileLn(file, "*/\n")
 
 #******************************************************************************
 # Output the telemetry message IDs file

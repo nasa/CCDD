@@ -18,7 +18,6 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -66,17 +65,17 @@ public class CcddSearchHandler extends CcddDialogHandler
 
     /**************************************************************************
      * Search database tables, scripts, and event log handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param searchType
      *            search dialog type: TABLES, SCRIPTS, or LOG
-     * 
+     *
      * @param targetRow
      *            row index to match if this is an event log entry search on a
      *            table that displays only a single log entry; null otherwise
-     * 
+     *
      * @param eventLog
      *            event log to search; null if not searching a log
      *************************************************************************/
@@ -95,10 +94,10 @@ public class CcddSearchHandler extends CcddDialogHandler
 
     /**************************************************************************
      * Search database tables and scripts class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param searchType
      *            search dialog type: TABLES or SCRIPTS
      *************************************************************************/
@@ -109,24 +108,24 @@ public class CcddSearchHandler extends CcddDialogHandler
 
     /**************************************************************************
      * Search for occurrences of a string in the tables or scripts
-     * 
+     *
      * @param searchText
      *            text string to search for in the database
-     * 
+     *
      * @param ignoreCase
      *            true to ignore case when looking for matching text
-     * 
+     *
      * @param allowRegex
      *            true to allow a regular expression search string
-     * 
+     *
      * @param dataTablesOnly
      *            true if only the data tables, and not references in the
      *            internal tables, are to be searched
-     * 
+     *
      * @param searchColumns
      *            string containing the names of columns, separated by commas,
      *            to which to constrain a table search
-     * 
+     *
      * @return Search results List containing object arrays providing each
      *         match's location in the database tables or event log, the column
      *         within the location, and an extract for the located match
@@ -144,15 +143,15 @@ public class CcddSearchHandler extends CcddDialogHandler
         // Set the search type based on the dialog type and, for a table
         // search, the state of the 'data tables only' check box
         String searchType = searchDlgType == SearchDialogType.TABLES
-                                                                    ? (dataTablesOnly
-                                                                                     ? SearchType.DATA.toString()
-                                                                                     : SearchType.ALL.toString())
-                                                                    : SearchType.SCRIPT.toString();
+                                                                     ? (dataTablesOnly
+                                                                                       ? SearchType.DATA.toString()
+                                                                                       : SearchType.ALL.toString())
+                                                                     : SearchType.SCRIPT.toString();
 
         // Search the database for the text
         String[] hits = dbCommand.getList(DatabaseListCommand.SEARCH,
-                                          new String[][] { {"_search_text_",
-                                                            searchText},
+                                          new String[][] {{"_search_text_",
+                                                           searchText},
                                                           {"_case_insensitive_",
                                                            String.valueOf(ignoreCase)},
                                                           {"_allow_regex_",
@@ -662,17 +661,17 @@ public class CcddSearchHandler extends CcddDialogHandler
     /**************************************************************************
      * Search for occurrences of a string in the event log file (session log or
      * other log file)
-     * 
+     *
      * @param searchText
      *            text string to search for in the database
-     * 
+     *
      * @param ignoreCase
      *            true to ignore case when looking for matching text
-     * 
+     *
      * @param targetRow
      *            row index to match if this is an event log entry search on a
      *            table that displays only a single log entry; null otherwise
-     * 
+     *
      * @return Search results List containing object arrays providing each
      *         match's location in the database tables or event log, the column
      *         within the location, and an extract for the located match
@@ -794,7 +793,7 @@ public class CcddSearchHandler extends CcddDialogHandler
      * Sort the search results by the first (target) column, and if the same
      * then by second (location) column. Array variable member references in
      * the location column are arranged by array dimension value
-     * 
+     *
      * @param resultsDataList
      *            list containing the sorted search results
      *************************************************************************/
@@ -813,7 +812,6 @@ public class CcddSearchHandler extends CcddDialogHandler
             {
                 int result = 0;
 
-                System.out.println(Arrays.toString(entry1) + "  " + Arrays.toString(entry2));// TODO
                 switch (searchDlgType)
                 {
                     case TABLES:

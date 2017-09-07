@@ -31,19 +31,19 @@ $dataStreams = $ccdd.getDataStreamNames()
 #******************************************************************************
 def outputAssociationInfo(file)
   # Add the build information and header to the output file
-  $ccdd.writeToFileLn(typesFile, "/* Created : " + $ccdd.getDateAndTime() + "\n   User    : " + $ccdd.getUser() + "\n   Project : " + $ccdd.getProject() + "\n   Script  : " + $ccdd.getScriptName())
+  $ccdd.writeToFileLn(file, "/* Created : " + $ccdd.getDateAndTime() + "\n   User    : " + $ccdd.getUser() + "\n   Project : " + $ccdd.getProject() + "\n   Script  : " + $ccdd.getScriptName())
 
   # Check if any table is associated with the script
   if $ccdd.getTableNumRows() != 0
-      $ccdd.writeToFileLn(typesFile, "   Table(s): " + $ccdd.getTableNames().sort.to_a.join(",\n             "))
+      $ccdd.writeToFileLn(file, "   Table(s): " + $ccdd.getTableNames().sort.to_a.join(",\n             "))
   end
 
   # Check if any groups is associated with the script
   if $ccdd.getAssociatedGroupNames().length != 0
-      $ccdd.writeToFileLn(typesFile, "   Group(s): " + $ccdd.getAssociatedGroupNames().sort.to_a.join(",\n             "))
+      $ccdd.writeToFileLn(file, "   Group(s): " + $ccdd.getAssociatedGroupNames().sort.to_a.join(",\n             "))
   end
 
-  $ccdd.writeToFileLn(typesFile, "*/\n")
+  $ccdd.writeToFileLn(file, "*/\n")
 end
 
 #******************************************************************************
@@ -95,13 +95,13 @@ def outputStructure(file, structIndex)
             end
 
             # Get the variable name for this row
-            variableName = $ccdd.getStructureTableData("variable name", row)
+            variableName = $ccdd.getStructureVariableName(row)
 
             # Check that this isn't an array member; only array definitions
             # appear in the type definition
             if !variableName.end_with?("]")
                 # Get the variable's array size
-                arraySize = $ccdd.getStructureTableData("array size", row)
+                arraySize = $ccdd.getStructureArraySize(row)
 
                 # Check if the variable is an array
                 if !arraySize.empty?
@@ -115,7 +115,7 @@ def outputStructure(file, structIndex)
                 end
 
                 # Get the variable's bit length
-                bitLength = $ccdd.getStructureTableData("bit length", row)
+                bitLength = $ccdd.getStructureBitLength(row)
 
                 # Check if the variable has a bit length
                 if !bitLength.empty?
@@ -125,7 +125,7 @@ def outputStructure(file, structIndex)
 
                 # Determine the length of the variable definition by adding up
                 # the individual parts
-                defnLength = ("   " + $ccdd.getStructureTableData("data type", row) + " " + variableName + arraySize + bitLength + "; ").length
+                defnLength = ("   " + $ccdd.getStructureDataType(row) + " " + variableName + arraySize + bitLength + "; ").length
 
                 # Check if the length exceeds the minimum length found thus far
                 if defnLength > minimumLength
@@ -145,7 +145,7 @@ def outputStructure(file, structIndex)
         # Check if the structure name in the row matches the target structure
         if $structureNames[structIndex] == $ccdd.getStructureTableNameByRow(row)
             # Get the variable name for this row in the structure
-            variableName = $ccdd.getStructureTableData("variable name", row)
+            variableName = $ccdd.getStructureVariableName(row)
 
             # Check if this is the first pass through the structure data
             if firstPass
@@ -222,9 +222,9 @@ def outputStructure(file, structIndex)
                 usedVariableNames.push(variableName)
 
                 # Get the variable's data type, array size, and description
-                dataType = $ccdd.getStructureTableData("data type", row)
-                arraySize = $ccdd.getStructureTableData("array size", row)
-                description = $ccdd.getStructureTableData("description", row)
+                dataType = $ccdd.getStructureDataType(row)
+                arraySize = $ccdd.getStructureArraySize(row)
+                description = $ccdd.getStructureDescription(row)
 
                 # Determine the size of the variable, in bytes
                 byteSize = $ccdd.getDataTypeSizeInBytes(dataType)
@@ -293,7 +293,7 @@ def outputStructure(file, structIndex)
                     varOffset = $ccdd.getVariableOffset(variablePath)
 
                     # Get the variable's bit length
-                    bitLength = $ccdd.getStructureTableData("bit length", row)
+                    bitLength = $ccdd.getStructureBitLength(row)
 
                     # Check if the bit length is provided
                     if !bitLength.empty?

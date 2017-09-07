@@ -8,6 +8,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
+import static CCDD.CcddConstants.HIDE_SCRIPT_PATH;
 import static CCDD.CcddConstants.LIST_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.PATH_COLUMN_DELTA;
@@ -102,7 +103,7 @@ public class CcddScriptHandler
 
     /**************************************************************************
      * Script handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
@@ -130,16 +131,16 @@ public class CcddScriptHandler
     /**************************************************************************
      * Retrieve the script associations stored in the database and from these
      * build the array for display and selection of the script associations
-     * 
+     *
      * @param allowSelectDisabled
      *            true if disabled associations can be selected; false if not.
      *            In the script manager disabled associations are selectable so
      *            that these can be deleted if desired. Scripts that are
      *            selected and disabled are ignored when executing scripts
-     * 
+     *
      * @param parent
      *            GUI component calling this method
-     * 
+     *
      * @return Object array containing the script associations
      *************************************************************************/
     private Object[][] getScriptAssociationData(boolean allowSelectDisabled,
@@ -277,20 +278,20 @@ public class CcddScriptHandler
 
     /**************************************************************************
      * Create the panel containing the script associations table
-     * 
+     *
      * @param title
      *            text to display above the script associations table; null or
      *            blank if no text is to be displayed
-     * 
+     *
      * @param allowSelectDisabled
      *            true if disabled associations can be selected; false if not.
      *            In the script manager disabled associations are selectable so
      *            that these can be deleted if desired. Scripts that are
      *            selected and disabled are ignored when executing scripts
-     * 
+     *
      * @param parent
      *            GUI component calling this method
-     * 
+     *
      * @return Reference to the JPanel containing the script associations table
      *************************************************************************/
     @SuppressWarnings("serial")
@@ -376,19 +377,20 @@ public class CcddScriptHandler
 
             /******************************************************************
              * Highlight the matching search text in the context column cells
-             * 
+             *
              * @param component
              *            reference to the table cell renderer component
-             * 
+             *
              * @param value
              *            cell value
-             * 
+             *
              * @param isSelected
              *            true if the cell is to be rendered with the selection
              *            highlighted
-             * 
-             * @param int row cell row, view coordinates
-             * 
+             *
+             * @param int
+             *            row cell row, view coordinates
+             *
              * @param column
              *            cell column, view coordinates
              *****************************************************************/
@@ -439,8 +441,8 @@ public class CcddScriptHandler
             {
                 return allowSelectDisabled
                        || isAssociationAvailable(assnsTable.convertRowIndexToModel(row))
-                                                                                        ? super.isSelectedIndex(row)
-                                                                                        : false;
+                                                                                         ? super.isSelectedIndex(row)
+                                                                                         : false;
             }
         });
 
@@ -469,7 +471,8 @@ public class CcddScriptHandler
 
         // Create the check box for hiding/showing the file paths in the
         // associations table script file column
-        hideScriptFilePath = new JCheckBox("Hide script file path");
+        hideScriptFilePath = new JCheckBox("Hide script file path",
+                                           ccddMain.getProgPrefs().getBoolean(HIDE_SCRIPT_PATH, false));
         hideScriptFilePath.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         hideScriptFilePath.setBorder(BorderFactory.createEmptyBorder());
         hideScriptFilePath.setToolTipText(CcddUtilities.wrapText("Remove the file paths from the script file column",
@@ -485,6 +488,7 @@ public class CcddScriptHandler
             public void actionPerformed(ActionEvent ae)
             {
                 assnsTable.repaint();
+                ccddMain.getProgPrefs().putBoolean(HIDE_SCRIPT_PATH, hideScriptFilePath.isSelected());
             }
         });
 
@@ -499,10 +503,10 @@ public class CcddScriptHandler
      * Check if the script association on the specified row in the associations
      * table is available. An association is unavailable if the script or
      * tables is not present
-     * 
+     *
      * @param row
      *            table row (model coordinates)
-     * 
+     *
      * @return true if the script association on the specified row is available
      *************************************************************************/
     private boolean isAssociationAvailable(int row)
@@ -515,14 +519,14 @@ public class CcddScriptHandler
     /**************************************************************************
      * Get the list of a script association's member table paths. If a group is
      * referenced then its member tables are included
-     * 
+     *
      * @param associationMembers
      *            association members as a single string (as stored in the
      *            database)
-     * 
+     *
      * @param groupHandler
      *            group handler reference
-     * 
+     *
      * @return List containing the tables (path+name) from the association
      *         member string
      *************************************************************************/
@@ -572,7 +576,7 @@ public class CcddScriptHandler
     /**************************************************************************
      * Get an array of all script file extensions supported by the available
      * script engines
-     * 
+     *
      * @return Array of all script file extensions supported by the available
      *         script engines
      *************************************************************************/
@@ -625,7 +629,7 @@ public class CcddScriptHandler
     /**************************************************************************
      * Get the string containing the available script engines and version
      * numbers
-     * 
+     *
      * @return String containing the available script engine names and version
      *         numbers appropriate for display in the Help | About dialog;
      *         returns "none" if no scripting languages are installed
@@ -691,19 +695,19 @@ public class CcddScriptHandler
     /**************************************************************************
      * Execute one or more scripts based on the script associations in the
      * script associations list
-     * 
+     *
      * @param dialog
      *            reference to the script dialog (manager or executive) calling
      *            this method
-     * 
+     *
      * @param tableTree
      *            CcddTableTreeHandler reference describing the table tree
-     * 
+     *
      * @param executeAll
      *            true to execute all of the available script associations;
      *            false to execute only the selected, available associations
      *************************************************************************/
-    protected void executeScriptAssociations(CcddDialogHandler dialog,
+    protected void executeScriptAssociations(CcddFrameHandler dialog,
                                              CcddTableTreeHandler tableTree,
                                              boolean executeAll)
     {
@@ -769,19 +773,19 @@ public class CcddScriptHandler
      * to complete, and by using a separate thread the GUI is allowed to
      * continue to update. The script execution command, however, is disabled
      * until the this command completes execution
-     * 
+     *
      * @param dialog
      *            reference to the script dialog (manager or executive) calling
      *            this method
-     * 
+     *
      * @param tree
      *            table tree of the table instances (parent tables with their
      *            child tables); null if the tree should be loaded
-     * 
+     *
      * @param associations
      *            list of script association to execute
      *************************************************************************/
-    private void getDataAndExecuteScriptInBackground(final CcddDialogHandler dialog,
+    private void getDataAndExecuteScriptInBackground(final CcddFrameHandler dialog,
                                                      final CcddTableTreeHandler tree,
                                                      final List<Object[]> associations)
     {
@@ -825,9 +829,9 @@ public class CcddScriptHandler
                 // and a Cancel button is issued)
                 int option = cancelDialog.showMessageDialog(dialog,
                                                             "<html><b>Script execution in progress...<br><br>"
-                                                                + CcddUtilities.colorHTMLText("*** Press </i>Halt<i> "
-                                                                                              + "to terminate script execution ***",
-                                                                                              Color.RED),
+                                                                    + CcddUtilities.colorHTMLText("*** Press </i>Halt<i> "
+                                                                                                  + "to terminate script execution ***",
+                                                                                                  Color.RED),
                                                             "Script Executing",
                                                             JOptionPane.ERROR_MESSAGE,
                                                             DialogOption.HALT_OPTION);
@@ -875,19 +879,19 @@ public class CcddScriptHandler
     /**************************************************************************
      * Get the table information array from the table data used by the script
      * script association(s), then execute the script(s)
-     * 
+     *
      * @param dialog
      *            reference to the script dialog (manager or executive) calling
      *            this method; set to null if executing the script from the
      *            command line
-     * 
+     *
      * @param tree
      *            table tree of the table instances (parent tables with their
      *            child tables); null if the tree should be loaded
-     * 
+     *
      * @param associations
      *            list of script associations to execute
-     * 
+     *
      * @return Array containing flags that indicate, for each association, if
      *         the association did not complete successfully
      *************************************************************************/
@@ -917,17 +921,13 @@ public class CcddScriptHandler
         List<String> loadedTablePaths = new ArrayList<String>();
 
         // Get the link assignment information, if any
-        CcddLinkHandler linkHandler = new CcddLinkHandler(ccddMain,
-                                                          component);
+        CcddLinkHandler linkHandler = new CcddLinkHandler(ccddMain, component);
 
         // Load the data field information from the database
-        CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain,
-                                                             null,
-                                                             component);
+        CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain, null, component);
 
         // Load the group information from the database
-        CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain,
-                                                             component);
+        CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain, component);
 
         // To reduce database access and speed script execution when executing
         // multiple associations, first load all of the associated tables,
@@ -1210,10 +1210,10 @@ public class CcddScriptHandler
 
     /**************************************************************************
      * Log the result of the script association execution(s)
-     * 
+     *
      * @param associations
      *            list of script association executed
-     * 
+     *
      * @param isBad
      *            Array containing flags that indicate, for each association,
      *            if the association did not complete successfully
@@ -1281,16 +1281,16 @@ public class CcddScriptHandler
 
     /**************************************************************************
      * Log a script execution error
-     * 
+     *
      * @param component
      *            GUI component calling this method
-     * 
+     *
      * @param scriptFileName
      *            script file name
-     * 
+     *
      * @param tables
      *            tables associated with the script
-     * 
+     *
      * @param cause
      *            cause of the execution error
      *************************************************************************/
@@ -1303,46 +1303,46 @@ public class CcddScriptHandler
         eventLog.logFailEvent(component,
                               "Script Error",
                               "Cannot execute script '"
-                                  + scriptFileName
-                                  + "' using table(s) '"
-                                  + tables
-                                  + "'; cause '"
-                                  + cause
-                                  + "'",
+                                              + scriptFileName
+                                              + "' using table(s) '"
+                                              + tables
+                                              + "'; cause '"
+                                              + cause
+                                              + "'",
                               "<html><b>Cannot execute script '</b>"
-                                  + scriptFileName
-                                  + "<b>' using table(s) '</b>"
-                                  + tables
-                                  + "<b>'");
+                                                     + scriptFileName
+                                                     + "<b>' using table(s) '</b>"
+                                                     + tables
+                                                     + "<b>'");
     }
 
     /**************************************************************************
      * Execute a script
-     * 
+     *
      * @param component
      *            GUI component calling this method
-     * 
+     *
      * @param scriptFileName
      *            script file name. The file extension is used to determine the
      *            script engine and therefore must conform to standard
      *            extension usage
-     * 
+     *
      * @param tableInformation
      *            array of table information
-     * 
+     *
      * @param groupNames
      *            list containing the names of any groups referenced in the
      *            script association
-     * 
+     *
      * @param linkHandler
      *            link handler reference
-     * 
+     *
      * @param fieldHandler
      *            field handler reference
-     * 
+     *
      * @param groupHandler
      *            group handler reference
-     * 
+     *
      * @return true if an error occurs during script execution
      *************************************************************************/
     private void executeScript(Component component,
@@ -1463,13 +1463,13 @@ public class CcddScriptHandler
     /**************************************************************************
      * Recursive method to load a table, and all the tables referenced within
      * it and its child tables. The data is combined into a single array
-     * 
+     *
      * @param tablePath
      *            table path
-     * 
+     *
      * @param parent
      *            GUI component calling this method
-     * 
+     *
      * @return A TableDataHandler for the parent table. The error flag for the
      *         table data handler is set if an error occurred loading the data
      *************************************************************************/
@@ -1534,7 +1534,7 @@ public class CcddScriptHandler
                         // is necessary to prevent appending the prototype
                         // information for this data type structure
                         if ((!data[row][dataTypeColumn].isEmpty()
-                            || !data[row][varNameColumn].isEmpty())
+                             || !data[row][varNameColumn].isEmpty())
                             && (arraySizeColumn == -1
                                 || data[row][arraySizeColumn].isEmpty()
                                 || ArrayVariable.isArrayMember(data[row][varNameColumn])))

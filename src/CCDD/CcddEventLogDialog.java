@@ -105,10 +105,10 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Event log class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param isSessionLog
      *            true if this is the event log for the current session
      *************************************************************************/
@@ -119,19 +119,19 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Event log class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param logFile
      *            event log file; null if creating the session log or if
      *            opening a user-selected log file
-     * 
+     *
      * @param targetRow
      *            row index a specific log entry in an existing log to display
      *            in a stand-alone table without message length constraints;
      *            null if not displaying a single log entry
-     * 
+     *
      * @param isSessionLog
      *            true if this is the event log for the current session
      *************************************************************************/
@@ -151,7 +151,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Get the event log table reference
-     * 
+     *
      * @return Reference to the event log table
      *************************************************************************/
     protected CcddJTableHandler getEventTable()
@@ -161,7 +161,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Get the event log file reference
-     * 
+     *
      * @return Reference to the event log file
      *************************************************************************/
     protected File getEventLogFile()
@@ -171,11 +171,11 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Create the event log
-     * 
+     *
      * @param logFile
      *            event log file; null if creating the session log or if
      *            opening a user-selected log file
-     * 
+     *
      * @param targetRow
      *            row index a specific log entry in an existing log to display
      *            in a stand-alone table without message length constraints;
@@ -339,7 +339,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Create the event log window
-     * 
+     *
      * @param showFilters
      *            true to display the log message display filters
      *************************************************************************/
@@ -657,7 +657,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
      * Show or hide the web server message filter check box. The server check
      * box is shown only when the web server exists (even if the server is
      * subsequently disabled)
-     * 
+     *
      * @param show
      *            true to show the check box; false to hide it
      *************************************************************************/
@@ -668,14 +668,14 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Create a check box with label
-     * 
+     *
      * @param eventType
      *            EventLogmessageType event type
-     * 
+     *
      * @param filterListener
      *            ActionListener to call when the check box's selection status
      *            changes
-     * 
+     *
      * @return New check box with the specified characteristics
      *************************************************************************/
     private JCheckBox createCheckBox(EventLogMessageType eventType,
@@ -693,10 +693,10 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Set the specified filter check box state
-     * 
+     *
      * @param type
      *            Event log message type (e.g., COMMAND_MSG)
-     * 
+     *
      * @param isFiltered
      *            true to set enable display of the specified message type;
      *            false to hide messages of the specified type
@@ -726,10 +726,10 @@ public class CcddEventLogDialog extends CcddFrameHandler
     /**************************************************************************
      * Check if the supplied message type should be displayed based on the
      * filter check box statuses
-     * 
+     *
      * @param type
      *            Event log message type (e.g., COMMAND_MSG)
-     * 
+     *
      * @return true if the message is selected to display
      *************************************************************************/
     private boolean isFilter(EventLogMessageType type)
@@ -756,7 +756,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Get the event log panel
-     * 
+     *
      * @return Event log window panel
      *************************************************************************/
     protected JPanel getEventPanel()
@@ -768,7 +768,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
      * Open the event log file. If this is the current session's event log then
      * create the file; if this is an existing log then open the user-selected
      * file
-     * 
+     *
      * @return true if the log is opened
      *************************************************************************/
     private boolean openEventLogFile()
@@ -788,9 +788,9 @@ public class CcddEventLogDialog extends CcddFrameHandler
                 // part of the name, and the log file path if set by command
                 // line command
                 logFile = new File((!ModifiablePathInfo.SESSION_LOG_FILE_PATH.getPath().isEmpty()
-                                                                                                 ? ModifiablePathInfo.SESSION_LOG_FILE_PATH.getPath()
-                                                                                                   + File.separator
-                                                                                                 : "")
+                                                                                                  ? ModifiablePathInfo.SESSION_LOG_FILE_PATH.getPath()
+                                                                                                    + File.separator
+                                                                                                  : "")
                                    + "CCDD-"
                                    + getDateTimeStamp("yyyyMMdd_HHmmss")
                                    + ".log");
@@ -855,8 +855,8 @@ public class CcddEventLogDialog extends CcddFrameHandler
                     // located
                     new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                               "<html><b>Cannot locate event log file<br>'</b>"
-                                                                  + file[0].getAbsolutePath()
-                                                                  + "<b>'",
+                                                                                       + file[0].getAbsolutePath()
+                                                                                       + "<b>'",
                                                               "File Error",
                                                               JOptionPane.ERROR_MESSAGE,
                                                               DialogOption.OK_OPTION);
@@ -876,7 +876,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
                     CcddFileIOHandler.storePath(ccddMain,
                                                 logFile.getAbsolutePath(),
                                                 true,
-                                                ModifiablePathInfo.READ_LOG_FILE_PATH.getPreferenceKey());
+                                                ModifiablePathInfo.READ_LOG_FILE_PATH);
                 }
             }
         }
@@ -886,7 +886,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Read an existing event log file
-     * 
+     *
      * @param targetRow
      *            row index a specific log entry in an existing log to display
      *            in a stand-alone table without message length constraints;
@@ -925,8 +925,8 @@ public class CcddEventLogDialog extends CcddFrameHandler
                                                    getDateTimeStampLog(parts[EventColumns.TIME.ordinal() - 1]),
                                                    getMessageType(parts[EventColumns.TYPE.ordinal() - 1]).getTypeMsg(),
                                                    (targetRow == null
-                                                                     ? truncateLogMessage(parts[EventColumns.MESSAGE.ordinal() - 1])
-                                                                     : parts[EventColumns.MESSAGE.ordinal() - 1])});
+                                                                      ? truncateLogMessage(parts[EventColumns.MESSAGE.ordinal() - 1])
+                                                                      : parts[EventColumns.MESSAGE.ordinal() - 1])});
 
                     // Check if a target time stamp is provided (i.e., only a
                     // single log entry is loaded for this event log)
@@ -972,10 +972,10 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Determine an event log message type by the type name
-     * 
+     *
      * @param typeName
      *            event log message type name (e.g., "Success")
-     * 
+     *
      * @return type Event log message type (e.g., COMMAND_MSG)
      *************************************************************************/
     private EventLogMessageType getMessageType(String typeName)
@@ -1000,10 +1000,10 @@ public class CcddEventLogDialog extends CcddFrameHandler
     /**************************************************************************
      * Append an event message to the current session's event log window and
      * file
-     * 
+     *
      * @param type
      *            message type (e.g., COMMAND_MSG)
-     * 
+     *
      * @param logMessage
      *            new event's log message
      *************************************************************************/
@@ -1085,14 +1085,14 @@ public class CcddEventLogDialog extends CcddFrameHandler
     /**************************************************************************
      * Append a database failure message to the event log window and file and
      * display a corresponding error dialog
-     * 
+     *
      * @param parent
      *            window to center the dialog over; null if no dialog should be
      *            displayed
-     * 
+     *
      * @param logMessage
      *            new event's log message
-     * 
+     *
      * @param dialogMessage
      *            error dialog message
      *************************************************************************/
@@ -1106,17 +1106,17 @@ public class CcddEventLogDialog extends CcddFrameHandler
     /**************************************************************************
      * Append a failure message to the event log window and file and display a
      * corresponding error dialog
-     * 
+     *
      * @param parent
      *            window to center the dialog over; null if no dialog should be
      *            displayed
-     * 
+     *
      * @param dialogTitle
      *            error dialog title
-     * 
+     *
      * @param logMessage
      *            new event's log message
-     * 
+     *
      * @param dialogMessage
      *            error dialog message
      *************************************************************************/
@@ -1138,22 +1138,22 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Add a new log entry to the event log table
-     * 
+     *
      * @param server
      *            server host and port
-     * 
+     *
      * @param database
      *            database connection
-     * 
+     *
      * @param user
      *            user name
-     * 
+     *
      * @param type
      *            message type (e.g., COMMAND_MSG)
-     * 
+     *
      * @param timestamp
      *            date and time when event occurred
-     * 
+     *
      * @param logMessage
      *            new event's log message
      *************************************************************************/
@@ -1185,10 +1185,10 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Get the current system date and time stamp
-     * 
+     *
      * @param format
      *            date and time stamp format
-     * 
+     *
      * @return Date and time string in the format specified
      *************************************************************************/
     private String getDateTimeStamp(String format)
@@ -1199,11 +1199,11 @@ public class CcddEventLogDialog extends CcddFrameHandler
     /**************************************************************************
      * Format the date and time string provided for display in the event log
      * table
-     * 
+     *
      * @param timestamp
      *            date and time string in the format [month/day/year][ ]
      *            [hours/minutes/seconds]
-     * 
+     *
      * @return The date and time string formatted for HTML, centered, and with
      *         the month/day/year and hours/minutes/seconds on separate lines
      *************************************************************************/
@@ -1214,10 +1214,10 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Format the server string provided for display in the event log table
-     * 
+     *
      * @param server
      *            server string in the format [server name][:][port number]
-     * 
+     *
      * @return The server string formatted for HTML, centered, and with the
      *         server name and port number on separate lines
      *************************************************************************/
@@ -1278,10 +1278,10 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Truncate the log message if its length exceeds the maximum allowed
-     * 
+     *
      * @param logMessage
      *            log message
-     * 
+     *
      * @return Log message, truncated to the maximum length, and with an
      *         ellipsis and number of truncated characters appended, if its
      *         length exceeds the maximum allowed

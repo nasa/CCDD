@@ -127,7 +127,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Description and data field panel handler class
-     * 
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
@@ -145,7 +145,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Group manager dialog class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
@@ -166,7 +166,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Get a reference to the editor panel handler
-     * 
+     *
      * @return Reference to the editor panel handler
      *************************************************************************/
     protected CcddInputFieldPanelHandler getEditorPanelHandler()
@@ -177,7 +177,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     /**************************************************************************
      * Perform the steps needed following execution of group updates to the
      * database
-     * 
+     *
      * @param commandError
      *            false if the database commands successfully completed; true
      *            if an error occurred and the changes were not made
@@ -196,9 +196,12 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             // Check if the data field editor table dialog is open
             if (fldTblEditor != null && fldTblEditor.isShowing())
             {
-                // Update the data field editor table
+                // Update the data field editor
                 fldTblEditor.reloadDataFieldTable();
             }
+
+            // Update the script associations manager and executive dialogs
+            ccddMain.updateScriptAsscociationsDialogs();
 
             // Remove the group dialog's change indicator
             setTitle(DIALOG_TITLE);
@@ -356,8 +359,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                             // disable and clear the description field, and
                             // remove any data fields
                             setGroupAndFields(selected.length == 1
-                                                                  ? selected[0]
-                                                                  : null);
+                                                                   ? selected[0]
+                                                                   : null);
 
                             // Check if the node change isn't set to be ignored
                             // for undo/redo purposes. The undo handler sets
@@ -777,8 +780,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                                                          "Store Groups",
                                                                          JOptionPane.QUESTION_MESSAGE,
                                                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON
-                            && ignoreFieldTableChanges()
-                        )
+                            && ignoreFieldTableChanges())
                         {
                             // Store the group list into the database
                             dbTable.storeInformationTableInBackground(InternalTable.GROUPS,
@@ -896,7 +898,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
      * the description field, and enable/disable the dialog's buttons that
      * apply only if a single group is selected based on if a valid group name
      * is provided
-     * 
+     *
      * @param groupName
      *            name of the selected group; null if no group or more than one
      *            group is selected
@@ -954,10 +956,10 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Set the enable status of the CFS application indicator check box
-     * 
+     *
      * @param enable
      *            true to enable the check box, false to disable
-     * 
+     *
      * @param isApplication
      *            true if the group represents a CFS application
      *************************************************************************/
@@ -967,14 +969,14 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         applicationCb.setEnabled(enable);
 
         applicationCb.setSelected(enable
-                                        ? isApplication
-                                        : false);
+                                         ? isApplication
+                                         : false);
     }
 
     /**************************************************************************
      * Set the enable status of the buttons that apply only when one group is
      * selected
-     * 
+     *
      * @param enable
      *            true to enable the buttons, false to disable
      *************************************************************************/
@@ -990,7 +992,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     /**************************************************************************
      * Create a panel to contain a pair of buttons. Make all but the button
      * icons transparent
-     * 
+     *
      * @return JPanel containing the buttons in a vertical layout
      *************************************************************************/
     private JPanel createArrowButtonPanel()
@@ -1155,7 +1157,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         {
             /******************************************************************
              * Verify that the dialog content is valid
-             * 
+             *
              * @return true if the input values are valid
              *****************************************************************/
             @Override
@@ -1249,7 +1251,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             {
                 /**************************************************************
                  * Verify that the dialog content is valid
-                 * 
+                 *
                  * @return true if the input values are valid
                  *************************************************************/
                 @Override
@@ -1312,7 +1314,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                               + selected[0]
                               + "' to:",
                               selected[0]
-                                  + "_copy",
+                                         + "_copy",
                               dialogPnl);
 
             // Create the group copying dialog
@@ -1320,7 +1322,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             {
                 /**************************************************************
                  * Verify that the dialog content is valid
-                 * 
+                 *
                  * @return true if the input values are valid
                  *************************************************************/
                 @Override
@@ -1360,16 +1362,16 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Add a group name field to the dialog
-     * 
+     *
      * @param fieldText
      *            text to display beside the input field
-     * 
+     *
      * @param currentName
      *            name of the selected group
-     * 
+     *
      * @param dialogPnl
      *            panel to which to add the input field
-     * 
+     *
      * @return The GridBagConstraints used to arrange the dialog
      *************************************************************************/
     private GridBagConstraints addGroupNameField(String fieldText,
@@ -1417,10 +1419,10 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Verify that the contents of the group name field is valid
-     * 
+     *
      * @param caller
      *            reference to the dialog that is being verified
-     * 
+     *
      * @return true if the group name is valid; false otherwise
      *************************************************************************/
     private boolean verifyGroupName(CcddDialogHandler caller)
@@ -1462,7 +1464,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             // Inform the user that the input value is invalid
             new CcddDialogHandler().showMessageDialog(CcddGroupManagerDialog.this,
                                                       "<html><b>"
-                                                          + ce.getMessage(),
+                                                                                   + ce.getMessage(),
                                                       "Missing/Invalid Input",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -1501,7 +1503,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Check if the groups differ from those last committed to the database
-     * 
+     *
      * @return true if the group definitions have changed
      *************************************************************************/
     private boolean isGroupsChanged()
@@ -1634,7 +1636,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     /**************************************************************************
      * Check if the unsaved changes to an open data field table editor should
      * be ignored
-     * 
+     *
      * @return true if the there are no unsaved data field table editor changes
      *         or if the user chooses to ignore the changes; false if the group
      *         has no data field changes, the data field table editor isn't
@@ -1673,8 +1675,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // exist
         setTitle(DIALOG_TITLE
                  + (isGroupsChanged()
-                                     ? "*"
-                                     : ""));
+                                      ? "*"
+                                      : ""));
     }
 
     /**************************************************************************

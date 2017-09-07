@@ -59,7 +59,7 @@ public class CcddKeyboardHandler
 
     /**************************************************************************
      * Keyboard handler class constructor
-     * 
+     *
      * @param ccddMain
      *            reference to main class
      *************************************************************************/
@@ -89,10 +89,10 @@ public class CcddKeyboardHandler
      * editor). The modal undo manager must be set to null after the dialog
      * closes so that the non-modal dialogs (e.g., table and table type
      * editors) undo managers can handle undo/redo operations
-     * 
+     *
      * @param undoManager
      *            modal dialog undo manager; null to disable
-     * 
+     *
      * @param table
      *            modal dialog tab;e reference; null if the modal dialog has no
      *            table
@@ -162,7 +162,7 @@ public class CcddKeyboardHandler
                         // Check if this is a table
                         else if (comp instanceof CcddJTableHandler
                                  || (comp.getParent() instanceof CcddJTableHandler
-                                 && !(comp instanceof JComboBox)))
+                                     && !(comp instanceof JComboBox)))
                         {
                             // Handle the Enter key in the table
                             handled = tableEditCellHandler(comp);
@@ -467,9 +467,9 @@ public class CcddKeyboardHandler
                         // Check if the type name or C name columns are being
                         // edited and the base data type is empty or a pointer
                         if ((column == DataTypeEditorColumnInfo.USER_NAME.ordinal()
-                            || column == DataTypeEditorColumnInfo.C_NAME.ordinal())
+                             || column == DataTypeEditorColumnInfo.C_NAME.ordinal())
                             && (baseType.isEmpty()
-                            || baseType.equals(BaseDataTypeInfo.POINTER.getName())))
+                                || baseType.equals(BaseDataTypeInfo.POINTER.getName())))
                         {
                             // Insert the structure name chosen by the user
                             // into the text field at the current text
@@ -606,7 +606,7 @@ public class CcddKeyboardHandler
 
     /**************************************************************************
      * Get the active table editor dialog
-     * 
+     *
      * @return The active table editor dialog; null if no table editor dialog
      *         is active or no editor dialog has focus
      *************************************************************************/
@@ -631,7 +631,7 @@ public class CcddKeyboardHandler
 
     /**************************************************************************
      * Get the active component's undo manager
-     * 
+     *
      * @return The active undo manager; null if no undo manager is active or no
      *         editor has focus
      *************************************************************************/
@@ -714,14 +714,25 @@ public class CcddKeyboardHandler
 
             // Check if no table or table type undo manager is applicable,
             // the data field table editor is open, and the editor has focus
-            if (undoManager == null
-                && fieldEditor != null
-                && fieldEditor.isFocused())
+            if (undoManager == null && fieldEditor != null && fieldEditor.isFocused())
             {
                 // Get the undo manager and cell editor for the data field
                 // table editor
                 undoManager = fieldEditor.getTable().getUndoManager();
                 cellEditor = fieldEditor.getTable().getCellEditor();
+            }
+
+            // Get a reference to the script manager dialog to shorten
+            // subsequent calls
+            CcddScriptManagerDialog scriptManager = ccddMain.getScriptManager();
+
+            // Check if no table or table type undo manager is applicable,
+            // the script manager is open, and the editor has focus
+            if (undoManager == null && scriptManager != null && scriptManager.isFocused())
+            {
+                // Get the undo manager and cell editor for the script manager
+                undoManager = ccddMain.getScriptHandler().getAssociationsTable().getUndoManager();
+                cellEditor = ccddMain.getScriptHandler().getAssociationsTable().getCellEditor();
             }
         }
 
@@ -766,10 +777,10 @@ public class CcddKeyboardHandler
      * key would do these without this method; it is included in order to
      * eliminate the cell background color 'flash' that occurs when a check box
      * is toggled
-     * 
+     *
      * @param table
      *            reference to the table where the key press event occurred
-     * 
+     *
      * @return true if the key press event is handled by this method; false
      *         otherwise
      *************************************************************************/

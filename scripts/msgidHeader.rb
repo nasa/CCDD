@@ -31,19 +31,19 @@ $projectName = $ccdd.getProject()
 #******************************************************************************
 def outputAssociationInfo(file)
   # Add the build information and header to the output file
-  $ccdd.writeToFileLn(typesFile, "/* Created : " + $ccdd.getDateAndTime() + "\n   User    : " + $ccdd.getUser() + "\n   Project : " + $ccdd.getProject() + "\n   Script  : " + $ccdd.getScriptName())
+  $ccdd.writeToFileLn(file, "/* Created : " + $ccdd.getDateAndTime() + "\n   User    : " + $ccdd.getUser() + "\n   Project : " + $ccdd.getProject() + "\n   Script  : " + $ccdd.getScriptName())
 
   # Check if any table is associated with the script
   if $ccdd.getTableNumRows() != 0
-      $ccdd.writeToFileLn(typesFile, "   Table(s): " + $ccdd.getTableNames().sort.to_a.join(",\n             "))
+      $ccdd.writeToFileLn(file, "   Table(s): " + $ccdd.getTableNames().sort.to_a.join(",\n             "))
   end
 
   # Check if any groups is associated with the script
   if $ccdd.getAssociatedGroupNames().length != 0
-      $ccdd.writeToFileLn(typesFile, "   Group(s): " + $ccdd.getAssociatedGroupNames().sort.to_a.join(",\n             "))
+      $ccdd.writeToFileLn(file, "   Group(s): " + $ccdd.getAssociatedGroupNames().sort.to_a.join(",\n             "))
   end
 
-  $ccdd.writeToFileLn(typesFile, "*/\n")
+  $ccdd.writeToFileLn(file, "*/\n")
 end
 
 #******************************************************************************

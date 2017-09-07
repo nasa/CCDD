@@ -5,18 +5,16 @@
  * supplied structure table(s). A companion source code file is also
  * generated that provides byte- and bit-swapping functions for the structures
  *
- * Assumptions: The structure tables use "Variable Name" for the variable name
- * column, "Data Type" for the data type column, "Array Size" for the array size
- * column, "Bit Length" for the bit length column, and "Description" for the
- * description column (case insensitive). If the structure has a non-empty data
- * field named "Message ID" then it is assumed to require a CCSDS header which
- * is automatically added. If a table containing extra text to include is
- * provided then its table type is "Includes" and has the column "Includes". The
- * output file names are prepended with a name taken from a data field,
- * "System", found either in the first group associated with the script, or, if
- * not found there then in the first structure table associated with the script
- * if no "System" data field exists or is empty the name is blank. The project's
- * data type definitions are output to the types header file
+ * Assumptions: The structure tables use "Description" for the description
+ * column (case insensitive). If the structure has a non-empty data field named
+ * "Message ID" then it is assumed to require a CCSDS header which is
+ * automatically added. If a table containing extra text to include is provided
+ * then its table type is "Includes" and has the column "Includes". The output
+ * file names are prepended with a name taken from a data field, "System", found
+ * either in the first group associated with the script, or, if not found there
+ * then in the first structure table associated with the script; if no "System"
+ * data field exists or is empty the name is blank. The project's data type
+ * definitions are output to the types header file
  *
  * Copyright 2017 United States Government as represented by the Administrator
  * of the National Aeronautics and Space Administration. No copyright is claimed
@@ -46,19 +44,19 @@ def outputAssociationInfo(file)
 {
     // Add the build information and header to the output file
     ccdd.writeToFileLn(file, "/* Created : " + ccdd.getDateAndTime() + "\n   User    : " + ccdd.getUser() + "\n   Project : " + ccdd.getProject() + "\n   Script  : " + ccdd.getScriptName())
-    
+
     // Check if any table is associated with the script
     if (ccdd.getTableNumRows() != 0)
     {
         ccdd.writeToFileLn(file, "   Table(s): " + ccdd.getTableNames().sort().join(",\n             "))
     }
-    
+
     // Check if any groups is associated with the script
     if (ccdd.getAssociatedGroupNames().length != 0)
     {
         ccdd.writeToFileLn(file, "   Group(s): " + ccdd.getAssociatedGroupNames().sort().join(",\n             "))
     }
-    
+
     ccdd.writeToFileLn(file, "*/\n")
 }
 
@@ -116,14 +114,14 @@ def outputStructure(file, structIndex)
             }
 
             // Get the variable name for this row
-            def variableName = ccdd.getStructureTableData("variable name", row)
+            def variableName = ccdd.getStructureVariableName(row)
 
             // Check that this isn't an array member; only array definitions
             // appear in the type definition
             if (!variableName.endsWith("]"))
             {
                 // Get the variable's array size
-                def arraySize = ccdd.getStructureTableData("array size", row)
+                def arraySize = ccdd.getStructureArraySize(row)
 
                 // Check if the variable is an array
                 if (!arraySize.isEmpty())
@@ -138,7 +136,7 @@ def outputStructure(file, structIndex)
                 }
 
                 // Get the variable's bit length
-                def bitLength = ccdd.getStructureTableData("bit length", row)
+                def bitLength = ccdd.getStructureBitLength(row)
 
                 // Check if the variable has a bit length
                 if (!bitLength.isEmpty())
@@ -149,7 +147,7 @@ def outputStructure(file, structIndex)
 
                 // Determine the length of the variable definition by adding up
                 // the individual parts
-                def defnLength = ("   " + ccdd.getStructureTableData("data type", row) + " " + variableName + arraySize + bitLength + "; ").length()
+                def defnLength = ("   " + ccdd.getStructureDataType(row) + " " + variableName + arraySize + bitLength + "; ").length()
 
                 // Check if the length exceeds the minimum length found thus far
                 if (defnLength > minimumLength)
@@ -172,7 +170,7 @@ def outputStructure(file, structIndex)
         if (structureNames[structIndex].equals(ccdd.getStructureTableNameByRow(row)))
         {
             // Get the variable name for this row in the structure
-            def variableName = ccdd.getStructureTableData("variable name", row)
+            def variableName = ccdd.getStructureVariableName(row)
 
             // Check if this is the first pass through the structure data
             if (firstPass)
@@ -228,7 +226,7 @@ def outputStructure(file, structIndex)
                     def comment = "#CCSDS_PriHdr_t"
                     def sizeString = "(6 bytes)"
                     ccdd.writeToFileFormat(file, "%-" + minimumLength + "s /* [%5s] " + sizeString + "  " + comment + " */\n", ccsdsVar, offsetStr)
-                    
+
                     // Output the variable array that contains the secondary
                     // header values
                     ccsdsVar = "   char CFS_SEC_HEADER[6];"
@@ -256,9 +254,9 @@ def outputStructure(file, structIndex)
                 usedVariableNames.push(variableName)
 
                 // Get the variable's data type, array size, and description
-                def dataType = ccdd.getStructureTableData("data type", row)
-                def arraySize = ccdd.getStructureTableData("array size", row)
-                def description = ccdd.getStructureTableData("description", row)
+                def dataType = ccdd.getStructureDataType(row)
+                def arraySize = ccdd.getStructureArraySize(row)
+                def description = ccdd.getStructureDescription(row)
 
                 // Determine the size of the variable, in bytes
                 def byteSize = ccdd.getDataTypeSizeInBytes(dataType)
@@ -332,7 +330,7 @@ def outputStructure(file, structIndex)
                     varOffset = ccdd.getVariableOffset(variablePath)
 
                     // Get the variable's bit length
-                    bitLength = ccdd.getStructureTableData("bit length", row)
+                    bitLength = ccdd.getStructureBitLength(row)
 
                     // Check if the bit length is provided
                     if (!bitLength.isEmpty())
@@ -422,7 +420,7 @@ def makeHeaders(baseFileName)
     {
         // Add the build information to the output file
         outputAssociationInfo(typesFile)
-        
+
         // Add the header include to prevent loading the file more than once
         ccdd.writeToFileLn(typesFile, "#ifndef " + headerIncludeFlag)
         ccdd.writeToFileLn(typesFile, "#define " + headerIncludeFlag)
@@ -582,7 +580,7 @@ def makeSwapFile(baseFileName)
                 if (structureNames[structIndex].equals(ccdd.getStructureTableNameByRow(row)))
                 {
                     // Get the variable name for this row in the structure
-                    def variableName = ccdd.getStructureTableData("variable name", row)
+                    def variableName = ccdd.getStructureVariableName(row)
 
                     // Check if this is not an array member; array definitions
                     // are output, but not members
@@ -607,9 +605,9 @@ def makeSwapFile(baseFileName)
 
                         // Get the variable's data type, bit length, and array
                         // size
-                        def dataType = ccdd.getStructureTableData("data type", row)
-                        def bitLength = ccdd.getStructureTableData("bit length", row)
-                        def arraySize = ccdd.getStructureTableData("array size", row)
+                        def dataType = ccdd.getStructureDataType(row)
+                        def bitLength = ccdd.getStructureBitLength(row)
+                        def arraySize = ccdd.getStructureArraySize(row)
 
                         // Flag that's 'true' if the variable is an array
                         def isArray = !arraySize.isEmpty()
@@ -849,11 +847,11 @@ def makeSwapFile(baseFileName)
                     if (structureNames[structIndex].equals(ccdd.getStructureTableNameByRow(row)))
                     {
                         // Get the variable name for this row in the structure
-                        def variableName = ccdd.getStructureTableData("variable name", row)
+                        def variableName = ccdd.getStructureVariableName(row)
 
                         // Get the variable's path and use it to get the byte
                         // offset
-                        def variablePath = structureNames[structIndex] + "," + ccdd.getStructureTableData("data type", row) + "." + ccdd.getStructureTableData("variable name", row)
+                        def variablePath = structureNames[structIndex] + "," + ccdd.getStructureDataType(row) + "." + ccdd.getStructureVariableName(row)
                         def varOffset = ccdd.getVariableOffset(variablePath)
 
                         // Check if this is not an array member; array
@@ -879,9 +877,9 @@ def makeSwapFile(baseFileName)
 
                             // Get the variable's data type, bit length, and
                             // array size
-                            def dataType = ccdd.getStructureTableData("data type", row)
-                            def bitLength = ccdd.getStructureTableData("bit length", row)
-                            def arraySize = ccdd.getStructureTableData("array size", row)
+                            def dataType = ccdd.getStructureDataType(row)
+                            def bitLength = ccdd.getStructureBitLength(row)
+                            def arraySize = ccdd.getStructureArraySize(row)
 
                             // Flag that's 'true' if it's an array
                             def isArray = !arraySize.isEmpty()
