@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary common classes. Copyright 2017 United States
- * Government as represented by the Administrator of the National Aeronautics
- * and Space Administration. No copyright is claimed in the United States under
- * Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary common classes.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -1359,24 +1361,24 @@ public class CcddClasses
             // the input flag
             this.name = name
                         - (useViewIndex
-                                        ? NUM_HIDDEN_COLUMNS
-                                        : 0);
+                                       ? NUM_HIDDEN_COLUMNS
+                                       : 0);
             this.dataType = dataType
                             - (useViewIndex
-                                            ? NUM_HIDDEN_COLUMNS
-                                            : 0);
+                                           ? NUM_HIDDEN_COLUMNS
+                                           : 0);
             this.enumeration = enumeration
                                - (useViewIndex
-                                               ? NUM_HIDDEN_COLUMNS
-                                               : 0);
+                                              ? NUM_HIDDEN_COLUMNS
+                                              : 0);
             this.minMax = new MinMaxPair(minimum
                                          - (useViewIndex
-                                                         ? NUM_HIDDEN_COLUMNS
-                                                         : 0),
+                                                        ? NUM_HIDDEN_COLUMNS
+                                                        : 0),
                                          maximum
-                                                               - (useViewIndex
-                                                                               ? NUM_HIDDEN_COLUMNS
-                                                                               : 0));
+                                             - (useViewIndex
+                                                            ? NUM_HIDDEN_COLUMNS
+                                                            : 0));
 
             // Check if other associated columns are provided
             if (other != null)
@@ -1390,8 +1392,8 @@ public class CcddClasses
                     // on the input flag
                     this.other.add(column
                                    - (useViewIndex
-                                                   ? NUM_HIDDEN_COLUMNS
-                                                   : 0));
+                                                  ? NUM_HIDDEN_COLUMNS
+                                                  : 0));
                 }
             }
             // No other columns are provided
@@ -1555,11 +1557,11 @@ public class CcddClasses
                 // the node name
                 toolTipText = toolTipText == null
                               || toolTipText.isEmpty()
-                                                       ? expanded
-                                                       : "("
-                                                         + expanded
-                                                         + ") "
-                                                         + toolTipText;
+                                                      ? expanded
+                                                      : "("
+                                                        + expanded
+                                                        + ") "
+                                                        + toolTipText;
             }
 
             this.toolTipText = CcddUtilities.wrapText(toolTipText,
@@ -4719,8 +4721,8 @@ public class CcddClasses
                         public int getDividerSize()
                         {
                             int size = orientation == JSplitPane.HORIZONTAL_SPLIT
-                                                                                  ? ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2
-                                                                                  : ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+                                                                                 ? ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2
+                                                                                 : ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
 
                             // Check if a component is provided to represent
                             // the divider
@@ -4729,8 +4731,8 @@ public class CcddClasses
                                 // Set the size to the divider component's
                                 // preferred width
                                 size = orientation == JSplitPane.HORIZONTAL_SPLIT
-                                                                                  ? dividerComp.getPreferredSize().width
-                                                                                  : dividerComp.getPreferredSize().height;
+                                                                                 ? dividerComp.getPreferredSize().width
+                                                                                 : dividerComp.getPreferredSize().height;
                             }
 
                             return size;
@@ -5238,17 +5240,17 @@ public class CcddClasses
                         {
                             m.setPreferredSize(new Dimension(maxWidth,
                                                              ((JSeparator) m).getOrientation() == JSeparator.HORIZONTAL
-                                                                                                                        ? 3
-                                                                                                                        : -ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing()
-                                                                                                                          * 2
-                                                                                                                          / 3
-                                                                                                                          - 1));
+                                                                                                                       ? 3
+                                                                                                                       : -ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing()
+                                                                                                                       * 2
+                                                                                                                       / 3
+                                                                                                                       - 1));
                         }
                         // CCDD: End modification
 
                         Dimension d = preferred
-                                                ? m.getPreferredSize()
-                                                : m.getMinimumSize();
+                                               ? m.getPreferredSize()
+                                               : m.getMinimumSize();
 
                         // Can't add the component to current row. Start a new
                         // row

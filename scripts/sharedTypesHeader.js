@@ -1,13 +1,14 @@
 /*******************************************************************************
  * Description: Output a message ID header file
- * 
+ *
  * This JavaScript script generates a message ID header file from the supplied
  * table information
- * 
+ *
  * Copyright 2017 United States Government as represented by the Administrator
  * of the National Aeronautics and Space Administration. No copyright is claimed
  * in the United States under Title 17, U.S. Code. All Other Rights Reserved.
  ******************************************************************************/
+
 try
 {
     load("nashorn:mozilla_compat.js");
@@ -30,12 +31,12 @@ var dataStreams = ccdd.getDataStreamNames();
 /** Functions *************************************************************** */
 
 /*******************************************************************************
- * Output the script association details to the specified file
- * 
+ * Output the file creation details to the specified file
+ *
  * @param file
  *            reference to the output file
  ******************************************************************************/
-function outputAssociationInfo(file)
+function outputFileCreationInfo(file)
 {
     // Add the build information and header to the output file
     ccdd.writeToFileLn(file, "/* Created : " + ccdd.getDateAndTime() + "\n   User    : " + ccdd.getUser() + "\n   Project : " + ccdd.getProject() + "\n   Script  : " + ccdd.getScriptName());
@@ -57,10 +58,10 @@ function outputAssociationInfo(file)
 
 /*******************************************************************************
  * Output a structure's type definition to the specified file
- * 
+ *
  * @param file
  *            reference to the types header output file
- * 
+ *
  * @param structIndex
  *            index of the structure in the structure name array
  ******************************************************************************/
@@ -398,7 +399,7 @@ function outputStructure(file, structIndex)
 
 /*******************************************************************************
  * Output the shared structure type definitions header file
- * 
+ *
  * @param sharedFileName
  *            shared structure type definitions header file name
  ******************************************************************************/
@@ -416,7 +417,7 @@ function makeSharedHeaders(baseFileName)
     if (sharedFile != null)
     {
         // Add the build information to the output file
-        outputAssociationInfo(sharedFile);
+        outputFileCreationInfo(sharedFile);
 
         // Add the header include to prevent loading the file more than once
         ccdd.writeToFileLn(sharedFile, "#ifndef " + headerIncludeFlag);

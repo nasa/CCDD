@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary JSON handler. Copyright 2017 United States
- * Government as represented by the Administrator of the National Aeronautics
- * and Space Administration. No copyright is claimed in the United States under
- * Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary JSON handler.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -282,8 +284,8 @@ public class CcddJSONHandler implements CcddImportExportInterface
     @Override
     public void importFromFile(File importFile,
                                ImportType importType) throws CCDDException,
-                                                      IOException,
-                                                      Exception
+                                                     IOException,
+                                                     Exception
     {
         BufferedReader br = null;
 
@@ -413,11 +415,11 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                 // name is missing
                                 int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                     "<html><b>Table type '"
-                                                                                                            + typeName
-                                                                                                            + "' definition has missing or extra "
-                                                                                                            + "input(s) in import file '</b>"
-                                                                                                            + importFile.getAbsolutePath()
-                                                                                                            + "<b>'; continue?",
+                                                                                                        + typeName
+                                                                                                        + "' definition has missing or extra "
+                                                                                                        + "input(s) in import file '</b>"
+                                                                                                        + importFile.getAbsolutePath()
+                                                                                                        + "<b>'; continue?",
                                                                                                     "Table Type Error",
                                                                                                     "Ignore this table type",
                                                                                                     "Ignore this and any remaining invalid table types",
@@ -508,11 +510,11 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                     // data field inputs are missing
                                     int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                         "<html><b>Table type '</b>"
-                                                                                                                + tableTypeDefn.getTypeName()
-                                                                                                                + "<b>' has missing or extra data field "
-                                                                                                                + "input(s) in import file '</b>"
-                                                                                                                + importFile.getAbsolutePath()
-                                                                                                                + "<b>'; continue?",
+                                                                                                            + tableTypeDefn.getTypeName()
+                                                                                                            + "<b>' has missing or extra data field "
+                                                                                                            + "input(s) in import file '</b>"
+                                                                                                            + importFile.getAbsolutePath()
+                                                                                                            + "<b>'; continue?",
                                                                                                         "Table Type Error",
                                                                                                         "Ignore this table type",
                                                                                                         "Ignore this and any remaining invalid table types",
@@ -605,9 +607,9 @@ public class CcddJSONHandler implements CcddImportExportInterface
                             // incorrect
                             int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                 "<html><b>Missing or extra data type definition "
-                                                                                                        + "input(s) in import file '</b>"
-                                                                                                        + importFile.getAbsolutePath()
-                                                                                                        + "<b>'; continue?",
+                                                                                                    + "input(s) in import file '</b>"
+                                                                                                    + importFile.getAbsolutePath()
+                                                                                                    + "<b>'; continue?",
                                                                                                 "Data Type Error",
                                                                                                 "Ignore this data type",
                                                                                                 "Ignore this and any remaining invalid data types",
@@ -661,9 +663,9 @@ public class CcddJSONHandler implements CcddImportExportInterface
                             // Inform the user that the macro name is missing
                             int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                 "<html><b>Missing or extra macro definition "
-                                                                                                        + "input(s) in import file '</b>"
-                                                                                                        + importFile.getAbsolutePath()
-                                                                                                        + "<b>'; continue?",
+                                                                                                    + "input(s) in import file '</b>"
+                                                                                                    + importFile.getAbsolutePath()
+                                                                                                    + "<b>'; continue?",
                                                                                                 "Macro Error",
                                                                                                 "Ignore this macro",
                                                                                                 "Ignore this and any remaining invalid macros",
@@ -718,9 +720,9 @@ public class CcddJSONHandler implements CcddImportExportInterface
                             // missing
                             int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                 "<html><b>Missing or extra reserved message ID "
-                                                                                                        + "definition input(s) in import file '</b>"
-                                                                                                        + importFile.getAbsolutePath()
-                                                                                                        + "<b>'; continue?",
+                                                                                                    + "definition input(s) in import file '</b>"
+                                                                                                    + importFile.getAbsolutePath()
+                                                                                                    + "<b>'; continue?",
                                                                                                 "Reserved Message ID Error",
                                                                                                 "Ignore this reserved message ID",
                                                                                                 "Ignore this and any remaining invalid reserved message IDs",
@@ -856,12 +858,12 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                     // invalid
                                     int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                         "<html><b>Table '</b>"
-                                                                                                                + tableName
-                                                                                                                + "<b>' column name '</b>"
-                                                                                                                + columnName
-                                                                                                                + "<b>' unrecognized in import file '</b>"
-                                                                                                                + importFile.getAbsolutePath()
-                                                                                                                + "<b>'; continue?",
+                                                                                                            + tableName
+                                                                                                            + "<b>' column name '</b>"
+                                                                                                            + columnName
+                                                                                                            + "<b>' unrecognized in import file '</b>"
+                                                                                                            + importFile.getAbsolutePath()
+                                                                                                            + "<b>'; continue?",
                                                                                                         "Column Error",
                                                                                                         "Ignore this invalid column name",
                                                                                                         "Ignore this and any remaining invalid column names",
@@ -965,11 +967,11 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                     // is missing
                                     int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                         "<html><b>Table '</b>"
-                                                                                                                + tableName
-                                                                                                                + "<b>' has missing or extra data field "
-                                                                                                                + "input(s) in import file '</b>"
-                                                                                                                + importFile.getAbsolutePath()
-                                                                                                                + "<b>'; continue?",
+                                                                                                            + tableName
+                                                                                                            + "<b>' has missing or extra data field "
+                                                                                                            + "input(s) in import file '</b>"
+                                                                                                            + importFile.getAbsolutePath()
+                                                                                                            + "<b>'; continue?",
                                                                                                         "Data Field Error",
                                                                                                         "Ignore this invalid data field",
                                                                                                         "Ignore this and any remaining invalid data fields",
@@ -1013,10 +1015,10 @@ public class CcddJSONHandler implements CcddImportExportInterface
             // Inform the user that the file cannot be closed
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Cannot parse import file<br>'</b>"
-                                                              + importFile.getAbsolutePath()
-                                                              + "<b>'; cause '"
-                                                              + pe.getMessage()
-                                                              + "'",
+                                                          + importFile.getAbsolutePath()
+                                                          + "<b>'; cause '"
+                                                          + pe.getMessage()
+                                                          + "'",
                                                       "File Warning",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -1037,8 +1039,8 @@ public class CcddJSONHandler implements CcddImportExportInterface
                 // Inform the user that the file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
                                                           "<html><b>Cannot close import file<br>'</b>"
-                                                                  + importFile.getAbsolutePath()
-                                                                  + "<b>'",
+                                                              + importFile.getAbsolutePath()
+                                                              + "<b>'",
                                                           "File Warning",
                                                           JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
@@ -1119,13 +1121,13 @@ public class CcddJSONHandler implements CcddImportExportInterface
             JSONObject outputJO = new JSONObject();
             outputJO.put(JSONTags.FILE_DESCRIPTION.getTag(),
                          "Created "
-                                                             + new Date().toString()
-                                                             + " : project = "
-                                                             + dbControl.getDatabase()
-                                                             + " : host = "
-                                                             + dbControl.getServer()
-                                                             + " : user = "
-                                                             + dbControl.getUser());
+                             + new Date().toString()
+                             + " : project = "
+                             + dbControl.getDatabase()
+                             + " : host = "
+                             + dbControl.getServer()
+                             + " : user = "
+                             + dbControl.getUser());
 
             // Check if any tables are provided
             if (tableNames.length != 0)
@@ -1277,8 +1279,8 @@ public class CcddJSONHandler implements CcddImportExportInterface
             // Inform the user that the data file cannot be written to
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Cannot write to export file<br>'</b>"
-                                                              + exportFile.getAbsolutePath()
-                                                              + "<b>'",
+                                                          + exportFile.getAbsolutePath()
+                                                          + "<b>'",
                                                       "File Error",
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -1289,8 +1291,8 @@ public class CcddJSONHandler implements CcddImportExportInterface
             // Inform the user that formatting the JSON output failed
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Cannot format JSON output using JavaScript; cause '"
-                                                              + se.getMessage()
-                                                              + "'",
+                                                          + se.getMessage()
+                                                          + "'",
                                                       "JavaScript Error",
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -1332,8 +1334,8 @@ public class CcddJSONHandler implements CcddImportExportInterface
                 // Inform the user that the data file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
                                                           "<html><b>Cannot close export file<br>'</b>"
-                                                                  + exportFile.getAbsolutePath()
-                                                                  + "<b>'",
+                                                              + exportFile.getAbsolutePath()
+                                                              + "<b>'",
                                                           "File Warning",
                                                           JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);

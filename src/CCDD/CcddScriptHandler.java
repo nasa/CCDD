@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary script handler. Copyright 2017 United States
- * Government as represented by the Administrator of the National Aeronautics
- * and Space Administration. No copyright is claimed in the United States under
- * Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary script handler.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -388,8 +390,7 @@ public class CcddScriptHandler
              *            true if the cell is to be rendered with the selection
              *            highlighted
              *
-             * @param int
-             *            row cell row, view coordinates
+             * @param int row cell row, view coordinates
              *
              * @param column
              *            cell column, view coordinates
@@ -441,8 +442,8 @@ public class CcddScriptHandler
             {
                 return allowSelectDisabled
                        || isAssociationAvailable(assnsTable.convertRowIndexToModel(row))
-                                                                                         ? super.isSelectedIndex(row)
-                                                                                         : false;
+                                                                                        ? super.isSelectedIndex(row)
+                                                                                        : false;
             }
         });
 
@@ -829,9 +830,9 @@ public class CcddScriptHandler
                 // and a Cancel button is issued)
                 int option = cancelDialog.showMessageDialog(dialog,
                                                             "<html><b>Script execution in progress...<br><br>"
-                                                                    + CcddUtilities.colorHTMLText("*** Press </i>Halt<i> "
-                                                                                                  + "to terminate script execution ***",
-                                                                                                  Color.RED),
+                                                                + CcddUtilities.colorHTMLText("*** Press </i>Halt<i> "
+                                                                                              + "to terminate script execution ***",
+                                                                                              Color.RED),
                                                             "Script Executing",
                                                             JOptionPane.ERROR_MESSAGE,
                                                             DialogOption.HALT_OPTION);
@@ -1303,17 +1304,17 @@ public class CcddScriptHandler
         eventLog.logFailEvent(component,
                               "Script Error",
                               "Cannot execute script '"
-                                              + scriptFileName
-                                              + "' using table(s) '"
-                                              + tables
-                                              + "'; cause '"
-                                              + cause
-                                              + "'",
+                                  + scriptFileName
+                                  + "' using table(s) '"
+                                  + tables
+                                  + "'; cause '"
+                                  + cause
+                                  + "'",
                               "<html><b>Cannot execute script '</b>"
-                                                     + scriptFileName
-                                                     + "<b>' using table(s) '</b>"
-                                                     + tables
-                                                     + "<b>'");
+                                  + scriptFileName
+                                  + "<b>' using table(s) '</b>"
+                                  + tables
+                                  + "<b>'");
     }
 
     /**************************************************************************
@@ -1534,7 +1535,7 @@ public class CcddScriptHandler
                         // is necessary to prevent appending the prototype
                         // information for this data type structure
                         if ((!data[row][dataTypeColumn].isEmpty()
-                             || !data[row][varNameColumn].isEmpty())
+                            || !data[row][varNameColumn].isEmpty())
                             && (arraySizeColumn == -1
                                 || data[row][arraySizeColumn].isEmpty()
                                 || ArrayVariable.isArrayMember(data[row][varNameColumn])))

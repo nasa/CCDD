@@ -1,4 +1,5 @@
 # Description: Ruby test script
+
 java_import Java::CCDD.CcddScriptDataAccessHandler
 
 puts "Test of a Ruby script using JRuby"
@@ -34,7 +35,7 @@ structNames.each do |name|
 
     # Write the structure name to the output file
     $ccdd.writeToFileLn(file, "structNames[#{index}] = #{name}")
-    
+
     index += 1
 
 end

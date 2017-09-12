@@ -26,12 +26,12 @@ import math
 #* Functions ******************************************************************
 
 #******************************************************************************
-# Output the script association details to the specified file
+# Output the file creation details to the specified file
 #
 # @param file
 #            reference to the output file
 #******************************************************************************
-def outputAssociationInfo(file):
+def outputFileCreationInfo(file):
     # Add the build information and header to the output file
     ccdd.writeToFileLn(file, "/* Created : " + ccdd.getDateAndTime() + "\n   User    : " + ccdd.getUser() + "\n   Project : " + ccdd.getProject() + "\n   Script  : " + ccdd.getScriptName())
 
@@ -550,7 +550,7 @@ def outputCommands(prefix, msgIDOffset, system):
 def outputMnemonicDefinition(row):
     # Get the variable data type
     dataType = ccdd.getStructureDataType(row)
-    
+
      # Get the single character ITOS encoded form of the data type
     itosEncode = ccdd.getITOSEncodedDataType(dataType, "SINGLE_CHAR")
 
@@ -850,8 +850,13 @@ def outputCommandEnumerations(systemName):
 #
 # @param limitSets
 #            limit set(s)
+#
+# @param isFirst
+#            true if this is the first limit definition
+#
+# @return true if a limit definition is output
 #******************************************************************************
-def outputLimitDefinition(row, limitSets):
+def outputLimitDefinition(row, limitSets, isFirst):
     # Get the variable name and array size
     variableName = ccdd.getStructureVariableName(row)
     arraySize = ccdd.getStructureArraySize(row)
@@ -931,6 +936,8 @@ def outputLimitDefinition(row, limitSets):
 
                 ccdd.writeToFileLn(tlmFile, "}")
 
+    return isFirst
+
 #******************************************************************************
 # Output all of the limit and limit set definitions
 #******************************************************************************
@@ -944,10 +951,8 @@ def outputLimitDefinitions():
 
         # Check if the parameter has limits
         if limitSets is not None and limitSets:
-            isFirst = False
-
             # Output the limit definition for this row in the data table
-            outputLimitDefinition(row, limitSets)
+            isFirst = outputLimitDefinition(row, limitSets, isFirst)
 
 #******************************************************************************
 # Output a single polynomial conversion
@@ -1218,8 +1223,8 @@ else:
                 structureNames = ccdd.getStructureTablesByReferenceOrder()
 
                 # Add a header to the output files
-                outputAssociationInfo(combFile)
-                outputAssociationInfo(tlmFile)
+                outputFileCreationInfo(combFile)
+                outputFileCreationInfo(tlmFile)
 
                 # Output the structure prototypes and telemetry packet
                 # definitions
@@ -1263,7 +1268,7 @@ else:
                 # Check if the command output file successfully opened
                 if cmdFile is not None:
                     # Add a header to the output file
-                    outputAssociationInfo(cmdFile)
+                    outputFileCreationInfo(cmdFile)
 
                     # Step through each command table
                     for cmdTblIndex in range(len(ccdd.getCommandTableNames())):

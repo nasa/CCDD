@@ -143,15 +143,15 @@ public class CcddSearchHandler extends CcddDialogHandler
         // Set the search type based on the dialog type and, for a table
         // search, the state of the 'data tables only' check box
         String searchType = searchDlgType == SearchDialogType.TABLES
-                                                                     ? (dataTablesOnly
-                                                                                       ? SearchType.DATA.toString()
-                                                                                       : SearchType.ALL.toString())
-                                                                     : SearchType.SCRIPT.toString();
+                                                                    ? (dataTablesOnly
+                                                                                     ? SearchType.DATA.toString()
+                                                                                     : SearchType.ALL.toString())
+                                                                    : SearchType.SCRIPT.toString();
 
         // Search the database for the text
         String[] hits = dbCommand.getList(DatabaseListCommand.SEARCH,
-                                          new String[][] {{"_search_text_",
-                                                           searchText},
+                                          new String[][] { {"_search_text_",
+                                                            searchText},
                                                           {"_case_insensitive_",
                                                            String.valueOf(ignoreCase)},
                                                           {"_allow_regex_",

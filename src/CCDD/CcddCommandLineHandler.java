@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary command line argument handler. Copyright 2017
- * United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United
- * States under Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary command line argument handler.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -615,14 +617,14 @@ public class CcddCommandLineHandler
         argument.add(new CommandHandler("execute",
                                         "Execute script(s)",
                                         "script name["
-                                                             + LIST_TABLE_DESC_SEPARATOR.trim()
-                                                             + "table["
-                                                             + LIST_TABLE_SEPARATOR.trim()
-                                                             + "table2["
-                                                             + LIST_TABLE_SEPARATOR.trim()
-                                                             + "...["
-                                                             + LIST_TABLE_SEPARATOR.trim()
-                                                             + "tableN]]]][;...]",
+                                            + LIST_TABLE_DESC_SEPARATOR.trim()
+                                            + "table["
+                                            + LIST_TABLE_SEPARATOR.trim()
+                                            + "table2["
+                                            + LIST_TABLE_SEPARATOR.trim()
+                                            + "...["
+                                            + LIST_TABLE_SEPARATOR.trim()
+                                            + "tableN]]]][;...]",
                                         CommandLineType.NAME,
                                         10)
         {
@@ -1045,7 +1047,7 @@ public class CcddCommandLineHandler
                 // Check if the parameter is a valid color name; if so, get the
                 // RGB value (mask out the alpha portion)
                 val = ((Color) Color.class.getField(parm).get(null)).getRGB()
-                      & 0xffffff;
+                    & 0xffffff;
             }
             catch (Exception e)
             {

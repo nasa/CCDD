@@ -1,254 +1,251 @@
 #******************************************************************************
-# Description: Output the CFS housekeeping (HK) application copy table definition
-# 
-# This Python script generates the HK copy table file from the supplied table
-# and packet information
+# Description: Output the CFS scheduler application's (SCH) message definition
+# and schedule definition tables
+#
+# This Python script generates the scheduler application's (SCH) message
+# definition and schedule definition tables.
+#
+# Copyright 2017 United States Government as represented by the Administrator
+# of the National Aeronautics and Space Administration. No copyright is claimed
+# in the United States under Title 17, U.S. Code. All Other Rights Reserved.
 # *****************************************************************************
+
 from CCDD import CcddScriptDataAccessHandler
 
-# Length of the CCSDS header in bytes
-CCSDS_HEADER_LENGTH = 12
+#* Functions ******************************************************************
 
-# Copy table entry array indices
+#******************************************************************************
+# Output the file creation details to the specified file
+#
+# @param file
+#            reference to the output file
+#******************************************************************************
+def outputFileCreationInfo(file):
+    # Add the build information and header to the output file
+    ccdd.writeToFileLn(file, "/* Created : " + ccdd.getDateAndTime() + "\n   User    : " + ccdd.getUser() + "\n   Project : " + ccdd.getProject() + "\n   Script  : " + ccdd.getScriptName())
+
+    # Check if any table is associated with the script
+    if ccdd.getTableNumRows() != 0:
+        ccdd.writeToFileLn(file, "   Table(s): " + (",\n             ").join(sorted(ccdd.getTableNames())))
+
+    # Check if any groups is associated with the script
+    if len(ccdd.getAssociatedGroupNames()) != 0:
+        ccdd.writeToFileLn(file, "   Group(s): " + (",\n             ").join(sorted(ccdd.getAssociatedGroupNames())))
+
+    ccdd.writeToFileLn(file, "*/")
+#* End functions **************************************************************
+
+#* Main ***********************************************************************
+
+# Scheduler message definition and schedule definition table entry array
+# indices
 ENABLE_STATUS = 0
 TYPE = 1
 FREQUENCY = 2
 REMAINDER = 3
 MESSAGE_INDEX = 4
 GROUP_DATA = 5
-#Command entries
+
+# Message definition table command entries
 COMMAND1 = "0xC000"
 COMMAND2 = "0x0001"
 COMMAND3 = "0x0000"
-            
-# Create the output file name
-outputFile1 = "sch_def_msgtbl2.c"
 
-# Open the output file
-file1 = ccdd.openOutputFile(outputFile1)            
+# Create the message definition table *****************************************
+
+# Define the initial minimum column widths
+columnWidth = [10, 6, 6, 6]
+
+# Create the message definition table output file name
+mdtFileName = ccdd.getOutputPath() + "sch_def_msgtbl.c"
+
+# Open the message definition table output file
+mdtFile = ccdd.openOutputFile(mdtFileName)
+
 # Check if the output file successfully opened
-if file1 is not None:                      
-    
-    columnWidth1 = [10, 20, 5, 5]
-    
-    # Build the format strings
-    formatBody1 = "  { {%-" \
-                 + str(columnWidth1[ENABLE_STATUS] + 1) \
-                 + "s, %" \
-                 + str(columnWidth1[TYPE] + 1) \
-                 + "s, %" \
-                 + str(columnWidth1[FREQUENCY] + 1) \
-                 + "s, %" \
-                 + str(columnWidth1[REMAINDER] + 1) \
-                 + "s} } \n"
-    
-        # Build the format strings
-    formatBody2 = "  { { %s } } \n"
-    
+if mdtFile is not None:
     # Add a header to the output file
-    ccdd.writeToFileLn(file1,
-                       "/* Created: "
-                       + ccdd.getDateAndTime()
-                       + "\n   User   : "
-                       + ccdd.getUser()
-                       + "\n   Project: "
-                       + ccdd.getProject()
-                       + "\n   Script : "
-                       + ccdd.getScriptName()
-                       + " */\n")
-    
-    ccdd.writeToFileLn(file1, "")
+    outputFileCreationInfo(mdtFile)
+
+    # Get the message definition table entries
+    mdtEntries = ccdd.getApplicationMessageDefinitionTable()
+
+      # Check if there are any entries in the message definition table
+    if len(mdtEntries) > 0:
+        # Adjust the minimum column widths
+        columnWidth[ENABLE_STATUS] = ccdd.getLongestString(mdtEntries, columnWidth[ENABLE_STATUS])
+
+    # Build the format string for an occupied entry
+    formatUsed = "    { {%-" + str(columnWidth[ENABLE_STATUS]) + "s, %" + str(columnWidth[TYPE]) + "s, %" + str(columnWidth[FREQUENCY]) + "s, %" + str(columnWidth[REMAINDER]) + "s} } \n"
+
     # Write the include statements for the standard cFE and HK headers
-    ccdd.writeToFileLn(file1, "#include \"cfe.h\"")
-    ccdd.writeToFileLn(file1, "#include \"cfe_tbl_filedef.h\"")
-    ccdd.writeToFileLn(file1, "#include \"sch_platform_cfg.h\"")
-    ccdd.writeToFileLn(file1, "#include \"sch_msgdefs.h\"")
-    ccdd.writeToFileLn(file1, "#include \"sch_tbldefs.h\"")
-    
-    ccdd.writeToFileLn(file1, "")
-    
-    # Get the array containing the packet application names
-    applicationNames = ccdd.getApplicationNames();
-            
+    ccdd.writeToFileLn(mdtFile, "")
+    ccdd.writeToFileLn(mdtFile, "/*")
+    ccdd.writeToFileLn(mdtFile, "** Include Files")
+    ccdd.writeToFileLn(mdtFile, "*/")
+    ccdd.writeToFileLn(mdtFile, "#include \"cfe.h\"")
+    ccdd.writeToFileLn(mdtFile, "#include \"cfe_tbl_filedef.h\"")
+    ccdd.writeToFileLn(mdtFile, "#include \"sch_platform_cfg.h\"")
+    ccdd.writeToFileLn(mdtFile, "#include \"sch_msgdefs.h\"")
+    ccdd.writeToFileLn(mdtFile, "#include \"sch_tbldefs.h\"")
+    ccdd.writeToFileLn(mdtFile, "")
+
+    # Get the array containing the application names
+    applicationNames = ccdd.getApplicationNames()
+
     # Step through each application name
     for name in range(len(applicationNames)):
-        # Write the include statements for the header files
-        ccdd.writeToFileLn( file1,
-                            "#include \"" 
-                            + applicationNames[name].lower() 
-                            + "_msids.h\"")
-    
-    ccdd.writeToFileLn(file1, "")
-    ccdd.writeToFileLn(file1, "/*")
-    ccdd.writeToFileLn(file1, "** Default schedule table data")
-    ccdd.writeToFileLn(file1, "*/")
-    ccdd.writeToFileLn(file1, "SCH_MessageEntry_t SCH_DefaultMessageTable[SCH_MAX_MESSAGES] =")
-    ccdd.writeToFileLn(file1, "{")
+        # Write the application message ID include statements for the header
+        # files
+        ccdd.writeToFileLn(mdtFile, "#include \"" + applicationNames[name].lower() + "_msids.h\"")
 
-    commandTableEntries = ccdd.getApplicationCommandTable()
+    ccdd.writeToFileLn(mdtFile, "")
+    ccdd.writeToFileLn(mdtFile, "/*")
+    ccdd.writeToFileLn(mdtFile, "** Default message table data")
+    ccdd.writeToFileLn(mdtFile, "*/")
+    ccdd.writeToFileLn(mdtFile, "SCH_MessageEntry_t SCH_DefaultMessageTable[SCH_MAX_MESSAGES] =")
+    ccdd.writeToFileLn(mdtFile, "{")
+    ccdd.writeToFileLn(mdtFile, "    /*---------------------------------------------------------*/")
+    ccdd.writeToFileLn(mdtFile, "    /* DO NOT USE -- Entry #0 reserved for \"unused\" command ID */")
+    ccdd.writeToFile(mdtFile, "    /*---------------------------------------------------------*/")
 
-    # Step through each copy table entry
-    for row in range(len(commandTableEntries)):
-        ccdd.writeToFileLn(file1, "/* command ID #%2d  */" % row)
+    # Step through each message definition table entry
+    for row in range(len(mdtEntries)):
+        ccdd.writeToFileLn(mdtFile, "\n    /* command ID #%d */" % row)
         comma = ","
-        #Check if this is the last entry
-        if row == len(commandTableEntries):
+
+        # Check if this is the last entry
+        if row == len(mdtEntries) - 1:
             comma = " "
-        #Check if this is not an unused slot    
-        if commandTableEntries[row] != "SCH_UNUSED_MID":
-            ccdd.writeToFileFormat(file1,
-                                   formatBody1,
-                                   commandTableEntries[row], 
+
+        # Check if this slot is occupied
+        if mdtEntries[row] != "SCH_UNUSED_MID":
+            ccdd.writeToFileFormat(mdtFile,
+                                   formatUsed,
+                                   mdtEntries[row],
                                    COMMAND1,
                                    COMMAND2,
                                    COMMAND3,
-                                   comma   
-                                   )
+                                   comma)
+        # The slot is not used
         else:
-            ccdd.writeToFileFormat(file1,
-                                   formatBody2,
-                                   commandTableEntries[row]
-                                   )   
-            
-    # Terminate the table definition statement
-    ccdd.writeToFileLn(file1, "};")
-    
+            ccdd.writeToFileFormat(mdtFile, "    { { %s } } \n", mdtEntries[row])
+
+    # Terminate the message definition table statement
+    ccdd.writeToFileLn(mdtFile, "};")
+
     # Close the output file
-    ccdd.closeFile(file1)
+    ccdd.closeFile(mdtFile)
 # The output file cannot be opened
 else:
     # Display an error dialog
-    ccdd.showErrorDialog("<html><b>Error opening output file '</b>" + outputFile1 + "<b>'")
-                          
-# Create the output file name
-outputFile = "sch_def_schtbl2.c"
+    ccdd.showErrorDialog("<html><b>Error opening output file '</b>" + mdtFileName + "<b>'")
 
-#Create the schedule table 
-# Open the output file
-file = ccdd.openOutputFile(outputFile)
+# Create the schedule definition table output file name
+sdtFileName = ccdd.getOutputPath() + "sch_def_schtbl.c"
+
+# Create the schedule definition table ****************************************
+
+# Open the schedule definition table output file
+sdtFile = ccdd.openOutputFile(sdtFileName)
 
 # Check if the output file successfully opened
-if file is not None:
-    # Add a header to the output file
-    ccdd.writeToFileLn(file,
-                       "/* Created: "
-                       + ccdd.getDateAndTime()
-                       + "\n   User   : "
-                       + ccdd.getUser()
-                       + "\n   Project: "
-                       + ccdd.getProject()
-                       + "\n   Script : "
-                       + ccdd.getScriptName()
-                       + " */\n")
-                                                 
-    # Define the initial minimum column widths
-    columnWidth = [11, 20, 5, 5, 5, 15]
-      
-    slotNum =  ccdd.getNumberOfSlots();
-      
-    # Build the format strings
-    formatBody = "  {%-" \
-                 + str(columnWidth[ENABLE_STATUS] + 1) \
-                 + "s, %" \
-                 + str(columnWidth[TYPE] + 1) \
-                 + "s, %" \
-                 + str(columnWidth[FREQUENCY] + 1) \
-                 + "s, %" \
-                 + str(columnWidth[REMAINDER] + 1) \
-                 + "s, %" \
-                 + str(columnWidth[MESSAGE_INDEX] + 1) \
-                 + "s, %" \
-                 + str(columnWidth[GROUP_DATA] + 1) \
-                 + "s}  \n"
-    
-    formatDefines = "#define %-" \
-                 + str(columnWidth[ENABLE_STATUS] + 1) \
-                 + "s %s \n" 
-    
-    # Write the include statements for the standard cFE and HK headers
-    ccdd.writeToFileLn(file, "#include \"cfe.h\"")
-    ccdd.writeToFileLn(file, "#include \"cfe_tbl_filedef.h\"")
-    ccdd.writeToFileLn(file, "#include \"sch_platform_cfg.h\"")
-    ccdd.writeToFileLn(file, "#include \"sch_msgdefs.h\"")
-    ccdd.writeToFileLn(file, "#include \"sch_tbldefs.h\"")
-    ccdd.writeToFileLn(file, "")
-    
-    defines = ccdd.getDefinesList()
-    
-    for define in xrange (len(defines)):
-        ccdd.writeToFileFormat(file, 
-                               formatDefines,
-                               defines[define][0],
-                               defines[define][1])
-        
-    ccdd.writeToFileLn(file, "")
-    ccdd.writeToFileLn(file, "")
-    
-    ccdd.writeToFileLn(file, "/*")
-    ccdd.writeToFileLn(file, "** Table file header")
-    ccdd.writeToFileLn(file, "*/")    
-    ccdd.writeToFileLn(file, "static CFE_TBL_FileDef_t CFE_TBL_FileDef =")
-    ccdd.writeToFileLn(file, "{")
-    ccdd.writeToFileLn(file, "  \"SCH_DefaultScheduleTable\",")
-    ccdd.writeToFileLn(file, "  \"SCH_APP.SCHED_DEF\",")
-    ccdd.writeToFileLn(file, "  \"SCH schedule table\",")
-    ccdd.writeToFileLn(file, "  \"sch_def_schtbl.tbl\",")
-    ccdd.writeToFileLn(file, "  sizeof (SCH_ScheduleEntry_t) * SCH_TABLE_ENTRIES")
-    ccdd.writeToFileLn(file, "};")
-    ccdd.writeToFileLn(file, "")
-    ccdd.writeToFileLn(file, "")
-    
-    ccdd.writeToFileLn(file, "/*")
-    ccdd.writeToFileLn(file, "** Default schedule table data")
-    ccdd.writeToFileLn(file, "*/")
-    ccdd.writeToFileLn(file, "SCH_ScheduleEntry_t SCH_DefaultScheduleTable[SCH_TABLE_ENTRIES] =")
-    ccdd.writeToFileLn(file, "{")
-    
-    ccdd.writeToFileLn(file, "/*")
-    ccdd.writeToFileLn(file, "**    uint8     EnableState  -- SCH_UNUSED, SC_ENABLED")
-    ccdd.writeToFileLn(file, "**    uint8     Type         -- 0 or SCH_ACTIVITY_SEND_MSG")
-    ccdd.writeToFileLn(file, "**    uint16    Frequency    -- how many seconds between Activity execution")
-    ccdd.writeToFileLn(file, "**    uint16    Remainder    -- seconds offset to perform Activity")
-    ccdd.writeToFileLn(file, "**    uint16    MessageIndex -- Message index into Message Definition table")
-    ccdd.writeToFileLn(file, "**    uint32    GroupData    -- Group and Multi-Group membership definitions")
-    ccdd.writeToFileLn(file, "*/")
+if sdtFile is not None:
+    # Add a header to the output files
+    outputFileCreationInfo(sdtFile)
 
-    ccdd.createApplicationSchedulerTable()
-    
-     # Step through each copy table entry
-    for slot in xrange(0, slotNum):
-        ccdd.writeToFileLn(file, "")
-        ccdd.writeToFileLn(file, "/* slot #%2d  */" % (slotNum + 1))
-        copyTableEntries =  ccdd.getApplicationSchedulerEntry(slot)
-        
-        for  pos in range(len(copyTableEntries)):
+    # Write the include statements for the standard cFE and HK headers
+    ccdd.writeToFileLn(sdtFile, "")
+    ccdd.writeToFileLn(sdtFile, "/*")
+    ccdd.writeToFileLn(sdtFile, "** Include Files")
+    ccdd.writeToFileLn(sdtFile, "*/")
+    ccdd.writeToFileLn(sdtFile, "#include \"cfe.h\"")
+    ccdd.writeToFileLn(sdtFile, "#include \"cfe_tbl_filedef.h\"")
+    ccdd.writeToFileLn(sdtFile, "#include \"sch_platform_cfg.h\"")
+    ccdd.writeToFileLn(sdtFile, "#include \"sch_msgdefs.h\"")
+    ccdd.writeToFileLn(sdtFile, "#include \"sch_tbldefs.h\"")
+    ccdd.writeToFileLn(sdtFile, "")
+
+    # Get the list of defined parameters
+    defines = ccdd.getApplicationScheduleDefinitionTableDefines()
+
+    # Build the format for the defined parameters
+    formatDefines = "#define %-" + str(columnWidth[ENABLE_STATUS]) + "s  %s \n"
+
+    # Step through each defined parameter
+    for define in range(len(defines)):
+        # Output the define statement to the file
+        ccdd.writeToFileFormat(sdtFile, formatDefines, defines[define][0], defines[define][1])
+
+    # Output the table file header
+    ccdd.writeToFileLn(sdtFile, "")
+    ccdd.writeToFileLn(sdtFile, "/*")
+    ccdd.writeToFileLn(sdtFile, "** Table file header")
+    ccdd.writeToFileLn(sdtFile, "*/")
+    ccdd.writeToFileLn(sdtFile, "static CFE_TBL_FileDef_t CFE_TBL_FileDef =")
+    ccdd.writeToFileLn(sdtFile, "{")
+    ccdd.writeToFileLn(sdtFile, "    \"SCH_DefaultScheduleTable\",")
+    ccdd.writeToFileLn(sdtFile, "    \"SCH_APP.SCHED_DEF\",")
+    ccdd.writeToFileLn(sdtFile, "    \"SCH schedule table\",")
+    ccdd.writeToFileLn(sdtFile, "    \"sch_def_schtbl.tbl\",")
+    ccdd.writeToFileLn(sdtFile, "    sizeof (SCH_ScheduleEntry_t) * SCH_TABLE_ENTRIES")
+    ccdd.writeToFileLn(sdtFile, "};")
+    ccdd.writeToFileLn(sdtFile, "")
+
+    # Output the schedule definition table header
+    ccdd.writeToFileLn(sdtFile, "/*")
+    ccdd.writeToFileLn(sdtFile, "** Default schedule table data")
+    ccdd.writeToFileLn(sdtFile, "*/")
+    ccdd.writeToFileLn(sdtFile, "SCH_ScheduleEntry_t SCH_DefaultScheduleTable[SCH_TABLE_ENTRIES] =")
+    ccdd.writeToFileLn(sdtFile, "{")
+    ccdd.writeToFileLn(sdtFile, "    /*")
+    ccdd.writeToFileLn(sdtFile, "    **    uint8     EnableState  -- SCH_UNUSED, SC_ENABLED")
+    ccdd.writeToFileLn(sdtFile, "    **    uint8     Type         -- 0 or SCH_ACTIVITY_SEND_MSG")
+    ccdd.writeToFileLn(sdtFile, "    **    uint16    Frequency    -- how many seconds between Activity execution")
+    ccdd.writeToFileLn(sdtFile, "    **    uint16    Remainder    -- seconds offset to perform Activity")
+    ccdd.writeToFileLn(sdtFile, "    **    uint16    MessageIndex -- Message index into Message Definition table")
+    ccdd.writeToFileLn(sdtFile, "    **    uint32    GroupData    -- Group and Multi-Group membership definitions")
+    ccdd.writeToFileLn(sdtFile, "    */")
+
+    # Step through each schedule definition table time slot
+    for timeSlot in range(ccdd.getNumberOfTimeSlots()):
+        ccdd.writeToFileLn(sdtFile, "")
+        ccdd.writeToFileFormat(sdtFile, "    /* Slot #%s */\n", str(timeSlot + 1))
+
+        # Get the schedule definition table entries
+        sdtEntries = ccdd.getApplicationScheduleDefinitionTable(timeSlot)
+
+        # Define the initial minimum column widths
+        columnWidth = [1, 1, 1, 1, 1, 1]
+
+        # Check if there are any entries in the schedule definition table
+        if len(sdtEntries) > 0:
+            # Adjust the minimum column widths
+            columnWidth = ccdd.getLongestStrings(sdtEntries, columnWidth)
+ 
+        # Build the format string
+        formatBody = "    {%-" + str(columnWidth[ENABLE_STATUS]) + "s, %" + str(columnWidth[TYPE]) + "s, %" + str(columnWidth[FREQUENCY]) + "s, %" + str(columnWidth[REMAINDER]) + "s, %" + str(columnWidth[MESSAGE_INDEX]) + "s, %-" + str(columnWidth[GROUP_DATA]) + "s}%s\n"
+
+        # Step through each schedule definition table entry
+        for row in range(len(sdtEntries)):
             comma = ","
-            
+
             # Check if this is the last row
-            if pos == len(copyTableEntries):
+            if timeSlot == ccdd.getNumberOfTimeSlots() - 1 and row == len(sdtEntries) - 1:
                 # Don't append a comma
                 comma = " "
-                
-            # Write the entry to the copy table file
-            ccdd.writeToFileFormat(file,
-                                   formatBody,
-                                   copyTableEntries[pos][ENABLE_STATUS],
-                                   copyTableEntries[pos][TYPE],
-                                   copyTableEntries[pos][FREQUENCY],
-                                   copyTableEntries[pos][REMAINDER],
-                                   copyTableEntries[pos][MESSAGE_INDEX],
-                                   copyTableEntries[pos][GROUP_DATA],
-                                   comma)
 
-    # Terminate the table definition statement
-    ccdd.writeToFileLn(file, "};")
-    
-    ccdd.writeToFileLn(file, "")
-    ccdd.writeToFileLn(file, "CFE_TBL_FILEDEF(HK_CopyTable, HK.CopyTable, HK Copy Tbl, hk_cpy_tbl.tbl)")
+            # Output the entry to the schedule definition table file
+            ccdd.writeToFileFormat(sdtFile, formatBody, sdtEntries[row][ENABLE_STATUS], sdtEntries[row][TYPE], sdtEntries[row][FREQUENCY], sdtEntries[row][REMAINDER], sdtEntries[row][MESSAGE_INDEX], sdtEntries[row][GROUP_DATA], comma)
+
+    # Terminate the schedule definition table
+    ccdd.writeToFileLn(sdtFile, "};")
+    ccdd.writeToFileLn(sdtFile, "")
+    ccdd.writeToFileLn(sdtFile, "CFE_TBL_FILEDEF(HK_CopyTable, HK.CopyTable, HK Copy Tbl, hk_cpy_tbl.tbl)")
 
     # Close the output file
-    ccdd.closeFile(file)
+    ccdd.closeFile(sdtFile)
 # The output file cannot be opened
 else:
     # Display an error dialog
-    ccdd.showErrorDialog("<html><b>Error opening output file '</b>" + outputFile + "<b>'")
+    ccdd.showErrorDialog("<html><b>Error opening output file '</b>" + sdtFileName + "<b>'")

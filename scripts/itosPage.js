@@ -1,9 +1,9 @@
 /*******************************************************************************
  * Description: Output an ITOS page file
- * 
+ *
  * This JavaScript script generates an ITOS page file from the supplied
  * telemetry information
- * 
+ *
  * Copyright 2017 United States Government as represented by the Administrator
  * of the National Aeronautics and Space Administration. No copyright is claimed
  * in the United States under Title 17, U.S. Code. All Other Rights Reserved.
@@ -17,13 +17,13 @@ importClass(Packages.CCDD.CcddScriptDataAccessHandler);
  * Determine if the row containing the specified variable is not an array
  * definition. A row in a table is an array definition if a value is present in
  * the Array Size column but the variable name does not end with a ']'
- * 
+ *
  * @param variableName
  *            variable name
- * 
+ *
  * @param arraySize
  *            array size
- * 
+ *
  * @return true if the variable is not an array definition
  ******************************************************************************/
 function isVariable(variableName, arraySize)
@@ -36,10 +36,10 @@ function isVariable(variableName, arraySize)
 /*******************************************************************************
  * Convert an array member variable name by replacing left square brackets with
  * underscores and removing right square brackets (example: a[2] becomes a_2)
- * 
+ *
  * @param variableName
  *            variable name
- * 
+ *
  * @return Variable name with the square brackets replaced
  ******************************************************************************/
 function convertArrayMember(variableName)
@@ -48,7 +48,7 @@ function convertArrayMember(variableName)
 }
 
 /*******************************************************************************
- * 
+ *
  ******************************************************************************/
 function checkRows(variableName, fullVariableName, row)
 {
@@ -89,7 +89,7 @@ function checkRows(variableName, fullVariableName, row)
 }
 
 /*******************************************************************************
- * 
+ *
  ******************************************************************************/
 function isArrayElement(arraySize)
 {
@@ -97,7 +97,7 @@ function isArrayElement(arraySize)
 }
 
 /*******************************************************************************
- * 
+ *
  ******************************************************************************/
 function getIndex(str)
 {
@@ -117,10 +117,10 @@ String.prototype.paddingLeft = function(paddingValue)
 /*******************************************************************************
  * Selects the format arguments to use for a particular ITOS type, based on its
  * type
- * 
+ *
  * @param itosEncode
  *            data type in ITOS encoded form
- * 
+ *
  * @return ITOS output format string
  ******************************************************************************/
 function setITOSFormatFlag(itosEncode)
@@ -193,10 +193,10 @@ function setITOSFormatFlag(itosEncode)
 
 /*******************************************************************************
  * Output a single mnemonic definition
- * 
+ *
  * @param row
  *            row index in the structure data table
- * 
+ *
  * @returns true is a mnemonic definition is output to the file
  ******************************************************************************/
 function outputMnemonicDefinition(row)
@@ -216,7 +216,7 @@ function outputMnemonicDefinition(row)
         // Check if the data type is a primitive (not a structure)
         if (!itosEncode.equals(dataType))
         {
-            // Get the ITOS output format string based on the encoding 
+            // Get the ITOS output format string based on the encoding
             itosFormat = setITOSFormatFlag(itosEncode);
         }
 
@@ -359,7 +359,7 @@ function outputMnemonicDefinitions()
 }
 
 /*******************************************************************************
- * 
+ *
  ******************************************************************************/
 function writePageFile(fltCompName)
 {

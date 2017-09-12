@@ -1,14 +1,15 @@
 /*******************************************************************************
  * Description: Output the CFS housekeeping (HK) application copy table
  * definition
- * 
+ *
  * This JavaScript script generates the HK copy table file from the supplied
  * table and packet information
- * 
+ *
  * Copyright 2017 United States Government as represented by the Administrator
  * of the National Aeronautics and Space Administration. No copyright is claimed
  * in the United States under Title 17, U.S. Code. All Other Rights Reserved.
  ******************************************************************************/
+
 try
 {
     load("nashorn:mozilla_compat.js");
@@ -39,12 +40,12 @@ var VARIABLE_NAME = 6;
 var CCSDS_HEADER_LENGTH = 12;
 
 /*******************************************************************************
- * Output the script association details to the specified file
- * 
+ * Output the file creation details to the specified file
+ *
  * @param file
  *            reference to the output file
  ******************************************************************************/
-function outputAssociationInfo(file)
+function outputFileCreationInfo(file)
 {
     // Add the build information and header to the output file
     ccdd.writeToFileLn(file, "/* Created : " + ccdd.getDateAndTime() + "\n   User    : " + ccdd.getUser() + "\n   Project : " + ccdd.getProject() + "\n   Script  : " + ccdd.getScriptName());
@@ -81,7 +82,7 @@ function makeCopyTableFile()
         var allTableEntries = [];
 
         // Add the build information to the output file
-        outputAssociationInfo(copyTableFile);
+        outputFileCreationInfo(copyTableFile);
 
         // Get an array containing the data stream names
         var copyTables = ccdd.getDataStreamNames();
@@ -232,7 +233,7 @@ function makeIDDefinitionFile()
     if (idDefinesFile != null)
     {
         // Add the build information to the output file
-        outputAssociationInfo(idDefinesFile);
+        outputFileCreationInfo(idDefinesFile);
 
         // Add the header include to prevent loading the file more than once
         ccdd.writeToFileLn(idDefinesFile, "#ifndef " + headerIncludeFlag);

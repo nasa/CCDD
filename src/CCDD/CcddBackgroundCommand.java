@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary background command handler. Copyright 2017
- * United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United
- * States under Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary background command handler.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -47,13 +49,13 @@ public class CcddBackgroundCommand
      * disabled for the duration of the command execution. Once complete, any
      * clean-up steps are performed, the cursor is restored, and the menu items
      * are reenabled
-     * 
+     *
      * @param ccddMain
      *            main class reference
-     * 
+     *
      * @param backCommand
      *            background command
-     * 
+     *
      * @return SwingWorker reference for this thread
      *************************************************************************/
     protected static SwingWorker<?, ?> executeInBackground(final CcddMain ccddMain,
@@ -68,17 +70,17 @@ public class CcddBackgroundCommand
      * are disabled for the duration of the command execution. Once complete,
      * any clean-up steps are performed, the cursor is restored, and the menu
      * items are reenabled
-     * 
+     *
      * @param ccddMain
      *            main class reference
-     * 
+     *
      * @param dialog
      *            reference to the dialog responsible for this operation; null
      *            if not applicable
-     * 
+     *
      * @param backCommand
      *            background command
-     * 
+     *
      * @return SwingWorker reference for this thread
      *************************************************************************/
     protected static SwingWorker<?, ?> executeInBackground(final CcddMain ccddMain,

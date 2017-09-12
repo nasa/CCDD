@@ -1,5 +1,6 @@
 /**
  * CFS Command & Data Dictionary application parameter assignment dialog.
+ *
  * Copyright 2017 United States Government as represented by the Administrator
  * of the National Aeronautics and Space Administration. No copyright is
  * claimed in the United States under Title 17, U.S. Code. All Other Rights
@@ -40,14 +41,14 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
     private final CcddApplicationParameterHandler appHandler;
 
     // Components that need to be accessed by multiple methods
-    private JTextField maxSlotsperMessage;
-    private JTextField maxCommands;
+    private JTextField maxMsgsPerTimeSlotFld;
+    private JTextField numTimeSlotsFld;
     private JTextField maxMsgsPerSecFld;
     private JTextField maxMsgsPerCycleFld;
 
     /**************************************************************************
      * Application parameter assignment dialog class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
@@ -96,37 +97,37 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
         JPanel dialogPnl = new JPanel(new GridBagLayout());
         dialogPnl.setBorder(BorderFactory.createEmptyBorder());
 
-        // Create the maximum seconds per message label
-        JLabel maxSecPerMsgLbl = new JLabel("Maximum slots per message");
-        maxSecPerMsgLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-        dialogPnl.add(maxSecPerMsgLbl, gbc);
+        // Create the maximum number of messages per time slot label
+        JLabel maxMsgsPerTimeSlotLbl = new JLabel("Maximum messages per time slot");
+        maxMsgsPerTimeSlotLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        dialogPnl.add(maxMsgsPerTimeSlotLbl, gbc);
 
-        // Create the maximum seconds per message input field
-        maxSlotsperMessage = new JTextField(String.valueOf(appHandler.getNumberOfSlots()), 5);
-        maxSlotsperMessage.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
-        maxSlotsperMessage.setEditable(true);
-        maxSlotsperMessage.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
-        maxSlotsperMessage.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
-        maxSlotsperMessage.setBorder(border);
+        // Create the maximum number of messages per time slot input field
+        maxMsgsPerTimeSlotFld = new JTextField(String.valueOf(appHandler.getNumberOfMessagesPerTimeSlot()), 5);
+        maxMsgsPerTimeSlotFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+        maxMsgsPerTimeSlotFld.setEditable(true);
+        maxMsgsPerTimeSlotFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        maxMsgsPerTimeSlotFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
+        maxMsgsPerTimeSlotFld.setBorder(border);
         gbc.gridx++;
-        dialogPnl.add(maxSlotsperMessage, gbc);
+        dialogPnl.add(maxMsgsPerTimeSlotFld, gbc);
 
-        // Create the maximum seconds per message label
-        JLabel maxCommandAmount = new JLabel("Maximum number of commands");
-        maxCommandAmount.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        // Create the number of time slots label
+        JLabel numTimeSlotsLbl = new JLabel("Total number of time slots");
+        numTimeSlotsLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         gbc.gridx = 0;
         gbc.gridy++;
-        dialogPnl.add(maxCommandAmount, gbc);
+        dialogPnl.add(numTimeSlotsLbl, gbc);
 
-        // Create the maximum seconds per message input field
-        maxCommands = new JTextField(String.valueOf(appHandler.getCommandsPerTable()), 5);
-        maxCommands.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
-        maxCommands.setEditable(true);
-        maxCommands.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
-        maxCommands.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
-        maxCommands.setBorder(border);
+        // Create the number of time slots input field
+        numTimeSlotsFld = new JTextField(String.valueOf(appHandler.getNumberOfTimeSlots()), 5);
+        numTimeSlotsFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+        numTimeSlotsFld.setEditable(true);
+        numTimeSlotsFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        numTimeSlotsFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
+        numTimeSlotsFld.setBorder(border);
         gbc.gridx++;
-        dialogPnl.add(maxCommands, gbc);
+        dialogPnl.add(numTimeSlotsFld, gbc);
 
         // Create the maximum messages per second label
         JLabel maxMsgsPerSecLbl = new JLabel("Maximum messages per second");
@@ -171,15 +172,15 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
         {
             appHandler.setApplicationParameters(Integer.valueOf(maxMsgsPerSecFld.getText()),
                                                 Integer.valueOf(maxMsgsPerCycleFld.getText()),
-                                                Integer.valueOf(maxSlotsperMessage.getText()),
-                                                Integer.valueOf(maxCommands.getText()),
+                                                Integer.valueOf(maxMsgsPerTimeSlotFld.getText()),
+                                                Integer.valueOf(numTimeSlotsFld.getText()),
                                                 CcddApplicationParameterDialog.this);
         }
     }
 
     /**************************************************************************
      * Verify that the dialog content is valid
-     * 
+     *
      * @return true if the input values are valid
      *************************************************************************/
     @Override
@@ -191,36 +192,36 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
         try
         {
             // Remove any excess white space
-            maxSlotsperMessage.setText(maxSlotsperMessage.getText().trim());
+            maxMsgsPerTimeSlotFld.setText(maxMsgsPerTimeSlotFld.getText().trim());
             maxMsgsPerSecFld.setText(maxMsgsPerSecFld.getText().trim());
             maxMsgsPerCycleFld.setText(maxMsgsPerCycleFld.getText().trim());
-            maxCommands.setText(maxCommands.getText().trim());
+            numTimeSlotsFld.setText(numTimeSlotsFld.getText().trim());
 
-            // Check if any rate parameter is blank
-            if (maxSlotsperMessage.getText().isEmpty()
+            // Check if any parameter is blank
+            if (maxMsgsPerTimeSlotFld.getText().isEmpty()
                 || maxMsgsPerSecFld.getText().isEmpty()
                 || maxMsgsPerCycleFld.getText().isEmpty()
-                || maxCommands.getText().isEmpty())
+                || numTimeSlotsFld.getText().isEmpty())
             {
-                // Inform the user that a rate parameter is missing
+                // Inform the user that a parameter is missing
                 throw new CCDDException("All application parameters must be entered");
             }
 
-            // Check if the any rate parameter is not a positive integer value
-            if (!maxSlotsperMessage.getText().matches(InputDataType.INT_POSITIVE.getInputMatch())
+            // Check if the any parameter is not a positive integer value
+            if (!maxMsgsPerTimeSlotFld.getText().matches(InputDataType.INT_POSITIVE.getInputMatch())
                 || !maxMsgsPerSecFld.getText().matches(InputDataType.INT_POSITIVE.getInputMatch())
                 || !maxMsgsPerCycleFld.getText().matches(InputDataType.INT_POSITIVE.getInputMatch())
-                || !maxCommands.getText().matches(InputDataType.INT_POSITIVE.getInputMatch()))
+                || !numTimeSlotsFld.getText().matches(InputDataType.INT_POSITIVE.getInputMatch()))
             {
-                // Inform the user that a rate is invalid
+                // Inform the user that a parameter is invalid
                 throw new CCDDException("Application parameter values must be positive integer values");
             }
 
-            // Format the rate parameter fields
-            maxSlotsperMessage.setText(Integer.valueOf(maxSlotsperMessage.getText()).toString());
+            // Format the application parameter fields
+            maxMsgsPerTimeSlotFld.setText(Integer.valueOf(maxMsgsPerTimeSlotFld.getText()).toString());
             maxMsgsPerSecFld.setText(Integer.valueOf(maxMsgsPerSecFld.getText()).toString());
             maxMsgsPerCycleFld.setText(Integer.valueOf(maxMsgsPerCycleFld.getText()).toString());
-            maxCommands.setText(Integer.valueOf(maxCommands.getText()).toString());
+            numTimeSlotsFld.setText(Integer.valueOf(numTimeSlotsFld.getText()).toString());
         }
         catch (CCDDException ce)
         {

@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary table tree handler. Copyright 2017 United
- * States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United
- * States under Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary table tree handler.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -292,8 +294,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                                                  || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES
                                                  || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES
                                                  || treeType == INSTANCE_TABLES_WITH_PRIMITIVES)
-                                                                                                 ? INCLUDE_PRIMITIVES
-                                                                                                 : TABLES_ONLY,
+                                                                                                ? INCLUDE_PRIMITIVES
+                                                                                                : TABLES_ONLY,
                                                 sortByName,
                                                 parent);
 
@@ -636,8 +638,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         // Create the tree's root node using the database name and description
         root = new ToolTipTreeNode(databaseName,
                                    getDescriptions
-                                                   ? dbControl.getDatabaseDescription(databaseName)
-                                                   : null);
+                                                  ? dbControl.getDatabaseDescription(databaseName)
+                                                  : null);
 
         // Set the root node
         setModel(new DefaultTreeModel(root));
@@ -650,8 +652,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                                                         "Prototype tables");
         instance = new ToolTipTreeNode("Parents & Children",
                                        treeType == INSTANCE_TABLES
-                                                                   ? "Parent and children tables"
-                                                                   : "Parent and children tables, and variables");
+                                                                  ? "Parent and children tables"
+                                                                  : "Parent and children tables, and variables");
 
         // Add the prototype and instance nodes to the root node
         root.add(prototype);
@@ -667,12 +669,12 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 // Create nodes for the group
                 ToolTipTreeNode protoGroupNode = new ToolTipTreeNode(groupInfo.getName(),
                                                                      getDescriptions
-                                                                                     ? groupInfo.getDescription()
-                                                                                     : null);
-                ToolTipTreeNode instGroupNode = new ToolTipTreeNode(groupInfo.getName(),
-                                                                    getDescriptions
                                                                                     ? groupInfo.getDescription()
                                                                                     : null);
+                ToolTipTreeNode instGroupNode = new ToolTipTreeNode(groupInfo.getName(),
+                                                                    getDescriptions
+                                                                                   ? groupInfo.getDescription()
+                                                                                   : null);
 
                 // Add the group node to the prototype and instance nodes
                 prototype.add(protoGroupNode);
@@ -700,12 +702,12 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                     // prototype nodes
                     ToolTipTreeNode typeNode = new ToolTipTreeNode(type,
                                                                    getDescriptions
-                                                                                   ? tableTypeHandler.getTypeDefinition(type).getDescription()
-                                                                                   : null);
+                                                                                  ? tableTypeHandler.getTypeDefinition(type).getDescription()
+                                                                                  : null);
                     ToolTipTreeNode protoTypeNode = new ToolTipTreeNode(type,
                                                                         getDescriptions
-                                                                                        ? tableTypeHandler.getTypeDefinition(type).getDescription()
-                                                                                        : null);
+                                                                                       ? tableTypeHandler.getTypeDefinition(type).getDescription()
+                                                                                       : null);
                     instGroupNode.add(typeNode);
                     protoGroupNode.add(protoTypeNode);
 
@@ -726,12 +728,12 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 // Create nodes for the group
                 ToolTipTreeNode protoGroupNode = new ToolTipTreeNode(groupInfo.getName(),
                                                                      getDescriptions
-                                                                                     ? groupInfo.getDescription()
-                                                                                     : null);
-                ToolTipTreeNode instGroupNode = new ToolTipTreeNode(groupInfo.getName(),
-                                                                    getDescriptions
                                                                                     ? groupInfo.getDescription()
                                                                                     : null);
+                ToolTipTreeNode instGroupNode = new ToolTipTreeNode(groupInfo.getName(),
+                                                                    getDescriptions
+                                                                                   ? groupInfo.getDescription()
+                                                                                   : null);
 
                 // Add the group node to the instance and prototype nodes
                 prototype.add(protoGroupNode);
@@ -767,12 +769,12 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 // prototype nodes
                 ToolTipTreeNode protoTypeNode = new ToolTipTreeNode(type,
                                                                     getDescriptions
-                                                                                    ? tableTypeHandler.getTypeDefinition(type).getDescription()
-                                                                                    : null);
-                ToolTipTreeNode instTypeNode = new ToolTipTreeNode(type,
-                                                                   getDescriptions
                                                                                    ? tableTypeHandler.getTypeDefinition(type).getDescription()
                                                                                    : null);
+                ToolTipTreeNode instTypeNode = new ToolTipTreeNode(type,
+                                                                   getDescriptions
+                                                                                  ? tableTypeHandler.getTypeDefinition(type).getDescription()
+                                                                                  : null);
 
                 // Add the type node to the instance and prototype nodes
                 prototype.add(protoTypeNode);
@@ -889,11 +891,11 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // empty. Only show structure type tables for a tree showing
             // structure instances with primitives
             if ((nameList == null
-                 || nameList.contains(member.getTableName()))
+                || nameList.contains(member.getTableName()))
                 && ((treeType != STRUCTURES_WITH_PRIMITIVES
                      && treeType != INSTANCE_STRUCTURES_WITH_PRIMITIVES
                      && treeType != INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES)
-                    || tableTypeHandler.getTypeDefinition(member.getTableType()).isStructure()))
+                     || tableTypeHandler.getTypeDefinition(member.getTableType()).isStructure()))
             {
                 // Add the table to the prototype node
                 protoNode.add(new ToolTipTreeNode(member.getTableName(),
@@ -943,10 +945,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                         // reference
                         new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                                   "<html><b>Table '</b>"
-                                                                                           + member.getTableName()
-                                                                                           + "<b>' contains a recursive reference to '</b>"
-                                                                                           + recursionTable
-                                                                                           + "<b>'",
+                                                                      + member.getTableName()
+                                                                      + "<b>' contains a recursive reference to '</b>"
+                                                                      + recursionTable
+                                                                      + "<b>'",
                                                                   "Table Reference",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);
@@ -1037,8 +1039,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                         int index = rateValues.indexOf(tablePath);
                         rate = isChildVariable
                                && index != -1
-                                              ? rateValues.get(index)[2]
-                                              : thisMember.getRates().get(memIndex)[rateIndex];
+                                             ? rateValues.get(index)[2]
+                                             : thisMember.getRates().get(memIndex)[rateIndex];
                     }
 
                     // Check if no rate filter is in effect or, if not, that
@@ -1162,8 +1164,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         }
 
         return description != null
-                                   ? description
-                                   : protoDescription;
+                                  ? description
+                                  : protoDescription;
     }
 
     /**************************************************************************
@@ -1350,7 +1352,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // Check if the node's table name matches the search table's name
             // and that the node name isn't empty
             if ((searchName == null
-                 || searchName.equals(getTableFromNodeName(node.getUserObject().toString())))
+                || searchName.equals(getTableFromNodeName(node.getUserObject().toString())))
                 && node.getUserObjectPath().length != 0
                 && (maxLevel == -1 || node.getLevel() <= maxLevel))
             {
@@ -1748,8 +1750,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             {
                 // Get the data type for this node
                 String dataType = getTableFromNodeName(ignoreDisabled
-                                                                      ? node.getUserObject().toString()
-                                                                      : removeExtraText(node.getUserObject().toString()));
+                                                                     ? node.getUserObject().toString()
+                                                                     : removeExtraText(node.getUserObject().toString()));
 
                 // Check if the data type is a primitive (versus a structure)
                 if (dataTypeHandler.isPrimitive(dataType))
@@ -1759,8 +1761,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
 
                     // Add the variable's entire node path to the list
                     allPrimitivePaths.add(ignoreDisabled
-                                                         ? nodePath
-                                                         : removeExtraText(nodePath));
+                                                        ? nodePath
+                                                        : removeExtraText(nodePath));
                 }
             }
         }
@@ -1805,14 +1807,14 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 // present
                 String variablePath = getFullVariablePath(nodes,
                                                           (nodes[1].equals(LINKED_VARIABLES_NODE_NAME)
-                                                                                                       ? 1
-                                                                                                       : 0));
+                                                                                                      ? 1
+                                                                                                      : 0));
 
                 // Set the flag indicating the variable is excluded if it's in
                 // the exclusion lists
                 boolean isExcluded = excludedVariables.contains(variablePath)
                                      || (nodes[1].equals(UNLINKED_VARIABLES_NODE_NAME)
-                                         && linkedVariables.contains(variablePath));
+                                     && linkedVariables.contains(variablePath));
 
                 // Check if the variable exclusion state has changed
                 if (wasExcluded != isExcluded)
@@ -1822,8 +1824,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                     // name. Indicate that the node changed so that the tree
                     // redraws the name
                     node.setUserObject((isExcluded
-                                                   ? DISABLED_TEXT_COLOR
-                                                   : "")
+                                                  ? DISABLED_TEXT_COLOR
+                                                  : "")
                                        + nodes[nodes.length - 1]);
                     ((DefaultTreeModel) getModel()).nodeChanged(node);
                 }
@@ -1887,8 +1889,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // disabled, prepend the HTML tag to gray out the name. Indicate
             // that the node changed so that the tree redraws the name
             node.setUserObject((isEnabled
-                                          ? ""
-                                          : DISABLED_TEXT_COLOR)
+                                         ? ""
+                                         : DISABLED_TEXT_COLOR)
                                + removeExtraText(node.getUserObject().toString()));
             ((DefaultTreeModel) getModel()).nodeChanged(node);
         }

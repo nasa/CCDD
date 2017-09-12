@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary table manager dialog. Copyright 2017 United
- * States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United
- * States under Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary table manager dialog.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -148,8 +150,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
         // Get a reference to the calling component
         caller = (callingEditorDialog == null)
-                                               ? ccddMain.getMainFrame()
-                                               : callingEditorDialog;
+                                              ? ccddMain.getMainFrame()
+                                              : callingEditorDialog;
 
         // Create references to shorten subsequent calls
         dbControl = ccddMain.getDbControlHandler();
@@ -303,8 +305,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                             // database
                             new CcddDialogHandler().showMessageDialog(caller,
                                                                       "<html><b>Project '"
-                                                                              + dbControl.getDatabase()
-                                                                              + "' has no table type defined",
+                                                                          + dbControl.getDatabase()
+                                                                          + "' has no table type defined",
                                                                       "New Table",
                                                                       JOptionPane.WARNING_MESSAGE,
                                                                       DialogOption.OK_OPTION);
@@ -648,8 +650,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                             if (showOptionsDialog(caller,
                                                   dialogPnl,
                                                   "Export Table(s) in "
-                                                             + fileExtn.getExtensionName().toUpperCase()
-                                                             + " Format",
+                                                      + fileExtn.getExtensionName().toUpperCase()
+                                                      + " Format",
                                                   DialogOption.EXPORT_OPTION,
                                                   true) == OK_BUTTON)
                             {
@@ -870,8 +872,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             // Inform the user that no table exists for this database
             new CcddDialogHandler().showMessageDialog(caller,
                                                       "<html><b>Project '"
-                                                              + dbControl.getDatabase()
-                                                              + "' has no tables",
+                                                          + dbControl.getDatabase()
+                                                          + "' has no tables",
                                                       "No Tables",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -1114,8 +1116,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 {
                     // Set the export label text and path field
                     exportLbl.setText(singleFileCb.isSelected()
-                                                                ? "Enter or select an export file"
-                                                                : "Enter or select an export path");
+                                                               ? "Enter or select an export file"
+                                                               : "Enter or select an export path");
                 }
             });
 
@@ -1426,8 +1428,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         nameFld = new JTextField("", 20);
         nameFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
         nameFld.setBackground(enabled
-                                      ? ModifiableColorInfo.INPUT_BACK.getColor()
-                                      : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
+                                     ? ModifiableColorInfo.INPUT_BACK.getColor()
+                                     : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
         nameFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         nameFld.setEditable(true);
         nameFld.setBorder(border);
@@ -1438,8 +1440,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         descriptionFld = new JTextArea("", 3, 20);
         descriptionFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
         descriptionFld.setBackground(enabled
-                                             ? ModifiableColorInfo.INPUT_BACK.getColor()
-                                             : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
+                                            ? ModifiableColorInfo.INPUT_BACK.getColor()
+                                            : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
         descriptionFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         descriptionFld.setEditable(enabled);
         descriptionFld.setLineWrap(true);
@@ -1448,8 +1450,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         descriptionFld.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
         descScrollPane = new JScrollPane(descriptionFld);
         descScrollPane.setBackground(enabled
-                                             ? ModifiableColorInfo.INPUT_BACK.getColor()
-                                             : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
+                                            ? ModifiableColorInfo.INPUT_BACK.getColor()
+                                            : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
         descScrollPane.setBorder(border);
 
         // Add the name and description labels and fields to a panel
@@ -1668,9 +1670,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             // characters; otherwise (if creating or copying) the names must
             // differ with the text forced to lower case
             if ((dialogType == ManagerDialogType.RENAME
-                 && nameInUse.equals(tableName))
+                && nameInUse.equals(tableName))
                 || (dialogType != ManagerDialogType.RENAME
-                    && nameInUse.equalsIgnoreCase(tableName)))
+                && nameInUse.equalsIgnoreCase(tableName)))
             {
                 // Inform the user that the name is already in use
                 throw new CCDDException("Table name '"
@@ -1900,7 +1902,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             // Inform the user that the input value is invalid
             new CcddDialogHandler().showMessageDialog(CcddTableManagerDialog.this,
                                                       "<html><b>"
-                                                                                   + ce.getMessage(),
+                                                          + ce.getMessage(),
                                                       "Missing/Invalid Input",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);

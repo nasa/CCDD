@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary project database manager dialog. Copyright
- * 2017 United States Government as represented by the Administrator of the
- * National Aeronautics and Space Administration. No copyright is claimed in
- * the United States under Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary project database manager dialog.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -73,10 +75,10 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Project database manager dialog class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param dialogType
      *            database dialog type: LOGIN, SERVER, CREATE, OPEN, DELETE, or
      *            UNLOCK
@@ -452,7 +454,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Display the project database selection error dialog
-     * 
+     *
      * @param action
      *            database operation
      *************************************************************************/
@@ -471,16 +473,16 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Add database name and description labels and fields to the dialog
-     * 
+     *
      * @param nameText
      *            text to display beside the name input field
-     * 
+     *
      * @param dialogPnl
      *            panel to which to add the labels and fields
-     * 
+     *
      * @param enabled
      *            true if the fields are initially enabled, false if disabled
-     * 
+     *
      * @param dialogGbc
      *            dialog panel GridBagLayout layout constraints
      *************************************************************************/
@@ -628,7 +630,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Verify that the dialog content is valid
-     * 
+     *
      * @return true if the input values are valid
      *************************************************************************/
     @Override
@@ -760,13 +762,13 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Get the project database names and descriptions
-     * 
+     *
      * @param isOnlyUnlocked
      *            true if only unlocked databases are to be displayed
-     * 
+     *
      * @param isOnlyLocked
      *            true if only locked databases are to be displayed
-     * 
+     *
      * @param enabledItem
      *            name of an item to be enabled; null if none
      *************************************************************************/

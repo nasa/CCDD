@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary message ID assignment dialog. Copyright 2017
- * United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United
- * States under Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary message ID assignment dialog.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -97,13 +99,13 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Message name/ID assignment tab information class constructor
-         * 
+         *
          * @param name
          *            tab name
-         * 
+         *
          * @param type
          *            message type
-         * 
+         *
          * @param toolTip
          *            tab tool tip
          *********************************************************************/
@@ -116,7 +118,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Get the tab name
-         * 
+         *
          * @return Tab name
          *********************************************************************/
         private String getName()
@@ -126,7 +128,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Get the tab type
-         * 
+         *
          * @return Tab type
          *********************************************************************/
         private String getType()
@@ -136,7 +138,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Get the tab tool tip
-         * 
+         *
          * @return Tab tool tip
          *********************************************************************/
         private String getToolTip()
@@ -146,7 +148,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Get the reference to the message name/ID assignment check box
-         * 
+         *
          * @return Reference to the message name/ID assignment check box
          *********************************************************************/
         private JCheckBox getAssignCbx()
@@ -156,7 +158,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Set the reference to the message name/ID assignment check box
-         * 
+         *
          * @param idAssignCbx
          *            Reference to the message name/ID assignment check box
          *********************************************************************/
@@ -167,7 +169,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Get the reference to the message number/ID start label
-         * 
+         *
          * @return Reference to the message number/ID start label
          *********************************************************************/
         private JLabel getStartLbl()
@@ -177,7 +179,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Set the reference to the message number/ID start label
-         * 
+         *
          * @param startLbl
          *            reference to the message number/ID start label
          *********************************************************************/
@@ -188,7 +190,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Get the reference to the message number/ID start input field
-         * 
+         *
          * @return Reference to the message number/ID start input field
          *********************************************************************/
         private JTextField getStartFld()
@@ -198,7 +200,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Set the reference to the message number/ID start input field
-         * 
+         *
          * @param startFld
          *            reference to the message number/ID start input field
          *********************************************************************/
@@ -209,7 +211,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Get the reference to the message number/ID interval label
-         * 
+         *
          * @return Reference to the message number/ID interval label
          *********************************************************************/
         private JLabel getIntervalLbl()
@@ -219,7 +221,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Set the reference to the message number/ID interval label
-         * 
+         *
          * @param intervalLbl
          *            reference to the message number/ID interval label
          *********************************************************************/
@@ -230,7 +232,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Get the reference to the message number/ID interval input field
-         * 
+         *
          * @return Reference to the message number/ID interval input field
          *********************************************************************/
         private JTextField getIntervalFld()
@@ -240,7 +242,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Set the reference to the message number/ID interval input field
-         * 
+         *
          * @param intervalFld
          *            reference to the message number/ID interval input field
          *********************************************************************/
@@ -251,7 +253,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Get the reference to the overwrite check box
-         * 
+         *
          * @return Reference to the overwrite check box
          *********************************************************************/
         private JCheckBox getOverwriteCbx()
@@ -261,7 +263,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Set the reference to the overwrite check box
-         * 
+         *
          * @param overwriteCbx
          *            reference to the overwrite check box
          *********************************************************************/
@@ -272,7 +274,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Get the reference to the message name pattern label
-         * 
+         *
          * @return Reference to the message name pattern label
          *********************************************************************/
         private JLabel getPatternLbl()
@@ -282,7 +284,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Set the reference to the message name pattern label
-         * 
+         *
          * @param patternLbl
          *            reference to the message name pattern label
          *********************************************************************/
@@ -293,7 +295,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Get the reference to the message name pattern input field
-         * 
+         *
          * @return Reference to the message name pattern input field
          *********************************************************************/
         private JTextField getPatternFld()
@@ -303,7 +305,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Set the reference to the message name pattern input field
-         * 
+         *
          * @param patternLbl
          *            reference to the message name pattern input field
          *********************************************************************/
@@ -316,7 +318,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
     /**************************************************************************
      * Message ID assignment dialog class constructor for structure and command
      * messages
-     * 
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
@@ -332,13 +334,13 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
     /**************************************************************************
      * Message name and ID assignment dialog class constructor for telemetry
      * messages
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param messages
      *            list of telemetry messages
-     * 
+     *
      * @param schedulerDlg
      *            component over which to center the dialog
      *************************************************************************/
@@ -611,10 +613,10 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Add a tab for the specified table type or the telemetry message name/ID
-     * 
+     *
      * @param tabInfo
      *            message name/ID tab information reference
-     * 
+     *
      * @param isTlmName
      *            true if this is the tab for the telemetry message name
      *            assignment
@@ -766,10 +768,10 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
     /**************************************************************************
      * Set the enable state of the specified table type or telemetry message
      * name/ID input fields and check box
-     * 
+     *
      * @param tabInfo
      *            message name/ID tab information reference
-     * 
+     *
      * @param enable
      *            true to enable the message name/ID input fields and check
      *            box; false to disable
@@ -792,7 +794,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Determine if any of the assignment check boxes is selected
-     * 
+     *
      * @return true if one or more of the assignment check boxes is selected
      *************************************************************************/
     private boolean isAssignTypeSelected()
@@ -818,16 +820,16 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
     /**************************************************************************
      * Assign message ID values to the structure, command, or other table type
      * message ID columns and data fields
-     * 
+     *
      * @param tabInfo
      *            message ID tab information reference
-     * 
+     *
      * @param tables
      *            list of structure, command, or other tables, with paths
-     * 
+     *
      * @param fieldInformation
      *            list of data field information
-     * 
+     *
      * @return true if a message ID value changed
      *************************************************************************/
     private boolean assignTableMessageIDs(MsgTabInfo type,
@@ -1027,13 +1029,13 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Assign message ID values to the group data fields
-     * 
+     *
      * @param tabInfo
      *            message ID tab information reference
-     * 
+     *
      * @param fieldInformation
      *            list of data field information
-     * 
+     *
      * @return true if a message ID value changed
      *************************************************************************/
     private boolean assignGroupMessageIDs(MsgTabInfo type,
@@ -1074,7 +1076,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Assign the telemetry message names
-     * 
+     *
      * @param tlmName
      *            telemetry message name tab information reference
      *************************************************************************/
@@ -1116,7 +1118,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Assign the telemetry message IDs
-     * 
+     *
      * @param tlmID
      *            telemetry message ID tab information reference
      *************************************************************************/
@@ -1153,20 +1155,20 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
     /**************************************************************************
      * Set the message ID. If the message already has an ID only update it if
      * the overwrite check box is selected
-     * 
-     * 
+     *
+     *
      * @param tlmID
      *            telemetry message ID tab information reference
-     * 
+     *
      * @param message
      *            reference to the (sub-)message for which to set the ID
-     * 
+     *
      * @param idValue
      *            ID value
-     * 
+     *
      * @param interval
      *            difference between two contiguous message ID values
-     * 
+     *
      * @return Next ID value in the sequence
      *************************************************************************/
     private int setMessageID(MsgTabInfo tlmID,
@@ -1192,14 +1194,14 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Get the next unused message ID value
-     * 
-     * 
+     *
+     *
      * @param idValue
      *            ID value from which to start checking
-     * 
+     *
      * @param interval
      *            difference between two contiguous message ID values
-     * 
+     *
      * @return Next unused ID value
      *************************************************************************/
     private int getNextMessageID(int idValue, int interval)
@@ -1221,10 +1223,10 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Convert a message ID value into a formatted hexadecimal text string
-     * 
+     *
      * @param idValue
      *            message ID value
-     * 
+     *
      * @return Message ID value as a formatted hexadecimal text string
      *************************************************************************/
     private String formatMessageID(int idValue)
@@ -1234,7 +1236,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Verify that the dialog content is valid
-     * 
+     *
      * @return true if the input values are valid
      *************************************************************************/
     @Override

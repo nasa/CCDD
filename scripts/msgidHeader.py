@@ -25,12 +25,12 @@ projectName = ccdd.getProject()
 #** Functions *****************************************************************
 
 #******************************************************************************
-# Output the script association details to the specified file
+# Output the file creation details to the specified file
 #
 # @param file
 #            reference to the output file
 #******************************************************************************
-def outputAssociationInfo(file):
+def outputFileCreationInfo(file):
     # Add the build information and header to the output file
     ccdd.writeToFileLn(file, "/* Created : " + ccdd.getDateAndTime() + "\n   User    : " + ccdd.getUser() + "\n   Project : " + ccdd.getProject() + "\n   Script  : " + ccdd.getScriptName())
 
@@ -61,7 +61,7 @@ def makeTelemetryFile(baseFileName):
     # Check if the telemetry message IDs file successfully opened
     if tlmFile is not None:
         # Add the build information to the output file
-        outputAssociationInfo(tlmFile)
+        outputFileCreationInfo(tlmFile)
 
         # Add the header include to prevent loading the file more than once
         ccdd.writeToFileLn(tlmFile, "#ifndef " + headerIncludeFlag)
@@ -151,7 +151,7 @@ def makeCommandFile(baseFileName):
     # Check if the command codes file successfully opened
     if cmdFile is not None:
         # Add the build information to the output file
-        outputAssociationInfo(cmdFile)
+        outputFileCreationInfo(cmdFile)
 
         # Add the header include to prevent loading the file more than once
         ccdd.writeToFileLn(cmdFile, "#ifndef " + headerIncludeFlag)

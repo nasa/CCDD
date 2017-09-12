@@ -1,13 +1,14 @@
 /*******************************************************************************
  * Description: Output a cFE ES start-up script file
- * 
+ *
  * This JavaScript script generates a cFE ES start-up file from the supplied
  * table information
- * 
+ *
  * Copyright 2017 United States Government as represented by the Administrator
  * of the National Aeronautics and Space Administration. No copyright is claimed
  * in the United States under Title 17, U.S. Code. All Other Rights Reserved.
  ******************************************************************************/
+
 try
 {
     load("nashorn:mozilla_compat.js");
@@ -36,12 +37,12 @@ var numRows = ccdd.getTableNumRows(ES_STARTUP_TYPE);
 /** Functions *************************************************************** */
 
 /*******************************************************************************
- * Output the script association details to the specified file
- * 
+ * Output the file creation details to the specified file
+ *
  * @param file
  *            reference to the output file
  ******************************************************************************/
-function outputAssociationInfo(file)
+function outputFileCreationInfo(file)
 {
     // Add the build information and header to the output file
     ccdd.writeToFileLn(file, "/* Created : " + ccdd.getDateAndTime() + "\n   User    : " + ccdd.getUser() + "\n   Project : " + ccdd.getProject() + "\n   Script  : " + ccdd.getScriptName());
@@ -63,7 +64,7 @@ function outputAssociationInfo(file)
 
 /*******************************************************************************
  * Output the cFE ES start-up script file
- * 
+ *
  * @param baseFileName
  *            base for the cFE ES start-up script file name
  ******************************************************************************/
@@ -79,7 +80,7 @@ function makeESStartupFile(baseFileName)
     if (startupFile != null)
     {
         // Add the build information to the output file
-        outputAssociationInfo(startupFile);
+        outputFileCreationInfo(startupFile);
 
         // Default column widths. The widths of the individual ES start-up
         // script entries can increase these values

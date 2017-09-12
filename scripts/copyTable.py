@@ -1,10 +1,10 @@
 #******************************************************************************
 # Description: Output the CFS housekeeping (HK) application copy table
 # definition
-# 
+#
 # This Python script generates the HK copy table file from the supplied table
 # and packet information
-# 
+#
 # Copyright 2017 United States Government as represented by the Administrator
 # of the National Aeronautics and Space Administration. No copyright is claimed
 # in the United States under Title 17, U.S. Code. All Other Rights Reserved.
@@ -34,12 +34,12 @@ VARIABLE_NAME = 6
 #** Functions *****************************************************************
 
 #******************************************************************************
-# Output the script association details to the specified file
-# 
+# Output the file creation details to the specified file
+#
 # @param file
 #            reference to the output file
 #******************************************************************************
-def outputAssociationInfo(file):
+def outputFileCreationInfo(file):
     # Add the build information and header to the output file
     ccdd.writeToFileLn(file, "/* Created : " + ccdd.getDateAndTime() + "\n   User    : " + ccdd.getUser() + "\n   Project : " + ccdd.getProject() + "\n   Script  : " + ccdd.getScriptName())
 
@@ -68,7 +68,7 @@ def makeCopyTableFile():
         allTableEntries = []
 
         # Add the build information to the output file
-        outputAssociationInfo(copyTableFile)
+        outputFileCreationInfo(copyTableFile)
 
         # Get an array containing the data stream names
         copyTables = ccdd.getDataStreamNames()
@@ -192,7 +192,7 @@ def makeIDDefinitionFile():
     # Check if the types header file successfully opened
     if idDefinesFile is not None:
         # Add the build information to the output file
-        outputAssociationInfo(idDefinesFile)
+        outputFileCreationInfo(idDefinesFile)
 
         # Add the header include to prevent loading the file more than once
         ccdd.writeToFileLn(idDefinesFile, "#ifndef " + headerIncludeFlag)
@@ -222,7 +222,7 @@ def makeIDDefinitionFile():
 
         # Step through the list of names that are used
         for index in range(len(usedHKNames)):
-            # Output the ID name and ID to the file 
+            # Output the ID name and ID to the file
             ccdd.writeToFileFormat(idDefinesFile, "#define %-" + str(minimumLength) + "s  (%7s + FC_OFFSET )\n", usedHKNames[index], usedHKValues[index])
 
         # Finish and close the ID definitions header output file

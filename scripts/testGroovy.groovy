@@ -1,4 +1,5 @@
 // Description: Groovy test script
+
 import CCDD.CcddScriptDataAccessHandler
 
 println "Test of a Groovy script"
@@ -11,7 +12,7 @@ def checked = ccdd.getCheckBoxDialog("Check Box Dialog Test", boxes)
 
 // Check if the Cancel button wasn't selected
 if (checked != null)
-{    
+{
     // Step through each check box
     for (def index = 0; index < checked.length; index++)
     {

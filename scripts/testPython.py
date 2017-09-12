@@ -1,4 +1,5 @@
 # Description: Python test script
+
 from CCDD import CcddScriptDataAccessHandler
 
 print "Test of a Python script using Jython"
@@ -15,7 +16,7 @@ if checked is not None:
     for index in range(len(checked)):
         # Set the status text to indicate the check box is not checked
         status = " not"
-                
+
         # Check if the check box is checked
         if checked[index]:
             # Set the status text to blank

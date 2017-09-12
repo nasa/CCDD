@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary variable assignment tree handler. Copyright
- * 2017 United States Government as represented by the Administrator of the
- * National Aeronautics and Space Administration. No copyright is claimed in
- * the United States under Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary variable assignment tree handler.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -106,21 +108,21 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
 
     /**************************************************************************
      * Assignment tree handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param rateMsgFilter
      *            rate column name and message name, separated by a back slash
-     * 
+     *
      * @param linkHandler
      *            reference to the link handler
-     * 
+     *
      * @param treePathOrder
      *            list of all paths in the variable tree in the order to be
      *            maintained in the assignment tree; null to not force the
      *            order
-     * 
+     *
      * @param parent
      *            GUI component calling this method
      *************************************************************************/
@@ -144,7 +146,7 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
     /**************************************************************************
      * Get the node index that skips the root level (there are no filters for
      * the assignment tree)
-     * 
+     *
      * @return Node index that skips the root level
      *************************************************************************/
     @Override
@@ -157,7 +159,7 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
      * Get the node level that skips any active filter nodes. The assignment
      * tree has no extra header nodes, but instead begins with the root
      * structure tables
-     * 
+     *
      * @return Node level for root structure tables
      *************************************************************************/
     @Override
@@ -168,10 +170,10 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
 
     /**************************************************************************
      * Perform initialization steps prior to building the assignment tree
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param assignDefinitions
      *            list containing the assignment definitions
      *************************************************************************/
@@ -187,24 +189,24 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
     /**************************************************************************
      * Build the assignment tree from the database. Retain the tree's current
      * expansion state
-     * 
+     *
      * @param filterByType
      *            true if the tree is filtered by table type. This is not
      *            applicable to the assignment tree, which can only contain
      *            structure references
-     * 
+     *
      * @param filterByApp
      *            true if the tree is filtered by application. This is not
      *            applicable to the assignment tree, which can only contain
      *            structure references
-     * 
+     *
      * @param filterValue
      *            rate column name and message name, separated by a back slash
-     * 
+     *
      * @param filterFlag
      *            flag used to filter the tree content. Not used for the
      *            assignment tree
-     * 
+     *
      * @param parent
      *            GUI component calling this method
      *************************************************************************/
@@ -292,10 +294,10 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
     /**************************************************************************
      * Update references to the specified message name with the new name. This
      * is necessary for the tree to be rebuilt following a message name change
-     * 
+     *
      * @param oldName
      *            original message name
-     * 
+     *
      * @param newName
      *            new message name
      *************************************************************************/
@@ -315,7 +317,7 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
 
     /**************************************************************************
      * Get the parent structure and variable path for the selected node(s)
-     * 
+     *
      * @return List containing the full path array(s) for the selected
      *         variable(s)
      *************************************************************************/
@@ -358,10 +360,10 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
     /**************************************************************************
      * Update the assignment definition list for the specified rate based on
      * the supplied message list
-     * 
+     *
      * @param messages
      *            list of messages for the specified rate
-     * 
+     *
      * @param rateName
      *            rate column name
      *************************************************************************/
@@ -397,13 +399,13 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
     /**************************************************************************
      * Add the specified variable to the assignment definition for the
      * specified rate and message
-     * 
+     *
      * @param message
      *            message for which the variable is a member
-     * 
+     *
      * @param rateName
      *            rate column name
-     * 
+     *
      * @param variable
      *            variable to add to the assignment definition
      *************************************************************************/
@@ -430,13 +432,13 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
     /**************************************************************************
      * Create an assignment tree panel. The table tree is placed in a scroll
      * pane. A check box is added that allows tree expansion/collapse
-     * 
+     *
      * @param label
      *            assignment tree title
-     * 
+     *
      * @param selectionMode
      *            tree item selection mode (single versus multiple)
-     * 
+     *
      * @return JPanel containing the assignment tree components
      *************************************************************************/
     protected JPanel createTreePanel(int selectionMode)

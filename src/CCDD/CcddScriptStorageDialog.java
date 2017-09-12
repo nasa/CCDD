@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary script storage dialog. Copyright 2017 United
- * States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United
- * States under Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary script storage dialog.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -310,12 +312,12 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                     // script to retrieve/delete
                     new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                               "<html><b>Project '</b>"
-                                                                                       + dbControl.getDatabase()
-                                                                                       + "<b>' has no scripts",
+                                                                  + dbControl.getDatabase()
+                                                                  + "<b>' has no scripts",
                                                               (dialogType == ScriptIOType.RETRIEVE
-                                                                                                   ? "Retrieve"
-                                                                                                   : "Delete")
-                                                                                                                + " Script(s)",
+                                                                                                  ? "Retrieve"
+                                                                                                  : "Delete")
+                                                                  + " Script(s)",
                                                               JOptionPane.WARNING_MESSAGE,
                                                               DialogOption.OK_OPTION);
                 }
@@ -464,7 +466,7 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
             // Inform the user that the input value is invalid
             new CcddDialogHandler().showMessageDialog(CcddScriptStorageDialog.this,
                                                       "<html><b>"
-                                                                                    + ce.getMessage(),
+                                                          + ce.getMessage(),
                                                       "Missing Input",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);

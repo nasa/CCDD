@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary common tree handler. Copyright 2017 United
- * States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United
- * States under Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary common tree handler.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -91,7 +93,7 @@ public class CcddCommonTreeHandler extends JTree
     /**************************************************************************
      * Set the flag that indicates if table node selection edits should be
      * ignored for undo/redo consideration
-     * 
+     *
      * @param ignore
      *            true to not store table node selection edits
      *************************************************************************/
@@ -103,7 +105,7 @@ public class CcddCommonTreeHandler extends JTree
     /**************************************************************************
      * Get the flag that indicates if table node selection edits should be
      * ignored for undo/redo consideration
-     * 
+     *
      * @return true if table node selection edits are to be ignored for
      *         undo/redo consideration
      *************************************************************************/
@@ -114,7 +116,7 @@ public class CcddCommonTreeHandler extends JTree
 
     /**************************************************************************
      * Remove HTML tag(s). Override to remove other text
-     * 
+     *
      * @param text
      *            string from which to remove the extra text
      *
@@ -127,7 +129,7 @@ public class CcddCommonTreeHandler extends JTree
 
     /**************************************************************************
      * Expand or collapse all of the nodes in the tree
-     * 
+     *
      * @param isExpanded
      *            true if all tree nodes should be expanded
      *************************************************************************/
@@ -150,7 +152,7 @@ public class CcddCommonTreeHandler extends JTree
     /**************************************************************************
      * Expand the specified tree path and all of its child paths. This is a
      * recursive method
-     * 
+     *
      * @param path
      *            tree path to expand
      *************************************************************************/
@@ -179,7 +181,7 @@ public class CcddCommonTreeHandler extends JTree
     /**************************************************************************
      * Collapse the specified tree path and all of its child paths. This is a
      * recursive method
-     * 
+     *
      * @param path
      *            tree path to collapse
      *************************************************************************/
@@ -212,10 +214,10 @@ public class CcddCommonTreeHandler extends JTree
 
     /**************************************************************************
      * Get the tree path for the specified tree node
-     * 
+     *
      * @param node
      *            tree node from which to create the tree path
-     * 
+     *
      * @return Tree path corresponding to the specified tree node; null if the
      *         specified node is null
      *************************************************************************/
@@ -271,10 +273,10 @@ public class CcddCommonTreeHandler extends JTree
 
     /**************************************************************************
      * Store the current tree expansion state
-     * 
+     *
      * @param tree
      *            reference to the tree for which to obtain the expansion state
-     * 
+     *
      * @return String representing the current tree expansion state
      *************************************************************************/
     protected String getExpansionState()
@@ -300,11 +302,11 @@ public class CcddCommonTreeHandler extends JTree
 
     /**************************************************************************
      * Restore the tree expansion state
-     * 
+     *
      * @param tree
      *            reference to the tree for which to restore the expansion
      *            state
-     * 
+     *
      * @param expState
      *            string representing the desired tree expansion state
      *************************************************************************/
@@ -329,37 +331,37 @@ public class CcddCommonTreeHandler extends JTree
     /**************************************************************************
      * Adjust the tree expansion state to account for the tree filter selection
      * status
-     * 
+     *
      * @param expState
      *            string representing the desired tree expansion state
-     * 
+     *
      * @param isByGroup
      *            true if the tree is filtered by group/application
-     * 
+     *
      * @param isByGroupChanged
      *            true if the group filter status changed
-     * 
+     *
      * @param isByType
      *            true if the tree is filtered by table type
-     * 
+     *
      * @param isByTypeChanged
      *            true if the table type filter status changed
-     * 
+     *
      * @param isApp
      *            true if the groups are to be treated as possible
      *            applications; false if the application distinction doesn't
      *            apply
-     * 
+     *
      * @param topNodePrefixes
      *            initial portion of the node path that provide the overall
      *            division of the tree
-     * 
+     *
      * @param groupHandler
      *            reference to the group handler
-     * 
+     *
      * @param tableTypeHandler
      *            reference to the table type handler
-     * 
+     *
      * @return String representing the tree expansion state with adjustments
      *         made to account for the change in filter selection status
      *************************************************************************/
@@ -625,14 +627,14 @@ public class CcddCommonTreeHandler extends JTree
     /**************************************************************************
      * Convert the elements in tree path array to a single, comma-separated
      * string
-     * 
+     *
      * @param path
      *            tree path array
-     * 
+     *
      * @param startIndex
      *            index of the first array member to include in the output
      *            string
-     * 
+     *
      * @return The tree path array as a single string with individual elements
      *         separated by commas
      *************************************************************************/
@@ -682,16 +684,16 @@ public class CcddCommonTreeHandler extends JTree
      * Recursively add the children of the specified node to the path list. If
      * these are variable paths and the node represents a bit-wise or string
      * variable then add the bit-packed/string members as well
-     * 
+     *
      * @param node
      *            current child node to check
-     * 
+     *
      * @param selectedPaths
      *            list containing the selected paths
-     * 
+     *
      * @param excludedPaths
      *            list of paths to be excluded from the tree
-     * 
+     *
      * @param isVariable
      *            true if the tree contains variables
      *************************************************************************/
@@ -817,7 +819,7 @@ public class CcddCommonTreeHandler extends JTree
     /**************************************************************************
      * Get the first applicable node index. Override this method to skip node
      * levels that don't apply (e.g., root or filter nodes)
-     * 
+     *
      * @return First applicable node index
      *************************************************************************/
     protected int getHeaderNodeLevel()
@@ -831,10 +833,10 @@ public class CcddCommonTreeHandler extends JTree
      * rootTable[,dataType1.variable1[,dataType2.variable2[,...]]]. This
      * excludes the database, prototype/instance, group (if filtered by group),
      * and type (if filtered by type) nodes
-     * 
+     *
      * @param path
      *            array describing the variable's tree path
-     * 
+     *
      * @return Root table name, followed by the variable names with the data
      *         types, separated by commas, from the specified tree path
      *************************************************************************/
@@ -849,14 +851,14 @@ public class CcddCommonTreeHandler extends JTree
      * rootTable[,dataType1.variable1[,dataType2.variable2[,...]]]. This
      * excludes the database, prototype/instance, group (if filtered by group),
      * and type (if filtered by type) nodes
-     * 
+     *
      * @param path
      *            array describing the variable's tree path
-     * 
+     *
      * @param levelAdjust
      *            number of nodes (+/-) by which to adjust the starting the
      *            node level
-     * 
+     *
      * @return Root table name, followed by the variable names with the data
      *         types, separated by commas, from the specified tree path
      *************************************************************************/
@@ -891,10 +893,10 @@ public class CcddCommonTreeHandler extends JTree
     /**************************************************************************
      * Determine the node indices in the table tree that encompass a group of
      * bit-packed variables
-     * 
+     *
      * @param node
      *            selected node for a (potentially) bit-packed variable
-     * 
+     *
      * @return NodeIndex object containing the node indices bounding the
      *         bit-packed variables
      *************************************************************************/
@@ -1025,10 +1027,10 @@ public class CcddCommonTreeHandler extends JTree
     /**************************************************************************
      * Determine the node indices in the table tree that encompass the array
      * members that represent the individual bytes of a string variable
-     * 
+     *
      * @param node
      *            selected node for a (potentially) bit-packed variable
-     * 
+     *
      * @return NodeIndex object containing the node indices bounding the string
      *         variable
      *************************************************************************/
@@ -1099,16 +1101,16 @@ public class CcddCommonTreeHandler extends JTree
      * Set the tree icon for nodes representing a variable. The icon indicates
      * if the variable is or isn't bit-wise, is or isn't linked, and is or
      * isn't bit-packed
-     * 
+     *
      * @param renderer
      *            reference to the tree's cell renderer
-     * 
+     *
      * @param node
      *            node for which the icon is to be set
-     * 
+     *
      * @param currentRow
      *            row index of the node in the tree
-     * 
+     *
      * @param isLinked
      *            true if the variable is a member of a link
      *************************************************************************/

@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary application scheduler dialog. Copyright 2017
- * United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United
- * States under Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary application scheduler dialog.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -50,7 +52,7 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
 
     /**************************************************************************
      * Application scheduler dialog class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
@@ -253,7 +255,7 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
 
     /**************************************************************************
      * Get the scheduler dialog
-     * 
+     *
      * @return Scheduler dialog
      *************************************************************************/
     @Override
@@ -264,7 +266,7 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
 
     /**************************************************************************
      * Enable/disable the dialog controls
-     * 
+     *
      * @param enable
      *            true to enable the controls, false to disable
      *************************************************************************/
@@ -277,7 +279,7 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
 
     /**************************************************************************
      * Gets the scheduler database handler
-     * 
+     *
      * @return Schedule database handler
      *************************************************************************/
     @Override
@@ -288,10 +290,10 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
 
     /**************************************************************************
      * Creates and returns a scheduler input object
-     * 
+     *
      * @param unused
      *            not used for the application scheduler dialog
-     * 
+     *
      * @return Application input object
      *************************************************************************/
     @Override
@@ -302,7 +304,7 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
 
     /**************************************************************************
      * Get the scheduler handler
-     * 
+     *
      * @return Scheduler handler
      *************************************************************************/
     @Override

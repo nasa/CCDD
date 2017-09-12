@@ -1,13 +1,14 @@
 /*******************************************************************************
  * Description: Output a message ID header file
- * 
+ *
  * This JavaScript script generates a message ID header file from the supplied
  * table information
- * 
+ *
  * Copyright 2017 United States Government as represented by the Administrator
  * of the National Aeronautics and Space Administration. No copyright is claimed
  * in the United States under Title 17, U.S. Code. All Other Rights Reserved.
  ******************************************************************************/
+
 try
 {
     load("nashorn:mozilla_compat.js");
@@ -31,12 +32,12 @@ var projectName = ccdd.getProject();
 /** Functions *************************************************************** */
 
 /*******************************************************************************
- * Output the script association details to the specified file
- * 
+ * Output the file creation details to the specified file
+ *
  * @param file
  *            reference to the output file
  ******************************************************************************/
-function outputAssociationInfo(file)
+function outputFileCreationInfo(file)
 {
     // Add the build information and header to the output file
     ccdd.writeToFileLn(file, "/* Created : " + ccdd.getDateAndTime() + "\n   User    : " + ccdd.getUser() + "\n   Project : " + ccdd.getProject() + "\n   Script  : " + ccdd.getScriptName());
@@ -58,7 +59,7 @@ function outputAssociationInfo(file)
 
 /*******************************************************************************
  * Output the telemetry message IDs file
- * 
+ *
  * @param baseFileName
  *            base for the telemetry IDs output file name
  ******************************************************************************/
@@ -75,7 +76,7 @@ function makeTelemetryFile(baseFileName)
     if (tlmFile != null)
     {
         // Add the build information to the output file
-        outputAssociationInfo(tlmFile);
+        outputFileCreationInfo(tlmFile);
 
         // Add the header include to prevent loading the file more than once
         ccdd.writeToFileLn(tlmFile, "#ifndef " + headerIncludeFlag);
@@ -166,7 +167,7 @@ function makeTelemetryFile(baseFileName)
 
 /*******************************************************************************
  * Output the command codes file
- * 
+ *
  * @param baseFileName
  *            base for the command codes output file name
  ******************************************************************************/
@@ -183,7 +184,7 @@ function makeCommandFile(baseFileName)
     if (cmdFile != null)
     {
         // Add the build information to the output file
-        outputAssociationInfo(cmdFile);
+        outputFileCreationInfo(cmdFile);
 
         // Add the header include to prevent loading the file more than once
         ccdd.writeToFileLn(cmdFile, "#ifndef " + headerIncludeFlag);
@@ -240,10 +241,10 @@ function makeCommandFile(baseFileName)
 
 /*******************************************************************************
  * Get the last 12 bits of a hexadecimal message ID
- * 
+ *
  * @param msgID
  *            message ID
- * 
+ *
  * @return Last 12 bits of a message ID formatted as a 4 digit hex number (i.e.
  *         0x031f); '0x0000' if the message ID isn't an integer or hexadecimal
  *         value
@@ -276,17 +277,17 @@ function extractMessageID(msgID)
 /*******************************************************************************
  * Output the message ID definition to the specified file with a base value
  * added
- * 
+ *
  * @param file
  *            reference to the file to which to output the message ID
  *            information
- * 
+ *
  * @param format
  *            output format string
- * 
+ *
  * @param msgId
  *            message ID
- * 
+ *
  * @param msgIDName
  *            message ID name
  ******************************************************************************/

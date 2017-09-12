@@ -81,7 +81,7 @@ public abstract class CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Get a reference to the description and data field panel handler
-     * 
+     *
      * @return Reference to the description and data field panel handler
      *************************************************************************/
     protected CcddInputFieldPanelHandler getInputFieldPanelHandler()
@@ -91,7 +91,7 @@ public abstract class CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Get the JPanel containing the description and data fields
-     * 
+     *
      * @return JPanel containing the description and data fields
      *************************************************************************/
     protected JPanel getFieldPanel()
@@ -101,7 +101,7 @@ public abstract class CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Get the description and data field undo/redo manager
-     * 
+     *
      * @return Reference to the description and data field undo/redo manager
      *************************************************************************/
     protected CcddUndoManager getFieldPanelUndoManager()
@@ -112,10 +112,10 @@ public abstract class CcddInputFieldPanelHandler
     /**************************************************************************
      * Set the references to the description and data field undo/redo manager
      * and handler
-     * 
+     *
      * @param undoManager
      *            undo/redo manager
-     * 
+     *
      * @param undoHandler
      *            undoable component handler
      *************************************************************************/
@@ -129,7 +129,7 @@ public abstract class CcddInputFieldPanelHandler
     /**************************************************************************
      * Get a reference to the owner of the description and data field panel
      * handler
-     * 
+     *
      * @return Reference to the owner of the description and data field panel
      *         handler
      *************************************************************************/
@@ -141,7 +141,7 @@ public abstract class CcddInputFieldPanelHandler
     /**************************************************************************
      * Get the name of the owner of this description and data field panel
      * handler
-     * 
+     *
      * @return Name of the owner of this description and data field panel
      *         handler
      *************************************************************************/
@@ -153,7 +153,7 @@ public abstract class CcddInputFieldPanelHandler
     /**************************************************************************
      * Set the name of the owner of this description and data field panel
      * handler
-     * 
+     *
      * @param owner
      *            name of the owner of this description and data field panel
      *            handler
@@ -165,7 +165,7 @@ public abstract class CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Get the data field information for this field panel handler
-     * 
+     *
      * @return Data field information for this field panel handler
      *************************************************************************/
     protected CcddFieldHandler getDataFieldHandler()
@@ -181,7 +181,7 @@ public abstract class CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Get the description field text
-     * 
+     *
      * @return Description field text
      *************************************************************************/
     protected String getDescription()
@@ -191,7 +191,7 @@ public abstract class CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Set the description field text
-     * 
+     *
      * @param description
      *            description field text
      *************************************************************************/
@@ -203,10 +203,10 @@ public abstract class CcddInputFieldPanelHandler
     /**************************************************************************
      * Enable/disable the description field, set its background color based on
      * the enable status, and set the description text
-     * 
+     *
      * @param enable
      *            true to enable editing the description, false to disable
-     * 
+     *
      * @param description
      *            text to place in the description field
      *************************************************************************/
@@ -245,7 +245,7 @@ public abstract class CcddInputFieldPanelHandler
     /**************************************************************************
      * Set the data field information for use when creating the data field
      * panel
-     * 
+     *
      * @param fieldInfo
      *            list of the data field information
      *************************************************************************/
@@ -267,7 +267,7 @@ public abstract class CcddInputFieldPanelHandler
     /**************************************************************************
      * Update the field information to match the data field text field and
      * check box values
-     * 
+     *
      * @param fieldInformation
      *            data field information list
      *************************************************************************/
@@ -299,7 +299,7 @@ public abstract class CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Get the currently active data field editor dialog
-     * 
+     *
      * @return Currently active data field editor dialog
      *************************************************************************/
     protected CcddFieldEditorDialog getFieldEditorDialog()
@@ -309,7 +309,7 @@ public abstract class CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Set the currently active data field editor dialog
-     * 
+     *
      * @param fieldEditor
      *            currently active data field editor dialog
      *************************************************************************/
@@ -320,22 +320,22 @@ public abstract class CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Create the table input field panel
-     * 
+     *
      * @param fieldPnlHndlrOwner
      *            reference to the owner of this description and data field
      *            handler
-     * 
+     *
      * @param scrollPane
      *            scroll pane containing the table; null if this field panel
      *            handler does not contain a table
-     * 
+     *
      * @param ownerName
      *            name of the owner of this field panel handler; null if no
      *            owner name is associated with it
-     * 
+     *
      * @param description
      *            description field text
-     * 
+     *
      * @param fieldHandler
      *            field handler reference
      *************************************************************************/
@@ -497,7 +497,7 @@ public abstract class CcddInputFieldPanelHandler
     /**************************************************************************
      * Create the data fields for display in the description and data field
      * panel
-     * 
+     *
      * @param undoable
      *            true if the change(s) to the data fields should be stored for
      *            possible undo/redo operations; false to not store the changes
@@ -600,7 +600,7 @@ public abstract class CcddInputFieldPanelHandler
                         break;
 
                     default:
-                        JTextComponent inputFld;
+                        final JTextComponent inputFld;
 
                         // Create a panel for a single label and text field
                         // pair. This is necessary so that the two will stay
@@ -679,8 +679,9 @@ public abstract class CcddInputFieldPanelHandler
                         {
                             // Storage for the last valid value entered; used
                             // to restore the data field value if an invalid
-                            // value is entered
-                            String lastValid = "";
+                            // value is entered. Initialize to the value at the
+                            // time the field is created
+                            String lastValid = inputFld.getText();
 
                             /**************************************************
                              * Verify the contents of a the data field
@@ -692,10 +693,10 @@ public abstract class CcddInputFieldPanelHandler
 
                                 // Get the data field reference to shorten
                                 // subsequent calls
-                                JTextComponent inputFld = (JTextComponent) input;
+                                JTextComponent inFld = (JTextComponent) input;
 
                                 // Get the data field contents
-                                String inputTxt = inputFld.getText();
+                                String inputTxt = inFld.getText();
 
                                 // Check if the field's input type doesn't
                                 // allow leading and trailing white space
@@ -745,7 +746,7 @@ public abstract class CcddInputFieldPanelHandler
                                     {
                                         // Restore the previous value in the
                                         // data field
-                                        ((UndoableTextField) inputFld).setText(lastValid, false);
+                                        ((UndoableTextField) inFld).setText(lastValid, false);
                                     }
                                     // Check if the data field is a text area
                                     // (multi-line)
@@ -753,7 +754,7 @@ public abstract class CcddInputFieldPanelHandler
                                     {
                                         // Restore the previous value in the
                                         // data field
-                                        ((UndoableTextArea) inputFld).setText(lastValid);
+                                        ((UndoableTextArea) inFld).setText(lastValid);
                                     }
 
                                     // Set the flag to indicate an invalid
@@ -766,12 +767,12 @@ public abstract class CcddInputFieldPanelHandler
                                     // Store the 'cleaned' text back into the
                                     // text field. For numeric types, reformat
                                     // the input value
-                                    inputFld.setText(fieldInfo.getInputType().formatInput(inputTxt));
-                                    fieldInfo.setValue(inputFld.getText());
+                                    inFld.setText(fieldInfo.getInputType().formatInput(inputTxt));
+                                    fieldInfo.setValue(inFld.getText());
 
                                     // Store the new value as the last valid
                                     // value
-                                    lastValid = inputFld.getText();
+                                    lastValid = inFld.getText();
 
                                     // Set the text field background color. If
                                     // the field is empty and is flagged as
@@ -900,7 +901,7 @@ public abstract class CcddInputFieldPanelHandler
     /**************************************************************************
      * Set the specified data field's background color based the field's value
      * and required flag
-     * 
+     *
      * @param fieldInfo
      *            reference to the data field's information
      *************************************************************************/

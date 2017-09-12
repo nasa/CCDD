@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary application scheduler table handler. Copyright
- * 2017 United States Government as represented by the Administrator of the
- * National Aeronautics and Space Administration. No copyright is claimed in
- * the United States under Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary application scheduler table handler.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -19,9 +21,9 @@ import CCDD.CcddClasses.Variable;
 import CCDD.CcddConstants.SchedulerType;
 
 /******************************************************************************
- * CFS Command & Data Dictionary scheduler table handler class
+ * CFS Command & Data Dictionary application scheduler table handler class
  *****************************************************************************/
-public class CcddSchedulerTableHandler
+public class CcddApplicationSchedulerTableHandler
 {
     // Class references
     private final CcddMain ccddMain;
@@ -29,7 +31,7 @@ public class CcddSchedulerTableHandler
     private final CcddApplicationParameterHandler appHandler;
 
     private List<String[][]> entries;
-    private List<Variable> appList;
+    private final List<Variable> appList;
     private String[][] defines;
     private List<String> schGroups;
     private List<Variable> applications;
@@ -42,12 +44,12 @@ public class CcddSchedulerTableHandler
     private final String GROUPNONE = "SCH_GROUP_NONE";
 
     /**************************************************************************
-     * Scheduler table handler class constructor
-     * 
+     * Application scheduler table handler class constructor
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
-    CcddSchedulerTableHandler(CcddMain ccddMain)
+    CcddApplicationSchedulerTableHandler(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
         schedulerDB = new CcddSchedulerDbIOHandler(ccddMain,
@@ -58,43 +60,47 @@ public class CcddSchedulerTableHandler
         // Load the application scheduler information from the project database
         schedulerDB.loadStoredData();
 
-        schGroupDefines();
+        appList = schedulerDB.getVariableList(0);
+        createSchedulerTableDefines();
+        createApplicationSchedulerTable();
+        createSchGrouplist();
     }
 
     /**************************************************************************
      * Create a scheduler table based on the time slot definitions
      *************************************************************************/
-    protected void createApplicationSchedulerTable()
+    private void createApplicationSchedulerTable()
     {
         entries = new ArrayList<String[][]>();
-        int slots = appHandler.getNumberOfSlots();
+        int numMsgsPerSlot = appHandler.getNumberOfMessagesPerTimeSlot();
         String[][] entry;
 
         for (Message message : getValidatedStoredData())
         {
-            entry = new String[slots][6];
+            entry = new String[numMsgsPerSlot][6];
 
-            for (int pos = 0; pos < slots; pos++)
+            for (int msgIndex = 0; msgIndex < numMsgsPerSlot; msgIndex++)
             {
                 prioritizeApps(message);
 
-                if (message.getNumberOfVariables() > pos)
+                if (message.getNumberOfVariables() > msgIndex)
                 {
-                    entry[pos][0] = ENABLE;
-                    entry[pos][1] = ACTIVITY;
-                    entry[pos][2] = "1";
-                    entry[pos][3] = "0";
-                    entry[pos][4] = getMessageIndex(Integer.valueOf(((ApplicationData) message.getVariable(pos)).getWakeUpID().replace("0x", ""), 16));
-                    entry[pos][5] = ((ApplicationData) message.getVariable(pos)).getSchGroup();
+                    ApplicationData appData = (ApplicationData) message.getVariable(msgIndex);
+                    entry[msgIndex][0] = ENABLE;
+                    entry[msgIndex][1] = ACTIVITY;
+                    entry[msgIndex][2] = "1";
+                    entry[msgIndex][3] = "0";
+                    entry[msgIndex][4] = getMessageIndex(Integer.valueOf(appData.getWakeUpID().replace("0x", ""), 16));
+                    entry[msgIndex][5] = appData.getSchGroup();
                 }
                 else
                 {
-                    entry[pos][0] = UNUSED;
-                    entry[pos][1] = "0";
-                    entry[pos][2] = "0";
-                    entry[pos][3] = "0";
-                    entry[pos][4] = "0";
-                    entry[pos][5] = GROUPNONE;
+                    entry[msgIndex][0] = UNUSED;
+                    entry[msgIndex][1] = "0";
+                    entry[msgIndex][2] = "0";
+                    entry[msgIndex][3] = "0";
+                    entry[msgIndex][4] = "0";
+                    entry[msgIndex][5] = GROUPNONE;
                 }
             }
 
@@ -103,9 +109,9 @@ public class CcddSchedulerTableHandler
     }
 
     /**************************************************************************
-     * 
+     * Create a list of the SCh Group values
      *************************************************************************/
-    private void schGroupDefines()
+    private void createSchGrouplist()
     {
         schGroups = new ArrayList<String>();
 
@@ -119,15 +125,7 @@ public class CcddSchedulerTableHandler
     }
 
     /**************************************************************************
-     * 
-     *************************************************************************/
-    protected String[] getApplicationSchedulerGroups()
-    {
-        return schGroups.toArray(new String[schGroups.size()]);
-    }
-
-    /**************************************************************************
-     * 
+     *
      *************************************************************************/
     private void prioritizeApps(Message msg)
     {
@@ -144,7 +142,7 @@ public class CcddSchedulerTableHandler
     }
 
     /**************************************************************************
-     * 
+     *
      *************************************************************************/
     private String getMessageIndex(int x)
     {
@@ -163,9 +161,9 @@ public class CcddSchedulerTableHandler
     }
 
     /**************************************************************************
-     * 
+     *
      *************************************************************************/
-    protected String[][] getSchedulerTableDefines()
+    private void createSchedulerTableDefines()
     {
         List<Variable> apps = new ArrayList<Variable>();
 
@@ -189,27 +187,28 @@ public class CcddSchedulerTableHandler
             defines[index][1] = Integer.valueOf(((ApplicationData) app).getWakeUpID().replace("0x", ""), 16).toString();
             index++;
         }
+    }
 
+    protected String[][] getSchedulerTableDefines()
+    {
         return defines;
     }
 
     /**************************************************************************
-     * 
+     *
      *************************************************************************/
     protected String[] createSchedulerMessageTable()
     {
-        List<Variable> apps = new ArrayList<Variable>();
-        apps.addAll(appList);
-        String[] scheduleCommands = new String[appHandler.getCommandsPerTable()];
+        String[] scheduleCommands = new String[appHandler.getNumberOfTimeSlots()];
         String command;
 
-        for (int x = 0; x < scheduleCommands.length; x++)
+        for (int mdtIndex = 0; mdtIndex < scheduleCommands.length; mdtIndex++)
         {
             command = null;
 
-            for (Variable var : apps)
+            for (Variable var : appList)
             {
-                if (x == Integer.valueOf(((ApplicationData) var).getWakeUpID().replace("0x", ""), 16))
+                if (mdtIndex == Integer.valueOf(((ApplicationData) var).getWakeUpID().replace("0x", ""), 16))
                 {
                     command = var.getFullName().toUpperCase() + "_WAKEUP_MID";
                     break;
@@ -221,30 +220,45 @@ public class CcddSchedulerTableHandler
                 command = "SCH_UNUSED_MID";
             }
 
-            scheduleCommands[x] = command;
+            scheduleCommands[mdtIndex] = command;
         }
 
         return scheduleCommands;
     }
 
     /**************************************************************************
-     * 
+     * Get the specified entry in the schedule definition table
+     *
+     * @param row
+     *            row index for the entry in the schedule definition table
+     *
+     * @return Array containing the specified entry in the schedule definition
+     *         table
      *************************************************************************/
-    protected String[][] getApplicationScheduleTableIndex(int index)
+    protected String[][] getApplicationScheduleDefinitionTableByRow(int row)
     {
-        return entries.get(index);
+        return entries.get(row);
     }
 
     /**************************************************************************
-     * Get time slots from the project database and validate the time slot
-     * data. Invalid time slot entries are removed from the list
-     * 
+     * Get the number of time slots in the schedule definition table
+     *
+     * @return Number of time slots in the schedule definition table
+     *************************************************************************/
+    protected int getNumberOfTimeSlots()
+    {
+        return entries.size();
+    }
+
+    /**************************************************************************
+     * Get the time slots and validate the time slot data. Invalid time slot
+     * entries are removed from the list
+     *
      * @return List of valid time slots
      *************************************************************************/
     private List<Message> getValidatedStoredData()
     {
         List<Message> messages = schedulerDB.getStoredData(0);
-        appList = schedulerDB.getVariableList(0);
         validateTableData(appList, messages);
         return messages;
     }
@@ -252,17 +266,15 @@ public class CcddSchedulerTableHandler
     /**************************************************************************
      * Validate the application scheduler table and remove from the list of
      * messages any application that is invalid
-     * 
+     *
      * @param applications
      *            list of applications in the time slots
-     * 
+     *
      * @param timeSlots
      *            list of time slots in the table
-     * 
-     * @return true if any invalid entry is detected
      *************************************************************************/
-    private boolean validateTableData(List<Variable> applications,
-                                      List<Message> timeSlots)
+    private void validateTableData(List<Variable> applications,
+                                   List<Message> timeSlots)
     {
         this.applications = applications;
         this.timeSlots = timeSlots;
@@ -291,14 +303,12 @@ public class CcddSchedulerTableHandler
                                                            + numInvalid
                                                            + " removed");
         }
-
-        return numInvalid != 0;
     }
 
     /**************************************************************************
      * Check all the stored application information for inconsistencies. Update
      * or flag the application for removal if any changes are found
-     * 
+     *
      * @return List of invalid applications
      *************************************************************************/
     private List<Variable> validateApplicationData()
@@ -423,10 +433,10 @@ public class CcddSchedulerTableHandler
 
     /**************************************************************************
      * Remove data that is determined to be invalid
-     * 
+     *
      * @param removedVars
      *            list of invalid data
-     * 
+     *
      * @return Number of invalid entries that were found and removed
      *************************************************************************/
     private int removeInvalidData(List<Variable> removedVars)

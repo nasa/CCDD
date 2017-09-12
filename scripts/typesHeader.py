@@ -35,12 +35,12 @@ dataStreams = ccdd.getDataStreamNames()
 #** Functions *****************************************************************
 
 #******************************************************************************
-# Output the script association details to the specified file
+# Output the file creation details to the specified file
 #
 # @param file
 #            reference to the output file
 #******************************************************************************
-def outputAssociationInfo(file):
+def outputFileCreationInfo(file):
     # Add the build information and header to the output file
     ccdd.writeToFileLn(file, "/* Created : " + ccdd.getDateAndTime() + "\n   User    : " + ccdd.getUser() + "\n   Project : " + ccdd.getProject() + "\n   Script  : " + ccdd.getScriptName())
 
@@ -328,7 +328,7 @@ def outputStructure(file, structIndex):
                     rateValue = ccdd.getStructureTableData(dataStreams[dataStream], row)
 
                     # Check if the variable has a rate assigned in this stream
-                    if rateValue:
+                    if rateValue is not None and rateValue:
                         # Build the rate information
                         rateInfo += "{" + dataStreams[dataStream] + " @" + rateValue + " Hz}"
 
@@ -358,7 +358,7 @@ def makeHeaders(baseFileName):
     # Check if the types header file successfully opened
     if typesFile is not None:
         # Add the build information to the output file
-        outputAssociationInfo(typesFile)
+        outputFileCreationInfo(typesFile)
 
         # Add the header include to prevent loading the file more than once
         ccdd.writeToFileLn(typesFile, "#ifndef " + headerIncludeFlag)
@@ -435,7 +435,7 @@ def makeSwapFile(baseFileName):
         hasBitField = []
 
         # Add the build information to the output file
-        outputAssociationInfo(swapFile)
+        outputFileCreationInfo(swapFile)
 
         # Output the source for the bit field swap and bit reversal functions
         ccdd.writeToFileLn(swapFile, "#include <byteswap.h>")

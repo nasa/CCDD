@@ -18,6 +18,7 @@
  * of the National Aeronautics and Space Administration. No copyright is claimed
  * in the United States under Title 17, U.S. Code. All Other Rights Reserved.
  ******************************************************************************/
+
 try {
     load("nashorn:mozilla_compat.js")
 }
@@ -30,12 +31,12 @@ import CCDD.CcddScriptDataAccessHandler
 /** Functions *************************************************************** */
 
 /*******************************************************************************
- * Output the script association details to the specified file
+ * Output the file creation details to the specified file
  *
  * @param file
  *            reference to the output file
  ******************************************************************************/
-def outputAssociationInfo(file) {
+def outputFileCreationInfo(file) {
     // Add the build information and header to the output file
     ccdd.writeToFileLn(file, "/* Created : " + ccdd.getDateAndTime() + "\n   User    : " + ccdd.getUser() + "\n   Project : " + ccdd.getProject() + "\n   Script  : " + ccdd.getScriptName())
 
@@ -700,7 +701,7 @@ def outputMnemonicDefinition(row)
 {
     // Get the variable data type
     def dataType = ccdd.getStructureDataType(row)
-    
+
     // Get the single character ITOS encoded form of the data type
     def itosEncode = ccdd.getITOSEncodedDataType(dataType, "SINGLE_CHAR")
 
@@ -1081,8 +1082,13 @@ def outputCommandEnumerations(systemName)
  *
  * @param limitSets
  *            limit set(s)
+ *
+ * @param isFirst
+ *            true if this is the first limit definition
+ *
+ * @return true if a limit definition is output
  ******************************************************************************/
-def outputLimitDefinition(row, limitSets)
+def outputLimitDefinition(row, limitSets, isFirst)
 {
     // Get the variable name and array size
     def variableName = ccdd.getStructureVariableName(row)
@@ -1119,7 +1125,7 @@ def outputLimitDefinition(row, limitSets)
                 ccdd.writeToFileLn(tlmFile, "{")
 
                 // Step through each limit definition
-                for (def index = 0; index < limits[0].length(); index++)
+                for (def index = 0; index < limits[0].length; index++)
                 {
                     // Check if this is is the red-low, yellow-low, yellow-high,
                     // or red-high limit
@@ -1159,7 +1165,7 @@ def outputLimitDefinition(row, limitSets)
                     def limitIndex = 0
 
                     // Step through each limit definition
-                    for (def index = 0; index < limits[set].length(); index++)
+                    for (def index = 0; index < limits[set].length; index++)
                     {
                         // Check if the limit value exists
                         if (!limits[set][index].isEmpty())
@@ -1188,6 +1194,8 @@ def outputLimitDefinition(row, limitSets)
             }
         }
     }
+
+    return isFirst
 }
 
 /*******************************************************************************
@@ -1206,10 +1214,8 @@ def outputLimitDefinitions()
         // Check if the parameter has limits
         if (limitSets != null && !limitSets.isEmpty())
         {
-            isFirst = false
-
             // Output the limit definition for this row in the data table
-            outputLimitDefinition(row, limitSets)
+            isFirst = outputLimitDefinition(row, limitSets, isFirst)
         }
     }
 }
@@ -1419,7 +1425,7 @@ else
     {
         // Use the default number of flight computers (based on the number of
         // offset values detected)
-        numFlightComputers = fcOffset.length
+        numFlightComputers = fcOffset.size()
     }
     // The value is an integer
     else
@@ -1552,8 +1558,8 @@ else
                 def structureNames = ccdd.getStructureTablesByReferenceOrder()
 
                 // Add a header to the output files
-                outputAssociationInfo(combFile)
-                outputAssociationInfo(tlmFile)
+                outputFileCreationInfo(combFile)
+                outputFileCreationInfo(tlmFile)
 
                 // Output the structure prototypes and telemetry packet
                 // definitions
@@ -1604,7 +1610,7 @@ else
                 if (cmdFile != null)
                 {
                     // Add a header to the output file
-                    outputAssociationInfo(cmdFile)
+                    outputFileCreationInfo(cmdFile)
 
                     // Step through each command table
                     for (def cmdTblIndex = 0; cmdTblIndex < ccdd.getCommandTableNames().length; cmdTblIndex++)

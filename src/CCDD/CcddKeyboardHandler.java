@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary keyboard handler. Copyright 2017 United States
- * Government as represented by the Administrator of the National Aeronautics
- * and Space Administration. No copyright is claimed in the United States under
- * Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary keyboard handler.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -162,7 +164,7 @@ public class CcddKeyboardHandler
                         // Check if this is a table
                         else if (comp instanceof CcddJTableHandler
                                  || (comp.getParent() instanceof CcddJTableHandler
-                                     && !(comp instanceof JComboBox)))
+                                 && !(comp instanceof JComboBox)))
                         {
                             // Handle the Enter key in the table
                             handled = tableEditCellHandler(comp);
@@ -467,9 +469,9 @@ public class CcddKeyboardHandler
                         // Check if the type name or C name columns are being
                         // edited and the base data type is empty or a pointer
                         if ((column == DataTypeEditorColumnInfo.USER_NAME.ordinal()
-                             || column == DataTypeEditorColumnInfo.C_NAME.ordinal())
+                            || column == DataTypeEditorColumnInfo.C_NAME.ordinal())
                             && (baseType.isEmpty()
-                                || baseType.equals(BaseDataTypeInfo.POINTER.getName())))
+                            || baseType.equals(BaseDataTypeInfo.POINTER.getName())))
                         {
                             // Insert the structure name chosen by the user
                             // into the text field at the current text

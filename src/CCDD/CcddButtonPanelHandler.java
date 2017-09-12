@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary button panel handler. Copyright 2017 United
- * States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United
- * States under Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary button panel handler.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -61,7 +63,7 @@ public class CcddButtonPanelHandler
 
     /**************************************************************************
      * Set the number of rows occupied by the window's buttons
-     * 
+     *
      * @param rows
      *            number of button rows
      *************************************************************************/
@@ -72,7 +74,7 @@ public class CcddButtonPanelHandler
 
     /**************************************************************************
      * Get the reference to the last button pressed in the button panel
-     * 
+     *
      * @return Reference to the last button pressed in the button panel
      *************************************************************************/
     protected JButton getLastButtonPressed()
@@ -83,7 +85,7 @@ public class CcddButtonPanelHandler
     /**************************************************************************
      * Get the button panel's close/cancel button which is assumed to be the
      * last button in the button panel
-     * 
+     *
      * @return Button panel close/cancel button
      *************************************************************************/
     protected JButton getExitButton()
@@ -93,7 +95,7 @@ public class CcddButtonPanelHandler
 
     /**************************************************************************
      * Placeholder for method to close the window
-     * 
+     *
      * @param buttonSelected
      *            button selected when closing the window
      *************************************************************************/
@@ -103,7 +105,7 @@ public class CcddButtonPanelHandler
 
     /**************************************************************************
      * Enable/disable the button panel buttons
-     * 
+     *
      * @param enable
      *            true to enable the buttons; false to disable
      *************************************************************************/
@@ -229,20 +231,20 @@ public class CcddButtonPanelHandler
 
     /**************************************************************************
      * Create a button
-     * 
+     *
      * @param buttonText
      *            text to display on the button
-     * 
+     *
      * @param iconName
      *            icon file name
-     * 
+     *
      * @param key
      *            key mnemonic for the menu item
-     * 
+     *
      * @param toolTip
      *            tool tip text to display when the pointer hovers over this
      *            button; null to not display a tool tip
-     * 
+     *
      * @return Button created
      *************************************************************************/
     protected static JButton createButton(String buttonText,
@@ -267,7 +269,7 @@ public class CcddButtonPanelHandler
     /**************************************************************************
      * Change the button padding between the button's icon/text and the
      * perimeter of the button
-     * 
+     *
      * @param button
      *            button to adjust
      *************************************************************************/
@@ -281,10 +283,10 @@ public class CcddButtonPanelHandler
     /**************************************************************************
      * Create the buttons and button listeners based on the option type
      * provided
-     * 
+     *
      * @param parent
      *            parent window; needed to get the button icons
-     * 
+     *
      * @param optionType
      *            DialogOption type
      *************************************************************************/
@@ -343,31 +345,31 @@ public class CcddButtonPanelHandler
      * set up keyboard focus management, and determine the window's exit
      * button. If no button panel is provided then create the buttons and
      * button listeners needed based on the option type
-     * 
+     *
      * @param btnPanel
      *            panel containing the window's buttons; null if a defined
      *            option type is used
-     * 
+     *
      * @param defaultBtn
      *            reference to the JButton that is actuated if the Enter key is
      *            pressed; null to have no default button (unless btnPanel is
      *            null as well, in which case the first button is set as the
      *            default)
-     * 
+     *
      * @param upperComponent
      *            upper window components
-     * 
+     *
      * @param optionType
      *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION,
      *            READ_OPTION, PRINT_OPTION, CLOSE_OPTION, OK_OPTION, or
      *            OK_CANCEL_OPTION. Ignored if btnPanel isn't null
-     * 
+     *
      * @param contentPane
      *            the content pane for the calling container
-     * 
+     *
      * @param rootPane
      *            the root pane for the calling container
-     * 
+     *
      * @return JPanel containing the window's buttons
      *************************************************************************/
     protected JPanel assembleWindowComponents(JPanel btnPanel,

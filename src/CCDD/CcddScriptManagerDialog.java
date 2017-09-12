@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary script association manager dialog. Copyright
- * 2017 United States Government as represented by the Administrator of the
- * National Aeronautics and Space Administration. No copyright is claimed in
- * the United States under Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary script association manager dialog.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -800,8 +802,8 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
 
         // Check if the database contains no tables
         if (tableTree.getRowCount() != (tableTree.isRootVisible()
-                                                                  ? 1
-                                                                  : 0))
+                                                                 ? 1
+                                                                 : 0))
         {
             // Create panels to hold the components of the dialog
             tablePnl = new JPanel(new GridBagLayout());
@@ -827,8 +829,8 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             // Inform the user that no table exists in this database
             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                       "<html><b>Project '"
-                                                                               + dbControl.getDatabase()
-                                                                               + "' has no tables",
+                                                          + dbControl.getDatabase()
+                                                          + "' has no tables",
                                                       "No Tables",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -895,7 +897,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             // Inform the user that the association already is in the table
             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                       "<html><b>An association with this script and table(s) "
-                                                                               + "already exists in the script associations table",
+                                                          + "already exists in the script associations table",
                                                       "Association Exists",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);

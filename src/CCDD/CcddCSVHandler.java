@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary CSV handler. Copyright 2017 United States
- * Government as represented by the Administrator of the National Aeronautics
- * and Space Administration. No copyright is claimed in the United States under
- * Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary CSV handler.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -84,7 +86,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
 
         /**********************************************************************
          * CSV data type tags constructor
-         * 
+         *
          * @param tag
          *            text describing the data
          *********************************************************************/
@@ -95,7 +97,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
 
         /**********************************************************************
          * Get the data type tag
-         * 
+         *
          * @return Text describing the data
          *********************************************************************/
         protected String getTag()
@@ -106,13 +108,13 @@ public class CcddCSVHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * CSV handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class reference
-     * 
+     *
      * @param fieldHandler
      *            reference to a data field handler
-     * 
+     *
      * @param parent
      *            GUI component instantiating this class
      *************************************************************************/
@@ -134,7 +136,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Get the status of the conversion setup error flag
-     * 
+     *
      * @return Always returns false for the CSV conversion
      *************************************************************************/
     @Override
@@ -145,7 +147,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Get the table definitions
-     * 
+     *
      * @return List of table definitions
      *************************************************************************/
     @Override
@@ -156,10 +158,10 @@ public class CcddCSVHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Build the information from the table definition(s) in the current file
-     * 
+     *
      * @param importFile
      *            import file reference
-     * 
+     *
      * @param importAll
      *            ImportType.IMPORT_ALL to import the table type, data type,
      *            and macro definitions, and the data from all the table
@@ -1156,39 +1158,39 @@ public class CcddCSVHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Export the project in CSV format to the specified file
-     * 
+     *
      * @param exportFile
      *            reference to the user-specified output file
-     * 
+     *
      * @param tableNames
      *            array of table names to convert
-     * 
+     *
      * @param replaceMacros
      *            true to replace any embedded macros with their corresponding
      *            values
-     * 
+     *
      * @param includeReservedMsgIDs
      *            true to include the contents of the reserved message ID table
      *            in the export file
-     * 
+     *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a
      *            structure table, both in application format and using the
      *            user-defined separator characters
-     * 
+     *
      * @param variableHandler
      *            variable handler class reference; null if
      *            includeVariablePaths is false
-     * 
+     *
      * @param separators
      *            string array containing the variable path separator
      *            character(s), show/hide data types flag ('true' or 'false'),
      *            and data type/variable name separator character(s); null if
      *            includeVariablePaths is false
-     * 
+     *
      * @param extraInfo
      *            [0] name of the data field containing the system name
-     * 
+     *
      * @return true if an error occurred preventing exporting the project to
      *         the file
      *************************************************************************/

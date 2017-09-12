@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary program preferences dialog. Copyright 2017
- * United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United
- * States under Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary program preferences dialog.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -1029,7 +1031,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                         // Inform the user that the input value is invalid
                         new CcddDialogHandler().showMessageDialog(CcddPreferencesDialog.this,
                                                                   "<html><b>The value for '</b>"
-                                                                                              + ce.getMessage(),
+                                                                      + ce.getMessage(),
                                                                   "Missing/Invalid Input",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);
@@ -1251,7 +1253,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                         // Inform the user that the input value is invalid
                         new CcddDialogHandler().showMessageDialog(CcddPreferencesDialog.this,
                                                                   "<html><b>The value for '</b>"
-                                                                                              + ce.getMessage(),
+                                                                      + ce.getMessage(),
                                                                   "Missing/Invalid Input",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);

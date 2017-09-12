@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary application scheduler input. Copyright 2017
- * United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United
- * States under Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary application scheduler input.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -57,7 +59,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
 
     /**************************************************************************
      * Application scheduler input class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
@@ -163,14 +165,14 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
      * the list of applications provided. The application tree is used to
      * determine the target application's position relative to the applications
      * in the list (if any)
-     * 
+     *
      * @param application
      *            application for which to determine the insertion index
-     * 
+     *
      * @param applications
      *            list of applications into which the application is to be
      *            inserted
-     * 
+     *
      * @return Index at which to insert the target application
      *************************************************************************/
     @Override
@@ -242,11 +244,11 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
 
     /**************************************************************************
      * Get the total amount of time for the specified application(s)
-     * 
+     *
      * @param applications
      *            list of applications; null to use the currently selected
      *            application(s)
-     * 
+     *
      * @return Total amount of time for the specified application(s)
      *************************************************************************/
     @Override
@@ -275,7 +277,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
 
     /**************************************************************************
      * Get a list of applications with the specified rate
-     * 
+     *
      * @param rate
      *            currently selected rate
      *
@@ -308,7 +310,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
 
     /**************************************************************************
      * Get the selected node in the application tree
-     * 
+     *
      * @return List of variable object(s) representing the selected
      *         application(s)
      *************************************************************************/
@@ -322,13 +324,13 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
 
     /**************************************************************************
      * Get the selected node in the application tree
-     * 
+     *
      * @param applications
      *            array of application names
-     * 
+     *
      * @param rate
      *            currently selected rate
-     * 
+     *
      * @return List of variable object(s) representing the specified
      *         application(s)
      *************************************************************************/
@@ -371,7 +373,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
 
     /**************************************************************************
      * Get an array of the available rates
-     * 
+     *
      * @return Array of rates
      *************************************************************************/
     @Override
@@ -418,7 +420,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
 
     /**************************************************************************
      * Get the currently selected rate
-     * 
+     *
      * @return Currently selected rate
      *************************************************************************/
     @Override
@@ -429,7 +431,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
 
     /**************************************************************************
      * Add the specified application(s) to the excluded application list
-     * 
+     *
      * @param applications
      *            list containing the application(s) to be excluded
      *************************************************************************/
@@ -459,7 +461,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
 
     /**************************************************************************
      * Remove the specified application(s) from the excluded application list
-     * 
+     *
      * @param applications
      *            list of applications to be removed from the excluded
      *            application list
@@ -528,13 +530,13 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
 
     /**************************************************************************
      * Get the data field value for the specified application and field name
-     * 
+     *
      * @param applicationName
      *            application name
-     * 
+     *
      * @param appField
      *            application data field
-     * 
+     *
      * @return Application data field value for the specified application
      *************************************************************************/
     private String getDataFieldValue(String applicationName,

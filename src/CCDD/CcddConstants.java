@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary common constants. Copyright 2017 United States
- * Government as represented by the Administrator of the National Aeronautics
- * and Space Administration. No copyright is claimed in the United States under
- * Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary common constants.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -253,253 +255,253 @@ public class CcddConstants
     // GUI update type
     protected static enum GUIUpdateType
     {
-     LAF,
-     FONT,
-     COLOR
+        LAF,
+        FONT,
+        COLOR
     }
 
     // Table selection modes
     protected static enum TableSelectionMode
     {
-     SELECT_BY_ROW,
-     SELECT_BY_COLUMN,
-     SELECT_BY_CELL
+        SELECT_BY_ROW,
+        SELECT_BY_COLUMN,
+        SELECT_BY_CELL
     }
 
     // Arrow keys focus options - used for determining keyboard traversal
     // actions in response to arrow key presses
     protected static enum ArrowFocusOption
     {
-     USE_DEFAULT_HANDLER,
-     HANDLE_UP_ARROW,
-     HANDLE_DOWN_ARROW,
-     HANDLE_UP_AND_DOWN_ARROWS,
-     HANDLE_ALL_ARROWS,
-     IGNORE_UP_AND_DOWN_ARROWS
+        USE_DEFAULT_HANDLER,
+        HANDLE_UP_ARROW,
+        HANDLE_DOWN_ARROW,
+        HANDLE_UP_AND_DOWN_ARROWS,
+        HANDLE_ALL_ARROWS,
+        IGNORE_UP_AND_DOWN_ARROWS
     }
 
     // Command line command types
     protected static enum CommandLineType
     {
-     NAME,
-     MINMAX,
-     SIZE,
-     COLOR,
-     OPTION
+        NAME,
+        MINMAX,
+        SIZE,
+        COLOR,
+        OPTION
     }
 
     // Server connection types
     protected static enum ConnectionType
     {
-     NO_CONNECTION,
-     TO_SERVER_ONLY,
-     TO_DATABASE
+        NO_CONNECTION,
+        TO_SERVER_ONLY,
+        TO_DATABASE
     }
 
     // Database command types
     protected static enum DbCommandType
     {
-     QUERY,
-     UPDATE,
-     COMMAND
+        QUERY,
+        UPDATE,
+        COMMAND
     }
 
     // Database manager dialog types
     protected static enum DbManagerDialogType
     {
-     CREATE,
-     OPEN,
-     RENAME,
-     COPY,
-     DELETE,
-     UNLOCK
+        CREATE,
+        OPEN,
+        RENAME,
+        COPY,
+        DELETE,
+        UNLOCK
     }
 
     // Server properties dialog types
     protected static enum ServerPropertyDialogType
     {
-     LOGIN,
-     DB_SERVER,
-     WEB_SERVER
+        LOGIN,
+        DB_SERVER,
+        WEB_SERVER
     }
 
     // Database objects
     protected static enum DatabaseObject
     {
-     DATABASE,
-     TABLE,
-     FUNCTION,
-     SEQUENCE
+        DATABASE,
+        TABLE,
+        FUNCTION,
+        SEQUENCE
     }
 
     // Manager dialog types
     protected static enum ManagerDialogType
     {
-     NEW,
-     EDIT,
-     RENAME,
-     COPY,
-     DELETE,
-     IMPORT,
-     EXPORT_CSV,
-     EXPORT_XTCE,
-     EXPORT_EDS,
-     EXPORT_JSON
+        NEW,
+        EDIT,
+        RENAME,
+        COPY,
+        DELETE,
+        IMPORT,
+        EXPORT_CSV,
+        EXPORT_XTCE,
+        EXPORT_EDS,
+        EXPORT_JSON
     }
 
     // Table tree types
     protected static enum TableTreeType
     {
-     // Prototype tables only, all types
-     PROTOTYPE_TABLES,
+        // Prototype tables only, all types
+        PROTOTYPE_TABLES,
 
-     // Instance tables only, all types
-     INSTANCE_TABLES,
+        // Instance tables only, all types
+        INSTANCE_TABLES,
 
-     // Prototype and instance tables, all types
-     TABLES,
+        // Prototype and instance tables, all types
+        TABLES,
 
-     // Prototype and instance tables, structure types only, with primitive
-     // variables
-     STRUCTURES_WITH_PRIMITIVES,
+        // Prototype and instance tables, structure types only, with primitive
+        // variables
+        STRUCTURES_WITH_PRIMITIVES,
 
-     // Instance tables only, structure types only, with primitive variables
-     INSTANCE_STRUCTURES_WITH_PRIMITIVES,
+        // Instance tables only, structure types only, with primitive variables
+        INSTANCE_STRUCTURES_WITH_PRIMITIVES,
 
-     // Instance tables only, structure types only, with primitive variables
-     // and their sample rates
-     INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES,
+        // Instance tables only, structure types only, with primitive variables
+        // and their sample rates
+        INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES,
 
-     // Prototype and instance tables, all types, with primitive variables
-     // (for structures)
-     TABLES_WITH_PRIMITIVES,
+        // Prototype and instance tables, all types, with primitive variables
+        // (for structures)
+        TABLES_WITH_PRIMITIVES,
 
-     // Instance tables only, all types, with primitive variables (for
-     // structures)
-     INSTANCE_TABLES_WITH_PRIMITIVES
+        // Instance tables only, all types, with primitive variables (for
+        // structures)
+        INSTANCE_TABLES_WITH_PRIMITIVES
     }
 
     // Table member types
     protected static enum TableMemberType
     {
-     TABLES_ONLY,
-     INCLUDE_PRIMITIVES
+        TABLES_ONLY,
+        INCLUDE_PRIMITIVES
     }
 
     // Table row insertion point
     protected static enum TableInsertionPoint
     {
-     START,
-     END,
-     SELECTION
+        START,
+        END,
+        SELECTION
     }
 
     // Script store/retrieve types
     protected static enum ScriptIOType
     {
-     STORE,
-     RETRIEVE,
-     DELETE
+        STORE,
+        RETRIEVE,
+        DELETE
     }
 
     // Table path format types
     protected static enum TablePathType
     {
-     PARENT_AND_VARIABLE,
-     VARIABLE_ONLY,
-     ITOS_RECORD
+        PARENT_AND_VARIABLE,
+        VARIABLE_ONLY,
+        ITOS_RECORD
     }
 
     // Project search dialog types
     protected static enum SearchDialogType
     {
-     TABLES,
-     SCRIPTS,
-     LOG
+        TABLES,
+        SCRIPTS,
+        LOG
     }
 
     // Project search types
     protected static enum SearchType
     {
-     ALL,
-     PROTO,
-     DATA,
-     SCRIPT
+        ALL,
+        PROTO,
+        DATA,
+        SCRIPT
     }
 
     // Message ID assignment dialog type
     protected static enum MessageIDType
     {
-     TABLE_DATA_FIELD,
-     TELEMETRY
+        TABLE_DATA_FIELD,
+        TELEMETRY
     }
 
     // Rate parameters
     protected static enum RateParameter
     {
-     MAXIMUM_SECONDS_PER_MESSAGE,
-     MAXIMUM_MESSAGES_PER_SECOND,
-     INCLUDE_UNEVEN_RATES,
-     RATE_COLUMN_NAME,
-     STREAM_NAME,
-     MAXIMUM_MESSAGES_PER_CYCLE,
-     MAXIMUM_BYTES_PER_SECOND
+        MAXIMUM_SECONDS_PER_MESSAGE,
+        MAXIMUM_MESSAGES_PER_SECOND,
+        INCLUDE_UNEVEN_RATES,
+        RATE_COLUMN_NAME,
+        STREAM_NAME,
+        MAXIMUM_MESSAGES_PER_CYCLE,
+        MAXIMUM_BYTES_PER_SECOND
     }
 
     // Table type update
     protected static enum TableTypeUpdate
     {
-     NEW,
-     MATCH,
-     MISMATCH
+        NEW,
+        MATCH,
+        MISMATCH
     }
 
     // Project database search result query columns
     protected static enum SearchResultsQueryColumn
     {
-     TABLE,
-     COLUMN,
-     COMMENT,
-     CONTEXT
+        TABLE,
+        COLUMN,
+        COMMENT,
+        CONTEXT
     }
 
     // Application parameters
     protected static enum ApplicationParameter
     {
-     MAXIMUM_NUMBER_OF_SLOTS,
-     MAXIMUM_MESSAGES_PER_SECOND,
-     MAXIMUM_MESSAGES_PER_CYCLE,
-     MAXIMUM_NUMBEROF_COMMANDS
+        MAXIMUM_MESSAGES_PER_TIME_SLOT,
+        MAXIMUM_MESSAGES_PER_SECOND,
+        MAXIMUM_MESSAGES_PER_CYCLE,
+        MAXIMUM_NUMBER_OF_COMMANDS
     }
 
     // Scheduler options
     protected static enum SchedulerType
     {
-     TELEMETRY_SCHEDULER,
-     APPLICATION_SCHEDULER
+        TELEMETRY_SCHEDULER,
+        APPLICATION_SCHEDULER
     }
 
     // Data table update types
     protected static enum UpdateType
     {
-     ADDITION,
-     MODIFICATION,
-     DELETION
+        ADDITION,
+        MODIFICATION,
+        DELETION
     }
 
     // Modifiable font information
     protected static enum ModifiableFontInfo
     {
-     INPUT_TEXT("Input Field", "Text input field font", "InputFieldTextFont", "DejaVu Sans", Font.PLAIN, 13),
-     LABEL_PLAIN("Label (plain)", "Label and list font (plain)", "LabelPlainFont", "DejaVu Sans", Font.PLAIN, 13),
-     LABEL_BOLD("Label (bold)", "Label font (bold); used for dialog labels", "LabelBoldFont", "DejaVu Sans", Font.BOLD, 13),
-     TABLE_HEADER("Table Header", "Table column name font", "TableHeaderFont", "DejaVu Sans", Font.BOLD, 13),
-     DATA_TABLE_CELL("Data Table Cell", "Table cell font (data tables)", "DataTableCellFont", "Monospaced", Font.PLAIN, 13),
-     OTHER_TABLE_CELL("Other Table Cell", "Table cell font (non-data tables)", "OtherTableCellFont", "DejaVu Sans", Font.PLAIN, 13),
-     DIALOG_BUTTON("Button", "Dialog box button font", "DialogButtonFont", "Dialog", Font.BOLD, 13),
-     MENU_ITEM("Menu Item", "Menu item font", "MenuItemFont", "DejaVu Sans", Font.PLAIN, 13),
-     TOOL_TIP("Tool Tip", "Tool tip font. Ignored by some look & feels", "ToolTipFont", "DejaVu Sans", Font.PLAIN, 13),
-     TREE_NODE("Tree Node", "Tree node font", "TreeNodeFont", "DejaVu Sans", Font.PLAIN, 13);
+        INPUT_TEXT("Input Field", "Text input field font", "InputFieldTextFont", "DejaVu Sans", Font.PLAIN, 13),
+        LABEL_PLAIN("Label (plain)", "Label and list font (plain)", "LabelPlainFont", "DejaVu Sans", Font.PLAIN, 13),
+        LABEL_BOLD("Label (bold)", "Label font (bold); used for dialog labels", "LabelBoldFont", "DejaVu Sans", Font.BOLD, 13),
+        TABLE_HEADER("Table Header", "Table column name font", "TableHeaderFont", "DejaVu Sans", Font.BOLD, 13),
+        DATA_TABLE_CELL("Data Table Cell", "Table cell font (data tables)", "DataTableCellFont", "Monospaced", Font.PLAIN, 13),
+        OTHER_TABLE_CELL("Other Table Cell", "Table cell font (non-data tables)", "OtherTableCellFont", "DejaVu Sans", Font.PLAIN, 13),
+        DIALOG_BUTTON("Button", "Dialog box button font", "DialogButtonFont", "Dialog", Font.BOLD, 13),
+        MENU_ITEM("Menu Item", "Menu item font", "MenuItemFont", "DejaVu Sans", Font.PLAIN, 13),
+        TOOL_TIP("Tool Tip", "Tool tip font. Ignored by some look & feels", "ToolTipFont", "DejaVu Sans", Font.PLAIN, 13),
+        TREE_NODE("Tree Node", "Tree node font", "TreeNodeFont", "DejaVu Sans", Font.PLAIN, 13);
 
         private final String name;
         private final String description;
@@ -694,10 +696,10 @@ public class CcddConstants
                 // and use this information to set the modifiable font
                 String[] fontInfo = progPrefs.get(modFont.getPreferenceKey(),
                                                   modFont.getDefaultFamily()
-                                                                              + ","
-                                                                              + modFont.getDefaultStyle()
-                                                                              + ","
-                                                                              + modFont.getDefaultSize())
+                                                      + ","
+                                                      + modFont.getDefaultStyle()
+                                                      + ","
+                                                      + modFont.getDefaultSize())
                                              .split(",");
                 modFont.font = new ModifiableFont(modFont.getPreferenceKey(),
                                                   fontInfo[0],
@@ -784,26 +786,26 @@ public class CcddConstants
     // Modifiable color information
     protected static enum ModifiableColorInfo
     {
-     INPUT_TEXT("Input field text", "Input field text color", "InputTextColor", 0, 0, 0),
-     INPUT_BACK("Input field background", "Input field background color", "InputBackgroundColor", 255, 255, 255),
-     INPUT_DISABLE_BACK("Input field background (disabled)", "Input field background color when disabled", "InputDisabledBackgroundColor", 192, 192, 192),
-     LABEL_TEXT("Label text", "General text label color", "LabelTextColor", 0, 0, 0),
-     TABLE_TEXT("Table text", "Table text color (when not selected)", "TableTextColor", 0, 0, 0),
-     TABLE_BACK("Table background", "Table background color (when not selected)", "TableBackgroundColor", 255, 255, 255),
-     ALTERNATE_BACK("Alternating table row background", "Background color for alternating table rows (when not selected)", "TableAlternateBackgroundColor", 240, 245, 245),
-     SELECTED_TEXT("Selected table cell text", "Text color for a table's selected cell(s)", "SelectedTextColor", 255, 255, 255),
-     SELECTED_BACK("Selected table cell background", "Background color for a table's selected cell(s)", "SelectedBackgroundColor", 110, 150, 200),
-     FOCUS_BACK("Focused table cell background", "Background color for the table cell that has the input focus", "FocusBackgroundColor", 60, 100, 180),
-     TABLE_GRID("Table grid lines", "Color for table grid lines. The log table grid lines use the table background color", "TableGridColor", 230, 240, 240),
-     TEXT_HIGHLIGHT("Highlighted macro and matching search text", "Highlight color for macros and matching search text", "TextHighlightColor", 200, 235, 245),
-     REQUIRED_BACK("Required cell and data field background", "Background color for input fields that are required", "RequiredBackgroundColor", 255, 255, 0),
-     PROTECTED_TEXT("Protected cell text", "Text color for a protected (non-editable) cell", "ProtectedTextColor", 0, 0, 255),
-     PROTECTED_BACK("Protected cell background", "Background color for a protected (non-editable) cell", "ProtectedBackgroundColor", 192, 192, 192),
-     VALID_TEXT("Valid table text", "Text color for valid table rows. Used in the telemetry and application scheduler tables", "ValidTextColor", 0, 200, 0),
-     INVALID_TEXT("Invalid table text", "Text color for invalid table rows. Used in the telemetry and application scheduler tables", "InvalidTextColor", 200, 0, 0),
-     SPECIAL_LABEL_TEXT("Dialog component group label", "Text color for a group of components in a dialog", "SpecialLabelTextColor", 170, 40, 80),
-     TOOL_TIP_TEXT("Tool tip text", "Text color for tool tip pop-ups. Ignored by some look & feels", "ToolTipTextColor", 0, 0, 0),
-     TOOL_TIP_BACK("Tool tip background", "Background color for tool tip pop-ups. Ignored by some look & feels", "ToolTipBackgroundColor", 245, 245, 180);
+        INPUT_TEXT("Input field text", "Input field text color", "InputTextColor", 0, 0, 0),
+        INPUT_BACK("Input field background", "Input field background color", "InputBackgroundColor", 255, 255, 255),
+        INPUT_DISABLE_BACK("Input field background (disabled)", "Input field background color when disabled", "InputDisabledBackgroundColor", 192, 192, 192),
+        LABEL_TEXT("Label text", "General text label color", "LabelTextColor", 0, 0, 0),
+        TABLE_TEXT("Table text", "Table text color (when not selected)", "TableTextColor", 0, 0, 0),
+        TABLE_BACK("Table background", "Table background color (when not selected)", "TableBackgroundColor", 255, 255, 255),
+        ALTERNATE_BACK("Alternating table row background", "Background color for alternating table rows (when not selected)", "TableAlternateBackgroundColor", 240, 245, 245),
+        SELECTED_TEXT("Selected table cell text", "Text color for a table's selected cell(s)", "SelectedTextColor", 255, 255, 255),
+        SELECTED_BACK("Selected table cell background", "Background color for a table's selected cell(s)", "SelectedBackgroundColor", 110, 150, 200),
+        FOCUS_BACK("Focused table cell background", "Background color for the table cell that has the input focus", "FocusBackgroundColor", 60, 100, 180),
+        TABLE_GRID("Table grid lines", "Color for table grid lines. The log table grid lines use the table background color", "TableGridColor", 230, 240, 240),
+        TEXT_HIGHLIGHT("Highlighted macro and matching search text", "Highlight color for macros and matching search text", "TextHighlightColor", 200, 235, 245),
+        REQUIRED_BACK("Required cell and data field background", "Background color for input fields that are required", "RequiredBackgroundColor", 255, 255, 0),
+        PROTECTED_TEXT("Protected cell text", "Text color for a protected (non-editable) cell", "ProtectedTextColor", 0, 0, 255),
+        PROTECTED_BACK("Protected cell background", "Background color for a protected (non-editable) cell", "ProtectedBackgroundColor", 192, 192, 192),
+        VALID_TEXT("Valid table text", "Text color for valid table rows. Used in the telemetry and application scheduler tables", "ValidTextColor", 0, 200, 0),
+        INVALID_TEXT("Invalid table text", "Text color for invalid table rows. Used in the telemetry and application scheduler tables", "InvalidTextColor", 200, 0, 0),
+        SPECIAL_LABEL_TEXT("Dialog component group label", "Text color for a group of components in a dialog", "SpecialLabelTextColor", 170, 40, 80),
+        TOOL_TIP_TEXT("Tool tip text", "Text color for tool tip pop-ups. Ignored by some look & feels", "ToolTipTextColor", 0, 0, 0),
+        TOOL_TIP_BACK("Tool tip background", "Background color for tool tip pop-ups. Ignored by some look & feels", "ToolTipBackgroundColor", 245, 245, 180);
 
         private final String name;
         private final String description;
@@ -1009,10 +1011,10 @@ public class CcddConstants
                 // and use this information to set the modifiable color
                 String[] fontInfo = progPrefs.get(modColor.getPreferenceKey(),
                                                   modColor.getDefaultRed()
-                                                                               + ","
-                                                                               + modColor.getDefaultGreen()
-                                                                               + ","
-                                                                               + modColor.getDefaultBlue())
+                                                      + ","
+                                                      + modColor.getDefaultGreen()
+                                                      + ","
+                                                      + modColor.getDefaultBlue())
                                              .split(",");
                 modColor.color = new ModifiableColor(modColor.getPreferenceKey(),
                                                      Integer.valueOf(fontInfo[0]),
@@ -1118,21 +1120,21 @@ public class CcddConstants
     // Modifiable size information
     protected static enum ModifiableSizeInfo
     {
-     MAX_LOG_MESSAGE_LENGTH("Maximum log message length", "Maximum number of characters to display in the session event log", "MaximumLogMessageLength", 250, 10, 1000),
-     NUM_REMEMBERED_SEARCHES("Maximum remembered search strings", "Maximum number of remembered search strings", "NumberOfRememberedSearches", 30, 1, 100),
-     NUM_REMEMBERED_SERVERS("Maximum remembered server names", "Maximum number of remembered server names", "NumberOfRememberedServers", 30, 1, 100),
-     MIN_DIALOG_WIDTH("Minimum dialog width", "Minimum dialog window width in pixels", "MinimumDialogWidth", 300, 100, 1000),
-     MIN_WINDOW_WIDTH("Minimum frame width", "Minimum frame window width in pixels", "MinimumWindowWidth", 750, 100, 1000),
-     MIN_WINDOW_HEIGHT("Minimum frame height", "Minimum frame window height in pixels", "MinimumWindowHeight", 400, 100, 1000),
-     MAX_DIALOG_LINE_LENGTH("Maximum dialog line length", "Maximum number of characters per line in a dialog", "MaximumDialogLineLength", 80, 10, 500),
-     MAX_DIALOG_MESSAGE_LENGTH("Maximum dialog message length", "Maximum number of characters to display in a dialog", "MaximumDialogMessageLength", 400, 10, 1000),
-     MAX_TOOL_TIP_LENGTH("Maximum tool tip line length", "Maximum number of characters per line in a tool tip", "MaximumToolTipLineLength", 40, 10, 200),
-     MAX_DATA_FIELD_CHAR_WIDTH("Maximum data field length", "Maximum number of characters in a data field", "MaximumDataFieldLength", 100, 5, 200),
-     INIT_VIEWABLE_TABLE_ROWS("Initial table rows (non-data)", "Number of non-data table rows to display initially", "InitialViewableTableRows", 10, 1, 50),
-     INIT_VIEWABLE_DATA_TABLE_ROWS("Initial table rows (data)", "Number of data table rows to display initially", "InitialViewableDataTableRows", 16, 1, 50),
-     INIT_VIEWABLE_LIST_ROWS("Initial list rows", "Number of rows of radio buttons or check boxes to display initially", "InitalViewableListRows", 12, 1, 50),
-     MAX_INIT_CELL_WIDTH("Maximum initial table cell width", "Maximum initial table cell width in pixels", "MaximumInitialTableCellWidth", 250, 25, 1000),
-     MAX_GRID_WIDTH("Maximum radio button/check box grid width", "Maximum number of radio buttons or check boxes to display in a column in a dialog", "MaxGridWidth", 5, 1, 20);
+        MAX_LOG_MESSAGE_LENGTH("Maximum log message length", "Maximum number of characters to display in the session event log", "MaximumLogMessageLength", 250, 10, 1000),
+        NUM_REMEMBERED_SEARCHES("Maximum remembered search strings", "Maximum number of remembered search strings", "NumberOfRememberedSearches", 30, 1, 100),
+        NUM_REMEMBERED_SERVERS("Maximum remembered server names", "Maximum number of remembered server names", "NumberOfRememberedServers", 30, 1, 100),
+        MIN_DIALOG_WIDTH("Minimum dialog width", "Minimum dialog window width in pixels", "MinimumDialogWidth", 300, 100, 1000),
+        MIN_WINDOW_WIDTH("Minimum frame width", "Minimum frame window width in pixels", "MinimumWindowWidth", 750, 100, 1000),
+        MIN_WINDOW_HEIGHT("Minimum frame height", "Minimum frame window height in pixels", "MinimumWindowHeight", 400, 100, 1000),
+        MAX_DIALOG_LINE_LENGTH("Maximum dialog line length", "Maximum number of characters per line in a dialog", "MaximumDialogLineLength", 80, 10, 500),
+        MAX_DIALOG_MESSAGE_LENGTH("Maximum dialog message length", "Maximum number of characters to display in a dialog", "MaximumDialogMessageLength", 400, 10, 1000),
+        MAX_TOOL_TIP_LENGTH("Maximum tool tip line length", "Maximum number of characters per line in a tool tip", "MaximumToolTipLineLength", 40, 10, 200),
+        MAX_DATA_FIELD_CHAR_WIDTH("Maximum data field length", "Maximum number of characters in a data field", "MaximumDataFieldLength", 100, 5, 200),
+        INIT_VIEWABLE_TABLE_ROWS("Initial table rows (non-data)", "Number of non-data table rows to display initially", "InitialViewableTableRows", 10, 1, 50),
+        INIT_VIEWABLE_DATA_TABLE_ROWS("Initial table rows (data)", "Number of data table rows to display initially", "InitialViewableDataTableRows", 16, 1, 50),
+        INIT_VIEWABLE_LIST_ROWS("Initial list rows", "Number of rows of radio buttons or check boxes to display initially", "InitalViewableListRows", 12, 1, 50),
+        MAX_INIT_CELL_WIDTH("Maximum initial table cell width", "Maximum initial table cell width in pixels", "MaximumInitialTableCellWidth", 250, 25, 1000),
+        MAX_GRID_WIDTH("Maximum radio button/check box grid width", "Maximum number of radio buttons or check boxes to display in a column in a dialog", "MaxGridWidth", 5, 1, 20);
 
         private final String name;
         private final String description;
@@ -1320,16 +1322,16 @@ public class CcddConstants
     // Modifiable spacing information
     protected static enum ModifiableSpacingInfo
     {
-     BUTTON_PAD("Button padding", "Dialog box button padding between the group of buttons and the edge of the dialog window or upper dialog components, in pixels", "ButtonPad", 16, 0, 50),
-     BUTTON_GAP("Button gap", "Dialog box button padding, between individual buttons, in pixels", "ButtonGap", 4, 0, 50),
-     LABEL_HORIZONTAL_SPACING("Label horizontal spacing", "Defines the horizontal spacing between a text label and an adjacent component, in pixels", "LabelHorizontalSpacing", 10, 1, 50),
-     LABEL_VERTICAL_SPACING("Label vertical spacing", "Defines the vertical spacing between a text label and an adjacent component, in pixels", "LabelVerticalSpacing", 7, 1, 50),
-     HEADER_HORIZONTAL_PADDING("Table header horizontal spacing", "Table header horizontal padding, in pixels. The padding is split equally between each side of the header text. This padding provides room for the column sort arrow", "HeaderHorizontalPadding", 28, 1, 50),
-     HEADER_VERTICAL_PADDING("Table header vertical spacing", "Table header vertical padding, in pixels. The padding is split equally between the top and bottom of the header text", "HeaderVerticalPadding", 4, 1, 50),
-     CELL_HORIZONTAL_PADDING("Table cell horizontal padding", "Table cell horizontal padding, in pixels", "CellHorizontalPadding", 5, 1, 50),
-     CELL_VERTICAL_PADDING("Table cell vertical padding", "Table cell vertical padding, in pixels", "CellVerticalPadding", 3, 1, 50),
-     DIALOG_BORDER_PAD("Dialog border padding", "Padding between the dialog contents and the dialog's frame, in pixels", "DialogBorderPadding", 4, 1, 50),
-     DIALOG_ICON_PAD("Dialog icon padding", "Padding between the a dialog's icon and text message, in pixels", "DialogIconPadding", 10, 1, 50);
+        BUTTON_PAD("Button padding", "Dialog box button padding between the group of buttons and the edge of the dialog window or upper dialog components, in pixels", "ButtonPad", 16, 0, 50),
+        BUTTON_GAP("Button gap", "Dialog box button padding, between individual buttons, in pixels", "ButtonGap", 4, 0, 50),
+        LABEL_HORIZONTAL_SPACING("Label horizontal spacing", "Defines the horizontal spacing between a text label and an adjacent component, in pixels", "LabelHorizontalSpacing", 10, 1, 50),
+        LABEL_VERTICAL_SPACING("Label vertical spacing", "Defines the vertical spacing between a text label and an adjacent component, in pixels", "LabelVerticalSpacing", 7, 1, 50),
+        HEADER_HORIZONTAL_PADDING("Table header horizontal spacing", "Table header horizontal padding, in pixels. The padding is split equally between each side of the header text. This padding provides room for the column sort arrow", "HeaderHorizontalPadding", 28, 1, 50),
+        HEADER_VERTICAL_PADDING("Table header vertical spacing", "Table header vertical padding, in pixels. The padding is split equally between the top and bottom of the header text", "HeaderVerticalPadding", 4, 1, 50),
+        CELL_HORIZONTAL_PADDING("Table cell horizontal padding", "Table cell horizontal padding, in pixels", "CellHorizontalPadding", 5, 1, 50),
+        CELL_VERTICAL_PADDING("Table cell vertical padding", "Table cell vertical padding, in pixels", "CellVerticalPadding", 3, 1, 50),
+        DIALOG_BORDER_PAD("Dialog border padding", "Padding between the dialog contents and the dialog's frame, in pixels", "DialogBorderPadding", 4, 1, 50),
+        DIALOG_ICON_PAD("Dialog icon padding", "Padding between the a dialog's icon and text message, in pixels", "DialogIconPadding", 10, 1, 50);
 
         private final String name;
         private final String description;
@@ -1517,12 +1519,12 @@ public class CcddConstants
     // Modifiable path information
     protected static enum ModifiablePathInfo
     {
-     SESSION_LOG_FILE_PATH("Session event log", "File path for the session event log", "SessionLogFilePath"),
-     READ_LOG_FILE_PATH("Read event log", "File path for reading previous event logs", "ReadLogFilePath"),
-     DATABASE_BACKUP_PATH("Project back-up", "File path for project back-ups", "DatabaseBackupPath"),
-     TABLE_EXPORT_PATH("Table export", "File path for exporting tables", "TableExportPath"),
-     SCRIPT_PATH("Script", "File path for scripts", "ScriptPath"),
-     SCRIPT_OUTPUT_PATH("Script output", "File path for script output", "ScriptOutputPath");
+        SESSION_LOG_FILE_PATH("Session event log", "File path for the session event log", "SessionLogFilePath"),
+        READ_LOG_FILE_PATH("Read event log", "File path for reading previous event logs", "ReadLogFilePath"),
+        DATABASE_BACKUP_PATH("Project back-up", "File path for project back-ups", "DatabaseBackupPath"),
+        TABLE_EXPORT_PATH("Table export", "File path for exporting tables", "TableExportPath"),
+        SCRIPT_PATH("Script", "File path for scripts", "ScriptPath"),
+        SCRIPT_OUTPUT_PATH("Script output", "File path for script output", "ScriptOutputPath");
 
         private final String name;
         private final String description;
@@ -1665,12 +1667,12 @@ public class CcddConstants
      *************************************************************************/
     protected static enum FileExtension
     {
-     LOG("log", "CCDD project event logs"),
-     DBU("dbu", "database backup files"),
-     CSV("csv", "comma-separated values"),
-     XTCE("xtce", "extensible markup language telemetric and command exchange XML"),
-     EDS("eds", "electronic data sheet XML"),
-     JSON("json", "JavaScript object notation");
+        LOG("log", "CCDD project event logs"),
+        DBU("dbu", "database backup files"),
+        CSV("csv", "comma-separated values"),
+        XTCE("xtce", "extensible markup language telemetric and command exchange XML"),
+        EDS("eds", "electronic data sheet XML"),
+        JSON("json", "JavaScript object notation");
 
         private final String entensionName;
         private final String description;
@@ -1726,11 +1728,11 @@ public class CcddConstants
      *************************************************************************/
     protected static enum BaseDataTypeInfo
     {
-     SIGNED_INT("signed integer"),
-     UNSIGNED_INT("unsigned integer"),
-     FLOATING_POINT("floating point"),
-     CHARACTER("character"),
-     POINTER("pointer");
+        SIGNED_INT("signed integer"),
+        UNSIGNED_INT("unsigned integer"),
+        FLOATING_POINT("floating point"),
+        CHARACTER("character"),
+        POINTER("pointer");
 
         private final String name;
 
@@ -1788,19 +1790,19 @@ public class CcddConstants
      *************************************************************************/
     protected static enum DefaultPrimitiveTypeInfo
     {
-     INT8("int8_t", "signed char", 1, BaseDataTypeInfo.SIGNED_INT),
-     INT16("int16_t", "signed short int", 2, BaseDataTypeInfo.SIGNED_INT),
-     INT32("int32_t", "signed int", 4, BaseDataTypeInfo.SIGNED_INT),
-     INT64("int64_t", "signed long int", 8, BaseDataTypeInfo.SIGNED_INT),
-     UINT8("uint8_t", "unsigned char", 1, BaseDataTypeInfo.UNSIGNED_INT),
-     UINT16("uint16_t", "unsigned short int", 2, BaseDataTypeInfo.UNSIGNED_INT),
-     UINT32("uint32_t", "unsigned int", 4, BaseDataTypeInfo.UNSIGNED_INT),
-     UINT64("uint64_t", "unsigned long int", 8, BaseDataTypeInfo.UNSIGNED_INT),
-     FLOAT("float", "float", 4, BaseDataTypeInfo.FLOATING_POINT),
-     DOUBLE("double", "double", 8, BaseDataTypeInfo.FLOATING_POINT),
-     CHAR("char", "char", 1, BaseDataTypeInfo.CHARACTER),
-     STRING("string", "char", 2, BaseDataTypeInfo.CHARACTER),
-     ADDRESS("address", "void *", 4, BaseDataTypeInfo.POINTER);
+        INT8("int8_t", "signed char", 1, BaseDataTypeInfo.SIGNED_INT),
+        INT16("int16_t", "signed short int", 2, BaseDataTypeInfo.SIGNED_INT),
+        INT32("int32_t", "signed int", 4, BaseDataTypeInfo.SIGNED_INT),
+        INT64("int64_t", "signed long int", 8, BaseDataTypeInfo.SIGNED_INT),
+        UINT8("uint8_t", "unsigned char", 1, BaseDataTypeInfo.UNSIGNED_INT),
+        UINT16("uint16_t", "unsigned short int", 2, BaseDataTypeInfo.UNSIGNED_INT),
+        UINT32("uint32_t", "unsigned int", 4, BaseDataTypeInfo.UNSIGNED_INT),
+        UINT64("uint64_t", "unsigned long int", 8, BaseDataTypeInfo.UNSIGNED_INT),
+        FLOAT("float", "float", 4, BaseDataTypeInfo.FLOATING_POINT),
+        DOUBLE("double", "double", 8, BaseDataTypeInfo.FLOATING_POINT),
+        CHAR("char", "char", 1, BaseDataTypeInfo.CHARACTER),
+        STRING("string", "char", 2, BaseDataTypeInfo.CHARACTER),
+        ADDRESS("address", "void *", 4, BaseDataTypeInfo.POINTER);
 
         private final String userName;
         private final String cType;
@@ -1908,208 +1910,215 @@ public class CcddConstants
      *************************************************************************/
     protected static enum InputDataType
     {
-     ALPHANUMERIC("Alphanumeric",
-                  "[a-zA-Z_][a-zA-Z0-9_]*",
-                  "text",
-                  "Alphabetic or underscore first character followed by zero "
-                          + "or more alphabetic, numeric, and underscore characters"),
+        ALPHANUMERIC("Alphanumeric",
+                     "[a-zA-Z_][a-zA-Z0-9_]*",
+                     "text",
+                     "Alphabetic or underscore first character followed by zero "
+                         + "or more alphabetic, numeric, and underscore characters"),
 
-     ALPHANUMERIC_MULTI("Alphanumeric (multi)",
-                        "(?:" + ALPHANUMERIC.getInputMatch() + "\\s*?)+",
-                        "text",
-                        "One or more alphanumeric entries (see Alphanumeric) "
-                                + "separated by one or more white space characters"),
+        ALPHANUMERIC_MULTI("Alphanumeric (multi)",
+                           "(?:" + ALPHANUMERIC.getInputMatch() + "\\s*?)+",
+                           "text",
+                           "One or more alphanumeric entries (see Alphanumeric) "
+                               + "separated by one or more white space characters"),
 
-     ARGUMENT_NAME("Argument name",
-                   ALPHANUMERIC.getInputMatch(),
-                   "text",
-                   "Command argument name; same constraints as for an "
-                           + "alphanumeric (see Alphanumeric)"),
-
-     ARRAY_INDEX("Array index",
-                 "^\\s*\\+??\\s*0*([2-9]|[1-9]\\d+)(\\s*,\\s*\\+??\\s*0*([2-9]|[1-9]\\d+))*",
-                 "array",
-                 "Variable array index in the format #<, #<...>>"),
-
-     BIT_LENGTH("Bit length",
-                "^\\+??\\s*0*([1-9]\\d*)",
-                "integer",
-                "Bit length; positive integer (initial '+' and leading "
-                           + "zeroes are optional)"),
-
-     BOOLEAN("Boolean",
-             "(?i)true|false",
-             "boolean",
-             "Boolean value; true or false"),
-
-     COMMAND_CODE("Command code",
-                  "^(?:0x)?[a-fA-F0-9]*",
-                  "hexadecimal",
-                  "Command code; hexadecimal number (see Hexadecimal)"),
-
-     COMMAND_NAME("Command name",
-                  ALPHANUMERIC.getInputMatch(),
-                  "text",
-                  "Command name; same constraints as for an "
+        ARGUMENT_NAME("Argument name",
+                      ALPHANUMERIC.getInputMatch(),
+                      "text",
+                      "Command argument name; same constraints as for an "
                           + "alphanumeric (see Alphanumeric)"),
 
-     DESCRIPTION("Description",
-                 ".*",
-                 "text",
-                 "Data description; same constraints as for text (see Text)"),
+        ARRAY_INDEX("Array index",
+                    "^\\s*\\+??\\s*0*([2-9]|[1-9]\\d+)(\\s*,\\s*\\+??\\s*0*([2-9]|[1-9]\\d+))*",
+                    "array",
+                    "Variable array index in the format #<, #<...>>"),
 
-     ENUMERATION("Enumeration",
-                 ".*",
-                 "enumeration",
-                 "Text, including alphabetic, numeric, and special characters"),
-
-     FLOAT("Floating point",
-           "^[\\+-]??\\s*0*(\\.0*)??\\d+\\d*(\\.\\d*)??",
-           "float",
-           "Floating point value consisting of one or more of the numerals "
-                    + "0 - 9 and a single optional decimal point (leading '+' or "
-                    + "'-' is optional)"),
-
-     FLOAT_POSITIVE("Positive float",
-                    "^\\+??\\s*0*\\.??0*[1-9]+\\d*(\\.\\d*)??",
-                    "float",
-                    "Floating point value > 0.0 (leading '+' is optional; "
-                             + "see Floating point)"),
-
-     FLOAT_NON_NEGATIVE("Non-negative float",
-                        "^\\+??\\s*0*(\\.0*)??\\d+\\d*(\\.\\d*)??",
-                        "float",
-                        "Floating point value >= 0.0 (leading '+' is "
-                                 + "optional; see Floating point)"),
-
-     FLOAT_NEGATIVE("Negative float",
-                    "^-\\s*0*(\\.0*)??\\d+\\d*(\\.\\d*)??",
-                    "float",
-                    "Floating point value < 0.0 (leading '-' is required; "
-                             + "see Floating point)"),
-
-     INTEGER("Integer",
-             "^[\\+-]??\\s*\\d*",
-             "integer",
-             "Integer value consisting of one or more of the "
-                        + "numerals 0 - 9 (leading '+' or '-' is optional)"),
-
-     INT_POSITIVE("Positive integer",
-                  "^\\+??\\s*0*([1-9][0-9]*)",
-                  "integer",
-                  "Integer value > 0 (leading '+' is optional; see Integer)"),
-
-     INT_GTR_THN_1("Integer > 1",
-                   "^\\+??\\s*0*([2-9]|[1-9]\\d+)",
+        BIT_LENGTH("Bit length",
+                   "^\\+??\\s*0*([1-9]\\d*)",
                    "integer",
-                   "Integer value > 1 (leading '+' is optional; see Integer)"),
+                   "Bit length; positive integer (initial '+' and leading "
+                       + "zeroes are optional)"),
 
-     INT_NON_NEGATIVE("Non-negative integer",
-                      "^\\+??\\s*0*\\d+",
+        BOOLEAN("Boolean",
+                "(?i)true|false",
+                "boolean",
+                "Boolean value; true or false"),
+
+        COMMAND_CODE("Command code",
+                     "^(?:0x)?[a-fA-F0-9]*",
+                     "hexadecimal",
+                     "Command code; hexadecimal number (see Hexadecimal)"),
+
+        COMMAND_NAME("Command name",
+                     ALPHANUMERIC.getInputMatch(),
+                     "text",
+                     "Command name; same constraints as for an "
+                         + "alphanumeric (see Alphanumeric)"),
+
+        DESCRIPTION("Description",
+                    ".*",
+                    "text",
+                    "Data description; same constraints as for text (see Text)"),
+
+        ENUMERATION("Enumeration",
+                    ".*",
+                    "enumeration",
+                    "Text, including alphabetic, numeric, and special characters"),
+
+        FLOAT("Floating point",
+              "^[\\+-]??\\s*0*(\\.0*)??\\d+\\d*(\\.\\d*)??",
+              "float",
+              "Floating point value consisting of one or more of the numerals "
+                  + "0 - 9 and a single optional decimal point (leading '+' or "
+                  + "'-' is optional)"),
+
+        FLOAT_POSITIVE("Positive float",
+                       "^\\+??\\s*0*\\.??0*[1-9]+\\d*(\\.\\d*)??",
+                       "float",
+                       "Floating point value > 0.0 (leading '+' is optional; "
+                           + "see Floating point)"),
+
+        FLOAT_NON_NEGATIVE("Non-negative float",
+                           "^\\+??\\s*0*(\\.0*)??\\d+\\d*(\\.\\d*)??",
+                           "float",
+                           "Floating point value >= 0.0 (leading '+' is "
+                               + "optional; see Floating point)"),
+
+        FLOAT_NEGATIVE("Negative float",
+                       "^-\\s*0*(\\.0*)??\\d+\\d*(\\.\\d*)??",
+                       "float",
+                       "Floating point value < 0.0 (leading '-' is required; "
+                           + "see Floating point)"),
+
+        INTEGER("Integer",
+                "^[\\+-]??\\s*\\d*",
+                "integer",
+                "Integer value consisting of one or more of the "
+                    + "numerals 0 - 9 (leading '+' or '-' is optional)"),
+
+        INT_POSITIVE("Positive integer",
+                     "^\\+??\\s*0*([1-9][0-9]*)",
+                     "integer",
+                     "Integer value > 0 (leading '+' is optional; see Integer)"),
+
+        INT_GTR_THN_1("Integer > 1",
+                      "^\\+??\\s*0*([2-9]|[1-9]\\d+)",
                       "integer",
-                      "Integer value > -1 (leading '+' is optional; see Integer)"),
+                      "Integer value > 1 (leading '+' is optional; see Integer)"),
 
-     INT_NEGATIVE("Negative integer",
-                  "^-\\s*0*\\d+",
-                  "integer",
-                  "Integer value < 0 (leading '-' is required; see Integer)"),
+        INT_NON_NEGATIVE("Non-negative integer",
+                         "^\\+??\\s*0*\\d+",
+                         "integer",
+                         "Integer value > -1 (leading '+' is optional; see Integer)"),
 
-     HEXADECIMAL("Hexadecimal",
-                 "^(?:0x)?[a-fA-F0-9]*",
-                 "hexadecimal",
-                 "Hexadecimal number; optional initial '0x' or '0X' "
-                                + "followed by one or more hexadecimal digits (0 - 9, "
-                                + "a - f (case insensitive))"),
+        INT_NEGATIVE("Negative integer",
+                     "^-\\s*0*\\d+",
+                     "integer",
+                     "Integer value < 0 (leading '-' is required; see Integer)"),
 
-     HEXADECIMAL_RANGE("Hexadecimal range",
-                       "^(?:$|(?:0x)?([a-fA-F0-9]+)(?:\\s*-\\s*(?:0x)?([a-fA-F0-9]*)|$))",
-                       "hexadecimal",
-                       "Hexadecimal range; hexadecimal value followed optionally by a "
-                                      + "hyphen and a second hexadecimal value (see Hexadecimal)"),
+        HEXADECIMAL("Hexadecimal",
+                    "^(?:0x)?[a-fA-F0-9]*",
+                    "hexadecimal",
+                    "Hexadecimal number; optional initial '0x' or '0X' "
+                        + "followed by one or more hexadecimal digits (0 - 9, "
+                        + "a - f (case insensitive))"),
 
-     MESSAGE_ID("Message ID",
-                "^(?:0x)?[a-fA-F0-9]*",
-                "hexadecimal",
-                "Message ID: hexadecimal; optional initial '0x' or '0X' "
-                               + "followed by one or more hexadecimal digits (0 - 9, "
-                               + "a - f (case insensitive))"),
+        HEXADECIMAL_NON_ZERO("Non-zero hexadecimal",
+                             "^(?:0x)?0*[a-fA-F1-9][a-fA-F0-9]*",
+                             "hexadecimal",
+                             "Non-zero hexadecimal number; optional initial '0x' or '0X' "
+                                 + "followed by one or more hexadecimal digits (0 - 9, "
+                                 + "a - f (case insensitive))"),
 
-     MINIMUM("Minimum",
-             "(" + INTEGER.getInputMatch() + ")|("
-                        + FLOAT.getInputMatch() + ")",
-             "minimum",
-             "Minimum value; a boolean, integer, floating point, or "
-                        + "hexadecimal value (depending on context; see Boolean, "
-                        + "Integer, Floating point, and Hexadecimal) that must be "
-                        + "less than or equal to the corresponding maximum value "
-                        + "(see Maximum)"),
+        HEXADECIMAL_RANGE("Hexadecimal range",
+                          "^(?:$|(?:0x)?([a-fA-F0-9]+)(?:\\s*-\\s*(?:0x)?([a-fA-F0-9]*)|$))",
+                          "hexadecimal",
+                          "Hexadecimal range; hexadecimal value followed optionally by a "
+                              + "hyphen and a second hexadecimal value (see Hexadecimal)"),
 
-     MAXIMUM("Maximum",
-             "(" + INTEGER.getInputMatch() + ")|("
-                        + FLOAT.getInputMatch() + ")",
-             "maximum",
-             "Maximum value; a boolean, integer, floating point, or "
-                        + "hexadecimal value (depending on context; see Boolean, "
-                        + "Integer, Floating point, and Hexadecimal) that must be "
-                        + "greater than or equal to the corresponding minimum value "
-                        + "(see Minimum)"),
+        MESSAGE_ID("Message ID",
+                   "^(?:0x)?[a-fA-F0-9]*",
+                   "hexadecimal",
+                   "Message ID: hexadecimal; optional initial '0x' or '0X' "
+                       + "followed by one or more hexadecimal digits (0 - 9, "
+                       + "a - f (case insensitive))"),
 
-     PRIMITIVE("Primitive",
-               ".*",
-               "data type",
-               "A primitive data type as defined in the data type editor "
-                            + "(for example, int16, float)"),
+        MINIMUM("Minimum",
+                "(" + INTEGER.getInputMatch() + ")|("
+                    + FLOAT.getInputMatch() + ")",
+                "minimum",
+                "Minimum value; a boolean, integer, floating point, or "
+                    + "hexadecimal value (depending on context; see Boolean, "
+                    + "Integer, Floating point, and Hexadecimal) that must be "
+                    + "less than or equal to the corresponding maximum value "
+                    + "(see Maximum)"),
 
-     PRIM_AND_STRUCT("Primitive & Structure",
-                     ".*",
-                     "data type",
-                     "A primitive data type (see Primitive) or a prototype "
-                                  + "structure name"),
+        MAXIMUM("Maximum",
+                "(" + INTEGER.getInputMatch() + ")|("
+                    + FLOAT.getInputMatch() + ")",
+                "maximum",
+                "Maximum value; a boolean, integer, floating point, or "
+                    + "hexadecimal value (depending on context; see Boolean, "
+                    + "Integer, Floating point, and Hexadecimal) that must be "
+                    + "greater than or equal to the corresponding minimum value "
+                    + "(see Minimum)"),
 
-     RATE("Rate",
-          "^\\+??\\s*(0*+1/)??(\\d*|\\d*\\.|\\d*\\.\\d+)",
-          "rate",
-          "Rate value; positive integer value (see Positive integer) or a "
-                  + "positive integer followed by a '/' and another positive "
-                  + "integer to denote rates faster than 1 Hz"),
-
-     TEXT("Text",
-          ".*",
-          "text",
-          "Text, including alphabetic, numeric, and special characters"),
-
-     TEXT_MULTI("Text (multi-line)",
-                "(?s).*",
-                "text",
-                "Multi-line text, including alphabetic, numeric, special, and new line characters"),
-
-     TEXT_WHT_SPC("Text (spaces)",
+        PRIMITIVE("Primitive",
                   ".*",
-                  "text",
-                  "Text (see Text) with leading/traling white space characters preserved"),
+                  "data type",
+                  "A primitive data type as defined in the data type editor "
+                      + "(for example, int16, float)"),
 
-     TEXT_MULTI_WHT_SPC("Text (multi-line, spaces)",
+        PRIM_AND_STRUCT("Primitive & Structure",
                         ".*",
-                        "text",
-                        "Multi-line text (see Text (multi-line)) with leading/traling white space characters preserved"),
+                        "data type",
+                        "A primitive data type (see Primitive) or a prototype "
+                            + "structure name"),
 
-     UNITS("Units",
-           ".*",
-           "text",
-           "Data units; same constraints as for text (see Text)"),
+        RATE("Rate",
+             "^\\+??\\s*(0*+1/)??(\\d*|\\d*\\.|\\d*\\.\\d+)",
+             "rate",
+             "Rate value; positive integer value (see Positive integer) or a "
+                 + "positive integer followed by a '/' and another positive "
+                 + "integer to denote rates faster than 1 Hz"),
 
-     VARIABLE("Variable name",
-              "[a-zA-Z_][a-zA-Z0-9_]*",
+        TEXT("Text",
+             ".*",
+             "text",
+             "Text, including alphabetic, numeric, and special characters"),
+
+        TEXT_MULTI("Text (multi-line)",
+                   "(?s).*",
+                   "text",
+                   "Multi-line text, including alphabetic, numeric, special, and new line characters"),
+
+        TEXT_WHT_SPC("Text (spaces)",
+                     ".*",
+                     "text",
+                     "Text (see Text) with leading/traling white space characters preserved"),
+
+        TEXT_MULTI_WHT_SPC("Text (multi-line, spaces)",
+                           ".*",
+                           "text",
+                           "Multi-line text (see Text (multi-line)) with leading/traling white space characters preserved"),
+
+        UNITS("Units",
+              ".*",
               "text",
-              "Variable name; same constraints as for an alphanumeric (see Alphanumeric)"),
+              "Data units; same constraints as for text (see Text)"),
 
-     VARIABLE_PATH("Variable path",
-                   "",
-                   "variable path",
-                   "Display a variable's full path"),
+        VARIABLE("Variable name",
+                 "[a-zA-Z_][a-zA-Z0-9_]*",
+                 "text",
+                 "Variable name; same constraints as for an alphanumeric (see Alphanumeric)"),
 
-     BREAK("Break", "", "page format", "Line break"),
-     SEPARATOR("Separator", "", "page format", "Line separator");
+        VARIABLE_PATH("Variable path",
+                      "",
+                      "variable path",
+                      "Display a variable's full path"),
+
+        BREAK("Break", "", "page format", "Line break"),
+        SEPARATOR("Separator", "", "page format", "Line separator");
 
         private final String inputName;
         private final String inputMatch;
@@ -2248,8 +2257,8 @@ public class CcddConstants
                     // leading zeroes
                     valueS = String.format("0x%s%x",
                                            (preserveZeroes
-                                                           ? leadZeroes
-                                                           : ""),
+                                                          ? leadZeroes
+                                                          : ""),
                                            value);
                 }
                 // Check if the value is a boolean
@@ -2321,9 +2330,9 @@ public class CcddConstants
                 // types are to be excluded, that this isn't one of those types
                 if (!inputType.inputFormat.equals("page format")
                     && (includeSpecialTypes
-                        || (!inputType.inputFormat.equals("data type")
-                            && !inputType.inputFormat.equals("enumeration")
-                            && !inputType.inputFormat.equals("variable path"))))
+                    || (!inputType.inputFormat.equals("data type")
+                        && !inputType.inputFormat.equals("enumeration")
+                        && !inputType.inputFormat.equals("variable path"))))
                 {
                     // Store the input type name in the array
                     inputNames.add(inputType.inputName);
@@ -2381,9 +2390,9 @@ public class CcddConstants
      *************************************************************************/
     protected static enum ApplicabilityType
     {
-     ALL("All tables"),
-     PARENT_ONLY("Parents only"),
-     CHILD_ONLY("Children only");
+        ALL("All tables"),
+        PARENT_ONLY("Parents only"),
+        CHILD_ONLY("Children only");
 
         private final String applicabilityName;
 
@@ -2436,224 +2445,224 @@ public class CcddConstants
      *************************************************************************/
     protected static enum DefaultColumn
     {
-     // Format: Table type, Column name, Column description (tool tip),
-     // protected flag, required flag
+        // Format: Table type, Column name, Column description (tool tip),
+        // protected flag, required flag
 
-     // Common columns
-     PRIMARY_KEY("",
-                 "_Key_",
-                 "Primary key",
-                 InputDataType.INT_POSITIVE,
-                 true,
-                 true,
-                 true,
-                 false,
-                 false,
-                 false),
-     ROW_INDEX("",
-               "_Index_",
-               "Row index",
-               InputDataType.INT_POSITIVE,
-               true,
-               true,
-               true,
-               false,
-               false,
-               false),
+        // Common columns
+        PRIMARY_KEY("",
+                    "_Key_",
+                    "Primary key",
+                    InputDataType.INT_POSITIVE,
+                    true,
+                    true,
+                    true,
+                    false,
+                    false,
+                    false),
+        ROW_INDEX("",
+                  "_Index_",
+                  "Row index",
+                  InputDataType.INT_POSITIVE,
+                  true,
+                  true,
+                  true,
+                  false,
+                  false,
+                  false),
 
-     // Structure table type
-     VARIABLE_NAME(TYPE_STRUCTURE,
-                   "Variable Name",
-                   "Parameter name",
-                   InputDataType.VARIABLE,
+        // Structure table type
+        VARIABLE_NAME(TYPE_STRUCTURE,
+                      "Variable Name",
+                      "Parameter name",
+                      InputDataType.VARIABLE,
+                      true,
+                      true,
+                      true,
+                      true,
+                      true,
+                      true),
+        DESCRIPTION_STRUCT(TYPE_STRUCTURE,
+                           COL_DESCRIPTION,
+                           "Parameter description",
+                           InputDataType.DESCRIPTION,
+                           false,
+                           false,
+                           false,
+                           true,
+                           true,
+                           true),
+        UNITS(TYPE_STRUCTURE,
+              COL_UNITS,
+              "Parameter units",
+              InputDataType.UNITS,
+              false,
+              false,
+              false,
+              true,
+              true,
+              true),
+        DATA_TYPE(TYPE_STRUCTURE,
+                  COL_DATA_TYPE,
+                  "Parameter data type",
+                  InputDataType.PRIM_AND_STRUCT,
+                  true,
+                  false,
+                  true,
+                  true,
+                  true,
+                  true),
+        ARRAY_SIZE(TYPE_STRUCTURE,
+                   "Array Size",
+                   "Parameter array size",
+                   InputDataType.ARRAY_INDEX,
                    true,
-                   true,
-                   true,
+                   false,
+                   false,
                    true,
                    true,
                    true),
-     DESCRIPTION_STRUCT(TYPE_STRUCTURE,
+        BIT_LENGTH(TYPE_STRUCTURE,
+                   "Bit Length",
+                   "Parameter number of bits (bit values only)",
+                   InputDataType.BIT_LENGTH,
+                   true,
+                   false,
+                   false,
+                   false,
+                   false,
+                   true),
+        ENUMERATION(TYPE_STRUCTURE,
+                    COL_ENUMERATION,
+                    "Enumerated parameters",
+                    InputDataType.ENUMERATION,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false),
+        RATE(TYPE_STRUCTURE,
+             "Rate",
+             "Downlink data rate, samples/second",
+             InputDataType.RATE,
+             true,
+             false,
+             false,
+             false,
+             true,
+             false),
+
+        // Command table type
+        COMMAND_NAME(TYPE_COMMAND,
+                     "Command Name",
+                     "Command name",
+                     InputDataType.COMMAND_NAME,
+                     true,
+                     true,
+                     true,
+                     false,
+                     true,
+                     true),
+        COMMAND_CODE(TYPE_COMMAND,
+                     "Command Code",
+                     "Command code",
+                     InputDataType.COMMAND_CODE,
+                     true,
+                     true,
+                     true,
+                     false,
+                     true,
+                     true),
+        DESCRIPTION_CMD(TYPE_COMMAND,
                         COL_DESCRIPTION,
-                        "Parameter description",
+                        "Command description",
                         InputDataType.DESCRIPTION,
                         false,
                         false,
                         false,
-                        true,
+                        false,
                         true,
                         true),
-     UNITS(TYPE_STRUCTURE,
-           COL_UNITS,
-           "Parameter units",
-           InputDataType.UNITS,
-           false,
-           false,
-           false,
-           true,
-           true,
-           true),
-     DATA_TYPE(TYPE_STRUCTURE,
-               COL_DATA_TYPE,
-               "Parameter data type",
-               InputDataType.PRIM_AND_STRUCT,
-               true,
-               false,
-               true,
-               true,
-               true,
-               true),
-     ARRAY_SIZE(TYPE_STRUCTURE,
-                "Array Size",
-                "Parameter array size",
-                InputDataType.ARRAY_INDEX,
-                true,
-                false,
-                false,
-                true,
-                true,
-                true),
-     BIT_LENGTH(TYPE_STRUCTURE,
-                "Bit Length",
-                "Parameter number of bits (bit values only)",
-                InputDataType.BIT_LENGTH,
-                true,
-                false,
-                false,
-                false,
-                false,
-                true),
-     ENUMERATION(TYPE_STRUCTURE,
-                 COL_ENUMERATION,
-                 "Enumerated parameters",
-                 InputDataType.ENUMERATION,
-                 true,
-                 false,
-                 false,
-                 false,
-                 false,
-                 false),
-     RATE(TYPE_STRUCTURE,
-          "Rate",
-          "Downlink data rate, samples/second",
-          InputDataType.RATE,
-          true,
-          false,
-          false,
-          false,
-          true,
-          false),
-
-     // Command table type
-     COMMAND_NAME(TYPE_COMMAND,
-                  "Command Name",
-                  "Command name",
-                  InputDataType.COMMAND_NAME,
-                  true,
-                  true,
-                  true,
+        ARG_NAME_1(TYPE_COMMAND,
+                   COL_ARGUMENT + " 1 Name",
+                   "Command argument 1 name",
+                   InputDataType.ARGUMENT_NAME,
+                   false,
+                   false,
+                   false,
+                   false,
+                   true,
+                   false),
+        ARG_DESCRIPTION_1(TYPE_COMMAND,
+                          COL_ARGUMENT + " 1 " + COL_DESCRIPTION,
+                          "Command argument 1 description",
+                          InputDataType.TEXT,
+                          false,
+                          false,
+                          false,
+                          false,
+                          true,
+                          false),
+        ARG_UNITS_1(TYPE_COMMAND,
+                    COL_ARGUMENT + " 1 " + COL_UNITS,
+                    "Command argument 1 units",
+                    InputDataType.TEXT,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false),
+        ARG_TYPE_1(TYPE_COMMAND,
+                   COL_ARGUMENT + " 1 " + COL_DATA_TYPE,
+                   "Command argument 1 data type",
+                   InputDataType.PRIMITIVE,
+                   false,
+                   false,
+                   false,
+                   false,
+                   true,
+                   false),
+        ARG_ARRAY_SIZE_1(TYPE_COMMAND,
+                         COL_ARGUMENT + " 1 " + "Array Size",
+                         "Command argument 1 array size",
+                         InputDataType.ARRAY_INDEX,
+                         false,
+                         false,
+                         false,
+                         false,
+                         false,
+                         false),
+        ARG_ENUMS_1(TYPE_COMMAND,
+                    COL_ARGUMENT + " 1 " + COL_ENUMERATION,
+                    "Command argument 1 enumeration",
+                    InputDataType.ENUMERATION,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false),
+        ARG_MIN_1(TYPE_COMMAND,
+                  COL_ARGUMENT + " 1 " + COL_MINIMUM,
+                  "Command argument 1 minimum value",
+                  InputDataType.MINIMUM,
                   false,
-                  true,
-                  true),
-     COMMAND_CODE(TYPE_COMMAND,
-                  "Command Code",
-                  "Command code",
-                  InputDataType.COMMAND_CODE,
-                  true,
-                  true,
-                  true,
                   false,
-                  true,
-                  true),
-     DESCRIPTION_CMD(TYPE_COMMAND,
-                     COL_DESCRIPTION,
-                     "Command description",
-                     InputDataType.DESCRIPTION,
-                     false,
-                     false,
-                     false,
-                     false,
-                     true,
-                     true),
-     ARG_NAME_1(TYPE_COMMAND,
-                COL_ARGUMENT + " 1 Name",
-                "Command argument 1 name",
-                InputDataType.ARGUMENT_NAME,
-                false,
-                false,
-                false,
-                false,
-                true,
-                false),
-     ARG_DESCRIPTION_1(TYPE_COMMAND,
-                       COL_ARGUMENT + " 1 " + COL_DESCRIPTION,
-                       "Command argument 1 description",
-                       InputDataType.TEXT,
-                       false,
-                       false,
-                       false,
-                       false,
-                       true,
-                       false),
-     ARG_UNITS_1(TYPE_COMMAND,
-                 COL_ARGUMENT + " 1 " + COL_UNITS,
-                 "Command argument 1 units",
-                 InputDataType.TEXT,
-                 false,
-                 false,
-                 false,
-                 false,
-                 true,
-                 false),
-     ARG_TYPE_1(TYPE_COMMAND,
-                COL_ARGUMENT + " 1 " + COL_DATA_TYPE,
-                "Command argument 1 data type",
-                InputDataType.PRIMITIVE,
-                false,
-                false,
-                false,
-                false,
-                true,
-                false),
-     ARG_ARRAY_SIZE_1(TYPE_COMMAND,
-                      COL_ARGUMENT + " 1 " + "Array Size",
-                      "Command argument 1 array size",
-                      InputDataType.ARRAY_INDEX,
-                      false,
-                      false,
-                      false,
-                      false,
-                      false,
-                      false),
-     ARG_ENUMS_1(TYPE_COMMAND,
-                 COL_ARGUMENT + " 1 " + COL_ENUMERATION,
-                 "Command argument 1 enumeration",
-                 InputDataType.ENUMERATION,
-                 false,
-                 false,
-                 false,
-                 false,
-                 false,
-                 false),
-     ARG_MIN_1(TYPE_COMMAND,
-               COL_ARGUMENT + " 1 " + COL_MINIMUM,
-               "Command argument 1 minimum value",
-               InputDataType.MINIMUM,
-               false,
-               false,
-               false,
-               false,
-               false,
-               false),
-     ARG_MAX_1(TYPE_COMMAND,
-               COL_ARGUMENT + " 1 " + COL_MAXIMUM,
-               "Command argument 1 maximum value",
-               InputDataType.MAXIMUM,
-               false,
-               false,
-               false,
-               false,
-               false,
-               false);
+                  false,
+                  false,
+                  false,
+                  false),
+        ARG_MAX_1(TYPE_COMMAND,
+                  COL_ARGUMENT + " 1 " + COL_MAXIMUM,
+                  "Command argument 1 maximum value",
+                  InputDataType.MAXIMUM,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false);
 
         private final String tableType;
         private final String columnName;
@@ -3136,208 +3145,208 @@ public class CcddConstants
      *************************************************************************/
     protected static enum InternalTable
     {
-     // Application scheduler
-     APP_SCHEDULER("app_scheduler",
-                   new String[][] {{AppSchedulerColumn.TIME_SLOT.columnName,
-                                    AppSchedulerColumn.TIME_SLOT.dataType},
-                                   {AppSchedulerColumn.APP_INFO.columnName,
-                                    AppSchedulerColumn.APP_INFO.dataType}},
-                   "WITH OIDS",
-                   "COMMENT ON TABLE "
-                                + INTERNAL_TABLE_PREFIX
-                                + "app_scheduler IS '1,10,10,128'"),
-
-     // Script & data table combinations
-     ASSOCIATIONS("associations",
-                  new String[][] {{AssociationsColumn.DESCRIPTION.columnName,
-                                   AssociationsColumn.DESCRIPTION.dataType},
-                                  {AssociationsColumn.SCRIPT_FILE.columnName,
-                                   AssociationsColumn.SCRIPT_FILE.dataType},
-                                  {AssociationsColumn.MEMBERS.columnName,
-                                   AssociationsColumn.MEMBERS.dataType}},
-                  "WITH OIDS",
-                  ""),
-
-     // Data types
-     DATA_TYPES("data_types",
-                new String[][] {{DataTypesColumn.USER_NAME.columnName,
-                                 DataTypesColumn.USER_NAME.dataType},
-                                {DataTypesColumn.C_NAME.columnName,
-                                 DataTypesColumn.C_NAME.dataType},
-                                {DataTypesColumn.SIZE.columnName,
-                                 DataTypesColumn.SIZE.dataType},
-                                {DataTypesColumn.BASE_TYPE.columnName,
-                                 DataTypesColumn.BASE_TYPE.dataType}},
-                "WITH OIDS",
-
-                // Create default data type definitions
-                "INSERT INTO "
-                             + INTERNAL_TABLE_PREFIX
-                             + "data_types VALUES "
-                             + DefaultPrimitiveTypeInfo.getDataTypeDefinitions()),
-
-     // Table data fields
-     FIELDS("fields",
-            new String[][] {{FieldsColumn.OWNER_NAME.columnName,
-                             FieldsColumn.OWNER_NAME.dataType},
-                            {FieldsColumn.FIELD_NAME.columnName,
-                             FieldsColumn.FIELD_NAME.dataType},
-                            {FieldsColumn.FIELD_DESC.columnName,
-                             FieldsColumn.FIELD_DESC.dataType},
-                            {FieldsColumn.FIELD_SIZE.columnName,
-                             FieldsColumn.FIELD_SIZE.dataType},
-                            {FieldsColumn.FIELD_TYPE.columnName,
-                             FieldsColumn.FIELD_TYPE.dataType},
-                            {FieldsColumn.FIELD_REQUIRED.columnName,
-                             FieldsColumn.FIELD_REQUIRED.dataType},
-                            {FieldsColumn.FIELD_APPLICABILITY.columnName,
-                             FieldsColumn.FIELD_APPLICABILITY.dataType},
-                            {FieldsColumn.FIELD_VALUE.columnName,
-                             FieldsColumn.FIELD_VALUE.dataType}},
-            "WITH OIDS",
-            ""),
-
-     // Data table groupings
-     GROUPS("groups",
-            new String[][] {{GroupsColumn.GROUP_NAME.columnName,
-                             GroupsColumn.GROUP_NAME.dataType},
-                            {GroupsColumn.MEMBERS.columnName,
-                             GroupsColumn.MEMBERS.dataType}},
-            "WITH OIDS",
-            ""),
-
-     // Variable links
-     LINKS("links",
-           new String[][] {{LinksColumn.RATE_NAME.columnName,
-                            LinksColumn.RATE_NAME.dataType},
-                           {LinksColumn.LINK_NAME.columnName,
-                            LinksColumn.LINK_NAME.dataType},
-                           {LinksColumn.MEMBER.columnName,
-                            LinksColumn.MEMBER.dataType}},
-           "WITH OIDS",
-           ""),
-
-     // Macro values
-     MACROS("macros",
-            new String[][] {{MacrosColumn.MACRO_NAME.columnName,
-                             MacrosColumn.MACRO_NAME.dataType},
-                            {MacrosColumn.VALUE.columnName,
-                             MacrosColumn.VALUE.dataType}},
-            "WITH OIDS",
-            ""),
-
-     // Table column orders
-     ORDERS("orders",
-            new String[][] {{OrdersColumn.USER_NAME.columnName,
-                             OrdersColumn.USER_NAME.dataType},
-                            {OrdersColumn.TABLE_PATH.columnName,
-                             OrdersColumn.TABLE_PATH.dataType},
-                            {OrdersColumn.COLUMN_ORDER.columnName,
-                             OrdersColumn.COLUMN_ORDER.dataType}},
-            "WITH OIDS",
-            ""),
-
-     // Reserved message IDs
-     RESERVED_MSG_IDS("reserved_msg_ids",
-                      new String[][] {{ReservedMsgIDsColumn.MSG_ID.columnName,
-                                       ReservedMsgIDsColumn.MSG_ID.dataType},
-                                      {ReservedMsgIDsColumn.DESCRIPTION.columnName,
-                                       ReservedMsgIDsColumn.DESCRIPTION.dataType}},
+        // Application scheduler
+        APP_SCHEDULER("app_scheduler",
+                      new String[][] { {AppSchedulerColumn.TIME_SLOT.columnName,
+                                        AppSchedulerColumn.TIME_SLOT.dataType},
+                                      {AppSchedulerColumn.APP_INFO.columnName,
+                                       AppSchedulerColumn.APP_INFO.dataType}},
                       "WITH OIDS",
-                      "INSERT INTO "
-                                   + INTERNAL_TABLE_PREFIX
-                                   + "reserved_msg_ids ("
-                                   + ReservedMsgIDsColumn.MSG_ID.columnName
-                                   + ", "
-                                   + ReservedMsgIDsColumn.DESCRIPTION.columnName
-                                   + ") VALUES ('0x0800 - 0x08FF', 'cFE telemetry IDs'), "
-                                   + "('0x1800 - 0x18FF', 'cFE command IDs')"),
+                      "COMMENT ON TABLE "
+                          + INTERNAL_TABLE_PREFIX
+                          + "app_scheduler IS '1,10,10,128'"),
 
-     // Script files
-     SCRIPT("script_",
-            new String[][] {{ScriptColumn.LINE_NUM.columnName,
-                             ScriptColumn.LINE_NUM.dataType},
-                            {ScriptColumn.LINE_TEXT.columnName,
-                             ScriptColumn.LINE_TEXT.dataType}},
-            "WITH OIDS",
-            ""),
+        // Script & data table combinations
+        ASSOCIATIONS("associations",
+                     new String[][] { {AssociationsColumn.DESCRIPTION.columnName,
+                                       AssociationsColumn.DESCRIPTION.dataType},
+                                     {AssociationsColumn.SCRIPT_FILE.columnName,
+                                      AssociationsColumn.SCRIPT_FILE.dataType},
+                                     {AssociationsColumn.MEMBERS.columnName,
+                                      AssociationsColumn.MEMBERS.dataType}},
+                     "WITH OIDS",
+                     ""),
 
-     // Data table types
-     TABLE_TYPES("table_types",
-                 new String[][] {{TableTypesColumn.TYPE_NAME.columnName,
-                                  TableTypesColumn.TYPE_NAME.dataType},
-                                 {TableTypesColumn.INDEX.columnName,
-                                  TableTypesColumn.INDEX.dataType},
-                                 {TableTypesColumn.COLUMN_NAME_DB.columnName,
-                                  TableTypesColumn.COLUMN_NAME_DB.dataType},
-                                 {TableTypesColumn.COLUMN_NAME_VISIBLE.columnName,
-                                  TableTypesColumn.COLUMN_NAME_VISIBLE.dataType},
-                                 {TableTypesColumn.COLUMN_DESCRIPTION.columnName,
-                                  TableTypesColumn.COLUMN_DESCRIPTION.dataType},
-                                 {TableTypesColumn.INPUT_TYPE.columnName,
-                                  TableTypesColumn.INPUT_TYPE.dataType},
-                                 {TableTypesColumn.ROW_VALUE_UNIQUE.columnName,
-                                  TableTypesColumn.ROW_VALUE_UNIQUE.dataType},
-                                 {TableTypesColumn.COLUMN_REQUIRED.columnName,
-                                  TableTypesColumn.COLUMN_REQUIRED.dataType},
-                                 {TableTypesColumn.STRUCTURE_ALLOWED.columnName,
-                                  TableTypesColumn.STRUCTURE_ALLOWED.dataType},
-                                 {TableTypesColumn.POINTER_ALLOWED.columnName,
-                                  TableTypesColumn.POINTER_ALLOWED.dataType}},
-                 "WITH OIDS",
-
-                 // Enforce that (type, index) must be unique
-                 "CREATE UNIQUE INDEX "
-                              + INTERNAL_TABLE_PREFIX
-                              + "table_types_idx ON "
-                              + INTERNAL_TABLE_PREFIX
-                              + "table_types (type, index); "
-
-                              // Create default table definition for the
-                              // telemetry
-                              // and command table types
-                              + "INSERT INTO "
-                              + INTERNAL_TABLE_PREFIX
-                              + "table_types VALUES "
-                              + DefaultColumn.getColumnDefinitions()),
-
-     // Telemetry scheduler
-     TLM_SCHEDULER("tlm_scheduler",
-                   new String[][] {{TlmSchedulerColumn.RATE_NAME.columnName,
-                                    TlmSchedulerColumn.RATE_NAME.dataType},
-                                   {TlmSchedulerColumn.MESSAGE_NAME.columnName,
-                                    TlmSchedulerColumn.MESSAGE_NAME.dataType},
-                                   {TlmSchedulerColumn.MESSAGE_ID.columnName,
-                                    TlmSchedulerColumn.MESSAGE_ID.dataType},
-                                   {TlmSchedulerColumn.MEMBER.columnName,
-                                    TlmSchedulerColumn.MEMBER.dataType}},
+        // Data types
+        DATA_TYPES("data_types",
+                   new String[][] { {DataTypesColumn.USER_NAME.columnName,
+                                     DataTypesColumn.USER_NAME.dataType},
+                                   {DataTypesColumn.C_NAME.columnName,
+                                    DataTypesColumn.C_NAME.dataType},
+                                   {DataTypesColumn.SIZE.columnName,
+                                    DataTypesColumn.SIZE.dataType},
+                                   {DataTypesColumn.BASE_TYPE.columnName,
+                                    DataTypesColumn.BASE_TYPE.dataType}},
                    "WITH OIDS",
-                   "COMMENT ON TABLE "
-                                + INTERNAL_TABLE_PREFIX
-                                + "tlm_scheduler IS '1,1,false,\""
-                                + DefaultColumn.RATE.getName()
-                                + "\",\""
-                                + DefaultColumn.RATE.getName()
-                                + "\",1,56000'"),
 
-     // Data table values for non-prototype tables
-     VALUES("values",
-            new String[][] {{ValuesColumn.TABLE_PATH.columnName,
-                             ValuesColumn.TABLE_PATH.dataType},
-                            {ValuesColumn.COLUMN_NAME.columnName,
-                             ValuesColumn.COLUMN_NAME.dataType},
-                            {ValuesColumn.VALUE.columnName,
-                             ValuesColumn.VALUE.dataType}},
-            "",
-            "");
+                   // Create default data type definitions
+                   "INSERT INTO "
+                       + INTERNAL_TABLE_PREFIX
+                       + "data_types VALUES "
+                       + DefaultPrimitiveTypeInfo.getDataTypeDefinitions()),
+
+        // Table data fields
+        FIELDS("fields",
+               new String[][] { {FieldsColumn.OWNER_NAME.columnName,
+                                 FieldsColumn.OWNER_NAME.dataType},
+                               {FieldsColumn.FIELD_NAME.columnName,
+                                FieldsColumn.FIELD_NAME.dataType},
+                               {FieldsColumn.FIELD_DESC.columnName,
+                                FieldsColumn.FIELD_DESC.dataType},
+                               {FieldsColumn.FIELD_SIZE.columnName,
+                                FieldsColumn.FIELD_SIZE.dataType},
+                               {FieldsColumn.FIELD_TYPE.columnName,
+                                FieldsColumn.FIELD_TYPE.dataType},
+                               {FieldsColumn.FIELD_REQUIRED.columnName,
+                                FieldsColumn.FIELD_REQUIRED.dataType},
+                               {FieldsColumn.FIELD_APPLICABILITY.columnName,
+                                FieldsColumn.FIELD_APPLICABILITY.dataType},
+                               {FieldsColumn.FIELD_VALUE.columnName,
+                                FieldsColumn.FIELD_VALUE.dataType}},
+               "WITH OIDS",
+               ""),
+
+        // Data table groupings
+        GROUPS("groups",
+               new String[][] { {GroupsColumn.GROUP_NAME.columnName,
+                                 GroupsColumn.GROUP_NAME.dataType},
+                               {GroupsColumn.MEMBERS.columnName,
+                                GroupsColumn.MEMBERS.dataType}},
+               "WITH OIDS",
+               ""),
+
+        // Variable links
+        LINKS("links",
+              new String[][] { {LinksColumn.RATE_NAME.columnName,
+                                LinksColumn.RATE_NAME.dataType},
+                              {LinksColumn.LINK_NAME.columnName,
+                               LinksColumn.LINK_NAME.dataType},
+                              {LinksColumn.MEMBER.columnName,
+                               LinksColumn.MEMBER.dataType}},
+              "WITH OIDS",
+              ""),
+
+        // Macro values
+        MACROS("macros",
+               new String[][] { {MacrosColumn.MACRO_NAME.columnName,
+                                 MacrosColumn.MACRO_NAME.dataType},
+                               {MacrosColumn.VALUE.columnName,
+                                MacrosColumn.VALUE.dataType}},
+               "WITH OIDS",
+               ""),
+
+        // Table column orders
+        ORDERS("orders",
+               new String[][] { {OrdersColumn.USER_NAME.columnName,
+                                 OrdersColumn.USER_NAME.dataType},
+                               {OrdersColumn.TABLE_PATH.columnName,
+                                OrdersColumn.TABLE_PATH.dataType},
+                               {OrdersColumn.COLUMN_ORDER.columnName,
+                                OrdersColumn.COLUMN_ORDER.dataType}},
+               "WITH OIDS",
+               ""),
+
+        // Reserved message IDs
+        RESERVED_MSG_IDS("reserved_msg_ids",
+                         new String[][] { {ReservedMsgIDsColumn.MSG_ID.columnName,
+                                           ReservedMsgIDsColumn.MSG_ID.dataType},
+                                         {ReservedMsgIDsColumn.DESCRIPTION.columnName,
+                                          ReservedMsgIDsColumn.DESCRIPTION.dataType}},
+                         "WITH OIDS",
+                         "INSERT INTO "
+                             + INTERNAL_TABLE_PREFIX
+                             + "reserved_msg_ids ("
+                             + ReservedMsgIDsColumn.MSG_ID.columnName
+                             + ", "
+                             + ReservedMsgIDsColumn.DESCRIPTION.columnName
+                             + ") VALUES ('0x0800 - 0x08FF', 'cFE telemetry IDs'), "
+                             + "('0x1800 - 0x18FF', 'cFE command IDs')"),
+
+        // Script files
+        SCRIPT("script_",
+               new String[][] { {ScriptColumn.LINE_NUM.columnName,
+                                 ScriptColumn.LINE_NUM.dataType},
+                               {ScriptColumn.LINE_TEXT.columnName,
+                                ScriptColumn.LINE_TEXT.dataType}},
+               "WITH OIDS",
+               ""),
+
+        // Data table types
+        TABLE_TYPES("table_types",
+                    new String[][] { {TableTypesColumn.TYPE_NAME.columnName,
+                                      TableTypesColumn.TYPE_NAME.dataType},
+                                    {TableTypesColumn.INDEX.columnName,
+                                     TableTypesColumn.INDEX.dataType},
+                                    {TableTypesColumn.COLUMN_NAME_DB.columnName,
+                                     TableTypesColumn.COLUMN_NAME_DB.dataType},
+                                    {TableTypesColumn.COLUMN_NAME_VISIBLE.columnName,
+                                     TableTypesColumn.COLUMN_NAME_VISIBLE.dataType},
+                                    {TableTypesColumn.COLUMN_DESCRIPTION.columnName,
+                                     TableTypesColumn.COLUMN_DESCRIPTION.dataType},
+                                    {TableTypesColumn.INPUT_TYPE.columnName,
+                                     TableTypesColumn.INPUT_TYPE.dataType},
+                                    {TableTypesColumn.ROW_VALUE_UNIQUE.columnName,
+                                     TableTypesColumn.ROW_VALUE_UNIQUE.dataType},
+                                    {TableTypesColumn.COLUMN_REQUIRED.columnName,
+                                     TableTypesColumn.COLUMN_REQUIRED.dataType},
+                                    {TableTypesColumn.STRUCTURE_ALLOWED.columnName,
+                                     TableTypesColumn.STRUCTURE_ALLOWED.dataType},
+                                    {TableTypesColumn.POINTER_ALLOWED.columnName,
+                                     TableTypesColumn.POINTER_ALLOWED.dataType}},
+                    "WITH OIDS",
+
+                    // Enforce that (type, index) must be unique
+                    "CREATE UNIQUE INDEX "
+                        + INTERNAL_TABLE_PREFIX
+                        + "table_types_idx ON "
+                        + INTERNAL_TABLE_PREFIX
+                        + "table_types (type, index); "
+
+                        // Create default table definition for the
+                        // telemetry
+                        // and command table types
+                        + "INSERT INTO "
+                        + INTERNAL_TABLE_PREFIX
+                        + "table_types VALUES "
+                        + DefaultColumn.getColumnDefinitions()),
+
+        // Telemetry scheduler
+        TLM_SCHEDULER("tlm_scheduler",
+                      new String[][] { {TlmSchedulerColumn.RATE_NAME.columnName,
+                                        TlmSchedulerColumn.RATE_NAME.dataType},
+                                      {TlmSchedulerColumn.MESSAGE_NAME.columnName,
+                                       TlmSchedulerColumn.MESSAGE_NAME.dataType},
+                                      {TlmSchedulerColumn.MESSAGE_ID.columnName,
+                                       TlmSchedulerColumn.MESSAGE_ID.dataType},
+                                      {TlmSchedulerColumn.MEMBER.columnName,
+                                       TlmSchedulerColumn.MEMBER.dataType}},
+                      "WITH OIDS",
+                      "COMMENT ON TABLE "
+                          + INTERNAL_TABLE_PREFIX
+                          + "tlm_scheduler IS '1,1,false,\""
+                          + DefaultColumn.RATE.getName()
+                          + "\",\""
+                          + DefaultColumn.RATE.getName()
+                          + "\",1,56000'"),
+
+        // Data table values for non-prototype tables
+        VALUES("values",
+               new String[][] { {ValuesColumn.TABLE_PATH.columnName,
+                                 ValuesColumn.TABLE_PATH.dataType},
+                               {ValuesColumn.COLUMN_NAME.columnName,
+                                ValuesColumn.COLUMN_NAME.dataType},
+                               {ValuesColumn.VALUE.columnName,
+                                ValuesColumn.VALUE.dataType}},
+               "",
+               "");
 
         /**********************************************************************
          * Application scheduler table columns
          *********************************************************************/
         protected static enum AppSchedulerColumn
         {
-         TIME_SLOT("time_slot", "text"),
-         APP_INFO("application_info", "text");
+            TIME_SLOT("time_slot", "text"),
+            APP_INFO("application_info", "text");
 
             private final String columnName;
             private final String dataType;
@@ -3373,9 +3382,9 @@ public class CcddConstants
          *********************************************************************/
         protected static enum AssociationsColumn
         {
-         DESCRIPTION("description", "text"),
-         SCRIPT_FILE("script_file", "text"),
-         MEMBERS("member_tables", "text");
+            DESCRIPTION("description", "text"),
+            SCRIPT_FILE("script_file", "text"),
+            MEMBERS("member_tables", "text");
 
             private final String columnName;
             private final String dataType;
@@ -3411,11 +3420,11 @@ public class CcddConstants
          *********************************************************************/
         protected static enum DataTypesColumn
         {
-         USER_NAME("user_name", "text"),
-         C_NAME("c_name", "text"),
-         SIZE("size", "integer"),
-         BASE_TYPE("base_type", "text"),
-         OID("index", "text");
+            USER_NAME("user_name", "text"),
+            C_NAME("c_name", "text"),
+            SIZE("size", "integer"),
+            BASE_TYPE("base_type", "text"),
+            OID("index", "text");
 
             private final String columnName;
             private final String dataType;
@@ -3451,14 +3460,14 @@ public class CcddConstants
          *********************************************************************/
         protected static enum FieldsColumn
         {
-         OWNER_NAME("owner_name", "text"),
-         FIELD_NAME("field_name", "text"),
-         FIELD_DESC("field_description", "text"),
-         FIELD_SIZE("field_size", "text"),
-         FIELD_TYPE("field_type", "text"),
-         FIELD_REQUIRED("field_required", "text"),
-         FIELD_APPLICABILITY("field_applicability", "text"),
-         FIELD_VALUE("field_value", "text");
+            OWNER_NAME("owner_name", "text"),
+            FIELD_NAME("field_name", "text"),
+            FIELD_DESC("field_description", "text"),
+            FIELD_SIZE("field_size", "text"),
+            FIELD_TYPE("field_type", "text"),
+            FIELD_REQUIRED("field_required", "text"),
+            FIELD_APPLICABILITY("field_applicability", "text"),
+            FIELD_VALUE("field_value", "text");
 
             private final String columnName;
             private final String dataType;
@@ -3494,8 +3503,8 @@ public class CcddConstants
          *********************************************************************/
         protected static enum GroupsColumn
         {
-         GROUP_NAME("group_name", "text"),
-         MEMBERS("member_tables", "text");
+            GROUP_NAME("group_name", "text"),
+            MEMBERS("member_tables", "text");
 
             private final String columnName;
             private final String dataType;
@@ -3531,9 +3540,9 @@ public class CcddConstants
          *********************************************************************/
         protected static enum LinksColumn
         {
-         RATE_NAME("rate_name", "text"),
-         LINK_NAME("link_name", "text"),
-         MEMBER("member_variables", "text");
+            RATE_NAME("rate_name", "text"),
+            LINK_NAME("link_name", "text"),
+            MEMBER("member_variables", "text");
 
             private final String columnName;
             private final String dataType;
@@ -3569,9 +3578,9 @@ public class CcddConstants
          *********************************************************************/
         protected static enum MacrosColumn
         {
-         MACRO_NAME("macro_name", "text"),
-         VALUE("value", "text"),
-         OID("index", "text");
+            MACRO_NAME("macro_name", "text"),
+            VALUE("value", "text"),
+            OID("index", "text");
 
             private final String columnName;
             private final String dataType;
@@ -3607,9 +3616,9 @@ public class CcddConstants
          *********************************************************************/
         protected static enum OrdersColumn
         {
-         USER_NAME("user_name", "text"),
-         TABLE_PATH("table_path", "text"),
-         COLUMN_ORDER("column_order", "text");
+            USER_NAME("user_name", "text"),
+            TABLE_PATH("table_path", "text"),
+            COLUMN_ORDER("column_order", "text");
 
             private final String columnName;
             private final String dataType;
@@ -3645,9 +3654,9 @@ public class CcddConstants
          *********************************************************************/
         protected static enum ReservedMsgIDsColumn
         {
-         MSG_ID("msg_id", "text"),
-         DESCRIPTION("description", "text"),
-         OID("index", "text");
+            MSG_ID("msg_id", "text"),
+            DESCRIPTION("description", "text"),
+            OID("index", "text");
 
             private final String columnName;
             private final String dataType;
@@ -3683,8 +3692,8 @@ public class CcddConstants
          *********************************************************************/
         protected static enum ScriptColumn
         {
-         LINE_NUM("line_number", "text"),
-         LINE_TEXT("line_text", "text");
+            LINE_NUM("line_number", "text"),
+            LINE_TEXT("line_text", "text");
 
             private final String columnName;
             private final String dataType;
@@ -3710,16 +3719,16 @@ public class CcddConstants
          *********************************************************************/
         protected static enum TableTypesColumn
         {
-         TYPE_NAME("type", "text"),
-         INDEX("index", "integer CHECK (index >= 0)"),
-         COLUMN_NAME_DB("column_name", "text"),
-         COLUMN_NAME_VISIBLE("column_name_user", "text"),
-         COLUMN_DESCRIPTION("column_description", "text"),
-         INPUT_TYPE("input_type", "text"),
-         ROW_VALUE_UNIQUE("row_value_unique", "boolean"),
-         COLUMN_REQUIRED("column_required", "boolean"),
-         STRUCTURE_ALLOWED("allow_structure", "boolean"),
-         POINTER_ALLOWED("allow_pointer", "boolean");
+            TYPE_NAME("type", "text"),
+            INDEX("index", "integer CHECK (index >= 0)"),
+            COLUMN_NAME_DB("column_name", "text"),
+            COLUMN_NAME_VISIBLE("column_name_user", "text"),
+            COLUMN_DESCRIPTION("column_description", "text"),
+            INPUT_TYPE("input_type", "text"),
+            ROW_VALUE_UNIQUE("row_value_unique", "boolean"),
+            COLUMN_REQUIRED("column_required", "boolean"),
+            STRUCTURE_ALLOWED("allow_structure", "boolean"),
+            POINTER_ALLOWED("allow_pointer", "boolean");
 
             private final String columnName;
             private final String dataType;
@@ -3755,10 +3764,10 @@ public class CcddConstants
          *********************************************************************/
         protected static enum TlmSchedulerColumn
         {
-         RATE_NAME("rate_name", "text"),
-         MESSAGE_NAME("message_name", "text"),
-         MESSAGE_ID("message_id", "text"),
-         MEMBER("member_variable", "text");
+            RATE_NAME("rate_name", "text"),
+            MESSAGE_NAME("message_name", "text"),
+            MESSAGE_ID("message_id", "text"),
+            MEMBER("member_variable", "text");
 
             private final String columnName;
             private final String dataType;
@@ -3794,9 +3803,9 @@ public class CcddConstants
          *********************************************************************/
         protected static enum ValuesColumn
         {
-         TABLE_PATH("table_path", "text"),
-         COLUMN_NAME("column_name", "text"),
-         VALUE("value", "text");
+            TABLE_PATH("table_path", "text"),
+            COLUMN_NAME("column_name", "text"),
+            VALUE("value", "text");
 
             private final String columnName;
             private final String dataType;
@@ -3981,8 +3990,8 @@ public class CcddConstants
             return command
                    + (includeInitCmd
                       && !initCommand.isEmpty()
-                                                ? " " + initCommand + "; "
-                                                : " ");
+                                               ? " " + initCommand + "; "
+                                               : " ");
         }
     }
 
@@ -3991,29 +4000,29 @@ public class CcddConstants
      *************************************************************************/
     protected static enum TableTypeEditorColumnInfo
     {
-     INDEX("Column Index", "Column index", "", true),
-     NAME("Column Name", "Table column name", "", true),
-     DESCRIPTION("Description", "Table column description", "", false),
-     INPUT_TYPE("Input Type",
-                "Input type that can be entered in this column",
-                InputDataType.TEXT.getInputName(),
-                true),
-     UNIQUE("Unique",
-            "Select if each row value in this column must be unique",
-            false,
-            false),
-     REQUIRED("Required",
-              "Select if a value is required in the column",
-              false,
-              false),
-     STRUCTURE_ALLOWED("<html><center><p style=\"font-size:8px\">Enable if<br>Structure",
-                       "Select if this column is allowed with structure data types",
-                       false,
-                       false),
-     POINTER_ALLOWED("<html><center><p style=\"font-size:8px\">Enable if<br>Pointer",
-                     "Select if this column is allowed with pointer data types",
-                     false,
-                     false);
+        INDEX("Column Index", "Column index", "", true),
+        NAME("Column Name", "Table column name", "", true),
+        DESCRIPTION("Description", "Table column description", "", false),
+        INPUT_TYPE("Input Type",
+                   "Input type that can be entered in this column",
+                   InputDataType.TEXT.getInputName(),
+                   true),
+        UNIQUE("Unique",
+               "Select if each row value in this column must be unique",
+               false,
+               false),
+        REQUIRED("Required",
+                 "Select if a value is required in the column",
+                 false,
+                 false),
+        STRUCTURE_ALLOWED("<html><center><p style=\"font-size:8px\">Enable if<br>Structure",
+                          "Select if this column is allowed with structure data types",
+                          false,
+                          false),
+        POINTER_ALLOWED("<html><center><p style=\"font-size:8px\">Enable if<br>Pointer",
+                        "Select if this column is allowed with pointer data types",
+                        false,
+                        false);
 
         private final String columnName;
         private final String toolTip;
@@ -4135,9 +4144,9 @@ public class CcddConstants
      *************************************************************************/
     protected static enum SchedulerColumn
     {
-     NAME("<html><center>Message<br>Name", "Time Slot", "Column A"),
-     SIZE("<html><center>Free<br>Bytes", "Time (msec)", "Column B"),
-     ID("<html><center>Common<br>ID", "", "Column C");
+        NAME("<html><center>Message<br>Name", "Time Slot", "Column A"),
+        SIZE("<html><center>Free<br>Bytes", "Time (msec)", "Column B"),
+        ID("<html><center>Common<br>ID", "", "Column C");
 
         private final String tlmColumn;
         private final String appColumn;
@@ -4198,76 +4207,76 @@ public class CcddConstants
      *************************************************************************/
     protected static enum DefaultApplicationField
     {
-     SCHEDULE_RATE("Schedule Rate",
-                   "Application execution rate, cycles/second",
-                   7,
-                   InputDataType.INT_POSITIVE,
-                   true,
-                   ApplicabilityType.ALL,
-                   "1"),
-     EXECUTION_TIME("Execution Time",
-                    "Estimated time for this application to execute",
-                    7,
-                    InputDataType.INT_POSITIVE,
-                    true,
-                    ApplicabilityType.ALL,
-                    "1"),
-     PRIORITY("Execution Priority",
-              "Application execution priority",
-              3,
-              InputDataType.INT_POSITIVE,
-              true,
-              ApplicabilityType.ALL,
-              "1"),
-     MESSAGE_RATE("Message rate",
-                  "Application message rate, samples/second",
-                  7,
-                  InputDataType.INT_POSITIVE,
-                  true,
-                  ApplicabilityType.ALL,
-                  "1"),
-     WAKE_UP_NAME("Wake-Up Name",
-                  "Application wake-up name",
-                  10,
-                  InputDataType.ALPHANUMERIC,
-                  true,
-                  ApplicabilityType.ALL,
-                  ""),
-     WAKE_UP_ID("Wake-Up ID",
-                "Application wake-up ID",
-                7,
-                InputDataType.HEXADECIMAL,
-                true,
-                ApplicabilityType.ALL,
-                "0x0"),
-     HK_SEND_RATE("HK_Send Rate",
-                  "Application housekeeping send rate",
-                  7,
-                  InputDataType.INT_POSITIVE,
-                  true,
-                  ApplicabilityType.ALL,
-                  "1"),
-     HK_WAKE_UP_NAME("HK Wake-Up Name",
-                     "Application housekeeping wake-up name",
+        SCHEDULE_RATE("Schedule Rate",
+                      "Application execution rate, cycles/second",
+                      7,
+                      InputDataType.INT_POSITIVE,
+                      true,
+                      ApplicabilityType.ALL,
+                      "1"),
+        EXECUTION_TIME("Execution Time",
+                       "Estimated time for this application to execute",
+                       7,
+                       InputDataType.INT_POSITIVE,
+                       true,
+                       ApplicabilityType.ALL,
+                       "1"),
+        PRIORITY("Execution Priority",
+                 "Application execution priority",
+                 3,
+                 InputDataType.INT_POSITIVE,
+                 true,
+                 ApplicabilityType.ALL,
+                 "1"),
+        MESSAGE_RATE("Message rate",
+                     "Application message rate, samples/second",
+                     7,
+                     InputDataType.INT_POSITIVE,
+                     true,
+                     ApplicabilityType.ALL,
+                     "1"),
+        WAKE_UP_NAME("Wake-Up Name",
+                     "Application wake-up name",
                      10,
                      InputDataType.ALPHANUMERIC,
                      true,
                      ApplicabilityType.ALL,
                      ""),
-     HK_WAKE_UP_ID("HK Wake-Up ID",
-                   "Application housekeeping wake-up ID",
+        WAKE_UP_ID("Wake-Up ID",
+                   "Application wake-up ID",
                    7,
-                   InputDataType.HEXADECIMAL,
+                   InputDataType.HEXADECIMAL_NON_ZERO,
                    true,
                    ApplicabilityType.ALL,
                    "0x0"),
-     SCH_GROUP("SCH Group",
-               "Application Schedule group",
-               10,
-               InputDataType.ALPHANUMERIC,
-               true,
-               ApplicabilityType.ALL,
-               "");
+        HK_SEND_RATE("HK_Send Rate",
+                     "Application housekeeping send rate",
+                     7,
+                     InputDataType.INT_POSITIVE,
+                     true,
+                     ApplicabilityType.ALL,
+                     "1"),
+        HK_WAKE_UP_NAME("HK Wake-Up Name",
+                        "Application housekeeping wake-up name",
+                        10,
+                        InputDataType.ALPHANUMERIC,
+                        true,
+                        ApplicabilityType.ALL,
+                        ""),
+        HK_WAKE_UP_ID("HK Wake-Up ID",
+                      "Application housekeeping wake-up ID",
+                      7,
+                      InputDataType.HEXADECIMAL_NON_ZERO,
+                      true,
+                      ApplicabilityType.ALL,
+                      "0x0"),
+        SCH_GROUP("SCH Group",
+                  "Application Schedule group",
+                  10,
+                  InputDataType.ALPHANUMERIC,
+                  true,
+                  ApplicabilityType.ALL,
+                  "");
 
         private final String fieldName;
         private final String description;
@@ -4364,9 +4373,9 @@ public class CcddConstants
      *************************************************************************/
     protected static enum MacroEditorColumnInfo
     {
-     NAME("Macro Name", "Macro name", "", true),
-     VALUE("Value", "Macro value", "", false),
-     OID("OID", "Macro index", "", false);
+        NAME("Macro Name", "Macro name", "", true),
+        VALUE("Value", "Macro value", "", false),
+        OID("OID", "Macro index", "", false);
 
         private final String columnName;
         private final String toolTip;
@@ -4489,11 +4498,11 @@ public class CcddConstants
      *************************************************************************/
     protected static enum DataTypeEditorColumnInfo
     {
-     USER_NAME("Type Name", "User-defined data type name", "", false),
-     C_NAME("C Name", "C-language data type name", "", false),
-     SIZE("Size", "Data type size in bytes", "", true),
-     BASE_TYPE("Base Type", "Base data type", "", true),
-     OID("OID", "Data type index", "", false);
+        USER_NAME("Type Name", "User-defined data type name", "", false),
+        C_NAME("C Name", "C-language data type name", "", false),
+        SIZE("Size", "Data type size in bytes", "", true),
+        BASE_TYPE("Base Type", "Base data type", "", true),
+        OID("OID", "Data type index", "", false);
 
         private final String columnName;
         private final String toolTip;
@@ -4616,19 +4625,19 @@ public class CcddConstants
      *************************************************************************/
     protected static enum FieldEditorColumnInfo
     {
-     NAME("Field Name", "Data field name", "", true),
-     DESCRIPTION("Description", "Data field description", "", false),
-     SIZE("Size", "Data field size (characters)", "", true),
-     INPUT_TYPE("Input Type", "Data field input data type", "Text", true),
-     REQUIRED("Required",
-              "Select if a value is required in the column",
-              false,
-              false),
-     APPLICABILITY("Applicability",
-                   "Add field to all tables, parent tables only, or child tables only",
-                   ApplicabilityType.ALL,
-                   true),
-     VALUE("Value", "", "", false);
+        NAME("Field Name", "Data field name", "", true),
+        DESCRIPTION("Description", "Data field description", "", false),
+        SIZE("Size", "Data field size (characters)", "", true),
+        INPUT_TYPE("Input Type", "Data field input data type", "Text", true),
+        REQUIRED("Required",
+                 "Select if a value is required in the column",
+                 false,
+                 false),
+        APPLICABILITY("Applicability",
+                      "Add field to all tables, parent tables only, or child tables only",
+                      ApplicabilityType.ALL,
+                      true),
+        VALUE("Value", "", "", false);
 
         private final String columnName;
         private final String toolTip;
@@ -4751,8 +4760,8 @@ public class CcddConstants
      *************************************************************************/
     protected static enum FieldTableEditorColumnInfo
     {
-     OWNER("Field Owner", "Data field owner (table or group name)"),
-     PATH("Structure Path", "Structure table path");
+        OWNER("Field Owner", "Data field owner (table or group name)"),
+        PATH("Structure Path", "Structure table path");
 
         private final String columnName;
         private final String toolTip;
@@ -4798,9 +4807,9 @@ public class CcddConstants
      *************************************************************************/
     protected static enum ReservedMsgIDEditorColumnInfo
     {
-     MSG_ID("Message ID(s)", "Message ID or range of IDs", "", true),
-     DESCRIPTION("Description", "Description", "", false),
-     OID("OID", "Reserved message ID index", "", false);
+        MSG_ID("Message ID(s)", "Message ID or range of IDs", "", true),
+        DESCRIPTION("Description", "Description", "", false),
+        OID("OID", "Reserved message ID index", "", false);
 
         private final String columnName;
         private final String toolTip;
@@ -4925,10 +4934,10 @@ public class CcddConstants
      *************************************************************************/
     protected static enum AssociationsTableColumnInfo
     {
-     DESCRIPTION("Description", "Script association description"),
-     SCRIPT_FILE("Script File", "Script file name"),
-     MEMBERS("Table(s)", "Table(s) associated with the script file"),
-     AVAILABLE("Available", "Indicates if the association is available (true or false)");
+        DESCRIPTION("Description", "Script association description"),
+        SCRIPT_FILE("Script File", "Script file name"),
+        MEMBERS("Table(s)", "Table(s) associated with the script file"),
+        AVAILABLE("Available", "Indicates if the association is available (true or false)");
 
         private final String columnName;
         private final String toolTip;
@@ -5019,24 +5028,24 @@ public class CcddConstants
      *************************************************************************/
     protected static enum SearchResultsColumnInfo
     {
-     TARGET("Table / Object",
-            "Name of the table or data object containing the search text",
-            "Script",
-            "Name of the script containing the search text",
-            "Log Index",
-            "Event log entry index containing the search text"),
-     LOCATION("Location",
-              "Location containing the search text",
-              "Line Number",
-              "Line number in the script containing the search text",
-              "Column Name",
-              "Column name in the script containing the search text"),
-     CONTEXT("Context",
-             "Search text context",
-             "Context",
-             "Search text context",
-             "Context",
-             "Search text context");
+        TARGET("Table / Object",
+               "Name of the table or data object containing the search text",
+               "Script",
+               "Name of the script containing the search text",
+               "Log Index",
+               "Event log entry index containing the search text"),
+        LOCATION("Location",
+                 "Location containing the search text",
+                 "Line Number",
+                 "Line number in the script containing the search text",
+                 "Column Name",
+                 "Column name in the script containing the search text"),
+        CONTEXT("Context",
+                "Search text context",
+                "Context",
+                "Search text context",
+                "Context",
+                "Search text context");
 
         private final String tableColumnName;
         private final String tableToolTip;
@@ -5229,8 +5238,8 @@ public class CcddConstants
      *************************************************************************/
     protected static enum DuplicateMsgIDColumnInfo
     {
-     OWNERS("Owners", "Message ID owners (tables and telemetry messages)"),
-     MESSAGE_ID("Message ID", "Message ID");
+        OWNERS("Owners", "Message ID owners (tables and telemetry messages)"),
+        MESSAGE_ID("Message ID", "Message ID");
 
         private final String columnName;
         private final String toolTip;
@@ -5320,10 +5329,10 @@ public class CcddConstants
      *************************************************************************/
     protected static enum LinkCopyErrorColumnInfo
     {
-     LINK("Link", "Name of link that failed to copy"),
-     MEMBER("Member", "Variable that failed to copy"),
-     STREAM("Target Stream", "Name of the target data stream"),
-     CAUSE("Error Cause", "Description of the error");
+        LINK("Link", "Name of link that failed to copy"),
+        MEMBER("Member", "Variable that failed to copy"),
+        STREAM("Target Stream", "Name of the target data stream"),
+        CAUSE("Error Cause", "Description of the error");
 
         private final String columnName;
         private final String toolTip;
@@ -5412,9 +5421,9 @@ public class CcddConstants
      *************************************************************************/
     protected static enum VerificationColumnInfo
     {
-     FIX("Action", "Action to perform concerning the issue"),
-     ISSUE("Issue", "Details on the issue detected in the project database"),
-     ACTION("Corrective Action", "Action to be taken to correct the issue");
+        FIX("Action", "Action to perform concerning the issue"),
+        ISSUE("Issue", "Details on the issue detected in the project database"),
+        ACTION("Corrective Action", "Action to be taken to correct the issue");
 
         private final String columnName;
         private final String toolTip;
@@ -5504,8 +5513,8 @@ public class CcddConstants
      *************************************************************************/
     protected static enum TableCommentIndex
     {
-     NAME,
-     TYPE;
+        NAME,
+        TYPE;
 
         /**********************************************************************
          * Build the comment by arranging the comment parameters in the correct
@@ -5552,13 +5561,13 @@ public class CcddConstants
      *************************************************************************/
     protected static enum CopyTableEntry
     {
-     INPUT_MSG_ID("Input Message ID"),
-     INPUT_OFFSET("Input Offset"),
-     OUTPUT_MSG_ID("Output Message ID"),
-     OUTPUT_OFFSET("Output Offset"),
-     VARIABLE_BYTES("Number of Bytes"),
-     VARIABLE_ROOT("Root Table"),
-     VARIABLE_NAME("Variable Path");
+        INPUT_MSG_ID("Input Message ID"),
+        INPUT_OFFSET("Input Offset"),
+        OUTPUT_MSG_ID("Output Message ID"),
+        OUTPUT_OFFSET("Output Offset"),
+        VARIABLE_BYTES("Number of Bytes"),
+        VARIABLE_ROOT("Root Table"),
+        VARIABLE_NAME("Variable Path");
 
         private final String columnName;
 
@@ -5589,39 +5598,39 @@ public class CcddConstants
      *************************************************************************/
     protected static enum JSONTags
     {
-     FILE_DESCRIPTION("File Description"),
-     DATA_TYPE_DEFN("Data Type Definition"),
-     TABLE_TYPE_DEFN("Table Type Definition"),
-     TABLE_TYPE_NAME("Table Type Name"),
-     TABLE_TYPE_DESCRIPTION("Table Type Description"),
-     TABLE_TYPE_COLUMN("Table Type Column"),
-     TABLE_TYPE_FIELD("Table Type Data Field"),
-     MACRO_DEFN("Macro Definition"),
-     RESERVED_MSG_ID_DEFN("Reserved Message ID Definition"),
-     VARIABLE_PATH("Variable Path"),
-     TABLE_DEFN("Table Definition"),
-     TABLE_NAMES("Table Names"),
-     TABLE_NAME("Table Name"),
-     TABLE_TYPE("Table Type"),
-     TABLE_DESCRIPTION("Table Description"),
-     TABLE_DATA("Table Data"),
-     TABLE_SYSTEM("System Name"),
-     TABLE_FIELD("Data Field"),
-     TABLE_BYTE_SIZE("Byte Size"),
-     GROUP_NAMES("Group Names"),
-     GROUP_NAME("Group Name"),
-     GROUP_DESCRIPTION("Group Description"),
-     GROUP_FIELD("Group Data Field"),
-     GROUP_TABLE("Group Table"),
-     APPLICATION_NAMES("Application Names"),
-     APPLICATION_NAME("Application Name"),
-     APPLICATION_DESCRIPTION("Application Description"),
-     APPLICATION_FIELD("Application Data Field"),
-     APPLICATION_TABLE("Application Table"),
-     COPY_TABLE_STREAM("Stream Name"),
-     COPY_TABLE_HDR_SIZE("Header Size"),
-     COPY_TABLE_OPTIMIZE("Optimized"),
-     COPY_TABLE_DATA("Copy Table");
+        FILE_DESCRIPTION("File Description"),
+        DATA_TYPE_DEFN("Data Type Definition"),
+        TABLE_TYPE_DEFN("Table Type Definition"),
+        TABLE_TYPE_NAME("Table Type Name"),
+        TABLE_TYPE_DESCRIPTION("Table Type Description"),
+        TABLE_TYPE_COLUMN("Table Type Column"),
+        TABLE_TYPE_FIELD("Table Type Data Field"),
+        MACRO_DEFN("Macro Definition"),
+        RESERVED_MSG_ID_DEFN("Reserved Message ID Definition"),
+        VARIABLE_PATH("Variable Path"),
+        TABLE_DEFN("Table Definition"),
+        TABLE_NAMES("Table Names"),
+        TABLE_NAME("Table Name"),
+        TABLE_TYPE("Table Type"),
+        TABLE_DESCRIPTION("Table Description"),
+        TABLE_DATA("Table Data"),
+        TABLE_SYSTEM("System Name"),
+        TABLE_FIELD("Data Field"),
+        TABLE_BYTE_SIZE("Byte Size"),
+        GROUP_NAMES("Group Names"),
+        GROUP_NAME("Group Name"),
+        GROUP_DESCRIPTION("Group Description"),
+        GROUP_FIELD("Group Data Field"),
+        GROUP_TABLE("Group Table"),
+        APPLICATION_NAMES("Application Names"),
+        APPLICATION_NAME("Application Name"),
+        APPLICATION_DESCRIPTION("Application Description"),
+        APPLICATION_FIELD("Application Data Field"),
+        APPLICATION_TABLE("Application Table"),
+        COPY_TABLE_STREAM("Stream Name"),
+        COPY_TABLE_HDR_SIZE("Header Size"),
+        COPY_TABLE_OPTIMIZE("Optimized"),
+        COPY_TABLE_DATA("Copy Table");
 
         private final String tag;
 
@@ -5652,211 +5661,211 @@ public class CcddConstants
      *************************************************************************/
     protected static enum DatabaseListCommand
     {
-     // Get the list of data tables only, extracted from the table comments
-     // to retain their original capitalization, sorted alphabetically
-     DATA_TABLES("SELECT name FROM (SELECT split_part(obj_description, ',', "
-                 + (TableCommentIndex.NAME.ordinal() + 1)
-                 + ") AS name FROM (SELECT obj_description(oid) "
-                 + "FROM pg_class WHERE substr(relname, 1, "
-                 + INTERNAL_TABLE_PREFIX.length()
-                 + ") != '"
-                 + INTERNAL_TABLE_PREFIX
-                 + "' AND relkind = 'r' "
-                 + "AND obj_description(oid) != '') AS alias1) AS alias2 "
-                 + "ORDER BY name ASC;"),
-
-     // Get the list containing the user-viewable table name, database table
-     // name, and table type for all data tables, sorted alphabetically
-     DATA_TABLES_WITH_TYPE("SELECT name || E',' || relname || E',' || type FROM "
-                           + "(SELECT split_part(obj_description, ',', 1) AS name, "
-                           + "lower(split_part(obj_description, ',', 2)) AS type,"
-                           + " relname FROM (SELECT obj_description(oid), relname"
-                           + " FROM pg_class WHERE substr(relname, 1, "
-                           + INTERNAL_TABLE_PREFIX.length()
-                           + ") != '"
-                           + INTERNAL_TABLE_PREFIX
-                           + "' AND relkind = 'r' AND obj_description(oid) != '') "
-                           + "AS alias1) AS alias2 ORDER BY name ASC;"),
-
-     // Get the list of all tables (data and information), sorted
-     // alphabetically
-     ALL_TABLES("SELECT tablename FROM pg_tables "
-                + "WHERE schemaname = 'public' ORDER BY tablename ASC;"),
-
-     // Check if a specific table exists in the database (case insensitive)
-     SPECIFIC_TABLE("SELECT 1 FROM pg_tables WHERE tablename ~* E'^_table_name_$';"),
-
-     // Get the list of CCDD databases (in the form 'database name,lock
-     // status,visible name,description'), sorted alphabetically
-     DATABASES("SELECT datname || E'"
-               + DATABASE_COMMENT_SEPARATOR
-               + "' || split_part(description, '"
-               + DATABASE_COMMENT_SEPARATOR
-               + "', 2) || E'"
-               + DATABASE_COMMENT_SEPARATOR
-               + "' || split_part(split_part(description, '"
-               + DATABASE_COMMENT_SEPARATOR
-               + "', 1), '"
-               + CCDD_PROJECT_IDENTIFIER
-               + "', 2) || E'"
-               + DATABASE_COMMENT_SEPARATOR
-               + "' || substr(description, length(datName || '"
-               + CCDD_PROJECT_IDENTIFIER
-               + "') + 4) AS lock_name_desc FROM pg_database d LEFT JOIN "
-               + "pg_shdescription ON pg_shdescription.objoid = d.oid "
-               + "WHERE d.datistemplate = false AND description LIKE '"
-               + CCDD_PROJECT_IDENTIFIER
-               + "%' ORDER BY datname ASC;"),
-
-     // Get the list of CCDD databases (in the form 'database name,lock
-     // status,visible name,description'), sorted alphabetically, for which
-     // the user has access. '_user_' must be replaced by the user name
-     DATABASES_BY_USER("SELECT datname || E'"
-                       + DATABASE_COMMENT_SEPARATOR
-                       + "' || split_part(description, '"
-                       + DATABASE_COMMENT_SEPARATOR
-                       + "', 2) || E'"
-                       + DATABASE_COMMENT_SEPARATOR
-                       + "' || split_part(split_part(description, '"
-                       + DATABASE_COMMENT_SEPARATOR
-                       + "', 1), '"
-                       + CCDD_PROJECT_IDENTIFIER
-                       + "', 2) || E'"
-                       + DATABASE_COMMENT_SEPARATOR
-                       + "' || substr(description, length(datName || '"
-                       + CCDD_PROJECT_IDENTIFIER
-                       + "') + 4) AS lock_name_desc FROM pg_database d LEFT JOIN "
-                       + "pg_shdescription ON pg_shdescription.objoid = d.oid "
-                       + "WHERE d.datistemplate = false AND description LIKE '"
-                       + CCDD_PROJECT_IDENTIFIER
-                       + "%' AND pg_has_role('_user_', pg_catalog.pg_get_userbyid("
-                       + "d.datdba), 'member') = 't' ORDER BY datname ASC;"),
-
-     // Get the list of active database connections by user. The database
-     // and user names are concatenated (separated by a comma) in order to
-     // use the getList method
-     ACTIVE_BY_USER("select distinct datname || ',' || usename "
-                    + "AS names from pg_stat_activity ORDER BY names ASC;"),
-
-     // Get the list of users, sorted alphabetically
-     USERS("SELECT u.usename FROM pg_catalog.pg_user u ORDER BY u.usename ASC;"),
-
-     // Get the list of roles, sorted alphabetically
-     ROLES("SELECT r.rolname FROM pg_catalog.pg_roles r ORDER BY r.rolname ASC;"),
-
-     // Get the owner of the specified database
-     DATABASE_OWNER("SELECT pg_catalog.pg_get_userbyid(d.datdba) AS owner "
-                    + "FROM pg_catalog.pg_database d "
-                    + "WHERE d.datname = '__';"),
-
-     // Get the list of PostgreSQL keywords
-     KEYWORDS("SELECT * FROM pg_get_keywords()"),
-
-     // Get the list of tables of type '_type_', sorted alphabetically.
-     // '_type_' must be replaced by the type of table for which to search.
-     // _type_ is case insensitive
-     TABLES_OF_TYPE("SELECT name FROM (SELECT split_part(obj_description, ',', "
+        // Get the list of data tables only, extracted from the table comments
+        // to retain their original capitalization, sorted alphabetically
+        DATA_TABLES("SELECT name FROM (SELECT split_part(obj_description, ',', "
                     + (TableCommentIndex.NAME.ordinal() + 1)
-                    + ") AS name, lower(split_part(obj_description, ',', "
-                    + (TableCommentIndex.TYPE.ordinal() + 1)
-                    + ")) AS type FROM (SELECT obj_description(oid) FROM pg_class "
-                    + "WHERE relkind = 'r' AND obj_description(oid) != '') alias1) "
-                    + "alias2 WHERE type = '_type_' ORDER BY name ASC;"),
-
-     // Get the list of table types, sorted alphabetically
-     TABLE_TYPES("SELECT DISTINCT "
-                 + TableTypesColumn.TYPE_NAME.getColumnName()
-                 + " FROM "
-                 + InternalTable.TABLE_TYPES.getTableName()
-                 + " ORDER BY "
-                 + TableTypesColumn.TYPE_NAME.getColumnName()
-                 + ";"),
-
-     // TODO THIS DISPLAYS A TYPE ONLY IF A TABLE OF THAT TYPE EXISTS
-     // Get the list of table types, sorted alphabetically
-     // TABLE_TYPES("SELECT DISTINCT type FROM (SELECT
-     // split_part(obj_description, ',', "
-     // + (TableCommentIndex.TYPE.ordinal() + 1)
-     // + ") as type FROM (SELECT obj_description(oid) FROM "
-     // + "pg_class WHERE relkind = 'r' AND obj_description(oid) != '' "
-     // + "AND substr(relname, 1, "
-     // + INTERNAL_TABLE_PREFIX.length()
-     // + ") != '"
-     // + INTERNAL_TABLE_PREFIX
-     // + "') alias1) alias2 ORDER BY type ASC;"),
-
-     // Get the list of table names, variable paths, and descriptions (only
-     // for those tables with descriptions), sorted alphabetically
-     TABLE_DESCRIPTIONS("SELECT "
-                        + ValuesColumn.TABLE_PATH.getColumnName()
-                        + " || E'"
-                        + Matcher.quoteReplacement(TABLE_DESCRIPTION_SEPARATOR)
-                        + "' || "
-                        + ValuesColumn.VALUE.getColumnName()
-                        + " AS description FROM "
-                        + InternalTable.VALUES.getTableName()
-                        + " WHERE "
-                        + ValuesColumn.COLUMN_NAME.getColumnName()
-                        + " = '' AND "
-                        + ValuesColumn.VALUE.getColumnName()
-                        + " != '' ORDER BY "
-                        + ValuesColumn.TABLE_PATH.getColumnName()
-                        + " ASC;"),
-
-     // Get the list of data tables and their comments, sorted
-     // alphabetically
-     TABLE_COMMENTS("SELECT description FROM (SELECT obj_description "
-                    + "AS description FROM (SELECT obj_description(oid) "
-                    + "FROM pg_class WHERE relkind = 'r' AND "
-                    + "obj_description(oid) != '' AND substr(relname, 1, "
+                    + ") AS name FROM (SELECT obj_description(oid) "
+                    + "FROM pg_class WHERE substr(relname, 1, "
                     + INTERNAL_TABLE_PREFIX.length()
                     + ") != '"
                     + INTERNAL_TABLE_PREFIX
-                    + "') alias1) alias2 ORDER BY description ASC;"),
+                    + "' AND relkind = 'r' "
+                    + "AND obj_description(oid) != '') AS alias1) AS alias2 "
+                    + "ORDER BY name ASC;"),
 
-     // Get the list of stored scripts, sorted alphabetically
-     SCRIPTS("SELECT script_name FROM (SELECT obj_description AS "
-             + "script_name FROM (SELECT obj_description(oid) FROM "
-             + "pg_class WHERE relkind = 'r' AND obj_description(oid) "
-             + "!= '' AND substr(relname, 1, "
-             + InternalTable.SCRIPT.getTableName().length()
-             + ") = '"
-             + InternalTable.SCRIPT.getTableName()
-             + "') alias1) alias2 ORDER BY script_name ASC;"),
+        // Get the list containing the user-viewable table name, database table
+        // name, and table type for all data tables, sorted alphabetically
+        DATA_TABLES_WITH_TYPE("SELECT name || E',' || relname || E',' || type FROM "
+                              + "(SELECT split_part(obj_description, ',', 1) AS name, "
+                              + "lower(split_part(obj_description, ',', 2)) AS type,"
+                              + " relname FROM (SELECT obj_description(oid), relname"
+                              + " FROM pg_class WHERE substr(relname, 1, "
+                              + INTERNAL_TABLE_PREFIX.length()
+                              + ") != '"
+                              + INTERNAL_TABLE_PREFIX
+                              + "' AND relkind = 'r' AND obj_description(oid) != '') "
+                              + "AS alias1) AS alias2 ORDER BY name ASC;"),
 
-     // Get the list of table and column names that contain the specified
-     // search text. '___' should be replaced by the text for which to
-     // search
-     SEARCH("SELECT table_name::text || E'"
-            + TABLE_DESCRIPTION_SEPARATOR
-            + "' || column_name || E'"
-            + TABLE_DESCRIPTION_SEPARATOR
-            + "' || table_description || E'"
-            + TABLE_DESCRIPTION_SEPARATOR
-            + "' || column_value AS search_result "
-            + "FROM search_tables(E'_search_text_', "
-            + "_case_insensitive_, _allow_regex_,"
-            + "'_selected_tables_', '{_columns_}') "
-            + "ORDER BY table_name, column_name ASC;"),
+        // Get the list of all tables (data and information), sorted
+        // alphabetically
+        ALL_TABLES("SELECT tablename FROM pg_tables "
+                   + "WHERE schemaname = 'public' ORDER BY tablename ASC;"),
 
-     // ////////////////////////////////////////////////////////////////////
-     // THE REMAINING COMMANDS ARE NOT USED BUT ARE RETAINED AS EXAMPLES
-     // ////////////////////////////////////////////////////////////////////
-     // Get the list of columns for a table, sorted alphabetically. '___'
-     // should be replaced by the table to search
-     TABLE_COLUMNS("SELECT column_name FROM information_schema.columns "
-                   + "WHERE table_name = '___' ORDER BY column_name ASC;"),
+        // Check if a specific table exists in the database (case insensitive)
+        SPECIFIC_TABLE("SELECT 1 FROM pg_tables WHERE tablename ~* E'^_table_name_$';"),
 
-     // Get the tables that are members of the specified table. '___' should
-     // be replaced by the table to search
-     TABLE_MEMBERS("SELECT DISTINCT ON (data_type) "
-                   + "CASE WHEN EXISTS "
-                   + "(SELECT 1 FROM pg_catalog.pg_attribute "
-                   + "WHERE attrelid = '___'::regclass "
-                   + "AND attname = 'data_type' "
-                   + "AND NOT attisdropped AND attnum > 0) "
-                   + "THEN data_type::text ELSE ''::text END "
-                   + "AS data_type FROM ___ AS data_type;");
+        // Get the list of CCDD databases (in the form 'database name,lock
+        // status,visible name,description'), sorted alphabetically
+        DATABASES("SELECT datname || E'"
+                  + DATABASE_COMMENT_SEPARATOR
+                  + "' || split_part(description, '"
+                  + DATABASE_COMMENT_SEPARATOR
+                  + "', 2) || E'"
+                  + DATABASE_COMMENT_SEPARATOR
+                  + "' || split_part(split_part(description, '"
+                  + DATABASE_COMMENT_SEPARATOR
+                  + "', 1), '"
+                  + CCDD_PROJECT_IDENTIFIER
+                  + "', 2) || E'"
+                  + DATABASE_COMMENT_SEPARATOR
+                  + "' || substr(description, length(datName || '"
+                  + CCDD_PROJECT_IDENTIFIER
+                  + "') + 4) AS lock_name_desc FROM pg_database d LEFT JOIN "
+                  + "pg_shdescription ON pg_shdescription.objoid = d.oid "
+                  + "WHERE d.datistemplate = false AND description LIKE '"
+                  + CCDD_PROJECT_IDENTIFIER
+                  + "%' ORDER BY datname ASC;"),
+
+        // Get the list of CCDD databases (in the form 'database name,lock
+        // status,visible name,description'), sorted alphabetically, for which
+        // the user has access. '_user_' must be replaced by the user name
+        DATABASES_BY_USER("SELECT datname || E'"
+                          + DATABASE_COMMENT_SEPARATOR
+                          + "' || split_part(description, '"
+                          + DATABASE_COMMENT_SEPARATOR
+                          + "', 2) || E'"
+                          + DATABASE_COMMENT_SEPARATOR
+                          + "' || split_part(split_part(description, '"
+                          + DATABASE_COMMENT_SEPARATOR
+                          + "', 1), '"
+                          + CCDD_PROJECT_IDENTIFIER
+                          + "', 2) || E'"
+                          + DATABASE_COMMENT_SEPARATOR
+                          + "' || substr(description, length(datName || '"
+                          + CCDD_PROJECT_IDENTIFIER
+                          + "') + 4) AS lock_name_desc FROM pg_database d LEFT JOIN "
+                          + "pg_shdescription ON pg_shdescription.objoid = d.oid "
+                          + "WHERE d.datistemplate = false AND description LIKE '"
+                          + CCDD_PROJECT_IDENTIFIER
+                          + "%' AND pg_has_role('_user_', pg_catalog.pg_get_userbyid("
+                          + "d.datdba), 'member') = 't' ORDER BY datname ASC;"),
+
+        // Get the list of active database connections by user. The database
+        // and user names are concatenated (separated by a comma) in order to
+        // use the getList method
+        ACTIVE_BY_USER("select distinct datname || ',' || usename "
+                       + "AS names from pg_stat_activity ORDER BY names ASC;"),
+
+        // Get the list of users, sorted alphabetically
+        USERS("SELECT u.usename FROM pg_catalog.pg_user u ORDER BY u.usename ASC;"),
+
+        // Get the list of roles, sorted alphabetically
+        ROLES("SELECT r.rolname FROM pg_catalog.pg_roles r ORDER BY r.rolname ASC;"),
+
+        // Get the owner of the specified database
+        DATABASE_OWNER("SELECT pg_catalog.pg_get_userbyid(d.datdba) AS owner "
+                       + "FROM pg_catalog.pg_database d "
+                       + "WHERE d.datname = '__';"),
+
+        // Get the list of PostgreSQL keywords
+        KEYWORDS("SELECT * FROM pg_get_keywords()"),
+
+        // Get the list of tables of type '_type_', sorted alphabetically.
+        // '_type_' must be replaced by the type of table for which to search.
+        // _type_ is case insensitive
+        TABLES_OF_TYPE("SELECT name FROM (SELECT split_part(obj_description, ',', "
+                       + (TableCommentIndex.NAME.ordinal() + 1)
+                       + ") AS name, lower(split_part(obj_description, ',', "
+                       + (TableCommentIndex.TYPE.ordinal() + 1)
+                       + ")) AS type FROM (SELECT obj_description(oid) FROM pg_class "
+                       + "WHERE relkind = 'r' AND obj_description(oid) != '') alias1) "
+                       + "alias2 WHERE type = '_type_' ORDER BY name ASC;"),
+
+        // Get the list of table types, sorted alphabetically
+        TABLE_TYPES("SELECT DISTINCT "
+                    + TableTypesColumn.TYPE_NAME.getColumnName()
+                    + " FROM "
+                    + InternalTable.TABLE_TYPES.getTableName()
+                    + " ORDER BY "
+                    + TableTypesColumn.TYPE_NAME.getColumnName()
+                    + ";"),
+
+        // TODO THIS DISPLAYS A TYPE ONLY IF A TABLE OF THAT TYPE EXISTS
+        // Get the list of table types, sorted alphabetically
+        // TABLE_TYPES("SELECT DISTINCT type FROM (SELECT
+        // split_part(obj_description, ',', "
+        // + (TableCommentIndex.TYPE.ordinal() + 1)
+        // + ") as type FROM (SELECT obj_description(oid) FROM "
+        // + "pg_class WHERE relkind = 'r' AND obj_description(oid) != '' "
+        // + "AND substr(relname, 1, "
+        // + INTERNAL_TABLE_PREFIX.length()
+        // + ") != '"
+        // + INTERNAL_TABLE_PREFIX
+        // + "') alias1) alias2 ORDER BY type ASC;"),
+
+        // Get the list of table names, variable paths, and descriptions (only
+        // for those tables with descriptions), sorted alphabetically
+        TABLE_DESCRIPTIONS("SELECT "
+                           + ValuesColumn.TABLE_PATH.getColumnName()
+                           + " || E'"
+                           + Matcher.quoteReplacement(TABLE_DESCRIPTION_SEPARATOR)
+                           + "' || "
+                           + ValuesColumn.VALUE.getColumnName()
+                           + " AS description FROM "
+                           + InternalTable.VALUES.getTableName()
+                           + " WHERE "
+                           + ValuesColumn.COLUMN_NAME.getColumnName()
+                           + " = '' AND "
+                           + ValuesColumn.VALUE.getColumnName()
+                           + " != '' ORDER BY "
+                           + ValuesColumn.TABLE_PATH.getColumnName()
+                           + " ASC;"),
+
+        // Get the list of data tables and their comments, sorted
+        // alphabetically
+        TABLE_COMMENTS("SELECT description FROM (SELECT obj_description "
+                       + "AS description FROM (SELECT obj_description(oid) "
+                       + "FROM pg_class WHERE relkind = 'r' AND "
+                       + "obj_description(oid) != '' AND substr(relname, 1, "
+                       + INTERNAL_TABLE_PREFIX.length()
+                       + ") != '"
+                       + INTERNAL_TABLE_PREFIX
+                       + "') alias1) alias2 ORDER BY description ASC;"),
+
+        // Get the list of stored scripts, sorted alphabetically
+        SCRIPTS("SELECT script_name FROM (SELECT obj_description AS "
+                + "script_name FROM (SELECT obj_description(oid) FROM "
+                + "pg_class WHERE relkind = 'r' AND obj_description(oid) "
+                + "!= '' AND substr(relname, 1, "
+                + InternalTable.SCRIPT.getTableName().length()
+                + ") = '"
+                + InternalTable.SCRIPT.getTableName()
+                + "') alias1) alias2 ORDER BY script_name ASC;"),
+
+        // Get the list of table and column names that contain the specified
+        // search text. '___' should be replaced by the text for which to
+        // search
+        SEARCH("SELECT table_name::text || E'"
+               + TABLE_DESCRIPTION_SEPARATOR
+               + "' || column_name || E'"
+               + TABLE_DESCRIPTION_SEPARATOR
+               + "' || table_description || E'"
+               + TABLE_DESCRIPTION_SEPARATOR
+               + "' || column_value AS search_result "
+               + "FROM search_tables(E'_search_text_', "
+               + "_case_insensitive_, _allow_regex_,"
+               + "'_selected_tables_', '{_columns_}') "
+               + "ORDER BY table_name, column_name ASC;"),
+
+        // ////////////////////////////////////////////////////////////////////
+        // THE REMAINING COMMANDS ARE NOT USED BUT ARE RETAINED AS EXAMPLES
+        // ////////////////////////////////////////////////////////////////////
+        // Get the list of columns for a table, sorted alphabetically. '___'
+        // should be replaced by the table to search
+        TABLE_COLUMNS("SELECT column_name FROM information_schema.columns "
+                      + "WHERE table_name = '___' ORDER BY column_name ASC;"),
+
+        // Get the tables that are members of the specified table. '___' should
+        // be replaced by the table to search
+        TABLE_MEMBERS("SELECT DISTINCT ON (data_type) "
+                      + "CASE WHEN EXISTS "
+                      + "(SELECT 1 FROM pg_catalog.pg_attribute "
+                      + "WHERE attrelid = '___'::regclass "
+                      + "AND attname = 'data_type' "
+                      + "AND NOT attisdropped AND attnum > 0) "
+                      + "THEN data_type::text ELSE ''::text END "
+                      + "AS data_type FROM ___ AS data_type;");
 
         private final String listCommand;
 
@@ -5905,13 +5914,13 @@ public class CcddConstants
     // Event log table header indices
     protected static enum EventColumns
     {
-     INDEX("Index"),
-     SERVER("Server"),
-     PROJECT("Project"),
-     USER(" User "),
-     TIME("Date/Time"),
-     TYPE("  Type  "),
-     MESSAGE("Message");
+        INDEX("Index"),
+        SERVER("Server"),
+        PROJECT("Project"),
+        USER(" User "),
+        TIME("Date/Time"),
+        TYPE("  Type  "),
+        MESSAGE("Message");
 
         private final String columnName;
 
@@ -5953,24 +5962,24 @@ public class CcddConstants
      *************************************************************************/
     protected static enum EventLogMessageType
     {
-     // Master filter; this creates a check box that, when selected, toggles
-     // all of the other filters below
-     SELECT_ALL("All ", "#000000"),
+        // Master filter; this creates a check box that, when selected, toggles
+        // all of the other filters below
+        SELECT_ALL("All ", "#000000"),
 
-     // Database command message filter
-     COMMAND_MSG("Command", "#0000C0"),
+        // Database command message filter
+        COMMAND_MSG("Command", "#0000C0"),
 
-     // Database command successfully completed message filter
-     SUCCESS_MSG("Success", "#00A000"),
+        // Database command successfully completed message filter
+        SUCCESS_MSG("Success", "#00A000"),
 
-     // Database command failed to complete successfully message filter
-     FAIL_MSG("Fail", "#A00000"),
+        // Database command failed to complete successfully message filter
+        FAIL_MSG("Fail", "#A00000"),
 
-     // Application status message filter
-     STATUS_MSG("Status", "#000000"),
+        // Application status message filter
+        STATUS_MSG("Status", "#000000"),
 
-     // Web server message filter
-     SERVER_MSG("Server", "#A08020");
+        // Web server message filter
+        SERVER_MSG("Server", "#A08020");
 
         private final String typeName;
         private final String typeColor;
@@ -6024,26 +6033,26 @@ public class CcddConstants
      *************************************************************************/
     protected static enum DialogOption
     {
-     OK_CANCEL_OPTION("Okay", 'O', "Cancel", OK_ICON, 2),
-     OK_OPTION("Okay", 'O', "", OK_ICON, 1),
-     CLOSE_OPTION("Close", 'C', "", CLOSE_ICON, 1),
-     OPEN_OPTION("Open", 'O', "Cancel", OK_ICON, 2),
-     SAVE_OPTION("Save", 'S', "Cancel", STORE_ICON, 2),
-     PRINT_OPTION("Print", 'P', "Close", PRINT_ICON, 2),
-     CREATE_OPTION("Create", 'R', "Cancel", INSERT_ICON, 2),
-     DELETE_OPTION("Delete", 'D', "Cancel", DELETE_ICON, 2),
-     IMPORT_OPTION("Import", 'I', "Cancel", IMPORT_ICON, 2),
-     EXPORT_OPTION("Export", 'E', "Cancel", EXPORT_ICON, 2),
-     LOAD_OPTION("Load", 'L', "Cancel", IMPORT_ICON, 2),
-     RENAME_OPTION("Rename", 'R', "Cancel", RENAME_ICON, 2),
-     COPY_OPTION("Copy", 'P', "Cancel", COPY_ICON, 2),
-     BACKUP_OPTION("Backup", 'B', "Cancel", COPY_ICON, 2),
-     RESTORE_OPTION("Restore", 'R', "Cancel", UNDO_ICON, 2),
-     STORE_OPTION("Store", 'S', "Cancel", COPY_ICON, 2),
-     RETRIEVE_OPTION("Retrieve", 'R', "Cancel", UNDO_ICON, 2),
-     UNLOCK_OPTION("Unlock", 'U', "Cancel", UNLOCK_ICON, 2),
-     SEARCH_OPTION("Search", 'S', "Cancel", SEARCH_ICON, 2),
-     HALT_OPTION("Halt", 'H', "", HALT_EXECUTION_ICON, 1);
+        OK_CANCEL_OPTION("Okay", 'O', "Cancel", OK_ICON, 2),
+        OK_OPTION("Okay", 'O', "", OK_ICON, 1),
+        CLOSE_OPTION("Close", 'C', "", CLOSE_ICON, 1),
+        OPEN_OPTION("Open", 'O', "Cancel", OK_ICON, 2),
+        SAVE_OPTION("Save", 'S', "Cancel", STORE_ICON, 2),
+        PRINT_OPTION("Print", 'P', "Close", PRINT_ICON, 2),
+        CREATE_OPTION("Create", 'R', "Cancel", INSERT_ICON, 2),
+        DELETE_OPTION("Delete", 'D', "Cancel", DELETE_ICON, 2),
+        IMPORT_OPTION("Import", 'I', "Cancel", IMPORT_ICON, 2),
+        EXPORT_OPTION("Export", 'E', "Cancel", EXPORT_ICON, 2),
+        LOAD_OPTION("Load", 'L', "Cancel", IMPORT_ICON, 2),
+        RENAME_OPTION("Rename", 'R', "Cancel", RENAME_ICON, 2),
+        COPY_OPTION("Copy", 'P', "Cancel", COPY_ICON, 2),
+        BACKUP_OPTION("Backup", 'B', "Cancel", COPY_ICON, 2),
+        RESTORE_OPTION("Restore", 'R', "Cancel", UNDO_ICON, 2),
+        STORE_OPTION("Store", 'S', "Cancel", COPY_ICON, 2),
+        RETRIEVE_OPTION("Retrieve", 'R', "Cancel", UNDO_ICON, 2),
+        UNLOCK_OPTION("Unlock", 'U', "Cancel", UNLOCK_ICON, 2),
+        SEARCH_OPTION("Search", 'S', "Cancel", SEARCH_ICON, 2),
+        HALT_OPTION("Halt", 'H', "", HALT_EXECUTION_ICON, 1);
 
         private final String buttonText;
         private final char buttonMnemonic;

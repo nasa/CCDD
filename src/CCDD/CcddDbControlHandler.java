@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary database control handler. Copyright 2017
- * United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United
- * States under Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary database control handler.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -141,8 +143,8 @@ public class CcddDbControlHandler
 
         // Create the parameters for the the 'by name' and 'by index'
         // postgreSQL functions
-        functionParameters = new String[][] {{"name",
-                                              DefaultColumn.VARIABLE_NAME.getDbName()},
+        functionParameters = new String[][] { {"name",
+                                               DefaultColumn.VARIABLE_NAME.getDbName()},
                                              {"index",
                                               DefaultColumn.ROW_INDEX.getDbName()}};
     }
@@ -209,10 +211,10 @@ public class CcddDbControlHandler
     protected String getProject()
     {
         return isDatabaseConnected()
-                                     ? getDatabase()
-                                     : (isServerConnected()
-                                                            ? "*server*"
-                                                            : "*none*");
+                                    ? getDatabase()
+                                    : (isServerConnected()
+                                                          ? "*server*"
+                                                          : "*none*");
     }
 
     /**************************************************************************
@@ -266,8 +268,8 @@ public class CcddDbControlHandler
     {
         return serverHost
                + (serverPort.isEmpty()
-                                       ? ""
-                                       : ":" + serverPort);
+                                      ? ""
+                                      : ":" + serverPort);
     }
 
     /**************************************************************************
@@ -386,8 +388,8 @@ public class CcddDbControlHandler
                 // unavailable
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
                                       "Cannot obtain database version number; cause '"
-                                                               + se.getMessage()
-                                                               + "'",
+                                          + se.getMessage()
+                                          + "'",
                                       "<html><b>Cannot obtain database version number");
             }
         }
@@ -424,8 +426,8 @@ public class CcddDbControlHandler
                 // Inform the user that the JDBC version number is unavailable
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
                                       "Cannot obtain JDBC version number; cause '"
-                                                               + se.getMessage()
-                                                               + "'",
+                                          + se.getMessage()
+                                          + "'",
                                       "<html><b>Cannot obtain JDBC version number");
             }
         }
@@ -563,8 +565,8 @@ public class CcddDbControlHandler
         return "jdbc:postgresql://"
                + getServerAndDatabase(databaseName)
                + (isSSL
-                        ? "?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
-                        : "");
+                       ? "?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
+                       : "");
     }
 
     /**************************************************************************
@@ -603,13 +605,13 @@ public class CcddDbControlHandler
             // Inform the user that loading the database comment failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Cannot obtain comment for project database '"
-                                                           + databaseName
-                                                           + "'; cause '"
-                                                           + se.getMessage()
-                                                           + "'",
+                                      + databaseName
+                                      + "'; cause '"
+                                      + se.getMessage()
+                                      + "'",
                                   "<html><b>Cannot obtain comment for project database '</b>"
-                                                                  + databaseName
-                                                                  + "<b>'");
+                                      + databaseName
+                                      + "<b>'");
         }
 
         return comment;
@@ -669,24 +671,24 @@ public class CcddDbControlHandler
                 // Inform the user that the lock status update succeeded
                 eventLog.logEvent(SUCCESS_MSG,
                                   "Project database '"
-                                               + databaseName
-                                               + "' "
-                                               + (lockStatus
-                                                             ? "locked"
-                                                             : "unlocked"));
+                                      + databaseName
+                                      + "' "
+                                      + (lockStatus
+                                                   ? "locked"
+                                                   : "unlocked"));
             }
             catch (SQLException se)
             {
                 // Inform the user that setting the database comment failed
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
                                       "Cannot set comment for project database '"
-                                                               + databaseName
-                                                               + "'; cause '"
-                                                               + se.getMessage()
-                                                               + "'",
+                                          + databaseName
+                                          + "'; cause '"
+                                          + se.getMessage()
+                                          + "'",
                                       "<html><b>Cannot set comment for project database '</b>"
-                                                                      + databaseName
-                                                                      + "<b>'");
+                                          + databaseName
+                                          + "<b>'");
             }
         }
     }
@@ -819,8 +821,8 @@ public class CcddDbControlHandler
             // failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Cannot disable auto-commit; cause '"
-                                                           + se.getMessage()
-                                                           + "'",
+                                      + se.getMessage()
+                                      + "'",
                                   "<html><b>Cannot disable auto-commit");
         }
     }
@@ -866,21 +868,21 @@ public class CcddDbControlHandler
             // Inform the user that the update succeeded
             eventLog.logEvent(SUCCESS_MSG,
                               "Project database '"
-                                           + databaseName
-                                           + "' created");
+                                  + databaseName
+                                  + "' created");
         }
         catch (SQLException se)
         {
             // Inform the user that the database command failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Cannot create project database '"
-                                                           + getServerAndDatabase(databaseName)
-                                                           + "'; cause '"
-                                                           + se.getMessage()
-                                                           + "'",
+                                      + getServerAndDatabase(databaseName)
+                                      + "'; cause '"
+                                      + se.getMessage()
+                                      + "'",
                                   "<html><b>Cannot create project database '</b>"
-                                                                  + databaseName
-                                                                  + "<b>'");
+                                      + databaseName
+                                      + "<b>'");
             successFlag = false;
         }
         finally
@@ -1068,11 +1070,11 @@ public class CcddDbControlHandler
                                        + "END LOOP; END; $$ LANGUAGE plpgsql; "
                                        + buildOwnerCommand(DatabaseObject.FUNCTION,
                                                            "search_tables(search_text "
-                                                                                    + "text, no_case boolean, "
-                                                                                    + "allow_regex boolean, "
-                                                                                    + "selected_tables text, "
-                                                                                    + "columns name[],"
-                                                                                    + "all_schema name[])"),
+                                                               + "text, no_case boolean, "
+                                                               + "allow_regex boolean, "
+                                                               + "selected_tables text, "
+                                                               + "columns name[],"
+                                                               + "all_schema name[])"),
                                        ccddMain.getMainFrame());
 
             // Create function to retrieve all table names and column values
@@ -1105,7 +1107,7 @@ public class CcddDbControlHandler
                                        + "END IF; END LOOP; END; END; $$ LANGUAGE plpgsql; "
                                        + buildOwnerCommand(DatabaseObject.FUNCTION,
                                                            "find_prototype_columns_by_name(column_name_db "
-                                                                                    + "text, table_types text[])"),
+                                                               + "text, table_types text[])"),
                                        ccddMain.getMainFrame());
 
             // Create function to retrieve all table names and column values
@@ -1134,8 +1136,8 @@ public class CcddDbControlHandler
                                        + "LANGUAGE plpgsql; "
                                        + buildOwnerCommand(DatabaseObject.FUNCTION,
                                                            "find_columns_by_name(column_name_user "
-                                                                                    + "text, column_name_db text, "
-                                                                                    + "table_types text[])"),
+                                                               + "text, column_name_db text, "
+                                                               + "table_types text[])"),
                                        ccddMain.getMainFrame());
 
             // Create function to reset the rate for a link that no longer has
@@ -1185,15 +1187,15 @@ public class CcddDbControlHandler
             // Inform the user that creating the database functions failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Cannot create tables and functions in project database '"
-                                                           + activeDatabase
-                                                           + "' as user '"
-                                                           + activeUser
-                                                           + "'; cause '"
-                                                           + se.getMessage()
-                                                           + "'",
+                                      + activeDatabase
+                                      + "' as user '"
+                                      + activeUser
+                                      + "'; cause '"
+                                      + se.getMessage()
+                                      + "'",
                                   "<html><b>Cannot create tables and functions in project database '</b>"
-                                                                  + activeDatabase
-                                                                  + "<b>'");
+                                      + activeDatabase
+                                      + "<b>'");
             errorFlag = true;
         }
 
@@ -1339,8 +1341,8 @@ public class CcddDbControlHandler
                                                + "END LOOP; END; END; $$ LANGUAGE plpgsql; "
                                                + buildOwnerCommand(DatabaseObject.FUNCTION,
                                                                    "get_table_members_by_"
-                                                                                            + functionParm[0]
-                                                                                            + "()"),
+                                                                       + functionParm[0]
+                                                                       + "()"),
                                                ccddMain.getMainFrame());
                 }
 
@@ -1487,8 +1489,8 @@ public class CcddDbControlHandler
                                                + " ASC'; END $$ LANGUAGE plpgsql; "
                                                + buildOwnerCommand(DatabaseObject.FUNCTION,
                                                                    "get_def_columns_by_"
-                                                                                            + functionParm[0]
-                                                                                            + "(name text)"),
+                                                                       + functionParm[0]
+                                                                       + "(name text)"),
                                                ccddMain.getMainFrame());
                 }
 
@@ -1521,7 +1523,7 @@ public class CcddDbControlHandler
                                            + "END LOOP; END; END; $$ LANGUAGE plpgsql; "
                                            + buildOwnerCommand(DatabaseObject.FUNCTION,
                                                                "update_data_type_names(oldType text,"
-                                                                                        + " newType text)"),
+                                                                   + " newType text)"),
                                            ccddMain.getMainFrame());
 
                 // Inform the user that the database function creation
@@ -1533,15 +1535,15 @@ public class CcddDbControlHandler
                 // Inform the user that creating the database functions failed
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
                                       "Cannot create structure functions in project database '"
-                                                               + activeDatabase
-                                                               + "' as user '"
-                                                               + activeUser
-                                                               + "'; cause '"
-                                                               + se.getMessage()
-                                                               + "'",
+                                          + activeDatabase
+                                          + "' as user '"
+                                          + activeUser
+                                          + "'; cause '"
+                                          + se.getMessage()
+                                          + "'",
                                       "<html><b>Cannot create structure functions in project database '</b>"
-                                                                      + activeDatabase
-                                                                      + "<b>'");
+                                          + activeDatabase
+                                          + "<b>'");
                 errorFlag = true;
             }
         }
@@ -1690,8 +1692,8 @@ public class CcddDbControlHandler
                 // Inform the user that the server connection succeeded
                 eventLog.logEvent(SUCCESS_MSG,
                                   "Connected to server as user '"
-                                               + activeUser
-                                               + "'");
+                                      + activeUser
+                                      + "'");
             }
             // A database other than the default is selected
             else
@@ -1780,10 +1782,10 @@ public class CcddDbControlHandler
                 // Inform the user that the database connection succeeded
                 eventLog.logEvent(SUCCESS_MSG,
                                   "Connected to project database '"
-                                               + databaseName
-                                               + "' as user '"
-                                               + activeUser
-                                               + "'");
+                                      + databaseName
+                                      + "' as user '"
+                                      + activeUser
+                                      + "'");
             }
         }
         catch (SQLException se)
@@ -1803,22 +1805,22 @@ public class CcddDbControlHandler
                 // Inform the user that the database connection failed
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
                                       "Cannot connect to "
-                                                               + (activeDatabase.equals(DEFAULT_DATABASE)
-                                                                                                          ? "server"
-                                                                                                          : "project database '"
-                                                                                                            + getServerAndDatabase(databaseName)
-                                                                                                            + "'")
-                                                               + " as user '"
-                                                               + activeUser
-                                                               + "'; cause '"
-                                                               + se.getMessage()
-                                                               + "'",
+                                          + (activeDatabase.equals(DEFAULT_DATABASE)
+                                                                                    ? "server"
+                                                                                    : "project database '"
+                                                                                      + getServerAndDatabase(databaseName)
+                                                                                      + "'")
+                                          + " as user '"
+                                          + activeUser
+                                          + "'; cause '"
+                                          + se.getMessage()
+                                          + "'",
                                       "<html><b>Cannot connect to "
-                                                                      + (activeDatabase.equals(DEFAULT_DATABASE)
-                                                                                                                 ? "server"
-                                                                                                                 : "project database '</b>"
-                                                                                                                   + getServerAndDatabase(databaseName)
-                                                                                                                   + "<b>'"));
+                                          + (activeDatabase.equals(DEFAULT_DATABASE)
+                                                                                    ? "server"
+                                                                                    : "project database '</b>"
+                                                                                      + getServerAndDatabase(databaseName)
+                                                                                      + "<b>'"));
             }
 
             errorFlag = true;
@@ -1834,9 +1836,9 @@ public class CcddDbControlHandler
             // Log the PostgreSQL and JDBC versions
             eventLog.logEvent(EventLogMessageType.STATUS_MSG,
                               "PostgreSQL: "
-                                                              + getDatabaseVersion()
-                                                              + "  *** JDBC: "
-                                                              + getJDBCVersion());
+                                  + getDatabaseVersion()
+                                  + "  *** JDBC: "
+                                  + getJDBCVersion());
         }
 
         return errorFlag;
@@ -2014,10 +2016,10 @@ public class CcddDbControlHandler
                     // failed
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
                                           "Cannot register database driver '"
-                                                                   + DATABASE_DRIVER
-                                                                   + "'; cause '"
-                                                                   + le.getMessage()
-                                                                   + "'",
+                                              + DATABASE_DRIVER
+                                              + "'; cause '"
+                                              + le.getMessage()
+                                              + "'",
                                           "<html><b>Cannot register database driver");
                     errorFlag = true;
                 }
@@ -2052,8 +2054,8 @@ public class CcddDbControlHandler
                         // can't be stored
                         new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                                   "<html><b>Cannot store program preference values; cause '"
-                                                                                           + e.getMessage()
-                                                                                           + "'",
+                                                                      + e.getMessage()
+                                                                      + "'",
                                                                   "File Warning",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);
@@ -2229,10 +2231,10 @@ public class CcddDbControlHandler
                         // Log that the renaming the database succeeded
                         eventLog.logEvent(SUCCESS_MSG,
                                           "Project database '"
-                                                       + oldName
-                                                       + "' renamed to '"
-                                                       + newName
-                                                       + "'");
+                                              + oldName
+                                              + "' renamed to '"
+                                              + newName
+                                              + "'");
                     }
                 }
                 catch (SQLException se)
@@ -2240,13 +2242,13 @@ public class CcddDbControlHandler
                     // Inform the user that the database cannot be renamed
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
                                           "Cannot rename project database '"
-                                                                   + getServerAndDatabase(oldName)
-                                                                   + "'; cause '"
-                                                                   + se.getMessage()
-                                                                   + "'",
+                                              + getServerAndDatabase(oldName)
+                                              + "'; cause '"
+                                              + se.getMessage()
+                                              + "'",
                                           "<html><b>Cannot rename project database '</b>"
-                                                                          + oldName
-                                                                          + "<b>'");
+                                              + oldName
+                                              + "<b>'");
 
                     // Check if the currently open database is the one that was
                     // attempted to be renamed
@@ -2302,9 +2304,9 @@ public class CcddDbControlHandler
                         // Get the owner of the database being copied; the copy
                         // will have the same owner
                         String ownerName = targetName.equals(currentDatabase)
-                                                                              ? activeOwner
-                                                                              : queryDatabaseOwner(targetName,
-                                                                                                   ccddMain.getMainFrame())[0];
+                                                                             ? activeOwner
+                                                                             : queryDatabaseOwner(targetName,
+                                                                                                  ccddMain.getMainFrame())[0];
 
                         // Enable auto-commit for database changes
                         connection.setAutoCommit(true);
@@ -2335,8 +2337,8 @@ public class CcddDbControlHandler
                         // Log that the copying the database succeeded
                         eventLog.logEvent(SUCCESS_MSG,
                                           "Project database '"
-                                                       + targetName
-                                                       + "' copied");
+                                              + targetName
+                                              + "' copied");
                     }
                 }
                 catch (SQLException se)
@@ -2344,13 +2346,13 @@ public class CcddDbControlHandler
                     // Inform the user that the database cannot be copied
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
                                           "Cannot copy project database '"
-                                                                   + getServerAndDatabase(targetName)
-                                                                   + "'; cause '"
-                                                                   + se.getMessage()
-                                                                   + "'",
+                                              + getServerAndDatabase(targetName)
+                                              + "'; cause '"
+                                              + se.getMessage()
+                                              + "'",
                                           "<html><b>Cannot copy project database '</b>"
-                                                                          + targetName
-                                                                          + "<b>'");
+                                              + targetName
+                                              + "<b>'");
 
                     // Check if the currently open database is the one that was
                     // attempted to be copied
@@ -2391,21 +2393,21 @@ public class CcddDbControlHandler
             // Log that the database deletion succeeded
             eventLog.logEvent(SUCCESS_MSG,
                               "Project database '"
-                                           + databaseName
-                                           + "' deleted");
+                                  + databaseName
+                                  + "' deleted");
         }
         catch (SQLException se)
         {
             // Inform the user that the database deletion failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Cannot delete project database '"
-                                                           + getServerAndDatabase(databaseName)
-                                                           + "'; cause '"
-                                                           + se.getMessage()
-                                                           + "'",
+                                      + getServerAndDatabase(databaseName)
+                                      + "'; cause '"
+                                      + se.getMessage()
+                                      + "'",
                                   "<html><b>Cannot delete project database '</b>"
-                                                                  + databaseName
-                                                                  + "<b>'");
+                                      + databaseName
+                                      + "<b>'");
         }
         finally
         {
@@ -2429,8 +2431,8 @@ public class CcddDbControlHandler
         // Have the user confirm deleting the selected database
         if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                       "<html><b>Delete database </b>"
-                                                                               + databaseName
-                                                                               + "<b>?<br><i>Warning: This action cannot be undone!",
+                                                          + databaseName
+                                                          + "<b>?<br><i>Warning: This action cannot be undone!",
                                                       "Delete Database",
                                                       JOptionPane.QUESTION_MESSAGE,
                                                       DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
@@ -2484,11 +2486,11 @@ public class CcddDbControlHandler
                 // update the connection status
                 eventLog.logEvent(SUCCESS_MSG,
                                   (activeDatabase.equals(DEFAULT_DATABASE)
-                                                                           ? "Server connection"
-                                                                           : "Project database '"
-                                                                             + activeDatabase
-                                                                             + "'")
-                                               + " closed");
+                                                                          ? "Server connection"
+                                                                          : "Project database '"
+                                                                            + activeDatabase
+                                                                            + "'")
+                                      + " closed");
                 connectionStatus = NO_CONNECTION;
             }
             catch (SQLException se)
@@ -2496,20 +2498,20 @@ public class CcddDbControlHandler
                 // Inform the user that the database failed to close
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
                                       "Cannot close "
-                                                               + (activeDatabase.equals(DEFAULT_DATABASE)
-                                                                                                          ? "server connection"
-                                                                                                          : "project database '"
-                                                                                                            + getServerAndDatabase(activeDatabase)
-                                                                                                            + "'")
-                                                               + "; cause '"
-                                                               + se.getMessage()
-                                                               + "'",
+                                          + (activeDatabase.equals(DEFAULT_DATABASE)
+                                                                                    ? "server connection"
+                                                                                    : "project database '"
+                                                                                      + getServerAndDatabase(activeDatabase)
+                                                                                      + "'")
+                                          + "; cause '"
+                                          + se.getMessage()
+                                          + "'",
                                       "<html><b>Cannot close "
-                                                                      + (activeDatabase.equals(DEFAULT_DATABASE)
-                                                                                                                 ? "server connection"
-                                                                                                                 : "project database '</b>"
-                                                                                                                   + activeDatabase
-                                                                                                                   + "<b>'"));
+                                          + (activeDatabase.equals(DEFAULT_DATABASE)
+                                                                                    ? "server connection"
+                                                                                    : "project database '</b>"
+                                                                                      + activeDatabase
+                                                                                      + "<b>'"));
             }
         }
 
@@ -2622,8 +2624,8 @@ public class CcddDbControlHandler
             // Log that backing up the database succeeded
             eventLog.logEvent(SUCCESS_MSG,
                               "project database '"
-                                           + databaseName
-                                           + "' backed up");
+                                  + databaseName
+                                  + "' backed up");
         }
 
         // An error occurred backing up the database
@@ -2632,13 +2634,13 @@ public class CcddDbControlHandler
             // Inform the user that the database could not be backed up
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Project database '"
-                                                           + databaseName
-                                                           + "' backup failed;  cause '"
-                                                           + errorType
-                                                           + "'",
+                                      + databaseName
+                                      + "' backup failed;  cause '"
+                                      + errorType
+                                      + "'",
                                   "<html><b>Project database '</b>"
-                                                                  + databaseName
-                                                                  + "<b>' backup failed");
+                                      + databaseName
+                                      + "<b>' backup failed");
         }
     }
 
@@ -2747,10 +2749,10 @@ public class CcddDbControlHandler
                         // Log that the database restoration succeeded
                         eventLog.logEvent(SUCCESS_MSG,
                                           "Project database '"
-                                                       + databaseName
-                                                       + "' restored as '"
-                                                       + restoreName
-                                                       + "'");
+                                              + databaseName
+                                              + "' restored as '"
+                                              + restoreName
+                                              + "'");
                     }
                 }
                 // Database restoration failed
@@ -2773,13 +2775,13 @@ public class CcddDbControlHandler
                     // Inform the user that the database could not be restored
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
                                           "Project database '"
-                                                                   + databaseName
-                                                                   + "' restore failed; cause '"
-                                                                   + errorType
-                                                                   + "'",
+                                              + databaseName
+                                              + "' restore failed; cause '"
+                                              + errorType
+                                              + "'",
                                           "<html><b>Project database '</b>"
-                                                                          + databaseName
-                                                                          + "<b>' restore failed");
+                                              + databaseName
+                                              + "<b>' restore failed");
                 }
             }
         });

@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary application parameter handler. Copyright 2017
- * United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United
- * States under Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary application parameter handler.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -21,14 +23,14 @@ public class CcddApplicationParameterHandler
     private final CcddDbTableCommandHandler dbTable;
 
     // Application parameters
-    private int slotsPerMessage;
+    private int maxMsgsPerTimeSlot;
     private int maxMsgsPerSec;
     private int maxMsgsPerCycle;
-    private int commandsPerTable;
+    private int numberOfTimeSlots;
 
     /**************************************************************************
      * Application parameter handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
@@ -42,18 +44,18 @@ public class CcddApplicationParameterHandler
     }
 
     /**************************************************************************
-     * Get the total number of slots for a given time slot
-     * 
-     * @return Maximum number of slots for a time slot
+     * Get the number of messages per time slot
+     *
+     * @return Number of messages per time slot
      *************************************************************************/
-    protected int getNumberOfSlots()
+    protected int getNumberOfMessagesPerTimeSlot()
     {
-        return slotsPerMessage;
+        return maxMsgsPerTimeSlot;
     }
 
     /**************************************************************************
      * Get the maximum number of messages that can be downlinked in one second
-     * 
+     *
      * @return Maximum number of messages that can be downlinked in one second
      *************************************************************************/
     protected int getMaxMsgsPerSecond()
@@ -64,7 +66,7 @@ public class CcddApplicationParameterHandler
     /**************************************************************************
      * Get the maximum number of messages that can be downlinked before
      * repeating the message list
-     * 
+     *
      * @return Maximum number of messages that can be downlinked before
      *         repeating the message list
      *************************************************************************/
@@ -74,13 +76,13 @@ public class CcddApplicationParameterHandler
     }
 
     /**************************************************************************
-     * Get the total number of commands for a given scheduler table
-     * 
-     * @return Number of commands for a scheduler table
+     * Get the total number of time slots in the scheduler definition table
+     *
+     * @return Number of time slots in the scheduler definition table
      *************************************************************************/
-    protected int getCommandsPerTable()
+    protected int getNumberOfTimeSlots()
     {
-        return commandsPerTable;
+        return numberOfTimeSlots;
     }
 
     /**************************************************************************
@@ -95,15 +97,15 @@ public class CcddApplicationParameterHandler
         try
         {
             // Convert the application parameters to integers
-            slotsPerMessage = Integer.valueOf(appValues[ApplicationParameter.MAXIMUM_NUMBER_OF_SLOTS.ordinal()]);
+            maxMsgsPerTimeSlot = Integer.valueOf(appValues[ApplicationParameter.MAXIMUM_MESSAGES_PER_TIME_SLOT.ordinal()]);
             maxMsgsPerSec = Integer.valueOf(appValues[ApplicationParameter.MAXIMUM_MESSAGES_PER_SECOND.ordinal()]);
             maxMsgsPerCycle = Integer.valueOf(appValues[ApplicationParameter.MAXIMUM_MESSAGES_PER_CYCLE.ordinal()]);
-            commandsPerTable = Integer.valueOf(appValues[ApplicationParameter.MAXIMUM_NUMBEROF_COMMANDS.ordinal()]);
+            numberOfTimeSlots = Integer.valueOf(appValues[ApplicationParameter.NUMBER_OF_TIME_SLOTS.ordinal()]);
 
             // Check if any of the values are less than 1
-            if (slotsPerMessage <= 0 || maxMsgsPerSec <= 0 || maxMsgsPerCycle <= 0 || commandsPerTable <= 0)
+            if (maxMsgsPerTimeSlot <= 0 || maxMsgsPerSec <= 0 || maxMsgsPerCycle <= 0 || numberOfTimeSlots <= 0)
             {
-                throw new Exception("zero or negative rate value");
+                throw new Exception("zero or negative application value");
             }
         }
         catch (Exception e)
@@ -116,54 +118,54 @@ public class CcddApplicationParameterHandler
                                                        "<html><b>Invalid application parameter(s): using default values instead");
 
             // Use default values
-            slotsPerMessage = 1;
+            maxMsgsPerTimeSlot = 1;
             maxMsgsPerSec = 10;
             maxMsgsPerCycle = 10;
-            commandsPerTable = 128;
+            numberOfTimeSlots = 128;
         }
     }
 
     /**************************************************************************
      * Set the application parameters in the database
-     * 
+     *
      * @param maxMsgsPerSec
      *            maximum number of messages that can be downlinked in one
      *            second
-     * 
+     *
      * @param maxMsgsPerCycle
      *            maximum number of messages that can be downlinked before
      *            repeating the message list
-     * 
-     * @param slotsPerMessage
-     *            maximum number of slots for a given time slot
-     * 
-     * @param maxCommands
-     *            maximum number of commands for scheduler table
-     * 
+     *
+     * @param maxMsgsPerTimeSlot
+     *            maximum number of messages per time slot
+     *
+     * @param numberOfTimeSlots
+     *            number of time slots in the scheduler definition table
+     *
      * @param parent
      *            component calling this method, used for positioning any error
      *            dialogs
      *************************************************************************/
     protected void setApplicationParameters(int maxMsgsPerSec,
                                             int maxMsgsPerCycle,
-                                            int slotsPerMessage,
-                                            int maxCommands,
+                                            int maxMsgsPerTimeSlot,
+                                            int numberOfTimeSlots,
                                             Component parent)
     {
         this.maxMsgsPerSec = maxMsgsPerSec;
         this.maxMsgsPerCycle = maxMsgsPerCycle;
-        this.slotsPerMessage = slotsPerMessage;
-        this.commandsPerTable = maxCommands;
+        this.maxMsgsPerTimeSlot = maxMsgsPerTimeSlot;
+        this.numberOfTimeSlots = numberOfTimeSlots;
 
         // Update the the stored application parameters
         dbTable.setTableComment(InternalTable.APP_SCHEDULER.getTableName(),
-                                slotsPerMessage
+                                maxMsgsPerTimeSlot
                                     + ","
                                     + maxMsgsPerSec
                                     + ","
                                     + maxMsgsPerCycle
                                     + ","
-                                    + commandsPerTable,
+                                    + numberOfTimeSlots,
                                 parent);
     }
 }

@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary script data access handler. Copyright 2017
- * United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United
- * States under Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary script data access handler.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -67,10 +69,9 @@ public class CcddScriptDataAccessHandler
     private final CcddFieldHandler fieldHandler;
     private final CcddGroupHandler groupHandler;
     private final CcddRateParameterHandler rateHandler;
-    private final CcddApplicationParameterHandler appHandler;
     private final CcddMacroHandler macroHandler;
     private CcddTableTreeHandler tableTree;
-    private CcddSchedulerTableHandler schTable;
+    private CcddApplicationSchedulerTableHandler schTable;
     private CcddCopyTableHandler copyHandler;
     private CcddVariableConversionHandler variableHandler;
 
@@ -144,7 +145,6 @@ public class CcddScriptDataAccessHandler
         dataTypeHandler = ccddMain.getDataTypeHandler();
         fileIOHandler = ccddMain.getFileIOHandler();
         rateHandler = ccddMain.getRateParameterHandler();
-        appHandler = ccddMain.getApplicationParameterHandler();
         macroHandler = ccddMain.getMacroHandler();
         tableTree = null;
         copyHandler = null;
@@ -313,9 +313,9 @@ public class CcddScriptDataAccessHandler
     public String getOutputPath()
     {
         return ModifiablePathInfo.SCRIPT_OUTPUT_PATH.getPath().isEmpty()
-                                                                         ? ""
-                                                                         : ModifiablePathInfo.SCRIPT_OUTPUT_PATH.getPath()
-                                                                           + File.separator;
+                                                                        ? ""
+                                                                        : ModifiablePathInfo.SCRIPT_OUTPUT_PATH.getPath()
+                                                                          + File.separator;
     }
 
     /**************************************************************************
@@ -377,7 +377,7 @@ public class CcddScriptDataAccessHandler
         if (strgArray.length != 0
             && strgArray[0].length != 0
             && (minWidths == null
-                || minWidths.length >= strgArray[0].length))
+            || minWidths.length >= strgArray[0].length))
         {
             // Check if no initial minimum widths are supplied
             if (minWidths == null)
@@ -2570,8 +2570,8 @@ public class CcddScriptDataAccessHandler
             // Get the full variable name
             fullName = getFullVariableName(getPathByRow(TYPE_STRUCTURE, row),
                                            getStructureTableData(dataTypeColumnName, row)
-                                                                              + "."
-                                                                              + getStructureTableData(variableNameColumnName, row),
+                                               + "."
+                                               + getStructureTableData(variableNameColumnName, row),
                                            varPathSeparator,
                                            excludeDataTypes,
                                            typeNameSeparator);
@@ -3116,8 +3116,8 @@ public class CcddScriptDataAccessHandler
 
         // Step through every table of every type referenced in the table data
         for (String tableName : (tableType == null
-                                                   ? getTableNames()
-                                                   : getTableNames(tableType)))
+                                                  ? getTableNames()
+                                                  : getTableNames(tableType)))
         {
             // Get the data field value for the table
             String fieldValue = getDataFieldValue(tableName, fieldName);
@@ -3819,7 +3819,7 @@ public class CcddScriptDataAccessHandler
         // Display the supplied text in an information dialog
         new CcddDialogHandler().showMessageDialog(parent,
                                                   "<html><b>"
-                                                          + text,
+                                                      + text,
                                                   "Script Message",
                                                   JOptionPane.INFORMATION_MESSAGE,
                                                   DialogOption.OK_OPTION);
@@ -3838,7 +3838,7 @@ public class CcddScriptDataAccessHandler
         // Display the supplied text in a warning dialog
         new CcddDialogHandler().showMessageDialog(parent,
                                                   "<html><b>"
-                                                          + text,
+                                                      + text,
                                                   "Script Warning",
                                                   JOptionPane.WARNING_MESSAGE,
                                                   DialogOption.OK_OPTION);
@@ -3857,7 +3857,7 @@ public class CcddScriptDataAccessHandler
         // Display the supplied text in an error dialog
         new CcddDialogHandler().showMessageDialog(parent,
                                                   "<html><b>"
-                                                          + text,
+                                                      + text,
                                                   "Script Error",
                                                   JOptionPane.ERROR_MESSAGE,
                                                   DialogOption.OK_OPTION);
@@ -4810,73 +4810,78 @@ public class CcddScriptDataAccessHandler
         return groupHandler.getGroupNames(true);
     }
 
-    // TODO Following methods are for the application scheduler...
     /**************************************************************************
-     * Get the list of defines for the scheduler table
+     * Get the array of defined parameters for the schedule definition table
      *
-     * @return Two-dimensional array containing the defines list
+     * @return Two-dimensional array containing the defined parameters
      *************************************************************************/
-    public String[][] getDefinesList()
+    public String[][] getApplicationSchedulerDefines()
     {
+        // Check if the scheduler table handler doesn't exist
+        if (schTable == null)
+        {
+            // Initialize the scheduler table
+            schTable = new CcddApplicationSchedulerTableHandler(ccddMain);
+        }
+
         return schTable.getSchedulerTableDefines();
     }
 
     /**************************************************************************
-     * Get the application scheduler groups TODO IS THIS USED?
+     * Get the specified entry in the application scheduler schedule definition
+     * table
      *
-     * @return Array containing the application scheduler groups
+     * @param row
+     *            row index for the entry in the schedule definition table
+     *
+     * @return Array containing the specified entry in the schedule definition
+     *         table
      *************************************************************************/
-    public String[] getApplicationSchedulerGroups()
+    public String[][] getApplicationScheduleDefinitionTable(int row)
     {
-        return schTable.getApplicationSchedulerGroups();
+        // Check if the scheduler table handler doesn't exist
+        if (schTable == null)
+        {
+            // Initialize the scheduler table
+            schTable = new CcddApplicationSchedulerTableHandler(ccddMain);
+        }
+
+        return schTable.getApplicationScheduleDefinitionTableByRow(row);
     }
 
     /**************************************************************************
-     * Create the application scheduler table
-     *************************************************************************/
-    public void createApplicationSchedulerTable()
-    {
-        schTable.createApplicationSchedulerTable();
-    }
-
-    /**************************************************************************
-     * Get the specified entry in the scheduler table
+     * Get the application scheduler message definition table
      *
-     * @param index
-     *            Index of the entry in the scheduler table
-     *
-     * @return Array containing the specified entry in the scheduler table
+     * @return Array containing the message definition table information
      *************************************************************************/
-    public String[][] getApplicationSchedulerEntry(int index)
+    public String[] getApplicationMessageDefinitionTable()
     {
-        return schTable.getApplicationScheduleTableIndex(index);
-    }
-
-    /**************************************************************************
-     * Get the application scheduler command table
-     *
-     * @return Array containing the command table information
-     *************************************************************************/
-    public String[] getApplicationCommandTable()
-    {
-        // Initialize the scheduler table. This is the first function called by
-        // the script
-        schTable = new CcddSchedulerTableHandler(ccddMain);
+        // Check if the scheduler table handler doesn't exist
+        if (schTable == null)
+        {
+            // Initialize the scheduler table
+            schTable = new CcddApplicationSchedulerTableHandler(ccddMain);
+        }
 
         return schTable.createSchedulerMessageTable();
     }
 
     /**************************************************************************
-     * Get the number of time slots for the scheduler table
+     * Get the number of time slots in the schedule definition table
      *
-     * @return Number of time slots for the command table
+     * @return Number of time slots in schedule definition table
      *************************************************************************/
-    public int getNumberOfSlots()
+    public int getNumberOfTimeSlots()
     {
-        return appHandler.getNumberOfSlots();
-    }
+        // Check if the scheduler table handler doesn't exist
+        if (schTable == null)
+        {
+            // Initialize the scheduler table
+            schTable = new CcddApplicationSchedulerTableHandler(ccddMain);
+        }
 
-    // TODO ... end of application scheduler methods
+        return schTable.getNumberOfTimeSlots();
+    }
 
     /**************************************************************************
      * *** TODO INCLUDED FOR TESTING ***

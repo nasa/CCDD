@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary scheduler handler. Copyright 2017 United
- * States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United
- * States under Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary scheduler handler.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -92,13 +94,13 @@ public class CcddSchedulerHandler
 
     /**************************************************************************
      * Scheduler handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param rateName
      *            rate column name
-     * 
+     *
      * @param schedulerDlg
      *            reference to the scheduler dialog that created this class
      *************************************************************************/
@@ -119,7 +121,7 @@ public class CcddSchedulerHandler
 
     /**************************************************************************
      * Get the scheduler option
-     * 
+     *
      * @return Scheduler option for the current scheduler; null if the
      *         scheduler dialog type is not recognized
      *************************************************************************/
@@ -143,7 +145,7 @@ public class CcddSchedulerHandler
 
     /**************************************************************************
      * Get the reference to the scheduler dialog
-     * 
+     *
      * @return Reference to the scheduler dialog
      *************************************************************************/
     protected CcddSchedulerDialogInterface getSchedulerDialog()
@@ -153,7 +155,7 @@ public class CcddSchedulerHandler
 
     /**************************************************************************
      * Get the scheduler editor handler
-     * 
+     *
      * @return Scheduler editor handler
      *************************************************************************/
     protected CcddSchedulerEditorHandler getSchedulerEditor()
@@ -163,7 +165,7 @@ public class CcddSchedulerHandler
 
     /**************************************************************************
      * Get the scheduler input
-     * 
+     *
      * @return Scheduler input
      *************************************************************************/
     protected CcddSchedulerInputInterface getSchedulerInput()
@@ -174,7 +176,7 @@ public class CcddSchedulerHandler
     /**************************************************************************
      * Set the variable(s) (application(s)) to be unavailable in the variable
      * (application) tree
-     * 
+     *
      * @param names
      *            list of variable (application) names to exclude
      *************************************************************************/
@@ -186,7 +188,7 @@ public class CcddSchedulerHandler
     /**************************************************************************
      * Set the variable(s) (application(s)) to be available in the variable
      * (application) tree
-     * 
+     *
      * @param names
      *            list of variable (application) names to include
      *************************************************************************/
@@ -233,7 +235,7 @@ public class CcddSchedulerHandler
 
     /**************************************************************************
      * Select the specified option in the Options list
-     * 
+     *
      * @param option
      *            option text to match in the Options list
      *************************************************************************/
@@ -345,7 +347,7 @@ public class CcddSchedulerHandler
 
     /**************************************************************************
      * Get the rate column name
-     * 
+     *
      * @return Rate column name
      *************************************************************************/
     protected String getRateName()
@@ -355,7 +357,7 @@ public class CcddSchedulerHandler
 
     /**************************************************************************
      * Get a list of the current messages
-     * 
+     *
      * @return List of the current messages
      *************************************************************************/
     protected List<Message> getCurrentMessages()
@@ -365,7 +367,7 @@ public class CcddSchedulerHandler
 
     /**************************************************************************
      * Get the panel containing the dual scroll panels
-     * 
+     *
      * @return Panel containing the input, option, and table panels
      *************************************************************************/
     protected JPanel getSchedulerPanel()
@@ -375,7 +377,7 @@ public class CcddSchedulerHandler
 
     /**************************************************************************
      * Get the list of variables for the data stream
-     * 
+     *
      * @return List of variables; null if the scheduler dialog type is not
      *         recognized
      *************************************************************************/
@@ -402,7 +404,7 @@ public class CcddSchedulerHandler
 
     /**************************************************************************
      * Get the list of messages stored in the database
-     * 
+     *
      * @return List of messages for the data stream stored in the database;
      *         null if the scheduler dialog type is not recognized
      *************************************************************************/
@@ -644,17 +646,17 @@ public class CcddSchedulerHandler
 
     /**************************************************************************
      * Add one or more variables to the specified message
-     * 
+     *
      * @param variables
      *            list of variables to be added
-     * 
+     *
      * @param messageIndices
      *            (sub-)message indices to which the variable will be added
-     * 
+     *
      * @param parentIndex
      *            parent message index if this is a sub-message; -1 if this is
      *            not a sub-message
-     * 
+     *
      * @return List containing the names of the variables added
      *************************************************************************/
     private List<String> addVariableToMessage(List<Variable> variables,
@@ -711,11 +713,11 @@ public class CcddSchedulerHandler
     /**************************************************************************
      * Parse an option string to extract the message indices and, if a
      * sub-message, the sub-message index
-     * 
+     *
      * @param option
      *            string representing the option in the format Message[s] #[, #
      *            [, ...]][ sub-msg[s] #[, # [, ...]]]
-     * 
+     *
      * @return Two-element object array. If the option string does not contains
      *         only a message name or names then the first element is -1
      *         (indicating no sub-messages) and the second element is the array
@@ -775,10 +777,10 @@ public class CcddSchedulerHandler
 
     /**************************************************************************
      * Get the index of the specified message
-     * 
+     *
      * @param msgName
      *            message name
-     * 
+     *
      * @return Message index; -1 if the no message of the specified name exists
      *************************************************************************/
     private int getMessageIndexByName(String msgName)
@@ -803,13 +805,13 @@ public class CcddSchedulerHandler
     /**************************************************************************
      * Find the message option that has the largest message with the least
      * amount of room
-     * 
+     *
      * @param rate
      *            rate of the options
-     * 
+     *
      * @param totalSize
      *            size of the variable(s) in bytes
-     * 
+     *
      * @return Message into which the specified bytes can fit; null if no
      *         option is chosen
      *************************************************************************/
@@ -927,7 +929,7 @@ public class CcddSchedulerHandler
 
     /**************************************************************************
      * Create dual scroll panels
-     * 
+     *
      * @return Split pane containing the dual panels
      *************************************************************************/
     @SuppressWarnings("serial")
@@ -1211,14 +1213,14 @@ public class CcddSchedulerHandler
 
     /**************************************************************************
      * Get the smallest byte count for a list of (sub-)messages
-     * 
+     *
      * @param indices
      *            (sub-)message indices
-     * 
+     *
      * @param parentIndex
      *            parent message index if this is a sub-message; -1 if this is
      *            not a sub-message
-     * 
+     *
      * @return Smallest number of bytes
      *************************************************************************/
     private int getSmallestByteSize(Integer[] indices, int parentIndex)
@@ -1246,7 +1248,7 @@ public class CcddSchedulerHandler
     /**************************************************************************
      * Create a panel to contain a pair of arrow buttons. Make all but the
      * button icons transparent
-     * 
+     *
      * @return JPanel containing the arrow buttons in a vertical layout
      *************************************************************************/
     private JPanel createArrowButtonPanel()
@@ -1424,7 +1426,7 @@ public class CcddSchedulerHandler
 
     /**************************************************************************
      * Enable/disable the dialog arrow buttons
-     * 
+     *
      * @param enable
      *            true to enable the arrows, false to disable
      *************************************************************************/
@@ -1437,13 +1439,13 @@ public class CcddSchedulerHandler
     /**************************************************************************
      * Check if a message has a remaining slot available for the variables. If
      * this is not for the application scheduler then always return true
-     * 
+     *
      * @param indices
      *            array of subMessge indices
-     * 
+     *
      * @param numOfVars
      *            number of variables being added
-     * 
+     *
      * @return true if there is room for the variable(s); false if there is
      *         insufficient room
      *************************************************************************/
@@ -1455,7 +1457,7 @@ public class CcddSchedulerHandler
         if (getSchedulerOption() == SchedulerType.APPLICATION_SCHEDULER)
         {
             // Get the number of slots from the application parameters
-            int slots = appHandler.getNumberOfSlots();
+            int slots = appHandler.getNumberOfMessagesPerTimeSlot();
 
             // Step through each message
             for (int index = 0; index < indices.length; index++)

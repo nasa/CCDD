@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary housekeeping copy table handler. Copyright
- * 2017 United States Government as represented by the Administrator of the
- * National Aeronautics and Space Administration. No copyright is claimed in
- * the United States under Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary housekeeping copy table handler.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -31,7 +33,7 @@ public class CcddCopyTableHandler
 
     /**************************************************************************
      * Housekeeping copy table handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
@@ -51,35 +53,35 @@ public class CcddCopyTableHandler
 
     /**************************************************************************
      * Create a copy table based on the message definitions
-     * 
+     *
      * @param fieldHandler
      *            field handler reference
-     * 
+     *
      * @param linkHandler
      *            link handler reference
-     * 
+     *
      * @param dataStreamName
      *            data stream name
-     * 
+     *
      * @param headerSize
      *            size of the packet header in bytes
-     * 
+     *
      * @param messageIDNameField
      *            name of the structure table data field containing the message
      *            ID name. If provided this is used instead of the
      *            tlmMessageIDs list
-     * 
+     *
      * @param tlmMessageIDs
      *            list containing string array entries giving the structure
      *            table path+name and the table's associated message ID name.
      *            Used if messageIDNameField is null
-     * 
+     *
      * @param optimize
      *            true to create copy table with memory copies optimized
-     * 
+     *
      * @param expandMacros
      *            true to expand any macro within the variable names
-     * 
+     *
      * @return Array containing the copy table entries
      *************************************************************************/
     protected String[][] createCopyTable(CcddFieldHandler fieldHandler,
@@ -202,10 +204,10 @@ public class CcddCopyTableHandler
     /**************************************************************************
      * Get the messages ID names and their corresponding ID values for the
      * specified data stream
-     * 
+     *
      * @param streamName
      *            data stream name
-     * 
+     *
      * @return String array containing the message ID names and ID values;
      *         returns blank if there are no entries for the specified data
      *         stream or if data stream name is invalid
@@ -244,10 +246,10 @@ public class CcddCopyTableHandler
 
     /**************************************************************************
      * Get messages for the specified rate from the project database
-     * 
+     *
      * @param streamName
      *            data stream name
-     * 
+     *
      * @return List of messages for the specified rate
      *************************************************************************/
     private List<Message> getStoredMessages(String streamName)
@@ -262,7 +264,7 @@ public class CcddCopyTableHandler
     /**************************************************************************
      * Remove bit-packed variables, other than the leading one, from the
      * specified message's copy table entries
-     * 
+     *
      * @param messageTable
      *            message copy table
      *************************************************************************/
@@ -308,7 +310,7 @@ public class CcddCopyTableHandler
 
     /**************************************************************************
      * Optimize the copy table by combining consecutive memory copies
-     * 
+     *
      * @param messageTable
      *            message copy table
      *************************************************************************/
@@ -360,10 +362,10 @@ public class CcddCopyTableHandler
     /**************************************************************************
      * Add the input and output structure offsets to the specified message's
      * copy table entries
-     * 
+     *
      * @param headerSize
      *            message header size, bytes
-     * 
+     *
      * @param messageTable
      *            message copy table
      *************************************************************************/

@@ -1,10 +1,10 @@
 /******************************************************************************
  * Description: Output a CSV version of all telemetry items
- * 
+ *
  * This JavaScript script generates a CSV file from  all table and packet information
  *****************************************************************************/
-importClass(Packages.CCDD.CcddScriptDataAccessHandler);
 
+importClass(Packages.CCDD.CcddScriptDataAccessHandler);
 
 var d = new Date(Date.now());
 
@@ -78,9 +78,9 @@ function make_csv()
 	var file3 = ccdd.openOutputFile(outputFile); // Open the output file
 	var file2 = ccdd.openOutputFile("raw"); // Open the output file
 	var file  = ccdd.openOutputFile("foo3"); // Open the output file
-	    
+	
 	    // Check if the output file successfully opened
-	if (file == null) 
+	if (file == null)
 	  { ccdd.showErrorDialog("<html><b>Error opening output file '</b>" + outputFile + "<b>'"); return; } // Display an error dialog
 
 	// Get the number of header files to include
@@ -160,7 +160,7 @@ print("Before CSV writting()     " + Date.now() / 1000+"\n");
 			ccdd.writeToFile(file2,oneRow[col]+",");
 		ccdd.writeToFileLn(file2,"");
 
-		if ((num_cols == 1*0) || (is_basetype(lastItem) != "NULL") ) 
+		if ((num_cols == 1*0) || (is_basetype(lastItem) != "NULL") )
 		{
 			var BW="";
 			if (theRate!="")
@@ -177,9 +177,9 @@ print("Before CSV writting()     " + Date.now() / 1000+"\n");
 		}
      // else { ccdd.writeToFileLn(file3,"");}
 
-		if ((num_cols == 1*0) || (is_basetype(lastItem) != "NULL")) 
+		if ((num_cols == 1*0) || (is_basetype(lastItem) != "NULL"))
 		ccdd.writeToFileLn(file3,"")
-	 
+	
     var structSize="";
 }
 print("After CSV writting()      " + Date.now() / 1000+"\n");

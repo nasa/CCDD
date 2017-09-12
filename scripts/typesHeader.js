@@ -1,10 +1,10 @@
 /*******************************************************************************
  * Description: Output a structure types header file
- * 
+ *
  * This JavaScript script generates a structure types header file from the
  * supplied structure table(s). A companion source code file is also generated
  * that provides byte- and bit-swapping functions for the structures
- * 
+ *
  * Assumptions: The structure tables use "Description" for the description
  * column (case insensitive). If the structure has a non-empty data field named
  * "Message ID" then it is assumed to require a CCSDS header which is
@@ -15,11 +15,12 @@
  * then in the first structure table associated with the script; if no "System"
  * data field exists or is empty the name is blank. The project's data type
  * definitions are output to the types header file
- * 
+ *
  * Copyright 2017 United States Government as represented by the Administrator
  * of the National Aeronautics and Space Administration. No copyright is claimed
  * in the United States under Title 17, U.S. Code. All Other Rights Reserved.
  ******************************************************************************/
+
 try
 {
     load("nashorn:mozilla_compat.js");
@@ -42,12 +43,12 @@ var dataStreams = ccdd.getDataStreamNames();
 /** Functions *************************************************************** */
 
 /*******************************************************************************
- * Output the script association details to the specified file
- * 
+ * Output the file creation details to the specified file
+ *
  * @param file
  *            reference to the output file
  ******************************************************************************/
-function outputAssociationInfo(file)
+function outputFileCreationInfo(file)
 {
     // Add the build information and header to the output file
     ccdd.writeToFileLn(file, "/* Created : " + ccdd.getDateAndTime() + "\n   User    : " + ccdd.getUser() + "\n   Project : " + ccdd.getProject() + "\n   Script  : " + ccdd.getScriptName());
@@ -69,10 +70,10 @@ function outputAssociationInfo(file)
 
 /*******************************************************************************
  * Output a structure's type definition to the specified file
- * 
+ *
  * @param file
  *            reference to the types header output file
- * 
+ *
  * @param structIndex
  *            index of the structure in the structure name array
  ******************************************************************************/
@@ -388,7 +389,7 @@ function outputStructure(file, structIndex)
                     var rateValue = ccdd.getStructureTableData(dataStreams[dataStream], row);
 
                     // Check if the variable has a rate assigned in this stream
-                    if (!rateValue.isEmpty())
+                    if (rateValue != null && !rateValue.isEmpty())
                     {
                         // Build the rate information
                         rateInfo += "{" + dataStreams[dataStream] + " @" + rateValue + " Hz}";
@@ -410,7 +411,7 @@ function outputStructure(file, structIndex)
 
 /*******************************************************************************
  * Create the types header file
- * 
+ *
  * @param baseFileName
  *            base for the types header output file name
  ******************************************************************************/
@@ -427,7 +428,7 @@ function makeHeaders(baseFileName)
     if (typesFile != null)
     {
         // Add the build information to the output file
-        outputAssociationInfo(typesFile);
+        outputFileCreationInfo(typesFile);
 
         // Add the header include to prevent loading the file more than once
         ccdd.writeToFileLn(typesFile, "#ifndef " + headerIncludeFlag);
@@ -505,7 +506,7 @@ function makeHeaders(baseFileName)
 
 /*******************************************************************************
  * Create the byte and bit swapping function source code file
- * 
+ *
  * @param baseFileName
  *            base for the swap output file name
  ******************************************************************************/
@@ -522,7 +523,7 @@ function makeSwapFile(baseFileName)
         var hasBitField = [];
 
         // Add the build information to the output file
-        outputAssociationInfo(swapFile);
+        outputFileCreationInfo(swapFile);
 
         // Output the source for the bit field swap and bit reversal functions
         ccdd.writeToFileLn(swapFile, "#include <byteswap.h>");

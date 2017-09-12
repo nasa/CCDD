@@ -1,14 +1,15 @@
 #******************************************************************************
 # Description: Output the CFS housekeeping (HK) application copy table
 # definition
-# 
+#
 # This Ruby script generates the HK copy table file from the supplied table
 # and packet information
-# 
+#
 # Copyright 2017 United States Government as represented by the Administrator
 # of the National Aeronautics and Space Administration. No copyright is claimed
 # in the United States under Title 17, U.S. Code. All Other Rights Reserved.
 #******************************************************************************
+
 java_import Java::CCDD.CcddScriptDataAccessHandler
 
 $usedHKNames = []
@@ -33,12 +34,12 @@ $VARIABLE_NAME = 6
 #** Functions *****************************************************************
 
 #******************************************************************************
-# Output the script association details to the specified file
-# 
+# Output the file creation details to the specified file
+#
 # @param file
 #            reference to the output file
 #******************************************************************************
-def outputAssociationInfo(file)
+def outputFileCreationInfo(file)
   # Add the build information and header to the output file
   $ccdd.writeToFileLn(file, "/* Created : " + $ccdd.getDateAndTime() + "\n   User    : " + $ccdd.getUser() + "\n   Project : " + $ccdd.getProject() + "\n   Script  : " + $ccdd.getScriptName())
 
@@ -70,7 +71,7 @@ def makeCopyTableFile()
         allTableEntries = []
 
         # Add the build information to the output file
-        outputAssociationInfo(copyTableFile)
+        outputFileCreationInfo(copyTableFile)
 
         # Get an array containing the data stream names
         copyTables = $ccdd.getDataStreamNames()
@@ -151,7 +152,7 @@ def makeCopyTableFile()
                     else
                         comma = ""
                     end
-                    
+
                     # Write the entry to the copy table file
                     $ccdd.writeToFileFormat(copyTableFile, formatBody, copyTableEntries[row][$INPUT_MSG_ID], copyTableEntries[row][$INPUT_OFFSET], copyTableEntries[row][$OUTPUT_MSG_ID], copyTableEntries[row][$OUTPUT_OFFSET], copyTableEntries[row][$VARIABLE_BYTES], comma, copyTableEntries[row][$VARIABLE_PARENT], copyTableEntries[row][$VARIABLE_NAME])
 
@@ -178,10 +179,10 @@ def makeCopyTableFile()
                 # Add the blank entry to the copy table
                 $ccdd.writeToFileLn(copyTableFile, "/* " + (index + $HK_COPY_TABLE_ENTRIES - rowsRemaining).to_s + " */ " + blankEntry + ", ")
             end
-            
+
             $ccdd.writeToFileLn(copyTableFile, "/* " + $HK_COPY_TABLE_ENTRIES.to_s + " */ " + blankEntry)
         end
-        
+
         # Terminate the table definition statement
         $ccdd.writeToFileLn(copyTableFile, "};")
         $ccdd.writeToFileLn(copyTableFile, "")
@@ -209,7 +210,7 @@ def makeIDDefinitionFile()
     # Check if the types header file successfully opened
     if idDefinesFile != nil
         # Add the build information to the output file
-        outputAssociationInfo(idDefinesFile)
+        outputFileCreationInfo(idDefinesFile)
 
         # Add the header include to prevent loading the file more than once
         $ccdd.writeToFileLn(idDefinesFile, "#ifndef " + headerIncludeFlag)
@@ -226,10 +227,10 @@ def makeIDDefinitionFile()
                 # Output the Includes table's 'includes' column data
                 $ccdd.writeToFileLn(idDefinesFile, $ccdd.getTableData("Includes", "includes", row))
             end
-            
+
             $ccdd.writeToFileLn(idDefinesFile, "")
         end
-        
+
         minimumLength = 1
 
         # Step through the list of names that are used
@@ -243,7 +244,7 @@ def makeIDDefinitionFile()
 
         # Step through the list of names that are used
         for index in 0..$usedHKNames.length - 1
-            # Output the ID name and ID to the file 
+            # Output the ID name and ID to the file
             $ccdd.writeToFileFormat(idDefinesFile, "#define %-" + minimumLength.to_s + "s  (%7s + FC_OFFSET )\n", $usedHKNames[index], $usedHKValues[index])
         end
 

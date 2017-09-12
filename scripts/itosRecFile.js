@@ -1,9 +1,9 @@
 /*******************************************************************************
  * Description: Output an ITOS record file
- * 
+ *
  * This JavaScript script generates an ITOS record file from the supplied
  * telemetry and command information
- * 
+ *
  * Assumptions: If the structure has a non-empty data field named "Message ID"
  * then it is assumed to require a CCSDS header which is automatically added. If
  * a table containing extra text to include is provided then its table type is
@@ -13,11 +13,12 @@
  * structure table associated with the script; if no "System" data field exists
  * or is empty the name is blank. The project's data type definitions are output
  * to the types header file
- * 
+ *
  * Copyright 2017 United States Government as represented by the Administrator
  * of the National Aeronautics and Space Administration. No copyright is claimed
  * in the United States under Title 17, U.S. Code. All Other Rights Reserved.
  ******************************************************************************/
+
 try
 {
     load("nashorn:mozilla_compat.js");
@@ -31,12 +32,12 @@ importClass(Packages.CCDD.CcddScriptDataAccessHandler);
 /** Functions *************************************************************** */
 
 /*******************************************************************************
- * Output the script association details to the specified file
- * 
+ * Output the file creation details to the specified file
+ *
  * @param file
  *            reference to the output file
  ******************************************************************************/
-function outputAssociationInfo(file)
+function outputFileCreationInfo(file)
 {
     // Add the build information and header to the output file
     ccdd.writeToFileLn(file, "/* Created : " + ccdd.getDateAndTime() + "\n   User    : " + ccdd.getUser() + "\n   Project : " + ccdd.getProject() + "\n   Script  : " + ccdd.getScriptName());
@@ -60,13 +61,13 @@ function outputAssociationInfo(file)
  * Determine if the row containing the specified variable is not an array
  * definition. A row in a table is an array definition if a value is present in
  * the array size column but the variable name does not end with a ']'
- * 
+ *
  * @param variableName
  *            variable name
- * 
+ *
  * @param arraySize
  *            array size
- * 
+ *
  * @return true if the variable is not an array definition
  ******************************************************************************/
 function isVariable(variableName, arraySize)
@@ -77,10 +78,10 @@ function isVariable(variableName, arraySize)
 /*******************************************************************************
  * Check if the variable on the specified row in the structure data has at least
  * one non-blank rate value
- * 
+ *
  * @param row
  *            row index in the structure data table
- * 
+ *
  * @return true if the variable in the specified row has at least one non-blank
  *         rate value
  ******************************************************************************/
@@ -109,13 +110,13 @@ function isTelemetry(row)
 
 /*******************************************************************************
  * Build the command enumeration name
- * 
+ *
  * @param row
  *            row index in the command data table
- * 
+ *
  * @param argumentNum
  *            command argument number
- * 
+ *
  * @return Command enumeration name
  ******************************************************************************/
 function getCommandEnumerationName(row, argumentNum)
@@ -126,11 +127,11 @@ function getCommandEnumerationName(row, argumentNum)
 /*******************************************************************************
  * Output an array of structure row indices that order the bit-packed variables
  * in the structure table based on endianess
- * 
+ *
  * @param endian
  *            "BE" (big endian) or "LE" (little endian), depending on what byte
  *            order is desired
- * 
+ *
  * @return Array of structure row indices with the bit-packed variables ordered
  *         in the structure table based on endianess
  ******************************************************************************/
@@ -223,14 +224,14 @@ function reorderRowsForByteOrder(endian)
 
 /*******************************************************************************
  * Output a telemetry packet or prototype structure definition
- * 
+ *
  * @param structureName
  *            structure name
- * 
+ *
  * @param isPacket
  *            true if this is a telemetry packet definition; false for a
  *            prototype structure definition
- * 
+ *
  * @param outFile
  *            output file
  ******************************************************************************/
@@ -380,10 +381,10 @@ function outputStructureDefinition(structureName, isPacket, outFile)
 
 /*******************************************************************************
  * Get the last 12 bits of a hexadecimal message ID
- * 
+ *
  * @param msgID
  *            message ID
- * 
+ *
  * @return Last 12 bits of a message ID formatted as a 4 digit hex number (i.e.
  *         0x031f); '0x0000' if the message ID isn't an integer or hexadecimal
  *         value
@@ -415,10 +416,10 @@ function extractMessageID(msgID)
 
 /*******************************************************************************
  * Get the last 12 bits of a hexadecimal message ID
- * 
+ *
  * @param msgID
  *            message ID
- * 
+ *
  * @return Last 12 bits of a message ID formatted as a 3 digit hex number (i.e.
  *         0x31f); '0x000' if the message ID isn't an integer or hexadecimal
  *         value
@@ -450,17 +451,17 @@ function extractCommandID(msgID)
 
 /*******************************************************************************
  * Output a telemetry packet definition
- * 
+ *
  * @param prefix
  *            structure name prefix; used to differentiate the same structure
  *            when defined for multiple flight computers
- * 
+ *
  * @param structureName
  *            structure name
- * 
+ *
  * @param msgID
  *            message ID (hexadecimal)
- * 
+ *
  * @param msgIDOffset
  *            message ID offset (hexadecimal)
  ******************************************************************************/
@@ -478,7 +479,7 @@ function outputTelemetryPacket(prefix, structureName, msgID, msgIDOffset)
 
 /*******************************************************************************
  * Output the telemetry structure prototype and packet definitions
- * 
+ *
  * @param structureNames
  *            array of all structure table names, sorted by order of reference
  ******************************************************************************/
@@ -542,13 +543,13 @@ function outputStructures(structureNames)
 
 /*******************************************************************************
  * Output the commands
- * 
+ *
  * @param prefix
  *            command name prefix
- * 
+ *
  * @param msgIDOffset
  *            message ID offset
- * 
+ *
  * @param system
  *            system name
  ******************************************************************************/
@@ -694,7 +695,7 @@ function outputCommands(prefix, msgIDOffset, system)
 
 /*******************************************************************************
  * Output a single mnemonic definition
- * 
+ *
  * @param row
  *            row index in the structure data table
  ******************************************************************************/
@@ -702,7 +703,7 @@ function outputMnemonicDefinition(row)
 {
     // Get the variable data type
     var dataType = ccdd.getStructureDataType(row);
-    
+
     // Get the single character ITOS encoded form of the data type
     var itosEncode = ccdd.getITOSEncodedDataType(dataType, "SINGLE_CHAR");
 
@@ -844,13 +845,13 @@ function outputMnemonicDefinitions()
 
 /*******************************************************************************
  * Output a single discrete conversion (enumeration)
- * 
+ *
  * @param file
  *            file to which to write the discrete conversion
- * 
+ *
  * @param discreteConversion
  *            discrete conversion information
- * 
+ *
  * @param conversionName
  *            conversion name
  ******************************************************************************/
@@ -995,10 +996,10 @@ function outputCommandDiscreteConversions()
 
 /*******************************************************************************
  * Output a single enumeration
- * 
+ *
  * @param enumeration
  *            enumeration information
- * 
+ *
  * @param conversionName
  *            conversion name
  ******************************************************************************/
@@ -1034,7 +1035,7 @@ function outputCommandEnumeration(enumeration, enumerationName)
 
 /*******************************************************************************
  * Output all of the command enumerations
- * 
+ *
  * @param systemName
  *            system name
  ******************************************************************************/
@@ -1077,14 +1078,19 @@ function outputCommandEnumerations(systemName)
 
 /*******************************************************************************
  * Output a single limit or limit set definition
- * 
+ *
  * @param row
  *            row index in the structure data table
- * 
+ *
  * @param limitSets
  *            limit set(s)
+ *
+ * @param isFirst
+ *            true if this is the first limit definition
+ *
+ * @return true if a limit definition is output
  ******************************************************************************/
-function outputLimitDefinition(row, limitSets)
+function outputLimitDefinition(row, limitSets, isFirst)
 {
     // Get the variable name and array size
     var variableName = ccdd.getStructureVariableName(row);
@@ -1190,6 +1196,8 @@ function outputLimitDefinition(row, limitSets)
             }
         }
     }
+
+    return isFirst;
 }
 
 /*******************************************************************************
@@ -1208,23 +1216,21 @@ function outputLimitDefinitions()
         // Check if the parameter has limits
         if (limitSets != null && !limitSets.isEmpty())
         {
-            isFirst = false;
-
             // Output the limit definition for this row in the data table
-            outputLimitDefinition(row, limitSets);
+            isFirst = outputLimitDefinition(row, limitSets, isFirst);
         }
     }
 }
 
 /*******************************************************************************
  * Output a single polynomial conversion
- * 
+ *
  * @param prefix
  *            conversion name prefix
- * 
+ *
  * @param variableName
  *            variable name
- * 
+ *
  * @param coeffs
  *            polynomial coefficient array
  ******************************************************************************/
@@ -1252,10 +1258,10 @@ function outputPolynomial(prefix, variableName, coeffs)
 
 /*******************************************************************************
  * Output a single polynomial conversion
- * 
+ *
  * @param row
  *            row index in the structure data table
- * 
+ *
  * @param polynomialCoefficients
  *            one or more polynomial coefficient sets from the data table
  ******************************************************************************/
@@ -1545,8 +1551,8 @@ else
                 var structureNames = ccdd.getStructureTablesByReferenceOrder();
 
                 // Add a header to the output files
-                outputAssociationInfo(combFile);
-                outputAssociationInfo(tlmFile);
+                outputFileCreationInfo(combFile);
+                outputFileCreationInfo(tlmFile);
 
                 // Output the structure prototypes and telemetry packet
                 // definitions
@@ -1597,7 +1603,7 @@ else
                 if (cmdFile != null)
                 {
                     // Add a header to the output file
-                    outputAssociationInfo(cmdFile);
+                    outputFileCreationInfo(cmdFile);
 
                     // Step through each command table
                     for (var cmdTblIndex = 0; cmdTblIndex < ccdd.getCommandTableNames().length; cmdTblIndex++)

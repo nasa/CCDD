@@ -24,12 +24,12 @@ java_import Java::CCDD.CcddScriptDataAccessHandler
 #* Functions ******************************************************************
 
 #******************************************************************************
-# Output the script association details to the specified file
+# Output the file creation details to the specified file
 #
 # @param file
 #            reference to the output file
 #******************************************************************************
-def outputAssociationInfo(file)
+def outputFileCreationInfo(file)
   # Add the build information and header to the output file
   $ccdd.writeToFileLn(file, "/* Created : " + $ccdd.getDateAndTime() + "\n   User    : " + $ccdd.getUser() + "\n   Project : " + $ccdd.getProject() + "\n   Script  : " + $ccdd.getScriptName())
 
@@ -605,7 +605,7 @@ end
 def outputMnemonicDefinition(row)
     # Get the variable data type
     dataType = $ccdd.getStructureDataType(row)
-  
+
      # Get the single character ITOS encoded form of the data type
     itosEncode = $ccdd.getITOSEncodedDataType(dataType, "SINGLE_CHAR")
 
@@ -945,8 +945,13 @@ end
 #
 # @param limitSets
 #            limit set(s)
+#
+# @param isFirst
+#            true if this is the first limit definition
+#
+# @return True if a limit definition is output
 #******************************************************************************
-def outputLimitDefinition(row, limitSets)
+def outputLimitDefinition(row, limitSets, isFirst)
     # Get the variable name and array size
     variableName = $ccdd.getStructureVariableName(row)
     arraySize = $ccdd.getStructureArraySize(row)
@@ -1036,6 +1041,8 @@ def outputLimitDefinition(row, limitSets)
             end
         end
     end
+
+    return isFirst
 end
 
 #******************************************************************************
@@ -1051,10 +1058,8 @@ def outputLimitDefinitions()
 
         # Check if the parameter has limits
         if limitSets != nil && !limitSets.empty?
-            isFirst = false
-
             # Output the limit definition for this row in the data table
-            outputLimitDefinition(row, limitSets)
+            isFirst = outputLimitDefinition(row, limitSets)
         end
     end
 end
@@ -1352,8 +1357,8 @@ else
                 structureNames = $ccdd.getStructureTablesByReferenceOrder()
 
                 # Add a header to the output files
-                outputAssociationInfo($combFile)
-                outputAssociationInfo($tlmFile)
+                outputFileCreationInfo($combFile)
+                outputFileCreationInfo($tlmFile)
 
                 # Output the structure prototypes and telemetry packet
                 # definitions
@@ -1399,7 +1404,7 @@ else
                 # Check if the command output file successfully opened
                 if $cmdFile != nil
                     # Add a header to the output file
-                    outputAssociationInfo($cmdFile)
+                    outputFileCreationInfo($cmdFile)
 
                     # Step through each command table
                     for cmdTblIndex in 0..$ccdd.getCommandTableNames().length - 1

@@ -1,8 +1,10 @@
 /**
- * CFS Command & Data Dictionary group manager dialog. Copyright 2017 United
- * States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United
- * States under Title 17, U.S. Code. All Other Rights Reserved.
+ * CFS Command & Data Dictionary group manager dialog.
+ *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -359,8 +361,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                             // disable and clear the description field, and
                             // remove any data fields
                             setGroupAndFields(selected.length == 1
-                                                                   ? selected[0]
-                                                                   : null);
+                                                                  ? selected[0]
+                                                                  : null);
 
                             // Check if the node change isn't set to be ignored
                             // for undo/redo purposes. The undo handler sets
@@ -969,8 +971,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         applicationCb.setEnabled(enable);
 
         applicationCb.setSelected(enable
-                                         ? isApplication
-                                         : false);
+                                        ? isApplication
+                                        : false);
     }
 
     /**************************************************************************
@@ -1314,7 +1316,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                               + selected[0]
                               + "' to:",
                               selected[0]
-                                         + "_copy",
+                                  + "_copy",
                               dialogPnl);
 
             // Create the group copying dialog
@@ -1464,7 +1466,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             // Inform the user that the input value is invalid
             new CcddDialogHandler().showMessageDialog(CcddGroupManagerDialog.this,
                                                       "<html><b>"
-                                                                                   + ce.getMessage(),
+                                                          + ce.getMessage(),
                                                       "Missing/Invalid Input",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -1675,8 +1677,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // exist
         setTitle(DIALOG_TITLE
                  + (isGroupsChanged()
-                                      ? "*"
-                                      : ""));
+                                     ? "*"
+                                     : ""));
     }
 
     /**************************************************************************
