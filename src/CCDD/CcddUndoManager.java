@@ -46,7 +46,7 @@ public class CcddUndoManager extends UndoManager
     /**************************************************************************
      * Add an edit action to the compound edit sequence in progress. If no
      * sequence is active then first create a new sequence
-     * 
+     *
      * @param editAction
      *            edit action
      *************************************************************************/

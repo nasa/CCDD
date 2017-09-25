@@ -56,10 +56,6 @@ public class CcddCommonTreeHandler extends JTree
     // variables
     private int lastPackRow;
 
-    // Flag that indicates if table node selection changes should be ignored
-    // for undo/redo consideration
-    private boolean ignoreSelectionChange;
-
     /**************************************************************************
      * Common tree handler class constructor
      *************************************************************************/
@@ -79,7 +75,6 @@ public class CcddCommonTreeHandler extends JTree
         linkedPackedVariableIcon = new ImageIcon(getClass().getResource(LINKED_PACKED_VARIABLE_ICON));
 
         lastPackRow = -1;
-        ignoreSelectionChange = false;
     }
 
     /**************************************************************************
@@ -88,30 +83,6 @@ public class CcddCommonTreeHandler extends JTree
      *************************************************************************/
     protected void updateTableSelection()
     {
-    }
-
-    /**************************************************************************
-     * Set the flag that indicates if table node selection edits should be
-     * ignored for undo/redo consideration
-     *
-     * @param ignore
-     *            true to not store table node selection edits
-     *************************************************************************/
-    protected void setIgnoreSelectionChange(boolean ignore)
-    {
-        ignoreSelectionChange = ignore;
-    }
-
-    /**************************************************************************
-     * Get the flag that indicates if table node selection edits should be
-     * ignored for undo/redo consideration
-     *
-     * @return true if table node selection edits are to be ignored for
-     *         undo/redo consideration
-     *************************************************************************/
-    protected boolean isIgnoreSelectionChange()
-    {
-        return ignoreSelectionChange;
     }
 
     /**************************************************************************
@@ -670,7 +641,7 @@ public class CcddCommonTreeHandler extends JTree
             // Step through each selected table
             for (TreePath path : selectedPaths)
             {
-                // Check id the node is disabled
+                // Check if the node is disabled
                 if (path.toString().contains(DISABLED_TEXT_COLOR))
                 {
                     // Clear the selected node

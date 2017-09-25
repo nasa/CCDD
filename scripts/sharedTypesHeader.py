@@ -1,8 +1,8 @@
 #******************************************************************************
 # Description: Output a message ID header file
 #
-# This Python script generates a message ID header file from the supplied
-# table information
+# This Python script generates a shared structure types header file from the
+# supplied structure table(s).
 #
 # Copyright 2017 United States Government as represented by the Administrator
 # of the National Aeronautics and Space Administration. No copyright is claimed

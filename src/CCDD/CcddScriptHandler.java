@@ -54,6 +54,7 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.TableRowSorter;
 import javax.swing.text.JTextComponent;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
@@ -74,6 +75,7 @@ import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
+import CCDD.CcddUndoHandler.UndoableTableModel;
 
 /******************************************************************************
  * CFS Command & Data Dictionary script handler class. This class handles
@@ -159,7 +161,9 @@ public class CcddScriptHandler
         protoNamesAndTableTypes.addAll(dbTable.queryTableAndTypeList(parent));
 
         // Load the group information from the database
-        CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain, parent);
+        CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain,
+                                                             null,
+                                                             parent);
 
         // Step through each script association
         for (String[] assn : committedAssociations)
@@ -427,6 +431,48 @@ public class CcddScriptHandler
                                                                                                              ""));
                 }
             }
+
+            /**************************************************************
+             * Override the method that sets the row sorter so that special
+             * sorting can be performed on the script file column
+             *************************************************************/
+            @Override
+            protected void setTableSortable()
+            {
+                super.setTableSortable();
+
+                // Get a reference to the sorter
+                @SuppressWarnings("unchecked")
+                TableRowSorter<UndoableTableModel> sorter = (TableRowSorter<UndoableTableModel>) getRowSorter();
+
+                // Check if the sorter exists. The sorter doesn't exist (is
+                // null) if there are no rows in the table
+                if (sorter != null)
+                {
+                    // Add a sort comparator for the script file column
+                    sorter.setComparator(AssociationsTableColumnInfo.SCRIPT_FILE.ordinal(), new Comparator<String>()
+                    {
+                        /**************************************************
+                         * Override the comparison when sorting the script file
+                         * column to ignore the script file paths if these are
+                         * currently hidden
+                         *************************************************/
+                        @Override
+                        public int compare(String filePath1, String filePath2)
+                        {
+                            return (hideScriptFilePath.isSelected()
+                                                                   ? filePath1.replaceFirst(".*"
+                                                                                            + Pattern.quote(File.separator),
+                                                                                            "")
+                                                                   : filePath1).compareTo(hideScriptFilePath.isSelected()
+                                                                                                                         ? filePath2.replaceFirst(".*"
+                                                                                                                                                  + Pattern.quote(File.separator),
+                                                                                                                                                  "")
+                                                                                                                         : filePath2);
+                        }
+                    });
+                }
+            }
         };
 
         // Set the list selection model in order to detect table rows that
@@ -496,7 +542,6 @@ public class CcddScriptHandler
         gbc.weighty = 0.0;
         gbc.gridy++;
         assnsPnl.add(hideScriptFilePath, gbc);
-
         return assnsPnl;
     }
 
@@ -922,13 +967,17 @@ public class CcddScriptHandler
         List<String> loadedTablePaths = new ArrayList<String>();
 
         // Get the link assignment information, if any
-        CcddLinkHandler linkHandler = new CcddLinkHandler(ccddMain, component);
+        CcddLinkHandler linkHandler = new CcddLinkHandler(ccddMain,
+                                                          null,
+                                                          component);
 
         // Load the data field information from the database
         CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain, null, component);
 
         // Load the group information from the database
-        CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain, component);
+        CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain,
+                                                             null,
+                                                             component);
 
         // To reduce database access and speed script execution when executing
         // multiple associations, first load all of the associated tables,

@@ -53,13 +53,13 @@ function outputFileCreationInfo(file)
     // Check if any table is associated with the script
     if (ccdd.getTableNumRows() != 0)
     {
-        ccdd.writeToFileLn(file, "   Table(s): " + ccdd.getTableNames().sort().join(",\n             "));
+        ccdd.writeToFileLn(file, "   Table(s): " + [].slice.call(ccdd.getTableNames()).sort().join(",\n             "));
     }
 
     // Check if any groups is associated with the script
     if (ccdd.getAssociatedGroupNames().length != 0)
     {
-        ccdd.writeToFileLn(file, "   Group(s): " + ccdd.getAssociatedGroupNames().sort().join(",\n             "));
+        ccdd.writeToFileLn(file, "   Group(s): " + [].slice.call(ccdd.getAssociatedGroupNames()).sort().join(",\n             "));
     }
 
     ccdd.writeToFileLn(file, "*/\n");

@@ -157,6 +157,8 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
     @SuppressWarnings("serial")
     private void initialize()
     {
+        isNodeSelectionChanging = false;
+
         // Initialize the currently selected rate to 1 Hz if present in the
         // list of available rates; otherwise choose the first rate if any
         // rates exist, and if none exist set the rate to a dummy value
@@ -205,6 +207,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
         // create the tree showing no variables
         variableTree = new CcddTableTreeHandler(ccddMain,
                                                 new CcddGroupHandler(ccddMain,
+                                                                     null,
                                                                      ccddMain.getMainFrame()),
                                                 TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES,
                                                 rateName,
@@ -226,7 +229,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                     // if a variable is selected in the variable tree. Note
                     // that below any assigned variables are deselected, so
                     // this call must occur first
-                    selectMessagebyVariable();
+                    selectMessageByVariable();
 
                     // Set the flag to prevent variable tree updates
                     isNodeSelectionChanging = true;
@@ -711,7 +714,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
 
     /**************************************************************************
      * Get the currently selected rate
-     * 
+     *
      * @return Currently selected rate
      *************************************************************************/
     @Override
@@ -817,11 +820,13 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
      * Select the message(s) in the assignment tree for which the selected
      * variable in the variable tree is a member
      *************************************************************************/
-    private void selectMessagebyVariable()
+    private void selectMessageByVariable()
     {
         // Check if only a single node is selected in the variable tree
-        if (variableTree.getSelectionPaths().length == 1)
+        if (variableTree.getSelectionPaths() != null
+            && variableTree.getSelectionPaths().length == 1)
         {
+            // Get the selected variable's path
             Object[] path = variableTree.getSelectionPath().getPath();
 
             // Set the start of the variable path

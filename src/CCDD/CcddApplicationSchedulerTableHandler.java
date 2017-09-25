@@ -30,10 +30,9 @@ public class CcddApplicationSchedulerTableHandler
     private final CcddSchedulerDbIOHandler schedulerDB;
     private final CcddApplicationParameterHandler appHandler;
 
-    private List<String[][]> entries;
+    private List<String[][]> sdtEntries;
     private final List<Variable> appList;
     private String[][] defines;
-    private List<String> schGroups;
     private List<Variable> applications;
     private List<Message> timeSlots;
 
@@ -62,75 +61,70 @@ public class CcddApplicationSchedulerTableHandler
 
         appList = schedulerDB.getVariableList(0);
         createSchedulerTableDefines();
-        createApplicationSchedulerTable();
-        createSchGrouplist();
+        createApplicationScheduleDefinitionTable();
     }
 
     /**************************************************************************
-     * Create a scheduler table based on the time slot definitions
+     * Create the schedule definition table entries based on the time slot
+     * definitions
      *************************************************************************/
-    private void createApplicationSchedulerTable()
+    private void createApplicationScheduleDefinitionTable()
     {
-        entries = new ArrayList<String[][]>();
+        sdtEntries = new ArrayList<String[][]>();
         int numMsgsPerSlot = appHandler.getNumberOfMessagesPerTimeSlot();
-        String[][] entry;
+        String[][] sdtEntry;
 
+        // Step through each message
         for (Message message : getValidatedStoredData())
         {
-            entry = new String[numMsgsPerSlot][6];
+            sdtEntry = new String[numMsgsPerSlot][6];
 
+            // Step through each message in the time slot
             for (int msgIndex = 0; msgIndex < numMsgsPerSlot; msgIndex++)
             {
+                // Sort the messages based on their assigned priority values
                 prioritizeApps(message);
 
+                // Check if a message is assigned to this message/time slot
                 if (message.getNumberOfVariables() > msgIndex)
                 {
+                    // Store the message entry
                     ApplicationData appData = (ApplicationData) message.getVariable(msgIndex);
-                    entry[msgIndex][0] = ENABLE;
-                    entry[msgIndex][1] = ACTIVITY;
-                    entry[msgIndex][2] = "1";
-                    entry[msgIndex][3] = "0";
-                    entry[msgIndex][4] = getMessageIndex(Integer.valueOf(appData.getWakeUpID().replace("0x", ""), 16));
-                    entry[msgIndex][5] = appData.getSchGroup();
+                    sdtEntry[msgIndex][0] = ENABLE;
+                    sdtEntry[msgIndex][1] = ACTIVITY;
+                    sdtEntry[msgIndex][2] = "1";
+                    sdtEntry[msgIndex][3] = "0";
+                    sdtEntry[msgIndex][4] = getMessageIndex(Integer.valueOf(appData.getWakeUpID().replace("0x", ""), 16));
+                    sdtEntry[msgIndex][5] = appData.getSchGroup();
                 }
+                // No message is assigned
                 else
                 {
-                    entry[msgIndex][0] = UNUSED;
-                    entry[msgIndex][1] = "0";
-                    entry[msgIndex][2] = "0";
-                    entry[msgIndex][3] = "0";
-                    entry[msgIndex][4] = "0";
-                    entry[msgIndex][5] = GROUPNONE;
+                    // Store an "unused" entry
+                    sdtEntry[msgIndex][0] = UNUSED;
+                    sdtEntry[msgIndex][1] = "0";
+                    sdtEntry[msgIndex][2] = "0";
+                    sdtEntry[msgIndex][3] = "0";
+                    sdtEntry[msgIndex][4] = "0";
+                    sdtEntry[msgIndex][5] = GROUPNONE;
                 }
             }
 
-            entries.add(entry);
+            // Add the message to the list of schedule definition table entries
+            sdtEntries.add(sdtEntry);
         }
     }
 
     /**************************************************************************
-     * Create a list of the SCh Group values
-     *************************************************************************/
-    private void createSchGrouplist()
-    {
-        schGroups = new ArrayList<String>();
-
-        for (Variable app : appList)
-        {
-            if (!schGroups.contains(((ApplicationData) app).getSchGroup()))
-            {
-                schGroups.add(((ApplicationData) app).getSchGroup());
-            }
-        }
-    }
-
-    /**************************************************************************
-     *
+     * Sort the list of messages based on the assigned priorities
      *************************************************************************/
     private void prioritizeApps(Message msg)
     {
         Collections.sort(msg.getVariables(), new Comparator<Variable>()
         {
+            /******************************************************************
+             * Compare the priorities for two messages
+             *****************************************************************/
             @Override
             public int compare(Variable var, Variable otherVar)
             {
@@ -161,16 +155,21 @@ public class CcddApplicationSchedulerTableHandler
     }
 
     /**************************************************************************
-     *
+     * Build the application wake-up message ID define statement parameters
      *************************************************************************/
     private void createSchedulerTableDefines()
     {
-        List<Variable> apps = new ArrayList<Variable>();
+        List<Variable> appsSorted = new ArrayList<Variable>();
 
-        apps.addAll(appList);
+        // Copy the list of applications
+        appsSorted.addAll(appList);
 
-        Collections.sort(apps, new Comparator<Variable>()
+        // Sort the applications based on wake-up ID
+        Collections.sort(appsSorted, new Comparator<Variable>()
         {
+            /******************************************************************
+             * Compare the wake-up IDs for two applications
+             *****************************************************************/
             @Override
             public int compare(Variable var, Variable otherVar)
             {
@@ -178,26 +177,37 @@ public class CcddApplicationSchedulerTableHandler
             }
         });
 
-        defines = new String[apps.size()][2];
+        defines = new String[appsSorted.size()][2];
         int index = 0;
 
-        for (Variable app : apps)
+        // Step through the sorted applications
+        for (Variable app : appsSorted)
         {
+            // Store the application wake-up message ID define statement
+            // parameters
             defines[index][0] = app.getFullName().toUpperCase() + "_WAKEUP_MID";
             defines[index][1] = Integer.valueOf(((ApplicationData) app).getWakeUpID().replace("0x", ""), 16).toString();
             index++;
         }
     }
 
-    protected String[][] getSchedulerTableDefines()
+    /**************************************************************************
+     * Get the application wake-up message ID define statement parameters
+     *
+     * @return Array containing the application wake-up message ID define
+     *         statement parameters
+     *************************************************************************/
+    protected String[][] getScheduleDefinitionTableDefines()
     {
         return defines;
     }
 
     /**************************************************************************
+     * Get the message definition table entries
      *
+     * @return Array containing the message definition table entries
      *************************************************************************/
-    protected String[] createSchedulerMessageTable()
+    protected String[] getMessageDefinitionTable()
     {
         String[] scheduleCommands = new String[appHandler.getNumberOfTimeSlots()];
         String command;
@@ -235,9 +245,9 @@ public class CcddApplicationSchedulerTableHandler
      * @return Array containing the specified entry in the schedule definition
      *         table
      *************************************************************************/
-    protected String[][] getApplicationScheduleDefinitionTableByRow(int row)
+    protected String[][] getScheduleDefinitionTableByRow(int row)
     {
-        return entries.get(row);
+        return sdtEntries.get(row);
     }
 
     /**************************************************************************
@@ -247,7 +257,7 @@ public class CcddApplicationSchedulerTableHandler
      *************************************************************************/
     protected int getNumberOfTimeSlots()
     {
-        return entries.size();
+        return sdtEntries.size();
     }
 
     /**************************************************************************

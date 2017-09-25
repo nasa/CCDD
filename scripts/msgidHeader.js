@@ -45,13 +45,13 @@ function outputFileCreationInfo(file)
     // Check if any table is associated with the script
     if (ccdd.getTableNumRows() != 0)
     {
-        ccdd.writeToFileLn(file, "   Table(s): " + ccdd.getTableNames().sort().join(",\n             "));
+        ccdd.writeToFileLn(file, "   Table(s): " + [].slice.call(ccdd.getTableNames()).sort().join(",\n             "));
     }
 
     // Check if any groups is associated with the script
     if (ccdd.getAssociatedGroupNames().length != 0)
     {
-        ccdd.writeToFileLn(file, "   Group(s): " + ccdd.getAssociatedGroupNames().sort().join(",\n             "));
+        ccdd.writeToFileLn(file, "   Group(s): " + [].slice.call(ccdd.getAssociatedGroupNames()).sort().join(",\n             "));
     }
 
     ccdd.writeToFileLn(file, "*/\n");
@@ -102,7 +102,7 @@ function makeTelemetryFile(baseFileName)
             if (msgIDName != null && !msgIDName.isEmpty() && msgIDName.length() > minimumLength)
             {
                 // Store the new minimum length
-                minimumLength = msgIDName.length()
+                minimumLength = msgIDName.length();
             }
         }
 
@@ -117,7 +117,7 @@ function makeTelemetryFile(baseFileName)
             if (msgIDName != null && !msgIDName.isEmpty() && msgIDName.length() > minimumLength)
             {
                 // Store the new minimum length
-                minimumLength = msgIDName.length()
+                minimumLength = msgIDName.length();
             }
         }
 
@@ -197,7 +197,7 @@ function makeCommandFile(baseFileName)
         for (var row = 0; row < numCommandRows; row++)
         {
             // Get the command name
-            var cmdName = ccdd.getCommandTableData("command name", row);
+            var cmdName = ccdd.getCommandName(row);
 
             // Check if the command name is present and the length exceeds the
             // minimum length found thus far
@@ -215,8 +215,8 @@ function makeCommandFile(baseFileName)
         for (var row = 0; row < numCommandRows; row++)
         {
             // Get the command ID name and ID value
-            var cmdName = ccdd.getCommandTableData("command name", row);
-            var cmdCode = ccdd.getCommandTableData("command code", row);
+            var cmdName = ccdd.getCommandName(row);
+            var cmdCode = ccdd.getCommandCode(row);
 
             // Check if the name and ID exist
             if (cmdCode != null && cmdName != null)

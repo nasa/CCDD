@@ -80,6 +80,8 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
      *************************************************************************/
     private void initialize()
     {
+        isNodeSelectionChanging = false;
+
         // Set the selected rate to a dummy value initially. Once the
         // application information is loaded the rate is initialized to 1 Hz if
         // that rate is valid

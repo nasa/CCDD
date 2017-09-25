@@ -48,6 +48,7 @@ import CCDD.CcddConstants.InternalTable.LinksColumn;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
+import CCDD.CcddUndoHandler.UndoableArrayList;
 import CCDD.CcddUndoHandler.UndoableTreeModel;
 
 /******************************************************************************
@@ -58,6 +59,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
 {
     // Class references
     private CcddLinkHandler linkHandler;
+    private CcddUndoHandler undoHandler;
 
     // Tree icons depicting links
     private final Icon validLinkIcon;
@@ -71,7 +73,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     private List<String[]> linkDefinitions;
 
     // link information (name, rate, size, and description)
-    private List<LinkInformation> linkInformation;
+    private UndoableArrayList<LinkInformation> linkInformation;
 
     // Flag to indicate if the link tree is being built
     private boolean isBuilding;
@@ -154,17 +156,17 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
 
     /**************************************************************************
      * Link tree handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param undoHandler
      *            reference to the undo handler
-     * 
+     *
      * @param rateName
      *            data stream rate column name associated with the tree; used
      *            to filter the links added to the link tree
-     * 
+     *
      * @param parent
      *            GUI component calling this method
      *************************************************************************/
@@ -182,7 +184,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
 
     /**************************************************************************
      * Get the reference to the link handler
-     * 
+     *
      * @return Reference to the link handler
      *************************************************************************/
     protected CcddLinkHandler getLinkHandler()
@@ -192,7 +194,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
 
     /**************************************************************************
      * Set the currently selected sample rate and force the link tree to redraw
-     * 
+     *
      * @param rate
      *            sample rate in samples per second
      *************************************************************************/
@@ -204,20 +206,26 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
 
     /**************************************************************************
      * Perform initialization steps prior to building the link tree
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
+     * @param undoHandler
+     *            reference to the undo handler
+     *
      * @param linkDefinitions
      *            list containing the link definitions
      *************************************************************************/
     @Override
-    protected void initialize(CcddMain ccddMain, List<String[]> linkDefinitions)
+    protected void initialize(CcddMain ccddMain,
+                              CcddUndoHandler undoHandler,
+                              List<String[]> linkDefinitions)
     {
+        this.undoHandler = undoHandler;
         this.linkDefinitions = linkDefinitions;
 
         // Get a reference to the link handler class
-        linkHandler = new CcddLinkHandler(ccddMain, linkDefinitions);
+        linkHandler = new CcddLinkHandler(ccddMain, undoHandler, linkDefinitions);
 
         // Set the tree to be collapsed initially
         isExpanded = false;
@@ -242,10 +250,10 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     /**************************************************************************
      * Create a list of variables, including their paths, that are referenced
      * by the specified link, or of any link if no link name is provided
-     * 
+     *
      * @param name
      *            link name; null to include all links
-     * 
+     *
      * @return List of variables, including their paths, that are referenced by
      *         the specified link, of any link if no link name is provided
      *************************************************************************/
@@ -272,10 +280,10 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
 
     /**************************************************************************
      * Get the reference to a specified link's information
-     * 
+     *
      * @param name
      *            link name
-     * 
+     *
      * @return Reference to the link's information; null if the link doesn't
      *         exist
      *************************************************************************/
@@ -303,16 +311,16 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
 
     /**************************************************************************
      * Add a new link to the link information class
-     * 
+     *
      * @param rateName
      *            rate column name
-     * 
+     *
      * @param linkName
      *            link name
-     * 
+     *
      * @param sampleRate
      *            link rate in samples per second
-     * 
+     *
      * @param description
      *            link description
      *************************************************************************/
@@ -339,8 +347,19 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     {
         List<String> links = new ArrayList<String>();
 
+        // Store the paths of the links selected for deletion. The paths are
+        // 'lost' when the nodes are removed in the next step
+        TreePath[] paths = getSelectionPaths();
+
+        // Remove the selected links(s) from the link tree. This is performed
+        // before removal of the link information so that an undo operation
+        // restores the link information prior to restoration of the tree
+        // node(s); this way if only a single link is restored via an undo then
+        // the link's description is displayed in the link manager
+        removeSelectedTopLevelNodes();
+
         // Step through each selected path
-        for (TreePath path : getSelectionPaths())
+        for (TreePath path : paths)
         {
             // Get the link node for this path. Extract the link name from the
             // node (minus the HTML tags and rate/size information
@@ -366,34 +385,31 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
             }
         }
 
-        // Remove the selected link(s) from the link tree
-        removeSelectedTopLevelNodes();
-
         // Update the link definitions to account for the deleted link
         updateLinkDefinitions();
     }
 
     /**************************************************************************
      * Build the link tree from the database
-     * 
+     *
      * @param filterByType
      *            true if the tree is filtered by table type. This is not
      *            applicable to the link tree, which can only contain structure
      *            references
-     * 
+     *
      * @param filterByApp
      *            true if the tree is filtered by application. This is not
      *            applicable to the link tree, which can only contain structure
      *            references
-     * 
+     *
      * @param filterValue
      *            string value that may be used to modify the tree building
      *            method; null or blank if not filtering
-     * 
+     *
      * @param filterFlag
      *            flag used to filter the tree content. Not used for the link
      *            tree
-     * 
+     *
      * @param parent
      *            GUI component calling this method
      *************************************************************************/
@@ -409,7 +425,8 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         // Get the tree's root node
         ToolTipTreeNode root = getRootNode();
 
-        linkInformation = new ArrayList<LinkInformation>();
+        // Create the storage for the link information
+        linkInformation = undoHandler.new UndoableArrayList<LinkInformation>();
 
         // Register the tool tip manager for the link tree (otherwise the tool
         // tips aren't displayed)
@@ -485,10 +502,10 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     /**************************************************************************
      * Add a copy of the specified link information object to the link
      * information list
-     * 
+     *
      * @param linkToCopy
      *            link information object to copy
-     * 
+     *
      * @param nameOfCopy
      *            name of the copy of the link
      *************************************************************************/
@@ -504,7 +521,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     /**************************************************************************
      * Initialize the link definition list with the link names, rates, and
      * descriptions
-     * 
+     *
      * @return List containing the links with their names, rates, and
      *         descriptions
      *************************************************************************/
@@ -532,13 +549,13 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      * Add the specified leaf definition to the tree definition list. Override
      * this method to insert the data stream rate column name into the leaf
      * definition
-     * 
+     *
      * @param treeDefns
      *            list to which to add the leaf definition
-     * 
+     *
      * @param leafDefn
      *            leaf definition to add to the list
-     * 
+     *
      * @param filterValue
      *            data stream rate name
      *************************************************************************/
@@ -557,10 +574,10 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     /**************************************************************************
      * Remove the HTML tags and rate/size text from the node names. The object
      * array is converted to a string array
-     * 
+     *
      * @param node
      *            path array
-     * 
+     *
      * @return Node path array with any HTML tags and rate/size text removed
      *************************************************************************/
     @Override
@@ -582,7 +599,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     /**************************************************************************
      * Override so that HTML tag(s) and text within parentheses (inclusive)
      * preceded by a space (the rate and size) is removed
-     * 
+     *
      * @param text
      *            string from which to remove the extra text
      *
@@ -683,13 +700,13 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     /**************************************************************************
      * Create a subtree with only the links that contain variables with sample
      * rates matching the selected rate
-     * 
+     *
      * @param rootNodeName
      *            name of the root node for the matching links
-     * 
+     *
      * @param rootNodeDescription
      *            tool tip text for the root node
-     * 
+     *
      * @return Node with only the links that contain variables with sample
      *         rates matching the selected rate
      *************************************************************************/
@@ -726,13 +743,13 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     /**************************************************************************
      * Create a link tree panel. The table tree is placed in a scroll pane. A
      * check box is added that allows tree expansion/collapse
-     * 
+     *
      * @param label
      *            link tree title
-     * 
+     *
      * @param selectionMode
      *            tree item selection mode (single versus multiple)
-     * 
+     *
      * @return JPanel containing the link tree components
      *************************************************************************/
     protected JPanel createTreePanel(String label, int selectionMode)

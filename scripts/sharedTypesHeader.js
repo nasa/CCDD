@@ -1,9 +1,9 @@
 /*******************************************************************************
  * Description: Output a message ID header file
- *
- * This JavaScript script generates a message ID header file from the supplied
- * table information
- *
+ * 
+ * This JavaScript script generates a shared structure types header file from
+ * the supplied structure table(s).
+ * 
  * Copyright 2017 United States Government as represented by the Administrator
  * of the National Aeronautics and Space Administration. No copyright is claimed
  * in the United States under Title 17, U.S. Code. All Other Rights Reserved.
@@ -32,7 +32,7 @@ var dataStreams = ccdd.getDataStreamNames();
 
 /*******************************************************************************
  * Output the file creation details to the specified file
- *
+ * 
  * @param file
  *            reference to the output file
  ******************************************************************************/
@@ -44,13 +44,13 @@ function outputFileCreationInfo(file)
     // Check if any table is associated with the script
     if (ccdd.getTableNumRows() != 0)
     {
-        ccdd.writeToFileLn(file, "   Table(s): " + ccdd.getTableNames().sort().join(",\n             "));
+        ccdd.writeToFileLn(file, "   Table(s): " + [].slice.call(ccdd.getTableNames()).sort().join(",\n             "));
     }
 
     // Check if any groups is associated with the script
     if (ccdd.getAssociatedGroupNames().length != 0)
     {
-        ccdd.writeToFileLn(file, "   Group(s): " + ccdd.getAssociatedGroupNames().sort().join(",\n             "));
+        ccdd.writeToFileLn(file, "   Group(s): " + [].slice.call(ccdd.getAssociatedGroupNames()).sort().join(",\n             "));
     }
 
     ccdd.writeToFileLn(file, "*/\n");
@@ -58,10 +58,10 @@ function outputFileCreationInfo(file)
 
 /*******************************************************************************
  * Output a structure's type definition to the specified file
- *
+ * 
  * @param file
  *            reference to the types header output file
- *
+ * 
  * @param structIndex
  *            index of the structure in the structure name array
  ******************************************************************************/
@@ -399,7 +399,7 @@ function outputStructure(file, structIndex)
 
 /*******************************************************************************
  * Output the shared structure type definitions header file
- *
+ * 
  * @param sharedFileName
  *            shared structure type definitions header file name
  ******************************************************************************/

@@ -5064,9 +5064,9 @@ public class CcddClasses
         }
 
         /**********************************************************************
-         * Override the contains method. Compare the input object to the first
-         * string in each array member in the list and return true is a match
-         * is found
+         * Override the contains method. Compare the input object to the string
+         * in the comparison column in each array member in the list and return
+         * true is a match is found
          *********************************************************************/
         @Override
         public boolean contains(Object obj)
@@ -5075,9 +5075,9 @@ public class CcddClasses
         }
 
         /**********************************************************************
-         * Override the indexOf method. Compare the input object to the first
-         * string in each array member in the list and return the index of the
-         * matching array, or -1 if no match is found
+         * Override the indexOf method. Compare the input object to the string
+         * in the comparison column in each array member in the list and return
+         * the index of the matching array, or -1 if no match is found
          *********************************************************************/
         @Override
         public int indexOf(Object obj)
@@ -5089,7 +5089,8 @@ public class CcddClasses
             // Step through each string array in the list
             for (String[] listString : this)
             {
-                // Check if the input string matches the first one in the array
+                // Check if the input string matches the one in the comparison
+                // column in the array
                 if (checkString.equals(listString[compareColumn]))
                 {
                     // Set the index to the matching one and stop searching

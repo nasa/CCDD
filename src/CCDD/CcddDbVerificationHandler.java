@@ -137,10 +137,10 @@ public class CcddDbVerificationHandler
 
         /**********************************************************************
          * Table data storage class constructor
-         * 
+         *
          * @param tableInformation
          *            reference to the table information
-         * 
+         *
          * @param committedData
          *            array containing the table data as it exists in the
          *            project database
@@ -884,7 +884,7 @@ public class CcddDbVerificationHandler
      * Check that the internal tables are consistent with their definitions. If
      * any inconsistencies are detected then get user approval to alter the
      * table(s)
-     * 
+     *
      * @param tableResult
      *            metadata for all tables
      *************************************************************************/
@@ -1091,7 +1091,7 @@ public class CcddDbVerificationHandler
      * Check that the references to tables and variables in the internal tables
      * are valid. If any invalid entries are detected then get user approval to
      * alter the table(s)
-     * 
+     *
      * @param tableResult
      *            metadata for all tables
      *************************************************************************/
@@ -1102,7 +1102,9 @@ public class CcddDbVerificationHandler
         try
         {
             // Load the group names from the database
-            List<String> groupNames = Arrays.asList(new CcddGroupHandler(ccddMain, ccddMain.getMainFrame()).getGroupNames(false));
+            List<String> groupNames = Arrays.asList(new CcddGroupHandler(ccddMain,
+                                                                         null,
+                                                                         ccddMain.getMainFrame()).getGroupNames(false));
 
             // Get the list of table and variable paths and names, retaining
             // any macros and bit lengths
@@ -1513,19 +1515,19 @@ public class CcddDbVerificationHandler
     /**************************************************************************
      * Query the specified internal table in the database for the specified
      * column entries that reference tables or variables
-     * 
+     *
      * @param intTableName
      *            internal table name to query
-     * 
+     *
      * @param intTableColumnA
      *            name of the column in the internal table column name from
      *            which to obtain the entries
-     * 
+     *
      * @param intTableColumnB
      *            name of the second column in the internal table column name
      *            from which to obtain the entries; null if no second column is
      *            requested
-     * 
+     *
      * @return List of table or variable entries from the specified column in
      *         the specified internal table
      *************************************************************************/
@@ -1558,7 +1560,7 @@ public class CcddDbVerificationHandler
      * Check that the tables are consistent with their type definitions. If any
      * inconsistencies are detected then get user approval to alter the
      * table(s)
-     * 
+     *
      * @param tableResult
      *            metadata for all tables
      *************************************************************************/
@@ -2149,7 +2151,7 @@ public class CcddDbVerificationHandler
      *
      * @param arrayName
      *            array variable name
-     * 
+     *
      * @return true if the array definition is missing
      *************************************************************************/
     private boolean checkForArrayDefinition(TableInformation tableInfo,
@@ -2361,7 +2363,7 @@ public class CcddDbVerificationHandler
 
     /**************************************************************************
      * Check if a row index doesn't match the expected value
-     * 
+     *
      * @param tableInfo
      *            reference to the table information
      *************************************************************************/
@@ -2500,7 +2502,7 @@ public class CcddDbVerificationHandler
      * Compare the current table data to the committed table data and create
      * lists of the changed values necessary to update the table in the
      * database to match the current values
-     * 
+     *
      * @param tblStrg
      *            reference to the table information and committed data
      *************************************************************************/

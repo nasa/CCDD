@@ -49,6 +49,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import javax.swing.tree.TreePath;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.CCDDException;
@@ -96,7 +97,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Link manager dialog class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
@@ -115,7 +116,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     /**************************************************************************
      * Perform the steps needed following execution of link updates to the
      * database
-     * 
+     *
      * @param commandError
      *            false if the database commands successfully completed; true
      *            if an error occurred and the changes were not made
@@ -314,6 +315,9 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                     public void actionPerformed(ActionEvent ae)
                     {
                         activeHandler.getUndoManager().undo();
+
+                        // Update the link tree node names
+                        activeHandler.getLinkTree().adjustNodeText(activeHandler.getLinkTree().getRootNode());
                     }
                 };
 
@@ -336,6 +340,9 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                     public void actionPerformed(ActionEvent ae)
                     {
                         activeHandler.getUndoManager().redo();
+
+                        // Update the link tree node names
+                        activeHandler.getLinkTree().adjustNodeText(activeHandler.getLinkTree().getRootNode());
                     }
                 };
 
@@ -445,11 +452,11 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     /**************************************************************************
      * Set the enable status of the buttons that apply only when one or more
      * links is selected
-     * 
+     *
      * @param isSingleLinkSelected
      *            true to enable the those buttons that are valid when only a
      *            single link is selected
-     * 
+     *
      * @param isOneOrMoreLinksSelected
      *            true to enable those buttons that are valid if one or more
      *            links is selected
@@ -539,7 +546,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
         {
             /******************************************************************
              * Verify that the dialog content is valid
-             * 
+             *
              * @return true if the input values are valid
              *****************************************************************/
             @Override
@@ -567,6 +574,11 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                                              "New Link",
                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
         {
+            // Disable automatically ending the edit sequence. This allows all
+            // of the deleted links to be grouped into a single sequence so
+            // that if undone, all fields are restored
+            activeHandler.getUndoHandler().setAutoEndEditSequence(false);
+
             // Add the new link information
             activeHandler.getLinkTree().addLinkInformation(activeHandler.getRateName(),
                                                            newLinkName,
@@ -582,6 +594,11 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
 
             // Update the link dialog's change indicator
             updateChangeIndicator();
+
+            // Re-enable automatic edit sequence ending, then end the edit
+            // sequence to group the deleted links
+            activeHandler.getUndoHandler().setAutoEndEditSequence(true);
+            activeHandler.getUndoManager().endEditSequence();
         }
     }
 
@@ -593,6 +610,11 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
         // Check that a node is selected in the link tree
         if (activeHandler.getLinkTree().getSelectionCount() != 0)
         {
+            // Disable automatically ending the edit sequence. This allows all
+            // of the deleted links to be grouped into a single sequence so
+            // that if undone, all fields are restored
+            activeHandler.getUndoHandler().setAutoEndEditSequence(false);
+
             // Remove the selected link(s) information
             activeHandler.getLinkTree().removeSelectedLinks();
 
@@ -602,6 +624,11 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
 
             // Update the link dialog's change indicator
             updateChangeIndicator();
+
+            // Re-enable automatic edit sequence ending, then end the edit
+            // sequence to group the deleted links
+            activeHandler.getUndoHandler().setAutoEndEditSequence(true);
+            activeHandler.getUndoManager().endEditSequence();
         }
     }
 
@@ -635,7 +662,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
             {
                 /**************************************************************
                  * Verify that the dialog content is valid
-                 * 
+                 *
                  * @return true if the input values are valid
                  *************************************************************/
                 @Override
@@ -652,6 +679,11 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                                           DialogOption.RENAME_OPTION,
                                           true) == OK_BUTTON)
             {
+                // Disable automatically ending the edit sequence. This allows
+                // all of the deleted links to be grouped into a single
+                // sequence so that if undone, all fields are restored
+                activeHandler.getUndoHandler().setAutoEndEditSequence(false);
+
                 // Step through the link's definitions
                 for (String[] linkDefn : activeHandler.getLinkTree().getLinkHandler().getLinkDefinitionsByName(nameOnly,
                                                                                                                activeHandler.getRateName()))
@@ -672,6 +704,11 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
 
                 // Update the link dialog's change indicator
                 updateChangeIndicator();
+
+                // Re-enable automatic edit sequence ending, then end the edit
+                // sequence to group the deleted links
+                activeHandler.getUndoHandler().setAutoEndEditSequence(true);
+                activeHandler.getUndoManager().endEditSequence();
             }
         }
     }
@@ -747,7 +784,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                 {
                     /**********************************************************
                      * Verify that the dialog content is valid
-                     * 
+                     *
                      * @return true if the input values are valid
                      *********************************************************/
                     @Override
@@ -768,16 +805,20 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                 {
                     notCopiedList = new ArrayList<Object[]>();
 
-                    // Get the node(s) that represent the links (skipping the
-                    // link members)
-                    ToolTipTreeNode[] selectedLinks = currentTree.getTopLevelSelectedNodes();
+                    // Get the node path(s) that represent the links (skipping
+                    // the link members)
+                    TreePath[] selectedLinks = currentTree.getTopLevelSelectedPaths();
 
                     // Index of the next selected link node to copy
                     int selectionIndex = 0;
 
                     // Step through each link to be copied
-                    for (ToolTipTreeNode copyLink : selectedLinks)
+                    // for (ToolTipTreeNode copyLink : selectedLinks)
+                    for (TreePath copyLinkPath : selectedLinks)
                     {
+                        // Get the node for this path
+                        ToolTipTreeNode copyLink = (ToolTipTreeNode) copyLinkPath.getLastPathComponent();
+
                         // Remove any HTML tags and parenthetical text from the
                         // selected link name
                         String nameOnly = activeHandler.getLinkTree().removeExtraText(copyLink.getUserObject().toString());
@@ -821,7 +862,8 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                                                                                           linkInfo.getDescription());
                                         // Copy the top-level nodes from the
                                         // copied link to the new link
-                                        targetTree.copySubTree(selectedLinks[selectionIndex], newLinkNode);
+                                        targetTree.copySubTree((ToolTipTreeNode) selectedLinks[selectionIndex].getLastPathComponent(),
+                                                               newLinkNode);
 
                                         // Update the target stream's variable
                                         // tree to the copied link's rate. The
@@ -1123,16 +1165,16 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Add a link name field to the dialog
-     * 
+     *
      * @param fieldText
      *            text to display beside the input field
-     * 
+     *
      * @param currentName
      *            name of the selected link
-     * 
+     *
      * @param dialogPnl
      *            panel to which to add the input field
-     * 
+     *
      * @return The GridBagConstraints used to arrange the dialog
      *************************************************************************/
     private GridBagConstraints addLinkNameField(String fieldText,
@@ -1180,10 +1222,10 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     /**************************************************************************
      * Verify that the contents of the link name field is valid. For a link
      * copy operation also verify that a data stream is selected
-     * 
+     *
      * @param isCopy
      *            true to if this verification is for a link copy operation
-     * 
+     *
      * @return true if the link name is valid, and, for a copy operation, that
      *         a data stream is selected; false otherwise
      *************************************************************************/
@@ -1259,7 +1301,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     /**************************************************************************
      * Check if the links for any stream differ from those last committed to
      * the database
-     * 
+     *
      * @return true if any of the streams' link definitions have changed
      *************************************************************************/
     private boolean isLinksChanged()
@@ -1291,7 +1333,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Update the change indicator for the specified link manager
-     * 
+     *
      * @param index
      *            index for the tab containing the data stream to update; an
      *            invalid tab number causes the active tab to be selected

@@ -139,21 +139,21 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
 
     /**************************************************************************
      * Group tree handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param undoHandler
      *            reference to the undo handler
-     * 
+     *
      * @param scheduleRate
      *            string value representing a schedule rate used to filter the
      *            groups that may be selected; null or blank if not filtering
-     * 
+     *
      * @param isApplicationOnly
      *            true if only groups that represent CFS applications should be
      *            displayed
-     * 
+     *
      * @param parent
      *            GUI component calling this method
      *************************************************************************/
@@ -176,13 +176,13 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
 
     /**************************************************************************
      * Group tree handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param undoHandler
      *            reference to the undo handler
-     * 
+     *
      * @param parent
      *            GUI component calling this method
      *************************************************************************/
@@ -195,20 +195,22 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
 
     /**************************************************************************
      * Perform initialization steps prior to building the group tree
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param groupDefinitions
      *            list containing the group definitions
      *************************************************************************/
     @Override
-    protected void initialize(CcddMain ccddMain, List<String[]> groupDefinitions)
+    protected void initialize(CcddMain ccddMain,
+                              CcddUndoHandler undoHandler,
+                              List<String[]> groupDefinitions)
     {
         this.groupDefinitions = groupDefinitions;
         dbTable = ccddMain.getDbTableCommandHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
-        groupHandler = new CcddGroupHandler();
+        groupHandler = new CcddGroupHandler(undoHandler);
         fieldHandler = new CcddFieldHandler();
 
         // Set the tree to be collapsed initially
@@ -227,7 +229,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
 
     /**************************************************************************
      * Get the reference to the group handler
-     * 
+     *
      * @return Reference to the group handler
      *************************************************************************/
     protected CcddGroupHandler getGroupHandler()
@@ -237,7 +239,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
 
     /**************************************************************************
      * Get the reference to the data field handler
-     * 
+     *
      * @return Reference to the data field handler
      *************************************************************************/
     protected CcddFieldHandler getFieldHandler()
@@ -253,8 +255,20 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     {
         List<String> groups = new ArrayList<String>();
 
+        // Store the paths of the groups selected for deletion. The paths are
+        // 'lost' when the nodes are removed in the next step
+        TreePath[] paths = getSelectionPaths();
+
+        // Remove the selected group(s) from the group tree. This is performed
+        // before removal of the group information so that an undo operation
+        // restores the group information prior to restoration of the tree
+        // node(s); this way if only a single group is restored via an undo
+        // then the group's description and fields are displayed in the group
+        // manager
+        removeSelectedTopLevelNodes();
+
         // Step through each selected path
-        for (TreePath path : getSelectionPaths())
+        for (TreePath path : paths)
         {
             // Get the group node for this path
             String name = path.getPathComponent(1).toString();
@@ -269,27 +283,24 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                 groupHandler.removeGroupInformation(name);
             }
         }
-
-        // Remove the selected group(s) from the group tree
-        removeSelectedTopLevelNodes();
     }
 
     /**************************************************************************
      * Build the group tree from the database
-     * 
+     *
      * @param filterByType
      *            true if the tree is filtered by table type
-     * 
+     *
      * @param filterByApp
      *            true if the tree is filtered by application status
-     * 
+     *
      * @param scheduleRate
      *            schedule rate used to filter the groups; blank or null if not
      *            filtering by schedule rate
-     * 
+     *
      * @param isApplicationOnly
      *            true to only display groups that represent a CFS application
-     * 
+     *
      * @param parent
      *            GUI component calling this method
      *************************************************************************/
@@ -480,10 +491,10 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     /**************************************************************************
      * Add a copy of the specified group information object to the group
      * information list
-     * 
+     *
      * @param groupToCopy
      *            group information object to copy
-     * 
+     *
      * @param nameOfCopy
      *            name of the copy of the group
      *************************************************************************/
@@ -501,7 +512,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     /**************************************************************************
      * Initialize the group definition list with the group names and
      * descriptions
-     * 
+     *
      * @return List containing the groups with their names and descriptions
      *************************************************************************/
     @Override
@@ -531,7 +542,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      * Set the node text color based on the currently selected schedule rate
      * and the rate of the group to which the node belongs: black for a match
      * and gray for a mismatch
-     * 
+     *
      * @param startNode
      *            starting node for which to adjust the text and color
      *************************************************************************/
@@ -604,19 +615,19 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     /**************************************************************************
      * Create a group tree panel. The table tree is placed in a scroll pane. A
      * check box is added that allows tree expansion/collapse
-     * 
+     *
      * @param label
      *            group tree title
-     * 
+     *
      * @param selectionMode
      *            tree item selection mode (single versus multiple)
-     * 
+     *
      * @param noFilters
      *            true to not display the filter check boxes
-     * 
+     *
      * @param parent
      *            GUI component calling this method
-     * 
+     *
      * @return JPanel containing the group tree components
      *************************************************************************/
     protected JPanel createTreePanel(String label,

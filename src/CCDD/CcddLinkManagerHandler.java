@@ -54,7 +54,7 @@ import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddUndoHandler.UndoableTextArea;
-import CCDD.CcddUndoHandler.UndoableTreeNodeSelection;
+import CCDD.CcddUndoHandler.UndoableTreePathSelection;
 
 /******************************************************************************
  * CFS Command & Data Dictionary link manager handler class
@@ -68,6 +68,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
     private CcddTableTreeHandler variableTree;
     private CcddLinkTreeHandler linkTree;
     private CcddUndoManager undoManager;
+    private CcddUndoHandler undoHandler;
 
     // Components referenced by multiple methods
     private Border border;
@@ -78,7 +79,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
     private PaddedComboBox rateFilter;
     private JScrollPane descScrollPane;
     private JPanel managerPnl;
-    private UndoableTreeNodeSelection nodeSelect;
+    private UndoableTreePathSelection pathSelect;
 
     // Name of the data stream rate column associated with this link manager
     private final String rateName;
@@ -104,17 +105,17 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
 
     /**************************************************************************
      * Link manager handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param linkDialog
      *            reference to the link manager dialog that created this link
      *            manager handler
-     * 
+     *
      * @param rateName
      *            data stream rate column name
-     * 
+     *
      * @param availableRates
      *            array of sample rates available to this stream
      *************************************************************************/
@@ -133,7 +134,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
 
     /**************************************************************************
      * Set the rate filter
-     * 
+     *
      * @param rate
      *            rate filter
      *************************************************************************/
@@ -144,7 +145,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
 
     /**************************************************************************
      * Get the reference to the variable tree
-     * 
+     *
      * @return Reference to the variable tree
      *************************************************************************/
     protected CcddTableTreeHandler getVariableTree()
@@ -154,7 +155,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
 
     /**************************************************************************
      * Get the reference to the link tree
-     * 
+     *
      * @return Reference to the link tree
      *************************************************************************/
     protected CcddLinkTreeHandler getLinkTree()
@@ -164,7 +165,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
 
     /**************************************************************************
      * Get a reference to the link handler panel
-     * 
+     *
      * @return Reference to the link handler panel
      *************************************************************************/
     protected JPanel getHandlerPanel()
@@ -174,7 +175,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
 
     /**************************************************************************
      * Get a reference to the current links
-     * 
+     *
      * @return Reference to the current links
      *************************************************************************/
     protected List<String[]> getCurrentLinks()
@@ -184,7 +185,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
 
     /**************************************************************************
      * Get a reference to the data stream rate column
-     * 
+     *
      * @return Reference to the data stream rate column
      *************************************************************************/
     protected String getRateName()
@@ -203,7 +204,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
 
     /**************************************************************************
      * Get the reference to the link manager's undo manager
-     * 
+     *
      * @return Reference to the link manager's undo manager
      *************************************************************************/
     protected CcddUndoManager getUndoManager()
@@ -212,13 +213,25 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
     }
 
     /**************************************************************************
+     * Get the reference to the link manager's undo handler
+     *
+     * @return Reference to the link manager's undo handler
+     *************************************************************************/
+    protected CcddUndoHandler getUndoHandler()
+    {
+        return undoHandler;
+    }
+
+    /**************************************************************************
      * Create the variable link manager dialog
-     * 
+     *
      * @param availableRates
      *            array of sample rates available to this stream
      *************************************************************************/
     private void initialize(String[] availableRates)
     {
+        isNodeSelectionChanging = false;
+
         // Create borders for the dialog components
         border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
                                                                                     Color.LIGHT_GRAY,
@@ -259,8 +272,8 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         };
 
         // Create the undo handler for the components with undoable actions
-        CcddUndoHandler undoHandler = new CcddUndoHandler(undoManager);
-        nodeSelect = undoHandler.new UndoableTreeNodeSelection();
+        undoHandler = new CcddUndoHandler(undoManager);
+        pathSelect = undoHandler.new UndoableTreePathSelection();
 
         // Build the link tree
         linkTree = new CcddLinkTreeHandler(ccddMain,
@@ -314,10 +327,11 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
                     // undo/redo purposes. The undo handler sets the flag so
                     // that the undo/redo operation isn't recorded on the
                     // undo/redo stack
-                    if (!isIgnoreSelectionChange())
+                    if (undoHandler.isAllowUndo())
                     {
-                        // Add the node selection change to the undo/redo stack
-                        nodeSelect.selectTreeNode(getTopLevelSelectedNodes());
+                        // Add the node path selection change to the undo/redo
+                        // stack
+                        pathSelect.selectTreePath(getSelectedPaths());
                     }
 
                     // Reset the flag to allow link tree updates
@@ -373,6 +387,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         // none, create the tree showing no variables
         variableTree = new CcddTableTreeHandler(ccddMain,
                                                 new CcddGroupHandler(ccddMain,
+                                                                     undoHandler,
                                                                      ccddMain.getMainFrame()),
                                                 TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES,
                                                 rateName,
@@ -688,19 +703,26 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
      * size in bytes fields, and enable/disable the dialog's buttons that apply
      * only if a single link is selected based on if a valid link name is
      * provided
-     * 
+     *
      * @param linkName
      *            name of the selected link; null if no link or more than one
      *            link is selected
-     * 
+     *
      * @param canCopy
      *            true if the copy operation is allowed (i.e., one or more
      *            links is selected)
      *************************************************************************/
     private void setLinkAndFields(String linkName, boolean canCopy)
     {
-        // End any active edit sequence
-        undoManager.endEditSequence();
+        // Check if the edit sequence is set to be automatically terminated.
+        // During an undo or redo operation the edit sequence termination is
+        // handled manually in order to group the tree and link information
+        // updates into a single compound edit
+        if (undoHandler.isAutoEndEditSequence())
+        {
+            // End any active edit sequence
+            undoManager.endEditSequence();
+        }
 
         // Initialize the description, rate, and size in bytes assuming a
         // single link isn't selected
@@ -757,7 +779,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
     /**************************************************************************
      * Create a panel to contain a pair of arrow buttons. Make all but the
      * button icons transparent
-     * 
+     *
      * @return JPanel containing the arrow buttons in a vertical layout
      *************************************************************************/
     private JPanel createArrowButtonPanel()
@@ -785,6 +807,12 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
                 // Check that a node is selected
                 if (selected.length != 0)
                 {
+                    // Disable automatically ending the edit sequence. This
+                    // allows all of the added link members to be grouped into
+                    // a single sequence so that if undone, all members are
+                    // removed together
+                    undoHandler.setAutoEndEditSequence(false);
+
                     // Get the link information for the selected node
                     LinkInformation selectedLink = linkTree.getLinkInformation(selected[0]);
 
@@ -807,6 +835,11 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
                     // when formatted as HTML
                     linkTree.fireTreeCollapsed(linkTree.getSelectionPath());
                     linkTree.fireTreeExpanded(linkTree.getSelectionPath());
+
+                    // Re-enable automatic edit sequence ending, then end the
+                    // edit sequence to group the added link members
+                    undoHandler.setAutoEndEditSequence(true);
+                    undoManager.endEditSequence();
                 }
             }
         });
@@ -832,22 +865,33 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
                 // invalid link nodes are grayed out
                 if (selected.length == 1)
                 {
+                    // Disable automatically ending the edit sequence. This
+                    // allows all of the deleted link members to be grouped
+                    // into a single sequence so that if undone, all members
+                    // are restored together
+                    undoHandler.setAutoEndEditSequence(false);
+
                     // Get the reference to the selected link's information
                     LinkInformation linkInfo = linkTree.getLinkInformation(selected[0]);
 
-                    // Set the link's rate if this is its first member(s)
-                    // and update the rate field
+                    // Set the link's rate if this is its first member(s) and
+                    // update the rate field
                     linkInfo.setSampleRate(selectedRate);
                     updateRateFld.setText(selectedRate);
 
                     // Add the variable(s) to the link
                     addVariableToLink();
 
-                    // Toggle the link tree expansion for the selected
-                    // link. This is necessary to get the node to display
-                    // correctly when formatted as HTML
+                    // Toggle the link tree expansion for the selected link.
+                    // This is necessary to get the node to display correctly
+                    // when formatted as HTML
                     linkTree.fireTreeCollapsed(linkTree.getSelectionPath());
                     linkTree.fireTreeExpanded(linkTree.getSelectionPath());
+
+                    // Re-enable automatic edit sequence ending, then end the
+                    // edit sequence to group the deleted link members
+                    undoHandler.setAutoEndEditSequence(true);
+                    undoManager.endEditSequence();
                 }
             }
         });
@@ -960,7 +1004,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
 
     /**************************************************************************
      * Check if the links differ from those last committed to the database
-     * 
+     *
      * @return true if the link definitions have changed
      *************************************************************************/
     protected boolean isLinksChanged()
@@ -1024,7 +1068,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
      * variable(s) may not fit within the message's maximum size, all of the
      * variable in the link are removed from the message(s). The user must add
      * the linked variables back to the messages using the telemetry scheduler
-     * 
+     *
      * @return List of link member variables that are no longer valid for the
      *         telemetry scheduler table due to the addition of one or more new
      *         member variables; and empty list if no links are invalid
@@ -1034,7 +1078,9 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         List<String> checkedLinks = new ArrayList<String>();
         List<String> invalidatedLinks = new ArrayList<String>();
 
-        CcddLinkHandler oldLinkHndlr = new CcddLinkHandler(ccddMain, committedLinks);
+        CcddLinkHandler oldLinkHndlr = new CcddLinkHandler(ccddMain,
+                                                           undoHandler,
+                                                           committedLinks);
         CcddLinkHandler newLinkHndlr = linkTree.getLinkHandler();
 
         // Step through each link by name

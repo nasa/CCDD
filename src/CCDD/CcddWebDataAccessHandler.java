@@ -80,7 +80,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
     /**************************************************************************
      * Web data access handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
@@ -182,23 +182,23 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * Extract the parts from the supplied text string, separating the string
      * at the specified separation character(s) and removing any leading and
      * trailing white space characters from each part
-     * 
+     *
      * @param text
      *            text string to separate
-     * 
+     *
      * @param separator
      *            separation character(s). This is padded with a check for
      *            white space characters in order to remove them
-     * 
+     *
      * @param limit
      *            maximum number of parts to separate the text into. This is
      *            the number of parts returned, with any missing parts returned
      *            as blanks
-     * 
+     *
      * @param removeQuotes
      *            true to remove excess double quotes from the individual array
      *            members
-     * 
+     *
      * @return Array containing the specified number of parts of the text
      *         string. A part is returned as blank if the supplied text does
      *         not contain the number of parts specified by the limit
@@ -247,16 +247,16 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**************************************************************************
      * Get the separator characters used to convert an application variable
      * path to a user-defined variable path
-     * 
+     *
      * @param variablePath
      *            variable path + name for which to return the converted path;
      *            blank to provide the paths for all variables
-     * 
+     *
      * @param parameters
      *            comma-separated string containing the variable path separator
      *            character(s), show/hide data types flag ('true' or 'false'),
      *            and data type/variable name separator character(s)
-     * 
+     *
      * @return String array containing the variable path separator
      *         character(s), show/hide data types flag ('true' or 'false'), and
      *         data type/variable name separator character(s); the default
@@ -304,13 +304,13 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**************************************************************************
      * Process the web query and return the results encoded as a JSON string.
      * The query is in the form [server]:[port]/[component]?[attribute][=name]
-     * 
+     *
      * @param component
      *            component for which to request data
-     * 
+     *
      * @param item
      *            item in the component
-     * 
+     *
      * @return Query results encoded as a JSON string
      *************************************************************************/
     private String getQueryResults(String component, String item)
@@ -466,6 +466,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         response = getGroupInformation(attributeAndName[1],
                                                        applicationOnly,
                                                        new CcddGroupHandler(ccddMain,
+                                                                            null,
                                                                             ccddMain.getMainFrame()));
                         break;
 
@@ -476,6 +477,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                                   applicationOnly,
                                                   true,
                                                   new CcddGroupHandler(ccddMain,
+                                                                       null,
                                                                        ccddMain.getMainFrame()));
                         break;
 
@@ -486,6 +488,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                                        applicationOnly,
                                                        true,
                                                        new CcddGroupHandler(ccddMain,
+                                                                            null,
                                                                             ccddMain.getMainFrame()));
                         break;
 
@@ -496,6 +499,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                                   applicationOnly,
                                                   true,
                                                   new CcddGroupHandler(ccddMain,
+                                                                       null,
                                                                        ccddMain.getMainFrame()));
                         break;
 
@@ -503,6 +507,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // Get all group names
                         response = getGroupNames(applicationOnly,
                                                  new CcddGroupHandler(ccddMain,
+                                                                      null,
                                                                       ccddMain.getMainFrame()));
                         break;
 
@@ -642,13 +647,13 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
     /**************************************************************************
      * Authenticate the specified user credentials
-     * 
+     *
      * @param userName
      *            user name
-     * 
+     *
      * @param password
      *            user password
-     * 
+     *
      * @return The string "true" if the user name and password are valid for
      *         the currently open database; otherwise returns "false"
      *************************************************************************/
@@ -669,7 +674,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
     /**************************************************************************
      * Perform a search for the specified text in the data and internal tables
-     * 
+     *
      * @param searchCriteria
      *            attribute containing the search constraints in the format
      *            <search text>,<ignore case (true or false)>,<allow regular
@@ -680,7 +685,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *            search to be constrained to specific columns in the data
      *            tables. The column names must be comma-separated (if more
      *            than one) and are case sensitive
-     * 
+     *
      * @return JSON encoded string containing the search results. An empty
      *         string if no matches are found, and null if the search
      *         parameters are missing or invalid
@@ -794,7 +799,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**************************************************************************
      * Get the active project's information (name, description, lock status,
      * and user)
-     * 
+     *
      * @return JSON encoded string containing active project's information
      *************************************************************************/
     @SuppressWarnings("unchecked")
@@ -856,20 +861,20 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**************************************************************************
      * Get the data for the specified data table, or for all data tables if no
      * table name is provided
-     * 
+     *
      * @param tableName
      *            table name and path in the format
      *            rootTable[,dataType1.variable1[,...]]. Blank to return the
      *            data for all tables
-     * 
+     *
      * @param getDescription
      *            true to get the table description when loading the table data
-     * 
+     *
      * @param separators
      *            string array containing the variable path separator
      *            character(s), show/hide data types flag ('true' or 'false'),
      *            and data type/variable name separator character(s)
-     * 
+     *
      * @return JSON encoded string containing the specified table cell data;
      *         null if a table name is specified and the table doesn't exist or
      *         if no data tables exist in the project database, or blank if the
@@ -956,13 +961,13 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**************************************************************************
      * Get the description for the specified table, or all tables with a
      * description if no table name is provided
-     * 
+     *
      * @param tableName
      *            table name and path in the format
      *            rootTable[,dataType1.variable1[,...]]. If blank then the
      *            description for every data table with a description is
      *            returned
-     * 
+     *
      * @return JSON encoded string containing the specified table's
      *         description; null if the specified table doesn't exist or the
      *         project has no data tables
@@ -1040,16 +1045,16 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**************************************************************************
      * Get the data field information for the specified table, or for all
      * tables if no table name is provided
-     * 
+     *
      * @param tableName
      *            table name and path in the format
      *            rootTable[,dataType1.variable1[,...]]. If blank then every
      *            data table's data fields are returned
-     * 
+     *
      * @param checkExists
      *            true to check if the specified table exists in the project
      *            database
-     * 
+     *
      * @return JSON encoded string containing the specified table's data
      *         fields; null if the table doesn't exist or if the project
      *         database contains no data tables
@@ -1128,11 +1133,11 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**************************************************************************
      * Get the names of all tables of the specified table type, or all tables
      * names and their types if no table type is provided
-     * 
+     *
      * @param tableType
      *            table type. The type is case insensitive. If blank then every
      *            data table and its type is returned
-     * 
+     *
      * @return JSON encoded string containing all table names of the specified
      *         table type; blank if the type is valid but no tables of the type
      *         exist, and null if the specified table type doesn't exist or if
@@ -1233,10 +1238,10 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**************************************************************************
      * Get the number of bytes for the prototype of the specified structure
      * table, or for all prototype structure tables if no table is specified
-     * 
+     *
      * @param tableName
      *            structure table name or path
-     * 
+     *
      * @return JSON encoded string containing the structure table name(s) and
      *         corresponding size(s) in bytes; null if a table name is
      *         specified and the table doesn't exist or isn't a structure, or
@@ -1278,7 +1283,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     if (linkHandler == null)
                     {
                         // Create a link handler
-                        linkHandler = new CcddLinkHandler(ccddMain, ccddMain.getMainFrame());
+                        linkHandler = new CcddLinkHandler(ccddMain,
+                                                          null,
+                                                          ccddMain.getMainFrame());
                     }
 
                     // Store the table name and its size in bytes
@@ -1322,17 +1329,17 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**************************************************************************
      * Get the type, description, size, data, and data fields for the specified
      * data table
-     * 
+     *
      * @param tableName
      *            table name and path in the format
      *            rootTable[,dataType1.variable1[,...]]. Blank to return the
      *            data for all tables
-     * 
+     *
      * @param separators
      *            string array containing the variable path separator
      *            character(s), show/hide data types flag ('true' or 'false'),
      *            and data type/variable name separator character(s)
-     * 
+     *
      * @return JSON encoded string containing the specified table information;
      *         null if a table name is specified and the table doesn't exist or
      *         if no data tables exist in the project database
@@ -1411,21 +1418,21 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**************************************************************************
      * Get the tables associated with the specified group or application, or
      * for all groups/applications if no group name is provided
-     * 
+     *
      * @param groupName
      *            group name. If blank then every group's (application's)
      *            descriptions are returned
-     * 
+     *
      * @param applicationOnly
      *            true if only groups that represent applications should be
      *            processed
-     * 
+     *
      * @param includeNameTag
      *            true to include the group name item
-     * 
+     *
      * @param groupHandler
      *            group handler
-     * 
+     *
      * @return JSON encoded string containing the specified group's
      *         (application's) table members; null if the specified
      *         group/application doesn't exist or the project has no
@@ -1545,18 +1552,18 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**************************************************************************
      * Get the description for the specified group or application, or all
      * groups/applications with a description if no group name is provided
-     * 
+     *
      * @param groupName
      *            group name. If blank then every group's (application's)
      *            descriptions are returned
-     * 
+     *
      * @param applicationOnly
      *            true if only groups that represent applications should be
      *            processed
-     * 
+     *
      * @param groupHandler
      *            group handler
-     * 
+     *
      * @return JSON encoded string containing the specified group's
      *         (application's) description; null if the specified
      *         group/application doesn't exist or the project has no
@@ -1662,21 +1669,21 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**************************************************************************
      * Get the data field information for the specified group or application,
      * or for all groups/applications if no group name is provided
-     * 
+     *
      * @param groupName
      *            group name. If blank then every data table's data fields are
      *            returned
-     * 
+     *
      * @param applicationOnly
      *            true if only groups that represent applications should be
      *            processed
-     * 
+     *
      * @param includeNameTag
      *            true to include the group name item and data field tag
-     * 
+     *
      * @param groupHandler
      *            group handler
-     * 
+     *
      * @return JSON encoded string containing the specified group's data
      *         fields; null if the group doesn't exist or if the project
      *         database contains no groups, or blank if the group contains no
@@ -1790,14 +1797,14 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
     /**************************************************************************
      * Get the names of all groups or applications
-     * 
+     *
      * @param applicationOnly
      *            true if only groups that represent applications should be
      *            processed
-     * 
+     *
      * @param groupHandler
      *            group handler
-     * 
+     *
      * @return JSON encoded string containing the all group/application names;
      *         null if no groups/applications exist in the project database
      *************************************************************************/
@@ -1838,18 +1845,18 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**************************************************************************
      * Get the description, associated table(s), and data fields for the
      * specified group or application
-     * 
+     *
      * @param groupName
      *            group name. If blank then every data table's data fields are
      *            returned
-     * 
+     *
      * @param applicationOnly
      *            true if only groups that represent applications should be
      *            processed
-     * 
+     *
      * @param groupHandler
      *            group handler
-     * 
+     *
      * @return JSON encoded string containing the specified group/application
      *         information; null if a group name is specified and the
      *         group/application doesn't exist or if no groups/applications
@@ -1979,12 +1986,12 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
     /**************************************************************************
      * Get the telemetry scheduler's copy table entries
-     * 
+     *
      * @param parameters
      *            comma-separated string containing the data stream name,
      *            header size (in bytes), message ID name data field name, and
      *            the optimize result flag ('true' or 'false')
-     * 
+     *
      * @return JSON encoded string containing the specified copy table entries;
      *         null if the number of parameters or their formats are incorrect
      *************************************************************************/
@@ -2027,6 +2034,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                                                                     null,
                                                                                     ccddMain.getMainFrame()),
                                                                new CcddLinkHandler(ccddMain,
+                                                                                   null,
                                                                                    ccddMain.getMainFrame()),
                                                                rateInfo.getStreamName(),
                                                                headerSize,
@@ -2078,7 +2086,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
     /**************************************************************************
      * Get the application scheduler's schedule table entries
-     * 
+     *
      * @return JSON encoded string containing the scheduler entries; null if
      *         the number of parameters or their formats are incorrect
      *************************************************************************/
@@ -2095,17 +2103,17 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**************************************************************************
      * Get the variable names, both in application format and altered based on
      * the user-provided parameters
-     * 
+     *
      * @param variablePath
      *            variable path + name for which to return the converted path;
      *            blank to provide the paths for all variables
-     * 
+     *
      * @param parameters
      *            comma-separated string containing the variable path separator
      *            character(s), show/hide data types flag ('true' or 'false'),
      *            and data type/variable name separator character(s); blank to
      *            use the default separators
-     * 
+     *
      * @return JSON encoded string containing the variable names; blank if the
      *         project doesn't contain any variables and null if any input
      *         parameter is invalid
@@ -2181,7 +2189,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * Get the path, data type, bit length, description, units, data stream
      * information, and enumeration information for each telemetered variable
      * matching the specified filters
-     * 
+     *
      * @param telemetryFilter
      *            group (or application) name, data stream name, and/or rate
      *            value filter(s). A table must belong to the specified group
@@ -2192,7 +2200,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *            streams. A variable's rate must match the specified rate in
      *            order to be included; blank to include the variable
      *            regardless of the rate value
-     * 
+     *
      * @return JSON encoded string containing the path, data type, bit length,
      *         description, units, data stream name(s), and enumeration(s) for
      *         each telemetered variable matching the specified filters; empty
@@ -2247,6 +2255,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     // Create a group handler and extract the table names
                     // belonging to the group
                     CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain,
+                                                                         null,
                                                                          ccddMain.getMainFrame());
                     GroupInformation groupInfo = groupHandler.getGroupInformationByName(groupFilter);
 
@@ -2472,13 +2481,13 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
     /**************************************************************************
      * Get the information for each command matching the specified filters
-     * 
+     *
      * @param groupFilter
      *            group (or application) name. A table must belong to the
      *            specified group in order for its telemetered variables to be
      *            returned; blank to get all telemetered variables (regardless
      *            of group)
-     * 
+     *
      * @return JSON encoded string containing information for each command
      *         matching the specified filters
      *************************************************************************/
@@ -2502,6 +2511,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // Create a group handler and extract the table names belonging to
             // the group
             CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain,
+                                                                 null,
                                                                  ccddMain.getMainFrame());
             GroupInformation groupInfo = groupHandler.getGroupInformationByName(groupFilter);
 
@@ -2713,7 +2723,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
     /**************************************************************************
      * Get the table type definitions
-     * 
+     *
      * @return JSON encoded string containing the table type definitions; an
      *         empty list if no table type definition exists
      *************************************************************************/
@@ -2726,7 +2736,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
     /**************************************************************************
      * Get the data type definitions
-     * 
+     *
      * @return JSON encoded string containing the data type definitions; an
      *         empty list if no data type definition exists
      *************************************************************************/
@@ -2739,7 +2749,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
     /**************************************************************************
      * Get the macro definitions
-     * 
+     *
      * @return JSON encoded string containing the macro definitions; an empty
      *         list if no macro definition exists
      *************************************************************************/

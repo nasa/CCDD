@@ -125,7 +125,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Data field table editor dialog class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
@@ -150,7 +150,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Get a reference to the data field table editor's table
-     * 
+     *
      * @return Reference to the data field table editor table
      *************************************************************************/
     protected CcddJTableHandler getTable()
@@ -199,7 +199,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Perform the steps needed following execution of database table changes
-     * 
+     *
      * @param commandError
      *            false if the database commands successfully completed; true
      *************************************************************************/
@@ -310,6 +310,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             @Override
             protected void execute()
             {
+                isNodeSelectionChanging = false;
+
                 // Create an empty border to surround the panels
                 Border emptyBorder = BorderFactory.createEmptyBorder();
 
@@ -336,7 +338,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 {
                     /**********************************************************
                      * Verify input fields
-                     * 
+                     *
                      * @return true if the dialog input is valid
                      *********************************************************/
                     @Override
@@ -431,6 +433,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     // tables (i.e., parents with children)
                     tableTree = new CcddTableTreeHandler(ccddMain,
                                                          new CcddGroupHandler(ccddMain,
+                                                                              null,
                                                                               CcddFieldTableEditorDialog.this),
                                                          TableTreeType.TABLES,
                                                          true,
@@ -890,12 +893,13 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // the cell at these coordinates is selected
                 if (column != FieldTableEditorColumnInfo.OWNER.ordinal()
                     && column != FieldTableEditorColumnInfo.PATH.ordinal()
-                    && dataFieldTable.isCellSelected(row,
+                    && dataFieldTable.isCellSelected(dataFieldTable.convertRowIndexToView(row),
                                                      dataFieldTable.convertColumnIndexToView(column)))
                 {
                     // Add (if selecting) or remove (if deselecting) the cell
                     // from the selection list
-                    cellSelect.toggleCellSelection(row, column);
+                    cellSelect.toggleCellSelection(dataFieldTable.convertRowIndexToView(row),
+                                                   dataFieldTable.convertColumnIndexToView(column));
                 }
             }
         }
@@ -973,28 +977,28 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             /******************************************************************
              * Validate changes to the data field value cells; e.g., verify
              * cell content and, if found invalid, revert to the original value
-             * 
+             *
              * @param tableData
              *            list containing the table data row arrays
-             * 
+             *
              * @param row
              *            table model row number
-             * 
+             *
              * @param column
              *            table model column number
-             * 
+             *
              * @param oldValue
              *            original cell contents
-             * 
+             *
              * @param newValue
              *            new cell contents
-             * 
+             *
              * @param showMessage
              *            unused
-             * 
+             *
              * @param isMultiple
              *            unused
-             * 
+             *
              * @return Value of ShowMessage
              ****************************************************************/
             @Override
@@ -1174,7 +1178,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     {
                         // Check if the cell is a data field selected for
                         // removal
-                        if (selectedCells.contains(row, columnModel))
+                        if (selectedCells.contains(rowModel, columnModel))
                         {
                             // Change the cell's colors to indicate the data
                             // field represented by the cell is selected for
@@ -1299,7 +1303,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // Check if the cell at these coordinates is selected and that
                 // the data field for this row belongs to a table (versus a
                 // group or type)
-                if (dataFieldTable.isCellSelected(row, column)
+                if (dataFieldTable.isCellSelected(dataFieldTable.convertRowIndexToView(row), column)
                     && !owner.contains(":"))
                 {
                     // Get the structure path for this row
@@ -1325,7 +1329,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Build the data field array
-     * 
+     *
      * @return Array containing the data field owner names and corresponding
      *         user-selected data field values
      *************************************************************************/
@@ -1570,7 +1574,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Verify input fields
-     * 
+     *
      * @return Always return false so that the dialog doesn't close
      *************************************************************************/
     @Override
@@ -1581,7 +1585,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Get the unique project data field names in alphabetical order
-     * 
+     *
      * @return Array containing the unique project data field names in
      *         alphabetical order
      *************************************************************************/
@@ -1644,13 +1648,13 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     /**************************************************************************
      * Get the owner name with path, if applicable (child tables of a structure
      * table have a path)
-     * 
+     *
      * @param ownerName
      *            table or group owner name
-     * 
+     *
      * @param path
      *            table path; blank if none
-     * 
+     *
      * @return Table or group name with path, if applicable
      *************************************************************************/
     private String getOwnerWithPath(String ownerName, String path)
@@ -1670,7 +1674,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Determine if any unsaved changes exist in the data field table editor
-     * 
+     *
      * @return true if changes exist that haven't been saved; false if there
      *         are no unsaved changes
      *************************************************************************/

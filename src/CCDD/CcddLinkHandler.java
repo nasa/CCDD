@@ -21,6 +21,7 @@ import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.LinksColumn;
 import CCDD.CcddConstants.TableTreeType;
+import CCDD.CcddUndoHandler.UndoableArrayList;
 
 /******************************************************************************
  * CFS Command & Data Dictionary link handler class
@@ -34,7 +35,7 @@ public class CcddLinkHandler
 
     // List to contain the link definitions (link names and variable paths)
     // retrieved from the database
-    private List<String[]> linkDefinitions;
+    private final UndoableArrayList<String[]> linkDefinitions;
 
     // Variable offset parameters
     private int bitCount;
@@ -49,19 +50,36 @@ public class CcddLinkHandler
 
     /**************************************************************************
      * Link handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
+     * @param undoHandler
+     *            reference to the undo handler
+     *
      * @param linkDefinitions
      *            list containing the link definitions
      *************************************************************************/
-    CcddLinkHandler(CcddMain ccddMain, List<String[]> linkDefinitions)
+    CcddLinkHandler(CcddMain ccddMain,
+                    CcddUndoHandler undoHandler,
+                    List<String[]> linkDefinitions)
     {
+        // Check if no undo handler is specified
+        if (undoHandler == null)
+        {
+            // Create an undo handler and set the flag to not allow undo
+            // operations
+            undoHandler = new CcddUndoHandler(new CcddUndoManager());
+            undoHandler.setAllowUndo(false);
+        }
+
+        // Create the link definitions list
+        this.linkDefinitions = undoHandler.new UndoableArrayList<String[]>();
+        this.linkDefinitions.addAll(linkDefinitions);
+
         this.ccddMain = ccddMain;
         this.dataTypeHandler = ccddMain.getDataTypeHandler();
         this.macroHandler = ccddMain.getMacroHandler();
-        this.linkDefinitions = linkDefinitions;
 
         // Create the variable path and offset lists
         buildPathAndOffsetLists();
@@ -74,23 +92,27 @@ public class CcddLinkHandler
     /**************************************************************************
      * Link handler class constructor. Load the link information from the
      * project database
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
+     * @param undoHandler
+     *            reference to the undo handler
+     *
      * @param parent
      *            GUI component calling this method
      *************************************************************************/
-    CcddLinkHandler(CcddMain ccddMain, Component parent)
+    CcddLinkHandler(CcddMain ccddMain, CcddUndoHandler undoHandler, Component parent)
     {
         this(ccddMain,
+             undoHandler,
              ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.LINKS,
                                                                           parent));
     }
 
     /**************************************************************************
      * Get the reference to all link definitions
-     * 
+     *
      * @return List of all link definitions
      *************************************************************************/
     protected List<String[]> getLinkDefinitions()
@@ -100,21 +122,22 @@ public class CcddLinkHandler
 
     /**************************************************************************
      * Set the link definitions
-     * 
+     *
      * @param linkDefinitions
      *            list containing the link definitions
      *************************************************************************/
     protected void setLinkDefinitions(List<String[]> linkDefinitions)
     {
-        this.linkDefinitions = linkDefinitions;
+        this.linkDefinitions.clear();
+        this.linkDefinitions.addAll(linkDefinitions);
     }
 
     /**************************************************************************
      * Get the link names for the specified rate column name
-     * 
+     *
      * @param rateName
      *            rate column name
-     * 
+     *
      * @return List containing the link names for the specified rate column
      *         name; an empty list if there are no links associated with the
      *         rate
@@ -142,17 +165,17 @@ public class CcddLinkHandler
     /**************************************************************************
      * Get the index of the link definition specified by the rate name, link
      * name, and variable path
-     * 
+     *
      * @param rateName
      *            rate column name
-     * 
+     *
      * @param linkName
      *            link name
-     * 
+     *
      * @param variablePath
      *            full variable path, including the parent table name, data
      *            types, and variable names
-     * 
+     *
      * @return Index of the specified link; -1 if the link doesn't exist
      *************************************************************************/
     protected int getLinkDefinitionIndex(String rateName,
@@ -183,13 +206,13 @@ public class CcddLinkHandler
 
     /**************************************************************************
      * Get the reference to a specified link's definitions
-     * 
+     *
      * @param linkName
      *            link name
-     * 
+     *
      * @param linkRate
      *            link rate name
-     * 
+     *
      * @return List of a link's definitions
      *************************************************************************/
     protected List<String[]> getLinkDefinitionsByName(String linkName,
@@ -217,14 +240,14 @@ public class CcddLinkHandler
     /**************************************************************************
      * Return an array of rate and link names to which the specified variable
      * belongs
-     * 
+     *
      * @param variable
      *            variable path and name
-     * 
+     *
      * @param useDataStream
      *            true to return the data stream name in place of the rate
      *            column name
-     * 
+     *
      * @return Array containing the rates and links to which the specified
      *         variable is a member; an empty array if the variable does not
      *         belong to a link
@@ -276,13 +299,13 @@ public class CcddLinkHandler
     /**************************************************************************
      * Return the link name to which the specified variable belongs for the
      * specified rate
-     * 
+     *
      * @param variable
      *            variable path and name
-     * 
+     *
      * @param rateName
      *            rate name
-     * 
+     *
      * @return Name of the link if the variable and rate match; null if no
      *         match exists
      *************************************************************************/
@@ -316,13 +339,13 @@ public class CcddLinkHandler
     /**************************************************************************
      * Calculate the number of bytes represented by this link by totaling the
      * size of each variable member
-     * 
+     *
      * @param rateName
      *            data stream rate column name
-     * 
+     *
      * @param name
      *            name of the link to calculate the remaining bytes for
-     * 
+     *
      * @return Number of bytes used in the link; 0 if no variables are in the
      *         link
      *************************************************************************/
@@ -384,13 +407,13 @@ public class CcddLinkHandler
 
     /**************************************************************************
      * Get the description for a specified link
-     * 
+     *
      * @param rateName
      *            data stream rate column name
-     * 
+     *
      * @param name
      *            link name
-     * 
+     *
      * @return Description of the specified link; returns a blank if the link
      *         doesn't exist
      *************************************************************************/
@@ -432,13 +455,13 @@ public class CcddLinkHandler
 
     /**************************************************************************
      * Get the link rate
-     * 
+     *
      * @param rateName
      *            data stream rate column name
-     * 
+     *
      * @param name
      *            name of the link
-     * 
+     *
      * @return Link rate; blank if the link name doesn't exist
      *************************************************************************/
     protected String getLinkRate(String rateName, String name)
@@ -471,13 +494,13 @@ public class CcddLinkHandler
     /**************************************************************************
      * Get the application name data field values associated with the specified
      * link's variable members
-     * 
+     *
      * @param fieldHandler
      *            field handler to access data fields
-     * 
+     *
      * @param applicationFieldName
      *            name of the application name data field
-     * 
+     *
      * @return Array containing the application name data field values
      *         associated with the specified link's variable members. Each
      *         application name is listed only once in the array
@@ -530,10 +553,10 @@ public class CcddLinkHandler
 
     /**************************************************************************
      * Get the size in bytes of the specified primitive or structure data type
-     * 
+     *
      * @param dataType
      *            structure name or primitive data type
-     * 
+     *
      * @return Size in bytes required to store the data type; returns 0 if the
      *         data type doesn't exist
      *************************************************************************/
@@ -569,12 +592,12 @@ public class CcddLinkHandler
      * structure. The variable's path, including data type and variable name,
      * is used to verify that the specified target has been located; i.e., not
      * another variable with the same name
-     * 
+     *
      * @param targetVariable
      *            a comma separated string of the root structure and each data
      *            type and variable name of each variable in the current search
      *            path. The bit length may be omitted for bit-wise variables
-     * 
+     *
      * @return The byte offset to the target prototype structure, or variable
      *         relative to its root structure; returns -1 if the prototype
      *         structure name or root-variable path combination is invalid
@@ -775,17 +798,17 @@ public class CcddLinkHandler
     /**************************************************************************
      * Adjust the offset to the current variable based on the last variable's
      * byte size and any bit packing
-     * 
+     *
      * @param dataType
      *            variable's data type
-     * 
+     *
      * @param bitLength
      *            string representing the number of bits used by variable;
      *            blank if this is a non-bit variable
-     * 
+     *
      * @param offset
      *            offset to the previous variable
-     * 
+     *
      * @return The adjusted byte offset to the target variable
      *************************************************************************/
     private int adjustVariableOffset(String dataType,

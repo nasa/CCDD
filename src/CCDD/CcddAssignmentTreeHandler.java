@@ -174,11 +174,16 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
      * @param ccddMain
      *            main class
      *
+     * @param undoHandler
+     *            reference to the undo handler
+     *
      * @param assignDefinitions
      *            list containing the assignment definitions
      *************************************************************************/
     @Override
-    protected void initialize(CcddMain ccddMain, List<String[]> assignDefinitions)
+    protected void initialize(CcddMain ccddMain,
+                              CcddUndoHandler undoHandler,
+                              List<String[]> assignDefinitions)
     {
         this.assignDefinitions = assignDefinitions;
 

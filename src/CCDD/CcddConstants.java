@@ -471,7 +471,7 @@ public class CcddConstants
         MAXIMUM_MESSAGES_PER_TIME_SLOT,
         MAXIMUM_MESSAGES_PER_SECOND,
         MAXIMUM_MESSAGES_PER_CYCLE,
-        MAXIMUM_NUMBER_OF_COMMANDS
+        NUMBER_OF_TIME_SLOTS
     }
 
     // Scheduler options
@@ -2042,6 +2042,12 @@ public class CcddConstants
                    "Message ID: hexadecimal; optional initial '0x' or '0X' "
                        + "followed by one or more hexadecimal digits (0 - 9, "
                        + "a - f (case insensitive))"),
+
+        MESSAGE_ID_NAME("Message ID name",
+                        "[a-zA-Z_][a-zA-Z0-9_]*",
+                        "text",
+                        "Message ID name: same constraints as for an "
+                            + "alphanumeric (see Alphanumeric)"),
 
         MINIMUM("Minimum",
                 "(" + INTEGER.getInputMatch() + ")|("
@@ -4238,17 +4244,17 @@ public class CcddConstants
         WAKE_UP_NAME("Wake-Up Name",
                      "Application wake-up name",
                      10,
-                     InputDataType.ALPHANUMERIC,
+                     InputDataType.MESSAGE_ID_NAME,
                      true,
                      ApplicabilityType.ALL,
                      ""),
         WAKE_UP_ID("Wake-Up ID",
                    "Application wake-up ID",
                    7,
-                   InputDataType.HEXADECIMAL_NON_ZERO,
+                   InputDataType.MESSAGE_ID,
                    true,
                    ApplicabilityType.ALL,
-                   "0x0"),
+                   "0x1"),
         HK_SEND_RATE("HK_Send Rate",
                      "Application housekeeping send rate",
                      7,
@@ -4259,17 +4265,17 @@ public class CcddConstants
         HK_WAKE_UP_NAME("HK Wake-Up Name",
                         "Application housekeeping wake-up name",
                         10,
-                        InputDataType.ALPHANUMERIC,
+                        InputDataType.MESSAGE_ID_NAME,
                         true,
                         ApplicabilityType.ALL,
                         ""),
         HK_WAKE_UP_ID("HK Wake-Up ID",
                       "Application housekeeping wake-up ID",
                       7,
-                      InputDataType.HEXADECIMAL_NON_ZERO,
+                      InputDataType.MESSAGE_ID,
                       true,
                       ApplicabilityType.ALL,
-                      "0x0"),
+                      "0x1"),
         SCH_GROUP("SCH Group",
                   "Application Schedule group",
                   10,
@@ -5325,6 +5331,100 @@ public class CcddConstants
     }
 
     /**************************************************************************
+     * Message ID owner, name, and ID table column information
+     *************************************************************************/
+    protected static enum MsgIDColumnInfo
+    {
+        OWNER("Owner", "Message ID owner (table, group, or telemetry message)"),
+        MESSAGE_ID_NAME("Message ID Name", "Message ID name"),
+        MESSAGE_ID("Message ID", "Message ID");
+
+        private final String columnName;
+        private final String toolTip;
+
+        /**********************************************************************
+         * Message ID owner, name, and ID table column information constructor
+         *
+         * @param columnName
+         *            text to display for the message ID owner, name, and ID
+         *            table column
+         *
+         * @param toolTip
+         *            tool tip text to display for the message ID owner, name,
+         *            and ID table column
+         *********************************************************************/
+        MsgIDColumnInfo(String columnName, String toolTip)
+        {
+            this.columnName = columnName;
+            this.toolTip = toolTip;
+        }
+
+        /**********************************************************************
+         * Get the message ID owner, name, and ID table column header
+         *
+         * @return Message ID owner, name, and ID table column name
+         *********************************************************************/
+        protected String getColumnName()
+        {
+            return columnName;
+        }
+
+        /**********************************************************************
+         * Get the message ID owner, name, and ID table column tool tip
+         *
+         * @return Message ID owner, name, and ID table column tool tip
+         *********************************************************************/
+        protected String getToolTip()
+        {
+            return toolTip;
+        }
+
+        /**********************************************************************
+         * Get the message ID owner, name, and ID table column names
+         *
+         * @return Array containing the message ID owner, name, and ID table
+         *         column names
+         *********************************************************************/
+        protected static String[] getColumnNames()
+        {
+            String[] names = new String[MsgIDColumnInfo.values().length];
+            int index = 0;
+
+            // Step through each column
+            for (MsgIDColumnInfo type : MsgIDColumnInfo.values())
+            {
+                // Store the column name
+                names[index] = type.columnName;
+                index++;
+            }
+
+            return names;
+        }
+
+        /**********************************************************************
+         * Get the message ID owner, name, and ID table column tool tips
+         *
+         * @return Array containing the message ID owner, name, and ID table
+         *         column tool tips
+         *********************************************************************/
+        protected static String[] getToolTips()
+        {
+            String[] toolTips = new String[MsgIDColumnInfo.values().length];
+            int index = 0;
+
+            // Step through each column
+            for (MsgIDColumnInfo type : MsgIDColumnInfo.values())
+            {
+                // Get the tool tip text
+                toolTips[index] = type.toolTip;
+                index++;
+            }
+
+            return toolTips;
+        }
+    }
+
+    /**************************************************************************
      * Link copy error table column information
      *************************************************************************/
     protected static enum LinkCopyErrorColumnInfo
@@ -5780,19 +5880,6 @@ public class CcddConstants
                     + " ORDER BY "
                     + TableTypesColumn.TYPE_NAME.getColumnName()
                     + ";"),
-
-        // TODO THIS DISPLAYS A TYPE ONLY IF A TABLE OF THAT TYPE EXISTS
-        // Get the list of table types, sorted alphabetically
-        // TABLE_TYPES("SELECT DISTINCT type FROM (SELECT
-        // split_part(obj_description, ',', "
-        // + (TableCommentIndex.TYPE.ordinal() + 1)
-        // + ") as type FROM (SELECT obj_description(oid) FROM "
-        // + "pg_class WHERE relkind = 'r' AND obj_description(oid) != '' "
-        // + "AND substr(relname, 1, "
-        // + INTERNAL_TABLE_PREFIX.length()
-        // + ") != '"
-        // + INTERNAL_TABLE_PREFIX
-        // + "') alias1) alias2 ORDER BY type ASC;"),
 
         // Get the list of table names, variable paths, and descriptions (only
         // for those tables with descriptions), sorted alphabetically

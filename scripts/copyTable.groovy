@@ -16,20 +16,20 @@ usedHKNames = []
 usedHKValues = []
 
 // Length of the CCSDS header in bytes
-def CCSDS_HEADER_LENGTH = 12
+CCSDS_HEADER_LENGTH = 12
 
 // Maximum number of lines for a copy table. Should match #define
 // HK_COPY_TABLE_ENTRIES value (in hk_platform_cfg.h)
-def HK_COPY_TABLE_ENTRIES = 1800
+HK_COPY_TABLE_ENTRIES = 1800
 
 // Copy table entry array indices
-def INPUT_MSG_ID = 0
-def INPUT_OFFSET = 1
-def OUTPUT_MSG_ID = 2
-def OUTPUT_OFFSET = 3
-def VARIABLE_BYTES = 4
-def VARIABLE_PARENT = 5
-def VARIABLE_NAME = 6
+INPUT_MSG_ID = 0
+INPUT_OFFSET = 1
+OUTPUT_MSG_ID = 2
+OUTPUT_OFFSET = 3
+VARIABLE_BYTES = 4
+VARIABLE_PARENT = 5
+VARIABLE_NAME = 6
 
 /*******************************************************************************
  * Output the file creation details to the specified file
@@ -95,7 +95,7 @@ def makeCopyTableFile()
                 def isFound = false
 
                 // Step through the list of names already used
-                for (def index = 0; index < usedHKNames.length; index++)
+                for (def index = 0; index < usedHKNames.size(); index++)
                 {
                     // Check if the message ID name is in the list
                     if (tlmMsgIDs[index][0] == usedHKNames[index])

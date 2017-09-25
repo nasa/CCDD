@@ -1288,7 +1288,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         // Check if the message name pattern isn't in the
                         // format text%<0#>d<text> where # is one or more
                         // digits
-                        if (!pattern.matches(InputDataType.ALPHANUMERIC.getInputMatch()
+                        if (!pattern.matches(InputDataType.MESSAGE_ID_NAME.getInputMatch()
                                              + "%(0\\d+)?d[a-zA-Z0-9_]*"))
                         {
                             // Inform the user that the name pattern is invalid

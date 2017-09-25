@@ -165,6 +165,8 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                 @Override
                 protected void execute()
                 {
+                    isNodeSelectionChanging = false;
+
                     // Set the initial layout manager characteristics
                     GridBagConstraints gbc = new GridBagConstraints(0,
                                                                     0,
@@ -773,6 +775,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         // tables
         tableTree = new CcddTableTreeHandler(ccddMain,
                                              new CcddGroupHandler(ccddMain,
+                                                                  null,
                                                                   ccddMain.getMainFrame()),
                                              TableTreeType.INSTANCE_TABLES,
                                              true,

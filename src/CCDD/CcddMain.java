@@ -161,6 +161,7 @@ public class CcddMain
     private JMenuItem mntmManageMacros;
     private JMenuItem mntmAssignMsgID;
     private JMenuItem mntmReserveMsgID;
+    private JMenuItem mntmShowAllMsgID;
     private JMenuItem mntmDuplicateMsgID;
     private JMenuItem mntmEditDataField;
     private JMenuItem mntmShowVariables;
@@ -870,6 +871,7 @@ public class CcddMain
         mntmManageMacros.setEnabled(dbControl.isDatabaseConnected());
         mntmAssignMsgID.setEnabled(dbControl.isDatabaseConnected());
         mntmReserveMsgID.setEnabled(dbControl.isDatabaseConnected());
+        mntmShowAllMsgID.setEnabled(dbControl.isDatabaseConnected());
         mntmDuplicateMsgID.setEnabled(dbControl.isDatabaseConnected());
         mntmEditDataField.setEnabled(dbControl.isDatabaseConnected());
         mntmShowVariables.setEnabled(dbControl.isDatabaseConnected());
@@ -1364,6 +1366,7 @@ public class CcddMain
         JMenu mnMessageID = createSubMenu(mnData, "Message IDs", KeyEvent.VK_M, 1, null);
         mntmAssignMsgID = createMenuItem(mnMessageID, "Assign IDs", KeyEvent.VK_A, 1, "Auto-assign message ID numbers");
         mntmReserveMsgID = createMenuItem(mnMessageID, "Reserve IDs", KeyEvent.VK_R, 1, "Reserve message ID numbers");
+        mntmShowAllMsgID = createMenuItem(mnMessageID, "Show all IDs", KeyEvent.VK_F, 1, "Show all message ID owners, names, and IDs");
         mntmDuplicateMsgID = createMenuItem(mnMessageID, "Find duplicates", KeyEvent.VK_F, 1, "Detect duplicate message ID numbers");
         mntmEditDataField = createMenuItem(mnData, "Show/edit fields", KeyEvent.VK_F, 1, "Open the data field table editor");
         mnData.addSeparator();
@@ -1997,6 +2000,19 @@ public class CcddMain
             public void actionPerformed(ActionEvent ae)
             {
                 new CcddReservedMsgIDEditorDialog(CcddMain.this);
+            }
+        });
+
+        // Add a listener for the Show All IDs menu item
+        mntmShowAllMsgID.addActionListener(new ActionListener()
+        {
+            /******************************************************************
+             * Show the message ID owner, name, and ID dialog
+             *****************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                new CcddMessageIDHandler(CcddMain.this).displayOwnersNamesAndIDs(getMainFrame());
             }
         });
 

@@ -38,6 +38,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -69,7 +70,7 @@ import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableTreeType;
-import CCDD.CcddUndoHandler.UndoableTreeNodeSelection;
+import CCDD.CcddUndoHandler.UndoableTreePathSelection;
 
 /******************************************************************************
  * CFS Command & Data Dictionary group manager dialog class
@@ -85,6 +86,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     private CcddGroupTreeHandler groupTree;
     private FieldPanel fieldPnlHndlr;
     private CcddUndoManager undoManager;
+    private CcddUndoHandler undoHandler;
 
     // Component referenced by multiple methods
     private Border border;
@@ -95,7 +97,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     private JButton btnManageFields;
     private JButton btnClearValues;
     private JCheckBox applicationCb;
-    private UndoableTreeNodeSelection nodeSelect;
+    private UndoableTreePathSelection nodeSelect;
 
     // Group information and group fields stored in the database
     private List<String[]> committedGroups;
@@ -262,6 +264,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             @Override
             protected void execute()
             {
+                isNodeSelectionChanging = false;
+
                 // Set the flag to indicate the group manager dialog is being
                 // initialized
                 isInitializing = true;
@@ -314,8 +318,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
                 // Create the undo handler for the components with undoable
                 // actions
-                CcddUndoHandler undoHandler = new CcddUndoHandler(undoManager);
-                nodeSelect = undoHandler.new UndoableTreeNodeSelection();
+                undoHandler = new CcddUndoHandler(undoManager);
+                nodeSelect = undoHandler.new UndoableTreePathSelection();
 
                 // Build the group tree
                 groupTree = new CcddGroupTreeHandler(ccddMain,
@@ -368,11 +372,11 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                             // for undo/redo purposes. The undo handler sets
                             // the flag so that the undo/redo operation isn't
                             // recorded on the undo/redo stack
-                            if (!isIgnoreSelectionChange())
+                            if (undoHandler.isAllowUndo())
                             {
-                                // Add the node selection change to the
+                                // Add the node path selection change to the
                                 // undo/redo stack
-                                nodeSelect.selectTreeNode(getTopLevelSelectedNodes());
+                                nodeSelect.selectTreePath(getSelectedPaths());
                             }
 
                             // Validate the dialog to redraw the description
@@ -907,8 +911,15 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
      *************************************************************************/
     private void setGroupAndFields(String groupName)
     {
-        // End any active edit sequence
-        undoManager.endEditSequence();
+        // Check if the edit sequence is set to be automatically terminated.
+        // During an undo or redo operation the edit sequence termination is
+        // handled manually in order to group the tree and group information
+        // updates into a single compound edit
+        if (undoHandler.isAutoEndEditSequence())
+        {
+            // End any active edit sequence
+            undoManager.endEditSequence();
+        }
 
         // Initialize the data field information and description assuming a
         // single group isn't selected
@@ -1080,6 +1091,11 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
      *************************************************************************/
     private void addTableToGroupDefinition()
     {
+        // Disable automatically ending the edit sequence. This allows all of
+        // the added group members to be grouped into a single sequence so that
+        // if undone, all members are removed together
+        undoHandler.setAutoEndEditSequence(false);
+
         // Add the selected variable(s) to the group tree
         groupTree.addSourceNodesToTargetNode(tableTree.getSelectedVariables(false),
                                              tableTree.getHeaderNodeLevel(),
@@ -1087,6 +1103,11 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
         // Update the group dialog's change indicator
         updateChangeIndicator();
+
+        // Re-enable automatic edit sequence ending, then end the edit
+        // sequence to group the added members
+        undoHandler.setAutoEndEditSequence(true);
+        undoManager.endEditSequence();
     }
 
     /**************************************************************************
@@ -1094,11 +1115,21 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
      *************************************************************************/
     private void removeTableFromGroup()
     {
+        // Disable automatically ending the edit sequence. This allows all of
+        // the deleted group members to be grouped into a single sequence so
+        // that if undone, all members are restored together
+        undoHandler.setAutoEndEditSequence(false);
+
         // Remove the selected tables from the groups in the group tree
         groupTree.removeSelectedChildNodes(false);
 
         // Update the group dialog's change indicator
         updateChangeIndicator();
+
+        // Re-enable automatic edit sequence ending, then end the edit
+        // sequence to group the removed members
+        undoHandler.setAutoEndEditSequence(true);
+        undoManager.endEditSequence();
     }
 
     /**************************************************************************
@@ -1177,6 +1208,11 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                        "New Group",
                                        DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
         {
+            // Disable automatically ending the edit sequence. This allows the
+            // added group's edits to be grouped into a single sequence so that
+            // if undone, all edits are removed together
+            undoHandler.setAutoEndEditSequence(false);
+
             // Add the new group information
             groupTree.getGroupHandler().addGroupInformation(groupNameFld.getText(),
                                                             descriptionFld.getText(),
@@ -1205,6 +1241,11 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
             // Update the group dialog's change indicator
             updateChangeIndicator();
+
+            // Re-enable automatic edit sequence ending, then end the edit
+            // sequence to group the added group's edits
+            undoHandler.setAutoEndEditSequence(true);
+            undoManager.endEditSequence();
         }
     }
 
@@ -1216,6 +1257,11 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // Check that a node is selected in the group tree
         if (groupTree.getSelectionCount() != 0)
         {
+            // Disable automatically ending the edit sequence. This allows all
+            // of the deleted groups to be grouped into a single sequence so
+            // that if undone, all groups are restored together
+            undoHandler.setAutoEndEditSequence(false);
+
             // Add the selected group(s) to the deleted groups list
             deletedGroups.addAll(Arrays.asList(groupTree.getTopLevelSelectedNodeNames()));
 
@@ -1224,6 +1270,11 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
             // Update the group dialog's change indicator
             updateChangeIndicator();
+
+            // Re-enable automatic edit sequence ending, then end the edit
+            // sequence to group the deleted groups
+            undoHandler.setAutoEndEditSequence(true);
+            undoManager.endEditSequence();
         }
     }
 
@@ -1270,6 +1321,11 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                            DialogOption.RENAME_OPTION,
                                            true) == OK_BUTTON)
             {
+                // Disable automatically ending the edit sequence. This allows
+                // all of the renamed group's edits to be grouped into a single
+                // sequence so that if undone, the edits are restored together
+                undoHandler.setAutoEndEditSequence(false);
+
                 // Rename the group
                 groupTree.getGroupHandler().getGroupInformationByName(selected[0]).setName(groupNameFld.getText());
                 groupTree.renameRootChildNode(selected[0], groupNameFld.getText());
@@ -1290,6 +1346,11 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
                 // Update the group dialog's change indicator
                 updateChangeIndicator();
+
+                // Re-enable automatic edit sequence ending, then end the edit
+                // sequence to group the renamed group's edits
+                undoHandler.setAutoEndEditSequence(true);
+                undoManager.endEditSequence();
             }
         }
     }
@@ -1341,6 +1402,12 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                            DialogOption.COPY_OPTION,
                                            true) == OK_BUTTON)
             {
+                // Disable automatically ending the edit sequence. This allows
+                // all of the copied group's edits to be grouped into a single
+                // sequence so that if undone, all of the group's edits are
+                // restored together
+                undoHandler.setAutoEndEditSequence(false);
+
                 // Copy the group node in the group tree
                 groupTree.copyNodeTree(groupInfo.getName(),
                                        groupNameFld.getText(),
@@ -1358,6 +1425,11 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
                 // Update the group dialog's change indicator
                 updateChangeIndicator();
+
+                // Re-enable automatic edit sequence ending, then end the edit
+                // sequence to group the renamed group's edits
+                undoHandler.setAutoEndEditSequence(true);
+                undoManager.endEditSequence();
             }
         }
     }
@@ -1690,42 +1762,95 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // Clear any currently selected group(s)
         groupTree.clearSelection();
 
-        // Check if only a single node is selected in the table tree
-        if (tableTree.getSelectionPaths().length == 1)
+        // Get the paths of the selected table tree nodes
+        TreePath[] selectionPaths = tableTree.getSelectionPaths();
+
+        // Check if a node is selected in the table tree
+        if (selectionPaths != null)
         {
+            List<String> selectedTables = new ArrayList<String>();
             List<TreePath> paths = new ArrayList<TreePath>();
 
-            // Get the first selected table's path
-            String tablePath = tableTree.getFullVariablePath(tableTree.getSelectionPath().getPath());
-
-            // Remove the HTML flags from the table path
-            tablePath = tableTree.removeExtraText(tablePath);
-
-            // Step through the group tree nodes that show the group names
-            for (int groupIndex = 0; groupIndex < groupTree.getRootNode().getChildCount(); groupIndex++)
+            // Step through each selected node
+            for (TreePath path : selectionPaths)
             {
-                // Get the group name node from the link tree
-                ToolTipTreeNode groupNode = ((ToolTipTreeNode) groupTree.getRootNode().getChildAt(groupIndex));
+                // Get the path for the node
+                String tablePath = tableTree.removeExtraText(tableTree.getFullVariablePath(path.getPath()));
 
-                // Step through the tables belonging to the group
-                for (String table : groupTree.getGroupHandler().getGroupInformationByName(groupTree.removeExtraText(groupNode.getUserObject().toString())).getTablesAndAncestors())
+                // Check if the path is for a table and not a header or filter
+                if (!tablePath.isEmpty())
                 {
-                    // Check if the selected table matches the group table
-                    if (tablePath.equals(table))
-                    {
-                        // Add the path to the node to the list and stop
-                        // searching this group
-                        paths.add(CcddCommonTreeHandler.getPathFromNode(groupNode));
-                        break;
-                    }
+                    // Add the table path to the list of those to match
+                    selectedTables.add(tablePath);
                 }
             }
 
-            // Check if the table belongs to any group(s)
-            if (!paths.isEmpty())
+            // Check if a table is selected
+            if (selectedTables.size() != 0)
             {
-                // Select the group(s) to which the table belongs
-                groupTree.setSelectionPaths(paths.toArray(new TreePath[0]));
+                int matchCount = -1;
+                ToolTipTreeNode groupNode = null;
+
+                // Step through each element and child of the group tree
+                for (Enumeration<?> element = groupTree.getRootNode().preorderEnumeration(); element.hasMoreElements();)
+                {
+                    // Get the node reference
+                    ToolTipTreeNode node = (ToolTipTreeNode) element.nextElement();
+
+                    // Check if the node references a group (and not a filter
+                    // or table)
+                    if (node.getLevel() == groupTree.getGroupNodeLevel())
+                    {
+                        // Store the node referencing the group name and reset
+                        // the matched tables counter
+                        groupNode = node;
+                        matchCount = 0;
+                    }
+                    // Check if the selected table(s) haven't already been
+                    // detected in the group and the node references a table
+                    else if (matchCount != -1 && node.getLevel() >= groupTree.getItemNodeLevel())
+                    {
+                        // Get the full path to the table reference in the
+                        // group tree
+                        String groupTable = groupTree.removeExtraText(groupTree.getFullVariablePath(node.getPath(), 2));
+
+                        // Step through the selected tables
+                        for (String selectedTable : selectedTables)
+                        {
+                            // Check if the group tree table matches the
+                            // selected table
+                            if (groupTable.equals(selectedTable))
+                            {
+                                // Increment the matched tables counter and
+                                // stop searching
+                                matchCount++;
+                                break;
+                            }
+                        }
+                    }
+
+                    // Check if the previous group contains all of the selected
+                    // tables
+                    if (matchCount == selectedTables.size())
+                    {
+                        // Add the group to the list of those containing the
+                        // selected table(s)
+                        paths.add(CcddCommonTreeHandler.getPathFromNode(groupNode));
+
+                        // Reset the matched tables counter so that any
+                        // remaining tables in this group are ignored. When the
+                        // next group's node is encountered the counter is
+                        // reset
+                        matchCount = -1;
+                    }
+                }
+
+                // Check if the table belongs to any group(s)
+                if (!paths.isEmpty())
+                {
+                    // Select the group(s) to which the table belongs
+                    groupTree.setSelectionPaths(paths.toArray(new TreePath[0]));
+                }
             }
         }
     }

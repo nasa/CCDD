@@ -4758,15 +4758,15 @@ public class CcddScriptDataAccessHandler
     }
 
     /**************************************************************************
-     * Get the messages ID names and their corresponding ID values for the
-     * specified data stream
+     * Get the copy table message ID names and their corresponding ID values
+     * for the specified data stream
      *
      * @param streamName
      *            data stream name
      *
-     * @return Array containing the message ID names and ID values; returns
-     *         blank if there are no entries for the specified data stream or
-     *         if data stream name is invalid
+     * @return Array containing the copy table message ID names and ID values;
+     *         returns blank if there are no entries for the specified data
+     *         stream or if data stream name is invalid
      *************************************************************************/
     public String[][] getTelemetryMessageIDs(String streamName)
     {
@@ -4786,6 +4786,28 @@ public class CcddScriptDataAccessHandler
         }
 
         return messageIDs;
+    }
+
+    /**************************************************************************
+     * Get an array containing every message ID name and its corresponding
+     * message ID, and the owning entity from every table cell, data field
+     * (table or group), and telemetry message. ID names and IDs are determined
+     * by the input data type assigned to the table column or data field, and
+     * are matched one-to-one by relative position; i.e., the first message ID
+     * name data field for a table or group is paired with the first message ID
+     * data field, and so on. If more names are defined than IDs or vice versa
+     * then a blank ID/name is paired with the unmatched name/ID
+     *
+     * @return Two-dimensional array containing every message ID name and its
+     *         corresponding message ID, and the owning entity. Each row in the
+     *         array is an array in the form [owner name], [message ID name],
+     *         [message ID]. The owner name is preceded by 'Group:' if the
+     *         owner is a group, and by "Tlm:' if the owner is a telemetry
+     *         message
+     *************************************************************************/
+    public String[][] getMessageIDOwnersIDsAndNames()
+    {
+        return new CcddMessageIDHandler(ccddMain, false).getMessageIDsAndNames(parent).toArray(new String[0][0]);
     }
 
     /**************************************************************************
@@ -4815,7 +4837,7 @@ public class CcddScriptDataAccessHandler
      *
      * @return Two-dimensional array containing the defined parameters
      *************************************************************************/
-    public String[][] getApplicationSchedulerDefines()
+    public String[][] getApplicationScheduleDefinitionTableDefines()
     {
         // Check if the scheduler table handler doesn't exist
         if (schTable == null)
@@ -4824,7 +4846,7 @@ public class CcddScriptDataAccessHandler
             schTable = new CcddApplicationSchedulerTableHandler(ccddMain);
         }
 
-        return schTable.getSchedulerTableDefines();
+        return schTable.getScheduleDefinitionTableDefines();
     }
 
     /**************************************************************************
@@ -4846,7 +4868,7 @@ public class CcddScriptDataAccessHandler
             schTable = new CcddApplicationSchedulerTableHandler(ccddMain);
         }
 
-        return schTable.getApplicationScheduleDefinitionTableByRow(row);
+        return schTable.getScheduleDefinitionTableByRow(row);
     }
 
     /**************************************************************************
@@ -4863,7 +4885,7 @@ public class CcddScriptDataAccessHandler
             schTable = new CcddApplicationSchedulerTableHandler(ccddMain);
         }
 
-        return schTable.createSchedulerMessageTable();
+        return schTable.getMessageDefinitionTable();
     }
 
     /**************************************************************************

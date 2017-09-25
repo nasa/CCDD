@@ -1,29 +1,86 @@
 /*******************************************************************************
  * Description: Output an ITOS page file
- *
+ * 
  * This JavaScript script generates an ITOS page file from the supplied
- * telemetry information
- *
+ * telemetry information.
+ * 
+ * Assumptions: Arrays are limited to a single dimension
+ * 
  * Copyright 2017 United States Government as represented by the Administrator
  * of the National Aeronautics and Space Administration. No copyright is claimed
  * in the United States under Title 17, U.S. Code. All Other Rights Reserved.
  ******************************************************************************/
+
+try
+{
+    load("nashorn:mozilla_compat.js");
+}
+catch (e)
+{
+}
 
 importClass(Packages.CCDD.CcddScriptDataAccessHandler);
 
 /** Functions *************************************************************** */
 
 /*******************************************************************************
+ * Pad a string with spaces to the left to make the string the specified length
+ * 
+ * @param paddingLength
+ *            desired string length after padding
+ * 
+ * @return Input string with spaces prepended as needed to get the desired
+ *         length
+ ******************************************************************************/
+String.prototype.padLeft = function(paddingLength)
+{
+    var padded = this;
+
+    while (padded.length < paddingLength)
+    {
+        padded = " " + padded;
+    }
+
+    return padded;
+};
+
+/*******************************************************************************
+ * Output the file creation details to the specified file
+ * 
+ * @param file
+ *            reference to the output file
+ ******************************************************************************/
+function outputFileCreationInfo(file)
+{
+    // Add the build information and header to the output file
+    ccdd.writeToFileLn(file, "# Created : " + ccdd.getDateAndTime() + "\n# User    : " + ccdd.getUser() + "\n# Project : " + ccdd.getProject() + "\n# Script  : " + ccdd.getScriptName());
+
+    // Check if any table is associated with the script
+    if (ccdd.getTableNumRows() != 0)
+    {
+        ccdd.writeToFileLn(file, "# Table(s): " + [].slice.call(ccdd.getTableNames()).sort().join(",\n#           "));
+    }
+
+    // Check if any groups is associated with the script
+    if (ccdd.getAssociatedGroupNames().length != 0)
+    {
+        ccdd.writeToFileLn(file, "# Group(s): " + [].slice.call(ccdd.getAssociatedGroupNames()).sort().join(",\n#           "));
+    }
+
+    ccdd.writeToFileLn(file, "");
+}
+
+/*******************************************************************************
  * Determine if the row containing the specified variable is not an array
  * definition. A row in a table is an array definition if a value is present in
  * the Array Size column but the variable name does not end with a ']'
- *
+ * 
  * @param variableName
  *            variable name
- *
+ * 
  * @param arraySize
  *            array size
- *
+ * 
  * @return true if the variable is not an array definition
  ******************************************************************************/
 function isVariable(variableName, arraySize)
@@ -36,10 +93,10 @@ function isVariable(variableName, arraySize)
 /*******************************************************************************
  * Convert an array member variable name by replacing left square brackets with
  * underscores and removing right square brackets (example: a[2] becomes a_2)
- *
+ * 
  * @param variableName
  *            variable name
- *
+ * 
  * @return Variable name with the square brackets replaced
  ******************************************************************************/
 function convertArrayMember(variableName)
@@ -48,40 +105,59 @@ function convertArrayMember(variableName)
 }
 
 /*******************************************************************************
- *
+ * Adjust the row counter to the next row. If the number of rows exceeds the
+ * maximum start a new column
+ * 
+ * @param pageFile
+ *            reference to the output file
+ * 
+ * @param variableName
+ *            variable name
+ * 
+ * @param fullVariableName
+ *            variable name with structure path
+ * 
+ * @param row
+ *            structure data row index
  ******************************************************************************/
-function checkRows(variableName, fullVariableName, row)
+function nextRow(pageFile, variableName, fullVariableName, row)
 {
+    // Check if the row counter is at the maximum
     if (rowCount >= maxNumRows)
     {
+        // Step through the rows in the data that have been processed
         for (; row >= 0; row--)
         {
+            // Get the header (structure) name for this row
             var headerName = fullHeaderNames[row];
 
-            if (headerName != "")
+            // Check if the variable belongs to the same structure
+            if (headerName != "" && fullVariableName.equals(headerName + "_" + variableName))
             {
-                if (fullVariableName.equals(headerName + "_" + variableName))
-                {
-                    lastSubStructureName = headerNames[row];
-                }
+                // Update the column header
+                lastSubStructureName = headerNames[row];
             }
         }
 
+        // Go to the next column
         columnCount++;
         ccdd.writeToFileLn(pageFile, "## col_max_len going from " + maxColumnLength + " back to " + columnStep);
         rowCount = 1;
         columnOffset = +columnOffset + +maxColumnLength + 2;
         maxColumnLength = columnStep;
 
+        // Check if the current variable is a member within an array
         if (inMiddleOfArray)
         {
-            ccdd.writeToFileLn(pageFile, "array_fmt(1," + columnOffset + ",\"" + nextColumnHeader + "\")");
+            ccdd.writeToFileLn(pageFile, "array_fmt(1, " + columnOffset + ",\"" + nextColumnHeader + "\")");
         }
+        // Not a variable within an array
         else
         {
-            ccdd.writeToFileLn(pageFile, "(1," + columnOffset + ",\"" + lastSubStructureName + "\")");
+            ccdd.writeToFileLn(pageFile, "(1, " + columnOffset + ",\"" + lastSubStructureName + "\")");
         }
     }
+    // Not at the maximum row
     else
     {
         rowCount++;
@@ -89,7 +165,12 @@ function checkRows(variableName, fullVariableName, row)
 }
 
 /*******************************************************************************
- *
+ * Check if the supplied array size contains a value
+ * 
+ * @param array
+ *            size variable's array size value
+ * 
+ * @return true if the array size isn't empty
  ******************************************************************************/
 function isArrayElement(arraySize)
 {
@@ -97,30 +178,28 @@ function isArrayElement(arraySize)
 }
 
 /*******************************************************************************
- *
+ * Get the array index value from the variable name
+ * 
+ * @param name
+ *            variable name
+ * 
+ * @return Array index value from the variable name
  ******************************************************************************/
-function getIndex(str)
+function getIndex(name)
 {
-    var s = str.split("_");
-    return s[s.length - 1];
+    // Split the variable name on the underscores and use the last part as the
+    // array index
+    var parts = name.split("_");
+    return parts[parts.length - 1];
 }
-
-/*******************************************************************************
- * USE PRINTF TYPE FORMATTING INSTEAD; EASIER TO CONVERT TO OTHER LANGUAGES (AS
- * IN TYPESHEADER)
- ******************************************************************************/
-String.prototype.paddingLeft = function(paddingValue)
-{
-    return String(paddingValue + this).slice(-paddingValue.length);
-};
 
 /*******************************************************************************
  * Selects the format arguments to use for a particular ITOS type, based on its
  * type
- *
+ * 
  * @param itosEncode
  *            data type in ITOS encoded form
- *
+ * 
  * @return ITOS output format string
  ******************************************************************************/
 function setITOSFormatFlag(itosEncode)
@@ -129,19 +208,28 @@ function setITOSFormatFlag(itosEncode)
     var withSign = 0;
     modNum = modNumDefault;
 
+    // Select based on the data type character (F, I, U, S)
     switch (itosEncode.substr(0, 1))
     {
+        // Floating point
         case 'F':
-            var varSize = itosEncode.substr(1);
+            // Get the number of bytes that define the floating point
+            var numBytes = itosEncode.length() - 1;
 
-            if (varSize > 4)
+            // Check if the number of bytes is greater than 4 (i.e., it's a
+            // double precision floating point)
+            if (numBytes > 4)
             {
+                // Set the format string and parameters for a double
                 itosFormat = "%13.3f";
                 numITOSDigits = 14;
                 modNum = modNumDefault / 2;
             }
+            // The number of bytes is equal to or less than 4 (i.e., it's a
+            // single precision floating point)
             else
             {
+                // Set the format string and parameters for a float
                 itosFormat = "%6.3f";
                 numITOSDigits = 7;
                 modNum = modNumDefault / 2;
@@ -149,36 +237,40 @@ function setITOSFormatFlag(itosEncode)
 
             break;
 
+        // Signed integer
         case 'I':
+            // Set the value to add a space for the sign
             withSign = 1;
 
+            // Unsigned integer
         case 'U':
-            var varSize = itosEncode.substr(1);
+            // Get the number of bytes that define the (unsigned) integer
+            var numBytes = itosEncode.length() - 1;
 
-            if (isNaN(varSize))
-            {
-                print("Err for " + itosEncode + "\n");
-                break;
-            }
-
-            var bytes = Math.max(varSize[0], varSize[varSize.length - 1]);
-
-            // fancy math valid for n=1/2/4 bytes
-            var nDigits = 2 * bytes + 1 + Math.floor(bytes / 4);
+            // Determine the number of digits required to display the largest
+            // possible value for the (unsigned) integer with the specified
+            // number of bytes
+            var nDigits = 2 * numBytes + 1 + Math.floor(numBytes / 4);
 
             // Add a digit for a +/- if signed integer
             nDigits += +withSign;
+
+            // Set the format string and parameters for a (unsigned) integer
             itosFormat = "%" + nDigits.toString() + "d";
             numITOSDigits = nDigits;
 
-            if (bytes > 2)
+            // Check if the number of bytes is greater than 2
+            if (numBytes > 2)
             {
+                // Set the format parameter
                 modNum = modNumDefault / 2;
             }
 
             break;
 
+        // Character or string
         case 'S':
+            // Set the format string and parameters for a character or string
             itosFormat = "%s";
             numITOSDigits = 10;
             modNum = modNumDefault / 2;
@@ -193,13 +285,19 @@ function setITOSFormatFlag(itosEncode)
 
 /*******************************************************************************
  * Output a single mnemonic definition
- *
+ * 
+ * @param pageFile
+ *            reference to the output file
+ * 
  * @param row
  *            row index in the structure data table
- *
+ * 
+ * @param fltCompName
+ *            flight computer name
+ * 
  * @returns true is a mnemonic definition is output to the file
  ******************************************************************************/
-function outputMnemonicDefinition(row)
+function outputMnemonic(pageFile, row, fltCompName)
 {
     var isOutput = false;
     var itosFormat = "";
@@ -224,9 +322,10 @@ function outputMnemonicDefinition(row)
         var arraySize = ccdd.getStructureArraySize(row);
         var fullVariableName = ccdd.getFullVariableName(row);
 
-        // See if this row would exceed max. If so start another column
-        checkRows(variableName, fullVariableName, row);
+        // See if this row would exceed the maximum. If so start another column
+        nextRow(pageFile, variableName, fullVariableName, row);
 
+        // Get the full variable name (including the variable's structure path)
         var tmp = ccdd.getFullVariableName(row, " ");
 
         // Find number of spaces (i.e. " ") in tmp and makes prepad a string
@@ -242,7 +341,7 @@ function outputMnemonicDefinition(row)
             variableName = convertArrayMember(variableName);
 
             // Create the mnemonic definition
-            var fullVariableName2 = prepad + prefix + fullVariableName;
+            var fullVariableName2 = prepad + fltCompName + fullVariableName;
             len = prepad.length() + variableName.length();
 
             // Check if the data type is a structure
@@ -252,7 +351,7 @@ function outputMnemonicDefinition(row)
                 lastSubStructureName = nextColumnHeader;
                 headerNames[row] = lastSubStructureName;
                 fullHeaderNames[row] = fullVariableName;
-                ccdd.writeToFileLn(pageFile, "(+," + columnOffset + ", \"" + nextColumnHeader + "\")");
+                ccdd.writeToFileLn(pageFile, "(+, " + columnOffset + ", \"" + nextColumnHeader + "\")");
             }
             // Not a structure; it's a primitive type
             else
@@ -263,27 +362,25 @@ function outputMnemonicDefinition(row)
                     var digitPad = new Array(maxDigits + 1).join(" ");
 
                     // Output number with leading spaces
-                    var index = getIndex(variableName).toString().paddingLeft(digitPad);
+                    var index = getIndex(variableName);
+                    var indexPadded = index.toString().padLeft(maxDigits);
 
-                    inMiddleOfArray = 1;
-
+                    inMiddleOfArray = true;
                     var arrayPad = 13;
 
                     // This item is first on a row
                     if (index % modNum != 0)
                     {
-                        // ccdd.writeToFileLn(pageFile, fullVariableName2+"(=,
-                        // +, \" :v"+itosFormat+":\")");
-                        ccdd.writeToFileLn(pageFile, fullVariableName2 + "(=,  +, \" :v" + itosFormat + ":\", raw)");
-                        len = 0; // = len+ (index % modNum)*+arrayPad;
+                        ccdd.writeToFileLn(pageFile, fullVariableName2 + "(=, +, \" :v" + itosFormat + ":\", raw)");
+                        len = 0;
                     }
                     // This array item is NOT first item on a row
                     else
                     {
-                        var lastIndex = Math.min(arraySize - 1, +index + +modNum - 1).toString().paddingLeft(digitPad);
-                        var arrayMessage = new java.lang.String(String(prepad + "[" + index + "-" + lastIndex + "]"));
+                        var lastIndex = Math.min(arraySize - 1, +index + +modNum - 1).toString().padLeft(digitPad);
+                        var arrayMessage = new java.lang.String(String(prepad + "[" + indexPadded + "-" + lastIndex + "]"));
                         len = arrayMessage.length() + (numITOSDigits + 1) * Math.min(modNum, arraySize);
-                        ccdd.writeToFileLn(pageFile, fullVariableName2 + "(+,  " + columnOffset + ", \"" + arrayMessage + "  :v" + itosFormat + ":\",raw)");
+                        ccdd.writeToFileLn(pageFile, fullVariableName2 + "(+, " + columnOffset + ", \"" + arrayMessage + "  :v" + itosFormat + ":\", raw)");
                     }
 
                     if (index != +arraySize - 1 && (+index + 1) % modNum != 0)
@@ -293,14 +390,14 @@ function outputMnemonicDefinition(row)
 
                     if (index == (+arraySize - 1))
                     {
-                        inMiddleOfArray = 0;
+                        inMiddleOfArray = false;
                         nextColumnHeader = lastSubStructureName;
-                    } // done with array
+                    }
                 }
                 // Not an array item, print normally
                 else
                 {
-                    ccdd.writeToFileLn(pageFile, fullVariableName2 + "(+,  " + columnOffset + ", \"" + prepad + variableName + " :v" + itosFormat + ":\",raw)");
+                    ccdd.writeToFileLn(pageFile, fullVariableName2 + "(+, " + columnOffset + ", \"" + prepad + variableName + " :v" + itosFormat + ":\", raw)");
 
                     len = prepad.length() + variableName.length() + numITOSDigits + 2;
                 }
@@ -309,37 +406,43 @@ function outputMnemonicDefinition(row)
             isOutput = true;
         }
         else
-        // (isVariable(variableName, arraySize))
         {
             nextColumnHeader = prepad + variableName + "[" + arraySize + "] - " + itosEncode;
             len = new java.lang.String(String(nextColumnHeader)).length();
-            ccdd.writeToFileLn(pageFile, "array_fmt(+," + columnOffset + ", \"" + nextColumnHeader + "\")");
+            ccdd.writeToFileLn(pageFile, "array_fmt(+, " + columnOffset + ", \"" + nextColumnHeader + "\")");
         }
 
         if (maxColumnLength < +len)
         {
-            ccdd.writeToFileLn(pageFile, "## col_max_len is now= " + len + "  (was " + maxColumnLength + ")");
+            ccdd.writeToFileLn(pageFile, "## col_max_len is now = " + len + " (was " + maxColumnLength + ")");
             maxColumnLength = +len;
         }
     }
     else
     {
-        ccdd.writeToFileLn(pageFile, "#### NOT printing " + variableName + "*/");
+        ccdd.writeToFileLn(pageFile, "#### NOT printing " + variableName);
     }
 
     return isOutput;
 }
 
 /*******************************************************************************
- * Output all of the mnemonic definitions
+ * Output all of the mnemonic for display
+ * 
+ * @param pageFile
+ *            reference to the output file
+ * 
+ * @param fltCompName
+ *            flight computer name
  ******************************************************************************/
-function outputMnemonicDefinitions()
+function outputMnemonics(pageFile, fltCompName)
 {
-    ccdd.writeToFileLn(pageFile, "");
-    ccdd.writeToFileLn(pageFile, "# Mnemonic Definitions");
+    ccdd.writeToFileLn(pageFile, "# Mnemonics");
 
+    // Step through each of the structure table rows
     for (var row = 0; row < ccdd.getStructureTableNumRows(); row++)
     {
+        // Initialize the header name array values to blanks
         fullHeaderNames[row] = "";
         headerNames[row] = "";
     }
@@ -347,10 +450,11 @@ function outputMnemonicDefinitions()
     // Step through each row in the table
     for (row = 0; row < ccdd.getStructureTableNumRows(); row++)
     {
-        // Output the mnemonic definition for this row in the data table
-        var isOutput = outputMnemonicDefinition(row);
+        // Output the mnemonic for this row in the data table
+        var isOutput = outputMnemonic(pageFile, row, fltCompName);
 
-        if (isOutput)// Check if a mnemonic definition was output to the file
+        // Check if a mnemonic definition was output to the file
+        if (isOutput)
         {
             // Add an end of line to file to get ready for next line
             ccdd.writeToFileLn(pageFile, "");
@@ -359,12 +463,15 @@ function outputMnemonicDefinitions()
 }
 
 /*******************************************************************************
- *
+ * Output the page file
+ * 
+ * @param fltCompName
+ *            flight computer name
  ******************************************************************************/
-function writePageFile(fltCompName)
+function outputPageFile(fltCompName)
 {
-    nextColumnHeader = prefix + ccdd.getRootStructureTableNames()[0];
-
+    // Initialize the name, row, and column parameters
+    nextColumnHeader = fltCompName + ccdd.getRootStructureTableNames()[0];
     lastSubStructureName = nextColumnHeader;
     columnStep = 20;
     maxColumnLength = columnStep;
@@ -372,51 +479,41 @@ function writePageFile(fltCompName)
     maxNumRows = 46;
     rowCount = maxNumRows;
     columnCount = 0;
-    inMiddleOfArray = 0;
+    inMiddleOfArray = false;
 
-    if (nextColumnHeader == "FC1_LAS_IO_Tlm_Out_t")
+    // Check if structure data is provided
+    if (numStructRows != 0)
     {
-        modNumDefault = 5;
-        modNum = modNumDefault;
-    }
+        // Build the page file name and open the page output file
+        var baseName = "auto_" + fltCompName + ccdd.getRootStructureTableNames()[0];
+        var pageFileName = ccdd.getOutputPath() + baseName + ".page";
+        var pageFile = ccdd.openOutputFile(pageFileName);
 
-    prefix = fltCompName;
-    nextColumnHeader = prefix + ccdd.getRootStructureTableNames()[0];
-
-    var dateAndTime = ccdd.getDateAndTime(); // Get the current date and
-    // time
-
-    if (numStructRows != 0) // Check if structure data is provided
-    {
-        var baseName = "auto_" + prefix + ccdd.getRootStructureTableNames()[0];
-        var pageOutputFile = ccdd.getOutputPath() + baseName + ".page"; // The
-        // telemetry
-        // output
-        // file
-        // name
-
-        pageFile = ccdd.openOutputFile(pageOutputFile);
-
-        if (pageFile != null) // Check if the page output file
-        // successfully opened
+        // Check if the page output file successfully opened
+        if (pageFile != null)
         {
+            // Begin building the page display. The "page" statement must be on
+            // the first row
             ccdd.writeToFileLn(pageFile, "page " + baseName);
-            ccdd.writeToFileLn(pageFile, "# Created " + dateAndTime + "\n");
+            ccdd.writeToFileLn(pageFile, "");
+            outputFileCreationInfo(pageFile);
             ccdd.writeToFileLn(pageFile, "color default (orange, default)");
             ccdd.writeToFileLn(pageFile, "color mnedef (text (white, black) )");
             ccdd.writeToFileLn(pageFile, "color subpage (lightblue, blue)");
             ccdd.writeToFileLn(pageFile, "color array_fmt (royalblue, black)");
             ccdd.writeToFileLn(pageFile, "");
 
-            outputMnemonicDefinitions();
+            // Output the telemetry display definitions
+            outputMnemonics(pageFile, fltCompName);
 
-            ccdd.closeFile(pageFile); // Close the output telemetry file
+            // Close the page output file
+            ccdd.closeFile(pageFile);
         }
         // The page output file cannot be opened
         else
         {
             // Display an error dialog
-            ccdd.showErrorDialog("<html><b>Error opening telemetry output file '</b>" + pageOutputFile + "<b>'");
+            ccdd.showErrorDialog("<html><b>Error opening telemetry output file '</b>" + pageFileName + "<b>'");
         }
     }
 }
@@ -432,15 +529,13 @@ if (numStructRows == 0)
 {
     ccdd.showErrorDialog("No structure or command data supplied to script " + ccdd.getScriptName());
 }
-else
 // Structure and/or command data is supplied
+else
 {
     var fcNames = [];
     var numFlightComputers = 0;
-    var prefix = "FC1_";
     var nextColumnHeader;
     var lastSubStructureName;
-    var pageFile;
     var columnStep;
     var maxColumnLength;
     var columnOffset;
@@ -450,9 +545,8 @@ else
     var headerNames = Array(ccdd.getStructureTableNumRows());
     var fullHeaderNames = Array(ccdd.getStructureTableNumRows());
     var inMiddleOfArray;
-
     var numITOSDigits = 8;
-    var modNumDefault = 4;
+    var modNumDefault = 5;
     var modNum = modNumDefault;
 
     // Get the value of the data field specifying the flight computer base value
@@ -502,6 +596,6 @@ else
     for (var fcIndex = 0; fcIndex < numFlightComputers; fcIndex++)
     {
         // Output the page file
-        writePageFile(fcNames[fcIndex]);
+        outputPageFile(fcNames[fcIndex]);
     }
 }

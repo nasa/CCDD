@@ -37,23 +37,27 @@ public class CcddFieldHandler
      *************************************************************************/
     CcddFieldHandler()
     {
+        // Create storage for the field information
+        fieldInformation = new ArrayList<FieldInformation>();
     }
 
     /**************************************************************************
      * Field handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param ownerName
      *            name of the data field owner; null to build the information
      *            for all data fields
-     * 
+     *
      * @param parent
      *            GUI component calling this method
      *************************************************************************/
     CcddFieldHandler(CcddMain ccddMain, String ownerName, Component parent)
     {
+        this();
+
         // Load the data field definitions from the database
         fieldDefinitions = ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.FIELDS,
                                                                                         parent);
@@ -138,11 +142,23 @@ public class CcddFieldHandler
      * Set the data field information
      *
      * @param fieldInfo
-     *            data field information
+     *            data field information; null or an empty list to clear the
+     *            field information
      *************************************************************************/
     protected void setFieldInformation(List<FieldInformation> fieldInfo)
     {
-        fieldInformation = fieldInfo;
+        // Check if fields are defined in the supplied field information
+        if (fieldInfo != null)
+        {
+            // Set the data field information to that supplied
+            fieldInformation = fieldInfo;
+        }
+        // No field information is supplied
+        else
+        {
+            // Clear the field information
+            fieldInformation.clear();
+        }
     }
 
     /**************************************************************************
@@ -211,18 +227,8 @@ public class CcddFieldHandler
     protected void buildFieldInformation(Object[][] fieldDefinitions,
                                          String ownerName)
     {
-        // Check if the field information doesn't exist
-        if (fieldInformation == null)
-        {
-            // Create storage for the field information
-            fieldInformation = new ArrayList<FieldInformation>();
-        }
-        // The field information exists
-        else
-        {
-            // Clear the fields from the list
-            fieldInformation.clear();
-        }
+        // Clear the fields from the list
+        fieldInformation.clear();
 
         // Check if the field definitions exist
         if (fieldDefinitions != null)
@@ -261,7 +267,7 @@ public class CcddFieldHandler
      *            name of the data field owner (table name, including the path
      *            if this table references a structure, group name, or table
      *            type name)
-     * 
+     *
      * @return Data field definitions array
      *************************************************************************/
     protected Object[][] buildFieldDefinition(Object[][] fieldData,

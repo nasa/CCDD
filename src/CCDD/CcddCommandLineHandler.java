@@ -616,15 +616,9 @@ public class CcddCommandLineHandler
         // Execute script command
         argument.add(new CommandHandler("execute",
                                         "Execute script(s)",
-                                        "script name["
+                                        "[\" or ']script name["
                                             + LIST_TABLE_DESC_SEPARATOR.trim()
-                                            + "table["
-                                            + LIST_TABLE_SEPARATOR.trim()
-                                            + "table2["
-                                            + LIST_TABLE_SEPARATOR.trim()
-                                            + "...["
-                                            + LIST_TABLE_SEPARATOR.trim()
-                                            + "tableN]]]][;...]",
+                                            + "table1 or Group:group1[+...[+tableN or Group:groupN]]][;...][\" or ']",
                                         CommandLineType.NAME,
                                         10)
         {
@@ -898,7 +892,7 @@ public class CcddCommandLineHandler
                     usage += String.format(format,
                                            cmd.description,
                                            cmd.command,
-                                           "<" + cmd.value + ">");
+                                           cmd.value);
                 }
 
                 // Display the usage information

@@ -102,7 +102,7 @@ if mdtFile != nil
     for name in 0..applicationNames.length - 1
         # Write the application message ID include statements for the header
         # files
-        $ccdd.writeToFileLn(mdtFile, "#include \"" + applicationNames[name].downcase + "_msids.h\"")
+        $ccdd.writeToFileLn(mdtFile, "#include \"" + applicationNames[name].downcase + "_msgids.h\"")
     end
 
     $ccdd.writeToFileLn(mdtFile, "")
@@ -196,10 +196,10 @@ if sdtFile != nil
     $ccdd.writeToFileLn(sdtFile, "static CFE_TBL_FileDef_t CFE_TBL_FileDef =")
     $ccdd.writeToFileLn(sdtFile, "{")
     $ccdd.writeToFileLn(sdtFile, "    \"SCH_DefaultScheduleTable\",")
-    $ccdd.writeToFileLn(sdtFile, "    \"SCH_APP.SCHED_DEF\",")
+    $ccdd.writeToFileLn(sdtFile, "    \"SCH.SCHED_DEF\",")
     $ccdd.writeToFileLn(sdtFile, "    \"SCH schedule table\",")
     $ccdd.writeToFileLn(sdtFile, "    \"sch_def_schtbl.tbl\",")
-    $ccdd.writeToFileLn(sdtFile, "    sizeof (SCH_ScheduleEntry_t) * SCH_TABLE_ENTRIES")
+    $ccdd.writeToFileLn(sdtFile, "    (sizeof (SCH_ScheduleEntry_t) * SCH_TABLE_ENTRIES)")
     $ccdd.writeToFileLn(sdtFile, "};")
     $ccdd.writeToFileLn(sdtFile, "")
 
@@ -210,7 +210,7 @@ if sdtFile != nil
     $ccdd.writeToFileLn(sdtFile, "SCH_ScheduleEntry_t SCH_DefaultScheduleTable[SCH_TABLE_ENTRIES] =")
     $ccdd.writeToFileLn(sdtFile, "{")
     $ccdd.writeToFileLn(sdtFile, "    /*")
-    $ccdd.writeToFileLn(sdtFile, "    **    uint8     EnableState  -- SCH_UNUSED, SC_ENABLED")
+    $ccdd.writeToFileLn(sdtFile, "    **    uint8     EnableState  -- SCH_UNUSED, SCH_ENABLED")
     $ccdd.writeToFileLn(sdtFile, "    **    uint8     Type         -- 0 or SCH_ACTIVITY_SEND_MSG")
     $ccdd.writeToFileLn(sdtFile, "    **    uint16    Frequency    -- how many seconds between Activity execution")
     $ccdd.writeToFileLn(sdtFile, "    **    uint16    Remainder    -- seconds offset to perform Activity")
@@ -255,8 +255,6 @@ if sdtFile != nil
 
     # Terminate the schedule definition table
     $ccdd.writeToFileLn(sdtFile, "};")
-    $ccdd.writeToFileLn(sdtFile, "")
-    $ccdd.writeToFileLn(sdtFile, "CFE_TBL_FILEDEF(HK_CopyTable, HK.CopyTable, HK Copy Tbl, hk_cpy_tbl.tbl)")
 
     # Close the output file
     $ccdd.closeFile(sdtFile)

@@ -160,8 +160,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         dataTypeHandler = ccddMain.getDataTypeHandler();
         fileIOHandler = ccddMain.getFileIOHandler();
 
-        isNodeSelectionChanging = false;
-
         // Create the table manager dialog
         initialize();
     }
@@ -264,6 +262,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             @Override
             protected void execute()
             {
+                isNodeSelectionChanging = false;
+
                 // Create an empty border
                 emptyBorder = BorderFactory.createEmptyBorder();
 
@@ -761,6 +761,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         // Build the table tree
         tableTree = new CcddTableTreeHandler(ccddMain,
                                              new CcddGroupHandler(ccddMain,
+                                                                  null,
                                                                   ccddMain.getMainFrame()),
                                              treeType,
                                              true,

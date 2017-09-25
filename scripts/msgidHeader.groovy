@@ -189,7 +189,7 @@ def makeCommandFile(baseFileName)
         for (def row = 0; row < numCommandRows; row++)
         {
             // Get the command name
-            def cmdName = ccdd.getCommandTableData("command name", row)
+            def cmdName = ccdd.getCommandName(row)
 
             // Check if the command name is present and the length exceeds the
             // minimum length found thus far
@@ -207,8 +207,8 @@ def makeCommandFile(baseFileName)
         for (def row = 0; row < numCommandRows; row++)
         {
             // Get the command ID name and ID value
-            def cmdName = ccdd.getCommandTableData("command name", row)
-            def cmdCode = ccdd.getCommandTableData("command code", row)
+            def cmdName = ccdd.getCommandName(row)
+            def cmdCode = ccdd.getCommandCode(row)
 
             // Check if the name and ID exist
             if (cmdCode != null && cmdName != null)
