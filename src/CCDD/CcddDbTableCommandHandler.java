@@ -4662,9 +4662,7 @@ public class CcddDbTableCommandHandler
         if (addLinkHandler == null)
         {
             // Create a link handler
-            addLinkHandler = new CcddLinkHandler(ccddMain,
-                                                 null,
-                                                 ccddMain.getMainFrame());
+            addLinkHandler = new CcddLinkHandler(ccddMain, ccddMain.getMainFrame());
         }
 
         // Get the reference to the link definitions in order to shorten

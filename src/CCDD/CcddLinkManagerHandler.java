@@ -271,9 +271,11 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
             }
         };
 
-        // Create the undo handler for the components with undoable actions
+        // Create the undo handler for the components with undoable actions.
+        // Disable storage of edit actions during dialog creation
         undoHandler = new CcddUndoHandler(undoManager);
         pathSelect = undoHandler.new UndoableTreePathSelection();
+        undoHandler.setAllowUndo(false);
 
         // Build the link tree
         linkTree = new CcddLinkTreeHandler(ccddMain,
@@ -443,7 +445,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
 
                 // Clean up the links following rebuilding the tree
                 variableTree = this;
-                cleanUpLinks();
+                cleanUpLinks(null);
             }
         };
 
@@ -645,7 +647,8 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
                                                                             variableTree.getNodeByNodeName("Structures & Variables"),
                                                                             -1));
 
-                // Check if this is the first time the rate selection occurs
+                // Check if this is the first time the rate selection
+                // occurs
                 if (firstRateChange)
                 {
                     // Force the link tree to be rebuilt now that the tree path
@@ -682,8 +685,9 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         // unnecessarily
         rateFilter.setSelectedItem(selectedRate);
 
-        // Clear the undo/redo tree edits stack
-        undoManager.discardAllEdits();
+        // Re-enable storage of edit actions now that dialog creation is
+        // complete
+        undoHandler.setAllowUndo(true);
 
         // Create the rate units label and add it to the dialog panel
         JLabel rateUnitsLbl = new JLabel("samples/second");
@@ -747,15 +751,13 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
             enable = true;
             fieldColor = ModifiableColorInfo.INPUT_BACK.getColor();
 
-            // Update the link size label
-            updateLinkSizeField();
-
-            // Get the link rate, size in bytes, and description
-            rate = selectedLink.getSampleRate().equals("0")
-                                                           ? ""
-                                                           : selectedLink.getSampleRate();
+            // Get the link size in bytes, rate, and description. The rate is
+            // set to a blank if the link contains no variables
             size = String.valueOf(linkTree.getLinkHandler().getLinkSizeInBytes(rateName,
                                                                                linkTree.removeExtraText(linkName)));
+            rate = selectedLink.getSampleRate().equals("0") || size.equals("0")
+                                                                               ? ""
+                                                                               : selectedLink.getSampleRate();
             description = selectedLink.getDescription();
         }
 
@@ -801,7 +803,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                // Get the selected node(s) in the tree (can only be one)
+                // Get the selected node(s) in the tree
                 String[] selected = linkTree.getTopLevelSelectedNodeNames();
 
                 // Check that a node is selected
@@ -813,22 +815,8 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
                     // removed together
                     undoHandler.setAutoEndEditSequence(false);
 
-                    // Get the link information for the selected node
-                    LinkInformation selectedLink = linkTree.getLinkInformation(selected[0]);
-
                     // Remove the variable(s) from the link
-                    removeVariableFromLink();
-
-                    // Check if the link has no members. Remove any extra text
-                    // from the link's node name so that the link comparison
-                    // finds the correct link
-                    if (linkTree.getLinkHandler().getLinkSizeInBytes(rateName,
-                                                                     linkTree.removeExtraText(selected[0])) == 0)
-                    {
-                        // Blank the rate in the link and the rate field
-                        selectedLink.setSampleRate("0");
-                        updateRateFld.setText("");
-                    }
+                    removeVariableFromLink(selected);
 
                     // Toggle the link tree expansion for the selected link.
                     // This is necessary to get the node to display correctly
@@ -871,16 +859,8 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
                     // are restored together
                     undoHandler.setAutoEndEditSequence(false);
 
-                    // Get the reference to the selected link's information
-                    LinkInformation linkInfo = linkTree.getLinkInformation(selected[0]);
-
-                    // Set the link's rate if this is its first member(s) and
-                    // update the rate field
-                    linkInfo.setSampleRate(selectedRate);
-                    updateRateFld.setText(selectedRate);
-
                     // Add the variable(s) to the link
-                    addVariableToLink();
+                    addVariableToLink(selected[0]);
 
                     // Toggle the link tree expansion for the selected link.
                     // This is necessary to get the node to display correctly
@@ -934,8 +914,11 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
     /**************************************************************************
      * Add the selected variable(s) in the variable tree to the selected link
      * definition(s) in the link tree
+     *
+     * @param linkName
+     *            name of the link to which to add the variable(s)
      *************************************************************************/
-    private void addVariableToLink()
+    private void addVariableToLink(String linkName)
     {
         // Add the selected variable(s) to the link tree
         linkTree.addSourceNodesToTargetNode(variableTree.getSelectedVariables(true),
@@ -943,30 +926,35 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
                                             true);
 
         // Clean up the links following addition of the variable
-        cleanUpLinks();
+        cleanUpLinks(new String[] {linkName});
     }
 
     /**************************************************************************
      * Remove the selected variable(s) from the link and reenable them in the
      * variable tree
+     *
+     * @param linkNames
+     *            array containing the name(s) of the link(s) from which to
+     *            remove the variable(s)
      *************************************************************************/
-    private void removeVariableFromLink()
+    private void removeVariableFromLink(String[] linkNames)
     {
         // Remove the selected variable(s) from the links in the link tree
         linkTree.removeSelectedChildNodes(true);
 
         // Clean up the links following removal of the variable
-        cleanUpLinks();
+        cleanUpLinks(linkNames);
     }
 
     /**************************************************************************
      * Clean up the links following the addition or deletion of a variable
+     *
+     * @param linkNames
+     *            array containing the name of the link(s) to be updated; null
+     *            to perform the cleaning but without updating the link fields
      *************************************************************************/
-    private void cleanUpLinks()
+    private void cleanUpLinks(String[] linkNames)
     {
-        // Update the link size field
-        updateLinkSizeField();
-
         // Update the link definitions to account for the deletions
         linkTree.updateLinkDefinitions();
 
@@ -984,22 +972,29 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         // linked
         variableTree.setExcludedVariables(linkedVars);
 
+        // Check if the link names are provided
+        if (linkNames != null)
+        {
+            // If a single link is selected then set the selected/ link, enable
+            // and populate the description, rate, and size in bytes fields;
+            // otherwise clear the selected link, disable and clear the
+            // description, rate, and size in bytes fields
+            setLinkAndFields(linkNames.length == 1
+                                                  ? linkNames[0]
+                                                  : null,
+                             linkNames.length != 0);
+        }
+
         // Update the link dialog's change indicator
         linkDialog.updateChangeIndicator();
     }
 
     /**************************************************************************
-     * Update the link size in bytes field
+     * Clean up the links following an undo/redo operation
      *************************************************************************/
-    private void updateLinkSizeField()
+    protected void cleanUpLinks()
     {
-        // Check if a single link is currently selected
-        if (selectedLink != null)
-        {
-            // Calculate the link size in bytes and update the text field
-            sizeInBytesFld.setText(String.valueOf(linkTree.getLinkHandler().getLinkSizeInBytes(selectedLink.getRateName(),
-                                                                                               selectedLink.getName())));
-        }
+        cleanUpLinks(linkTree.getTopLevelSelectedNodeNames());
     }
 
     /**************************************************************************
@@ -1079,7 +1074,6 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         List<String> invalidatedLinks = new ArrayList<String>();
 
         CcddLinkHandler oldLinkHndlr = new CcddLinkHandler(ccddMain,
-                                                           undoHandler,
                                                            committedLinks);
         CcddLinkHandler newLinkHndlr = linkTree.getLinkHandler();
 

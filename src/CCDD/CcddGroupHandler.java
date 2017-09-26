@@ -30,14 +30,15 @@ public class CcddGroupHandler
      * Group handler class constructor
      *
      * @param undoHandler
-     *            reference to the undo handler
+     *            reference to the undo handler; null if undo/redo operations
+     *            are not needed for the groups
      *************************************************************************/
     protected CcddGroupHandler(CcddUndoHandler undoHandler)
     {
         // Check if no undo handler is specified
         if (undoHandler == null)
         {
-            // Create an undo handler and set the flag to not allow undo
+            // Create a 'dummy' undo handler and set the flag to not allow undo
             // operations
             undoHandler = new CcddUndoHandler(new CcddUndoManager());
             undoHandler.setAllowUndo(false);

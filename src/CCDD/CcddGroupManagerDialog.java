@@ -317,9 +317,11 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 };
 
                 // Create the undo handler for the components with undoable
-                // actions
+                // actions. Disable storage of edit actions during dialog
+                // creation
                 undoHandler = new CcddUndoHandler(undoManager);
                 nodeSelect = undoHandler.new UndoableTreePathSelection();
+                undoHandler.setAllowUndo(false);
 
                 // Build the group tree
                 groupTree = new CcddGroupTreeHandler(ccddMain,
@@ -504,8 +506,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 // keyboard handler while the group manager is active
                 ccddMain.getKeyboardHandler().setModalDialogReference(undoManager, null);
 
-                // Clear the undo/redo tree edits stack
-                undoManager.discardAllEdits();
+                // Re-enable storage of edit actions
+                undoHandler.setAllowUndo(true);
 
                 // Add the field panel to the dialog
                 gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;

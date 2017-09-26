@@ -92,7 +92,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Macro data table references class constructor
-         * 
+         *
          * @param macroName
          *            macro name
          *********************************************************************/
@@ -107,7 +107,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Get the macro name associated with the references
-         * 
+         *
          * @return Macro name
          *********************************************************************/
         protected String getMacroName()
@@ -117,7 +117,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Get the references in the data tables for this macro
-         * 
+         *
          * @return References in the data tables for this macro
          *********************************************************************/
         protected String[] getReferences()
@@ -128,7 +128,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Macro editor dialog class constructor
-     * 
+     *
      * @param ccddMain
      *            main class reference
      *************************************************************************/
@@ -149,7 +149,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Get the reference to the macro table
-     * 
+     *
      * @return Reference to the macro table
      *************************************************************************/
     protected CcddJTableHandler getTable()
@@ -160,7 +160,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
     /**************************************************************************
      * Perform the steps needed following execution of macro updates to the
      * database
-     * 
+     *
      * @param commandError
      *            false if the database commands successfully completed; true
      *            if an error occurred and the changes were not made
@@ -541,31 +541,31 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
 
             /******************************************************************
              * Validate changes to the editable cells
-             * 
+             *
              * @param tableData
              *            list containing the table data row arrays
-             * 
+             *
              * @param row
              *            table model row number
-             * 
+             *
              * @param column
              *            table model column number
-             * 
+             *
              * @param oldValue
              *            original cell contents
-             * 
+             *
              * @param newValue
              *            new cell contents
-             * 
+             *
              * @param showMessage
              *            true to display the invalid input dialog, if
              *            applicable
-             * 
+             *
              * @param isMultiple
              *            true if this is one of multiple cells to be entered
              *            and checked; false if only a single input is being
              *            entered
-             * 
+             *
              * @return Always returns false
              ****************************************************************/
             @Override
@@ -825,7 +825,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
             /******************************************************************
              * Override the CcddJTableHandler method to produce an array
              * containing empty values for a new row in this table
-             * 
+             *
              * @return Array containing blank cell values for a new row
              *****************************************************************/
             @Override
@@ -856,6 +856,9 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
         // Place the table into a scroll pane
         JScrollPane scrollPane = new JScrollPane(macroTable);
 
+        // Disable storage of edit operations during table creation
+        macroTable.getUndoHandler().setAllowUndo(false);
+
         // Set common table parameters and characteristics
         macroTable.setFixedCharacteristics(scrollPane,
                                            true,
@@ -868,8 +871,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                                            ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
                                            true);
 
-        // Discard the edits created by adding the columns initially
-        macroTable.getUndoManager().discardAllEdits();
+        // Re-enable storage of edit operations
+        macroTable.getUndoHandler().setAllowUndo(true);
 
         return scrollPane;
     }
@@ -901,7 +904,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Get the updated macro data
-     * 
+     *
      * @return List containing the updated macro data
      *************************************************************************/
     protected List<String[]> getUpdatedData()
@@ -911,7 +914,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Check that a row with contains data in the required columns
-     * 
+     *
      * @return true if a row is missing data in a required column
      *************************************************************************/
     protected boolean checkForMissingColumns()

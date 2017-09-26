@@ -73,7 +73,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Reserved message ID editor dialog class constructor
-     * 
+     *
      * @param ccddMain
      *            main class reference
      *************************************************************************/
@@ -94,7 +94,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Get the reference to the reserved message ID table
-     * 
+     *
      * @return Reference to the reserved message ID table
      *************************************************************************/
     protected CcddJTableHandler getTable()
@@ -105,7 +105,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
     /**************************************************************************
      * Perform the steps needed following execution of reserved message ID
      * updates to the database
-     * 
+     *
      * @param commandError
      *            false if the database commands successfully completed; true
      *            if an error occurred and the changes were not made
@@ -445,31 +445,31 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
 
             /******************************************************************
              * Validate changes to the editable cells
-             * 
+             *
              * @param tableData
              *            list containing the table data row arrays
-             * 
+             *
              * @param row
              *            table model row number
-             * 
+             *
              * @param column
              *            table model column number
-             * 
+             *
              * @param oldValue
              *            original cell contents
-             * 
+             *
              * @param newValue
              *            new cell contents
-             * 
+             *
              * @param showMessage
              *            true to display the invalid input dialog, if
              *            applicable
-             * 
+             *
              * @param isMultiple
              *            true if this is one of multiple cells to be entered
              *            and checked; false if only a single input is being
              *            entered
-             * 
+             *
              * @return Always returns false
              ****************************************************************/
             @Override
@@ -658,7 +658,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
             /******************************************************************
              * Override the CcddJTableHandler method to produce an array
              * containing empty values for a new row in this table
-             * 
+             *
              * @return Array containing blank cell values for a new row
              *****************************************************************/
             @Override
@@ -689,6 +689,9 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
         // Place the table into a scroll pane
         JScrollPane scrollPane = new JScrollPane(msgIDTable);
 
+        // Disable storage of edit operations during table creation
+        msgIDTable.getUndoHandler().setAllowUndo(false);
+
         // Set common table parameters and characteristics
         msgIDTable.setFixedCharacteristics(scrollPane,
                                            true,
@@ -701,8 +704,8 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                                            ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
                                            true);
 
-        // Discard the edits created by adding the columns initially
-        msgIDTable.getUndoManager().discardAllEdits();
+        // Re-enable storage of edit operations
+        msgIDTable.getUndoHandler().setAllowUndo(true);
 
         return scrollPane;
     }
@@ -734,7 +737,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Get the updated reserved message ID data
-     * 
+     *
      * @return List containing the updated reserved message ID data
      *************************************************************************/
     protected List<String[]> getUpdatedData()
@@ -744,7 +747,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Check that a row with contains data in the required columns
-     * 
+     *
      * @return true if a row is missing data in a required column
      *************************************************************************/
     protected boolean checkForMissingColumns()

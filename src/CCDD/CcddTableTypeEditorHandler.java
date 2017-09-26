@@ -93,16 +93,16 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Table type editor handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param tableTypeName
      *            table type name
-     * 
+     *
      * @param fieldDefinitions
      *            data field definitions
-     * 
+     *
      * @param editorDialog
      *            editor dialog from which this editor was created
      *************************************************************************/
@@ -166,7 +166,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Get the table handler
-     * 
+     *
      * @return Table handler
      *************************************************************************/
     protected CcddJTableHandler getTable()
@@ -176,7 +176,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Get the table type name
-     * 
+     *
      * @return Table type name
      *************************************************************************/
     protected String getTypeName()
@@ -187,7 +187,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     /**************************************************************************
      * Get the reference to the table type definition as it exists prior to
      * making the updates
-     * 
+     *
      * @return Reference to the table type definition as it exists prior to
      *         making the updates
      *************************************************************************/
@@ -198,7 +198,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Set the table type name
-     * 
+     *
      * @param table
      *            table type name
      *************************************************************************/
@@ -221,7 +221,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Set the committed table information
-     * 
+     *
      * @param info
      *            table information class for extracting the current table
      *            name, type, column order, and description
@@ -243,7 +243,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Get the UndoManager for this table editor
-     * 
+     *
      * @return Table UndoManager
      *************************************************************************/
     @Override
@@ -254,7 +254,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Get the column additions for this table type
-     * 
+     *
      * @return List of column additions
      *************************************************************************/
     protected List<String[]> getTypeAdditions()
@@ -264,7 +264,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Get the column changes for this table type
-     * 
+     *
      * @return List of column changes
      *************************************************************************/
     protected List<String[]> getTypeModifications()
@@ -274,7 +274,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Get the column deletions for this table type
-     * 
+     *
      * @return List of column deletions
      *************************************************************************/
     protected List<String[]> getTypeDeletions()
@@ -284,7 +284,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Get the column order change status
-     * 
+     *
      * @return true if the table type's column order changed
      *************************************************************************/
     protected boolean getColumnOrderChange()
@@ -294,7 +294,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Perform the steps needed following execution of table type changes
-     * 
+     *
      * @param commandError
      *            false if the database commands successfully completed; true
      *            if an error occurred and the changes were not made
@@ -437,16 +437,16 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             /******************************************************************
              * Override isDataAlterable to determine which table data values
              * can be changed
-             * 
+             *
              * @param rowData
              *            array containing the table row data
-             * 
+             *
              * @param row
              *            table row index in model coordinates
-             * 
+             *
              * @param column
              *            table column index in model coordinates
-             * 
+             *
              * @return true if the data value can be changed
              *****************************************************************/
             @Override
@@ -482,13 +482,13 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             /******************************************************************
              * Override the CcddJTableHandler method to prevent deleting the
              * contents of the cell at the specified row and column
-             * 
+             *
              * @param row
              *            table row index in view coordinates
-             * 
+             *
              * @param column
              *            table column index in view coordinates
-             * 
+             *
              * @return false if the cell contains a combo box; true otherwise
              *****************************************************************/
             @Override
@@ -499,31 +499,31 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
             /******************************************************************
              * Validate changes to the editable cells
-             * 
+             *
              * @param tableData
              *            list containing the table data row arrays
-             * 
+             *
              * @param row
              *            table model row index
-             * 
+             *
              * @param column
              *            table model column index
-             * 
+             *
              * @param oldValue
              *            original cell contents
-             * 
+             *
              * @param newValue
              *            new cell contents
-             * 
+             *
              * @param showMessage
              *            true to display the invalid input dialog, if
              *            applicable
-             * 
+             *
              * @param isMultiple
              *            true if this is one of multiple cells to be entered
              *            and checked; false if only a single input is being
              *            entered
-             * 
+             *
              * @return Always returns false
              ****************************************************************/
             @Override
@@ -789,7 +789,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             /******************************************************************
              * Override the CcddJTableHandler method to produce an array
              * containing empty values for a new row in this table
-             * 
+             *
              * @return Array containing blank cell values for a new row
              *****************************************************************/
             @Override
@@ -802,13 +802,13 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
              * Override the CcddJTableHandler method for removing a row from
              * the table. Don't allow deletion of a row that represents a
              * protected column definition for this table type
-             * 
+             *
              * @param tableData
              *            list containing the table data row arrays
-             * 
+             *
              * @param modelRow
              *            row to remove (model coordinates)
-             * 
+             *
              * @return The index of the row prior to the last deleted row's
              *         index
              *****************************************************************/
@@ -880,6 +880,9 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         // Place the table into a scroll pane
         JScrollPane scrollPane = new JScrollPane(table);
 
+        // Disable storage of edit operations during table creation
+        table.getUndoHandler().setAllowUndo(false);
+
         // Set common table parameters and characteristics
         table.setFixedCharacteristics(scrollPane,
                                       true,
@@ -892,8 +895,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                       ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
                                       true);
 
-        // Discard the edits created by adding the columns initially
-        table.getUndoManager().discardAllEdits();
+        // Re-enable storage of edit operations
+        table.getUndoHandler().setAllowUndo(true);
 
         // Create a drop-down combo box to display the available table type
         // input data types
@@ -922,7 +925,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Get the table type based on the column definition input types
-     * 
+     *
      * @return Table type indicator
      *************************************************************************/
     private TableTypeIndicator getTypeOfTable()
@@ -995,10 +998,10 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     /**************************************************************************
      * Get the input types that are defined as unique, but are referenced by
      * more than one column definition
-     * 
+     *
      * @param tableTypeInd
      *            TableTypeIndicator, indicating the type of table to check
-     * 
+     *
      * @return Blank if there are no duplicated input type that are defined as
      *         unique; otherwise, a text message indicating the invalid input
      *         types
@@ -1079,7 +1082,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
      * input data types for display in the table's Input Type cells.
      * Enable/disable the items based on the current usage in the table type
      * and the type's input type flag settings
-     * 
+     *
      * @return Array of item names for the combo box containing the available
      *         table type input data types for display in the table's Input
      *         Type cells
@@ -1197,7 +1200,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     /**************************************************************************
      * Determine if any changes have been made compared to the most recently
      * committed table data
-     * 
+     *
      * @return true if any cell in the table has been changed, if the column
      *         order has changed, or if the table description has changed
      *************************************************************************/
@@ -1314,7 +1317,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Check that a row with contains data in the required columns
-     * 
+     *
      * @return true if a row is missing data in a required column
      *************************************************************************/
     protected boolean checkForMissingColumns()

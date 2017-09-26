@@ -1147,9 +1147,6 @@ public class CcddDbVerificationHandler
                             // Step through each table in the association
                             for (String table : member[0].split(Pattern.quote(LIST_TABLE_SEPARATOR)))
                             {
-                                // TODO CHECK IF IT STARTS WITH "Group:"; IF SO
-                                // THEN VERIFY THE GROUP NAME IS VALID, BUT
-                                // DON"T TEST IT AS A TABLE
                                 // Check if this is a reference to a group
                                 if (table.startsWith(GROUP_DATA_FIELD_IDENT))
                                 {

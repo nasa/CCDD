@@ -102,7 +102,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Data type data table references class constructor
-         * 
+         *
          * @param dataTypeName
          *            data type name
          *********************************************************************/
@@ -117,7 +117,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Get the data type name associated with the references
-         * 
+         *
          * @return Data type name
          *********************************************************************/
         protected String getDataTypeName()
@@ -127,7 +127,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
         /**********************************************************************
          * Get the references in the data tables for this data type
-         * 
+         *
          * @return References in the data tables for this data type
          *********************************************************************/
         protected String[] getReferences()
@@ -138,7 +138,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Data type editor dialog class constructor
-     * 
+     *
      * @param ccddMain
      *            main class reference
      *************************************************************************/
@@ -159,7 +159,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Get the reference to the data type table
-     * 
+     *
      * @return Reference to the data type table
      *************************************************************************/
     protected CcddJTableHandler getTable()
@@ -170,7 +170,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
     /**************************************************************************
      * Perform the steps needed following execution of data type updates to the
      * database
-     * 
+     *
      * @param commandError
      *            false if the database commands successfully completed; true
      *            if an error occurred and the changes were not made
@@ -552,13 +552,13 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
              * Override getCellEditor so that for a base data type column cell
              * the base data type combo box cell editor is returned; for all
              * other cells return the normal cell editor
-             * 
+             *
              * @param row
              *            table view row number
-             * 
+             *
              * @param column
              *            table view column number
-             * 
+             *
              * @return The cell editor for the specified row and column
              *****************************************************************/
             @Override
@@ -584,31 +584,31 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
             /******************************************************************
              * Validate changes to the editable cells
-             * 
+             *
              * @param tableData
              *            list containing the table data row arrays
-             * 
+             *
              * @param row
              *            table model row number
-             * 
+             *
              * @param column
              *            table model column number
-             * 
+             *
              * @param oldValue
              *            original cell contents
-             * 
+             *
              * @param newValue
              *            new cell contents
-             * 
+             *
              * @param showMessage
              *            true to display the invalid input dialog, if
              *            applicable
-             * 
+             *
              * @param isMultiple
              *            true if this is one of multiple cells to be entered
              *            and checked; false if only a single input is being
              *            entered
-             * 
+             *
              * @return Always returns false
              ****************************************************************/
             @Override
@@ -1051,7 +1051,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
             /******************************************************************
              * Override the CcddJTableHandler method to produce an array
              * containing empty values for a new row in this table
-             * 
+             *
              * @return Array containing blank cell values for a new row
              *****************************************************************/
             @Override
@@ -1082,6 +1082,9 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
         // Place the table into a scroll pane
         JScrollPane scrollPane = new JScrollPane(dataTypeTable);
 
+        // Disable storage of edit operations during creation of the table
+        dataTypeTable.getUndoHandler().setAllowUndo(false);
+
         // Set common table parameters and characteristics
         dataTypeTable.setFixedCharacteristics(scrollPane,
                                               true,
@@ -1094,8 +1097,8 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                               ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
                                               true);
 
-        // Discard the edits created by adding the columns initially
-        dataTypeTable.getUndoManager().discardAllEdits();
+        // Re-enable storage of edit operations
+        dataTypeTable.getUndoHandler().setAllowUndo(true);
 
         return scrollPane;
     }
@@ -1160,7 +1163,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Get the updated data types
-     * 
+     *
      * @return List containing the updated data types
      *************************************************************************/
     protected List<String[]> getUpdatedData()
@@ -1170,7 +1173,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Check that a row with contains data in the required columns
-     * 
+     *
      * @return true if a row is missing data in a required column
      *************************************************************************/
     protected boolean checkForMissingColumns()

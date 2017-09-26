@@ -161,23 +161,23 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Table editor handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param tableInfo
      *            table information
-     * 
+     *
      * @param newDataTypeHandler
      *            data type handler reference for when the data type
      *            definitions have changed; same as the main data type handler
      *            if this is not a data type change instance
-     * 
+     *
      * @param newMacroHandler
      *            macro handler reference for when the macro names and/or
      *            values have changed; same as the main macro handler if this
      *            is not a macro change instance
-     * 
+     *
      * @param editorDialog
      *            editor dialog from which this editor was created
      *************************************************************************/
@@ -222,13 +222,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Table editor handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param tableInfo
      *            table information
-     * 
+     *
      * @param editorDialog
      *            editor dialog from which this editor was created
      *************************************************************************/
@@ -246,13 +246,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     /**************************************************************************
      * Table editor handler class constructor for a primitive data type name,
      * size, and/or base type change
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param tableInfo
      *            table information
-     * 
+     *
      * @param newDataTypeHandler
      *            data type handler reference reflecting updates to the data
      *            type definitions
@@ -271,13 +271,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     /**************************************************************************
      * Table editor handler class constructor for a macro name and/or value
      * change
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param tableInfo
      *            table information
-     * 
+     *
      * @param newMacroHandler
      *            macro handler reference reflecting updates to the macro names
      *            and/or values
@@ -295,7 +295,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Get the table being edited by this dialog
-     * 
+     *
      * @return Table edited by the dialog
      *************************************************************************/
     protected CcddJTableHandler getTable()
@@ -305,7 +305,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Check if this table represents a structure
-     * 
+     *
      * @return true if the table represents a structure
      *************************************************************************/
     protected boolean isStructure()
@@ -315,7 +315,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Enable/disable editing of the table
-     * 
+     *
      * @param true to enable normal editing of the table, false to disable
      *        editing
      *************************************************************************/
@@ -328,16 +328,16 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      * Update the table information (current and committed) if a change is made
      * to the prototype structure name or a variable name in the structure's
      * prototype
-     * 
+     *
      * @param oldPrototype
      *            original prototype name
-     * 
+     *
      * @param newPrototype
      *            updated prototype name
-     * 
+     *
      * @param oldVariableName
      *            original variable name; null if no variable name update
-     * 
+     *
      * @param newVariableName
      *            updated variable name; null if no variable name update
      *************************************************************************/
@@ -382,10 +382,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      * Update the data type column to the new prototype structure name for any
      * references to the original prototype structure name, if this table
      * represents a structure. The update is treated as a committed change
-     * 
+     *
      * @param oldPrototype
      *            original prototype name
-     * 
+     *
      * @param newPrototype
      *            updated prototype name
      *************************************************************************/
@@ -462,7 +462,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     /**************************************************************************
      * Get the table's tab tool tip text, which consists of the table's type
      * and full path
-     * 
+     *
      * @return Table's tab tool tip text
      *************************************************************************/
     protected String getTableToolTip()
@@ -498,7 +498,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Get the table model
-     * 
+     *
      * @return Table model
      *************************************************************************/
     protected UndoableTableModel getTableModel()
@@ -508,10 +508,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Get the current table information
-     * 
+     *
      * NOTE: The table cell data does not reflect changes made to the table
      * contents
-     * 
+     *
      * @return Table information class for extracting the current table name,
      *         type, and column order
      *************************************************************************/
@@ -522,7 +522,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Get the committed table information
-     * 
+     *
      * @return Committed table information class
      *************************************************************************/
     protected TableInformation getCommittedTableInformation()
@@ -532,7 +532,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Set the committed table information
-     * 
+     *
      * @param info
      *            table information class for extracting the current table
      *            name, type, column order, and description
@@ -626,13 +626,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Get the variable path for the specified variable name and data type
-     * 
+     *
      * @param variableName
      *            variable name
-     * 
+     *
      * @param dataType
      *            data type
-     * 
+     *
      * @return Variable path for the specified variable name and data type
      *************************************************************************/
     private String getVariablePath(String variableName, String dataType)
@@ -648,7 +648,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Get the UndoManager for this table editor
-     * 
+     *
      * @return Table UndoManager
      *************************************************************************/
     @Override
@@ -659,7 +659,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Get the table's row additions
-     * 
+     *
      * @return List of table additions
      *************************************************************************/
     protected List<TableModification> getAdditions()
@@ -669,7 +669,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Get the table's row modifications
-     * 
+     *
      * @return List of table modifications
      *************************************************************************/
     protected List<TableModification> getModifications()
@@ -679,7 +679,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Get the table's row deletions
-     * 
+     *
      * @return List of table deletions
      *************************************************************************/
     protected List<TableModification> getDeletions()
@@ -689,7 +689,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Get the table's array expansion flag state
-     * 
+     *
      * @return Table's array expansion flag state
      *************************************************************************/
     protected boolean isExpanded()
@@ -699,7 +699,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Check if the table has variable name and array index columns
-     * 
+     *
      * @return true if the table has variable name and array index columns
      *************************************************************************/
     protected boolean isCanHaveArrays()
@@ -748,7 +748,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     /**************************************************************************
      * Update the table editor following a change to the table's type
      * definition
-     * 
+     *
      * @param tableInfo
      *            table information
      *************************************************************************/
@@ -832,20 +832,20 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Perform the steps needed following execution of database table changes
-     * 
+     *
      * @param keys
      *            list of primary key values for each row in the table
-     * 
+     *
      * @param applyToChild
      *            true if the table that was updated is a prototype and this
      *            table is a child of the updated table
-     * 
+     *
      * @param additions
      *            list of row addition information
-     * 
+     *
      * @param modifications
      *            list of row update information
-     * 
+     *
      * @param deletions
      *            list of row deletion information
      *************************************************************************/
@@ -1054,13 +1054,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     /**************************************************************************
      * Get the value of the cell in the table model with any macro name
      * replaced with its corresponding macro value
-     * 
+     *
      * @param row
      *            row index, model coordinates
-     * 
+     *
      * @param column
      *            column index, model coordinates
-     * 
+     *
      * @return Value of the cell in the table model with any macro name
      *         replaced with its corresponding macro value
      *************************************************************************/
@@ -1072,13 +1072,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     /**************************************************************************
      * Get the value of the cell in the row of table data supplied with any
      * macro name replaced with its corresponding macro value
-     * 
+     *
      * @param row
      *            row index, model coordinates
-     * 
+     *
      * @param column
      *            column index, model coordinates
-     * 
+     *
      * @return Value of the cell in the row of table data supplied with any
      *         macro name replaced with its corresponding macro value
      *************************************************************************/
@@ -1110,19 +1110,19 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         {
             /******************************************************************
              * Highlight any macros or special flags in the table cells
-             * 
+             *
              * @param component
              *            reference to the table cell renderer component
-             * 
+             *
              * @param text
              *            cell text
-             * 
+             *
              * @param isSelected
              *            true if the cell is to be rendered with the selection
              *            highlighted
-             * 
+             *
              * @param int row cell row, view coordinates
-             * 
+             *
              * @param column
              *            cell column, view coordinates
              *****************************************************************/
@@ -1317,16 +1317,16 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             /******************************************************************
              * Override isDataAlterable to determine which table data values
              * can be changed
-             * 
+             *
              * @param rowData
              *            list containing the table data row arrays
-             * 
+             *
              * @param row
              *            table row index in model coordinates
-             * 
+             *
              * @param column
              *            table column index in model coordinates
-             * 
+             *
              * @return true if the data value can be changed
              *****************************************************************/
             @Override
@@ -1488,13 +1488,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
              * row where the enumeration cell isn't empty the combo box editor
              * that displays only integer data types (signed and unsigned) is
              * returned; for all other cells return the normal cell editor
-             * 
+             *
              * @param row
              *            table view row number
-             * 
+             *
              * @param column
              *            table view column number
-             * 
+             *
              * @return The cell editor for the specified row and column
              *****************************************************************/
             @Override
@@ -1548,31 +1548,31 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
              * Validate changes to the editable cells; e.g., verify cell
              * content and, if found invalid, revert to the original value.
              * Update array members if needed
-             * 
+             *
              * @param tableData
              *            list containing the table data row arrays
-             * 
+             *
              * @param row
              *            table model row index
-             * 
+             *
              * @param column
              *            table model column index
-             * 
+             *
              * @param oldValue
              *            original cell contents
-             * 
+             *
              * @param newValue
              *            new cell contents
-             * 
+             *
              * @param showMessage
              *            true to display the invalid input dialog, if
              *            applicable
-             * 
+             *
              * @param isMultiple
              *            true if this is one of multiple cells to be entered
              *            and checked; false if only a single input is being
              *            entered
-             * 
+             *
              * @return true to indicate that subsequent errors should be
              *         displayed; false if subsequent errors should not be
              *         displayed; null if the operation should be canceled
@@ -2013,10 +2013,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             /******************************************************************
              * Clear the contents of cells in the specified row that are no
              * longer valid due to the contents of other cells
-             * 
+             *
              * @param tableData
              *            list containing the table data row arrays
-             * 
+             *
              * @param row
              *            table model row index
              *****************************************************************/
@@ -2247,13 +2247,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
              * array's rows. If the table doesn't represent a structure then
              * only the selected row(s) are checked to determine if moving is
              * possible
-             * 
+             *
              * @param rowDelta
              *            row move direction
-             * 
+             *
              * @param selected
              *            cell selection class
-             * 
+             *
              * @return true if the row(s) can be moved
              *****************************************************************/
             private boolean encompassArray(int rowDelta, MoveCellSelection selected)
@@ -2472,20 +2472,20 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
              * Override the CcddJTableHandler method for moving the selected
              * row(s) so that adjustments can be made to the rates for any
              * packed variables
-             * 
+             *
              * @param startRow
              *            selected starting row, in model coordinates
-             * 
+             *
              * @param endRow
              *            selected ending row, in model coordinates
-             * 
+             *
              * @param toRow
              *            target row to move the selected row(s) to, in model
              *            coordinates
-             * 
+             *
              * @param selected
              *            cell selection class
-             * 
+             *
              * @param rowDelta
              *            row move direction and magnitude
              *****************************************************************/
@@ -2529,14 +2529,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
              * Override the CcddJTableHandler method for putting data into a
              * new row inserted below the specified row in order to adjust the
              * insertion index based on the presence of array members
-             * 
+             *
              * @param targetRow
              *            index of the row in model coordinates below which to
              *            insert the new row
-             * 
+             *
              * @param data
              *            data to place in the inserted row
-             * 
+             *
              * @return The new row's index, in model coordinates, adjusted as
              *         needed to account for array member visibility
              *****************************************************************/
@@ -2594,13 +2594,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
              * the table. Array member rows are ignored unless the array
              * definition row is also deleted; for this case the entire array
              * is removed
-             * 
+             *
              * @param tableData
              *            list containing the table data row arrays
-             * 
+             *
              * @param modelRow
              *            row to remove (model coordinates)
-             * 
+             *
              * @return The index of the row prior to the last deleted row's
              *         index
              *****************************************************************/
@@ -2667,13 +2667,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
              * Override the CcddJTableHandler method for getting the special
              * replacement character when deleting the contents of a cell. Get
              * the corresponding cell value from the table's prototype
-             * 
+             *
              * @param row
              *            cell row index in model coordinates
-             * 
+             *
              * @param column
              *            cell column index in model coordinates
-             * 
+             *
              * @return The corresponding cell value from the tables' prototype
              *****************************************************************/
             @Override
@@ -2690,7 +2690,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
              * the special character flag to false if the table is a prototype
              * - prototypes can't have an entry in the custom values table so
              * no special handling is needed for this case
-             * 
+             *
              * @param isReplaceSpecial
              *            false to replace the cell value with a blank; true to
              *            replace the cell contents with the prototype's
@@ -2706,10 +2706,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
              * Adjust the starting row index to the next row during a paste
              * (insert) operation. If the insertion point falls within an
              * array, skip to the row immediately following the array's members
-             * 
+             *
              * @param startRow
              *            starting row index in view coordinates
-             * 
+             *
              * @return Starting row index, in model coordinates, at which to
              *         insert a new row
              *****************************************************************/
@@ -2755,19 +2755,19 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
              * operation. Array member rows are inserted automatically when an
              * array is defined, so if an array member is being inserted no row
              * needs to be inserted by the paste operation
-             * 
+             *
              * @param index
              *            current index into the cell data array
-             * 
+             *
              * @param cells
              *            array containing the cell data being inserted
-             * 
+             *
              * @param startColumn
              *            data insertion starting column index
-             * 
+             *
              * @param endColumn
              *            data insertion ending column index
-             * 
+             *
              * @return true if a row should be inserted; false otherwise
              *****************************************************************/
             protected boolean isInsertRowRequired(int index,
@@ -3177,16 +3177,16 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
              * default is to remove any leading and trailing white space
              * characters. This method skips removal of white space characters
              * for cells having input types that allow it
-             * 
+             *
              * @param value
              *            new cell value
-             * 
+             *
              * @param row
              *            table row, model coordinates
-             * 
+             *
              * @param column
              *            table column, model coordinates
-             * 
+             *
              * @return Cell value following clean-up
              *****************************************************************/
             @Override
@@ -3232,6 +3232,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Place the table into a scroll pane
         JScrollPane scrollPane = new JScrollPane(table);
 
+        // Disable storage of edit operations during table creation
+        table.getUndoHandler().setAllowUndo(false);
+
         // Set common table parameters and characteristics
         table.setFixedCharacteristics(scrollPane,
                                       tableInfo.isPrototype(),
@@ -3247,8 +3250,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Get a reference to the table model to shorten later calls
         tableModel = (UndoableTableModel) table.getModel();
 
-        // Discard the edits created by adding the columns initially
-        table.getUndoManager().discardAllEdits();
+        // Re-enable storage of edit operations
+        table.getUndoHandler().setAllowUndo(true);
 
         // Set the reference to the editor's data field handler in the undo
         // handler so that data field value changes can be undone/redone
@@ -3283,11 +3286,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     /**************************************************************************
      * Based on the input flag, display the macro values (names) in place of
      * the macro names (values)
-     * 
+     *
      * @param isExpand
      *            true to replace the macro names with the corresponding macro
      *            values; false to restore the macro names
-     * 
+     *
      * @param isVisibleOnly
      *            true to only expand the macros in those cells that are
      *            currently visible; false to expand the macros in all of the
@@ -3480,7 +3483,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      * Open the child table indicated by the data type row and column. If the
      * variable and data type for the specified row doesn't represent a child
      * table then do nothing
-     * 
+     *
      * @param row
      *            table row number containing the variable name and data type;
      *            view coordinates
@@ -3589,11 +3592,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      * column cells with a 'data type' input type (excluding the "Data Type"
      * column), and associate enumeration, minimum, and maximum columns with
      * the data type column
-     * 
+     *
      * @param allStructTbls
      *            array containing all structure table names; null to load the
      *            table names from the database
-     * 
+     *
      * @param tblTree
      *            reference to the CcddTableTreeHandler table tree; null to
      *            create the table tree
@@ -3620,11 +3623,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      * Set up or update the combo box containing the available primitive data
      * types and existing structure tables for display in the table's 'Data
      * Type' column cells
-     * 
+     *
      * @param allStructTbls
      *            array containing all structure table names; null to load the
      *            table names from the database
-     * 
+     *
      * @param tblTree
      *            reference to the CcddTableTreeHandler table tree; null to
      *            create the table tree
@@ -3875,26 +3878,26 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     /**************************************************************************
      * Validate changes to the command argument minimum and maximum value
      * columns
-     * 
+     *
      * @param tableData
      *            list containing the table data row arrays
-     * 
+     *
      * @param row
      *            table model row index
-     * 
+     *
      * @param column
      *            table model column index
-     * 
+     *
      * @param newValueS
      *            new cell contents
-     * 
+     *
      * @param dataTypeColumn
      *            index of the data type column that governs the minimum and
      *            maximum values, model coordinates
-     * 
+     *
      * @param minColumn
      *            index of the minimum value column, model coordinates
-     * 
+     *
      * @param maxColumn
      *            index of the maximum value column, model coordinates
      *************************************************************************/
@@ -4081,19 +4084,19 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     /**************************************************************************
      * Update the array size, variable name, or data type, and add or remove
      * array members if needed
-     * 
+     *
      * @param tableData
      *            list containing the table data row arrays
-     * 
+     *
      * @param arraySizeOld
      *            array of original array sizes
-     * 
+     *
      * @param arraySizeNew
      *            array of updated array sizes
-     * 
+     *
      * @param definitionRow
      *            array size definition row index
-     * 
+     *
      * @param columnChanged
      *            table model index of the column being changed
      *************************************************************************/
@@ -4397,13 +4400,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     /**************************************************************************
      * Update the rates for all bit-wise variables that are packed together
      * with the bit-wise variable in the table
-     * 
+     *
      * @param tableData
      *            list containing the table data row arrays
-     * 
+     *
      * @param startRow
      *            initial row to begin the check at, in model coordinates
-     * 
+     *
      * @param useRowRate
      *            true if the rate value for this row is used as the rate for
      *            the packed variables; false to use the rate of the first
@@ -4439,18 +4442,18 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     /**************************************************************************
      * Update the rates for any other bit-wise variables that are packed
      * together with the bit-wise variable in the specified row
-     * 
+     *
      * @param tableData
      *            list containing the table data row arrays
-     * 
+     *
      * @param row
      *            table model row index
-     * 
+     *
      * @param useRowRate
      *            true if the rate value for this row is used as the rate for
      *            the packed variables; false to use the rate of the first
      *            variable in the pack
-     * 
+     *
      * @return Index of the last packed row. In addition, the global
      *         isRateChange flag is set to true if a rate value is updated, and
      *         false otherwise
@@ -4556,14 +4559,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      * to each member of the array. For a string array if an array member is
      * changed then only propagate the value to the other members of that
      * string
-     * 
+     *
      * @param tableData
      *            list containing the table data row arrays
-     * 
+     *
      * @param row
      *            table model row index for the array definition or for the
      *            first member of a string array
-     * 
+     *
      * @param columnChanged
      *            table model index of the column being changed
      *************************************************************************/
@@ -4680,7 +4683,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     /**************************************************************************
      * Determine if any changes have been made compared to the most recently
      * committed table data
-     * 
+     *
      * @return true if any cell in the table has been changed, if the column
      *         order has changed, or if the table description has changed
      *************************************************************************/
@@ -4850,7 +4853,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
     /**************************************************************************
      * Check that a row with contains data in the required columns
-     * 
+     *
      * @return true if a row is missing data in a required column
      *************************************************************************/
     protected boolean checkForMissingColumns()

@@ -69,7 +69,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
 
     /**************************************************************************
      * Telemetry scheduler dialog class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
@@ -501,7 +501,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
 
     /**************************************************************************
      * Check if a change has been made to a message
-     * 
+     *
      * @return true if a message in any of the data streams changed; false
      *         otherwise
      *************************************************************************/
@@ -526,7 +526,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
 
     /**************************************************************************
      * Get the scheduler dialog
-     * 
+     *
      * @return Scheduler dialog
      *************************************************************************/
     @Override
@@ -537,7 +537,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
 
     /**************************************************************************
      * Enable/disable the dialog controls
-     * 
+     *
      * @param enable
      *            true to enable the controls, false to disable
      *************************************************************************/
@@ -550,7 +550,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
 
     /**************************************************************************
      * Get the scheduler database handler
-     * 
+     *
      * @return Scheduler database handler
      *************************************************************************/
     @Override
@@ -561,10 +561,10 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
 
     /**************************************************************************
      * Create and return a scheduler input object
-     * 
+     *
      * @param rateName
      *            rate column name
-     * 
+     *
      * @return Telemetry input object
      *************************************************************************/
     @Override
@@ -579,7 +579,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
 
     /**************************************************************************
      * Get the scheduler handler
-     * 
+     *
      * @return Scheduler handler
      *************************************************************************/
     @Override
@@ -590,7 +590,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
 
     /**************************************************************************
      * Get the reference to the list of scheduler handlers
-     * 
+     *
      * @return Reference to the list of scheduler handlers
      *************************************************************************/
     protected List<CcddSchedulerHandler> getSchedulerHandlers()

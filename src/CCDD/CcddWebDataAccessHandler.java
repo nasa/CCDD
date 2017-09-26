@@ -1284,7 +1284,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     {
                         // Create a link handler
                         linkHandler = new CcddLinkHandler(ccddMain,
-                                                          null,
                                                           ccddMain.getMainFrame());
                     }
 
@@ -2034,7 +2033,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                                                                     null,
                                                                                     ccddMain.getMainFrame()),
                                                                new CcddLinkHandler(ccddMain,
-                                                                                   null,
                                                                                    ccddMain.getMainFrame()),
                                                                rateInfo.getStreamName(),
                                                                headerSize,

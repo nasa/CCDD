@@ -106,20 +106,20 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Data field editor dialog class constructor
-     * 
+     *
      * @param ccddMain
      *            main class reference
-     * 
+     *
      * @param fieldPnlHandler
      *            description and data field panel reference
-     * 
+     *
      * @param ownerName
      *            table name, including the path if this is a structure type
      *            table, or group name
-     * 
+     *
      * @param includeApplicability
      *            true to include the applicability column
-     * 
+     *
      * @param minimumWidth
      *            minimum pixel width of the caller
      *************************************************************************/
@@ -146,7 +146,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Create the data field editor dialog
-     * 
+     *
      * @param minimumWidth
      *            minimum pixel width of the caller
      *************************************************************************/
@@ -235,13 +235,13 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             /******************************************************************
              * Override the CcddJTableHandler method to prevent deleting the
              * contents of the cell at the specified row and column
-             * 
+             *
              * @param row
              *            table row index in view coordinates
-             * 
+             *
              * @param column
              *            table column index in view coordinates
-             * 
+             *
              * @return false if the cell contains a combo box; true otherwise
              *****************************************************************/
             @Override
@@ -256,31 +256,31 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
 
             /******************************************************************
              * Validate changes to the editable cells
-             * 
+             *
              * @param tableData
              *            list containing the table data row arrays
-             * 
+             *
              * @param row
              *            table model row number
-             * 
+             *
              * @param column
              *            table model column number
-             * 
+             *
              * @param oldValue
              *            original cell contents
-             * 
+             *
              * @param newValue
              *            new cell contents
-             * 
+             *
              * @param showMessage
              *            true to display the invalid input dialog, if
              *            applicable
-             * 
+             *
              * @param isMultiple
              *            true if this is one of multiple cells to be entered
              *            and checked; false if only a single input is being
              *            entered
-             * 
+             *
              * @return Always returns false
              ****************************************************************/
             @Override
@@ -481,7 +481,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             /******************************************************************
              * Override the CcddJTableHandler method to produce an array
              * containing empty values for a new row in this table
-             * 
+             *
              * @return Array containing blank cell values for a new row
              *****************************************************************/
             @Override
@@ -512,6 +512,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Place the table into a scroll pane
         JScrollPane scrollPane = new JScrollPane(fieldTable);
 
+        // Disable storage of edit operations during table creation
+        fieldTable.getUndoHandler().setAllowUndo(false);
+
         // Set common table parameters and characteristics
         fieldTable.setFixedCharacteristics(scrollPane,
                                            true,
@@ -532,8 +535,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // applicability types
         setUpApplicabilityColumn();
 
-        // Discard the edits created by adding the columns initially
-        fieldTable.getUndoManager().discardAllEdits();
+        // Re-enable storage of edit operations
+        fieldTable.getUndoHandler().setAllowUndo(true);
 
         // Define the editor panel to contain the table
         JPanel editorPanel = new JPanel();
@@ -822,7 +825,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Recreate the data fields for display below the table
-     * 
+     *
      * @param minimumWidth
      *            minimum pixel width of the caller
      *************************************************************************/
@@ -886,7 +889,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Get the field table handler
-     * 
+     *
      * @return Field table handler
      *************************************************************************/
     protected CcddJTableHandler getTable()
@@ -896,7 +899,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Get the UndoManager for this field table editor
-     * 
+     *
      * @return Field table UndoManager
      *************************************************************************/
     protected CcddUndoManager getUndoManager()
@@ -906,7 +909,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Get the updated field data
-     * 
+     *
      * @return Array containing the updated field data
      *************************************************************************/
     protected Object[][] getUpdatedData()
@@ -1008,7 +1011,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Check that a row with contains data in the required columns
-     * 
+     *
      * @return true if a row is missing data in a required column
      *************************************************************************/
     protected boolean checkForMissingColumns()

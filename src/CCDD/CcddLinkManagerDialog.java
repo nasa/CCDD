@@ -316,8 +316,9 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                     {
                         activeHandler.getUndoManager().undo();
 
-                        // Update the link tree node names
-                        activeHandler.getLinkTree().adjustNodeText(activeHandler.getLinkTree().getRootNode());
+                        // Update the link definitions, selected link, link
+                        // fields, and link tree node names
+                        activeHandler.cleanUpLinks();
                     }
                 };
 
@@ -328,7 +329,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                 JButton btnRedo = CcddButtonPanelHandler.createButton("Redo",
                                                                       REDO_ICON,
                                                                       KeyEvent.VK_Y,
-                                                                      "Redo the last udone edit action");
+                                                                      "Redo the last undone edit action");
 
                 // Create a listener for the Redo command
                 ActionListener redoAction = new ActionListener()
@@ -341,8 +342,9 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                     {
                         activeHandler.getUndoManager().redo();
 
-                        // Update the link tree node names
-                        activeHandler.getLinkTree().adjustNodeText(activeHandler.getLinkTree().getRootNode());
+                        // Update the link definitions, selected link, link
+                        // fields, and link tree node names
+                        activeHandler.cleanUpLinks();
                     }
                 };
 

@@ -21,7 +21,6 @@ import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.LinksColumn;
 import CCDD.CcddConstants.TableTreeType;
-import CCDD.CcddUndoHandler.UndoableArrayList;
 
 /******************************************************************************
  * CFS Command & Data Dictionary link handler class
@@ -35,7 +34,7 @@ public class CcddLinkHandler
 
     // List to contain the link definitions (link names and variable paths)
     // retrieved from the database
-    private final UndoableArrayList<String[]> linkDefinitions;
+    private final List<String[]> linkDefinitions;
 
     // Variable offset parameters
     private int bitCount;
@@ -54,27 +53,13 @@ public class CcddLinkHandler
      * @param ccddMain
      *            main class
      *
-     * @param undoHandler
-     *            reference to the undo handler
-     *
      * @param linkDefinitions
      *            list containing the link definitions
      *************************************************************************/
-    CcddLinkHandler(CcddMain ccddMain,
-                    CcddUndoHandler undoHandler,
-                    List<String[]> linkDefinitions)
+    CcddLinkHandler(CcddMain ccddMain, List<String[]> linkDefinitions)
     {
-        // Check if no undo handler is specified
-        if (undoHandler == null)
-        {
-            // Create an undo handler and set the flag to not allow undo
-            // operations
-            undoHandler = new CcddUndoHandler(new CcddUndoManager());
-            undoHandler.setAllowUndo(false);
-        }
-
         // Create the link definitions list
-        this.linkDefinitions = undoHandler.new UndoableArrayList<String[]>();
+        this.linkDefinitions = new ArrayList<String[]>();
         this.linkDefinitions.addAll(linkDefinitions);
 
         this.ccddMain = ccddMain;
@@ -96,16 +81,12 @@ public class CcddLinkHandler
      * @param ccddMain
      *            main class
      *
-     * @param undoHandler
-     *            reference to the undo handler
-     *
      * @param parent
      *            GUI component calling this method
      *************************************************************************/
-    CcddLinkHandler(CcddMain ccddMain, CcddUndoHandler undoHandler, Component parent)
+    CcddLinkHandler(CcddMain ccddMain, Component parent)
     {
         this(ccddMain,
-             undoHandler,
              ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.LINKS,
                                                                           parent));
     }

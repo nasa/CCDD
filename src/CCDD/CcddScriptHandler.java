@@ -967,9 +967,7 @@ public class CcddScriptHandler
         List<String> loadedTablePaths = new ArrayList<String>();
 
         // Get the link assignment information, if any
-        CcddLinkHandler linkHandler = new CcddLinkHandler(ccddMain,
-                                                          null,
-                                                          component);
+        CcddLinkHandler linkHandler = new CcddLinkHandler(ccddMain, component);
 
         // Load the data field information from the database
         CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain, null, component);

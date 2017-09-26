@@ -72,7 +72,9 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     // retrieved from the database
     private List<String[]> linkDefinitions;
 
-    // link information (name, rate, size, and description)
+    // List containing the information for each defined link (name, rate, size,
+    // and description). Link member variables are stored in the
+    // linkDefinitions
     private UndoableArrayList<LinkInformation> linkInformation;
 
     // Flag to indicate if the link tree is being built
@@ -225,7 +227,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         this.linkDefinitions = linkDefinitions;
 
         // Get a reference to the link handler class
-        linkHandler = new CcddLinkHandler(ccddMain, undoHandler, linkDefinitions);
+        linkHandler = new CcddLinkHandler(ccddMain, linkDefinitions);
 
         // Set the tree to be collapsed initially
         isExpanded = false;
@@ -528,6 +530,8 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     @Override
     protected List<String[]> createDefinitionsFromInformation()
     {
+        System.out.println("createDefinitionsFromInformation");// TODO
+        Thread.dumpStack();
         // Initialize the link tree information list
         List<String[]> definitions = new ArrayList<String[]>();
 
