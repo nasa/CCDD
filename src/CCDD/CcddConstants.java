@@ -2397,7 +2397,7 @@ public class CcddConstants
     protected static enum ApplicabilityType
     {
         ALL("All tables"),
-        PARENT_ONLY("Parents only"),
+        ROOT_ONLY("Roots only"),
         CHILD_ONLY("Children only");
 
         private final String applicabilityName;
@@ -4640,8 +4640,8 @@ public class CcddConstants
                  false,
                  false),
         APPLICABILITY("Applicability",
-                      "Add field to all tables, parent tables only, or child tables only",
-                      ApplicabilityType.ALL,
+                      "Add field to all tables, root tables only, or child tables only",
+                      ApplicabilityType.ALL.getApplicabilityName(),
                       true),
         VALUE("Value", "", "", false);
 

@@ -500,7 +500,7 @@ public class CcddMain
 
         // Now that the handlers exist, store its reference in the other
         // persistent classes that use them
-        CcddClasses.setHandlers(dataTypeHandler, macroHandler);
+        CcddClasses.setHandlers(CcddMain.this);
         dbTable.setHandlers();
         fileIOHandler.setHandlers();
         scriptHandler.setHandlers();

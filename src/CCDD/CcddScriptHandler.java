@@ -970,7 +970,9 @@ public class CcddScriptHandler
         CcddLinkHandler linkHandler = new CcddLinkHandler(ccddMain, component);
 
         // Load the data field information from the database
-        CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain, null, component);
+        CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain,
+                                                             null,
+                                                             component);
 
         // Load the group information from the database
         CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain,

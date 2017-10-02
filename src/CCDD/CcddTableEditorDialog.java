@@ -119,10 +119,10 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Table editor dialog class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param tableInformation
      *            list containing the information for each table
      *************************************************************************/
@@ -142,7 +142,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Get the currently active table editor
-     * 
+     *
      * @return Currently active table editor
      *************************************************************************/
     protected CcddTableEditorHandler getTableEditor()
@@ -152,7 +152,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Get the list of table editors
-     * 
+     *
      * @return List of table editors
      *************************************************************************/
     protected List<CcddTableEditorHandler> getTableEditors()
@@ -162,7 +162,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Get the currently active data field editor dialog
-     * 
+     *
      * @return Currently active data field editor dialog
      *************************************************************************/
     protected CcddFieldEditorDialog getFieldEditorDialog()
@@ -172,7 +172,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Get the tabbed pane
-     * 
+     *
      * @return Tabbed pane
      *************************************************************************/
     protected JTabbedPane getTabbedPane()
@@ -182,13 +182,13 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Set the specified tab's title and tool tip text
-     * 
+     *
      * @param tabIndex
      *            index of the tab to change
-     * 
+     *
      * @param tabName
      *            tab title
-     * 
+     *
      * @param tabToolTip
      *            tab tool tip text
      *************************************************************************/
@@ -202,7 +202,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Remove the tab for the specified table
-     * 
+     *
      * @param tableName
      *            name of the table to remove
      *************************************************************************/
@@ -238,7 +238,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Enable/disable the table editor dialog menu controls
-     * 
+     *
      * @param enable
      *            true to enable the controls; false to disable
      *************************************************************************/
@@ -310,28 +310,28 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      * Perform the steps needed following execution of a table modification.
      * This includes closing child table editors that are no longer valid and
      * modifying child tables when a prototype table is changed
-     * 
+     *
      * @param main
      *            reference to CcddMain
-     * 
+     *
      * @param dbTblCmdHndlr
      *            reference to CcddDbTableCommandHandler
-     * 
+     *
      * @param newKeys
      *            list of primary keys for new rows in a prototype table
-     * 
+     *
      * @param tableInfo
      *            table information
-     * 
+     *
      * @param additions
      *            list of row addition information
-     * 
+     *
      * @param modifications
      *            list of row update information
-     * 
+     *
      * @param deletions
      *            list of row deletion information
-     * 
+     *
      * @param forceUpdate
      *            true to make the changes to other tables; false to only make
      *            changes to tables other than the one in which the changes
@@ -368,9 +368,12 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             {
                 // Add the pattern that matches the table editor tab names for
                 // the modified structure. The pattern is [parent
-                // structure].__,[original structure].__[,__]
+                // structure].__,[original structure data type].[original
+                // structure variable name][,__]
                 invalidatedEditors.add(new String[] {tableInfo.getPrototypeName(),
-                                                     mod.getOriginalRowData()[mod.getDataTypeColumn()].toString()});
+                                                     mod.getOriginalRowData()[mod.getDataTypeColumn()].toString()
+                                                         + "."
+                                                         + mod.getOriginalRowData()[mod.getVariableColumn()].toString()});
             }
         }
 
@@ -384,9 +387,12 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             {
                 // Add the pattern that matches the table editor tab names for
                 // the deleted structure. The pattern is [parent
-                // structure].__,[original structure].__[,__]
+                // structure].__,[structure data type].[structure variable
+                // name][,__]
                 invalidatedEditors.add(new String[] {tableInfo.getPrototypeName(),
-                                                     del.getRowData()[del.getDataTypeColumn()].toString()});
+                                                     del.getRowData()[del.getDataTypeColumn()].toString()
+                                                         + "."
+                                                         + del.getRowData()[del.getVariableColumn()].toString()});
             }
         }
 
@@ -465,28 +471,28 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      * Update the table name, editor dialog tab, and editor dialog frame when
      * the prototype name (data type for a structure table) or the variable
      * name for a structure type table is changed
-     * 
+     *
      * @param main
      *            reference to CcddMain
-     * 
+     *
      * @param oldPrototype
      *            original prototype name (same as the data type for a
      *            structure table)
-     * 
+     *
      * @param newPrototype
      *            current prototype name (same as the data type for a structure
      *            table)
-     * 
+     *
      * @param oldVariableName
      *            original variable name if this change is for a structure
      *            table
-     * 
+     *
      * @param newVariableName
      *            current variable name if this change is for a structure table
-     * 
+     *
      * @param editorDialog
      *            current editor dialog to which the changes are compared
-     * 
+     *
      * @param editor
      *            current editor to which the changes are compared
      *************************************************************************/
@@ -560,7 +566,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Create the data table editor dialog
-     * 
+     *
      * @param tableInformation
      *            list containing the information for each table
      *************************************************************************/
@@ -1684,7 +1690,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Get the selection state of the Array - Overwrite all radio button
-     * 
+     *
      * @return true if the Array - Overwrite all radio button is selected
      *************************************************************************/
     protected boolean isArrayOverwriteAll()
@@ -1694,7 +1700,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Get the selection state of the Array - Overwrite empty radio button
-     * 
+     *
      * @return true if the Array - Overwrite empty radio button is selected
      *************************************************************************/
     protected boolean isArrayOverwriteEmpty()
@@ -1704,7 +1710,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Get the selection state of the Array - Overwrite none radio button
-     * 
+     *
      * @return true if the Array - Overwrite none radio button is selected
      *************************************************************************/
     protected boolean isArrayOverwriteNone()
@@ -1714,7 +1720,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Perform a control key action
-     * 
+     *
      * @param key
      *            key to simulate pressing along with the control key
      *************************************************************************/
@@ -1744,7 +1750,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Commit changes to the database for the specified table editor
-     * 
+     *
      * @param editor
      *            table editor to commit
      *************************************************************************/
@@ -1819,7 +1825,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Add one or more table tabs to the editor dialog tabbed pane
-     * 
+     *
      * @param tableInformation
      *            list containing information for each table
      *************************************************************************/
@@ -1852,7 +1858,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Update the change indicator for the specified table editor
-     * 
+     *
      * @param tableEditor
      *            reference to the table editor for which the change indicator
      *            is to be updated
@@ -1878,7 +1884,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     /**************************************************************************
      * Determine if any of the tables represented in this editor dialog have
      * uncommitted changes
-     * 
+     *
      * @return true if any of the editors represented in this editor dialog
      *         have uncommitted changes
      *************************************************************************/

@@ -166,7 +166,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
         /**********************************************************************
          * Additional XTCE data type tags constructor
-         * 
+         *
          * @param tag
          *            text describing the data
          *********************************************************************/
@@ -177,7 +177,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
         /**********************************************************************
          * Get the data type tag
-         * 
+         *
          * @return Text describing the data
          *********************************************************************/
         protected String getTag()
@@ -187,13 +187,13 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
         /**********************************************************************
          * Get the column tag
-         * 
+         *
          * @param columnName
          *            column name
-         * 
+         *
          * @param row
          *            row number for which the column data applies
-         * 
+         *
          * @return Text describing the column, using the column name and row
          *         number
          *********************************************************************/
@@ -208,7 +208,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
         /**********************************************************************
          * Get the index of the column name within the column tag string
-         * 
+         *
          * @return Index of the column name within the column tag string
          *********************************************************************/
         protected static int getColumnNameIndex()
@@ -218,7 +218,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
         /**********************************************************************
          * Get the index of the row index within the column tag string
-         * 
+         *
          * @return Index of the row index within the column tag string
          *********************************************************************/
         protected static int getRowIndex()
@@ -229,13 +229,13 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * XTCE handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param fieldHandler
      *            reference to a data field handler
-     * 
+     *
      * @param parent
      *            GUI component instantiating this class
      *************************************************************************/
@@ -291,7 +291,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Get the status of the conversion setup error flag
-     * 
+     *
      * @return true if an error occurred setting up for the XTCE conversion
      *************************************************************************/
     @Override
@@ -302,7 +302,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Get the table definitions
-     * 
+     *
      * @return List of table definitions
      *************************************************************************/
     @Override
@@ -313,10 +313,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Import the the table definitions from an XTCE XML formatted file
-     * 
+     *
      * @param importFile
      *            reference to the user-specified XML input file
-     * 
+     *
      * @param importAll
      *            ImportType.IMPORT_ALL to import the table type, data type,
      *            and macro definitions, and the data from all the table
@@ -387,36 +387,36 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Export the project in XTCE XML format to the specified file
-     * 
+     *
      * @param exportFile
      *            reference to the user-specified output file
-     * 
+     *
      * @param tableNames
      *            array of table names to convert
-     * 
+     *
      * @param replaceMacros
      *            true to replace any embedded macros with their corresponding
      *            values
-     * 
+     *
      * @param includeReservedMsgIDs
      *            true to include the contents of the reserved message ID table
      *            in the export file
-     * 
+     *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a
      *            structure table, both in application format and using the
      *            user-defined separator characters
-     * 
+     *
      * @param variableHandler
      *            variable handler class reference; null if
      *            includeVariablePaths is false
-     * 
+     *
      * @param separators
      *            string array containing the variable path separator
      *            character(s), show/hide data types flag ('true' or 'false'),
      *            and data type/variable name separator character(s); null if
      *            includeVariablePaths is false
-     * 
+     *
      * @param extraInfo
      *            [0] name of the data field containing the system name <br>
      *            [1] version attribute <br>
@@ -424,7 +424,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
      *            [3] first level classification attribute <br>
      *            [4] second level classification attribute <br>
      *            [5] third level classification attribute
-     * 
+     *
      * @return true if an error occurred preventing exporting the project to
      *         the file
      *************************************************************************/
@@ -505,48 +505,48 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Convert the project database contents to XTCE XML format
-     * 
+     *
      * @param tableNames
      *            array of table names to convert
-     * 
+     *
      * @param replaceMacros
      *            true to replace any embedded macros with their corresponding
      *            values
-     * 
+     *
      * @param includeReservedMsgIDs
      *            true to include the contents of the reserved message ID table
      *            in the export file
-     * 
+     *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a
      *            structure table, both in application format and using the
      *            user-defined separator characters
-     * 
+     *
      * @param variableHandler
      *            variable handler class reference; null if
      *            includeVariablePaths is false
-     * 
+     *
      * @param separators
      *            string array containing the variable path separator
      *            character(s), show/hide data types flag ('true' or 'false'),
      *            and data type/variable name separator character(s); null if
      *            includeVariablePaths is false
-     * 
+     *
      * @param system
      *            name of the data field containing the system name
-     * 
+     *
      * @param version
      *            version attribute
-     * 
+     *
      * @param validationStatus
      *            validation status attribute
-     * 
+     *
      * @param classification1
      *            first level classification attribute
-     * 
+     *
      * @param classification2
      *            second level classification attribute
-     * 
+     *
      * @param classification3
      *            third level classification attribute
      *************************************************************************/
@@ -632,18 +632,18 @@ public class CcddXTCEHandler implements CcddImportExportInterface
     /**************************************************************************
      * Recursively step through the XTCE-formatted data and extract the
      * telemetry and command information
-     * 
+     *
      * @param parentSystem
      *            parent space system nest level
-     * 
+     *
      * @param systemName
      *            system name
-     * 
+     *
      * @param importAll
      *            ImportType.IMPORT_ALL to import the table data fields along
      *            with the data from the table; ImportType.FIRST_DATA_ONLY to
      *            load only the data for the table
-     * 
+     *
      * @param importFileName
      *            import file name
      *************************************************************************/
@@ -1533,20 +1533,20 @@ public class CcddXTCEHandler implements CcddImportExportInterface
     /**************************************************************************
      * Confirm if the user wishes to continue or stop the import following
      * detection of an unrecognized column name
-     * 
+     *
      * @param continueOnColumnError
      *            true if the user has already elected to continue following an
      *            unknown column name
-     * 
+     *
      * @param columnName
      *            column name (as seen by the user)
-     * 
+     *
      * @param tableName
      *            table name
-     * 
+     *
      * @param importFileName
      *            import file name
-     * 
+     *
      * @return false if the user chooses to ignore this unrecognized column
      *         name, true if the user chooses to ignore any subsequent
      *         unrecognized column names, and throws an exception if the user
@@ -1595,10 +1595,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
     /**************************************************************************
      * Extract the table type definitions, if present, from the imported root
      * system
-     * 
+     *
      * @param spaceSystem
      *            top-level space system
-     * 
+     *
      * @param importFileName
      *            import file name
      *************************************************************************/
@@ -1776,10 +1776,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
     /**************************************************************************
      * Extract the data type definitions, if present, from the imported root
      * system
-     * 
+     *
      * @param spaceSystem
      *            top-level space system
-     * 
+     *
      * @param importFileName
      *            import file name
      *************************************************************************/
@@ -1869,10 +1869,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Extract the macro definitions, if present, from the imported root system
-     * 
+     *
      * @param spaceSystem
      *            top-level space system
-     * 
+     *
      * @param importFileName
      *            import file name
      *************************************************************************/
@@ -1959,10 +1959,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
     /**************************************************************************
      * Extract the reserved message ID definitions, if present, from the
      * imported root system
-     * 
+     *
      * @param spaceSystem
      *            top-level space system
-     * 
+     *
      * @param importFileName
      *            import file name
      *************************************************************************/
@@ -2040,7 +2040,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Get a list of the referenced table type definitions
-     * 
+     *
      * @return List of the table type definitions
      *************************************************************************/
     private List<String[]> exportTableTypeDefinitions()
@@ -2107,7 +2107,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Get a list of the referenced data type definitions
-     * 
+     *
      * @return List of the data type definitions
      *************************************************************************/
     private List<String[]> exportDataTypeDefinitions()
@@ -2140,7 +2140,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Get a list of the referenced macro definitions
-     * 
+     *
      * @return List of the macro definitions
      *************************************************************************/
     private List<String[]> exportMacroDefinitions()
@@ -2167,7 +2167,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Get a list of the reserved message ID definitions
-     * 
+     *
      * @return List of the reserved message ID definitions
      *************************************************************************/
     private List<String[]> exportReservedMsgIDDefinitions()
@@ -2189,7 +2189,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Get a list of variable paths
-     * 
+     *
      * @return List of the variable paths
      *************************************************************************/
     private List<String[]> exportVariablePaths()
@@ -2213,25 +2213,25 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Build the space systems
-     * 
+     *
      * @param node
      *            current tree node
-     * 
+     *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a
      *            structure table, both in application format and using the
      *            user-defined separator characters
-     * 
+     *
      * @param variableHandler
      *            variable handler class reference; null if
      *            includeVariablePaths is false
-     * 
+     *
      * @param separators
      *            string array containing the variable path separator
      *            character(s), show/hide data types flag ('true' or 'false'),
      *            and data type/variable name separator character(s); null if
      *            includeVariablePaths is false
-     * 
+     *
      * @param parentSystem
      *            parent space system for this node
      *************************************************************************/
@@ -2493,15 +2493,15 @@ public class CcddXTCEHandler implements CcddImportExportInterface
     /**************************************************************************
      * Store the specified table's data field names and values into the
      * supplied list
-     * 
+     *
      * @param fieldInformation
      *            list containing data field information
-     * 
+     *
      * @param identifier
      *            string to append to the data field tag used to identify the
      *            table type to which a data field belongs; null if the data
      *            type doesn't belong to a table type
-     * 
+     *
      * @param fieldData
      *            reference to the list in which the data field names and
      *            values are to be stored
@@ -2539,30 +2539,30 @@ public class CcddXTCEHandler implements CcddImportExportInterface
     /**************************************************************************
      * Create a new space system as a child of the specified space system. If
      * the specified system is null then this is the root space system
-     * 
+     *
      * @param system
      *            parent space system for the new system; null for the root
      *            space system
-     * 
+     *
      * @param subsystemName
      *            name for the new space system
-     * 
+     *
      * @param shortDescription
      *            space system description
-     * 
+     *
      * @param classification
      *            XML document classification
-     * 
+     *
      * @param validationStatus
      *            XML document validation status
-     * 
+     *
      * @param version
      *            XML document version
-     * 
+     *
      * @param otherAttrs
      *            list containing other attribute data in the format [attribute
      *            name][attribute value]
-     * 
+     *
      * @return Reference to the new space system
      *************************************************************************/
     private SpaceSystemType addSpaceSystem(SpaceSystemType system,
@@ -2617,10 +2617,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
     /**************************************************************************
      * Get the reference to the space system with the specified name, starting
      * at the root space system
-     * 
+     *
      * @param systemName
      *            name to search for within the space system hierarchy
-     * 
+     *
      * @return Reference to the space system with the same name as the search
      *         name; null if no space system name matches the search name
      *************************************************************************/
@@ -2635,17 +2635,17 @@ public class CcddXTCEHandler implements CcddImportExportInterface
     /**************************************************************************
      * Recursively search through the space system tree for the space system
      * with the same name as the search name
-     * 
+     *
      * @param systemName
      *            name to search for within the space system hierarchy
-     * 
+     *
      * @param system
      *            current space system to check
-     * 
+     *
      * @param foundSystem
      *            space system that matches the search name; null if no match
      *            has been found
-     * 
+     *
      * @return Reference to the space system with the same name as the search
      *         name; null if no space system name matches the search name
      *************************************************************************/
@@ -2687,19 +2687,19 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Set the space system header attributes
-     * 
+     *
      * @param system
      *            space system
-     * 
+     *
      * @param classification
      *            XML document classification
-     * 
+     *
      * @param validationStatus
      *            XML document validation status
-     * 
+     *
      * @param version
      *            XML document version
-     * 
+     *
      * @param date
      *            XML document creation time and date
      *************************************************************************/
@@ -2719,37 +2719,37 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Add a variable to the specified space system
-     * 
+     *
      * @param spaceSystem
      *            parent space system for this node
-     * 
+     *
      * @param tableInfo
      *            TableInformation reference for the current node
-     * 
+     *
      * @param varColumn
      *            variable name column index
-     * 
+     *
      * @param typeColumn
      *            data type column index
-     * 
+     *
      * @param sizeColumn
      *            array size column index
-     * 
+     *
      * @param bitColumn
      *            bit length column index
-     * 
+     *
      * @param enumColumn
      *            first enumeration column index; -1 if none exists
-     * 
+     *
      * @param unitsColumn
      *            units column index; -1 if none exists
-     * 
+     *
      * @param descColumn
      *            description column index; -1 if none exists
-     * 
+     *
      * @param dataType
      *            parameter data type
-     * 
+     *
      * @param variableName
      *            variable name
      *************************************************************************/
@@ -2869,10 +2869,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Add the command(s) from a table to the specified space system
-     * 
+     *
      * @param spaceSystem
      *            parent space system for this node
-     * 
+     *
      * @param tableInfo
      *            TableInformation reference for the current node
      *************************************************************************/
@@ -3098,7 +3098,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Create the space system telemetry metadata
-     * 
+     *
      * @param system
      *            space system
      *************************************************************************/
@@ -3111,7 +3111,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Create the space system command metadata
-     * 
+     *
      * @param system
      *            space system
      *************************************************************************/
@@ -3124,37 +3124,37 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Add a telemetry parameter to the telemetry metadata
-     * 
+     *
      * @param system
      *            space system
-     * 
+     *
      * @param systemPath
      *            system path in the format <project name>.<system
      *            name>.<structure path>.<primitive data Type>.<variable name>
-     * 
+     *
      * @param parameterName
      *            parameter name
-     * 
+     *
      * @param dataType
      *            parameter primitive data type
-     * 
+     *
      * @param dataTypeColumn
      *            data type column index
-     * 
+     *
      * @param enumeration
      *            enumeration in the format <enum label>|<enum
      *            value>[|...][,...]; null to not specify
-     * 
+     *
      * @param units
      *            parameter units
-     * 
+     *
      * @param shortDescription
      *            short description of the parameter
-     * 
+     *
      * @param stringSize
      *            size, in characters, of a string parameter; ignored if not a
      *            string or character
-     * 
+     *
      * @param otherAttrs
      *            list containing other attribute data in the format [attribute
      *            name][attribute value]
@@ -3217,19 +3217,19 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Add a command metadata set to the command metadata
-     * 
+     *
      * @param system
      *            space system
-     * 
+     *
      * @param commandName
      *            command name
-     * 
+     *
      * @param argumentNames
      *            list of command argument names
-     * 
+     *
      * @param shortDescription
      *            short description of the command
-     * 
+     *
      * @param otherAttrs
      *            list containing other attribute data in the format [attribute
      *            name][attribute value]
@@ -3292,28 +3292,28 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Add a command argument to the command metadata
-     * 
+     *
      * @param system
      *            space system
-     * 
+     *
      * @param commandName
      *            command name
-     * 
+     *
      * @param argumentName
      *            command argument name
-     * 
+     *
      * @param dataType
      *            command argument primitive data type
-     * 
+     *
      * @param enumeration
      *            command enumeration in the format <enum label>=<enum value>
-     * 
+     *
      * @param units
      *            command argument units
-     * 
+     *
      * @param shortDescription
      *            short description of the command
-     * 
+     *
      * @param otherArgCols
      *            list of string arrays containing other argument column data
      *            in the format [column name][data value]
@@ -3348,10 +3348,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Convert the primitive data type into the XTCE equivalent
-     * 
+     *
      * @param dataType
      *            data type
-     * 
+     *
      * @return XTCE data type corresponding to the specified primitive data
      *         type; null if no match
      *************************************************************************/
@@ -3380,30 +3380,30 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Create the telemetry data type and set the specified attributes
-     * 
+     *
      * @param system
      *            space system
-     * 
+     *
      * @param parameterName
      *            parameter name; null to not specify
-     * 
+     *
      * @param dataType
      *            data type; null to not specify
-     * 
+     *
      * @param enumeration
      *            enumeration in the format <enum label>|<enum
      *            value>[|...][,...]; null to not specify
-     * 
+     *
      * @param units
      *            parameter units; null to not specify
-     * 
+     *
      * @param shortDescription
      *            short description of the parameter; null to not specify
-     * 
+     *
      * @param stringSize
      *            size, in characters, of a string parameter; ignored if not a
      *            string or character
-     * 
+     *
      * @return Parameter description of the type corresponding to the primitive
      *         data type with the specified attributes set
      *************************************************************************/
@@ -3521,7 +3521,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
      *
      * @param system
      *            space system
-     * 
+     *
      * @param commandName
      *            command name
      *
@@ -3530,21 +3530,21 @@ public class CcddXTCEHandler implements CcddImportExportInterface
      *
      * @param argumentType
      *            command data type; null to not specify
-     * 
+     *
      * @param enumeration
      *            command enumeration in the format <enum label>|<enum
      *            value>[|...][,...]; null to not specify
-     * 
+     *
      * @param units
      *            command argument units; null to not specify
-     * 
+     *
      * @param shortDescription
      *            short description of the parameter; null to not specify
-     * 
+     *
      * @param otherArgCols
      *            list of string arrays containing other argument column data
      *            in the format [column name][data value]
-     * 
+     *
      * @return Command description of the type corresponding to the primitive
      *         data type with the specified attributes set
      *************************************************************************/
@@ -3684,7 +3684,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
      *
      * @param units
      *            parameter or command argument units; null to not specify
-     * 
+     *
      * @return Unit set for the supplied units string
      *************************************************************************/
     private UnitSet createUnitSet(String units)
@@ -3709,12 +3709,12 @@ public class CcddXTCEHandler implements CcddImportExportInterface
      *
      * @param system
      *            space system
-     * 
+     *
      * @param enumeration
      *            enumeration in the format <enum value><enum value
      *            separator><enum label>[<enum value separator>...][<enum pair
      *            separator>...]
-     * 
+     *
      * @return Enumeration list for the supplied enumeration string
      *************************************************************************/
     private EnumerationList createEnumerationList(SpaceSystemType system,
@@ -3784,11 +3784,11 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Store any additional attribute information as ancillary data
-     * 
+     *
      * @param otherAttrs
      *            list containing other attribute data in the format [attribute
      *            name][attribute value]
-     * 
+     *
      * @return Ancillary data set containing the additional attribute
      *         information
      *************************************************************************/

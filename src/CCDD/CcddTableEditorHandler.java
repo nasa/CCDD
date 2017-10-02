@@ -783,8 +783,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             {
                 // Force the table to redraw in case the number of columns
                 // changed
-                tableModel.fireTableStructureChanged();
                 tableModel.fireTableDataChanged();
+                tableModel.fireTableStructureChanged();
             }
         });
     }
@@ -1705,11 +1705,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         // type
                         if (!newValueS.matches(typeDefn.getInputTypes()[column].getInputMatch()))
                         {
-                            throw new CCDDException("Invalid input type for column '</b>"
+                            throw new CCDDException("Invalid characters in column '</b>"
                                                     + typeDefn.getColumnNamesUser()[column]
-                                                    + "<b>'; "
-                                                    + typeDefn.getInputTypes()[column].getInputName().toLowerCase()
-                                                    + " expected");
+                                                    + "<b>'; characters consistent with input type '"
+                                                    + typeDefn.getInputTypes()[column].getInputName()
+                                                    + "' expected");
                         }
                     }
 
@@ -2138,49 +2138,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 if (comp.getBackground() != ModifiableColorInfo.FOCUS_BACK.getColor()
                     && comp.getBackground() != ModifiableColorInfo.SELECTED_BACK.getColor())
                 {
-                    boolean found = true;
-
-                    // Convert the column index to the model coordinate
-                    int modelColumn = convertColumnIndexToModel(column);
-
-                    // Get the cell contents
-                    String value = getValueAt(row, column).toString();
-
-                    // Check if the cell is required and empty
-                    if (typeDefn.isRequired()[modelColumn] && value.isEmpty())
-                    {
-                        // Set the flag indicating that the cell value is
-                        // invalid
-                        found = false;
-                    }
-                    // Check if this is cell contains a combo box, and that the
-                    // cell isn't empty or the cell is required
-                    else if (((DefaultCellEditor) getCellEditor(row,
-                                                                column)).getComponent() instanceof JComboBox
-                             && (!value.isEmpty()
-                             || typeDefn.isRequired()[modelColumn]))
-                    {
-                        // Get a reference to the cell's combo box
-                        JComboBox<?> comboBox = (JComboBox<?>) ((DefaultCellEditor) getCellEditor(row,
-                                                                                                  column)).getComponent();
-                        found = false;
-
-                        // Step through each combo box item
-                        for (int index = 0; index < comboBox.getItemCount() && !found; index++)
-                        {
-                            // Check if the cell matches the combo box item
-                            if (comboBox.getItemAt(index).equals(value))
-                            {
-                                // Set the flag indicating that the cell value
-                                // is valid and stop searching
-                                found = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    // Check if the cell value is invalid
-                    if (!found)
+                    // Check if the cell value is invalid. This does not
+                    // validate the contents, but only ensures that required
+                    // cells are populated and that combo box cells contain an
+                    // item in the list
+                    if (!isCellValueFound(row, column))
                     {
                         // Change the cell's background color
                         comp.setBackground(ModifiableColorInfo.REQUIRED_BACK.getColor());
@@ -3467,16 +3429,84 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                 table.setRowSelectionInterval(row, row);
                                 table.setColumnSelectionInterval(column, column);
 
-                                // Open the child table associated with the
-                                // selected row's variable name and data type,
-                                // if valid
-                                openChildTable(row);
+                                // Check if the data type is recognized. If the
+                                // prototype structure is deleted the invalid
+                                // structure reference remains in the cell
+                                if (isCellValueFound(row, column))
+                                {
+                                    // Open the child table associated with the
+                                    // selected row's variable name and data
+                                    // type, if valid
+                                    openChildTable(row);
+                                }
                             }
                         }
                     }
                 }
             });
         }
+    }
+
+    /**************************************************************************
+     * Check if the specified table cell is required and contains a value, or
+     * is a combo box and the value matches one in the combo box list
+     *
+     * @param row
+     *            table row number; view coordinates
+     *
+     * @param column
+     *            table column number; view coordinates
+     *
+     * @return true if the cell is required and contains a value or is a combo
+     *         box and the value is in the list
+     *************************************************************************/
+    private boolean isCellValueFound(int row, int column)
+    {
+        boolean found = true;
+
+        // Convert the column index to the model coordinate
+        int modelColumn = table.convertColumnIndexToModel(column);
+
+        // Get the cell contents
+        String value = table.getValueAt(row, column).toString();
+
+        // Check if the cell is required and empty
+        if (typeDefn.isRequired()[modelColumn] && value.isEmpty())
+        {
+            // Set the flag indicating that the cell value is invalid
+            found = false;
+        }
+        // Check if this is cell contains a combo box, and that the cell isn't
+        // empty or the cell is required
+        else if (((DefaultCellEditor) table.getCellEditor(row,
+                                                          column)) != null
+                 && ((DefaultCellEditor) table.getCellEditor(row,
+                                                             column)).getComponent() instanceof JComboBox
+                 && (!value.isEmpty()
+                 || typeDefn.isRequired()[modelColumn]))
+        {
+            // Get a reference to the cell's combo box
+            JComboBox<?> comboBox = (JComboBox<?>)
+                ((DefaultCellEditor) table.getCellEditor(row,
+                                                         column)).getComponent();
+            found = false;
+
+            // Step through each combo box item
+            for (int index = 0; index < comboBox.getItemCount() &&
+                                !found; index++)
+            {
+                // Check if the cell matches the combo box item
+                if (comboBox.getItemAt(index).equals(value))
+                {
+                    // Set the flag indicating that the cell value is valid and
+                    // stop searching
+                    found = true;
+                    break;
+                }
+            }
+        }
+
+        return found;
     }
 
     /**************************************************************************

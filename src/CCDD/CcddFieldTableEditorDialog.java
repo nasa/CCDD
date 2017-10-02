@@ -54,6 +54,7 @@ import javax.swing.tree.TreeSelectionModel;
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.CellSelectionHandler;
 import CCDD.CcddClasses.FieldInformation;
+import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddClasses.ValidateCellActionListener;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FieldTableEditorColumnInfo;
@@ -221,13 +222,14 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 for (CcddTableEditorHandler editor : editorDialog.getTableEditors())
                 {
                     List<String> redrawnTables = new ArrayList<String>();
+                    TableInformation tableInfo = editor.getTableInformation();
 
                     // Step through the data field deletions
                     for (String[] del : fieldDeletions)
                     {
                         // Check if the table names and paths match, and that
                         // this table hasn't already had a deletion applied
-                        if (del[0].equals(editor.getTableInformation().getTablePath())
+                        if (del[0].equals(tableInfo.getTablePath())
                             && !redrawnTables.contains(del[0]))
                         {
                             // Add the table's name and path to the list of
@@ -236,13 +238,14 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                             redrawnTables.add(del[0]);
 
                             // Rebuild the table's data field information
-                            editor.getTableInformation().getFieldHandler().setFieldDefinitions(dataFields);
-                            editor.getTableInformation().getFieldHandler().buildFieldInformation(del[0]);
+                            tableInfo.getFieldHandler().setFieldDefinitions(dataFields);
+                            tableInfo.getFieldHandler().buildFieldInformation(del[0],
+                                                                              tableInfo.isRootStructure());
 
                             // Store the data field information in the
                             // committed information so that this value change
                             // is ignored when updating or closing the table
-                            editor.getCommittedTableInformation().getFieldHandler().setFieldInformation(editor.getTableInformation().getFieldHandler().getFieldInformationCopy());
+                            editor.getCommittedTableInformation().getFieldHandler().setFieldInformation(tableInfo.getFieldHandler().getFieldInformationCopy());
 
                             // Rebuild the table's editor panel which contains
                             // the data fields
@@ -256,12 +259,12 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                         // Check if the table names and paths match and that
                         // this table hasn't already been updated by having a
                         // deletion applied
-                        if (mod[0].equals(editor.getTableInformation().getTablePath())
+                        if (mod[0].equals(tableInfo.getTablePath())
                             && !redrawnTables.contains(mod[0]))
                         {
                             // Get the reference to the modified field
-                            FieldInformation fieldInfo = editor.getTableInformation().getFieldHandler().getFieldInformationByName(mod[0],
-                                                                                                                                  mod[1]);
+                            FieldInformation fieldInfo = tableInfo.getFieldHandler().getFieldInformationByName(mod[0],
+                                                                                                               mod[1]);
 
                             // Update the field's value. Also update the value
                             // in the committed information so that this value
@@ -1358,7 +1361,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
         // Create a field handler and populate it with the field definitions
         // for all of the tables and groups in the database
-        fieldHandler = new CcddFieldHandler();
+        fieldHandler = new CcddFieldHandler(ccddMain);
         fieldHandler.buildFieldInformation(dataFields.toArray(new String[0][0]),
                                            null);
         List<FieldInformation> fieldInformation = fieldHandler.getFieldInformation();

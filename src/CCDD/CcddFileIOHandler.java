@@ -1383,7 +1383,8 @@ public class CcddFileIOHandler
 
         // Update the field information in case the field values changed
         tableHandler.getDataFieldHandler().setFieldDefinitions(tableDefn.getDataFields());
-        tableHandler.getDataFieldHandler().buildFieldInformation(tableDefn.getName());
+        tableHandler.getDataFieldHandler().buildFieldInformation(tableDefn.getName(),
+                                                                 tableHandler.getTableInformation().isRootStructure());
 
         // Rebuild the table's editor panel which contains the data fields
         tableHandler.createDataFieldPanel(true);

@@ -45,6 +45,7 @@ import CCDD.CcddTableTypeHandler.TypeDefinition;
 public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 {
     // Class references
+    private final CcddMain ccddMain;
     private String tableTypeName;
     private final CcddTableTypeEditorDialog editorDialog;
     private final CcddFieldHandler fieldHandler;
@@ -111,12 +112,13 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                          Object[][] fieldDefinitions,
                                          CcddTableTypeEditorDialog editorDialog)
     {
+        this.ccddMain = ccddMain;
         this.tableTypeName = tableTypeName;
         this.editorDialog = editorDialog;
         this.tableTypeHandler = ccddMain.getTableTypeHandler();
 
         // Create the field information for this table type
-        fieldHandler = new CcddFieldHandler();
+        fieldHandler = new CcddFieldHandler(ccddMain);
         fieldHandler.buildFieldInformation(fieldDefinitions,
                                            CcddFieldHandler.getFieldTypeName(tableTypeName));
 
@@ -230,7 +232,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     {
         // Create a new field handler and copy the current field information
         // into it
-        committedInfo = new CcddFieldHandler();
+        committedInfo = new CcddFieldHandler(ccddMain);
         committedInfo.setFieldInformation(handler.getFieldInformationCopy());
 
         // Check if the table has been created

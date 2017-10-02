@@ -83,7 +83,7 @@ public class CcddTableTypeHandler
 
         /**********************************************************************
          * Table type definition class constructor
-         * 
+         *
          * @return table type
          *********************************************************************/
         protected TypeDefinition(String tableType)
@@ -105,7 +105,7 @@ public class CcddTableTypeHandler
 
         /**********************************************************************
          * Get the table type name
-         * 
+         *
          * @return table type name
          *********************************************************************/
         protected String getName()
@@ -115,7 +115,7 @@ public class CcddTableTypeHandler
 
         /**********************************************************************
          * set the table type name
-         * 
+         *
          * @param typeName
          *            table type name
          *********************************************************************/
@@ -128,7 +128,7 @@ public class CcddTableTypeHandler
          * Get the table type data for the type editor. The primary key and row
          * index column definitions (the first two rows) are ignored so that
          * these aren't displayed in the type editor
-         * 
+         *
          * @return table type data
          *********************************************************************/
         protected Object[][] getData()
@@ -155,7 +155,7 @@ public class CcddTableTypeHandler
 
         /**********************************************************************
          * Get the number of columns for this type, including hidden columns
-         * 
+         *
          * @return Number of columns for this type, including hidden columns
          *********************************************************************/
         protected int getColumnCountDatabase()
@@ -165,7 +165,7 @@ public class CcddTableTypeHandler
 
         /**********************************************************************
          * Get the number of visible columns for this type
-         * 
+         *
          * @return Number of visible columns for this type
          *********************************************************************/
         protected int getColumnCountVisible()
@@ -175,7 +175,7 @@ public class CcddTableTypeHandler
 
         /**********************************************************************
          * Get the array of column names as used in the database
-         * 
+         *
          * @return Array of column names as used in the database
          *********************************************************************/
         protected String[] getColumnNamesDatabase()
@@ -186,7 +186,7 @@ public class CcddTableTypeHandler
         /**********************************************************************
          * Get the array of column names as seen by the user (includes names
          * for hidden columns)
-         * 
+         *
          * @return Array of column names as seen by the user
          *********************************************************************/
         protected String[] getColumnNamesUser()
@@ -196,7 +196,7 @@ public class CcddTableTypeHandler
 
         /**********************************************************************
          * Get the array of column names that are not hidden
-         * 
+         *
          * @return Array of column names that are not hidden
          *********************************************************************/
         protected String[] getColumnNamesVisible()
@@ -208,7 +208,7 @@ public class CcddTableTypeHandler
 
         /**********************************************************************
          * Get the array of row value unique flags
-         * 
+         *
          * @return Array of row value unique flags
          *********************************************************************/
         protected Boolean[] isRowValueUnique()
@@ -218,7 +218,7 @@ public class CcddTableTypeHandler
 
         /**********************************************************************
          * Get the array of column required flags
-         * 
+         *
          * @return Array of column required flags
          *********************************************************************/
         protected Boolean[] isRequired()
@@ -228,7 +228,7 @@ public class CcddTableTypeHandler
 
         /**********************************************************************
          * Get the array of structure data type allowed flags
-         * 
+         *
          * @return Array of structure data type allowed flags
          *********************************************************************/
         protected Boolean[] isStructureAllowed()
@@ -238,7 +238,7 @@ public class CcddTableTypeHandler
 
         /**********************************************************************
          * Get the array of pointer data type allowed flags
-         * 
+         *
          * @return Array of pointer data type allowed only flags
          *********************************************************************/
         protected Boolean[] isPointerAllowed()
@@ -248,7 +248,7 @@ public class CcddTableTypeHandler
 
         /**********************************************************************
          * Get the array of column input data types
-         * 
+         *
          * @return Array of column input data types
          *********************************************************************/
         protected InputDataType[] getInputTypes()
@@ -258,7 +258,7 @@ public class CcddTableTypeHandler
 
         /**********************************************************************
          * Get the array of column tool tip text
-         * 
+         *
          * @return Array of column tool tip text; null if no tool tips were
          *         found
          *********************************************************************/
@@ -269,7 +269,7 @@ public class CcddTableTypeHandler
 
         /**********************************************************************
          * Get the table type description
-         * 
+         *
          * @return table type description
          *********************************************************************/
         protected String getDescription()
@@ -279,10 +279,10 @@ public class CcddTableTypeHandler
 
         /**********************************************************************
          * Get the index of the first column having the specified input type
-         * 
+         *
          * @param inputType
          *            column input type (InputDataType)
-         * 
+         *
          * @return Index of the first column of the specified input type; -1 if
          *         no column of the specified type is found
          *********************************************************************/
@@ -308,10 +308,10 @@ public class CcddTableTypeHandler
         /**********************************************************************
          * Get the index or indices of the column(s) having the specified input
          * type
-         * 
+         *
          * @param inputType
          *            column input type (InputDataType)
-         * 
+         *
          * @return List containing the index (or indices) of the column(s) of
          *         the specified input type; an empty list if no column of the
          *         specified type is found
@@ -337,10 +337,10 @@ public class CcddTableTypeHandler
         /**********************************************************************
          * Get the visible name of the first column having the specified input
          * type
-         * 
+         *
          * @param inputType
          *            column input type (InputDataType)
-         * 
+         *
          * @return Visible name of the first column with the specified input
          *         type; null if no column of the specified type is found
          *********************************************************************/
@@ -366,10 +366,10 @@ public class CcddTableTypeHandler
         /**********************************************************************
          * Get the database name of the first column having the specified input
          * type
-         * 
+         *
          * @param inputType
          *            column input type (InputDataType)
-         * 
+         *
          * @return Database name of the first column with the specified input
          *         type; null if no column of the specified type is found
          *********************************************************************/
@@ -394,10 +394,10 @@ public class CcddTableTypeHandler
 
         /**********************************************************************
          * Get the index of the column having the specified name
-         * 
+         *
          * @param columnName
          *            column name (as seen by the user)
-         * 
+         *
          * @return Column name index; -1 if no column of the specified name is
          *         found
          *********************************************************************/
@@ -424,10 +424,10 @@ public class CcddTableTypeHandler
         /**********************************************************************
          * Get the viewable index of the column having the specified name. This
          * index accounts for the hidden columns, primary key and row index
-         * 
+         *
          * @param columnName
          *            column name (as seen by the user)
-         * 
+         *
          * @return Column name view index; -1 if no column of the specified
          *         name is found
          *********************************************************************/
@@ -448,10 +448,10 @@ public class CcddTableTypeHandler
 
         /**********************************************************************
          * Get the index of the column having the specified name
-         * 
+         *
          * @param dbColumnName
          *            column name (as used by the database)
-         * 
+         *
          * @return Column name index; -1 if no column of the specified name is
          *         found
          *********************************************************************/
@@ -477,35 +477,35 @@ public class CcddTableTypeHandler
         /**********************************************************************
          * Add the header and database column names, and the tool tip text to
          * the list
-         * 
+         *
          * @param index
          *            column index
-         * 
+         *
          * @param databaseName
          *            name of the column as used in the database
-         * 
+         *
          * @param visibleName
          *            name of the column as seen by the user; e.g., as table
          *            editor column headers
-         * 
+         *
          * @param comment
          *            column description used as the table editor column header
          *            tool tip text
-         * 
+         *
          * @param inputType
          *            column input data type
-         * 
+         *
          * @param isRowValueUnique
          *            true if the each row value in the column must have a
          *            unique value
-         * 
+         *
          * @param isColumnRequired
          *            true if the column must have a value when the type is
          *            committed to the database
-         * 
+         *
          * @param isStructure
          *            true if the the column applies to structure data types
-         * 
+         *
          * @param isPointer
          *            true if the the column applies to pointer data types
          *********************************************************************/
@@ -533,7 +533,7 @@ public class CcddTableTypeHandler
         /**********************************************************************
          * Determine if this table type contains all of the default protected
          * columns of the Structure table type
-         * 
+         *
          * @return true if this table type contains all of the protected
          *         columns of the Structure table type; i.e., this table type
          *         represents a structure table
@@ -546,7 +546,7 @@ public class CcddTableTypeHandler
         /**********************************************************************
          * Determine if this table type contains all of the default protected
          * columns of the Command table type
-         * 
+         *
          * @return true if this table type contains all of the protected
          *         columns of the Command table type; i.e., this table type
          *         represents a Command table
@@ -559,11 +559,11 @@ public class CcddTableTypeHandler
         /**********************************************************************
          * Determine if this table type contains all of the default protected
          * columns of the specified table type
-         * 
+         *
          * @param typeName
          *            table type name of the default table type with which to
          *            compare this table's columns
-         * 
+         *
          * @return true if this table type contains all of the protected
          *         columns of the specified table type
          *********************************************************************/
@@ -594,16 +594,16 @@ public class CcddTableTypeHandler
         /**********************************************************************
          * Get the row index in the structure table for the specified variable
          * name
-         * 
+         *
          * @param tableInfo
          *            reference to the table's TableInformation
-         * 
+         *
          * @param columnValue
          *            variable name
-         * 
+         *
          * @param columnIndex
          *            column index of the variable name column
-         * 
+         *
          * @return Row index for the specified variable name; -1 if the
          *         variable name is not found
          *********************************************************************/
@@ -631,19 +631,19 @@ public class CcddTableTypeHandler
         /**********************************************************************
          * Get the row index in the structure table for the specified variable
          * name
-         * 
+         *
          * @param tableData
          *            list of table data, one-dimensional
-         * 
+         *
          * @param numColumns
          *            number of table columns
-         * 
+         *
          * @param columnValue
          *            variable name
-         * 
+         *
          * @param columnIndex
          *            column index of the variable name column
-         * 
+         *
          * @return Row index for the specified variable name; -1 if the
          *         variable name is not found
          *********************************************************************/
@@ -680,7 +680,7 @@ public class CcddTableTypeHandler
          * @param useViewIndex
          *            true to adjust the column indices to view coordinates;
          *            false to keep the coordinates in model coordinates
-         * 
+         *
          * @return List of groupings of associated command argument columns
          *********************************************************************/
         protected List<AssociatedColumns> getAssociatedCommandColumns(boolean useViewIndex)
@@ -834,7 +834,7 @@ public class CcddTableTypeHandler
 
     /**************************************************************************
      * Table type handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
@@ -851,7 +851,7 @@ public class CcddTableTypeHandler
 
     /**************************************************************************
      * Get the list of table type definitions
-     * 
+     *
      * @return List of table type definitions
      *************************************************************************/
     protected List<TypeDefinition> getTypeDefinitions()
@@ -861,7 +861,7 @@ public class CcddTableTypeHandler
 
     /**************************************************************************
      * Set the list of table type definitions
-     * 
+     *
      * @param typeDefinitionse
      *            list of table type definitions
      *************************************************************************/
@@ -924,13 +924,13 @@ public class CcddTableTypeHandler
     /**************************************************************************
      * Create a new table type definition. If the definition exists then
      * replace it with the new one
-     * 
+     *
      * @param typeName
      *            table type name
-     * 
+     *
      * @param typeData
      *            array of table type data
-     * 
+     *
      * @param description
      *            table type description
      *************************************************************************/
@@ -999,10 +999,10 @@ public class CcddTableTypeHandler
 
     /**************************************************************************
      * Get the table type definition for the specified table type
-     * 
+     *
      * @param typeName
      *            table type name
-     * 
+     *
      * @return Table type definition based on the supplied type name; null if
      *         no match is found
      *************************************************************************/
@@ -1028,7 +1028,7 @@ public class CcddTableTypeHandler
 
     /**************************************************************************
      * Get an array of the defined table types
-     * 
+     *
      * @return Array of table types
      *************************************************************************/
     protected String[] getTypes()
@@ -1051,10 +1051,10 @@ public class CcddTableTypeHandler
     /**************************************************************************
      * Get the array of column names as used in the database for the specified
      * table type
-     * 
+     *
      * @param typeName
      *            table type name
-     * 
+     *
      * @return Array of column names as used in the database
      *************************************************************************/
     protected String[] getColumnNamesDb(String typeName)
@@ -1076,10 +1076,10 @@ public class CcddTableTypeHandler
 
     /**************************************************************************
      * Get the default column order string
-     * 
+     *
      * @param typeName
      *            table type name
-     * 
+     *
      * @return String containing the column indices separated by colons; blank
      *         if the type in invalid
      *************************************************************************/
@@ -1108,7 +1108,7 @@ public class CcddTableTypeHandler
 
     /**************************************************************************
      * Get an array of the type names and descriptions, sorted by type name
-     * 
+     *
      * @return Array of the type names and descriptions, sorted by type name
      *************************************************************************/
     protected String[][] getTypeInformation()
@@ -1145,13 +1145,13 @@ public class CcddTableTypeHandler
     /**************************************************************************
      * Get the name of the first column in the specified table type's
      * definition that matches the specified input data type
-     * 
+     *
      * @param typeName
      *            table type name
-     * 
+     *
      * @param inputType
      *            column input type (InputDataType)
-     * 
+     *
      * @return Name (as seen by the user) of the first column in the specified
      *         table type's definition that matches the specified input data
      *         type; null if the input type doesn't exist in the table type
@@ -1177,7 +1177,7 @@ public class CcddTableTypeHandler
 
     /**************************************************************************
      * Get the list of structure table types
-     * 
+     *
      * @return List of structure table types
      *************************************************************************/
     protected String[] getStructureTableTypes()
@@ -1200,11 +1200,11 @@ public class CcddTableTypeHandler
 
     /**************************************************************************
      * Get the list of unique structure table enumeration column names
-     * 
+     *
      * @param useDbName
      *            true to use the database column name; false to use the user
      *            column name
-     * 
+     *
      * @return List of unique structure table enumeration column names
      *************************************************************************/
     protected List<String> getStructEnumColNames(boolean useDbName)
@@ -1243,13 +1243,13 @@ public class CcddTableTypeHandler
      * new then add the table type. If the table type name matches then compare
      * the type definitions to ensure the two are the same (ignoring the column
      * descriptions)
-     * 
+     *
      * @param tableTypeDefinitions
      *            list of table type definitions
-     * 
+     *
      * @param fieldHandler
      *            reference to a data field handler
-     * 
+     *
      * @return null if all of the table types are created or match existing
      *         ones; the name of the table type that matches an existing one
      *         but the type definitions differ
@@ -1329,13 +1329,13 @@ public class CcddTableTypeHandler
      * then add the table type. If the table type name matches then compare the
      * type definitions to ensure the two are the same (ignoring the column
      * descriptions)
-     * 
+     *
      * @param tableTypeDefn
      *            table type definition
-     * 
+     *
      * @param fieldHandler
      *            reference to a data field handler
-     * 
+     *
      * @return TableTypeUpdate.NEW if the table type is new,
      *         TableTypeUpdate.MATCH if the table type matches an existing one,
      *         or TableTypeUpdate.MISMATCH if the table type name matches an

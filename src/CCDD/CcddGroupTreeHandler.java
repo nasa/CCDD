@@ -211,7 +211,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         dbTable = ccddMain.getDbTableCommandHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
         groupHandler = new CcddGroupHandler(undoHandler);
-        fieldHandler = new CcddFieldHandler();
+        fieldHandler = new CcddFieldHandler(ccddMain);
 
         // Set the tree to be collapsed initially
         isExpanded = false;

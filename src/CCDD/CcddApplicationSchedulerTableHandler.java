@@ -334,7 +334,7 @@ public class CcddApplicationSchedulerTableHandler
         String[] groupNames = groupTree.getGroupHandler().getGroupNames(true);
 
         // Create a data field handler to interact with the groups' fields
-        CcddFieldHandler fieldHandler = new CcddFieldHandler();
+        CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain);
 
         // Step through each application
         for (Variable app : applications)

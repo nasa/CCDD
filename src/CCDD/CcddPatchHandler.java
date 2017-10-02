@@ -24,12 +24,14 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import CCDD.CcddClasses.CCDDException;
+import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.FileExtension;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
+import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.TableTypesColumn;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
@@ -47,9 +49,9 @@ public class CcddPatchHandler
      * are meant to be transparent to the user; however, once patched older
      * versions of the application are no longer guaranteed to function
      * properly and may have detrimental effects
-     * 
+     *
      * * @param ccddMain main class
-     * 
+     *
      * @throws CCDDException
      *************************************************************************/
     CcddPatchHandler(CcddMain ccddMain) throws CCDDException
@@ -64,10 +66,104 @@ public class CcddPatchHandler
         // name with capitalization intact
         updateDataBaseComment();
 
-        // Patch #07121017: Update the associations table to include a
+        // Patch #0712017: Update the associations table to include a
         // description column and to change the table separator characters in
         // the member_table column
         updateAssociationsTable();
+
+        // Patch #09272017: Update the data fields table applicability column
+        // to change "Parents only" to "Roots only"
+        updateFieldApplicability();
+    }
+
+    /**************************************************************************
+     * Update the data fields table applicability column to change
+     * "Parents only" to "Roots only". Older versions of CCDD are not
+     * compatible with the project database after applying this patch
+     *************************************************************************/
+    private void updateFieldApplicability() throws CCDDException
+    {
+        CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
+        CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
+
+        try
+        {
+            CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
+
+            // Read the contents of the data field table's applicability column
+            ResultSet fieldData = dbCommand.executeDbQuery("SELECT * FROM "
+                                                           + InternalTable.FIELDS.getTableName()
+                                                           + " WHERE "
+                                                           + FieldsColumn.FIELD_APPLICABILITY.getColumnName()
+                                                           + " = 'Parents only';",
+                                                           ccddMain.getMainFrame());
+
+            // Check if the patch hasn't already been applied
+            if (fieldData.next())
+            {
+                // Check if the user elects to not apply the patch
+                if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                              "<html><b>Apply patch to update the data "
+                                                                  + "fields table?<br><br></b>Changes "
+                                                                  + "data field applicability 'Parents "
+                                                                  + "only' to 'Roots only'.<br><b><i>Older "
+                                                                  + "versions of CCDD are imcompatible "
+                                                                  + "with this project database after "
+                                                                  + "applying the patch",
+                                                              "Apply Patch #09272017",
+                                                              JOptionPane.QUESTION_MESSAGE,
+                                                              DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
+                {
+                    fieldData.close();
+                    throw new CCDDException("user elected to not install patch (#09272017)");
+                }
+
+                fieldData.close();
+
+                // Back up the project database before applying the patch
+                dbControl.backupDatabase(dbControl.getDatabase(),
+                                         new File(dbControl.getDatabase()
+                                                  + "_"
+                                                  + new
+                                                  SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
+                                                  + FileExtension.DBU.getExtension()));
+
+                // Update the data fields table
+                dbCommand.executeDbCommand("UPDATE "
+                                           + InternalTable.FIELDS.getTableName()
+                                           + " SET "
+                                           + FieldsColumn.FIELD_APPLICABILITY.getColumnName()
+                                           + " = '"
+                                           + ApplicabilityType.ROOT_ONLY.getApplicabilityName()
+                                           + "' WHERE "
+                                           + FieldsColumn.FIELD_APPLICABILITY.getColumnName()
+                                           + " = 'Parents only';",
+                                           ccddMain.getMainFrame());
+
+                // Inform the user that updating the database data fields
+                // table completed
+                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+                                  "Project '"
+                                      + dbControl.getProject()
+                                      + "' data fields table conversion complete");
+            }
+        }
+        catch (Exception e)
+        {
+            // Inform the user that converting the data fields table failed
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Cannot convert project '"
+                                      + dbControl.getProject()
+                                      + "' data fields table to new format; cause '"
+                                      + e.getMessage()
+                                      + "'",
+                                  "<html><b>Cannot convert project '"
+                                      + dbControl.getProject()
+                                      + "' data fields table to new format "
+                                      + "(project database will be closed)");
+
+            throw new CCDDException();
+        }
     }
 
     /**************************************************************************
@@ -113,7 +209,7 @@ public class CcddPatchHandler
                                                               DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
                 {
                     assnsData.close();
-                    throw new CCDDException("user elected to not install patch (#02212017)");
+                    throw new CCDDException("user elected to not install patch (#0712017)");
                 }
 
                 // Step through each of the query results

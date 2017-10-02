@@ -10,6 +10,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.AUTO_COMPLETE_TEXT_SEPARATOR;
 import static CCDD.CcddConstants.LAF_CHECK_BOX_HEIGHT;
+import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
 
@@ -39,6 +40,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -81,24 +83,18 @@ import CCDD.CcddConstants.ModifiableSpacingInfo;
  *****************************************************************************/
 public class CcddClasses
 {
-    // Data type handler reference
-    private static CcddDataTypeHandler dataTypeHandler;
-    private static CcddMacroHandler macroHandler;
+    // Main class reference
+    private static CcddMain ccddMain;
 
     /**************************************************************************
-     * Set the data type and macro handler references
+     * Set the main class reference
      *
-     * @param dtHandler
-     *            reference to the data type handler
-     *
-     * @param mHandler
-     *            reference to the macro handler
+     * @param main
+     *            main class reference
      *************************************************************************/
-    protected static void setHandlers(CcddDataTypeHandler dtHandler,
-                                      CcddMacroHandler mHandler)
+    protected static void setHandlers(CcddMain main)
     {
-        dataTypeHandler = dtHandler;
-        macroHandler = mHandler;
+        ccddMain = main;
     }
 
     /**************************************************************************
@@ -244,7 +240,7 @@ public class CcddClasses
             this.isRootStructure = isRootStructure;
             isPrototype = !tablePath.contains(".");
             errorFlag = false;
-            fieldHandler = new CcddFieldHandler();
+            fieldHandler = new CcddFieldHandler(ccddMain);
         }
 
         /**********************************************************************
@@ -305,7 +301,8 @@ public class CcddClasses
             {
                 // Build the data field information
                 fieldHandler.buildFieldInformation(fieldDefinition,
-                                                   getTablePath());
+                                                   getTablePath(),
+                                                   isRootStructure);
             }
         }
 
@@ -1548,7 +1545,7 @@ public class CcddClasses
             super(nodeName);
 
             // Get the node name with any macro(s) expanded
-            String expanded = macroHandler.getMacroExpansion(nodeName);
+            String expanded = ccddMain.getMacroHandler().getMacroExpansion(nodeName);
 
             // Check if a node name contains a macro
             if (!expanded.equals(nodeName))
@@ -3155,7 +3152,7 @@ public class CcddClasses
          *********************************************************************/
         protected TelemetryData(String dataType, String pathName, float rate)
         {
-            super(dataTypeHandler.getSizeInBytes(dataType), pathName, rate);
+            super(ccddMain.getDataTypeHandler().getSizeInBytes(dataType), pathName, rate);
             this.dataType = dataType;
 
             // Initialize the link name to indicate no link membership; the
@@ -4221,6 +4218,19 @@ public class CcddClasses
             // cell edited in the specified table is validated
             if (getTable() == null || getTable().isLastCellValid())
             {
+                // Check if the item initiating the event is a button
+                if (ae.getSource() instanceof JButton)
+                {
+                    // Update the focus to the button. If a data field is being
+                    // edited (and so has the focus) this forces editing of the
+                    // field to stop, which in turn causes input verification
+                    // to be performed on the field's contents. Pressing the
+                    // button directly does this already, but if the button is
+                    // the default and the Enter key is pressed then the field
+                    // doesn't stop editing (and get tested) without this call
+                    ((JButton) ae.getSource()).requestFocus();
+                }
+
                 // Perform the action
                 performAction(ae);
             }
@@ -4325,9 +4335,24 @@ public class CcddClasses
             // layout operation
             if (!inLayOut)
             {
+                // Get the preferred width of the combo box list. This accounts
+                // for the longest list item name in addition to the width of a
+                // scroll bar, even if not needed
+                int listWidth = getPreferredSize().width;
+
+                // Check if the number of items in the list doesn't exceed the
+                // maximum, in which case no scroll bar appears
+                if (getItemCount() <= getMaximumRowCount())
+                {
+                    // Since there is no scroll bar, subtract its width from
+                    // the list width in order to eliminate the unneeded
+                    // padding
+                    listWidth -= LAF_SCROLL_BAR_WIDTH / 2;
+                }
+
                 // Get the maximum of the width returned by the call to the
-                // default getSize() and the preferred width
-                dim.width = Math.max(dim.width, getPreferredSize().width);
+                // default getSize() and the adjusted preferred width
+                dim.width = Math.max(dim.width, listWidth);
             }
 
             return dim;
@@ -4345,6 +4370,12 @@ public class CcddClasses
         private void setListItemCharacteristics(final String[] toolTips,
                                                 Font font)
         {
+            // Create the padded border for the list items
+            final Border paddedBorder = BorderFactory.createEmptyBorder(ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() / 2,
+                                                                        ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() / 2,
+                                                                        ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() / 2,
+                                                                        ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() / 2);
+
             // Set the foreground color, background color, and font for the
             // list items, and the maximum number of items to display
             setForeground(Color.BLACK);
@@ -4373,10 +4404,7 @@ public class CcddClasses
                                                                              cellHasFocus);
 
                     // Add padding to the list item
-                    lbl.setBorder(BorderFactory.createEmptyBorder(ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() - 2,
-                                                                  ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() - 2,
-                                                                  ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() - 2,
-                                                                  ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() - 2));
+                    lbl.setBorder(paddedBorder);
 
                     // Check if the list item is valid and if it has tool tip
                     // text associated with it

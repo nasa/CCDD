@@ -140,7 +140,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
         /**********************************************************************
          * Additional EDS data type tags constructor
-         * 
+         *
          * @param tag
          *            text describing the data
          *********************************************************************/
@@ -151,7 +151,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
         /**********************************************************************
          * Get the data type tag
-         * 
+         *
          * @return Text describing the data
          *********************************************************************/
         protected String getTag()
@@ -161,13 +161,13 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
         /**********************************************************************
          * Get the column tag
-         * 
+         *
          * @param columnName
          *            column name
-         * 
+         *
          * @param row
          *            row number for which the column data applies
-         * 
+         *
          * @return Text describing the column, using the column name and row
          *         number
          *********************************************************************/
@@ -178,7 +178,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
         /**********************************************************************
          * Get the index of the column name within the column tag string
-         * 
+         *
          * @return Index of the column name within the column tag string
          *********************************************************************/
         protected static int getColumnNameIndex()
@@ -188,7 +188,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
         /**********************************************************************
          * Get the index of the row index within the column tag string
-         * 
+         *
          * @return Index of the row index within the column tag string
          *********************************************************************/
         protected static int getRowIndex()
@@ -199,13 +199,13 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * EDS handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param fieldHandler
      *            reference to a data field handler
-     * 
+     *
      * @param parent
      *            GUI component instantiating this class
      *************************************************************************/
@@ -261,7 +261,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Get the status of the conversion setup error flag
-     * 
+     *
      * @return true if an error occurred setting up for the EDS conversion
      *************************************************************************/
     @Override
@@ -272,7 +272,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Get the table definitions
-     * 
+     *
      * @return List of table definitions
      *************************************************************************/
     @Override
@@ -283,10 +283,10 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Import the the table definitions from an EDS XML formatted file
-     * 
+     *
      * @param importFile
      *            reference to the user-specified XML input file
-     * 
+     *
      * @param importAll
      *            ImportType.IMPORT_ALL to import the table type, data type,
      *            and macro definitions, and the data from all the table
@@ -333,39 +333,39 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Export the project in EDS XML format to the specified file
-     * 
+     *
      * @param exportFile
      *            reference to the user-specified output file
-     * 
+     *
      * @param tableNames
      *            array of table names to convert
-     * 
+     *
      * @param replaceMacros
      *            true to replace any embedded macros with their corresponding
      *            values
-     * 
+     *
      * @param includeReservedMsgIDs
      *            true to include the contents of the reserved message ID table
      *            in the export file
-     * 
+     *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a
      *            structure table, both in application format and using the
      *            user-defined separator characters
-     * 
+     *
      * @param variableHandler
      *            variable handler class reference; null if
      *            includeVariablePaths is false
-     * 
+     *
      * @param separators
      *            string array containing the variable path separator
      *            character(s), show/hide data types flag ('true' or 'false'),
      *            and data type/variable name separator character(s); null if
      *            includeVariablePaths is false
-     * 
+     *
      * @param extraInfo
      *            [0] name of the data field containing the system name
-     * 
+     *
      * @return true if an error occurred preventing exporting the project to
      *         the file
      *************************************************************************/
@@ -441,33 +441,33 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Convert the project database contents to EDS XML format
-     * 
+     *
      * @param tableNames
      *            array of table names to convert to EDS format
-     * 
+     *
      * @param replaceMacros
      *            true to replace any embedded macros with their corresponding
      *            values
-     * 
+     *
      * @param includeReservedMsgIDs
      *            true to include the contents of the reserved message ID table
      *            in the export file
-     * 
+     *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a
      *            structure table, both in application format and using the
      *            user-defined separator characters
-     * 
+     *
      * @param variableHandler
      *            variable handler class reference; null if
      *            includeVariablePaths is false
-     * 
+     *
      * @param separators
      *            string array containing the variable path separator
      *            character(s), show/hide data types flag ('true' or 'false'),
      *            and data type/variable name separator character(s); null if
      *            includeVariablePaths is false
-     * 
+     *
      * @param system
      *            name of the data field containing the system name
      *************************************************************************/
@@ -533,13 +533,13 @@ public class CcddEDSHandler implements CcddImportExportInterface
     /**************************************************************************
      * Step through the EDS-formatted data and extract the telemetry and
      * command information
-     * 
+     *
      * @param importAll
      *            ImportType.IMPORT_ALL to import the table type, data type,
      *            and macro definitions, and the data from all the table
      *            definitions; ImportType.FIRST_DATA_ONLY to load only the data
      *            for the first table defined
-     * 
+     *
      * @param importFileName
      *            import file name
      *************************************************************************/
@@ -2157,11 +2157,11 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Create a name space to contain all variable paths
-     * 
+     *
      * @param variableHandler
      *            variable handler class reference; null if
      *            includeVariablePaths is false
-     * 
+     *
      * @param separators
      *            string array containing the variable path separator
      *            character(s), show/hide data types flag ('true' or 'false'),
@@ -2189,19 +2189,19 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Build the name spaces for the list of tables specified
-     * 
+     *
      * @param tableNames
      *            array of table names
-     * 
+     *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a
      *            structure table, both in application format and using the
      *            user-defined separator characters
-     * 
+     *
      * @param variableHandler
      *            variable handler class reference; null if
      *            includeVariablePaths is false
-     * 
+     *
      * @param separators
      *            string array containing the variable path separator
      *            character(s), show/hide data types flag ('true' or 'false'),
@@ -2478,15 +2478,15 @@ public class CcddEDSHandler implements CcddImportExportInterface
     /**************************************************************************
      * Return an array containing the specified table's data field names and
      * values
-     * 
+     *
      * @param fieldInformation
      *            list containing data field information
-     * 
+     *
      * @param identifier
      *            string to append to the data field tag used to identify the
      *            table type to which a data field belongs; null if the data
      *            type doesn't belong to a table type
-     * 
+     *
      * @return List containing the data field names and values
      *************************************************************************/
     private List<String[]> getDataFields(List<FieldInformation> fieldInformation,
@@ -2525,20 +2525,20 @@ public class CcddEDSHandler implements CcddImportExportInterface
     /**************************************************************************
      * Create a new name space as a child within the specified name space. If
      * the specified name space is null then this is the root data sheet
-     * 
+     *
      * @param systemName
      *            system name; null or blank if no system (e.g., macro
      *            definitions)
-     * 
+     *
      * @param path
      *            table path
-     * 
+     *
      * @param nameSpaceName
      *            name for the new name space
-     * 
+     *
      * @param shortDescription
      *            data sheet description
-     * 
+     *
      * @return Reference to the new name space
      *************************************************************************/
     private NamespaceType addNameSpace(String systemName,
@@ -2596,11 +2596,11 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Search for the name space with the same name as the search name
-     * 
+     *
      * @param nameSpaceName
      *            name of the name space to search for within the name space
      *            hierarchy
-     * 
+     *
      * @return Reference to the name space with the same name as the search
      *         name; null if no name space name matches the search name
      *************************************************************************/
@@ -2624,38 +2624,38 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Add a variable to the specified data sheet
-     * 
+     *
      * @param nameSpace
      *            parent data sheet for this node
-     * 
+     *
      * @param tableInfo
      *            TableInformation reference for the current node
-     * 
+     *
      * @param varColumn
      *            variable name column index
-     * 
+     *
      * @param typeColumn
      *            data type column index
-     * 
+     *
      * @param sizeColumn
      *            array size column index
-     * 
+     *
      * @param bitColumn
      *            bit length column index
-     * 
+     *
      * @param enumColumns
      *            list containing the current table's enumeration column
      *            indices; empty list if no enumeration columns exist
-     * 
+     *
      * @param unitsColumn
      *            current table's units column index; -1 if none exists
-     * 
+     *
      * @param descColumn
      *            current table's description column index; -1 if none exists
-     * 
+     *
      * @param dataType
      *            parameter data type
-     * 
+     *
      * @param variableName
      *            variable name
      *************************************************************************/
@@ -2781,10 +2781,10 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Add the command(s) from a table to the specified name space
-     * 
+     *
      * @param nameSpace
      *            name space for this node
-     * 
+     *
      * @param tableInfo
      *            TableInformation reference for the current node
      *************************************************************************/
@@ -3013,10 +3013,10 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Create the parameter set for the specified name space
-     * 
+     *
      * @param nameSpace
      *            name space
-     * 
+     *
      * @return Reference to the parameter set
      *************************************************************************/
     private InterfaceDeclarationType createParameterSet(NamespaceType nameSpace)
@@ -3029,10 +3029,10 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Create the command set for the specified name space
-     * 
+     *
      * @param nameSpace
      *            name space
-     * 
+     *
      * @return Reference to the command set
      *************************************************************************/
     private InterfaceDeclarationType createCommandSet(NamespaceType nameSpace)
@@ -3045,10 +3045,10 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Create a user-defined set for the specified name space
-     * 
+     *
      * @param nameSpace
      *            name space
-     * 
+     *
      * @return Reference to the user-defined set
      *************************************************************************/
     private InterfaceDeclarationType createUserSet(NamespaceType nameSpace)
@@ -3062,27 +3062,27 @@ public class CcddEDSHandler implements CcddImportExportInterface
     /**************************************************************************
      * Add a telemetry parameter to the name space's parameter set. Create the
      * parameter set for the name space if it does not exist
-     * 
+     *
      * @param nameSpace
      *            name space
-     * 
+     *
      * @param systemPath
      *            system path in the format <project name>.<system
      *            name>.<structure path>.<primitive data Type>.<variable name>
-     * 
+     *
      * @param parameterName
      *            parameter name
-     * 
+     *
      * @param dataType
      *            parameter primitive data type
-     * 
+     *
      * @param enumerations
      *            list containing enumerations in the format <enum label>|<enum
      *            value>[|...][,...]; null to not specify
-     * 
+     *
      * @param units
      *            parameter units
-     * 
+     *
      * @param shortDescription
      *            short description of the parameter
      *************************************************************************/
@@ -3210,16 +3210,16 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Add a command metadata set to the command metadata
-     * 
+     *
      * @param nameSpace
      *            name space
-     * 
+     *
      * @param commandName
      *            command name
-     * 
+     *
      * @param arguments
      *            list of command arguments
-     * 
+     *
      * @param shortDescription
      *            short description of the command
      *************************************************************************/
@@ -3272,34 +3272,34 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
     /**************************************************************************
      * Add a command argument to the command metadata
-     * 
+     *
      * @param system
      *            space system
-     * 
+     *
      * @param commandName
      *            command name
-     * 
+     *
      * @param argumentName
      *            command argument name
-     * 
+     *
      * @param dataType
      *            command argument primitive data type
-     * 
+     *
      * @param enumeration
      *            command enumeration in the format <enum label>=<enum value>
-     * 
+     *
      * @param enumColumnName
      *            name of the column containing the enumeration (if present)
-     * 
+     *
      * @param enumRow
      *            index of the row containing the enumeration (if present)
-     * 
+     *
      * @param units
      *            command argument units
-     * 
+     *
      * @param shortDescription
      *            short description of the command
-     * 
+     *
      * @param otherArgCols
      *            list of string arrays containing other argument column data
      *            in the format [column name][data value]
@@ -3389,12 +3389,12 @@ public class CcddEDSHandler implements CcddImportExportInterface
      *
      * @param nameSpace
      *            name space
-     * 
+     *
      * @param enumeration
      *            enumeration in the format <enum value><enum value
      *            separator><enum label>[<enum value separator>...][<enum pair
      *            separator>...]
-     * 
+     *
      * @return Enumeration list for the supplied enumeration string
      *************************************************************************/
     private EnumerationListType createEnumerationList(NamespaceType nameSpace,
@@ -3463,14 +3463,14 @@ public class CcddEDSHandler implements CcddImportExportInterface
     /**************************************************************************
      * Store any additional attribute information in the specified name space
      * under the generic interface declaration
-     * 
+     *
      * @param nameSpace
      *            parent data sheet for the new system; null for the root data
      *            sheet
-     * 
+     *
      * @param attrType
      *            type of the additional attributes
-     * 
+     *
      * @param otherAttrs
      *            list containing other attribute data in the format [attribute
      *            name][attribute value]

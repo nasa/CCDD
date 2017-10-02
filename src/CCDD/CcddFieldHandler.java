@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import CCDD.CcddClasses.FieldInformation;
+import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.FieldEditorColumnInfo;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
@@ -26,6 +27,12 @@ import CCDD.CcddConstants.InternalTable.FieldsColumn;
  *****************************************************************************/
 public class CcddFieldHandler
 {
+    // Main class reference
+    private final CcddMain ccddMain;
+
+    // reference to class instantiating this class (main if none specified)
+    private Component parent;
+
     // List of field definitions
     private List<String[]> fieldDefinitions;
 
@@ -34,9 +41,15 @@ public class CcddFieldHandler
 
     /**************************************************************************
      * Field handler class constructor
+     *
+     * @param ccddMain
+     *            main class reference
      *************************************************************************/
-    CcddFieldHandler()
+    CcddFieldHandler(CcddMain ccddMain)
     {
+        this.ccddMain = ccddMain;
+        parent = ccddMain.getMainFrame();
+
         // Create storage for the field information
         fieldInformation = new ArrayList<FieldInformation>();
     }
@@ -56,7 +69,9 @@ public class CcddFieldHandler
      *************************************************************************/
     CcddFieldHandler(CcddMain ccddMain, String ownerName, Component parent)
     {
-        this();
+        this(ccddMain);
+
+        this.parent = parent;
 
         // Load the data field definitions from the database
         fieldDefinitions = ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.FIELDS,
@@ -209,7 +224,8 @@ public class CcddFieldHandler
     protected void buildFieldInformation(String ownerName)
     {
         buildFieldInformation(fieldDefinitions.toArray(new String[0][0]),
-                              ownerName);
+                              ownerName,
+                              null);
     }
 
     /**************************************************************************
@@ -227,6 +243,51 @@ public class CcddFieldHandler
     protected void buildFieldInformation(Object[][] fieldDefinitions,
                                          String ownerName)
     {
+        buildFieldInformation(fieldDefinitions,
+                              ownerName,
+                              null);
+
+    }
+
+    /**************************************************************************
+     * Build the data field information from the field definitions
+     *
+     * @param ownerName
+     *            name of the data field owner (table name, including the path
+     *            if this table references a structure, group name, or table
+     *            type name); null to get all data fields
+     *
+     * @param isRootStruct
+     *            true if the owner is a root structure, false if not, or null
+     *            if unknown
+     *************************************************************************/
+    protected void buildFieldInformation(String ownerName, Boolean isRootStruct)
+    {
+        buildFieldInformation(fieldDefinitions.toArray(new String[0][0]),
+                              ownerName,
+                              isRootStruct);
+    }
+
+    /**************************************************************************
+     * Build the data field information from the field definitions provided
+     *
+     * @param fieldDefinitions
+     *            array of field definitions; null if no definitions exist
+     *            (this produces an empty field information list)
+     *
+     * @param ownerName
+     *            name of the data field owner (table name, including the path
+     *            if this table references a structure, group name, or table
+     *            type name); null to get all data fields
+     *
+     * @param isRootStruct
+     *            true if the owner is a root structure, false if not, or null
+     *            if unknown
+     *************************************************************************/
+    protected void buildFieldInformation(Object[][] fieldDefinitions,
+                                         String ownerName,
+                                         Boolean isRootStruct)
+    {
         // Clear the fields from the list
         fieldInformation.clear();
 
@@ -238,10 +299,14 @@ public class CcddFieldHandler
             {
                 // Check if the table (prototype.variable)/group name matches
                 // the owner name; if no owner name is provided then get the
-                // fields for all tables and groups
+                // fields for all tables and groups, else add the field if it
+                // is applicable to this owner
                 if (ownerName == null
                     || ownerName.isEmpty()
-                    || ownerName.equalsIgnoreCase(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].toString()))
+                    || (ownerName.equalsIgnoreCase(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].toString()))
+                    && isFieldApplicable(ownerName,
+                                         fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()].toString(),
+                                         isRootStruct))
                 {
                     // Store the field information
                     addField(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].toString(),
@@ -255,6 +320,58 @@ public class CcddFieldHandler
                 }
             }
         }
+    }
+
+    /**************************************************************************
+     * Determine if a field is applicable to the specified owner. A field is
+     * always applicable if the specified applicability is for all tables, or
+     * if the owner is a table type or group. If the owner is a root table then
+     * 'child only' fields are inapplicable. If the table doesn't meet any of
+     * the previous criteria then the table is a child table or the prototype
+     * for a child table, so 'root only' fields are inapplicable
+     *
+     * @param ownerName
+     *            name of the data field owner (table name, including the path
+     *            if this table references a structure, group name, or table
+     *            type name)
+     *
+     * @param applicability
+     *            one of the ApplicabilityType names
+     *
+     * @param isRootStruct
+     *            true if the owner is a root structure table
+     *
+     * @return true if the field is applicable to the owner
+     *************************************************************************/
+    protected boolean isFieldApplicable(String ownerName,
+                                        String applicability,
+                                        Boolean isRootStruct)
+    {
+        // Set the flag to indicate the owner is a table type or group if the
+        // owner name contains a colon
+        boolean isTypeOrGroup = ownerName.contains(":");
+
+        // Check if the owner is a table type, group, or child structure (the
+        // owner name includes a data type & variable name)
+        if (isTypeOrGroup || ownerName.contains("."))
+        {
+            // Set the flag to indicate the owner isn't a root structure
+            isRootStruct = false;
+        }
+        // Check if the root structure status is unknown, the owner name is
+        // provided, and the owner isn't a prototype table
+        else if (isRootStruct == null)
+        {
+            // Set the flag that indicates if the owner is a root structure
+            isRootStruct = ccddMain.getDbTableCommandHandler().getRootStructures(parent).contains(ownerName);
+        }
+
+        return isTypeOrGroup
+               || applicability.equals(ApplicabilityType.ALL.getApplicabilityName())
+               || (isRootStruct
+               && applicability.equals(ApplicabilityType.ROOT_ONLY.getApplicabilityName()))
+               || (!isRootStruct
+               && applicability.equals(ApplicabilityType.CHILD_ONLY.getApplicabilityName()));
     }
 
     /**************************************************************************

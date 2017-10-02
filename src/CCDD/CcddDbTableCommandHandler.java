@@ -200,7 +200,8 @@ public class CcddDbTableCommandHandler
      * @param parent
      *            GUI component calling this method
      *
-     * @return List of root structure tables
+     * @return List of root structure tables; empty list if there are no root
+     *         tables
      *************************************************************************/
     protected List<String> getRootStructures(Component parent)
     {
@@ -2065,8 +2066,8 @@ public class CcddDbTableCommandHandler
      *            with each succeeding pair coming from the next level down in
      *            the structure's hierarchy
      *
-     * @param isParentStructure
-     *            true if the table is a parent table of type 'structure'
+     * @param isRootStructure
+     *            true if the table is a root table of type 'structure'
      *
      * @param loadDescription
      *            true to load the table's description
@@ -2087,7 +2088,7 @@ public class CcddDbTableCommandHandler
      *         data is invalid
      *************************************************************************/
     protected TableInformation loadTableData(String tablePath,
-                                             boolean isParentStructure,
+                                             boolean isRootStructure,
                                              boolean loadDescription,
                                              boolean loadColumnOrder,
                                              boolean loadFieldInfo,
@@ -2174,7 +2175,7 @@ public class CcddDbTableCommandHandler
                                                                  ? queryTableDescription(tablePath,
                                                                                          parent)
                                                                  : ""),
-                                                 isParentStructure,
+                                                 isRootStructure,
                                                  (loadFieldInfo
                                                                ? retrieveInformationTable(InternalTable.FIELDS,
                                                                                           parent).toArray(new String[0][0])
@@ -3484,17 +3485,50 @@ public class CcddDbTableCommandHandler
                                                     + "(,|$)', E'"
                                                     + newVariablePath
                                                     + "\\\\1'); ");
-                                fieldsModCmd.append("UPDATE "
+
+                                // Build the command to copy the data fields
+                                // from the table's prototype
+                                fieldsModCmd.append("INSERT INTO "
                                                     + InternalTable.FIELDS.getTableName()
-                                                    + " SET "
-                                                    + FieldsColumn.OWNER_NAME.getColumnName()
-                                                    + " = regexp_replace("
+                                                    + " SELECT regexp_replace("
                                                     + FieldsColumn.OWNER_NAME.getColumnName()
                                                     + ", E'^"
                                                     + newDataType
                                                     + "(,|$)', E'"
                                                     + newVariablePath
-                                                    + "\\\\1'); ");
+                                                    + "\\\\1')");
+
+                                // Step through each column in the data field
+                                // table
+                                for (FieldsColumn fldCol : FieldsColumn.values())
+                                {
+                                    // Check if this isn't the owner name
+                                    // column
+                                    if (!fldCol.equals(FieldsColumn.OWNER_NAME))
+                                    {
+                                        // Add the column name to those to be
+                                        // copied
+                                        fieldsModCmd.append(", "
+                                                            + fldCol.getColumnName());
+                                    }
+                                }
+
+                                // Complete the command to copy the prototype's
+                                // fields to the child. Do not copy fields
+                                // flagged as being applicable only to root
+                                // tables
+                                fieldsModCmd.append(" FROM "
+                                                    + InternalTable.FIELDS.getTableName()
+                                                    + " WHERE "
+                                                    + FieldsColumn.OWNER_NAME.getColumnName()
+                                                    + " = '"
+                                                    + newDataType
+                                                    + "' AND "
+                                                    + FieldsColumn.FIELD_APPLICABILITY.getColumnName()
+                                                    + " != '"
+                                                    + ApplicabilityType.ROOT_ONLY.getApplicabilityName()
+                                                    + "'; ");
+
                                 ordersModCmd.append("UPDATE "
                                                     + InternalTable.ORDERS.getTableName()
                                                     + " SET "
@@ -3585,9 +3619,10 @@ public class CcddDbTableCommandHandler
                                     && (oldArraySize.isEmpty()
                                     || newArraySize.isEmpty())))
                                 {
-                                    // Create the command to update the custom
-                                    // values table for instances of non-array
-                                    // member variables of the prototype table
+                                    // Create the command to update the
+                                    // internal tables for instances of
+                                    // non-array member variables of the
+                                    // prototype table
                                     valuesModCmd.append(updateVarNameAndDataType(orgVarPathEsc,
                                                                                  newVariablePath,
                                                                                  InternalTable.VALUES.getTableName(),
@@ -5480,23 +5515,26 @@ public class CcddDbTableCommandHandler
     {
         // Build the command to delete the existing table type definitions
         // table and create the new one
-        String command = "DROP TABLE IF EXISTS "
-                         + InternalTable.TABLE_TYPES.getTableName()
-                         + "; CREATE TABLE "
-                         + InternalTable.TABLE_TYPES.getTableName()
-                         + " "
-                         + InternalTable.TABLE_TYPES.getColumnCommand(!tableTypeHandler.getTypeDefinitions().isEmpty());
+        String cmd = "DROP TABLE IF EXISTS "
+                     + InternalTable.TABLE_TYPES.getTableName()
+                     + "; CREATE TABLE "
+                     + InternalTable.TABLE_TYPES.getTableName()
+                     + " "
+                     + InternalTable.TABLE_TYPES.getColumnCommand(!tableTypeHandler.getTypeDefinitions().isEmpty());
 
         // Get the index of the default column definitions command (if present)
-        int cmdIndex = command.indexOf(DefaultColumn.getColumnDefinitions());
+        int cmdIndex = cmd.indexOf(DefaultColumn.getColumnDefinitions());
 
         // Check if the default column definitions command is present
         if (cmdIndex != -1)
         {
             // Remove the default column definitions from the command
-            command = command.substring(0,
-                                        command.indexOf(DefaultColumn.getColumnDefinitions()));
+            cmd = cmd.substring(0,
+                                cmd.indexOf(DefaultColumn.getColumnDefinitions()));
         }
+
+        // Convert the command to a StringBuilder for efficiency
+        StringBuilder command = new StringBuilder(cmd);
 
         // Step through each table type definition
         for (TypeDefinition typeDefn : tableTypeHandler.getTypeDefinitions())
@@ -5505,37 +5543,37 @@ public class CcddDbTableCommandHandler
             for (int index = 0; index < typeDefn.getColumnNamesDatabase().length; index++)
             {
                 // Add the command to create the column
-                command += "("
-                           + delimitText(typeDefn.getName())
-                           + ", "
-                           + index
-                           + ", '"
-                           + typeDefn.getColumnNamesDatabase()[index]
-                           + "', '"
-                           + typeDefn.getColumnNamesUser()[index]
-                           + "', "
-                           + delimitText(typeDefn.getColumnToolTips()[index])
-                           + ", '"
-                           + typeDefn.getInputTypes()[index].getInputName()
-                           + "', "
-                           + typeDefn.isRowValueUnique()[index]
-                           + ", "
-                           + typeDefn.isRequired()[index]
-                           + ", "
-                           + typeDefn.isStructureAllowed()[index]
-                           + ", "
-                           + typeDefn.isPointerAllowed()[index]
-                           + "), ";
+                command.append("("
+                               + delimitText(typeDefn.getName())
+                               + ", "
+                               + index
+                               + ", '"
+                               + typeDefn.getColumnNamesDatabase()[index]
+                               + "', '"
+                               + typeDefn.getColumnNamesUser()[index]
+                               + "', "
+                               + delimitText(typeDefn.getColumnToolTips()[index])
+                               + ", '"
+                               + typeDefn.getInputTypes()[index].getInputName()
+                               + "', "
+                               + typeDefn.isRowValueUnique()[index]
+                               + ", "
+                               + typeDefn.isRequired()[index]
+                               + ", "
+                               + typeDefn.isStructureAllowed()[index]
+                               + ", "
+                               + typeDefn.isPointerAllowed()[index]
+                               + "), ");
             }
         }
 
         // Replace the trailing comma with a semicolon
         command = CcddUtilities.removeTrailer(command, ", ")
-                  + "; "
-                  + dbControl.buildOwnerCommand(DatabaseObject.TABLE,
-                                                InternalTable.TABLE_TYPES.getTableName());
+                               .append("; ")
+                               .append(dbControl.buildOwnerCommand(DatabaseObject.TABLE,
+                                                                   InternalTable.TABLE_TYPES.getTableName()));
 
-        return command;
+        return command.toString();
     }
 
     /**************************************************************************
@@ -5559,50 +5597,50 @@ public class CcddDbTableCommandHandler
     {
         // Build the command to delete the existing field definitions for the
         // specified table/group
-        String command = "DELETE FROM "
-                         + InternalTable.FIELDS.getTableName()
-                         + " WHERE "
-                         + FieldsColumn.OWNER_NAME.getColumnName()
-                         + " = '"
-                         + ownerName
-                         + "'; ";
+        StringBuilder command = new StringBuilder("DELETE FROM "
+                                                  + InternalTable.FIELDS.getTableName()
+                                                  + " WHERE "
+                                                  + FieldsColumn.OWNER_NAME.getColumnName()
+                                                  + " = '"
+                                                  + ownerName
+                                                  + "'; ");
 
         // Check if any fields exist
         if (fieldInformation != null && !fieldInformation.isEmpty())
         {
             // Append the command to insert the field definitions
-            command += "INSERT INTO "
-                       + InternalTable.FIELDS.getTableName()
-                       + " VALUES ";
+            command.append("INSERT INTO "
+                           + InternalTable.FIELDS.getTableName()
+                           + " VALUES ");
 
             // Step through each of the table's field definitions
             for (FieldInformation fieldInfo : fieldInformation)
             {
                 // Add the command to insert the field information
-                command += "('"
-                           + ownerName
-                           + "', "
-                           + delimitText(fieldInfo.getFieldName())
-                           + ", "
-                           + delimitText(fieldInfo.getDescription())
-                           + ", "
-                           + fieldInfo.getSize()
-                           + ", "
-                           + delimitText(fieldInfo.getInputType().getInputName())
-                           + ", "
-                           + String.valueOf(fieldInfo.isRequired())
-                           + ", "
-                           + delimitText(fieldInfo.getApplicabilityType().getApplicabilityName())
-                           + ", "
-                           + delimitText(fieldInfo.getValue())
-                           + "), ";
+                command.append("('"
+                               + ownerName
+                               + "', "
+                               + delimitText(fieldInfo.getFieldName())
+                               + ", "
+                               + delimitText(fieldInfo.getDescription())
+                               + ", "
+                               + fieldInfo.getSize()
+                               + ", "
+                               + delimitText(fieldInfo.getInputType().getInputName())
+                               + ", "
+                               + String.valueOf(fieldInfo.isRequired())
+                               + ", "
+                               + delimitText(fieldInfo.getApplicabilityType().getApplicabilityName())
+                               + ", "
+                               + delimitText(fieldInfo.getValue())
+                               + "), ");
             }
 
             // Replace the trailing comma with a semicolon
-            command = CcddUtilities.removeTrailer(command, ", ") + "; ";
+            command = CcddUtilities.removeTrailer(command, ", ").append("; ");
         }
 
-        return command;
+        return command.toString();
     }
 
     /**************************************************************************
@@ -6586,15 +6624,13 @@ public class CcddDbTableCommandHandler
                 // Step through each table of the specified type
                 for (String tableName : tableNamesList)
                 {
-                    // Check if the table is a parent structure
-                    boolean isParent = typeDefn.isStructure()
-                                       && rootStructures.contains(tableName);
-                    // Check if the table represents a child structure
-                    boolean isChild = typeDefn.isStructure()
-                                      && tableName.contains(",");
+                    // Set the flag to indicate if the table is a root
+                    // structure
+                    boolean isRootStruct = typeDefn.isStructure()
+                                           && rootStructures.contains(tableName);
 
                     // Get the existing data fields for this table
-                    fieldHandler.buildFieldInformation(tableName);
+                    fieldHandler.buildFieldInformation(tableName, isRootStruct);
 
                     // Get the number of separator and line break fields
                     int numSep = fieldHandler.getFieldTypeCount(InputDataType.SEPARATOR);
@@ -6620,18 +6656,25 @@ public class CcddDbTableCommandHandler
                             brkCount++;
                         }
 
-                        // Check if the table doesn't have this data field and
-                        // if the field applies to this table, or if the field
-                        // is a separator and the number of this type of
-                        // separator in the type editor exceeds the number
-                        // already in the table
-                        if ((fieldHandler.getFieldInformationByName(tableName,
-                                                                    fieldInfo.getFieldName()) == null
-                            && (fieldInfo.getApplicabilityType().getApplicabilityName().equals(ApplicabilityType.ALL.getApplicabilityName())
-                                || (isParent
-                                && fieldInfo.getApplicabilityType().getApplicabilityName().equals(ApplicabilityType.PARENT_ONLY.getApplicabilityName()))
-                                || (isChild
-                            && fieldInfo.getApplicabilityType().getApplicabilityName().equals(ApplicabilityType.CHILD_ONLY.getApplicabilityName()))))
+                        // Check if the data field meets the criteria of a new
+                        // field for this table
+                        if ((
+                            // The table doesn't have this data field
+                            (fieldHandler.getFieldInformationByName(tableName,
+                                                                    fieldInfo.getFieldName()) == null))
+
+                            // ... and the table isn't a child structure (all
+                            // fields are stored for prototypes, even if not
+                            // displayed) or the field is applicable to this
+                            // table
+                            && (!tableName.contains(".")
+                            || fieldHandler.isFieldApplicable(tableName,
+                                                              fieldInfo.getApplicabilityType().getApplicabilityName(),
+                                                              isRootStruct))
+
+                            // ... or the field is a separator and the number
+                            // of this type of separator in the type editor
+                            // exceeds the number already in the table
                             || (fieldInfo.getInputType().equals(InputDataType.SEPARATOR)
                             && sepCount > numSep)
                             || (fieldInfo.getInputType().equals(InputDataType.BREAK)
@@ -6889,8 +6932,11 @@ public class CcddDbTableCommandHandler
                         {
                             // Create the table data type pattern to match
                             // table editors for tables with a data type path
-                            // in the format prototypeName[....]
-                            pattern = "^" + Pattern.quote(name[0]) + "($|[,\\.].*)";
+                            // in the format prototypeName[,...] or
+                            // [__,]parent[.__],prototypeName.__[,...]
+                            pattern = "^([^,]*,)*"
+                                      + Pattern.quote(name[0])
+                                      + "($|[,\\.].*)";
                         }
                         // The parent name and data type are provided. This is
                         // the case when a variable's data type is altered and
@@ -6901,11 +6947,24 @@ public class CcddDbTableCommandHandler
                             // Create the table data type pattern to match
                             // table editors for tables with a data type path
                             // in the format [__,]parent[.__],dataType.__[,...]
+                            // if the variable name isn't specified, or
+                            // [__,]parent[.__],dataType.varName[,...] is a
+                            // variable name is provided
                             pattern = "^([^,]*,)*"
                                       + Pattern.quote(name[0])
                                       + "(\\.[^,]*,|,)"
-                                      + Pattern.quote(name[1])
-                                      + "\\..+";
+                                      + Pattern.quote(name[1]);
+                            // Check if the data type and variable name are
+                            // provided
+                            if (name[1].contains("."))
+                            {
+                                pattern += "(?:,.+|$)";
+                            }
+                            // Only the data type is provided
+                            else
+                            {
+                                pattern += "\\..+";
+                            }
                         }
 
                         // Check if table's data path matches the pattern for

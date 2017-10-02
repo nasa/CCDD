@@ -631,7 +631,7 @@ public abstract class CcddInputFieldPanelHandler
                         // The input type is one other than for multi-line text
                         else
                         {
-                            // // Create the data field input field as a text
+                            // Create the data field input field as a text
                             // field, which allows a single rows
                             fieldInfo.setInputFld(undoHandler.new UndoableTextField(fieldInfo.getValue(),
                                                                                     fieldInfo.getSize()));
@@ -720,9 +720,9 @@ public abstract class CcddInputFieldPanelHandler
                                     new CcddDialogHandler().showMessageDialog(fieldPnlHndlrOwner,
                                                                               "<html><b>Invalid characters in field '</b>"
                                                                                   + fieldInfo.getFieldName()
-                                                                                  + "<b>'; "
-                                                                                  + fieldInfo.getInputType().getInputName().toLowerCase()
-                                                                                  + " expected",
+                                                                                  + "<b>'; characters consistent with input type '"
+                                                                                  + fieldInfo.getInputType().getInputName()
+                                                                                  + "' expected",
                                                                               "Invalid "
                                                                                   + fieldInfo.getInputType().getInputName(),
                                                                               JOptionPane.WARNING_MESSAGE,

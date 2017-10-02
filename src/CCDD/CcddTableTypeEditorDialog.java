@@ -95,10 +95,10 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Table type editor dialog class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param typeNames
      *            array of table type names
      *************************************************************************/
@@ -121,7 +121,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Get the currently active type editor
-     * 
+     *
      * @return Currently active type editor. Return null if no table types
      *         exist
      *************************************************************************/
@@ -132,7 +132,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Get the currently active data field editor dialog
-     * 
+     *
      * @return Currently active data field editor dialog. Return null if no
      *         table types exist
      *************************************************************************/
@@ -152,7 +152,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Set the active table type editor's name
-     * 
+     *
      * @param typeName
      *            type name
      *************************************************************************/
@@ -175,7 +175,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Enable/disable the type editor dialog buttons and commands
-     * 
+     *
      * @param enable
      *            true to enable the buttons and commands; false to disable
      *************************************************************************/
@@ -217,16 +217,16 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Perform the steps needed following execution of table modification
-     * 
+     *
      * @param commandError
      *            false if the database commands successfully completed; true
      *            if an error occurred and the changes were not made
-     * 
-     * 
+     *
+     *
      * @param updatedEditor
      *            reference to the table type editor where the change(s)
      *            occurred
-     * 
+     *
      * @param tableNames
      *            array of modified table names
      ************************************************************************/
@@ -290,7 +290,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
      * using a separate thread the GUI is allowed to continue to update. The
      * GUI menu commands, however, are disabled until the telemetry scheduler
      * initialization completes execution
-     * 
+     *
      * @param typeNames
      *            array containing the table type names
      *************************************************************************/
@@ -369,7 +369,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                     /**********************************************************
                      * Get the table for which the action is performed
-                     * 
+                     *
                      * @return Table for which the action is performed
                      *********************************************************/
                     @Override
@@ -395,7 +395,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                     /**********************************************************
                      * Get the table for which the action is performed
-                     * 
+                     *
                      * @return Table for which the action is performed
                      *********************************************************/
                     @Override
@@ -421,7 +421,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                     /**********************************************************
                      * Get the table for which the action is performed
-                     * 
+                     *
                      * @return Table for which the action is performed
                      *********************************************************/
                     @Override
@@ -447,7 +447,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                     /**********************************************************
                      * Get the table for which the action is performed
-                     * 
+                     *
                      * @return Table for which the action is performed
                      *********************************************************/
                     @Override
@@ -475,7 +475,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                     /**********************************************************
                      * Get the table for which the action is performed
-                     * 
+                     *
                      * @return Table for which the action is performed
                      *********************************************************/
                     @Override
@@ -501,7 +501,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                     /**********************************************************
                      * Get the table for which the action is performed
-                     * 
+                     *
                      * @return Table for which the action is performed
                      *********************************************************/
                     @Override
@@ -528,7 +528,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                     /**********************************************************
                      * Get the table for which the action is performed
-                     * 
+                     *
                      * @return Table for which the action is performed
                      *********************************************************/
                     @Override
@@ -554,7 +554,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                     /**********************************************************
                      * Get the table for which the action is performed
-                     * 
+                     *
                      * @return Table for which the action is performed
                      *********************************************************/
                     @Override
@@ -592,7 +592,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                     /**********************************************************
                      * Get the table for which the action is performed
-                     * 
+                     *
                      * @return Table for which the action is performed
                      *********************************************************/
                     @Override
@@ -633,7 +633,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                     /**********************************************************
                      * Get the table for which the action is performed
-                     * 
+                     *
                      * @return Table for which the action is performed
                      *********************************************************/
                     @Override
@@ -654,7 +654,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     {
                         new CcddFieldEditorDialog(ccddMain,
                                                   activeEditor,
-                                                  activeEditor.getTypeName(),
+                                                  CcddFieldHandler.getFieldTypeName(activeEditor.getTypeName()),
                                                   tableTypeHandler.getTypeDefinition(activeEditor.getTypeName()).isStructure(),
                                                   MIN_WINDOW_WIDTH);
 
@@ -665,7 +665,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                     /**********************************************************
                      * Get the table for which the action is performed
-                     * 
+                     *
                      * @return Table for which the action is performed
                      *********************************************************/
                     @Override
@@ -694,7 +694,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                     /**********************************************************
                      * Get the table for which the action is performed
-                     * 
+                     *
                      * @return Table for which the action is performed
                      *********************************************************/
                     @Override
@@ -724,7 +724,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                     /**********************************************************
                      * Get the table for which the action is performed
-                     * 
+                     *
                      * @return Table for which the action is performed
                      *********************************************************/
                     @Override
@@ -759,7 +759,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                     /**********************************************************
                      * Get the table for which the action is performed
-                     * 
+                     *
                      * @return Table for which the action is performed
                      *********************************************************/
                     @Override
@@ -794,7 +794,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                     /**********************************************************
                      * Get the table for which the action is performed
-                     * 
+                     *
                      * @return Table for which the action is performed
                      *********************************************************/
                     @Override
@@ -829,7 +829,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                     /**********************************************************
                      * Get the table for which the action is performed
-                     * 
+                     *
                      * @return Table for which the action is performed
                      *********************************************************/
                     @Override
@@ -867,7 +867,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                     /**********************************************************
                      * Get the table for which the action is performed
-                     * 
+                     *
                      * @return Table for which the action is performed
                      *********************************************************/
                     @Override
@@ -904,7 +904,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                     /**********************************************************
                      * Get the table for which the action is performed
-                     * 
+                     *
                      * @return Table for which the action is performed
                      *********************************************************/
                     @Override
@@ -963,7 +963,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                     /**********************************************************
                      * Get the table for which the action is performed
-                     * 
+                     *
                      * @return Table for which the action is performed
                      *********************************************************/
                     @Override
@@ -997,7 +997,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                     /**********************************************************
                      * Get the table for which the action is performed
-                     * 
+                     *
                      * @return Table for which the action is performed
                      *********************************************************/
                     @Override
@@ -1101,7 +1101,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Get a reference to the active table type's table handler
-     * 
+     *
      * @return Reference to the active table type's table handler. Return null
      *         if no active editor (i.e., no table type) exists
      *************************************************************************/
@@ -1122,7 +1122,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     /**************************************************************************
      * Determine if any of the table types represented in this editor dialog
      * have uncommitted changes
-     * 
+     *
      * @return true if any of the editors represented in this editor dialog
      *         have uncommitted changes
      *************************************************************************/
@@ -1171,7 +1171,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Perform a control key action
-     * 
+     *
      * @param key
      *            key to simulate pressing along with the control key
      *************************************************************************/
@@ -1201,7 +1201,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Commit changes to the database for the specified table type editor
-     * 
+     *
      * @param editor
      *            table type editor to commit
      *************************************************************************/
@@ -1271,10 +1271,10 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Add one or more table type tabs to the editor dialog tabbed pane
-     * 
+     *
      * @param typeNames
      *            array of table type names
-     * 
+     *
      * @param fieldDefinitions
      *            list of data field definitions
      *************************************************************************/
@@ -1309,7 +1309,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Update the change indicator for the specified table type editor
-     * 
+     *
      * @param typeEditor
      *            reference to the table type editor for which the change
      *            indicator is to be updated
@@ -1335,7 +1335,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     /**************************************************************************
      * Determine if any of the table types have uncommitted changes. Store the
      * names of the changed table types in a list
-     * 
+     *
      * @return true if any of the table types have uncommitted changes
      *************************************************************************/
     protected boolean isTypesChanged()
