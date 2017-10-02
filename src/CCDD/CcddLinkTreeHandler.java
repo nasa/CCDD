@@ -530,8 +530,6 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     @Override
     protected List<String[]> createDefinitionsFromInformation()
     {
-        System.out.println("createDefinitionsFromInformation");// TODO
-        Thread.dumpStack();
         // Initialize the link tree information list
         List<String[]> definitions = new ArrayList<String[]>();
 
