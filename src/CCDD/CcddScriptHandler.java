@@ -165,10 +165,18 @@ public class CcddScriptHandler
                                                              null,
                                                              parent);
 
+        // Create a list to contain the variables (dataType.variableName) that
+        // have been verified to exist. This reduces the number of database
+        // transactions in the event the same variable is used in multiple
+        // associations
+        List<String> verifiedVars = new ArrayList<String>();
+
         // Step through each script association
         for (String[] assn : committedAssociations)
         {
             boolean isAvailable = true;
+            int numVerifications = 0;
+            StringBuilder verifications = new StringBuilder("");
 
             // Get the reference to the association's script file
             File file = new File(assn[AssociationsColumn.SCRIPT_FILE.ordinal()]);
@@ -201,58 +209,82 @@ public class CcddScriptHandler
                             // and variable name
                             String[] typeAndVar = variable.split(Pattern.quote("."));
 
-                            // Locate the table's prototype in the list
-                            int index = protoNamesAndTableTypes.indexOf(typeAndVar[0]);
-
-                            // Check if the prototype table doesn't exist
-                            if (index == -1)
+                            // Check if the variable hasn't already been
+                            // verified to exist
+                            if (!verifiedVars.contains(variable))
                             {
-                                throw new CCDDException();
-                            }
+                                // Locate the table's prototype in the list
+                                int index = protoNamesAndTableTypes.indexOf(typeAndVar[0]);
 
-                            // Check if a variable name is present (the first
-                            // pass is for the root table, so there is no
-                            // variable name)
-                            if (typeAndVar.length == 2)
-                            {
-                                // Get the table's type definition
-                                TypeDefinition typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(protoNamesAndTableTypes.get(index)[2]);
-
-                                // Check if the table doesn't represent a
-                                // structure
-                                if (!typeDefn.isStructure())
+                                // Check if the prototype table doesn't exist
+                                if (index == -1)
                                 {
                                     throw new CCDDException();
                                 }
 
-                                // Get the name of the column that represents
-                                // the variable name
-                                String varColumn = typeDefn.getDbColumnNameByInputType(InputDataType.VARIABLE);
-
-                                // Search for the variable name in the parent
-                                // table
-                                List<String[]> result = dbTable.queryDatabase("SELECT "
-                                                                              + varColumn
-                                                                              + " FROM "
-                                                                              + parentTable
-                                                                              + " WHERE "
-                                                                              + varColumn
-                                                                              + " = '"
-                                                                              + typeAndVar[1]
-                                                                              + "';",
-                                                                              parent);
-
-                                // Check if no variable by this name exists in
-                                // the parent table
-                                if (result == null || result.size() == 0)
+                                // Check if a variable name is present (the
+                                // first pass is for the root table, so there
+                                // is no variable name)
+                                if (typeAndVar.length == 2)
                                 {
-                                    throw new CCDDException();
+                                    // Get the table's type definition
+                                    TypeDefinition typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(protoNamesAndTableTypes.get(index)[2]);
+
+                                    // Check if the table doesn't represent a
+                                    // structure
+                                    if (!typeDefn.isStructure())
+                                    {
+                                        throw new CCDDException();
+                                    }
+
+                                    // Get the name of the column that
+                                    // represents the variable name
+                                    String varColumn = typeDefn.getDbColumnNameByInputType(InputDataType.VARIABLE);
+
+                                    // Add the command to verify the existence
+                                    // of the variable in the parent table to
+                                    // the overall verification command for
+                                    // this association
+                                    verifications.append("SELECT "
+                                                         + varColumn
+                                                         + " FROM "
+                                                         + parentTable
+                                                         + " WHERE "
+                                                         + varColumn
+                                                         + " = '"
+                                                         + typeAndVar[1]
+                                                         + "' UNION ALL ");
+                                    numVerifications++;
+
+                                    // Add the variable to the list of those
+                                    // verified to exist
+                                    verifiedVars.add(variable);
                                 }
                             }
 
                             // Store the data type, which is the parent for the
                             // next variable (if any)
                             parentTable = typeAndVar[0];
+                        }
+                    }
+
+                    // Check if there are any variables to verify
+                    if (numVerifications != 0)
+                    {
+                        // Complete the verification command
+                        verifications = CcddUtilities.removeTrailer(verifications,
+                                                                    "UNION ALL ")
+                                                     .append(";");
+
+                        // Query the tables for the variables to be checked
+                        List<String[]> result = dbTable.queryDatabase(verifications.toString(),
+                                                                      parent);
+
+                        // Check if the number of variables to verify doesn't
+                        // match the number that were found
+                        if (result == null || result.size() != numVerifications)
+                        {
+                            throw new CCDDException();
                         }
                     }
                 }
@@ -394,7 +426,8 @@ public class CcddScriptHandler
              *            true if the cell is to be rendered with the selection
              *            highlighted
              *
-             * @param int row cell row, view coordinates
+             * @param int
+             *            row cell row, view coordinates
              *
              * @param column
              *            cell column, view coordinates
@@ -461,14 +494,14 @@ public class CcddScriptHandler
                         public int compare(String filePath1, String filePath2)
                         {
                             return (hideScriptFilePath.isSelected()
-                                                                   ? filePath1.replaceFirst(".*"
-                                                                                            + Pattern.quote(File.separator),
-                                                                                            "")
-                                                                   : filePath1).compareTo(hideScriptFilePath.isSelected()
-                                                                                                                         ? filePath2.replaceFirst(".*"
-                                                                                                                                                  + Pattern.quote(File.separator),
-                                                                                                                                                  "")
-                                                                                                                         : filePath2);
+                                                                    ? filePath1.replaceFirst(".*"
+                                                                                             + Pattern.quote(File.separator),
+                                                                                             "")
+                                                                    : filePath1).compareTo(hideScriptFilePath.isSelected()
+                                                                                                                           ? filePath2.replaceFirst(".*"
+                                                                                                                                                    + Pattern.quote(File.separator),
+                                                                                                                                                    "")
+                                                                                                                           : filePath2);
                         }
                     });
                 }
@@ -488,8 +521,8 @@ public class CcddScriptHandler
             {
                 return allowSelectDisabled
                        || isAssociationAvailable(assnsTable.convertRowIndexToModel(row))
-                                                                                        ? super.isSelectedIndex(row)
-                                                                                        : false;
+                                                                                         ? super.isSelectedIndex(row)
+                                                                                         : false;
             }
         });
 
@@ -875,9 +908,9 @@ public class CcddScriptHandler
                 // and a Cancel button is issued)
                 int option = cancelDialog.showMessageDialog(dialog,
                                                             "<html><b>Script execution in progress...<br><br>"
-                                                                + CcddUtilities.colorHTMLText("*** Press </i>Halt<i> "
-                                                                                              + "to terminate script execution ***",
-                                                                                              Color.RED),
+                                                                    + CcddUtilities.colorHTMLText("*** Press </i>Halt<i> "
+                                                                                                  + "to terminate script execution ***",
+                                                                                                  Color.RED),
                                                             "Script Executing",
                                                             JOptionPane.ERROR_MESSAGE,
                                                             DialogOption.HALT_OPTION);
@@ -1353,17 +1386,17 @@ public class CcddScriptHandler
         eventLog.logFailEvent(component,
                               "Script Error",
                               "Cannot execute script '"
-                                  + scriptFileName
-                                  + "' using table(s) '"
-                                  + tables
-                                  + "'; cause '"
-                                  + cause
-                                  + "'",
+                                              + scriptFileName
+                                              + "' using table(s) '"
+                                              + tables
+                                              + "'; cause '"
+                                              + cause
+                                              + "'",
                               "<html><b>Cannot execute script '</b>"
-                                  + scriptFileName
-                                  + "<b>' using table(s) '</b>"
-                                  + tables
-                                  + "<b>'");
+                                                     + scriptFileName
+                                                     + "<b>' using table(s) '</b>"
+                                                     + tables
+                                                     + "<b>'");
     }
 
     /**************************************************************************
@@ -1584,7 +1617,7 @@ public class CcddScriptHandler
                         // is necessary to prevent appending the prototype
                         // information for this data type structure
                         if ((!data[row][dataTypeColumn].isEmpty()
-                            || !data[row][varNameColumn].isEmpty())
+                             || !data[row][varNameColumn].isEmpty())
                             && (arraySizeColumn == -1
                                 || data[row][arraySizeColumn].isEmpty()
                                 || ArrayVariable.isArrayMember(data[row][varNameColumn])))

@@ -70,7 +70,7 @@ public class CcddDataTypeHandler
     /**************************************************************************
      * Data type handler class constructor used when setting the data types
      * from a source other than those in the project database
-     * 
+     *
      * @param dataTypes
      *            list of string arrays containing data type names and the
      *            corresponding data type definitions
@@ -82,7 +82,7 @@ public class CcddDataTypeHandler
 
     /**************************************************************************
      * Data type handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
@@ -101,7 +101,7 @@ public class CcddDataTypeHandler
 
     /**************************************************************************
      * Get the data type data
-     * 
+     *
      * @return List of string arrays containing data type names and the
      *         corresponding data type definitions
      *************************************************************************/
@@ -112,7 +112,7 @@ public class CcddDataTypeHandler
 
     /**************************************************************************
      * Set the data types to the supplied array
-     * 
+     *
      * @param dataTypes
      *            list of string arrays containing data type names and the
      *            corresponding data type definitions
@@ -125,11 +125,11 @@ public class CcddDataTypeHandler
     /**************************************************************************
      * Get the data type name. Return the user-defined name unless it's blank,
      * in which case return the C-language name
-     * 
+     *
      * @param dataType
      *            string array containing data type name and the corresponding
      *            data type definition
-     * 
+     *
      * @return User-defined data type name; if blank then the C-language name
      *************************************************************************/
     protected static String getDataTypeName(String[] dataType)
@@ -141,13 +141,13 @@ public class CcddDataTypeHandler
     /**************************************************************************
      * Get the data type name. Return the user-defined name unless it's blank,
      * in which case return the C-language name
-     * 
+     *
      * @param userName
      *            user-defined data type name
-     * 
+     *
      * @param cName
      *            C-language data type
-     * 
+     *
      * @return User-defined data type name; if blank then the C-language name
      *************************************************************************/
     protected static String getDataTypeName(String userName, String cName)
@@ -173,10 +173,10 @@ public class CcddDataTypeHandler
     /**************************************************************************
      * Get the data type information associated with the specified data type
      * name
-     * 
+     *
      * @param dataTypeName
      *            data type name
-     * 
+     *
      * @return Data type information associated with the specified data type
      *         name; returns null if the data type doesn't exist
      *************************************************************************/
@@ -201,10 +201,10 @@ public class CcddDataTypeHandler
 
     /**************************************************************************
      * Get the base data type for the specified data type
-     * 
+     *
      * @param dataTypeName
      *            data type name
-     * 
+     *
      * @return Base data type for the specified data type; returns null if the
      *         data type doesn't exist
      *************************************************************************/
@@ -227,10 +227,10 @@ public class CcddDataTypeHandler
 
     /**************************************************************************
      * Get the data type size in bytes for the specified data type
-     * 
+     *
      * @param dataTypeName
      *            data type name
-     * 
+     *
      * @return Data type size in bytes for the specified data type; returns 0
      *         if the data type doesn't exist
      *************************************************************************/
@@ -253,10 +253,10 @@ public class CcddDataTypeHandler
 
     /**************************************************************************
      * Get the data type size in bits for the specified data type
-     * 
+     *
      * @param dataTypeName
      *            data type name
-     * 
+     *
      * @return Data type size in bits for the specified data type; returns 0 if
      *         the data type doesn't exist
      *************************************************************************/
@@ -267,10 +267,10 @@ public class CcddDataTypeHandler
 
     /**************************************************************************
      * Determine if the supplied data type is a primitive type
-     * 
+     *
      * @param dataTypeName
      *            name of data type to test
-     * 
+     *
      * @return true if the supplied data type is a primitive
      *************************************************************************/
     protected boolean isPrimitive(String dataTypeName)
@@ -292,10 +292,10 @@ public class CcddDataTypeHandler
 
     /**************************************************************************
      * Determine if the specified data type is a signed or unsigned integer
-     * 
+     *
      * @param dataTypeName
      *            data type name
-     * 
+     *
      * @return true if the specified data type is a signed or unsigned integer
      *************************************************************************/
     protected boolean isInteger(String dataTypeName)
@@ -315,10 +315,10 @@ public class CcddDataTypeHandler
 
     /**************************************************************************
      * Determine if the the specified data type is a signed integer
-     * 
+     *
      * @param dataTypeName
      *            data type name
-     * 
+     *
      * @return true if the specified data type is a signed integer
      *************************************************************************/
     protected boolean isSignedInt(String dataTypeName)
@@ -328,10 +328,10 @@ public class CcddDataTypeHandler
 
     /**************************************************************************
      * Determine if the the specified data type is an unsigned integer
-     * 
+     *
      * @param dataTypeName
      *            data type name
-     * 
+     *
      * @return true if the specified data type is an unsigned integer
      *************************************************************************/
     protected boolean isUnsignedInt(String dataTypeName)
@@ -341,10 +341,10 @@ public class CcddDataTypeHandler
 
     /**************************************************************************
      * Determine if the specified data type is a float or double
-     * 
+     *
      * @param dataTypeName
      *            data type name
-     * 
+     *
      * @return true if the specified data type is a float or double
      *************************************************************************/
     protected boolean isFloat(String dataTypeName)
@@ -354,10 +354,10 @@ public class CcddDataTypeHandler
 
     /**************************************************************************
      * Determine if the this primitive data type is a character or string
-     * 
+     *
      * @param dataTypeName
      *            data type name
-     * 
+     *
      * @return true if this data type is a character or string
      *************************************************************************/
     protected boolean isCharacter(String dataTypeName)
@@ -367,10 +367,10 @@ public class CcddDataTypeHandler
 
     /**************************************************************************
      * Determine if the this primitive data type is a character string
-     * 
+     *
      * @param dataTypeName
      *            data type name
-     * 
+     *
      * @return true if this data type is a character string
      *************************************************************************/
     protected boolean isString(String dataTypeName)
@@ -381,10 +381,10 @@ public class CcddDataTypeHandler
 
     /**************************************************************************
      * Determine if the this primitive data type is a pointer
-     * 
+     *
      * @param dataTypeName
      *            data type name
-     * 
+     *
      * @return true if this data type is a pointer
      *************************************************************************/
     protected boolean isPointer(String dataTypeName)
@@ -395,10 +395,10 @@ public class CcddDataTypeHandler
     /**********************************************************************
      * Get the minimum possible value of the primitive type based on the data
      * type and size in bytes
-     * 
+     *
      * @param dataTypeName
      *            data type name
-     * 
+     *
      * @return Minimum possible value of the primitive type based on the data
      *         type and size in bytes
      *********************************************************************/
@@ -425,10 +425,10 @@ public class CcddDataTypeHandler
         {
             // Use the Java float and double minimum values
             minimum = bytes == 4
-                                ? Float.MIN_VALUE
-                                : bytes == 8
-                                            ? Double.MIN_VALUE
-                                            : 0;
+                                 ? Float.MIN_VALUE
+                                 : bytes == 8
+                                              ? Double.MIN_VALUE
+                                              : 0;
         }
 
         return minimum;
@@ -437,10 +437,10 @@ public class CcddDataTypeHandler
     /**********************************************************************
      * Get the maximum possible value of the primitive type based on the data
      * type and size in bytes
-     * 
+     *
      * @param dataTypeName
      *            data type name
-     * 
+     *
      * @return Maximum possible value of the primitive type based on the data
      *         type and size in bytes
      *********************************************************************/
@@ -468,10 +468,10 @@ public class CcddDataTypeHandler
         {
             // Use the Java float and double maximum values
             maximum = bytes == 4
-                                ? Float.MAX_VALUE
-                                : bytes == 8
-                                            ? Double.MAX_VALUE
-                                            : 0;
+                                 ? Float.MAX_VALUE
+                                 : bytes == 8
+                                              ? Double.MAX_VALUE
+                                              : 0;
         }
 
         return maximum;
@@ -482,13 +482,13 @@ public class CcddDataTypeHandler
      * the specified data type name. Only search for references in the
      * prototype tables (any references in the custom values table are
      * automatically updated when the prototype is changed)
-     * 
+     *
      * @param dataTypeName
      *            data type name for which to search
-     * 
+     *
      * @param parent
      *            GUI component calling this method
-     * 
+     *
      * @return List containing the tables in the database that reference the
      *         specified data type name
      *************************************************************************/
@@ -498,10 +498,12 @@ public class CcddDataTypeHandler
         // Get the references in the prototype tables that match the specified
         // data type name
         List<String> matches = new ArrayList<String>(Arrays.asList(dbCommand.getList(DatabaseListCommand.SEARCH,
-                                                                                     new String[][] { {"_search_text_",
-                                                                                                       dataTypeName},
+                                                                                     new String[][] {{"_search_text_",
+                                                                                                      dataTypeName},
                                                                                                      {"_case_insensitive_",
                                                                                                       "true"},
+                                                                                                     {"_allow_regex_",
+                                                                                                      "false"},
                                                                                                      {"_selected_tables_",
                                                                                                       SearchType.PROTO.toString()}},
                                                                                      parent)));
@@ -559,10 +561,10 @@ public class CcddDataTypeHandler
 
     /**************************************************************************
      * Add new data types and check for matches with existing ones
-     * 
+     *
      * @param dataTypeDefinitions
      *            list of data type definitions
-     * 
+     *
      * @return The name of the data type if its name matches an existing one
      *         but the type definition differs; return null if the data type is
      *         new or matches an existing one
@@ -605,7 +607,7 @@ public class CcddDataTypeHandler
      * Display a pop-up combo box containing the names of the defined
      * structures. When the user selects a structure insert it into the
      * supplied text field
-     * 
+     *
      * @param textField
      *            text field over which to display the pop-up combo box and
      *            insert the selected structure name
@@ -770,7 +772,7 @@ public class CcddDataTypeHandler
     /**************************************************************************
      * Position the dialog containing the structure pop-up combo box at the
      * text cursor position in the text field
-     * 
+     *
      * @param textField
      *            text field over which to display the pop-up combo box
      *************************************************************************/
@@ -796,13 +798,13 @@ public class CcddDataTypeHandler
     /**************************************************************************
      * Get the text of the specified text field with the structure name or
      * value inserted at the current selection point
-     * 
+     *
      * @param text
      *            structure name or value
-     * 
+     *
      * @param textField
      *            text field over which the pop-up combo box is displayed
-     * 
+     *
      * @return Text of the specified text field with the structure name or
      *         value inserted at the current selection point
      *************************************************************************/

@@ -78,10 +78,10 @@ public class CcddMacroHandler
 
         /**********************************************************************
          * Macro location class constructor
-         * 
+         *
          * @param macroName
          *            macro name, including the macro delimiters
-         * 
+         *
          * @param start
          *            index of the beginning of the macro name in the text
          *            string
@@ -94,7 +94,7 @@ public class CcddMacroHandler
 
         /**********************************************************************
          * Get the macro name, including the macro delimiters
-         * 
+         *
          * @return Macro name, including the macro delimiters
          *********************************************************************/
         protected String getMacroName()
@@ -104,7 +104,7 @@ public class CcddMacroHandler
 
         /**********************************************************************
          * Get the index of the beginning of the macro name in the text string
-         * 
+         *
          * @return Index of the beginning of the macro name in the text string
          *********************************************************************/
         protected int getStart()
@@ -116,7 +116,7 @@ public class CcddMacroHandler
     /**************************************************************************
      * Macro handler class constructor used when setting the macros from a
      * source other than those in the project database
-     * 
+     *
      * @param macros
      *            list of string arrays containing macro names and the
      *            corresponding macro values
@@ -138,7 +138,7 @@ public class CcddMacroHandler
 
     /**************************************************************************
      * Macro handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
@@ -153,7 +153,7 @@ public class CcddMacroHandler
 
     /**************************************************************************
      * Get the macro data
-     * 
+     *
      * @return List of string arrays containing macro names and the
      *         corresponding macro values
      *************************************************************************/
@@ -164,7 +164,7 @@ public class CcddMacroHandler
 
     /**************************************************************************
      * Set the macro data to the supplied array
-     * 
+     *
      * @param macros
      *            list of string arrays containing macro names and the
      *            corresponding macro values
@@ -176,10 +176,10 @@ public class CcddMacroHandler
 
     /**************************************************************************
      * Get the macro name encased in the macro identifier character(s)
-     * 
+     *
      * @param macroName
      *            macro name
-     * 
+     *
      * @return Macro name encased in the macro identifier character(s)
      *************************************************************************/
     protected String getFullMacroName(String macroName)
@@ -189,10 +189,10 @@ public class CcddMacroHandler
 
     /**************************************************************************
      * Get a list of all macro name locations in the specified text string
-     * 
+     *
      * @param text
      *            text string to search for macro names
-     * 
+     *
      * @return List of all macro name locations in the specified text string
      *************************************************************************/
     private List<MacroLocation> getMacroLocation(String text)
@@ -251,13 +251,13 @@ public class CcddMacroHandler
     /**************************************************************************
      * Replace all instances of the specified the macro name in the supplied
      * text string
-     * 
+     *
      * @param oldName
      *            original macro name, including the delimiters
-     * 
+     *
      * @param newName
      *            new macro name, including the delimiters
-     * 
+     *
      * @param text
      *            text string in which to replace the macro name
      *************************************************************************/
@@ -290,11 +290,11 @@ public class CcddMacroHandler
     /**************************************************************************
      * Display a pop-up combo box containing the names of the defined macros.
      * When the user selects a macro insert it into the supplied text component
-     * 
+     *
      * @param textComp
      *            text component over which to display the pop-up combo box and
      *            insert the selected macro name
-     * 
+     *
      * @param inputType
      *            input data type of the text component
      *************************************************************************/
@@ -486,7 +486,7 @@ public class CcddMacroHandler
     /**************************************************************************
      * Position the dialog containing the macro pop-up combo box at the text
      * cursor position in the text component
-     * 
+     *
      * @param textComp
      *            text component over which to display the pop-up combo box
      *************************************************************************/
@@ -512,13 +512,13 @@ public class CcddMacroHandler
     /**************************************************************************
      * Get the text of the specified text component with the macro name or
      * value inserted at the current selection point
-     * 
+     *
      * @param text
      *            macro name or value
-     * 
+     *
      * @param textComp
      *            text component over which the pop-up combo box is displayed
-     * 
+     *
      * @return Text of the specified text component with the macro name or
      *         value inserted at the current selection point
      *************************************************************************/
@@ -540,10 +540,10 @@ public class CcddMacroHandler
 
     /**************************************************************************
      * Get the value associated with the specified macro name
-     * 
+     *
      * @param macroName
      *            macro name
-     * 
+     *
      * @return Value associated with the specified macro name; returns null if
      *         the macro doesn't exist
      *************************************************************************/
@@ -568,10 +568,10 @@ public class CcddMacroHandler
 
     /**************************************************************************
      * Get the OID value associated with the specified macro name
-     * 
+     *
      * @param macroName
      *            macro name
-     * 
+     *
      * @return OID value associated with the specified macro name; returns null
      *         if the macro doesn't exist
      *************************************************************************/
@@ -596,10 +596,10 @@ public class CcddMacroHandler
 
     /**************************************************************************
      * Check if the supplied text contains any macro references
-     * 
+     *
      * @param text
      *            text string containing macro names
-     * 
+     *
      * @return true if the text contains a macro reference
      *************************************************************************/
     protected boolean hasMacro(String text)
@@ -613,10 +613,10 @@ public class CcddMacroHandler
 
     /**************************************************************************
      * Check if the supplied macro name is already in use (case insensitive)
-     * 
+     *
      * @param macroName
      *            macro name
-     * 
+     *
      * @return true if the supplied macro name is already in use
      *************************************************************************/
     protected boolean isMacroExists(String macroName)
@@ -642,10 +642,10 @@ public class CcddMacroHandler
     /**************************************************************************
      * Replace any macro names embedded in the supplied text with the
      * associated macro values
-     * 
+     *
      * @param text
      *            text string containing macro names
-     * 
+     *
      * @return Text string with any embedded macro names replaced with the
      *         associated macro values
      *************************************************************************/
@@ -673,10 +673,10 @@ public class CcddMacroHandler
     /**************************************************************************
      * Replace any macro names embedded in the supplied string array with the
      * associated macro values
-     * 
+     *
      * @param array
      *            array of strings containing macro names
-     * 
+     *
      * @return String array with any embedded macro names replaced with the
      *         associated macro values
      *************************************************************************/
@@ -698,10 +698,10 @@ public class CcddMacroHandler
 
     /**************************************************************************
      * Get a list of macros referenced in the specified text string
-     * 
+     *
      * @param text
      *            text string containing macro names
-     * 
+     *
      * @return List of macros referenced in the specified text string. A macro
      *         name only appears once in the list even if referenced multiple
      *         times in the text string
@@ -730,23 +730,25 @@ public class CcddMacroHandler
     /**************************************************************************
      * Get a list containing the tables in the project database that reference
      * the specified macro name. Include references in the custom values table
-     * 
+     *
      * @param macroName
      *            macro name for which to search
-     * 
+     *
      * @param parent
      *            GUI component calling this method
-     * 
+     *
      * @return List containing the tables in the database that reference the
      *         specified macro name
      *************************************************************************/
     protected String[] getMacroReferences(String macroName, Component parent)
     {
         return dbCommand.getList(DatabaseListCommand.SEARCH,
-                                 new String[][] { {"_search_text_",
-                                                   macroName},
+                                 new String[][] {{"_search_text_",
+                                                  macroName},
                                                  {"_case_insensitive_",
                                                   "true"},
+                                                 {"_allow_regex_",
+                                                  "false"},
                                                  {"_selected_tables_",
                                                   SearchType.DATA.toString()}},
                                  parent);
@@ -754,13 +756,13 @@ public class CcddMacroHandler
 
     /**************************************************************************
      * Highlight any macros in the the specified text component
-     * 
+     *
      * @param component
      *            reference to the table cell renderer component
-     * 
+     *
      * @param text
      *            cell value
-     * 
+     *
      * @param hightlightColor
      *            color used for highlighting the macro name
      *************************************************************************/
@@ -785,7 +787,7 @@ public class CcddMacroHandler
                 // Highlight the macro name in the text
                 highlighter.addHighlight(location.getStart(),
                                          location.getStart()
-                                             + location.getMacroName().length(),
+                                                              + location.getMacroName().length(),
                                          painter);
             }
             catch (BadLocationException ble)
@@ -798,10 +800,10 @@ public class CcddMacroHandler
     /**************************************************************************
      * Tool tip text showing any macro names embedded in the supplied text
      * replaced with the associated macro values
-     * 
+     *
      * @param text
      *            text string containing macro names
-     * 
+     *
      * @return Tool tip text string showing any embedded macro names in the
      *         supplied text replaced with the associated macro values
      *************************************************************************/
@@ -841,10 +843,10 @@ public class CcddMacroHandler
 
     /**************************************************************************
      * Add new macros and check for matches with existing ones
-     * 
+     *
      * @param macroDefinitions
      *            list of macro definitions
-     * 
+     *
      * @return The name of the macro if its name matches an existing one but
      *         the macro value differs; return null if the macro is new or
      *         matches an existing one
