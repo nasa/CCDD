@@ -16,6 +16,7 @@ import static CCDD.CcddConstants.LINKED_VARIABLE_ICON;
 import static CCDD.CcddConstants.PACKED_VARIABLE_ICON;
 import static CCDD.CcddConstants.VARIABLE_ICON;
 
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -33,6 +34,8 @@ import CCDD.CcddClasses.ArrayVariable;
 import CCDD.CcddClasses.GroupInformation;
 import CCDD.CcddClasses.NodeIndex;
 import CCDD.CcddClasses.ToolTipTreeNode;
+import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
 
 /******************************************************************************
  * CFS Command & Data Dictionary common tree handler class
@@ -56,6 +59,99 @@ public class CcddCommonTreeHandler extends JTree
     // variables
     private int lastPackRow;
 
+    // Flag indicating if the data type portion of a node name (in the format
+    // dataType.variableName) should be hidden or displayed
+    private boolean isHideDataType;
+
+    /**************************************************************************
+     * Tree cell renderer class for highlighting variable names in nodes
+     *************************************************************************/
+    protected class TableTreeCellRenderer extends DefaultTreeCellRenderer
+    {
+        /**********************************************************************
+         * Tree cell renderer constructor
+         *********************************************************************/
+        TableTreeCellRenderer()
+        {
+            // Set the node font
+            super.setFont(ModifiableFontInfo.TREE_NODE.getFont());
+        }
+
+        /**********************************************************************
+         * Display variable nodes with the variable name italicized
+         *********************************************************************/
+        @Override
+        public Component getTreeCellRendererComponent(JTree tree,
+                                                      Object value,
+                                                      boolean sel,
+                                                      boolean expanded,
+                                                      boolean leaf,
+                                                      int row,
+                                                      boolean hasFocus)
+        {
+
+            // Get the node's name
+            String name = ((ToolTipTreeNode) value).getUserObject().toString();
+
+            // Check if the name contains a period, indicating it is in the
+            // form dataType.variableName
+            if (name.contains("."))
+            {
+                String newName = name;
+
+                // Check if the data type portion of the name should be hidden
+                if (isHideDataType)
+                {
+                    // Remove the data type portion of the name
+                    newName = newName.replaceFirst("(.*>)?.*\\.", "$1");
+                }
+                // Check if the node isn't flagged as disabled
+                else if (!name.startsWith(DISABLED_TEXT_COLOR))
+                {
+                    // Create the tag using the data type highlight color
+                    String highlightOn = "<font color="
+                                         + String.format("#%02x%02x%02x",
+                                                         ModifiableColorInfo.DATA_TYPE.getColor().getRed(),
+                                                         ModifiableColorInfo.DATA_TYPE.getColor().getGreen(),
+                                                         ModifiableColorInfo.DATA_TYPE.getColor().getBlue())
+                                         + ">";
+                    String highlightOff = "<font color=#000000>";
+
+                    // Check if the name doesn't already begin with the HTML
+                    // marker
+                    if (!newName.startsWith("<html>"))
+                    {
+                        // Add the HTML marker
+                        newName = "<html>" + newName;
+                    }
+
+                    // Add HTML tags to italicize the data type portion
+                    newName = newName.replaceFirst("(.*>)(.*\\.)", "$1"
+                                                                   + highlightOn
+                                                                   + "$2"
+                                                                   + highlightOff);
+                }
+
+                // Update the displayed node's name
+                ((ToolTipTreeNode) value).setUserObject(newName);
+            }
+
+            // Display the node name
+            super.getTreeCellRendererComponent(tree,
+                                               value,
+                                               sel,
+                                               expanded,
+                                               leaf,
+                                               row,
+                                               hasFocus);
+
+            // Restore the node's name (if changed)
+            ((ToolTipTreeNode) value).setUserObject(name);
+
+            return this;
+        }
+    }
+
     /**************************************************************************
      * Common tree handler class constructor
      *************************************************************************/
@@ -75,6 +171,7 @@ public class CcddCommonTreeHandler extends JTree
         linkedPackedVariableIcon = new ImageIcon(getClass().getResource(LINKED_PACKED_VARIABLE_ICON));
 
         lastPackRow = -1;
+        isHideDataType = false;
     }
 
     /**************************************************************************
@@ -96,6 +193,18 @@ public class CcddCommonTreeHandler extends JTree
     protected String removeExtraText(String text)
     {
         return CcddUtilities.removeHTMLTags(text);
+    }
+
+    /**************************************************************************
+     * Set the flag indicating if the data type portion of a node name (in the
+     * format dataType.variableName) should be hidden or displayed
+     *
+     * @param enable
+     *            true to display the data type; false to hide it
+     *************************************************************************/
+    protected void setEnableDataType(boolean enable)
+    {
+        isHideDataType = !enable;
     }
 
     /**************************************************************************
@@ -207,8 +316,8 @@ public class CcddCommonTreeHandler extends JTree
         }
 
         return nodes.isEmpty()
-                              ? null
-                              : new TreePath(nodes.toArray());
+                               ? null
+                               : new TreePath(nodes.toArray());
     }
 
     /**************************************************************************
@@ -421,42 +530,42 @@ public class CcddCommonTreeHandler extends JTree
                 // Set the flag to true if the path contains a group node but
                 // no type node
                 boolean matchesGroup = groupPattern.equals("(())")
-                                                                  ? false
-                                                                  : typePattern.equals("(())")
-                                                                                              ? path.matches(Pattern.quote(prefix)
-                                                                                                             + groupPattern
-                                                                                                             + termPattern)
-                                                                                                || path.matches(Pattern.quote(prefix)
-                                                                                                                + termPattern)
-                                                                                              : path.matches(Pattern.quote(prefix)
-                                                                                                             + groupPattern
-                                                                                                             + "[^"
-                                                                                                             + typePattern
-                                                                                                             + "]"
-                                                                                                             + termPattern)
-                                                                                                || path.matches(Pattern.quote(prefix)
-                                                                                                                + typePattern
-                                                                                                                + termPattern);
+                                                                   ? false
+                                                                   : typePattern.equals("(())")
+                                                                                                ? path.matches(Pattern.quote(prefix)
+                                                                                                               + groupPattern
+                                                                                                               + termPattern)
+                                                                                                  || path.matches(Pattern.quote(prefix)
+                                                                                                                  + termPattern)
+                                                                                                : path.matches(Pattern.quote(prefix)
+                                                                                                               + groupPattern
+                                                                                                               + "[^"
+                                                                                                               + typePattern
+                                                                                                               + "]"
+                                                                                                               + termPattern)
+                                                                                                  || path.matches(Pattern.quote(prefix)
+                                                                                                                  + typePattern
+                                                                                                                  + termPattern);
 
                 // Set the flag to true if the path contains a type node but
                 // no group node
                 boolean matchesType = typePattern.equals("(())")
-                                                                ? false
-                                                                : groupPattern.equals("(())")
-                                                                                             ? path.matches(Pattern.quote(prefix)
-                                                                                                            + typePattern
-                                                                                                            + termPattern)
-                                                                                               || path.matches(Pattern.quote(prefix)
-                                                                                                               + termPattern)
-                                                                                             : path.matches(Pattern.quote(prefix)
-                                                                                                            + "[^"
-                                                                                                            + groupPattern
-                                                                                                            + "]"
-                                                                                                            + typePattern
-                                                                                                            + termPattern)
-                                                                                               || path.matches(Pattern.quote(prefix)
-                                                                                                               + groupPattern
-                                                                                                               + termPattern);
+                                                                 ? false
+                                                                 : groupPattern.equals("(())")
+                                                                                               ? path.matches(Pattern.quote(prefix)
+                                                                                                              + typePattern
+                                                                                                              + termPattern)
+                                                                                                 || path.matches(Pattern.quote(prefix)
+                                                                                                                 + termPattern)
+                                                                                               : path.matches(Pattern.quote(prefix)
+                                                                                                              + "[^"
+                                                                                                              + groupPattern
+                                                                                                              + "]"
+                                                                                                              + typePattern
+                                                                                                              + termPattern)
+                                                                                                 || path.matches(Pattern.quote(prefix)
+                                                                                                                 + groupPattern
+                                                                                                                 + termPattern);
                 // Check if the path contains a group or type node
                 if (matchesEither)
                 {
@@ -472,7 +581,7 @@ public class CcddCommonTreeHandler extends JTree
                                                    + typePattern
                                                    + termPattern,
                                                    prefix
-                                                       + "$1$3");
+                                                                  + "$1$3");
                         }
                         // All groups are to treated equally
                         else
@@ -491,9 +600,9 @@ public class CcddCommonTreeHandler extends JTree
                                                                + typePattern
                                                                + termPattern,
                                                                prefix
-                                                                   + ", "
-                                                                   + grpInfo.getName()
-                                                                   + "$3");
+                                                                              + ", "
+                                                                              + grpInfo.getName()
+                                                                              + "$3");
                                 }
 
                                 // Update the node path with the group name and
@@ -502,9 +611,9 @@ public class CcddCommonTreeHandler extends JTree
                                                            + typePattern
                                                            + termPattern,
                                                            prefix
-                                                               + ", "
-                                                               + grpInfo.getName()
-                                                               + "$1$3");
+                                                                          + ", "
+                                                                          + grpInfo.getName()
+                                                                          + "$1$3");
                             }
 
                             // Check if type filtering is enabled and that the
@@ -530,7 +639,7 @@ public class CcddCommonTreeHandler extends JTree
                                                + typePattern
                                                + termPattern,
                                                prefix
-                                                   + "$3$5");
+                                                              + "$3$5");
                     }
                     // Check if the type filter changed to enabled
                     else if (isByType && isByTypeChanged)
@@ -546,9 +655,9 @@ public class CcddCommonTreeHandler extends JTree
                                                        + groupPattern
                                                        + termPattern,
                                                        prefix
-                                                           + "$1, "
-                                                           + type
-                                                           + "$3");
+                                                                      + "$1, "
+                                                                      + type
+                                                                      + "$3");
                         }
 
                         // Add the new type nodes to the path
@@ -563,7 +672,7 @@ public class CcddCommonTreeHandler extends JTree
                                                + typePattern
                                                + termPattern,
                                                prefix
-                                                   + "$1$5");
+                                                              + "$1$5");
                     }
 
                     break;
@@ -727,7 +836,7 @@ public class CcddCommonTreeHandler extends JTree
                         // packed/string variable
                         int treeIndex = node.getParent().getIndex(node)
                                         - (nodeIndex.getTableIndex()
-                                        - nodeIndex.getFirstIndex());
+                                           - nodeIndex.getFirstIndex());
 
                         // Step through each packed/string variable
                         for (int index = nodeIndex.getFirstIndex(); index <= nodeIndex.getLastIndex(); index++, treeIndex++)

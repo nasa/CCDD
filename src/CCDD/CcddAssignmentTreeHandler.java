@@ -28,9 +28,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.ToolTipManager;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 import CCDD.CcddClasses.Message;
@@ -64,47 +65,6 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
 
     // List containing the selected variable paths
     private List<Object[]> selectedVariablePaths;
-
-    /**************************************************************************
-     * Tree cell renderer with assignment display handling class
-     *************************************************************************/
-    private class AssignTreeCellRenderer extends DefaultTreeCellRenderer
-    {
-        /**********************************************************************
-         * Use special icons to denote variables for the nodes
-         *********************************************************************/
-        @Override
-        public Component getTreeCellRendererComponent(JTree tree,
-                                                      Object value,
-                                                      boolean sel,
-                                                      boolean expanded,
-                                                      boolean leaf,
-                                                      int row,
-                                                      boolean hasFocus)
-        {
-            // Display the node name
-            super.getTreeCellRendererComponent(tree,
-                                               value,
-                                               sel,
-                                               expanded,
-                                               leaf,
-                                               row,
-                                               hasFocus);
-
-            // Check if this node represents a variable
-            if (leaf)
-            {
-                // Set the icon for the variable node
-                setVariableNodeIcon(this,
-                                    (ToolTipTreeNode) value,
-                                    row,
-                                    linkHandler.getVariableLink(getFullVariablePath(((ToolTipTreeNode) value).getPath()),
-                                                                rateName) != null);
-            }
-
-            return this;
-        }
-    }
 
     /**************************************************************************
      * Assignment tree handler class constructor
@@ -241,7 +201,43 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
 
         // Set the renderer for the tree so that custom icons can be used for
         // the various node types
-        setCellRenderer(new AssignTreeCellRenderer());
+        setCellRenderer(new TableTreeCellRenderer()
+        {
+            /******************************************************************
+             * Display the variable nodes using a special icon in the tree
+             *****************************************************************/
+            @Override
+            public Component getTreeCellRendererComponent(JTree tree,
+                                                          Object value,
+                                                          boolean sel,
+                                                          boolean expanded,
+                                                          boolean leaf,
+                                                          int row,
+                                                          boolean hasFocus)
+            {
+                // Display the node name
+                super.getTreeCellRendererComponent(tree,
+                                                   value,
+                                                   sel,
+                                                   expanded,
+                                                   leaf,
+                                                   row,
+                                                   hasFocus);
+
+                // Check if this node represents a variable
+                if (leaf)
+                {
+                    // Set the icon for the variable node
+                    setVariableNodeIcon(this,
+                                        (ToolTipTreeNode) value,
+                                        row,
+                                        linkHandler.getVariableLink(getFullVariablePath(((ToolTipTreeNode) value).getPath()),
+                                                                    rateName) != null);
+                }
+
+                return this;
+            }
+        });
 
         // Check if a filter value is provided
         if (filterValue != null)
@@ -274,7 +270,7 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
                 if (assignDefn[TlmSchedulerColumn.RATE_NAME.ordinal()].equals(rateAndMessage[0])
                     && !assignDefn[TlmSchedulerColumn.MEMBER.ordinal()].isEmpty()
                     && (assignDefn[TlmSchedulerColumn.MESSAGE_NAME.ordinal()].equals(rateAndMessage[1])
-                    || assignDefn[TlmSchedulerColumn.MESSAGE_NAME.ordinal()].equals(parentMessage)))
+                        || assignDefn[TlmSchedulerColumn.MESSAGE_NAME.ordinal()].equals(parentMessage)))
                 {
                     // Add the variable to the node
                     addNodeToInfoNode(root,
@@ -448,6 +444,9 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
      *************************************************************************/
     protected JPanel createTreePanel(int selectionMode)
     {
+        // Create an empty border
+        Border emptyBorder = BorderFactory.createEmptyBorder();
+
         // Set the initial layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0,
                                                         0,
@@ -473,7 +472,7 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
 
         // Create a panel to contain the table tree
         JPanel treePnl = new JPanel(new GridBagLayout());
-        treePnl.setBorder(BorderFactory.createEmptyBorder());
+        treePnl.setBorder(emptyBorder);
 
         // Create the tree scroll pane
         JScrollPane treeScroll = new JScrollPane(this);
@@ -515,7 +514,7 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
 
         // Create a tree expansion check box
         final JCheckBox expandChkBx = new JCheckBox("Expand all");
-        expandChkBx.setBorder(BorderFactory.createEmptyBorder());
+        expandChkBx.setBorder(emptyBorder);
         expandChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         expandChkBx.setSelected(false);
         gbc.weighty = 0.0;
@@ -537,6 +536,40 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
 
                 // Set the tree expansion based on the check box status
                 setTreeExpansion(isExpanded);
+            }
+        });
+
+        // TODO
+        // Create a hide data type check box
+        final JCheckBox hideTypeChkBx = new JCheckBox("Hide data type");
+        hideTypeChkBx.setBorder(emptyBorder);
+        hideTypeChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        hideTypeChkBx.setSelected(false);
+
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
+        gbc.weighty = 0.0;
+        gbc.gridy++;
+        treePnl.add(hideTypeChkBx, gbc);
+
+        // Create a listener for changes in selection of the hide data type
+        // check box
+        hideTypeChkBx.addActionListener(new ActionListener()
+        {
+            /******************************************************************
+             * Handle a change to the hide data type check box selection
+             *****************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                setEnableDataType(!hideTypeChkBx.isSelected());
+
+                // Store the tree's current expansion state
+                String expState = getExpansionState();
+
+                // Force the root node to draw with the node additions
+                ((DefaultTreeModel) treeModel).nodeStructureChanged(getRootNode());
+
+                setExpansionState(expState);
             }
         });
 

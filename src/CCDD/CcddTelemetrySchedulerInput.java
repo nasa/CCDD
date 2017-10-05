@@ -164,10 +164,10 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
         // rates exist, and if none exist set the rate to a dummy value
         List<String> availableRates = Arrays.asList(getAvailableRates());
         selectedRate = availableRates.contains("1")
-                                                   ? "1"
-                                                   : (!availableRates.isEmpty()
-                                                                               ? CcddUtilities.removeHTMLTags(availableRates.get(0))
-                                                                               : "0");
+                                                    ? "1"
+                                                    : (!availableRates.isEmpty()
+                                                                                 ? CcddUtilities.removeHTMLTags(availableRates.get(0))
+                                                                                 : "0");
 
         // Build a link tree
         linkTree = new CcddLinkTreeHandler(ccddMain,
@@ -189,8 +189,8 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
 
                     // Deselect any nodes that don't represent a link
                     variableTree.clearNonTableNodes(variableTree.isFilteredByGroup()
-                                                                                    ? 2
-                                                                                    : 1);
+                                                                                     ? 2
+                                                                                     : 1);
 
                     // Reset the flag to allow link tree updates
                     isNodeSelectionChanging = false;
@@ -239,8 +239,8 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
 
                     // Deselect any nodes that don't represent a table
                     clearNonTableNodes(variableTree.isFilteredByGroup()
-                                                                       ? 2
-                                                                       : 1);
+                                                                        ? 2
+                                                                        : 1);
 
                     // Update the telemetry scheduler table text highlighting
                     schedulerDlg.getSchedulerHandler().updateSchedulerTableHighlight();
@@ -271,7 +271,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                 // a sample rate matching the currently selected rate
                 ToolTipTreeNode validLinks = linkTree.getLinksMatchingRate(LINKED_VARIABLES_NODE_NAME,
                                                                            "Links containing variables with a sample rate of "
-                                                                               + selectedRate);
+                                                                                                       + selectedRate);
 
                 // Insert the valid links tree into the variable tree
                 ((DefaultTreeModel) getModel()).insertNodeInto(validLinks,
@@ -374,7 +374,8 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
             // Check if the target isn't after the last existing variable in
             // the list
             else if (targetVarTreeIndex < allVariableTreePaths.indexOf(existingVariables.get(existingVariables.size()
-                                                                                             - 1).getFullName()))
+                                                                                             - 1)
+                                                                                        .getFullName()))
             {
                 // Get the position in in the variable list where the new
                 // variable should be inserted
@@ -502,8 +503,8 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
             // variable (i.e., other variable bit-packed or other members of
             // the string)
             NodeIndex nodeIndex = isBitPack
-                                           ? allVariableTree.getBitPackedVariables(last)
-                                           : allVariableTree.getStringVariableMembers(last);
+                                            ? allVariableTree.getBitPackedVariables(last)
+                                            : allVariableTree.getStringVariableMembers(last);
 
             // Calculate the number of other variables associated with the lead
             // variable
@@ -536,8 +537,8 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                 // Inform the user if there is a rate assignment issue
                 new CcddDialogHandler().showMessageDialog(schedulerDlg.getDialog(),
                                                           "<html><b> Auto-fill detected mismatched "
-                                                              + "rates for variable(s) associated with </b>"
-                                                              + variables.get(0).getFullName(),
+                                                                                    + "rates for variable(s) associated with </b>"
+                                                                                    + variables.get(0).getFullName(),
                                                           "Assign Failure",
                                                           JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
@@ -621,8 +622,8 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
 
         // Get the node path(s) of the selected variable(s)
         List<Object[]> paths = variableTree.getSelectedVariables(variableTree.isFilteredByGroup()
-                                                                                                 ? 1
-                                                                                                 : 0,
+                                                                                                  ? 1
+                                                                                                  : 0,
                                                                  true);
 
         // Step through all the selected paths
@@ -913,8 +914,8 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                             option = message.getName()
                                      + " sub-msg"
                                      + (option.contains(",")
-                                                            ? "s"
-                                                            : "")
+                                                             ? "s"
+                                                             : "")
                                      + " "
                                      + option;
                         }

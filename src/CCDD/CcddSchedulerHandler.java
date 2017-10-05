@@ -632,10 +632,10 @@ public class CcddSchedulerHandler
                     // Inform the user if there are items that are not assigned
                     new CcddDialogHandler().showMessageDialog(schedulerDlg.getDialog(),
                                                               "<html><b> Auto-fill unable to assign "
-                                                                  + unassigned
-                                                                  + (getSchedulerOption() == SchedulerType.TELEMETRY_SCHEDULER
-                                                                                                                              ? " variables"
-                                                                                                                              : " applications"),
+                                                                                        + unassigned
+                                                                                        + (getSchedulerOption() == SchedulerType.TELEMETRY_SCHEDULER
+                                                                                                                                                     ? " variables"
+                                                                                                                                                     : " applications"),
                                                               "Assign Failure",
                                                               JOptionPane.WARNING_MESSAGE,
                                                               DialogOption.OK_OPTION);
@@ -1021,10 +1021,8 @@ public class CcddSchedulerHandler
         rateSelectLbl.setForeground(ModifiableColorInfo.LABEL_TEXT.getColor());
         gbc.weighty = 1.0;
         gbc.gridx++;
-        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
-        gbc.insets.bottom = (option == SchedulerType.TELEMETRY_SCHEDULER
-                                                                        ? 5
-                                                                        : ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+        gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
         rateSelectPnl.add(rateSelectLbl, gbc);
 
         // Create the combo box that displays the variable rates
@@ -1131,9 +1129,6 @@ public class CcddSchedulerHandler
         gbc.fill = GridBagConstraints.BOTH;
         gbc.gridy = 0;
         gbc.gridx++;
-        gbc.insets.bottom = (option == SchedulerType.TELEMETRY_SCHEDULER
-                                                                        ? 15
-                                                                        : 0);
         packPnl.add(optionPnl, gbc);
 
         // Create the split pane containing the input tree and options panel
@@ -1205,7 +1200,7 @@ public class CcddSchedulerHandler
                     // Set the message availability for the message
                     schedulerEditor.setMessageAvailability(parentIndex,
                                                            schedulerEditor.getMessageSize(parentIndex)
-                                                               - valueSize);
+                                                                        - valueSize);
                 }
             }
         }
@@ -1232,7 +1227,8 @@ public class CcddSchedulerHandler
         {
             // Set size to the given (sub-)message's size
             int size = schedulerEditor.getMessage(indices[index].intValue(),
-                                                  parentIndex).getBytesRemaining();
+                                                  parentIndex)
+                                      .getBytesRemaining();
 
             // Check if the (sub-)message's size is less then the smallest
             if (size < smallest)
@@ -1416,8 +1412,8 @@ public class CcddSchedulerHandler
         // Add the buttons to the panel
         buttonPnl.add(rightArrowBtn, gbc);
         gbc.insets.bottom = (getSchedulerOption() == SchedulerType.TELEMETRY_SCHEDULER
-                                                                                      ? 15
-                                                                                      : 0);
+                                                                                       ? 15
+                                                                                       : 0);
         gbc.gridy++;
         buttonPnl.add(leftArrowBtn, gbc);
 

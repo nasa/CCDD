@@ -190,7 +190,7 @@ public class CcddConstants
                                                             INIT_WINDOW_HEIGHT * 2);
 
     // Disabled item highlight color
-    protected static final String DISABLED_TEXT_COLOR = "<html><font color=#b0b0b0>";
+    protected static final String DISABLED_TEXT_COLOR = "<html><!-- Disabled --><font color=#b0b0b0>";
 
     // Button and table icon file names
     protected static final String OK_ICON = "/images/ok.png";
@@ -696,10 +696,10 @@ public class CcddConstants
                 // and use this information to set the modifiable font
                 String[] fontInfo = progPrefs.get(modFont.getPreferenceKey(),
                                                   modFont.getDefaultFamily()
-                                                      + ","
-                                                      + modFont.getDefaultStyle()
-                                                      + ","
-                                                      + modFont.getDefaultSize())
+                                                                              + ","
+                                                                              + modFont.getDefaultStyle()
+                                                                              + ","
+                                                                              + modFont.getDefaultSize())
                                              .split(",");
                 modFont.font = new ModifiableFont(modFont.getPreferenceKey(),
                                                   fontInfo[0],
@@ -804,6 +804,7 @@ public class CcddConstants
         VALID_TEXT("Valid table text", "Text color for valid table rows. Used in the telemetry and application scheduler tables", "ValidTextColor", 0, 200, 0),
         INVALID_TEXT("Invalid table text", "Text color for invalid table rows. Used in the telemetry and application scheduler tables", "InvalidTextColor", 200, 0, 0),
         SPECIAL_LABEL_TEXT("Dialog component group label", "Text color for a group of components in a dialog", "SpecialLabelTextColor", 170, 40, 80),
+        DATA_TYPE("Data type (tree)", "Text color for a data type in a table or variable tree", "DataTypeTextColor", 130, 0, 110),
         TOOL_TIP_TEXT("Tool tip text", "Text color for tool tip pop-ups. Ignored by some look & feels", "ToolTipTextColor", 0, 0, 0),
         TOOL_TIP_BACK("Tool tip background", "Background color for tool tip pop-ups. Ignored by some look & feels", "ToolTipBackgroundColor", 245, 245, 180);
 
@@ -1011,10 +1012,10 @@ public class CcddConstants
                 // and use this information to set the modifiable color
                 String[] fontInfo = progPrefs.get(modColor.getPreferenceKey(),
                                                   modColor.getDefaultRed()
-                                                      + ","
-                                                      + modColor.getDefaultGreen()
-                                                      + ","
-                                                      + modColor.getDefaultBlue())
+                                                                               + ","
+                                                                               + modColor.getDefaultGreen()
+                                                                               + ","
+                                                                               + modColor.getDefaultBlue())
                                              .split(",");
                 modColor.color = new ModifiableColor(modColor.getPreferenceKey(),
                                                      Integer.valueOf(fontInfo[0]),
@@ -1914,19 +1915,19 @@ public class CcddConstants
                      "[a-zA-Z_][a-zA-Z0-9_]*",
                      "text",
                      "Alphabetic or underscore first character followed by zero "
-                         + "or more alphabetic, numeric, and underscore characters"),
+                             + "or more alphabetic, numeric, and underscore characters"),
 
         ALPHANUMERIC_MULTI("Alphanumeric (multi)",
                            "(?:" + ALPHANUMERIC.getInputMatch() + "\\s*?)+",
                            "text",
                            "One or more alphanumeric entries (see Alphanumeric) "
-                               + "separated by one or more white space characters"),
+                                   + "separated by one or more white space characters"),
 
         ARGUMENT_NAME("Argument name",
                       ALPHANUMERIC.getInputMatch(),
                       "text",
                       "Command argument name; same constraints as for an "
-                          + "alphanumeric (see Alphanumeric)"),
+                              + "alphanumeric (see Alphanumeric)"),
 
         ARRAY_INDEX("Array index",
                     "^\\s*\\+??\\s*0*([2-9]|[1-9]\\d+)(\\s*,\\s*\\+??\\s*0*([2-9]|[1-9]\\d+))*",
@@ -1937,7 +1938,7 @@ public class CcddConstants
                    "^\\+??\\s*0*([1-9]\\d*)",
                    "integer",
                    "Bit length; positive integer (initial '+' and leading "
-                       + "zeroes are optional)"),
+                              + "zeroes are optional)"),
 
         BOOLEAN("Boolean",
                 "(?i)true|false",
@@ -1953,7 +1954,7 @@ public class CcddConstants
                      ALPHANUMERIC.getInputMatch(),
                      "text",
                      "Command name; same constraints as for an "
-                         + "alphanumeric (see Alphanumeric)"),
+                             + "alphanumeric (see Alphanumeric)"),
 
         DESCRIPTION("Description",
                     ".*",
@@ -1969,32 +1970,32 @@ public class CcddConstants
               "^[\\+-]??\\s*0*(\\.0*)??\\d+\\d*(\\.\\d*)??",
               "float",
               "Floating point value consisting of one or more of the numerals "
-                  + "0 - 9 and a single optional decimal point (leading '+' or "
-                  + "'-' is optional)"),
+                       + "0 - 9 and a single optional decimal point (leading '+' or "
+                       + "'-' is optional)"),
 
         FLOAT_POSITIVE("Positive float",
                        "^\\+??\\s*0*\\.??0*[1-9]+\\d*(\\.\\d*)??",
                        "float",
                        "Floating point value > 0.0 (leading '+' is optional; "
-                           + "see Floating point)"),
+                                + "see Floating point)"),
 
         FLOAT_NON_NEGATIVE("Non-negative float",
                            "^\\+??\\s*0*(\\.0*)??\\d+\\d*(\\.\\d*)??",
                            "float",
                            "Floating point value >= 0.0 (leading '+' is "
-                               + "optional; see Floating point)"),
+                                    + "optional; see Floating point)"),
 
         FLOAT_NEGATIVE("Negative float",
                        "^-\\s*0*(\\.0*)??\\d+\\d*(\\.\\d*)??",
                        "float",
                        "Floating point value < 0.0 (leading '-' is required; "
-                           + "see Floating point)"),
+                                + "see Floating point)"),
 
         INTEGER("Integer",
                 "^[\\+-]??\\s*\\d*",
                 "integer",
                 "Integer value consisting of one or more of the "
-                    + "numerals 0 - 9 (leading '+' or '-' is optional)"),
+                           + "numerals 0 - 9 (leading '+' or '-' is optional)"),
 
         INT_POSITIVE("Positive integer",
                      "^\\+??\\s*0*([1-9][0-9]*)",
@@ -2020,73 +2021,73 @@ public class CcddConstants
                     "^(?:0x)?[a-fA-F0-9]*",
                     "hexadecimal",
                     "Hexadecimal number; optional initial '0x' or '0X' "
-                        + "followed by one or more hexadecimal digits (0 - 9, "
-                        + "a - f (case insensitive))"),
+                                   + "followed by one or more hexadecimal digits (0 - 9, "
+                                   + "a - f (case insensitive))"),
 
         HEXADECIMAL_NON_ZERO("Non-zero hexadecimal",
                              "^(?:0x)?0*[a-fA-F1-9][a-fA-F0-9]*",
                              "hexadecimal",
                              "Non-zero hexadecimal number; optional initial '0x' or '0X' "
-                                 + "followed by one or more hexadecimal digits (0 - 9, "
-                                 + "a - f (case insensitive))"),
+                                            + "followed by one or more hexadecimal digits (0 - 9, "
+                                            + "a - f (case insensitive))"),
 
         HEXADECIMAL_RANGE("Hexadecimal range",
                           "^(?:$|(?:0x)?([a-fA-F0-9]+)(?:\\s*-\\s*(?:0x)?([a-fA-F0-9]*)|$))",
                           "hexadecimal",
                           "Hexadecimal range; hexadecimal value followed optionally by a "
-                              + "hyphen and a second hexadecimal value (see Hexadecimal)"),
+                                         + "hyphen and a second hexadecimal value (see Hexadecimal)"),
 
         MESSAGE_ID("Message ID",
                    "^(?:0x)?[a-fA-F0-9]*",
                    "hexadecimal",
                    "Message ID: hexadecimal; optional initial '0x' or '0X' "
-                       + "followed by one or more hexadecimal digits (0 - 9, "
-                       + "a - f (case insensitive))"),
+                                  + "followed by one or more hexadecimal digits (0 - 9, "
+                                  + "a - f (case insensitive))"),
 
         MESSAGE_ID_NAME("Message ID name",
                         "[a-zA-Z_][a-zA-Z0-9_]*",
                         "text",
                         "Message ID name: same constraints as for an "
-                            + "alphanumeric (see Alphanumeric)"),
+                                + "alphanumeric (see Alphanumeric)"),
 
         MINIMUM("Minimum",
                 "(" + INTEGER.getInputMatch() + ")|("
-                    + FLOAT.getInputMatch() + ")",
+                           + FLOAT.getInputMatch() + ")",
                 "minimum",
                 "Minimum value; a boolean, integer, floating point, or "
-                    + "hexadecimal value (depending on context; see Boolean, "
-                    + "Integer, Floating point, and Hexadecimal) that must be "
-                    + "less than or equal to the corresponding maximum value "
-                    + "(see Maximum)"),
+                           + "hexadecimal value (depending on context; see Boolean, "
+                           + "Integer, Floating point, and Hexadecimal) that must be "
+                           + "less than or equal to the corresponding maximum value "
+                           + "(see Maximum)"),
 
         MAXIMUM("Maximum",
                 "(" + INTEGER.getInputMatch() + ")|("
-                    + FLOAT.getInputMatch() + ")",
+                           + FLOAT.getInputMatch() + ")",
                 "maximum",
                 "Maximum value; a boolean, integer, floating point, or "
-                    + "hexadecimal value (depending on context; see Boolean, "
-                    + "Integer, Floating point, and Hexadecimal) that must be "
-                    + "greater than or equal to the corresponding minimum value "
-                    + "(see Minimum)"),
+                           + "hexadecimal value (depending on context; see Boolean, "
+                           + "Integer, Floating point, and Hexadecimal) that must be "
+                           + "greater than or equal to the corresponding minimum value "
+                           + "(see Minimum)"),
 
         PRIMITIVE("Primitive",
                   ".*",
                   "data type",
                   "A primitive data type as defined in the data type editor "
-                      + "(for example, int16, float)"),
+                               + "(for example, int16, float)"),
 
         PRIM_AND_STRUCT("Primitive & Structure",
                         ".*",
                         "data type",
                         "A primitive data type (see Primitive) or a prototype "
-                            + "structure name"),
+                                     + "structure name"),
 
         RATE("Rate",
              "^\\+??\\s*(0*+1/)??(\\d*|\\d*\\.|\\d*\\.\\d+)",
              "rate",
              "Rate value; positive integer value (see Positive integer) or a "
-                 + "positive integer followed by a '/' and another positive "
-                 + "integer to denote rates faster than 1 Hz"),
+                     + "positive integer followed by a '/' and another positive "
+                     + "integer to denote rates faster than 1 Hz"),
 
         TEXT("Text",
              ".*",
@@ -2263,8 +2264,8 @@ public class CcddConstants
                     // leading zeroes
                     valueS = String.format("0x%s%x",
                                            (preserveZeroes
-                                                          ? leadZeroes
-                                                          : ""),
+                                                           ? leadZeroes
+                                                           : ""),
                                            value);
                 }
                 // Check if the value is a boolean
@@ -2336,9 +2337,9 @@ public class CcddConstants
                 // types are to be excluded, that this isn't one of those types
                 if (!inputType.inputFormat.equals("page format")
                     && (includeSpecialTypes
-                    || (!inputType.inputFormat.equals("data type")
-                        && !inputType.inputFormat.equals("enumeration")
-                        && !inputType.inputFormat.equals("variable path"))))
+                        || (!inputType.inputFormat.equals("data type")
+                            && !inputType.inputFormat.equals("enumeration")
+                            && !inputType.inputFormat.equals("variable path"))))
                 {
                     // Store the input type name in the array
                     inputNames.add(inputType.inputName);
@@ -3153,19 +3154,19 @@ public class CcddConstants
     {
         // Application scheduler
         APP_SCHEDULER("app_scheduler",
-                      new String[][] { {AppSchedulerColumn.TIME_SLOT.columnName,
-                                        AppSchedulerColumn.TIME_SLOT.dataType},
+                      new String[][] {{AppSchedulerColumn.TIME_SLOT.columnName,
+                                       AppSchedulerColumn.TIME_SLOT.dataType},
                                       {AppSchedulerColumn.APP_INFO.columnName,
                                        AppSchedulerColumn.APP_INFO.dataType}},
                       "WITH OIDS",
                       "COMMENT ON TABLE "
-                          + INTERNAL_TABLE_PREFIX
-                          + "app_scheduler IS '1,10,10,128'"),
+                                   + INTERNAL_TABLE_PREFIX
+                                   + "app_scheduler IS '1,10,10,128'"),
 
         // Script & data table combinations
         ASSOCIATIONS("associations",
-                     new String[][] { {AssociationsColumn.DESCRIPTION.columnName,
-                                       AssociationsColumn.DESCRIPTION.dataType},
+                     new String[][] {{AssociationsColumn.DESCRIPTION.columnName,
+                                      AssociationsColumn.DESCRIPTION.dataType},
                                      {AssociationsColumn.SCRIPT_FILE.columnName,
                                       AssociationsColumn.SCRIPT_FILE.dataType},
                                      {AssociationsColumn.MEMBERS.columnName,
@@ -3175,8 +3176,8 @@ public class CcddConstants
 
         // Data types
         DATA_TYPES("data_types",
-                   new String[][] { {DataTypesColumn.USER_NAME.columnName,
-                                     DataTypesColumn.USER_NAME.dataType},
+                   new String[][] {{DataTypesColumn.USER_NAME.columnName,
+                                    DataTypesColumn.USER_NAME.dataType},
                                    {DataTypesColumn.C_NAME.columnName,
                                     DataTypesColumn.C_NAME.dataType},
                                    {DataTypesColumn.SIZE.columnName,
@@ -3187,14 +3188,14 @@ public class CcddConstants
 
                    // Create default data type definitions
                    "INSERT INTO "
-                       + INTERNAL_TABLE_PREFIX
-                       + "data_types VALUES "
-                       + DefaultPrimitiveTypeInfo.getDataTypeDefinitions()),
+                                + INTERNAL_TABLE_PREFIX
+                                + "data_types VALUES "
+                                + DefaultPrimitiveTypeInfo.getDataTypeDefinitions()),
 
         // Table data fields
         FIELDS("fields",
-               new String[][] { {FieldsColumn.OWNER_NAME.columnName,
-                                 FieldsColumn.OWNER_NAME.dataType},
+               new String[][] {{FieldsColumn.OWNER_NAME.columnName,
+                                FieldsColumn.OWNER_NAME.dataType},
                                {FieldsColumn.FIELD_NAME.columnName,
                                 FieldsColumn.FIELD_NAME.dataType},
                                {FieldsColumn.FIELD_DESC.columnName,
@@ -3214,8 +3215,8 @@ public class CcddConstants
 
         // Data table groupings
         GROUPS("groups",
-               new String[][] { {GroupsColumn.GROUP_NAME.columnName,
-                                 GroupsColumn.GROUP_NAME.dataType},
+               new String[][] {{GroupsColumn.GROUP_NAME.columnName,
+                                GroupsColumn.GROUP_NAME.dataType},
                                {GroupsColumn.MEMBERS.columnName,
                                 GroupsColumn.MEMBERS.dataType}},
                "WITH OIDS",
@@ -3223,8 +3224,8 @@ public class CcddConstants
 
         // Variable links
         LINKS("links",
-              new String[][] { {LinksColumn.RATE_NAME.columnName,
-                                LinksColumn.RATE_NAME.dataType},
+              new String[][] {{LinksColumn.RATE_NAME.columnName,
+                               LinksColumn.RATE_NAME.dataType},
                               {LinksColumn.LINK_NAME.columnName,
                                LinksColumn.LINK_NAME.dataType},
                               {LinksColumn.MEMBER.columnName,
@@ -3234,8 +3235,8 @@ public class CcddConstants
 
         // Macro values
         MACROS("macros",
-               new String[][] { {MacrosColumn.MACRO_NAME.columnName,
-                                 MacrosColumn.MACRO_NAME.dataType},
+               new String[][] {{MacrosColumn.MACRO_NAME.columnName,
+                                MacrosColumn.MACRO_NAME.dataType},
                                {MacrosColumn.VALUE.columnName,
                                 MacrosColumn.VALUE.dataType}},
                "WITH OIDS",
@@ -3243,8 +3244,8 @@ public class CcddConstants
 
         // Table column orders
         ORDERS("orders",
-               new String[][] { {OrdersColumn.USER_NAME.columnName,
-                                 OrdersColumn.USER_NAME.dataType},
+               new String[][] {{OrdersColumn.USER_NAME.columnName,
+                                OrdersColumn.USER_NAME.dataType},
                                {OrdersColumn.TABLE_PATH.columnName,
                                 OrdersColumn.TABLE_PATH.dataType},
                                {OrdersColumn.COLUMN_ORDER.columnName,
@@ -3254,24 +3255,24 @@ public class CcddConstants
 
         // Reserved message IDs
         RESERVED_MSG_IDS("reserved_msg_ids",
-                         new String[][] { {ReservedMsgIDsColumn.MSG_ID.columnName,
-                                           ReservedMsgIDsColumn.MSG_ID.dataType},
+                         new String[][] {{ReservedMsgIDsColumn.MSG_ID.columnName,
+                                          ReservedMsgIDsColumn.MSG_ID.dataType},
                                          {ReservedMsgIDsColumn.DESCRIPTION.columnName,
                                           ReservedMsgIDsColumn.DESCRIPTION.dataType}},
                          "WITH OIDS",
                          "INSERT INTO "
-                             + INTERNAL_TABLE_PREFIX
-                             + "reserved_msg_ids ("
-                             + ReservedMsgIDsColumn.MSG_ID.columnName
-                             + ", "
-                             + ReservedMsgIDsColumn.DESCRIPTION.columnName
-                             + ") VALUES ('0x0800 - 0x08FF', 'cFE telemetry IDs'), "
-                             + "('0x1800 - 0x18FF', 'cFE command IDs')"),
+                                      + INTERNAL_TABLE_PREFIX
+                                      + "reserved_msg_ids ("
+                                      + ReservedMsgIDsColumn.MSG_ID.columnName
+                                      + ", "
+                                      + ReservedMsgIDsColumn.DESCRIPTION.columnName
+                                      + ") VALUES ('0x0800 - 0x08FF', 'cFE telemetry IDs'), "
+                                      + "('0x1800 - 0x18FF', 'cFE command IDs')"),
 
         // Script files
         SCRIPT("script_",
-               new String[][] { {ScriptColumn.LINE_NUM.columnName,
-                                 ScriptColumn.LINE_NUM.dataType},
+               new String[][] {{ScriptColumn.LINE_NUM.columnName,
+                                ScriptColumn.LINE_NUM.dataType},
                                {ScriptColumn.LINE_TEXT.columnName,
                                 ScriptColumn.LINE_TEXT.dataType}},
                "WITH OIDS",
@@ -3279,8 +3280,8 @@ public class CcddConstants
 
         // Data table types
         TABLE_TYPES("table_types",
-                    new String[][] { {TableTypesColumn.TYPE_NAME.columnName,
-                                      TableTypesColumn.TYPE_NAME.dataType},
+                    new String[][] {{TableTypesColumn.TYPE_NAME.columnName,
+                                     TableTypesColumn.TYPE_NAME.dataType},
                                     {TableTypesColumn.INDEX.columnName,
                                      TableTypesColumn.INDEX.dataType},
                                     {TableTypesColumn.COLUMN_NAME_DB.columnName,
@@ -3303,23 +3304,23 @@ public class CcddConstants
 
                     // Enforce that (type, index) must be unique
                     "CREATE UNIQUE INDEX "
-                        + INTERNAL_TABLE_PREFIX
-                        + "table_types_idx ON "
-                        + INTERNAL_TABLE_PREFIX
-                        + "table_types (type, index); "
+                                 + INTERNAL_TABLE_PREFIX
+                                 + "table_types_idx ON "
+                                 + INTERNAL_TABLE_PREFIX
+                                 + "table_types (type, index); "
 
-                        // Create default table definition for the
-                        // telemetry
-                        // and command table types
-                        + "INSERT INTO "
-                        + INTERNAL_TABLE_PREFIX
-                        + "table_types VALUES "
-                        + DefaultColumn.getColumnDefinitions()),
+                                 // Create default table definition for the
+                                 // telemetry
+                                 // and command table types
+                                 + "INSERT INTO "
+                                 + INTERNAL_TABLE_PREFIX
+                                 + "table_types VALUES "
+                                 + DefaultColumn.getColumnDefinitions()),
 
         // Telemetry scheduler
         TLM_SCHEDULER("tlm_scheduler",
-                      new String[][] { {TlmSchedulerColumn.RATE_NAME.columnName,
-                                        TlmSchedulerColumn.RATE_NAME.dataType},
+                      new String[][] {{TlmSchedulerColumn.RATE_NAME.columnName,
+                                       TlmSchedulerColumn.RATE_NAME.dataType},
                                       {TlmSchedulerColumn.MESSAGE_NAME.columnName,
                                        TlmSchedulerColumn.MESSAGE_NAME.dataType},
                                       {TlmSchedulerColumn.MESSAGE_ID.columnName,
@@ -3328,17 +3329,17 @@ public class CcddConstants
                                        TlmSchedulerColumn.MEMBER.dataType}},
                       "WITH OIDS",
                       "COMMENT ON TABLE "
-                          + INTERNAL_TABLE_PREFIX
-                          + "tlm_scheduler IS '1,1,false,\""
-                          + DefaultColumn.RATE.getName()
-                          + "\",\""
-                          + DefaultColumn.RATE.getName()
-                          + "\",1,56000'"),
+                                   + INTERNAL_TABLE_PREFIX
+                                   + "tlm_scheduler IS '1,1,false,\""
+                                   + DefaultColumn.RATE.getName()
+                                   + "\",\""
+                                   + DefaultColumn.RATE.getName()
+                                   + "\",1,56000'"),
 
         // Data table values for non-prototype tables
         VALUES("values",
-               new String[][] { {ValuesColumn.TABLE_PATH.columnName,
-                                 ValuesColumn.TABLE_PATH.dataType},
+               new String[][] {{ValuesColumn.TABLE_PATH.columnName,
+                                ValuesColumn.TABLE_PATH.dataType},
                                {ValuesColumn.COLUMN_NAME.columnName,
                                 ValuesColumn.COLUMN_NAME.dataType},
                                {ValuesColumn.VALUE.columnName,
@@ -3996,8 +3997,8 @@ public class CcddConstants
             return command
                    + (includeInitCmd
                       && !initCommand.isEmpty()
-                                               ? " " + initCommand + "; "
-                                               : " ");
+                                                ? " " + initCommand + "; "
+                                                : " ");
         }
     }
 

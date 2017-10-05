@@ -101,6 +101,10 @@ public class CcddScriptHandler
     // method
     private String[][] combinedData;
 
+    // List containing the table paths for the tables loaded for a script
+    // association. Used to prevent loading the same table more than once
+    private List<String> loadedTablePaths;
+
     // Array to indicate if a script association has a problem that prevents
     // its execution
     private boolean[] isBad;
@@ -997,7 +1001,7 @@ public class CcddScriptHandler
 
         // Create storage for the individual tables' data and table path+names
         List<TableInformation> tableInformation = new ArrayList<TableInformation>();
-        List<String> loadedTablePaths = new ArrayList<String>();
+        loadedTablePaths = new ArrayList<String>();
 
         // Get the link assignment information, if any
         CcddLinkHandler linkHandler = new CcddLinkHandler(ccddMain, component);
@@ -1011,6 +1015,10 @@ public class CcddScriptHandler
         CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain,
                                                              null,
                                                              component);
+
+        // Get the list of the table paths in the order of appearance in the
+        // table tree. This is used to sort the association table paths
+        final List<String> allTablePaths = tableTree.getTableTreePathList(null);
 
         // To reduce database access and speed script execution when executing
         // multiple associations, first load all of the associated tables,
@@ -1028,28 +1036,57 @@ public class CcddScriptHandler
                 // association
                 if (!tablePaths.isEmpty())
                 {
+                    // Sort the table paths
+                    Collections.sort(tablePaths, new Comparator<String>()
+                    {
+                        /******************************************************
+                         * Sort the table paths so that the root tables are in
+                         * alphabetical order and the child tables appear in
+                         * the order defined by their table type definition
+                         *****************************************************/
+                        @Override
+                        public int compare(String path1, String path2)
+                        {
+                            int result = 0;
+
+                            // Get the indices of the two paths within the
+                            // table tree
+                            int index1 = allTablePaths.indexOf(path1);
+                            int index2 = allTablePaths.indexOf(path2);
+
+                            // Compare the indices and set the result so that
+                            // they are sorted with the lowest index first
+                            if (index1 > index2)
+                            {
+                                result = 1;
+                            }
+                            else if (index2 > index1)
+                            {
+                                result = -1;
+                            }
+
+                            return result;
+                        }
+                    });
+
                     // Step through each table path+name
                     for (String tablePath : tablePaths)
                     {
-                        // Check if the table is not already stored in the list
-                        if (!loadedTablePaths.contains(tablePath))
+                        // Initialize the array for each of the tables to load
+                        // from the database
+                        combinedData = new String[0][0];
+
+                        // Read the table and child table data from the
+                        // database and store the results from the last table
+                        // loaded
+                        TableInformation tableInfo = readTable(tablePath, component);
+
+                        // Check if the table hasn't already been loaded
+                        if (tableInfo != null)
                         {
-                            // Add the table to the list. This is used to
-                            // prevent reloading a table that's referenced in
-                            // more than one association
-                            loadedTablePaths.add(tablePath);
-
-                            // Initialize the array for each of the tables to
-                            // load from the database
-                            combinedData = new String[0][0];
-
                             // Read the table and child table data from the
                             // database
-                            tableInformation.add(readTable(tablePath, component));
-
-                            // Get a reference to the last table information
-                            // read
-                            TableInformation tableInfo = tableInformation.get(tableInformation.size() - 1);
+                            tableInformation.add(tableInfo);
 
                             // Check if an error occurred loading the table
                             // data
@@ -1063,7 +1100,7 @@ public class CcddScriptHandler
                             else
                             {
                                 // Store the data for the table and its child
-                                // table
+                                // table(s)
                                 tableInfo.setData(combinedData);
 
                                 // Get the type definition based on the table
@@ -1098,10 +1135,18 @@ public class CcddScriptHandler
                                     else if (typeDefn.isCommand())
                                     {
                                         // Set the table type to indicate a
-                                        // command
-                                        // table
+                                        // command table
                                         tableInfo.setType(TYPE_COMMAND);
                                     }
+                                }
+                                // The table's type is invalid
+                                else
+                                {
+                                    throw new CCDDException("table '"
+                                                            + tableInfo.getProtoVariableName()
+                                                            + "' has unknown type '"
+                                                            + tableInfo.getType()
+                                                            + "'");
                                 }
                             }
                         }
@@ -1193,8 +1238,7 @@ public class CcddScriptHandler
 
                     // Gather the table data, by table type, for each
                     // associated table. Step through each table type
-                    // represented in this
-                    // association
+                    // represented in this association
                     for (int typeIndex = 0; typeIndex < tableTypes.size(); typeIndex++)
                     {
                         String tableName = "";
@@ -1553,92 +1597,117 @@ public class CcddScriptHandler
      * @param parent
      *            GUI component calling this method
      *
-     * @return A TableDataHandler for the parent table. The error flag for the
+     * @return A reference to the TableInformation for the parent table; null
+     *         if the table has already been loaded. The error flag for the
      *         table data handler is set if an error occurred loading the data
      *************************************************************************/
     private TableInformation readTable(String tablePath, Component parent)
     {
-        // Read the table's data from the database
-        TableInformation tableInfo = dbTable.loadTableData(tablePath,
-                                                           false,
-                                                           false,
-                                                           false,
-                                                           false,
-                                                           parent);
+        TableInformation tableInfo = null;
 
-        // Check that the data was successfully loaded from the database and
-        // that the table isn't empty
-        if (!tableInfo.isErrorFlag() && tableInfo.getData().length != 0)
+        // Check if the table is not already stored in the list
+        if (!loadedTablePaths.contains(tablePath))
         {
-            // Get the table's type definition
-            TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableInfo.getType());
+            // Add the table path to the list so that it is not reloaded
+            loadedTablePaths.add(tablePath);
 
-            // Get the data and place it in an array for reference below. Add
-            // columns to contain the table type and path
-            String[][] data = CcddUtilities.appendArrayColumns(tableInfo.getData(), 2);
-            int typeColumn = data[0].length - TYPE_COLUMN_DELTA;
-            int pathColumn = data[0].length - PATH_COLUMN_DELTA;
+            // Read the table's data from the database
+            tableInfo = dbTable.loadTableData(tablePath,
+                                              false,
+                                              false,
+                                              false,
+                                              false,
+                                              parent);
 
-            // Get the index of the column containing the data type for this
-            // table if it has one
-            int dataTypeColumn = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
-
-            // Step through each row
-            for (int row = 0; row < data.length && !tableInfo.isErrorFlag(); row++)
+            // Check that the data was successfully loaded from the database
+            // and that the table isn't empty
+            if (!tableInfo.isErrorFlag() && tableInfo.getData().length != 0)
             {
-                // Use the index column to store the table path and type for
-                // reference during script execution
-                data[row][typeColumn] = tableInfo.getType();
-                data[row][pathColumn] = tablePath;
+                // Get the table's type definition
+                TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableInfo.getType());
 
-                // Store the data from the table in the combined storage array
-                combinedData = CcddUtilities.concatenateArrays(combinedData,
-                                                               new String[][] {data[row]});
+                // Get the data and place it in an array for reference below.
+                // Add columns to contain the table type and path
+                String[][] data = CcddUtilities.appendArrayColumns(tableInfo.getData(), 2);
+                int typeColumn = data[0].length - TYPE_COLUMN_DELTA;
+                int pathColumn = data[0].length - PATH_COLUMN_DELTA;
 
-                // Check if this is a table reference (a data type column was
-                // found and it does not contain a primitive data type)
-                if (dataTypeColumn != -1
-                    && !dataTypeHandler.isPrimitive(data[row][dataTypeColumn]))
+                // Get the index of the column containing the data type for
+                // this table if it has one
+                int dataTypeColumn = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
+
+                // Step through each row
+                for (int row = 0; row < data.length && !tableInfo.isErrorFlag(); row++)
                 {
-                    // Get the column containing the variable name for this
-                    // table
-                    int varNameColumn = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
+                    // Use the index column to store the table path and type
+                    // for reference during script execution
+                    data[row][typeColumn] = tableInfo.getType();
+                    data[row][pathColumn] = tablePath;
 
-                    // Check that a variable name column was found
-                    if (varNameColumn != -1)
+                    // Store the data from the table in the combined storage
+                    // array
+                    combinedData = CcddUtilities.concatenateArrays(combinedData,
+                                                                   new String[][] {data[row]});
+
+                    // Check if this is a table reference (a data type column
+                    // was found and it does not contain a primitive data type)
+                    if (dataTypeColumn != -1
+                        && !dataTypeHandler.isPrimitive(data[row][dataTypeColumn]))
                     {
-                        // Get the column containing the array size for this
+                        // Get the column containing the variable name for this
                         // table
-                        int arraySizeColumn = typeDefn.getColumnIndexByInputType(InputDataType.ARRAY_INDEX);
+                        int varNameColumn = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
 
-                        // Check if the data type or variable name isn't blank,
-                        // and if an array size column doesn't exist or that
-                        // the row doesn't reference an array definition. This
-                        // is necessary to prevent appending the prototype
-                        // information for this data type structure
-                        if ((!data[row][dataTypeColumn].isEmpty()
-                             || !data[row][varNameColumn].isEmpty())
-                            && (arraySizeColumn == -1
-                                || data[row][arraySizeColumn].isEmpty()
-                                || ArrayVariable.isArrayMember(data[row][varNameColumn])))
+                        // Check that a variable name column was found
+                        if (varNameColumn != -1)
                         {
-                            // Get the variable in the format
-                            // dataType.variableName, prepend a comma to
-                            // separate the new variable from the preceding
-                            // variable path, then break down the child table
-                            readTable(tablePath
-                                      + ","
-                                      + data[row][dataTypeColumn]
-                                      + "."
-                                      + data[row][varNameColumn],
-                                      parent);
+                            // Get the column containing the array size for
+                            // this table
+                            int arraySizeColumn = typeDefn.getColumnIndexByInputType(InputDataType.ARRAY_INDEX);
+
+                            // Check if the data type or variable name isn't
+                            // blank, and if an array size column doesn't exist
+                            // or that the row doesn't reference an array
+                            // definition. This is necessary to prevent
+                            // appending the prototype information for this
+                            // data type structure
+                            if ((!data[row][dataTypeColumn].isEmpty()
+                                 || !data[row][varNameColumn].isEmpty())
+                                && (arraySizeColumn == -1
+                                    || data[row][arraySizeColumn].isEmpty()
+                                    || ArrayVariable.isArrayMember(data[row][varNameColumn])))
+                            {
+                                // Get the variable in the format
+                                // dataType.variableName, prepend a comma to
+                                // separate the new variable from the preceding
+                                // variable path, then break down the child
+                                // table
+                                TableInformation childInfo = readTable(tablePath
+                                                                       + ","
+                                                                       + data[row][dataTypeColumn]
+                                                                       + "."
+                                                                       + data[row][varNameColumn],
+                                                                       parent);
+
+                                // Check if an error occurred loading the child
+                                // table
+                                if (childInfo != null && childInfo.isErrorFlag())
+                                {
+                                    // Set the error flag and stop processing
+                                    // this table
+                                    tableInfo.setErrorFlag();
+                                    break;
+                                }
+                            }
                         }
-                    }
-                    // Table has no variable name column
-                    else
-                    {
-                        tableInfo.setErrorFlag();
-                        break;
+                        // Table has no variable name column
+                        else
+                        {
+                            // Set the error flag and stop processing this
+                            // table
+                            tableInfo.setErrorFlag();
+                            break;
+                        }
                     }
                 }
             }

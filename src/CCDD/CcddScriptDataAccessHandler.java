@@ -2593,7 +2593,7 @@ public class CcddScriptDataAccessHandler
         // Check if the table type exists
         if (typeDefn != null)
         {
-            // STore the names of the columns for this table type definition
+            // Store the names of the columns for this table type definition
             columnNames = typeDefn.getColumnNamesVisible();
         }
 

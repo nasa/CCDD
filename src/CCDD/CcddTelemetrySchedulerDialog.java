@@ -107,312 +107,327 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
             @Override
             protected void execute()
             {
-                // Create a tree containing all of the variables. This is used
-                // for determining bit-packing and variable relative position
-                allVariableTree = new CcddTableTreeHandler(ccddMain,
-                                                           TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES,
-                                                           ccddMain.getMainFrame());
-
-                // Expand the tree so that all nodes are 'visible'
-                allVariableTree.setTreeExpansion(true);
-
-                allVariableTreePaths = new ArrayList<String>();
-
-                // Step through all of the nodes in the variable tree
-                for (Enumeration<?> element = allVariableTree.getRootNode().preorderEnumeration(); element.hasMoreElements();)
+                try
                 {
-                    // Convert the variable path to a string and add it to the
-                    // list
-                    allVariableTreePaths.add(allVariableTree.getFullVariablePath(((ToolTipTreeNode) element.nextElement()).getPath()));
-                }
+                    // Create a tree containing all of the variables. This is
+                    // used
+                    // for determining bit-packing and variable relative
+                    // position
+                    allVariableTree = new CcddTableTreeHandler(ccddMain,
+                                                               TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES,
+                                                               ccddMain.getMainFrame());
 
-                // Load the stored telemetry scheduler data from the project
-                // database
-                schedulerDb.loadStoredData();
+                    // Expand the tree so that all nodes are 'visible'
+                    allVariableTree.setTreeExpansion(true);
 
-                // Auto-fill button
-                btnAutoFill = CcddButtonPanelHandler.createButton("Auto-fill",
-                                                                  AUTO_CREATE_ICON,
-                                                                  KeyEvent.VK_F,
-                                                                  "Auto-fill the message table with the variables");
+                    allVariableTreePaths = new ArrayList<String>();
 
-                // Create a listener for the Auto-fill button
-                btnAutoFill.addActionListener(new ValidateCellActionListener()
-                {
-                    /**********************************************************
-                     * Auto-fill the variables into the telemetry scheduler for
-                     * the currently selected data stream
-                     *********************************************************/
-                    @Override
-                    protected void performAction(ActionEvent ae)
+                    // Step through all of the nodes in the variable tree
+                    for (Enumeration<?> element = allVariableTree.getRootNode().preorderEnumeration(); element.hasMoreElements();)
                     {
-                        // Run auto-fill
-                        activeSchHandler.autoFill();
+                        // Convert the variable path to a string and add it to
+                        // the
+                        // list
+                        allVariableTreePaths.add(allVariableTree.getFullVariablePath(((ToolTipTreeNode) element.nextElement()).getPath()));
                     }
 
-                    /**********************************************************
-                     * Get the reference to the currently displayed table
-                     *********************************************************/
-                    @Override
-                    protected CcddJTableHandler getTable()
-                    {
-                        return activeSchHandler.getSchedulerEditor().getTable();
-                    }
-                });
+                    // Load the stored telemetry scheduler data from the
+                    // project
+                    // database
+                    schedulerDb.loadStoredData();
 
-                // Clear Rate button
-                btnClearRate = CcddButtonPanelHandler.createButton("Clear Rate",
+                    // Auto-fill button
+                    btnAutoFill = CcddButtonPanelHandler.createButton("Auto-fill",
+                                                                      AUTO_CREATE_ICON,
+                                                                      KeyEvent.VK_F,
+                                                                      "Auto-fill the message table with the variables");
+
+                    // Create a listener for the Auto-fill button
+                    btnAutoFill.addActionListener(new ValidateCellActionListener()
+                    {
+                        /**********************************************************
+                         * Auto-fill the variables into the telemetry scheduler
+                         * for the currently selected data stream
+                         *********************************************************/
+                        @Override
+                        protected void performAction(ActionEvent ae)
+                        {
+                            // Run auto-fill
+                            activeSchHandler.autoFill();
+                        }
+
+                        /**********************************************************
+                         * Get the reference to the currently displayed table
+                         *********************************************************/
+                        @Override
+                        protected CcddJTableHandler getTable()
+                        {
+                            return activeSchHandler.getSchedulerEditor().getTable();
+                        }
+                    });
+
+                    // Clear Rate button
+                    btnClearRate = CcddButtonPanelHandler.createButton("Clear Rate",
+                                                                       UNDO_ICON,
+                                                                       KeyEvent.VK_R,
+                                                                       "Remove the variables of the currently selected rate from all messages");
+
+                    // Add a listener for the Clear Rate button
+                    btnClearRate.addActionListener(new ValidateCellActionListener()
+                    {
+                        /**********************************************************
+                         * Remove the variables of the currently selected rate
+                         * from all messages in the currently selected data
+                         * stream
+                         *********************************************************/
+                        @Override
+                        protected void performAction(ActionEvent ae)
+                        {
+                            activeSchHandler.getSchedulerEditor().clearVariablesFromMessages(activeSchHandler.getSchedulerInput().getSelectedRate());
+                        }
+
+                        /**********************************************************
+                         * Get the reference to the currently displayed table
+                         *********************************************************/
+                        @Override
+                        protected CcddJTableHandler getTable()
+                        {
+                            return activeSchHandler.getSchedulerEditor().getTable();
+                        }
+                    });
+
+                    // Clear Msgs button
+                    btnClear = CcddButtonPanelHandler.createButton("Clear Msgs",
                                                                    UNDO_ICON,
                                                                    KeyEvent.VK_R,
-                                                                   "Remove the variables of the currently selected rate from all messages");
+                                                                   "Remove the variables from all messages");
 
-                // Add a listener for the Clear Rate button
-                btnClearRate.addActionListener(new ValidateCellActionListener()
-                {
-                    /**********************************************************
-                     * Remove the variables of the currently selected rate from
-                     * all messages in the currently selected data stream
-                     *********************************************************/
-                    @Override
-                    protected void performAction(ActionEvent ae)
+                    // Add a listener for the Clear Msgs button
+                    btnClear.addActionListener(new ValidateCellActionListener()
                     {
-                        activeSchHandler.getSchedulerEditor().clearVariablesFromMessages(activeSchHandler.getSchedulerInput().getSelectedRate());
-                    }
-
-                    /**********************************************************
-                     * Get the reference to the currently displayed table
-                     *********************************************************/
-                    @Override
-                    protected CcddJTableHandler getTable()
-                    {
-                        return activeSchHandler.getSchedulerEditor().getTable();
-                    }
-                });
-
-                // Clear Msgs button
-                btnClear = CcddButtonPanelHandler.createButton("Clear Msgs",
-                                                               UNDO_ICON,
-                                                               KeyEvent.VK_R,
-                                                               "Remove the variables from all messages");
-
-                // Add a listener for the Clear Msgs button
-                btnClear.addActionListener(new ValidateCellActionListener()
-                {
-                    /**********************************************************
-                     * Remove the variables from all messages in the currently
-                     * selected data stream
-                     *********************************************************/
-                    @Override
-                    protected void performAction(ActionEvent ae)
-                    {
-                        activeSchHandler.getSchedulerEditor().clearVariablesFromMessages(null);
-                    }
-
-                    /**********************************************************
-                     * Get the reference to the currently displayed table
-                     *********************************************************/
-                    @Override
-                    protected CcddJTableHandler getTable()
-                    {
-                        return activeSchHandler.getSchedulerEditor().getTable();
-                    }
-                });
-
-                // Add Sub-msg button
-                btnAddSubMessage = CcddButtonPanelHandler.createButton("Add Sub-msg",
-                                                                       INSERT_ICON,
-                                                                       KeyEvent.VK_A,
-                                                                       "Add a sub-message to the currently selected message");
-
-                // Create a listener for the Add Sub-msg button
-                btnAddSubMessage.addActionListener(new ValidateCellActionListener()
-                {
-                    /**********************************************************
-                     * Add a sub-message to the current message
-                     *********************************************************/
-                    @Override
-                    protected void performAction(ActionEvent ae)
-                    {
-                        activeSchHandler.getSchedulerEditor().addSubMessage();
-                    }
-
-                    /**********************************************************
-                     * Get the reference to the currently displayed table
-                     *********************************************************/
-                    @Override
-                    protected CcddJTableHandler getTable()
-                    {
-                        return activeSchHandler.getSchedulerEditor().getTable();
-                    }
-                });
-
-                // Del Sub-msg button
-                btnDeleteSubMessage = CcddButtonPanelHandler.createButton("Del Sub-msg",
-                                                                          DELETE_ICON,
-                                                                          KeyEvent.VK_D,
-                                                                          "Delete the currently selected sub-message");
-
-                // Create a listener for the Del Sub-msg button
-                btnDeleteSubMessage.addActionListener(new ValidateCellActionListener()
-                {
-                    /**********************************************************
-                     * Delete the current sub-message
-                     *********************************************************/
-                    @Override
-                    protected void performAction(ActionEvent ae)
-                    {
-                        activeSchHandler.getSchedulerEditor().deleteSubMessage();
-                    }
-
-                    /**********************************************************
-                     * Get the reference to the currently displayed table
-                     *********************************************************/
-                    @Override
-                    protected CcddJTableHandler getTable()
-                    {
-                        return activeSchHandler.getSchedulerEditor().getTable();
-                    }
-                });
-
-                // Assign message names and IDs button
-                btnAssign = CcddButtonPanelHandler.createButton("Assign Msgs",
-                                                                AUTO_CREATE_ICON,
-                                                                KeyEvent.VK_M,
-                                                                "Automatically assign message names and/or IDs to the messages and sub-messages");
-
-                // Add a listener for the Assign Msgs button
-                btnAssign.addActionListener(new ValidateCellActionListener()
-                {
-                    /**********************************************************
-                     * Automatically assign names and/or IDs to the telemetry
-                     * messages and sub-messages
-                     *********************************************************/
-                    @Override
-                    protected void performAction(ActionEvent ae)
-                    {
-                        new CcddAssignMessageIDDialog(ccddMain,
-                                                      activeSchHandler.getCurrentMessages(),
-                                                      CcddTelemetrySchedulerDialog.this);
-                    }
-
-                    /**********************************************************
-                     * Get the reference to the currently displayed table
-                     *********************************************************/
-                    @Override
-                    protected CcddJTableHandler getTable()
-                    {
-                        return activeSchHandler.getSchedulerEditor().getTable();
-                    }
-                });
-
-                // Store button
-                btnStore = CcddButtonPanelHandler.createButton("Store",
-                                                               STORE_ICON,
-                                                               KeyEvent.VK_S,
-                                                               "Store the message updates in the project database");
-
-                // Add a listener for the Store button
-                btnStore.addActionListener(new ValidateCellActionListener()
-                {
-                    /**********************************************************
-                     * Store the data from the various data streams into the
-                     * database
-                     *********************************************************/
-                    @Override
-                    protected void performAction(ActionEvent ae)
-                    {
-                        // Check if any message has changed and, if so, that
-                        // the user confirms storing the changes
-                        if (isChanges()
-                            && new CcddDialogHandler().showMessageDialog(CcddTelemetrySchedulerDialog.this,
-                                                                         "<html><b>Store changes?",
-                                                                         "Store Changes",
-                                                                         JOptionPane.QUESTION_MESSAGE,
-                                                                         DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                        /**********************************************************
+                         * Remove the variables from all messages in the
+                         * currently selected data stream
+                         *********************************************************/
+                        @Override
+                        protected void performAction(ActionEvent ae)
                         {
-                            // Store the messages in the project database
-                            storeData();
+                            activeSchHandler.getSchedulerEditor().clearVariablesFromMessages(null);
                         }
-                    }
 
-                    /**********************************************************
-                     * Get the reference to the currently displayed table
-                     *********************************************************/
-                    @Override
-                    protected CcddJTableHandler getTable()
+                        /**********************************************************
+                         * Get the reference to the currently displayed table
+                         *********************************************************/
+                        @Override
+                        protected CcddJTableHandler getTable()
+                        {
+                            return activeSchHandler.getSchedulerEditor().getTable();
+                        }
+                    });
+
+                    // Add Sub-msg button
+                    btnAddSubMessage = CcddButtonPanelHandler.createButton("Add Sub-msg",
+                                                                           INSERT_ICON,
+                                                                           KeyEvent.VK_A,
+                                                                           "Add a sub-message to the currently selected message");
+
+                    // Create a listener for the Add Sub-msg button
+                    btnAddSubMessage.addActionListener(new ValidateCellActionListener()
                     {
-                        return activeSchHandler.getSchedulerEditor().getTable();
-                    }
-                });
+                        /**********************************************************
+                         * Add a sub-message to the current message
+                         *********************************************************/
+                        @Override
+                        protected void performAction(ActionEvent ae)
+                        {
+                            activeSchHandler.getSchedulerEditor().addSubMessage();
+                        }
 
-                // Create a button to close the dialog
-                btnClose = CcddButtonPanelHandler.createButton("Close",
-                                                               CLOSE_ICON,
-                                                               KeyEvent.VK_C,
-                                                               "Close the telemetry scheduler");
+                        /**********************************************************
+                         * Get the reference to the currently displayed table
+                         *********************************************************/
+                        @Override
+                        protected CcddJTableHandler getTable()
+                        {
+                            return activeSchHandler.getSchedulerEditor().getTable();
+                        }
+                    });
 
-                // Add a listener for the Close button
-                btnClose.addActionListener(new ValidateCellActionListener()
+                    // Del Sub-msg button
+                    btnDeleteSubMessage = CcddButtonPanelHandler.createButton("Del Sub-msg",
+                                                                              DELETE_ICON,
+                                                                              KeyEvent.VK_D,
+                                                                              "Delete the currently selected sub-message");
+
+                    // Create a listener for the Del Sub-msg button
+                    btnDeleteSubMessage.addActionListener(new ValidateCellActionListener()
+                    {
+                        /**********************************************************
+                         * Delete the current sub-message
+                         *********************************************************/
+                        @Override
+                        protected void performAction(ActionEvent ae)
+                        {
+                            activeSchHandler.getSchedulerEditor().deleteSubMessage();
+                        }
+
+                        /**********************************************************
+                         * Get the reference to the currently displayed table
+                         *********************************************************/
+                        @Override
+                        protected CcddJTableHandler getTable()
+                        {
+                            return activeSchHandler.getSchedulerEditor().getTable();
+                        }
+                    });
+
+                    // Assign message names and IDs button
+                    btnAssign = CcddButtonPanelHandler.createButton("Assign Msgs",
+                                                                    AUTO_CREATE_ICON,
+                                                                    KeyEvent.VK_M,
+                                                                    "Automatically assign message names and/or IDs to the messages and sub-messages");
+
+                    // Add a listener for the Assign Msgs button
+                    btnAssign.addActionListener(new ValidateCellActionListener()
+                    {
+                        /**********************************************************
+                         * Automatically assign names and/or IDs to the
+                         * telemetry messages and sub-messages
+                         *********************************************************/
+                        @Override
+                        protected void performAction(ActionEvent ae)
+                        {
+                            new CcddAssignMessageIDDialog(ccddMain,
+                                                          activeSchHandler.getCurrentMessages(),
+                                                          CcddTelemetrySchedulerDialog.this);
+                        }
+
+                        /**********************************************************
+                         * Get the reference to the currently displayed table
+                         *********************************************************/
+                        @Override
+                        protected CcddJTableHandler getTable()
+                        {
+                            return activeSchHandler.getSchedulerEditor().getTable();
+                        }
+                    });
+
+                    // Store button
+                    btnStore = CcddButtonPanelHandler.createButton("Store",
+                                                                   STORE_ICON,
+                                                                   KeyEvent.VK_S,
+                                                                   "Store the message updates in the project database");
+
+                    // Add a listener for the Store button
+                    btnStore.addActionListener(new ValidateCellActionListener()
+                    {
+                        /**********************************************************
+                         * Store the data from the various data streams into
+                         * the database
+                         *********************************************************/
+                        @Override
+                        protected void performAction(ActionEvent ae)
+                        {
+                            // Check if any message has changed and, if so,
+                            // that
+                            // the user confirms storing the changes
+                            if (isChanges()
+                                && new CcddDialogHandler().showMessageDialog(CcddTelemetrySchedulerDialog.this,
+                                                                             "<html><b>Store changes?",
+                                                                             "Store Changes",
+                                                                             JOptionPane.QUESTION_MESSAGE,
+                                                                             DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                            {
+                                // Store the messages in the project database
+                                storeData();
+                            }
+                        }
+
+                        /**********************************************************
+                         * Get the reference to the currently displayed table
+                         *********************************************************/
+                        @Override
+                        protected CcddJTableHandler getTable()
+                        {
+                            return activeSchHandler.getSchedulerEditor().getTable();
+                        }
+                    });
+
+                    // Create a button to close the dialog
+                    btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                                   CLOSE_ICON,
+                                                                   KeyEvent.VK_C,
+                                                                   "Close the telemetry scheduler");
+
+                    // Add a listener for the Close button
+                    btnClose.addActionListener(new ValidateCellActionListener()
+                    {
+                        /**********************************************************
+                         * Close the telemetry scheduler dialog
+                         *********************************************************/
+                        @Override
+                        protected void performAction(ActionEvent ae)
+                        {
+                            windowCloseButtonAction();
+                        }
+
+                        /**********************************************************
+                         * Get the reference to the currently displayed table
+                         *********************************************************/
+                        @Override
+                        protected CcddJTableHandler getTable()
+                        {
+                            return activeSchHandler.getSchedulerEditor().getTable();
+                        }
+                    });
+
+                    // Add buttons in the order in which they'll appear (left
+                    // to
+                    // right, top to bottom)
+                    buttonPnl.add(btnAutoFill);
+                    buttonPnl.add(btnClearRate);
+                    buttonPnl.add(btnAddSubMessage);
+                    buttonPnl.add(btnStore);
+                    buttonPnl.add(btnAssign);
+                    buttonPnl.add(btnClear);
+                    buttonPnl.add(btnDeleteSubMessage);
+                    buttonPnl.add(btnClose);
+
+                    // Create two rows of buttons
+                    setButtonRows(2);
+
+                    // Create a tabbed pane in which to place the scheduler
+                    // handlers
+                    tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+                    tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+
+                    // Listen for tab selection changes
+                    tabbedPane.addChangeListener(new ChangeListener()
+                    {
+                        /**********************************************************
+                         * Update the editor to the one associated with the
+                         * selected tab
+                         *********************************************************/
+                        @Override
+                        public void stateChanged(ChangeEvent ce)
+                        {
+                            // Set the active editor to the one indicated by
+                            // the
+                            // currently selected tab
+                            activeSchHandler = schHandlers.get(tabbedPane.getSelectedIndex());
+                        }
+                    });
+
+                    // Add the scheduler handlers to the tabbed pane
+                    addDataStreams();
+
+                    // Set the first tab as the active editor
+                    activeSchHandler = schHandlers.get(0);
+                }
+                catch (Exception e)
                 {
-                    /**********************************************************
-                     * Close the telemetry scheduler dialog
-                     *********************************************************/
-                    @Override
-                    protected void performAction(ActionEvent ae)
-                    {
-                        windowCloseButtonAction();
-                    }
-
-                    /**********************************************************
-                     * Get the reference to the currently displayed table
-                     *********************************************************/
-                    @Override
-                    protected CcddJTableHandler getTable()
-                    {
-                        return activeSchHandler.getSchedulerEditor().getTable();
-                    }
-                });
-
-                // Add buttons in the order in which they'll appear (left to
-                // right, top to bottom)
-                buttonPnl.add(btnAutoFill);
-                buttonPnl.add(btnClearRate);
-                buttonPnl.add(btnAddSubMessage);
-                buttonPnl.add(btnStore);
-                buttonPnl.add(btnAssign);
-                buttonPnl.add(btnClear);
-                buttonPnl.add(btnDeleteSubMessage);
-                buttonPnl.add(btnClose);
-
-                // Create two rows of buttons
-                setButtonRows(2);
-
-                // Create a tabbed pane in which to place the scheduler
-                // handlers
-                tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-                tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-
-                // Listen for tab selection changes
-                tabbedPane.addChangeListener(new ChangeListener()
-                {
-                    /**********************************************************
-                     * Update the editor to the one associated with the
-                     * selected tab
-                     *********************************************************/
-                    @Override
-                    public void stateChanged(ChangeEvent ce)
-                    {
-                        // Set the active editor to the one indicated by the
-                        // currently selected tab
-                        activeSchHandler = schHandlers.get(tabbedPane.getSelectedIndex());
-                    }
-                });
-
-                // Add the scheduler handlers to the tabbed pane
-                addDataStreams();
-
-                // Set the first tab as the active editor
-                activeSchHandler = schHandlers.get(0);
+                    e.printStackTrace();// TODO
+                }
             }
 
             /******************************************************************
@@ -488,11 +503,11 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
         // then confirm discarding the changes
         if (activeSchHandler.getSchedulerEditor().getTable().isLastCellValid()
             && (!isChanges()
-            || new CcddDialogHandler().showMessageDialog(CcddTelemetrySchedulerDialog.this,
-                                                         "<html><b>Discard changes?",
-                                                         "Discard Changes",
-                                                         JOptionPane.QUESTION_MESSAGE,
-                                                         DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
+                || new CcddDialogHandler().showMessageDialog(CcddTelemetrySchedulerDialog.this,
+                                                             "<html><b>Discard changes?",
+                                                             "Discard Changes",
+                                                             JOptionPane.QUESTION_MESSAGE,
+                                                             DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
         {
             // Close the telemetry scheduler dialog
             closeDialog();
@@ -614,9 +629,9 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
             // exist
             tabbedPane.setTitleAt(index,
                                   tabbedPane.getTitleAt(index).replaceAll("\\*", "")
-                                      + (schHandlers.get(index).getSchedulerEditor().isMessagesChanged()
-                                                                                                        ? "*"
-                                                                                                        : ""));
+                                         + (schHandlers.get(index).getSchedulerEditor().isMessagesChanged()
+                                                                                                            ? "*"
+                                                                                                            : ""));
         }
     }
 

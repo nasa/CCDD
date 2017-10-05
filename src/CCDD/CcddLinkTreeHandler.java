@@ -35,9 +35,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.ToolTipManager;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 import CCDD.CcddClasses.LinkInformation;
@@ -82,79 +83,6 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
 
     // Currently selected link rate
     private String selectedRate;
-
-    /**************************************************************************
-     * Tree cell renderer with link information display handling class
-     *************************************************************************/
-    private class LinkTreeCellRenderer extends DefaultTreeCellRenderer
-    {
-        /**********************************************************************
-         * Display the link rate and size beside the link name in the tree and
-         * use special icons for the nodes. Gray out the node text if the
-         * selected sample rate doesn't match the link's rate
-         *********************************************************************/
-        @Override
-        public Component getTreeCellRendererComponent(JTree tree,
-                                                      Object value,
-                                                      boolean sel,
-                                                      boolean expanded,
-                                                      boolean leaf,
-                                                      int row,
-                                                      boolean hasFocus)
-        {
-            // Display the node name
-            super.getTreeCellRendererComponent(tree,
-                                               value,
-                                               sel,
-                                               expanded,
-                                               leaf,
-                                               row,
-                                               hasFocus);
-
-            // Get the tree level for this node
-            int level = ((ToolTipTreeNode) value).getLevel();
-
-            // Check that the tree has any levels. When the tree is first
-            // created this method is called when no nodes exist
-            if (level != 0)
-            {
-                // Get the reference to the link's information. The link name
-                // is the second node in the path for this node
-                LinkInformation linkInfo = getLinkInformation(((ToolTipTreeNode) value).getPath()[1].toString());
-
-                // Check that the link information exists
-                if (linkInfo != null)
-                {
-                    // Check if this node represents a link name
-                    if (level == 1)
-                    {
-                        // Get the rate for this link
-                        String linkRate = linkInfo.getSampleRate();
-
-                        // Check if the link rate matches the currently
-                        // selected rate or if it has no assigned rate
-                        if (linkRate.equals("0") || selectedRate.equals(linkRate))
-                        {
-                            setIcon(validLinkIcon);
-                        }
-                        // The link rate doesn't match the selected rate
-                        else
-                        {
-                            setIcon(invalidLinkIcon);
-                        }
-                    }
-                    // Check if this node represents a variable
-                    else if (leaf)
-                    {
-                        // Set the icon for the variable node
-                        setVariableNodeIcon(this, (ToolTipTreeNode) value, row, true);
-                    }
-                }
-            }
-
-            return this;
-        }
-    }
 
     /**************************************************************************
      * Link tree handler class constructor
@@ -223,6 +151,15 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
                               CcddUndoHandler undoHandler,
                               List<String[]> linkDefinitions)
     {
+        // Check if no undo handler is specified
+        if (undoHandler == null)
+        {
+            // Create a 'dummy' undo handler and set the flag to not allow undo
+            // operations
+            undoHandler = new CcddUndoHandler(new CcddUndoManager());
+            undoHandler.setAllowUndo(false);
+        }
+
         this.undoHandler = undoHandler;
         this.linkDefinitions = linkDefinitions;
 
@@ -270,7 +207,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
             // Check if this is a member and not the rate/description
             if (!linkDefn[LinksColumn.MEMBER.ordinal()].matches("\\d.*")
                 && (name == null
-                || linkDefn[LinksColumn.LINK_NAME.ordinal()].equals(name)))
+                    || linkDefn[LinksColumn.LINK_NAME.ordinal()].equals(name)))
             {
                 // Add the variable to the list
                 linkVariables.add(linkDefn[LinksColumn.MEMBER.ordinal()]);
@@ -442,7 +379,74 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         // Set the renderer for the tree so that the link information can be
         // displayed, and so that custom icons can be used for the various node
         // types
-        setCellRenderer(new LinkTreeCellRenderer());
+        setCellRenderer(new TableTreeCellRenderer()
+        {
+            /******************************************************************
+             * Display the variable nodes using a special icon in the tree
+             *****************************************************************/
+            @Override
+            public Component getTreeCellRendererComponent(JTree tree,
+                                                          Object value,
+                                                          boolean sel,
+                                                          boolean expanded,
+                                                          boolean leaf,
+                                                          int row,
+                                                          boolean hasFocus)
+            {
+                // Display the node name
+                super.getTreeCellRendererComponent(tree,
+                                                   value,
+                                                   sel,
+                                                   expanded,
+                                                   leaf,
+                                                   row,
+                                                   hasFocus);
+
+                // Get the tree level for this node
+                int level = ((ToolTipTreeNode) value).getLevel();
+
+                // Check that the tree has any levels. When the tree is first
+                // created this method is called when no nodes exist
+                if (level != 0)
+                {
+                    // Get the reference to the link's information. The link
+                    // name
+                    // is the second node in the path for this node
+                    LinkInformation linkInfo = getLinkInformation(((ToolTipTreeNode) value).getPath()[1].toString());
+
+                    // Check that the link information exists
+                    if (linkInfo != null)
+                    {
+                        // Check if this node represents a link name
+                        if (level == 1)
+                        {
+                            // Get the rate for this link
+                            String linkRate = linkInfo.getSampleRate();
+
+                            // Check if the link rate matches the currently
+                            // selected rate or if it has no assigned rate
+                            if (linkRate.equals("0") || selectedRate.equals(linkRate))
+                            {
+                                setIcon(validLinkIcon);
+                            }
+                            // The link rate doesn't match the selected rate
+                            else
+                            {
+                                setIcon(invalidLinkIcon);
+                            }
+                        }
+                        // Check if this node represents a variable
+                        else if (leaf)
+                        {
+                            // Set the icon for the variable node
+                            setVariableNodeIcon(this, (ToolTipTreeNode) value, row, true);
+                        }
+                    }
+                }
+
+                return this;
+            }
+        });
 
         // Step through each link
         for (String[] linkDefn : linkDefinitions)
@@ -540,8 +544,8 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
             definitions.add(new String[] {linkInfo.getRateName(),
                                           linkInfo.getName(),
                                           linkInfo.getSampleRate()
-                                              + ","
-                                              + linkInfo.getDescription()});
+                                                              + ","
+                                                              + linkInfo.getDescription()});
         }
 
         return definitions;
@@ -670,8 +674,8 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
                                         + " Hz, "
                                         + sizeInBytes
                                         + (sizeInBytes == 1
-                                                           ? " byte)"
-                                                           : " bytes)");
+                                                            ? " byte)"
+                                                            : " bytes)");
                         }
                         // No variables are assigned to this link
                         else
@@ -756,6 +760,9 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      *************************************************************************/
     protected JPanel createTreePanel(String label, int selectionMode)
     {
+        // Create an empty border
+        Border emptyBorder = BorderFactory.createEmptyBorder();
+
         // Set the initial layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0,
                                                         0,
@@ -781,7 +788,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
 
         // Create a panel to contain the table tree
         JPanel treePnl = new JPanel(new GridBagLayout());
-        treePnl.setBorder(BorderFactory.createEmptyBorder());
+        treePnl.setBorder(emptyBorder);
 
         // Create the tree labels
         JLabel treeLbl = new JLabel(label);
@@ -830,7 +837,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
 
         // Create a tree expansion check box
         final JCheckBox expandChkBx = new JCheckBox("Expand all");
-        expandChkBx.setBorder(BorderFactory.createEmptyBorder());
+        expandChkBx.setBorder(emptyBorder);
         expandChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         expandChkBx.setSelected(false);
         gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
@@ -856,13 +863,47 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
             }
         });
 
+        // TODO
+        // Create a hide data type check box
+        final JCheckBox hideTypeChkBx = new JCheckBox("Hide data type");
+        hideTypeChkBx.setBorder(emptyBorder);
+        hideTypeChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        hideTypeChkBx.setSelected(false);
+
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
+        gbc.weighty = 0.0;
+        gbc.gridy++;
+        treePnl.add(hideTypeChkBx, gbc);
+
+        // Create a listener for changes in selection of the hide data type
+        // check box
+        hideTypeChkBx.addActionListener(new ActionListener()
+        {
+            /******************************************************************
+             * Handle a change to the hide data type check box selection
+             *****************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                setEnableDataType(!hideTypeChkBx.isSelected());
+
+                // Store the tree's current expansion state
+                String expState = getExpansionState();
+
+                // Force the root node to draw with the node additions
+                ((DefaultTreeModel) treeModel).nodeStructureChanged(getRootNode());
+
+                setExpansionState(expState);
+            }
+        });
+
         // In order to align the link and variable trees a phantom check box
         // must be added to the link tree panel. To prevent display of the
         // check box components an empty panel is placed over it
         JPanel hiddenPnl = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        hiddenPnl.setBorder(BorderFactory.createEmptyBorder());
+        hiddenPnl.setBorder(emptyBorder);
         JCheckBox hiddenChkBx = new JCheckBox(" ");
-        hiddenChkBx.setBorder(BorderFactory.createEmptyBorder());
+        hiddenChkBx.setBorder(emptyBorder);
         gbc.gridy++;
         treePnl.add(hiddenPnl, gbc);
         hiddenChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());

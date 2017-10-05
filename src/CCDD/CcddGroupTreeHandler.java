@@ -32,9 +32,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.ToolTipManager;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
@@ -96,46 +96,6 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     // Node names for use when filtering the tree by application
     private static String APP_NODE = "Application";
     private static String OTHER_NODE = "Other";
-
-    /**************************************************************************
-     * Tree cell renderer with group size display handling class
-     *************************************************************************/
-    private class GroupSizeCellRenderer extends DefaultTreeCellRenderer
-    {
-        /**********************************************************************
-         * Display the group size beside the group name in the tree
-         *********************************************************************/
-        @Override
-        public Component getTreeCellRendererComponent(JTree tree,
-                                                      Object value,
-                                                      boolean sel,
-                                                      boolean expanded,
-                                                      boolean leaf,
-                                                      int row,
-                                                      boolean hasFocus)
-        {
-            // Get the tree level for this node
-            int level = ((ToolTipTreeNode) value).getLevel();
-
-            // Display the node name
-            super.getTreeCellRendererComponent(tree,
-                                               value,
-                                               sel,
-                                               expanded,
-                                               leaf,
-                                               row,
-                                               hasFocus);
-
-            // Check if this node represents a group name
-            if (level == 1)
-            {
-                // Display an icon indicating a variable
-                setIcon(new ImageIcon(getClass().getResource(GROUP_ICON)));
-            }
-
-            return this;
-        }
-    }
 
     /**************************************************************************
      * Group tree handler class constructor
@@ -340,7 +300,42 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
 
         // Set the renderer for the tree so that custom icons can be used for
         // the various node types
-        setCellRenderer(new GroupSizeCellRenderer());
+        setCellRenderer(new TableTreeCellRenderer()
+        {
+            /******************************************************************
+             * Display the variable nodes using a special icon in the tree
+             *****************************************************************/
+            @Override
+            public Component getTreeCellRendererComponent(JTree tree,
+                                                          Object value,
+                                                          boolean sel,
+                                                          boolean expanded,
+                                                          boolean leaf,
+                                                          int row,
+                                                          boolean hasFocus)
+            {
+                // Display the node name
+                super.getTreeCellRendererComponent(tree,
+                                                   value,
+                                                   sel,
+                                                   expanded,
+                                                   leaf,
+                                                   row,
+                                                   hasFocus);
+
+                // Get the tree level for this node
+                int level = ((ToolTipTreeNode) value).getLevel();
+
+                // Check if this node represents a group name
+                if (level == 1)
+                {
+                    // Display an icon indicating a variable
+                    setIcon(new ImageIcon(getClass().getResource(GROUP_ICON)));
+                }
+
+                return this;
+            }
+        });
 
         // Check if the table types are to be used to filter the table tree
         if (isFilterByType)
@@ -470,7 +465,8 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     {
         // Get the data field information from the database
         fieldDefinitions = dbTable.retrieveInformationTable(InternalTable.FIELDS,
-                                                            parent).toArray(new Object[0][0]);
+                                                            parent)
+                                  .toArray(new Object[0][0]);
 
         // Step through each group
         for (GroupInformation groupInfo : groupHandler.getGroupInformation())
@@ -529,10 +525,10 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
             // non-zero numeral
             definitions.add(new String[] {grpInfo.getName(),
                                           (grpInfo.isApplication()
-                                                                  ? "1"
-                                                                  : "0")
-                                              + ","
-                                              + grpInfo.getDescription()});
+                                                                   ? "1"
+                                                                   : "0")
+                                                             + ","
+                                                             + grpInfo.getDescription()});
         }
 
         return definitions;
@@ -602,8 +598,8 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                         // HTML tag to gray out the name. Indicate that the
                         // node changed so that the tree redraws the name
                         node.setUserObject((isExcluded
-                                                      ? DISABLED_TEXT_COLOR
-                                                      : "")
+                                                       ? DISABLED_TEXT_COLOR
+                                                       : "")
                                            + nodeName);
                         ((DefaultTreeModel) getModel()).nodeChanged(node);
                     }
@@ -635,6 +631,9 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                                      boolean noFilters,
                                      final Component parent)
     {
+        // Create an empty border
+        Border emptyBorder = BorderFactory.createEmptyBorder();
+
         // Set the initial layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0,
                                                         0,
@@ -660,7 +659,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
 
         // Create a panel to contain the table tree
         final JPanel treePnl = new JPanel(new GridBagLayout());
-        treePnl.setBorder(BorderFactory.createEmptyBorder());
+        treePnl.setBorder(emptyBorder);
 
         // Create the tree labels
         JLabel treeLbl = new JLabel(label);
@@ -718,7 +717,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         {
             // Create a tree expansion check box
             final JCheckBox expandChkBx = new JCheckBox("Expand all");
-            expandChkBx.setBorder(BorderFactory.createEmptyBorder());
+            expandChkBx.setBorder(emptyBorder);
             expandChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             expandChkBx.setSelected(false);
             gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
@@ -744,9 +743,43 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                 }
             });
 
+            // TODO
+            // Create a hide data type check box
+            final JCheckBox hideTypeChkBx = new JCheckBox("Hide data type");
+            hideTypeChkBx.setBorder(emptyBorder);
+            hideTypeChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            hideTypeChkBx.setSelected(false);
+
+            gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
+            gbc.weighty = 0.0;
+            gbc.gridy++;
+            treePnl.add(hideTypeChkBx, gbc);
+
+            // Create a listener for changes in selection of the hide data type
+            // check box
+            hideTypeChkBx.addActionListener(new ActionListener()
+            {
+                /******************************************************************
+                 * Handle a change to the hide data type check box selection
+                 *****************************************************************/
+                @Override
+                public void actionPerformed(ActionEvent ae)
+                {
+                    setEnableDataType(!hideTypeChkBx.isSelected());
+
+                    // Store the tree's current expansion state
+                    String expState = getExpansionState();
+
+                    // Force the root node to draw with the node additions
+                    ((DefaultTreeModel) treeModel).nodeStructureChanged(getRootNode());
+
+                    setExpansionState(expState);
+                }
+            });
+
             // Create a type filter check box
             final JCheckBox typeFilterChkBx = new JCheckBox("Filter by type");
-            typeFilterChkBx.setBorder(BorderFactory.createEmptyBorder());
+            typeFilterChkBx.setBorder(emptyBorder);
             typeFilterChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             typeFilterChkBx.setSelected(false);
             gbc.gridy++;
@@ -754,7 +787,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
 
             // Create an application filter check box
             final JCheckBox appFilterChkBx = new JCheckBox("Filter by application");
-            appFilterChkBx.setBorder(BorderFactory.createEmptyBorder());
+            appFilterChkBx.setBorder(emptyBorder);
             appFilterChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             appFilterChkBx.setSelected(false);
             gbc.gridy++;
@@ -852,8 +885,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                                 topNodePrefixes.add("["
                                                     + root.getUserObject()
                                                     + ", "
-                                                    + ((ToolTipTreeNode)
-                                                    root.getChildAt(index)).getUserObject()
+                                                    + ((ToolTipTreeNode) root.getChildAt(index)).getUserObject()
                                                     + ", "
                                                     + ((ToolTipTreeNode) root.getChildAt(index).getChildAt(subIndex)).getUserObject());
                             }

@@ -41,6 +41,7 @@ import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import CCDD.CcddClasses.ArrayListMultiple;
@@ -321,8 +322,8 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
                     // disable and clear the description, rate, and size in
                     // bytes fields
                     setLinkAndFields(selected.length == 1
-                                                         ? selected[0]
-                                                         : null,
+                                                          ? selected[0]
+                                                          : null,
                                      selected.length != 0);
 
                     // Check if the node change isn't set to be ignored for
@@ -378,10 +379,10 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         // list of available rates; otherwise choose the first rate if any
         // rates exist, and if none exist set the rate to a dummy value
         selectedRate = Arrays.asList(availableRates).contains("1")
-                                                                  ? "1"
-                                                                  : (availableRates.length != 0
-                                                                                               ? CcddUtilities.removeHTMLTags(availableRates[0])
-                                                                                               : "0");
+                                                                   ? "1"
+                                                                   : (availableRates.length != 0
+                                                                                                 ? CcddUtilities.removeHTMLTags(availableRates[0])
+                                                                                                 : "0");
 
         // Build the variable tree that shows tables and their variables
         // for the selected rate. Use the first rate in the available rates
@@ -756,8 +757,8 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
             size = String.valueOf(linkTree.getLinkHandler().getLinkSizeInBytes(rateName,
                                                                                linkTree.removeExtraText(linkName)));
             rate = selectedLink.getSampleRate().equals("0") || size.equals("0")
-                                                                               ? ""
-                                                                               : selectedLink.getSampleRate();
+                                                                                ? ""
+                                                                                : selectedLink.getSampleRate();
             description = selectedLink.getDescription();
         }
 
@@ -980,8 +981,8 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
             // otherwise clear the selected link, disable and clear the
             // description, rate, and size in bytes fields
             setLinkAndFields(linkNames.length == 1
-                                                  ? linkNames[0]
-                                                  : null,
+                                                   ? linkNames[0]
+                                                   : null,
                              linkNames.length != 0);
         }
 
@@ -1175,8 +1176,11 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
      *************************************************************************/
     private void selectLinkByVariable()
     {
-        // Check if only a single node is selected in the variable tree
-        if (variableTree.getSelectionPaths().length == 1)
+        // Get the array of selected paths in the variable tree
+        TreePath[] selectedPaths = variableTree.getSelectionPaths();
+
+        // Check if only a single node is selected
+        if (selectedPaths != null && selectedPaths.length == 1)
         {
             // Clear any currently selected link(s)
             linkTree.clearSelection();

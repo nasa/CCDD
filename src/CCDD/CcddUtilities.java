@@ -47,10 +47,10 @@ public class CcddUtilities
 
         /**********************************************************************
          * HTML tag information class constructor
-         * 
+         *
          * @param htmlTag
          *            HTML tag characters
-         * 
+         *
          * @param tagChar
          *            HTML tag replacement character for HTML reserved
          *            characters
@@ -63,7 +63,7 @@ public class CcddUtilities
 
         /**********************************************************************
          * Get the HTML tag
-         * 
+         *
          * @return HTML tag characters
          *********************************************************************/
         private String getHTMLTag()
@@ -73,7 +73,7 @@ public class CcddUtilities
 
         /**********************************************************************
          * Check if the HTML tag represents a reserved character
-         * 
+         *
          * @return true if the HTML tag represents a reserved character
          *********************************************************************/
         private boolean isReservedChar()
@@ -83,7 +83,7 @@ public class CcddUtilities
 
         /**********************************************************************
          * Replace the HTML reserved characters with the equivalent HTML tag
-         * 
+         *
          * @param inputText
          *            text string in which to replace the HTML characters
          *********************************************************************/
@@ -103,7 +103,7 @@ public class CcddUtilities
 
         /**********************************************************************
          * Get the HTML reserved character placeholder
-         * 
+         *
          * @return HTML reserved character placeholder
          *********************************************************************/
         private String getSpecialCharPlaceholder()
@@ -116,10 +116,10 @@ public class CcddUtilities
 
     /**************************************************************************
      * Convert the specified string to a float
-     * 
+     *
      * @param value
      *            string in the format # or #/#
-     * 
+     *
      * @return Floating point representation of the value
      *************************************************************************/
     protected static float convertStringToFloat(String value)
@@ -155,10 +155,10 @@ public class CcddUtilities
 
         /**********************************************************************
          * HTML tag storage class constructor
-         * 
+         *
          * @param index
          *            location of the tag within the string
-         * 
+         *
          * @param tag
          *            tag text
          *********************************************************************/
@@ -170,7 +170,7 @@ public class CcddUtilities
 
         /**********************************************************************
          * Get the location of the tag within the string
-         * 
+         *
          * @return The location of the tag within the string
          *********************************************************************/
         private int getIndex()
@@ -180,7 +180,7 @@ public class CcddUtilities
 
         /**********************************************************************
          * Get the tag text
-         * 
+         *
          * @return The tag text
          *********************************************************************/
         private String getTag()
@@ -192,7 +192,7 @@ public class CcddUtilities
     /**************************************************************************
      * Check if two arrays contain the same set of items. The order of the
      * items in each set has no effect on the match outcome
-     * 
+     *
      * @return true if the two arrays contain the same items
      *************************************************************************/
     protected static boolean isArraySetsEqual(Object[] array1, Object[] array2)
@@ -209,10 +209,10 @@ public class CcddUtilities
     /**************************************************************************
      * Repeat any embedded double quotes, then bound the supplied text with
      * double quotes
-     * 
+     *
      * @param text
      *            text string for which to add double quotes
-     * 
+     *
      * @return The supplied text string with any embedded double quotes
      *         repeated, and bounded with double quotes
      *************************************************************************/
@@ -224,11 +224,11 @@ public class CcddUtilities
     /**************************************************************************
      * For each of the supplied text strings repeat any embedded double quotes,
      * then bound with double quotes and separate each result with a comma
-     * 
+     *
      * @param texts
      *            text string(s) for which to add double quotes and
      *            comma-separate
-     * 
+     *
      * @return Each of the supplied text strings with any embedded double
      *         quotes repeated, then bound with double quotes and separate each
      *         result with a comma
@@ -252,10 +252,10 @@ public class CcddUtilities
      * Split the supplied text string into an array, divided at commas,
      * ignoring commas within quotes. Remove the excess double quotes from the
      * array members
-     * 
+     *
      * @param text
      *            text string to split
-     * 
+     *
      * @return Text string divided into separate components, split at commas,
      *         accounting for commas within double quotes, and with the excess
      *         double quotes removed
@@ -269,23 +269,23 @@ public class CcddUtilities
      * Split the supplied text string into an array, divided at the specified
      * separator character(s), ignoring the separator character(s) within
      * quotes. Remove the excess double quotes from the array members
-     * 
+     *
      * @param text
      *            text string to split
-     * 
+     *
      * @param separator
      *            character(s) at which to split the text
-     * 
+     *
      * @param limit
      *            maximum number of parts to separate the text into. This is
      *            the number of parts returned, with any missing parts returned
      *            as blanks. Set to -1 to split the text into as many parts as
      *            there are separators in the text
-     * 
+     *
      * @param removeQuotes
      *            true to remove excess double quotes from the individual array
      *            members
-     * 
+     *
      * @return Text string divided into separate components, split at commas,
      *         accounting for commas within double quotes, and with the excess
      *         double quotes removed
@@ -315,12 +315,12 @@ public class CcddUtilities
     /**************************************************************************
      * Determine the character that separates an enumeration value from its
      * corresponding label
-     * 
+     *
      * @param enumeration
      *            enumeration in the format <enum value><enum value
      *            separator><enum label>[<enum value separator>...][<enum pair
      *            separator>...]
-     * 
+     *
      * @return Character that separates an enumeration value from its
      *         corresponding label
      *************************************************************************/
@@ -340,16 +340,16 @@ public class CcddUtilities
 
     /**************************************************************************
      * Determine the character that separates the enumerated pairs
-     * 
+     *
      * @param enumeration
      *            enumeration in the format <enum value><enum value
      *            separator><enum label>[<enum value separator>...][<enum pair
      *            separator>...]
-     * 
+     *
      * @param enumValueSeparator
      *            character used to separate an enumeration value from its
      *            corresponding label
-     * 
+     *
      * @return Character that separates the enumerated pairs
      *************************************************************************/
     protected static String getEnumerationPairSeparator(String enumeration,
@@ -383,13 +383,13 @@ public class CcddUtilities
     /**************************************************************************
      * Create a copy of a two-dimensional array with a specified number of
      * extra columns appended
-     * 
+     *
      * @param array
      *            array to copy
-     * 
+     *
      * @param numColumns
      *            number of columns to append
-     * 
+     *
      * @return Array containing the data from the input array plus the
      *         specified number of extra, empty columns appended
      *************************************************************************/
@@ -417,13 +417,13 @@ public class CcddUtilities
     /**************************************************************************
      * Create a copy of a list of string arrays with the specified column
      * removed
-     * 
+     *
      * @param list
      *            list from which to remove the column
-     * 
+     *
      * @param delColumn
      *            column to remove
-     * 
+     *
      * @return List of string arrays containing the data from the input list
      *         minus the specified column
      *************************************************************************/
@@ -463,13 +463,13 @@ public class CcddUtilities
     /**************************************************************************
      * Concatenate the contents of two one-dimensional arrays to produce a
      * third array
-     * 
+     *
      * @param array1
      *            first array to combine (can be null)
-     * 
+     *
      * @param array2
      *            second array to combine
-     * 
+     *
      * @return One-dimensional array with the contents of the second array
      *         appended to the first array
      *************************************************************************/
@@ -506,13 +506,13 @@ public class CcddUtilities
     /**************************************************************************
      * Concatenate the contents of two two-dimensional arrays to produce a
      * third array
-     * 
+     *
      * @param array1
      *            first array to combine (can be null)
-     * 
+     *
      * @param array2
      *            second array to combine
-     * 
+     *
      * @return Two-dimensional array with the contents of the second array
      *         appended to the first array
      *************************************************************************/
@@ -548,10 +548,10 @@ public class CcddUtilities
 
     /**************************************************************************
      * Convert an object array to a string array
-     * 
+     *
      * @param asObject
      *            single-dimensional object array to convert
-     * 
+     *
      * @return Single-dimensional array of string values
      *************************************************************************/
     protected static String[] convertObjectToString(Object[] asObject)
@@ -577,10 +577,10 @@ public class CcddUtilities
     /**************************************************************************
      * Convert an object array to a string array. The number of columns in the
      * input array do not have to have the same number of columns
-     * 
+     *
      * @param asObject
      *            two-dimensional object array to convert
-     * 
+     *
      * @return Two-dimensional array of string values
      *************************************************************************/
     protected static String[][] convertObjectToString(Object[][] asObject)
@@ -614,13 +614,13 @@ public class CcddUtilities
 
     /**************************************************************************
      * Remove trailing characters from the end of a string
-     * 
+     *
      * @param text
      *            string from which to remove the trailing characters
-     * 
+     *
      * @param trailingText
      *            trailing characters to remove
-     * 
+     *
      * @return Input string minus the trailing characters (if present)
      *************************************************************************/
     protected static String removeTrailer(String text, String trailingText)
@@ -637,14 +637,14 @@ public class CcddUtilities
 
     /**************************************************************************
      * Remove trailing characters from the end of a StringBuilder string
-     * 
+     *
      * @param text
      *            StringBuilder string from which to remove the trailing
      *            characters
-     * 
+     *
      * @param trailingText
      *            trailing characters to remove
-     * 
+     *
      * @return Input string minus the trailing characters (if present)
      *************************************************************************/
     protected static StringBuilder removeTrailer(StringBuilder text,
@@ -668,10 +668,10 @@ public class CcddUtilities
     /**************************************************************************
      * Remove any leading and trailing quotes from a quoted string, and replace
      * pairs of double quotes with one double quote
-     * 
+     *
      * @param text
      *            string from which to remove the excess quotes
-     * 
+     *
      * @return Input string minus any excess quotes
      *************************************************************************/
     protected static String removeExcessQuotes(String text)
@@ -682,10 +682,10 @@ public class CcddUtilities
     /**************************************************************************
      * Convert the array into a single string and remove the leading and
      * trailing brackets
-     * 
+     *
      * @param array
      *            array of strings
-     * 
+     *
      * @return Single string containing the strings from the array, separated
      *         by a comma and a space
      *************************************************************************/
@@ -697,7 +697,7 @@ public class CcddUtilities
     /**************************************************************************
      * Replace any HTML break tags with spaces, then remove the remaining HTML
      * tag(s) from the supplied text
-     * 
+     *
      * @param text
      *            string from which to remove the HTML tags
      *
@@ -712,7 +712,7 @@ public class CcddUtilities
     /**************************************************************************
      * Add the HTML tags to the supplied text to change the font color to the
      * one specified
-     * 
+     *
      * @param text
      *            string to which to apply the HTML tags
      *
@@ -728,10 +728,10 @@ public class CcddUtilities
     /**************************************************************************
      * Escape any PostgreSQL reserved characters in the supplied string so that
      * when used in a regular expression the characters are recognized properly
-     * 
+     *
      * @param text
      *            string in which to escape any reserved characters
-     * 
+     *
      * @return String with any reserved PostgreSQL characters escaped so that
      *         they are recognized by a regular expression
      *************************************************************************/
@@ -744,10 +744,10 @@ public class CcddUtilities
     /**************************************************************************
      * Replace the HTML special characters in a text string with the equivalent
      * HTML tags
-     * 
+     *
      * @param inputText
      *            string to format for HTML
-     * 
+     *
      * @return Input string with the HTML special characters replaced with the
      *         equivalent HTML tags
      *************************************************************************/
@@ -766,13 +766,13 @@ public class CcddUtilities
 
     /**************************************************************************
      * Search a string list for the specified text string, ignoring case
-     * 
+     *
      * @param text
      *            text string to search for in the list
-     * 
+     *
      * @param list
      *            string list to search through for the specified text
-     * 
+     *
      * @return true if the specified text string is present in the supplied
      *         list (case insensitive)
      *************************************************************************/
@@ -802,14 +802,14 @@ public class CcddUtilities
      * the line breaks insertion position(s). Once the line breaks are added
      * the HTML tags are restored. A non-HTML input string is converted to HTML
      * format, including conversion of any special characters
-     * 
-     * 
+     *
+     *
      * @param inputText
      *            string to format for wrapping
-     * 
+     *
      * @param maxLength
      *            maximum length, in characters, to wrap the text
-     * 
+     *
      * @return The input text, converted to HTML format (if not already), with
      *         line breaks inserted to limit the line length to the maximum
      *         specified; null if the input string is null or blank
@@ -935,7 +935,7 @@ public class CcddUtilities
                                 inputText = inputText.substring(0, tagIndex)
                                             + "_"
                                             + inputText.substring(tagIndex
-                                                       + 1);
+                                                                  + 1);
                             }
 
                             break;
@@ -985,8 +985,8 @@ public class CcddUtilities
                     // Set the pad length to account for the length of the
                     // space or break tag characters
                     padLength = inputText.charAt(index) == ' '
-                                                              ? " ".length()
-                                                              : HTMLTag.BREAK.getHTMLTag().length();
+                                                               ? " ".length()
+                                                               : HTMLTag.BREAK.getHTMLTag().length();
                 }
 
                 // Check if the portion of the string to be broken already
@@ -999,7 +999,8 @@ public class CcddUtilities
                     // removed)
                     breakIndex += inputText.substring(0,
                                                       index
-                                                          + padLength).indexOf(HTMLTag.BREAK.getHTMLTag())
+                                                         + padLength)
+                                           .indexOf(HTMLTag.BREAK.getHTMLTag())
                                   + HTMLTag.BREAK.getHTMLTag().length();
 
                     // Remove the text up to the breakpoint
@@ -1141,17 +1142,17 @@ public class CcddUtilities
 
     /**************************************************************************
      * Move the selected item(s) up or down in the specified JList list object
-     * 
+     *
      * @param list
      *            JList containing the selected items
-     * 
+     *
      * @param model
      *            JList model (short form, which does not contain the script
      *            path)
-     * 
+     *
      * @param longModel
      *            JList mode (long form, which contains the script path)
-     * 
+     *
      * @param direction
      *            direction to move the items: -1 to move up one line, +1 to
      *            move down one line
@@ -1224,10 +1225,10 @@ public class CcddUtilities
     /**************************************************************************
      * Display a dialog for a generic exception, showing the cause and the
      * stack trace
-     * 
+     *
      * @param exception
      *            exception reference
-     * 
+     *
      * @param parent
      *            GUI component over which to center the dialog
      *************************************************************************/
