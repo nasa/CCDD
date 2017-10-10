@@ -539,7 +539,6 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
             }
         });
 
-        // TODO
         // Create a hide data type check box
         final JCheckBox hideTypeChkBx = new JCheckBox("Hide data type");
         hideTypeChkBx.setBorder(emptyBorder);

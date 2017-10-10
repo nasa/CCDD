@@ -92,6 +92,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
     // Array to contain the script association table data
     private Object[][] committedAssnsData;
 
+    // Dialog title
+    private static final String DIALOG_TITLE = "Manage Script Associations";
+
     /**************************************************************************
      * Script association manager dialog class constructor
      *
@@ -107,7 +110,11 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         dbControl = ccddMain.getDbControlHandler();
         scriptHandler = ccddMain.getScriptHandler();
 
-        // Create the file output selection dialog
+        // Set the reference to the script associations manager in the script
+        // handler
+        scriptHandler.setScriptManager(this);
+
+        // Create the script association manager dialog
         initialize();
     }
 
@@ -600,6 +607,11 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                                                              JOptionPane.QUESTION_MESSAGE,
                                                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                             {
+                                // Reset the reference to the script
+                                // associations manager in the script handler
+                                // since the handler remains active)
+                                scriptHandler.setScriptManager(null);
+
                                 // Close the dialog
                                 closeFrame();
                             }
@@ -634,7 +646,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                 dialogPnl,
                                 buttonPnl,
                                 btnExecute,
-                                "Manage Script Associations",
+                                DIALOG_TITLE,
                                 null);
                 }
             });
@@ -805,8 +817,8 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
 
         // Check if the database contains no tables
         if (tableTree.getRowCount() != (tableTree.isRootVisible()
-                                                                 ? 1
-                                                                 : 0))
+                                                                  ? 1
+                                                                  : 0))
         {
             // Create panels to hold the components of the dialog
             tablePnl = new JPanel(new GridBagLayout());
@@ -832,8 +844,8 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             // Inform the user that no table exists in this database
             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                       "<html><b>Project '"
-                                                          + dbControl.getDatabase()
-                                                          + "' has no tables",
+                                                                               + dbControl.getDatabase()
+                                                                               + "' has no tables",
                                                       "No Tables",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -862,7 +874,8 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             }
         }
 
-        // Add the selected table names
+        // Add the selected table names, skipping child tables if an ancestor
+        // of the table is selected
         members.addAll(tableTree.getSelectedTablesWithoutChildren());
 
         // Get a file descriptor for the script file name
@@ -900,7 +913,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             // Inform the user that the association already is in the table
             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                       "<html><b>An association with this script and table(s) "
-                                                          + "already exists in the script associations table",
+                                                                               + "already exists in the script associations table",
                                                       "Association Exists",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -992,5 +1005,22 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         tableTree.buildTableTreeFromDatabase(CcddScriptManagerDialog.this);
         scriptHandler.getAssociationsTable().loadAndFormatData();
         assnsTable.getUndoManager().discardAllEdits();
+    }
+
+    /**************************************************************************
+     * Update the change indicator for the script associations manager
+     *************************************************************************/
+    protected void updateChangeIndicator()
+    {
+        // Add or remove the change indicator based on whether or not any
+        // unstored changes exist
+        setTitle(DIALOG_TITLE
+                 + (isAssociationsChanged()
+                                            ? "*"
+                                            : ""));
+
+        // Force the table to redraw so that changes to the cells are
+        // displayed
+        repaint();
     }
 }

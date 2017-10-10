@@ -85,7 +85,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     private final TableTreeType treeType;
     private ToolTipTreeNode instance;
     private JCheckBox expandChkBx;
-    private JCheckBox hideTypeChkBx;
 
     // Flag that indicates if the table tree child structures should be sorted
     // by variable name
@@ -1586,7 +1585,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      * Get a list of the tables (with their paths) represented by the selected
      * nodes. If a header node (i.e., a non-table node one level above a table
      * node, such as a group or type node) is selected then all of its child
-     * tables at the next level down are added to the list
+     * tables at the next level down are added to the list. If a selected node
+     * isn't a header node then ignore the node if it has a selected ancestor
+     * node
      *
      * @return List containing the table path+names of the selected node(s)
      *************************************************************************/
@@ -1614,8 +1615,30 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                     if (node.getChildCount() == 0
                         || path.getPathCount() > getHeaderNodeLevel())
                     {
-                        // Add the table path+name to the list
-                        tables.add(getFullVariablePath(node.getPath()));
+                        boolean isParentSelected = false;
+
+                        // Get the individual elements in the selected path
+                        Object[] pathElements = path.getPath();
+
+                        // Step through the node's ancestors
+                        for (int index = getHeaderNodeLevel(); index < path.getPathCount() - 1; index++)
+                        {
+                            // Check of the ancestor node is selected
+                            if (tables.contains(pathElements[index].toString()))
+                            {
+                                // Set the flag indicating that an ancestor of
+                                // this node is selected and stop searching
+                                isParentSelected = true;
+                                break;
+                            }
+                        }
+
+                        // Check if no ancestor of this node is selected
+                        if (!isParentSelected)
+                        {
+                            // Add the table path+name to the list
+                            tables.add(getFullVariablePath(node.getPath()));
+                        }
                     }
                     // The node is a header node (i.e., a node with table nodes
                     // as children)
@@ -2058,45 +2081,48 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             }
         });
 
-        // TODO
-        // Create a hide data type check box
-        hideTypeChkBx = new JCheckBox("Hide data type");
-        hideTypeChkBx.setBorder(emptyBorder);
-        hideTypeChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-        hideTypeChkBx.setSelected(false);
-
-        // Check if this is the last component to add
-        if (!showGroupFilter && !showTypeFilter && !addHiddenCheckBox)
+        // Check if instance tables are displayed in the tree
+        if (treeType != TableTreeType.PROTOTYPE_TABLES)
         {
-            gbc.insets.bottom = 0;
-        }
+            // Create a hide data type check box
+            final JCheckBox hideTypeChkBx = new JCheckBox("Hide data type");
+            hideTypeChkBx.setBorder(emptyBorder);
+            hideTypeChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            hideTypeChkBx.setSelected(false);
 
-        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
-        gbc.weighty = 0.0;
-        gbc.gridy++;
-        treePnl.add(hideTypeChkBx, gbc);
-
-        // Create a listener for changes in selection of the hide data type
-        // check box
-        hideTypeChkBx.addActionListener(new ActionListener()
-        {
-            /******************************************************************
-             * Handle a change to the hide data type check box selection
-             *****************************************************************/
-            @Override
-            public void actionPerformed(ActionEvent ae)
+            // Check if this is the last component to add
+            if (!showGroupFilter && !showTypeFilter && !addHiddenCheckBox)
             {
-                setEnableDataType(!hideTypeChkBx.isSelected());
-
-                // Store the tree's current expansion state
-                String expState = getExpansionState();
-
-                // Force the root node to draw with the node additions
-                ((DefaultTreeModel) treeModel).nodeStructureChanged(root);
-
-                setExpansionState(expState);
+                gbc.insets.bottom = 0;
             }
-        });
+
+            gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
+            gbc.weighty = 0.0;
+            gbc.gridy++;
+            treePnl.add(hideTypeChkBx, gbc);
+
+            // Create a listener for changes in selection of the hide data type
+            // check box
+            hideTypeChkBx.addActionListener(new ActionListener()
+            {
+                /**************************************************************
+                 * Handle a change to the hide data type check box selection
+                 *************************************************************/
+                @Override
+                public void actionPerformed(ActionEvent ae)
+                {
+                    setEnableDataType(!hideTypeChkBx.isSelected());
+
+                    // Store the tree's current expansion state
+                    String expState = getExpansionState();
+
+                    // Force the root node to draw with the node additions
+                    ((DefaultTreeModel) treeModel).nodeStructureChanged(root);
+
+                    setExpansionState(expState);
+                }
+            });
+        }
 
         // Create the filtering node prefix storage and check boxes
         final List<String> prefixes = new ArrayList<String>();

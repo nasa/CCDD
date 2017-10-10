@@ -142,9 +142,6 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         fieldModifications = new ArrayList<String[]>();
         fieldDeletions = new ArrayList<String[]>();
 
-        // Load the data field information from the database
-        getDataFieldInformation();
-
         // Allow the user to select the data fields to display in the table
         selectDataFields();
     }
@@ -272,7 +269,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                             // table
                             fieldInfo.setValue(mod[2]);
                             editor.getCommittedTableInformation().getFieldHandler().getFieldInformationByName(mod[0],
-                                                                                                              mod[1]).setValue(mod[2]);
+                                                                                                              mod[1])
+                                  .setValue(mod[2]);
 
                             // Check that this isn't a boolean input (check
                             // box) data field
@@ -333,6 +331,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                                                            0),
                                                                 0,
                                                                 0);
+
+                // Load the data field information from the database
+                getDataFieldInformation();
 
                 // Create a selection dialog, a panel for the table
                 // selection tree, and a panel to contain a check box for each
@@ -492,8 +493,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 {
                     // Inform the user that no data field is defined
                     new CcddDialogHandler().showMessageDialog((isVisible()
-                                                                          ? CcddFieldTableEditorDialog.this
-                                                                          : ccddMain.getMainFrame()),
+                                                                           ? CcddFieldTableEditorDialog.this
+                                                                           : ccddMain.getMainFrame()),
                                                               "<html><b>No data field exists",
                                                               "No Data Field",
                                                               JOptionPane.WARNING_MESSAGE,
@@ -507,14 +508,16 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             @Override
             protected void complete()
             {
-                // Display the data field selection dialog
-                if (selectDlg.showOptionsDialog((isVisible()
-                                                            ? CcddFieldTableEditorDialog.this
-                                                            : ccddMain.getMainFrame()),
-                                                selectPnl,
-                                                "Select Data Field(s)",
-                                                DialogOption.OK_CANCEL_OPTION,
-                                                true) == OK_BUTTON)
+                // Display the data field selection dialog if any fields are
+                // available for display
+                if (!dataFields.isEmpty()
+                    && selectDlg.showOptionsDialog((isVisible()
+                                                                ? CcddFieldTableEditorDialog.this
+                                                                : ccddMain.getMainFrame()),
+                                                   selectPnl,
+                                                   "Select Data Field(s)",
+                                                   DialogOption.OK_CANCEL_OPTION,
+                                                   true) == OK_BUTTON)
                 {
                     // Create a list for the column names. Add the default
                     // columns (table name and path)
@@ -638,11 +641,11 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     {
                         // Confirm discarding pending changes if any exist
                         if ((!isFieldTableChanged()
-                        || new CcddDialogHandler().showMessageDialog(CcddFieldTableEditorDialog.this,
-                                                                     "<html><b>Discard changes?",
-                                                                     "Discard Changes",
-                                                                     JOptionPane.QUESTION_MESSAGE,
-                                                                     DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
+                             || new CcddDialogHandler().showMessageDialog(CcddFieldTableEditorDialog.this,
+                                                                          "<html><b>Discard changes?",
+                                                                          "Discard Changes",
+                                                                          JOptionPane.QUESTION_MESSAGE,
+                                                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
                         {
                             // Allow the user to select the data fields to
                             // display
@@ -850,11 +853,11 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         // exist then confirm discarding the changes
         if (dataFieldTable.isLastCellValid()
             && (!isFieldTableChanged()
-            || new CcddDialogHandler().showMessageDialog(CcddFieldTableEditorDialog.this,
-                                                         "<html><b>Discard changes?",
-                                                         "Discard Changes",
-                                                         JOptionPane.QUESTION_MESSAGE,
-                                                         DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
+                || new CcddDialogHandler().showMessageDialog(CcddFieldTableEditorDialog.this,
+                                                             "<html><b>Discard changes?",
+                                                             "Discard Changes",
+                                                             JOptionPane.QUESTION_MESSAGE,
+                                                             DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
         {
             // Close the dialog
             closeFrame();
@@ -890,19 +893,20 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         for (int row = 0; row < dataFieldTable.getRowCount(); row++)
         {
             // Step through each column in the table
-            for (int column = 0; column < dataFieldTable.getModel().getColumnCount(); column++)
+            for (int column = 0; column < dataFieldTable.getColumnCount(); column++)
             {
+                // Get the column index in model coordinates
+                int columnMod = dataFieldTable.convertColumnIndexToModel(column);
+
                 // Check if this is not the table name or path column and if
                 // the cell at these coordinates is selected
-                if (column != FieldTableEditorColumnInfo.OWNER.ordinal()
-                    && column != FieldTableEditorColumnInfo.PATH.ordinal()
-                    && dataFieldTable.isCellSelected(dataFieldTable.convertRowIndexToView(row),
-                                                     dataFieldTable.convertColumnIndexToView(column)))
+                if (columnMod != FieldTableEditorColumnInfo.OWNER.ordinal()
+                    && columnMod != FieldTableEditorColumnInfo.PATH.ordinal()
+                    && dataFieldTable.isCellSelected(row, column))
                 {
                     // Add (if selecting) or remove (if deselecting) the cell
                     // from the selection list
-                    cellSelect.toggleCellSelection(dataFieldTable.convertRowIndexToView(row),
-                                                   dataFieldTable.convertColumnIndexToView(column));
+                    cellSelect.toggleCellSelection(row, column);
                 }
             }
         }
@@ -959,9 +963,11 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 return column != FieldTableEditorColumnInfo.OWNER.ordinal()
                        && column != FieldTableEditorColumnInfo.PATH.ordinal()
                        && fieldHandler.getFieldInformationByName(getOwnerWithPath(getModel().getValueAt(row,
-                                                                                                        FieldTableEditorColumnInfo.OWNER.ordinal()).toString(),
+                                                                                                        FieldTableEditorColumnInfo.OWNER.ordinal())
+                                                                                            .toString(),
                                                                                   getModel().getValueAt(row,
-                                                                                                        FieldTableEditorColumnInfo.PATH.ordinal()).toString()),
+                                                                                                        FieldTableEditorColumnInfo.PATH.ordinal())
+                                                                                            .toString()),
                                                                  columnNames[column]) != null;
             }
 
@@ -1058,12 +1064,12 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                             // invalid
                             new CcddDialogHandler().showMessageDialog(CcddFieldTableEditorDialog.this,
                                                                       "<html><b>Invalid characters in field '</b>"
-                                                                          + fieldInfo.getFieldName()
-                                                                          + "<b>'; "
-                                                                          + fieldInfo.getInputType().getInputName().toLowerCase()
-                                                                          + " expected",
+                                                                                                       + fieldInfo.getFieldName()
+                                                                                                       + "<b>'; "
+                                                                                                       + fieldInfo.getInputType().getInputName().toLowerCase()
+                                                                                                       + " expected",
                                                                       "Invalid "
-                                                                          + fieldInfo.getInputType().getInputName(),
+                                                                                                                      + fieldInfo.getInputType().getInputName(),
                                                                       JOptionPane.WARNING_MESSAGE,
                                                                       DialogOption.OK_OPTION);
 
@@ -1154,9 +1160,11 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
                     // Get the contents of the owner and path columns
                     String ownerValue = tableModel.getValueAt(rowModel,
-                                                              FieldTableEditorColumnInfo.OWNER.ordinal()).toString().trim();
+                                                              FieldTableEditorColumnInfo.OWNER.ordinal())
+                                                  .toString().trim();
                     String pathValue = tableModel.getValueAt(rowModel,
-                                                             FieldTableEditorColumnInfo.PATH.ordinal()).toString();
+                                                             FieldTableEditorColumnInfo.PATH.ordinal())
+                                                 .toString();
 
                     // Check if this is the structure path column
                     if (columnModel == FieldTableEditorColumnInfo.PATH.ordinal())
@@ -1165,7 +1173,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                         // not a structure table or a group
                         if (pathValue.isEmpty()
                             && (nonStructureTableNames.contains(ownerValue)
-                            || ownerValue.startsWith(CcddFieldHandler.getFieldGroupName(""))))
+                                || ownerValue.startsWith(CcddFieldHandler.getFieldGroupName(""))))
                         {
                             // Set the cell's background color to indicate
                             // the structure path isn't applicable for this
@@ -1181,7 +1189,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     {
                         // Check if the cell is a data field selected for
                         // removal
-                        if (selectedCells.contains(rowModel, columnModel))
+                        if (selectedCells.contains(row, column))
                         {
                             // Change the cell's colors to indicate the data
                             // field represented by the cell is selected for
@@ -1197,13 +1205,15 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                             // Get the input data type for this data field
                             InputDataType inputType = fieldHandler.getFieldInformationByName(getOwnerWithPath(ownerValue,
                                                                                                               pathValue),
-                                                                                             columnNames[columnModel]).getInputType();
+                                                                                             columnNames[columnModel])
+                                                                  .getInputType();
 
                             // Get the text in the cell, formatted per its
                             // input type, but without preserving the leading
                             // zeroes for hexadecimal values
                             String value = inputType.formatInput(tableModel.getValueAt(rowModel,
-                                                                                       columnModel).toString(),
+                                                                                       columnModel)
+                                                                           .toString(),
                                                                  false);
 
                             // Step through each row in the table
@@ -1216,8 +1226,10 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                 if (rowModel != checkRow
                                     && !value.isEmpty()
                                     && inputType.formatInput(tableModel.getValueAt(checkRow,
-                                                                                   columnModel).toString(),
-                                                             false).equals(value))
+                                                                                   columnModel)
+                                                                       .toString(),
+                                                             false)
+                                                .equals(value))
                                 {
                                     // Change the cell's background color to
                                     // indicate it has the same value as
@@ -1250,9 +1262,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // Add or remove the change indicator based on whether any
                 // unstored changes exist
                 setTitle(DIALOG_TITLE
-                         + (dataFieldTable.isTableChanged(committedData)
-                                                                        ? "*"
-                                                                        : ""));
+                         + (isFieldTableChanged()
+                                                  ? "*"
+                                                  : ""));
 
                 // Force the table to redraw so that changes to the cells are
                 // displayed
@@ -1304,7 +1316,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             {
                 // Get the owner for this row
                 String owner = dataFieldTable.getModel().getValueAt(row,
-                                                                    FieldTableEditorColumnInfo.OWNER.ordinal()).toString().trim();
+                                                                    FieldTableEditorColumnInfo.OWNER.ordinal())
+                                             .toString().trim();
 
                 // Check if the cell at these coordinates is selected and that
                 // the data field for this row belongs to a table (versus a
@@ -1314,7 +1327,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 {
                     // Get the structure path for this row
                     String path = dataFieldTable.getModel().getValueAt(row,
-                                                                       FieldTableEditorColumnInfo.PATH.ordinal()).toString();
+                                                                       FieldTableEditorColumnInfo.PATH.ordinal())
+                                                .toString();
 
                     // Add the table path to the list and stop checking the
                     // columns in this row
@@ -1395,7 +1409,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             // selected then all tables are considered to match)
             if (!ownerName.startsWith(CcddFieldHandler.getFieldTypeName(""))
                 && (filterTables.isEmpty()
-                || filterTables.contains(ownerName)))
+                    || filterTables.contains(ownerName)))
             {
                 String pathName = "";
 
@@ -1472,8 +1486,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                             // Store the data field value in the existing list
                             // item and stop searching
                             ownerDataFld[dataFieldIndex] = fieldInfo.getInputType() == InputDataType.BOOLEAN
-                                                                                                            ? Boolean.valueOf(fieldInfo.getValue())
-                                                                                                            : fieldInfo.getValue();
+                                                                                                             ? Boolean.valueOf(fieldInfo.getValue())
+                                                                                                             : fieldInfo.getValue();
                             isFound = true;
                             break;
                         }
@@ -1491,8 +1505,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                         newTable[FieldTableEditorColumnInfo.OWNER.ordinal()] = ownerName;
                         newTable[FieldTableEditorColumnInfo.PATH.ordinal()] = pathName;
                         newTable[dataFieldIndex] = fieldInfo.getInputType() == InputDataType.BOOLEAN
-                                                                                                    ? Boolean.valueOf(fieldInfo.getValue())
-                                                                                                    : fieldInfo.getValue();
+                                                                                                     ? Boolean.valueOf(fieldInfo.getValue())
+                                                                                                     : fieldInfo.getValue();
 
                         // Add the new row to the list
                         ownerDataFields.add(newTable);
@@ -1558,7 +1572,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                                            tableData[row][FieldTableEditorColumnInfo.PATH.ordinal()].toString());
 
                     // Check if this field is selected for removal
-                    if (selectedCells.contains(row, column))
+                    if (selectedCells.contains(dataFieldTable.convertRowIndexToView(row),
+                                               dataFieldTable.convertColumnIndexToView(column)))
                     {
                         // Add the field removal information to the list
                         fieldDeletions.add(new String[] {tableAndPath,
@@ -1599,7 +1614,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     {
         List<String[]> nameList = new ArrayList<String[]>();
 
-        // Step through each database
+        // Step through each data field
         for (String[] dataField : dataFields)
         {
             // Check that this isn't a default data field

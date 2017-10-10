@@ -2,8 +2,9 @@
  * CFS Command & Data Dictionary database verification handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is claimed
- * in the United States under Title 17, U.S. Code. All Other Rights Reserved.
+ * of the National Aeronautics and Space Administration. No copyright is
+ * claimed in the United States under Title 17, U.S. Code. All Other Rights
+ * Reserved.
  */
 package CCDD;
 
@@ -64,6 +65,7 @@ import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.GroupsColumn;
 import CCDD.CcddConstants.InternalTable.LinksColumn;
 import CCDD.CcddConstants.InternalTable.OrdersColumn;
+import CCDD.CcddConstants.InternalTable.TableTypesColumn;
 import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -536,9 +538,10 @@ public class CcddDbVerificationHandler
      * Perform a consistency check of the project database. Query the user for
      * permission to make corrections, then apply the corrections at completion
      * of the check. This method is executed in a separate thread since it can
-     * take a noticeable amount time to complete, and by using a separate thread
-     * the GUI is allowed to continue to update. The GUI menu commands, however,
-     * are disabled until the table data consistency check completes execution
+     * take a noticeable amount time to complete, and by using a separate
+     * thread the GUI is allowed to continue to update. The GUI menu commands,
+     * however, are disabled until the table data consistency check completes
+     * execution
      *************************************************************************/
     private void verifyDatabase()
     {
@@ -606,7 +609,7 @@ public class CcddDbVerificationHandler
                 dialogPnl.add(textLbl2, gbc);
 
                 // Add a progress bar to the dialog
-                JProgressBar progBar = new JProgressBar(0, 5);
+                JProgressBar progBar = new JProgressBar(0, 6);
                 progBar.setValue(0);
                 progBar.setStringPainted(true);
                 progBar.setPreferredSize(new Dimension(100, 20));
@@ -673,10 +676,9 @@ public class CcddDbVerificationHandler
                                     // Update the progress bar
                                     progBar.setValue(3);
 
-                                    // Check for inconsistencies between the
-                                    // table type definitions and the tables of
-                                    // that type
-                                    verifyTableTypes(tableResult);
+                                    // verify the input data types in the table
+                                    // types and data fields internal tables
+                                    verifyInputTypes(tableResult);
 
                                     // Check if verification isn't canceled
                                     if (!canceled)
@@ -684,12 +686,24 @@ public class CcddDbVerificationHandler
                                         // Update the progress bar
                                         progBar.setValue(4);
 
-                                        // Check for inconsistencies within the
-                                        // data tables
-                                        verifyDataTables();
+                                        // Check for inconsistencies between
+                                        // the table type definitions and the
+                                        // tables of that type
+                                        verifyTableTypes(tableResult);
 
-                                        // Update the progress bar
-                                        progBar.setValue(5);
+                                        // Check if verification isn't canceled
+                                        if (!canceled)
+                                        {
+                                            // Update the progress bar
+                                            progBar.setValue(5);
+
+                                            // Check for inconsistencies within
+                                            // the data tables
+                                            verifyDataTables();
+
+                                            // Update the progress bar
+                                            progBar.setValue(6);
+                                        }
                                     }
                                 }
                             }
@@ -747,9 +761,9 @@ public class CcddDbVerificationHandler
     /**************************************************************************
      * Check that the owner role matches for the project database and its
      * tables, sequences, indices, and functions. A database administrator is
-     * required in order to alter the owner role(s) to match the database owner;
-     * this must be done outside the application. If any mismatch is detected
-     * then the issue is logged for information purposes only
+     * required in order to alter the owner role(s) to match the database
+     * owner; this must be done outside the application. If any mismatch is
+     * detected then the issue is logged for information purposes only
      *************************************************************************/
     private void verifyOwners()
     {
@@ -1086,6 +1100,108 @@ public class CcddDbVerificationHandler
     }
 
     /**************************************************************************
+     * Check that the input data types in the table types and data fields
+     * internal tables are valid. If any invalid entries are detected then get
+     * user approval to alter the table(s)
+     *
+     * @param tableResult
+     *            metadata for all tables
+     *************************************************************************/
+    private void verifyInputTypes(ResultSet tableResult)
+    {
+        String tableNameDb = "";
+
+        try
+        {
+            // Go to the first row in the result set
+            tableResult.first();
+
+            // Step through each database table
+            while (tableResult.next())
+            {
+                // Check if the user canceled verification
+                if (canceled)
+                {
+                    break;
+                }
+
+                // Get the table name
+                tableNameDb = tableResult.getString("TABLE_NAME");
+
+                String columnName = "";
+
+                // Check if this is the tables types internal table
+                if (tableNameDb.equals(InternalTable.TABLE_TYPES.getTableName()))
+                {
+                    // Get the column name containing the input type
+                    columnName = TableTypesColumn.INPUT_TYPE.getColumnName();
+                }
+                // Check if this is the data fields internal table
+                else if (tableNameDb.equals(InternalTable.FIELDS.getTableName()))
+                {
+                    // Get the column name containing the input type
+                    columnName = FieldsColumn.FIELD_TYPE.getColumnName();
+                }
+
+                // Check if the table types or data fields internal table is
+                // being checked
+                if (!columnName.isEmpty())
+                {
+                    // Step through the input types referenced in the internal
+                    // table
+                    for (String[] inputType : getInternalTableMembers(tableNameDb,
+                                                                      columnName,
+                                                                      null))
+                    {
+                        // Check if the user canceled verification
+                        if (canceled)
+                        {
+                            break;
+                        }
+
+                        // Check if the input type is invalid
+                        if (InputDataType.getInputTypeByName(inputType[0]) == null)
+                        {
+                            // Invalid input data type
+                            issues.add(new TableIssue("Internal table '"
+                                                      + tableNameDb
+                                                      + "' references an invalid input type, '"
+                                                      + inputType[0]
+                                                      + "'",
+                                                      "Replace input type with 'Text'",
+                                                      "UPDATE "
+                                                                                        + tableNameDb
+                                                                                        + " SET "
+                                                                                        + columnName
+                                                                                        + " = 'Text' WHERE "
+                                                                                        + columnName
+                                                                                        + " = '"
+                                                                                        + inputType[0]
+                                                                                        + "';"));
+                        }
+                    }
+                }
+            }
+        }
+        catch (
+
+        SQLException se)
+        {
+            // Inform the user that obtaining the internal table metadata
+            // failed
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Error obtaining metadata for internal table '"
+                                                           + tableNameDb
+                                                           + "'; cause '"
+                                                           + se.getMessage()
+                                                           + "'",
+                                  "<html><b>Error obtaining metadata for internal table '</b>"
+                                                                  + tableNameDb
+                                                                  + "<b>'");
+        }
+    }
+
+    /**************************************************************************
      * Check that the references to tables and variables in the internal tables
      * are valid. If any invalid entries are detected then get user approval to
      * alter the table(s)
@@ -1151,7 +1267,7 @@ public class CcddDbVerificationHandler
                                     // Extract the group name
                                     String groupName = table.substring(GROUP_DATA_FIELD_IDENT.length());
 
-                                    // Check if the group name is valid
+                                    // Check if the group name is invalid
                                     if (!groupNames.contains(groupName))
                                     {
                                         // Association table reference is
@@ -1553,7 +1669,8 @@ public class CcddDbVerificationHandler
 
     /**************************************************************************
      * Check that the tables are consistent with their type definitions. If any
-     * inconsistencies are detected then get user approval to alter the table(s)
+     * inconsistencies are detected then get user approval to alter the
+     * table(s)
      *
      * @param tableResult
      *            metadata for all tables
@@ -1981,7 +2098,8 @@ public class CcddDbVerificationHandler
                                                        row,
                                                        arrayName);
 
-                            // Store the row number for use if other members are
+                            // Store the row number for use if other members
+                            // are
                             // found to be missing after all other rows have
                             // been checked
                             lastMissingRow = row;
@@ -2063,6 +2181,7 @@ public class CcddDbVerificationHandler
             && !data.isEmpty()
             && !(column == variableNameIndex
                  && ArrayVariable.isArrayMember(data))
+            && typeDefinition.getInputTypes()[column] != null
             && !data.matches(typeDefinition.getInputTypes()[column].getInputMatch()))
         {
             // Value doesn't match the input type specified in the type
@@ -2279,8 +2398,8 @@ public class CcddDbVerificationHandler
     }
 
     /**************************************************************************
-     * Check if the data type is the same for the array definition and all of it
-     * members
+     * Check if the data type is the same for the array definition and all of
+     * it members
      *
      * @param tableInfo
      *            reference to the table information
@@ -2500,8 +2619,8 @@ public class CcddDbVerificationHandler
 
     /**************************************************************************
      * Compare the current table data to the committed table data and create
-     * lists of the changed values necessary to update the table in the database
-     * to match the current values
+     * lists of the changed values necessary to update the table in the
+     * database to match the current values
      *
      * @param tblStrg
      *            reference to the table information and committed data

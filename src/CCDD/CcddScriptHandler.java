@@ -90,6 +90,7 @@ public class CcddScriptHandler
     private CcddTableTypeHandler tableTypeHandler;
     private CcddDataTypeHandler dataTypeHandler;
     private CcddJTableHandler assnsTable;
+    private CcddScriptManagerDialog scriptMgr;
 
     // Component referenced by multiple methods
     private JCheckBox hideScriptFilePath;
@@ -125,6 +126,8 @@ public class CcddScriptHandler
 
         // Get the available script engines
         scriptFactories = new ScriptEngineManager().getEngineFactories();
+
+        scriptMgr = null;
     }
 
     /**************************************************************************
@@ -134,6 +137,15 @@ public class CcddScriptHandler
     {
         tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
+    }
+
+    /**************************************************************************
+     * Set the reference to the script manager class. This should be null when
+     * the script manager isn't open
+     *************************************************************************/
+    protected void setScriptManager(CcddScriptManagerDialog scriptMgr)
+    {
+        this.scriptMgr = scriptMgr;
     }
 
     /**************************************************************************
@@ -469,10 +481,10 @@ public class CcddScriptHandler
                 }
             }
 
-            /**************************************************************
+            /******************************************************************
              * Override the method that sets the row sorter so that special
              * sorting can be performed on the script file column
-             *************************************************************/
+             *****************************************************************/
             @Override
             protected void setTableSortable()
             {
@@ -489,11 +501,11 @@ public class CcddScriptHandler
                     // Add a sort comparator for the script file column
                     sorter.setComparator(AssociationsTableColumnInfo.SCRIPT_FILE.ordinal(), new Comparator<String>()
                     {
-                        /**************************************************
+                        /******************************************************
                          * Override the comparison when sorting the script file
                          * column to ignore the script file paths if these are
                          * currently hidden
-                         *************************************************/
+                         *****************************************************/
                         @Override
                         public int compare(String filePath1, String filePath2)
                         {
@@ -508,6 +520,21 @@ public class CcddScriptHandler
                                                                                                                            : filePath2);
                         }
                     });
+                }
+            }
+
+            /******************************************************************
+             * Handle a change to the table's content
+             *****************************************************************/
+            @Override
+            protected void processTableContentChange()
+            {
+                // Check if the reference to the script manager is set (i.e.,
+                // the script associations manager dialog is open)
+                if (scriptMgr != null)
+                {
+                    // Update the script associations manager change indicator
+                    scriptMgr.updateChangeIndicator();
                 }
             }
         };

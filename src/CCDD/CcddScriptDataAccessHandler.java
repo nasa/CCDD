@@ -377,13 +377,15 @@ public class CcddScriptDataAccessHandler
         if (strgArray.length != 0
             && strgArray[0].length != 0
             && (minWidths == null
+                || minWidths.length == 0
                 || minWidths.length >= strgArray[0].length))
         {
             // Check if no initial minimum widths are supplied
-            if (minWidths == null)
+            if (minWidths == null || minWidths.length == 0)
             {
                 // Create storage for the minimum widths
                 minWidths = new Integer[strgArray[0].length];
+                Arrays.fill(minWidths, 1);
             }
 
             // Step through each string in the supplied array
@@ -986,8 +988,16 @@ public class CcddScriptDataAccessHandler
         if (tableInfo != null && row < tableInfo.getData().length)
         {
             // Store the table name for the parameter at the specified row
-            tableName = TableInformation.getPrototypeName(tableInfo.getData()[row][tableInfo.getData()[row].length
-                                                                                   - PATH_COLUMN_DELTA]);
+            tableName = tableInfo.getData()[row][tableInfo.getData()[row].length
+                                                 - PATH_COLUMN_DELTA];
+
+            // Check if only prototype names should be returned for child
+            // structures
+            if (prototypeOnly)
+            {
+                // Get the prototype name form the table name
+                tableName = TableInformation.getPrototypeName(tableName);
+            }
         }
 
         return tableName;
@@ -3278,6 +3288,81 @@ public class CcddScriptDataAccessHandler
     }
 
     /**************************************************************************
+     * Get the name(s) of the data field(s) associated with the specified table
+     *
+     * @param tableName
+     *            name of the table, including the path if this table
+     *            references a structure, to which the field is a member
+     *
+     * @return Array of the data field names associated with the specified
+     *         table; returns an empty array if the table name is invalid or
+     *         the table has no data fields
+     *************************************************************************/
+    public String[] getTableDataFieldNames(String tableName)
+    {
+        return getDataFieldNames(tableName);
+    }
+
+    /**************************************************************************
+     * Get the name(s) of the data field(s) associated with the specified group
+     *
+     * @param groupName
+     *            name of the group to which the field is a member
+     *
+     *
+     * @return Array of the data field names associated with the specified
+     *         group; returns an empty array if the group name is invalid or
+     *         the group has no data fields
+     *************************************************************************/
+    public String[] getGroupDataFieldNames(String groupName)
+    {
+        return getDataFieldNames(CcddFieldHandler.getFieldGroupName(groupName));
+    }
+
+    /**************************************************************************
+     * Get the name(s) of the data field(s) associated with the specified table
+     * type
+     *
+     * @param typeName
+     *            name of the table type to which the field is a member
+     *
+     * @return Array of the data field names associated with the specified
+     *         table type; returns an empty array if the table type name is
+     *         invalid or the table type has no data fields
+     *************************************************************************/
+    public String[] getTypeDataFieldNames(String typeName)
+    {
+        return getDataFieldNames(CcddFieldHandler.getFieldTypeName(typeName));
+    }
+
+    /**************************************************************************
+     * Get the name(s) of the data field(s) associated with the specified owner
+     *
+     * @param ownerName
+     *            name of the table type to which the field is a member
+     *
+     * @return Array of the data field names associated with the specified
+     *         owner; returns an empty array if the owner name is invalid or
+     *         the owner has no data fields
+     *************************************************************************/
+    private String[] getDataFieldNames(String ownerName)
+    {
+        List<String> fieldNames = new ArrayList<String>();
+
+        // Build the field information for this owner
+        fieldHandler.buildFieldInformation(ownerName);
+
+        // Step through each data field associated with the owner
+        for (FieldInformation fieldInfo : fieldHandler.getFieldInformation())
+        {
+            // Add the field name to the list
+            fieldNames.add(fieldInfo.getFieldName());
+        }
+
+        return fieldNames.toArray(new String[0]);
+    }
+
+    /**************************************************************************
      * Get the data field value for all tables that have the specified data
      * field
      *
@@ -4000,6 +4085,22 @@ public class CcddScriptDataAccessHandler
         }
 
         return tableData;
+    }
+
+    /**************************************************************************
+     * Get the description of the specified table
+     *
+     * @param tableName
+     *            table name, including the full path for child structure
+     *            tables
+     *
+     * @return Description of the specified table; returns a blank the table
+     *         doesn't exist
+     *************************************************************************/
+    public String getTableDescription(String tableName)
+    {
+        // Get the description for the table
+        return dbTable.queryTableDescription(tableName, ccddMain.getMainFrame());
     }
 
     /**************************************************************************
