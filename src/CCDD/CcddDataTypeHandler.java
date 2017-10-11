@@ -505,7 +505,9 @@ public class CcddDataTypeHandler
                                                                                                      {"_allow_regex_",
                                                                                                       "false"},
                                                                                                      {"_selected_tables_",
-                                                                                                      SearchType.PROTO.toString()}},
+                                                                                                      SearchType.PROTO.toString()},
+                                                                                                     {"_columns_",
+                                                                                                      ""}},
                                                                                      parent)));
 
         // Step through each match (in reverse since an entry in the list may

@@ -441,8 +441,9 @@ public class CcddDbTableCommandHandler
             // Inform the user that the query failed
             eventLog.logFailEvent(parent,
                                   "Database query failed; cause '"
-                                      + se.getMessage()
-                                      + "'", "<html><b>Database query failed");
+                                          + se.getMessage()
+                                          + "'",
+                                  "<html><b>Database query failed");
         }
 
         return queryResults;
@@ -677,13 +678,13 @@ public class CcddDbTableCommandHandler
             // Inform the user that loading the table comment failed
             eventLog.logFailEvent(parent,
                                   "Cannot obtain comment for table '"
-                                      + tableName
-                                      + "'; cause '"
-                                      + se.getMessage()
-                                      + "'",
+                                          + tableName
+                                          + "'; cause '"
+                                          + se.getMessage()
+                                          + "'",
                                   "<html><b>Cannot obtain comment for table '</b>"
-                                      + tableName
-                                      + "<b>'");
+                                                 + tableName
+                                                 + "<b>'");
         }
 
         return parts.toArray(new String[0]);
@@ -825,13 +826,13 @@ public class CcddDbTableCommandHandler
             // Inform the user that loading the table description failed
             eventLog.logFailEvent(parent,
                                   "Cannot obtain description for table '"
-                                      + tablePath
-                                      + "'; cause '"
-                                      + se.getMessage()
-                                      + "'",
+                                          + tablePath
+                                          + "'; cause '"
+                                          + se.getMessage()
+                                          + "'",
                                   "<html><b>Cannot obtain description for table '</b>"
-                                      + tablePath
-                                      + "<b>'");
+                                                 + tablePath
+                                                 + "<b>'");
         }
 
         return description;
@@ -894,13 +895,13 @@ public class CcddDbTableCommandHandler
             // Inform the user that loading the table column order failed
             eventLog.logFailEvent(parent,
                                   "Cannot obtain column order for table '"
-                                      + tablePath
-                                      + "'; cause '"
-                                      + se.getMessage()
-                                      + "'",
+                                          + tablePath
+                                          + "'; cause '"
+                                          + se.getMessage()
+                                          + "'",
                                   "<html><b>Cannot obtain column order for table '</b>"
-                                      + tablePath
-                                      + "<b>'");
+                                                 + tablePath
+                                                 + "<b>'");
         }
 
         return columnOrder;
@@ -967,21 +968,21 @@ public class CcddDbTableCommandHandler
             // Inform the user that the update succeeded
             eventLog.logEvent(SUCCESS_MSG,
                               "Table '"
-                                  + tableName
-                                  + "' comment updated");
+                                           + tableName
+                                           + "' comment updated");
         }
         catch (SQLException se)
         {
             // Inform the user that the database command failed
             eventLog.logFailEvent(parent,
                                   "Cannot update comment for table '"
-                                      + tableName
-                                      + "'; cause '"
-                                      + se.getMessage()
-                                      + "'",
+                                          + tableName
+                                          + "'; cause '"
+                                          + se.getMessage()
+                                          + "'",
                                   "<html><b>Cannot update comment for table '</b>"
-                                      + tableName
-                                      + "<b>'");
+                                                 + tableName
+                                                 + "<b>'");
         }
     }
 
@@ -1127,21 +1128,21 @@ public class CcddDbTableCommandHandler
             // Inform the user that the update succeeded
             eventLog.logEvent(SUCCESS_MSG,
                               "Table(s) '"
-                                  + allNames
-                                  + "' created");
+                                           + allNames
+                                           + "' created");
         }
         catch (SQLException se)
         {
             // Inform the user that the database command failed
             eventLog.logFailEvent(parent,
                                   "Cannot create table(s) '"
-                                      + allNames
-                                      + "'; cause '"
-                                      + se.getMessage()
-                                      + "'",
+                                          + allNames
+                                          + "'; cause '"
+                                          + se.getMessage()
+                                          + "'",
                                   "<html><b>Cannot create table(s) '</b>"
-                                      + allNames
-                                      + "<b>'");
+                                                 + allNames
+                                                 + "<b>'");
             errorFlag = true;
         }
 
@@ -1336,23 +1337,23 @@ public class CcddDbTableCommandHandler
                     // Log that renaming the table succeeded
                     eventLog.logEvent(SUCCESS_MSG,
                                       "Table '"
-                                          + tableName
-                                          + "' renamed to '"
-                                          + newName
-                                          + "'");
+                                                   + tableName
+                                                   + "' renamed to '"
+                                                   + newName
+                                                   + "'");
                 }
                 catch (SQLException se)
                 {
                     // Inform the user that renaming the table failed
                     eventLog.logFailEvent(tableDialog,
                                           "Cannot rename table '"
-                                              + tableName
-                                              + "'; cause '"
-                                              + se.getMessage()
-                                              + "'",
+                                                       + tableName
+                                                       + "'; cause '"
+                                                       + se.getMessage()
+                                                       + "'",
                                           "<html><b>Cannot rename table '</b>"
-                                              + tableName
-                                              + "<b>'");
+                                                              + tableName
+                                                              + "<b>'");
                     errorFlag = true;
                 }
             }
@@ -1397,9 +1398,9 @@ public class CcddDbTableCommandHandler
     {
         // Get the table separator, escaping any special character(s)
         String separator = intType == InternalTable.ASSOCIATIONS
-                                                                ? "|"
-                                                                  + assnsSeparator
-                                                                : "";
+                                                                 ? "|"
+                                                                   + assnsSeparator
+                                                                 : "";
 
         return "UPDATE "
                + intType.getTableName()
@@ -1409,9 +1410,9 @@ public class CcddDbTableCommandHandler
                + idColumnName
                + ", E'(^|,"
                + (intType == InternalTable.TLM_SCHEDULER
-                                                        ? "|"
-                                                          + tlmSchSeparator
-                                                        : separator)
+                                                         ? "|"
+                                                           + tlmSchSeparator
+                                                         : separator)
                + ")"
                + oldName
                + "(\\\\.|,"
@@ -1542,23 +1543,23 @@ public class CcddDbTableCommandHandler
                     // Log that renaming the table succeeded
                     eventLog.logEvent(SUCCESS_MSG,
                                       "Table '"
-                                          + tableName
-                                          + "' copied to '"
-                                          + newName
-                                          + "'");
+                                                   + tableName
+                                                   + "' copied to '"
+                                                   + newName
+                                                   + "'");
                 }
                 catch (SQLException se)
                 {
                     // Inform the user that copying the table failed
                     eventLog.logFailEvent(tableDialog,
                                           "Cannot copy table '"
-                                              + tableName
-                                              + "'; cause '"
-                                              + se.getMessage()
-                                              + "'",
+                                                       + tableName
+                                                       + "'; cause '"
+                                                       + se.getMessage()
+                                                       + "'",
                                           "<html><b>Cannot copy table '</b>"
-                                              + tableName
-                                              + "<b>'");
+                                                              + tableName
+                                                              + "<b>'");
                     errorFlag = true;
                 }
             }
@@ -1608,8 +1609,8 @@ public class CcddDbTableCommandHandler
         // Have the user confirm deleting the selected table(s)
         if (new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Delete table(s) '</b>"
-                                                          + names
-                                                          + "<b>'?<br><br><i>Warning: This action cannot be undone!",
+                                                              + names
+                                                              + "<b>'?<br><br><i>Warning: This action cannot be undone!",
                                                       "Delete Table(s)",
                                                       JOptionPane.QUESTION_MESSAGE,
                                                       DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
@@ -1695,21 +1696,21 @@ public class CcddDbTableCommandHandler
             // Log that the table deletion succeeded
             eventLog.logEvent(SUCCESS_MSG,
                               "Table(s) '"
-                                  + names
-                                  + "' deleted");
+                                           + names
+                                           + "' deleted");
         }
         catch (SQLException se)
         {
             // Inform the user that the table deletion failed
             eventLog.logFailEvent(parent,
                                   "Cannot delete table(s) '"
-                                      + names
-                                      + "'; cause '"
-                                      + se.getMessage()
-                                      + "'",
+                                          + names
+                                          + "'; cause '"
+                                          + se.getMessage()
+                                          + "'",
                                   "<html><b>Cannot delete table(s) '</b>"
-                                      + names
-                                      + "<b>'");
+                                                 + names
+                                                 + "<b>'");
             errorFlag = true;
         }
 
@@ -1827,8 +1828,8 @@ public class CcddDbTableCommandHandler
                                                TlmSchedulerColumn.MEMBER.getColumnName())
                                    .replaceAll("\\^",
                                                "^\\\\\\\\d+\\\\\\\\.\\\\\\\\d+"
-                                                   + "\\\\\\\\\\\\\\"
-                                                   + TLM_SCH_SEPARATOR);
+                                                      + "\\\\\\\\\\\\\\"
+                                                      + TLM_SCH_SEPARATOR);
             groupsDelCmd += infoCmd.replaceAll("col1",
                                                GroupsColumn.MEMBERS.getColumnName());
             fieldsDelCmd += infoCmd.replaceAll("col1",
@@ -1921,8 +1922,8 @@ public class CcddDbTableCommandHandler
 
             // Get the component over which any dialogs need to be centered
             Component parent = (currentEditorDlg == null)
-                                                         ? ccddMain.getMainFrame()
-                                                         : currentEditorDlg;
+                                                          ? ccddMain.getMainFrame()
+                                                          : currentEditorDlg;
 
             /******************************************************************
              * Load database table command
@@ -2167,19 +2168,19 @@ public class CcddDbTableCommandHandler
                                                  tablePath,
                                                  dbRows.toArray(new String[0][0]),
                                                  (loadColumnOrder
-                                                                 ? queryColumnOrder(tablePath,
-                                                                                    comment[TableCommentIndex.TYPE.ordinal()],
-                                                                                    parent)
-                                                                 : ""),
+                                                                  ? queryColumnOrder(tablePath,
+                                                                                     comment[TableCommentIndex.TYPE.ordinal()],
+                                                                                     parent)
+                                                                  : ""),
                                                  (loadDescription
-                                                                 ? queryTableDescription(tablePath,
-                                                                                         parent)
-                                                                 : ""),
+                                                                  ? queryTableDescription(tablePath,
+                                                                                          parent)
+                                                                  : ""),
                                                  isRootStructure,
                                                  (loadFieldInfo
-                                                               ? retrieveInformationTable(InternalTable.FIELDS,
-                                                                                          parent).toArray(new String[0][0])
-                                                               : null));
+                                                                ? retrieveInformationTable(InternalTable.FIELDS,
+                                                                                           parent).toArray(new String[0][0])
+                                                                : null));
 
                 // Get the index of the variable name and data type columns
                 int varNameIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
@@ -2265,13 +2266,13 @@ public class CcddDbTableCommandHandler
                 // Inform the user that loading the table failed
                 eventLog.logFailEvent(parent,
                                       "Cannot load table '"
-                                          + tableInfo.getProtoVariableName()
-                                          + "'; cause '"
-                                          + se.getMessage()
-                                          + "'",
+                                              + tableInfo.getProtoVariableName()
+                                              + "'; cause '"
+                                              + se.getMessage()
+                                              + "'",
                                       "<html><b>Cannot load table '</b>"
-                                          + tableInfo.getProtoVariableName()
-                                          + "<b>'");
+                                                     + tableInfo.getProtoVariableName()
+                                                     + "<b>'");
             }
             catch (Exception e)
             {
@@ -2322,12 +2323,12 @@ public class CcddDbTableCommandHandler
                                                          + "'"
                                                          + (columnValue == null
                                                             || columnValue.isEmpty()
-                                                                                    ? ""
-                                                                                    : " AND "
-                                                                                      + ValuesColumn.VALUE.getColumnName()
-                                                                                      + " = '"
-                                                                                      + columnValue
-                                                                                      + "'")
+                                                                                     ? ""
+                                                                                     : " AND "
+                                                                                       + ValuesColumn.VALUE.getColumnName()
+                                                                                       + " = '"
+                                                                                       + columnValue
+                                                                                       + "'")
                                                          + ";",
                                                          parent);
 
@@ -2347,8 +2348,8 @@ public class CcddDbTableCommandHandler
             // Inform the user that loading the custom values failed
             eventLog.logFailEvent(parent,
                                   "Cannot load data from the custom values table; cause '"
-                                      + se.getMessage()
-                                      + "'",
+                                          + se.getMessage()
+                                          + "'",
                                   "<html><b>Cannot load data from the custom values table");
         }
 
@@ -2439,8 +2440,8 @@ public class CcddDbTableCommandHandler
             // tables and structure tables with no rows are skipped
             ResultSet rowData = dbCommand.executeDbQuery("SELECT * FROM "
                                                          + (sortByName
-                                                                      ? "get_table_members_by_name();"
-                                                                      : "get_table_members_by_index();"),
+                                                                       ? "get_table_members_by_name();"
+                                                                       : "get_table_members_by_index();"),
                                                          parent);
 
             // Create a list to contain the database table member data types
@@ -2488,7 +2489,7 @@ public class CcddDbTableCommandHandler
                         && variableName != null
                         && !variableName.isEmpty()
                         && (!dataTypeHandler.isPrimitive(dataType)
-                        || memberType == TableMemberType.INCLUDE_PRIMITIVES))
+                            || memberType == TableMemberType.INCLUDE_PRIMITIVES))
                     {
                         // Get the number of variable names in the list
                         int addIndex = variableNames.size();
@@ -2658,8 +2659,8 @@ public class CcddDbTableCommandHandler
             // Inform the user that loading the table members failed
             eventLog.logFailEvent(parent,
                                   "Cannot load table members; cause '"
-                                      + se.getMessage()
-                                      + "'",
+                                          + se.getMessage()
+                                          + "'",
                                   "<html><b>Cannot load table members");
             tableMembers = null;
         }
@@ -2923,18 +2924,15 @@ public class CcddDbTableCommandHandler
             // Combine the table, data fields table, table description, and
             // column order update commands, then execute the commands
             dbCommand.executeDbUpdate(command
-                                      + (updateFieldInfo ?
-                                                        modifyFieldsCommand(tableInfo.getTablePath(),
-                                                                            tableInfo.getFieldHandler().getFieldInformation())
-                                                        : "")
-                                      + (updateDescription ?
-                                                          buildTableDescription(tableInfo.getTablePath(),
-                                                                                description)
-                                                          : "")
-                                      + (updateColumnOrder ?
-                                                          buildColumnOrder(tableInfo.getTablePath(),
-                                                                           tableInfo.getColumnOrder())
-                                                          : ""),
+                                      + (updateFieldInfo ? modifyFieldsCommand(tableInfo.getTablePath(),
+                                                                               tableInfo.getFieldHandler().getFieldInformation())
+                                                         : "")
+                                      + (updateDescription ? buildTableDescription(tableInfo.getTablePath(),
+                                                                                   description)
+                                                           : "")
+                                      + (updateColumnOrder ? buildColumnOrder(tableInfo.getTablePath(),
+                                                                              tableInfo.getColumnOrder())
+                                                           : ""),
                                       parent);
 
             // Check if references in the internal tables are to be updated
@@ -3006,21 +3004,21 @@ public class CcddDbTableCommandHandler
             // Log that inserting data into the table succeeded
             eventLog.logEvent(SUCCESS_MSG,
                               "Table '"
-                                  + tableInfo.getProtoVariableName()
-                                  + "' data modified");
+                                           + tableInfo.getProtoVariableName()
+                                           + "' data modified");
         }
         catch (SQLException se)
         {
             // Inform the user that updating the table failed
             eventLog.logFailEvent(parent,
                                   "Cannot modify data in table '"
-                                      + tableInfo.getProtoVariableName()
-                                      + "'; cause '"
-                                      + se.getMessage()
-                                      + "'",
+                                          + tableInfo.getProtoVariableName()
+                                          + "'; cause '"
+                                          + se.getMessage()
+                                          + "'",
                                   "<html><b>Cannot modify data in table '</b>"
-                                      + tableInfo.getProtoVariableName()
-                                      + "<b>'");
+                                                 + tableInfo.getProtoVariableName()
+                                                 + "<b>'");
             errorFlag = true;
         }
         catch (Exception e)
@@ -3611,13 +3609,13 @@ public class CcddDbTableCommandHandler
                                 // unchanged
                                 if ((variableChanged
 
-                                    || (dataTypeChanged
-                                        && dataTypeHandler.isPrimitive(oldDataType)
-                                        && newDataTypeHandler.isPrimitive(newDataType)))
+                                     || (dataTypeChanged
+                                         && dataTypeHandler.isPrimitive(oldDataType)
+                                         && newDataTypeHandler.isPrimitive(newDataType)))
 
                                     && !(arraySizeChanged
-                                    && (oldArraySize.isEmpty()
-                                    || newArraySize.isEmpty())))
+                                         && (oldArraySize.isEmpty()
+                                             || newArraySize.isEmpty())))
                                 {
                                     // Create the command to update the
                                     // internal tables for instances of
@@ -3715,12 +3713,12 @@ public class CcddDbTableCommandHandler
                                     // paths
                                     String orgVarPathEscBit = orgVarPathEsc
                                                               + (oldBitLength.isEmpty()
-                                                                                       ? ""
-                                                                                       : ":" + oldBitLength);
+                                                                                        ? ""
+                                                                                        : ":" + oldBitLength);
                                     String newVariablePathBit = newVariablePath
                                                                 + (newBitLength.isEmpty()
-                                                                                         ? ""
-                                                                                         : ":" + newBitLength);
+                                                                                          ? ""
+                                                                                          : ":" + newBitLength);
 
                                     // Create the command to update the
                                     // links and telemetry scheduler tables for
@@ -3849,7 +3847,7 @@ public class CcddDbTableCommandHandler
                                 // row addition and deletion methods)
                                 if (arraySizeChanged
                                     && (oldArraySize.isEmpty()
-                                    || newArraySize.isEmpty()))
+                                        || newArraySize.isEmpty()))
                                 {
                                     // Remove all references to the structure's
                                     // children, but not the structure itself
@@ -4144,10 +4142,10 @@ public class CcddDbTableCommandHandler
             {
                 // Add the table row deletion command
                 delCmd.append((delCmd.length() == 0
-                                                   ? "DELETE FROM "
-                                                     + dbTableName
-                                                     + " WHERE "
-                                                   : " OR ")
+                                                    ? "DELETE FROM "
+                                                      + dbTableName
+                                                      + " WHERE "
+                                                    : " OR ")
                               + typeDefinition.getColumnNamesDatabase()[DefaultColumn.PRIMARY_KEY.ordinal()]
                               + " = "
                               + del.getRowData()[DefaultColumn.PRIMARY_KEY.ordinal()]);
@@ -4184,10 +4182,10 @@ public class CcddDbTableCommandHandler
                         // values table for instances of variables of the
                         // prototype table
                         valuesDelCmd.append((valuesDelCmd.length() == 0
-                                                                       ? "DELETE FROM "
-                                                                         + InternalTable.VALUES.getTableName()
-                                                                         + " WHERE"
-                                                                       : " OR")
+                                                                        ? "DELETE FROM "
+                                                                          + InternalTable.VALUES.getTableName()
+                                                                          + " WHERE"
+                                                                        : " OR")
                                             + " "
                                             + ValuesColumn.TABLE_PATH.getColumnName()
                                             + " ~ E'^"
@@ -4212,30 +4210,30 @@ public class CcddDbTableCommandHandler
                             // internal tables for instances of variables of
                             // the prototype table
                             groupsDelCmd.append((groupsDelCmd.length() == 0
-                                                                           ? "DELETE FROM "
-                                                                             + InternalTable.GROUPS.getTableName()
-                                                                             + " WHERE"
-                                                                           : " OR")
+                                                                            ? "DELETE FROM "
+                                                                              + InternalTable.GROUPS.getTableName()
+                                                                              + " WHERE"
+                                                                            : " OR")
                                                 + " "
                                                 + GroupsColumn.MEMBERS.getColumnName()
                                                 + " ~ E'^"
                                                 + variablePathEsc
                                                 + "(?:,|$)'");
                             fieldsDelCmd.append((fieldsDelCmd.length() == 0
-                                                                           ? "DELETE FROM "
-                                                                             + InternalTable.FIELDS.getTableName()
-                                                                             + " WHERE"
-                                                                           : " OR")
+                                                                            ? "DELETE FROM "
+                                                                              + InternalTable.FIELDS.getTableName()
+                                                                              + " WHERE"
+                                                                            : " OR")
                                                 + " "
                                                 + FieldsColumn.OWNER_NAME.getColumnName()
                                                 + " ~ E'^"
                                                 + variablePathEsc
                                                 + "(?:,|$)'");
                             ordersDelCmd.append((ordersDelCmd.length() == 0
-                                                                           ? "DELETE FROM "
-                                                                             + InternalTable.ORDERS.getTableName()
-                                                                             + " WHERE"
-                                                                           : " OR")
+                                                                            ? "DELETE FROM "
+                                                                              + InternalTable.ORDERS.getTableName()
+                                                                              + " WHERE"
+                                                                            : " OR")
                                                 + " "
                                                 + OrdersColumn.TABLE_PATH.getColumnName()
                                                 + " ~ E'^"
@@ -4400,7 +4398,7 @@ public class CcddDbTableCommandHandler
                                                                    "[(\\\\\\\\d+)");
                     newVariablePath = newVariablePath.replaceFirst("\\[0",
                                                                    "[\\\\\\\\"
-                                                                       + captureGrp);
+                                                                           + captureGrp);
                     captureGrp++;
                 }
 
@@ -4416,15 +4414,15 @@ public class CcddDbTableCommandHandler
                           + captureIn
                           + orgVariablePath
                           + (includeChildren
-                                            ? "(,.*|$)"
-                                            : "$")
+                                             ? "(,.*|$)"
+                                             : "$")
                           + "', E'"
                           + captureOut
                           + newVariablePath
                           + (includeChildren
-                                            ? "\\\\"
-                                              + captureGrp
-                                            : "")
+                                             ? "\\\\"
+                                               + captureGrp
+                                             : "")
                           + "'); ";
             }
         }
@@ -4443,15 +4441,15 @@ public class CcddDbTableCommandHandler
                       + captureIn
                       + orgVariablePath
                       + (includeChildren
-                                        ? "(,.*|:\\\\d+|$)"
-                                        : "$")
+                                         ? "(,.*|:\\\\d+|$)"
+                                         : "$")
                       + "', E'"
                       + captureOut
                       + newVariablePath
                       + (includeChildren
-                                        ? "\\\\"
-                                          + captureGrp
-                                        : "")
+                                         ? "\\\\"
+                                           + captureGrp
+                                         : "")
                       + "'); ";
         }
 
@@ -4734,21 +4732,20 @@ public class CcddDbTableCommandHandler
                 // Insert the new string array member into the link definitions
                 // list immediately after the preceding member
                 addLinkHandler.getLinkDefinitions().add(index + 1,
-                                                        new String[]
-                                                        {linkDefns.get(index)[LinksColumn.RATE_NAME.ordinal()],
-                                                         linkDefns.get(index)[LinksColumn.LINK_NAME.ordinal()],
-                                                         linkMember.replaceFirst("("
-                                                                                 + protoTable
-                                                                                 + "(?:,|\\.[^,]+,)"
-                                                                                 + dataType
-                                                                                 + "\\."
-                                                                                 + stringVarNameDefn
-                                                                                 + "\\[)"
-                                                                                 + stringIndex
-                                                                                 + "(\\])",
-                                                                                 "$1"
-                                                                                     + (stringIndex + 1)
-                                                                                     + "$2")});
+                                                        new String[] {linkDefns.get(index)[LinksColumn.RATE_NAME.ordinal()],
+                                                                      linkDefns.get(index)[LinksColumn.LINK_NAME.ordinal()],
+                                                                      linkMember.replaceFirst("("
+                                                                                              + protoTable
+                                                                                              + "(?:,|\\.[^,]+,)"
+                                                                                              + dataType
+                                                                                              + "\\."
+                                                                                              + stringVarNameDefn
+                                                                                              + "\\[)"
+                                                                                              + stringIndex
+                                                                                              + "(\\])",
+                                                                                              "$1"
+                                                                                                         + (stringIndex + 1)
+                                                                                                         + "$2")});
 
                 // Set the flag to indicate that a change to the link
                 // definitions was made
@@ -4779,10 +4776,10 @@ public class CcddDbTableCommandHandler
                                             StringBuilder linksCmd)
     {
         linksCmd.append((linksCmd.length() == 0
-                                               ? "DELETE FROM "
-                                                 + InternalTable.LINKS.getTableName()
-                                                 + " WHERE"
-                                               : " OR")
+                                                ? "DELETE FROM "
+                                                  + InternalTable.LINKS.getTableName()
+                                                  + " WHERE"
+                                                : " OR")
                         + " "
                         + LinksColumn.MEMBER.getColumnName()
                         + " ~ E'"
@@ -4815,10 +4812,10 @@ public class CcddDbTableCommandHandler
                                            StringBuilder tlmCmd)
     {
         tlmCmd.append((tlmCmd.length() == 0
-                                           ? "DELETE FROM "
-                                             + InternalTable.TLM_SCHEDULER.getTableName()
-                                             + " WHERE"
-                                           : " OR")
+                                            ? "DELETE FROM "
+                                              + InternalTable.TLM_SCHEDULER.getTableName()
+                                              + " WHERE"
+                                            : " OR")
                       + " "
                       + TlmSchedulerColumn.MEMBER.getColumnName()
                       + " ~ E'^.*"
@@ -5014,8 +5011,8 @@ public class CcddDbTableCommandHandler
                 // Get the internal table
                 ResultSet infoData = dbCommand.executeDbQuery("SELECT *"
                                                               + (includeOID
-                                                                           ? ", OID"
-                                                                           : "")
+                                                                            ? ", OID"
+                                                                            : "")
                                                               + " FROM "
                                                               + intTableName
                                                               + " ORDER BY OID;",
@@ -5054,13 +5051,13 @@ public class CcddDbTableCommandHandler
             // Inform the user that loading the internal table failed
             eventLog.logFailEvent(parent,
                                   "Cannot load internal table '"
-                                      + intTableName
-                                      + "'; cause '"
-                                      + se.getMessage()
-                                      + "'",
+                                          + intTableName
+                                          + "'; cause '"
+                                          + se.getMessage()
+                                          + "'",
                                   "<html><b>Cannot load internal table '</b>"
-                                      + intTableName
-                                      + "<b>'");
+                                                 + intTableName
+                                                 + "<b>'");
         }
 
         return tableData;
@@ -5307,13 +5304,13 @@ public class CcddDbTableCommandHandler
             // Inform the user that the database command failed
             eventLog.logFailEvent(parent,
                                   "Cannot store internal table '"
-                                      + intTableName
-                                      + "'; cause '"
-                                      + se.getMessage()
-                                      + "'",
+                                          + intTableName
+                                          + "'; cause '"
+                                          + se.getMessage()
+                                          + "'",
                                   "<html><b>Cannot store internal table '</b>"
-                                      + intTableName
-                                      + "<b>'");
+                                                 + intTableName
+                                                 + "<b>'");
             errorFlag = true;
         }
 
@@ -5463,13 +5460,13 @@ public class CcddDbTableCommandHandler
             // failed
             eventLog.logFailEvent(parent,
                                   "Cannot obtain comment for internal table '"
-                                      + tableName
-                                      + "'; cause '"
-                                      + se.getMessage()
-                                      + "'",
+                                          + tableName
+                                          + "'; cause '"
+                                          + se.getMessage()
+                                          + "'",
                                   "<html><b>Cannot obtain comment for internal table '</b>"
-                                      + tableName
-                                      + "<b>'");
+                                                 + tableName
+                                                 + "<b>'");
         }
 
         // Check if the internal table contains any items
@@ -5720,23 +5717,23 @@ public class CcddDbTableCommandHandler
                     // Log that renaming the table succeeded
                     eventLog.logEvent(SUCCESS_MSG,
                                       "Table '"
-                                          + tableName
-                                          + "' type renamed to '"
-                                          + newName
-                                          + "'");
+                                                   + tableName
+                                                   + "' type renamed to '"
+                                                   + newName
+                                                   + "'");
                 }
                 catch (SQLException se)
                 {
                     // Inform the user that renaming the table type failed
                     eventLog.logFailEvent(typeDialog,
                                           "Cannot rename type for table '"
-                                              + tableName
-                                              + "'; cause '"
-                                              + se.getMessage()
-                                              + "'",
+                                                      + tableName
+                                                      + "'; cause '"
+                                                      + se.getMessage()
+                                                      + "'",
                                           "<html><b>Cannot rename type for table '</b>"
-                                              + tableName
-                                              + "<b>'");
+                                                             + tableName
+                                                             + "<b>'");
                     errorFlag = true;
                 }
             }
@@ -5816,23 +5813,23 @@ public class CcddDbTableCommandHandler
                     // Log that renaming the table succeeded
                     eventLog.logEvent(SUCCESS_MSG,
                                       "Table type '"
-                                          + typeName
-                                          + "' copied to '"
-                                          + copyName
-                                          + "'");
+                                                   + typeName
+                                                   + "' copied to '"
+                                                   + copyName
+                                                   + "'");
                 }
                 catch (SQLException se)
                 {
                     // Inform the user that copying the table type failed
                     eventLog.logFailEvent(typeDialog,
                                           "Cannot copy table type '"
-                                              + typeName
-                                              + "'; cause '"
-                                              + se.getMessage()
-                                              + "'",
+                                                      + typeName
+                                                      + "'; cause '"
+                                                      + se.getMessage()
+                                                      + "'",
                                           "<html><b>Cannot copy table type '</b>"
-                                              + typeName
-                                              + "<b>'");
+                                                             + typeName
+                                                             + "<b>'");
                     errorFlag = true;
                 }
             }
@@ -5924,10 +5921,10 @@ public class CcddDbTableCommandHandler
                         // table(s)
                         if (new CcddDialogHandler().showMessageDialog(parent,
                                                                       "<html><b>Delete table(s) '</b>"
-                                                                          + names
-                                                                          + "<b>' of type '</b>"
-                                                                          + typeName
-                                                                          + "<b>'?<br><br><i>Warning: This action cannot be undone!",
+                                                                              + names
+                                                                              + "<b>' of type '</b>"
+                                                                              + typeName
+                                                                              + "<b>'?<br><br><i>Warning: This action cannot be undone!",
                                                                       "Delete Table(s)",
                                                                       JOptionPane.QUESTION_MESSAGE,
                                                                       DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
@@ -5970,10 +5967,10 @@ public class CcddDbTableCommandHandler
                         // Log that the table deletion succeeded
                         eventLog.logEvent(SUCCESS_MSG,
                                           "Table type '"
-                                              + typeName
-                                              + "'"
-                                              + CcddUtilities.removeHTMLTags(names)
-                                              + " deleted");
+                                                       + typeName
+                                                       + "'"
+                                                       + CcddUtilities.removeHTMLTags(names)
+                                                       + " deleted");
                     }
                 }
                 catch (SQLException se)
@@ -5981,17 +5978,17 @@ public class CcddDbTableCommandHandler
                     // Inform the user that the table deletion failed
                     eventLog.logFailEvent(parent,
                                           "Cannot delete table type '"
-                                              + typeName
-                                              + "'"
-                                              + CcddUtilities.removeHTMLTags(names)
-                                              + "; cause '"
-                                              + se.getMessage()
-                                              + "'",
+                                                  + typeName
+                                                  + "'"
+                                                  + CcddUtilities.removeHTMLTags(names)
+                                                  + "; cause '"
+                                                  + se.getMessage()
+                                                  + "'",
                                           "<html><b>Cannot delete table type '"
-                                              + typeName
-                                              + "'</b>"
-                                              + names
-                                              + "<b>'");
+                                                         + typeName
+                                                         + "'</b>"
+                                                         + names
+                                                         + "<b>'");
                     errorFlag = true;
                 }
             }
@@ -6174,8 +6171,8 @@ public class CcddDbTableCommandHandler
             // Set the flag that indicates if the table type definition
             // represents a structure prior to making the updates
             boolean wasStructure = originalDefn != null
-                                                       ? originalDefn.isStructure()
-                                                       : false;
+                                                        ? originalDefn.isStructure()
+                                                        : false;
 
             // Get the type definition based on the table type name
             TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(typeName);
@@ -6659,26 +6656,26 @@ public class CcddDbTableCommandHandler
                         // Check if the data field meets the criteria of a new
                         // field for this table
                         if ((
-                            // The table doesn't have this data field
-                            (fieldHandler.getFieldInformationByName(tableName,
-                                                                    fieldInfo.getFieldName()) == null))
+                        // The table doesn't have this data field
+                        (fieldHandler.getFieldInformationByName(tableName,
+                                                                fieldInfo.getFieldName()) == null))
 
                             // ... and the table isn't a child structure (all
                             // fields are stored for prototypes, even if not
                             // displayed) or the field is applicable to this
                             // table
                             && (!tableName.contains(".")
-                            || fieldHandler.isFieldApplicable(tableName,
-                                                              fieldInfo.getApplicabilityType().getApplicabilityName(),
-                                                              isRootStruct))
+                                || fieldHandler.isFieldApplicable(tableName,
+                                                                  fieldInfo.getApplicabilityType().getApplicabilityName(),
+                                                                  isRootStruct))
 
                             // ... or the field is a separator and the number
                             // of this type of separator in the type editor
                             // exceeds the number already in the table
                             || (fieldInfo.getInputType().equals(InputDataType.SEPARATOR)
-                            && sepCount > numSep)
+                                && sepCount > numSep)
                             || (fieldInfo.getInputType().equals(InputDataType.BREAK)
-                            && brkCount > numBrk))
+                                && brkCount > numBrk))
                         {
                             // Add the data field to the table and set the flag
                             // indicating a change has been made
@@ -6748,26 +6745,26 @@ public class CcddDbTableCommandHandler
                 // Log that updating the table type succeeded
                 eventLog.logEvent(SUCCESS_MSG,
                                   "Table type '"
-                                      + typeName
-                                      + "'"
-                                      + CcddUtilities.removeHTMLTags(names)
-                                      + " updated");
+                                               + typeName
+                                               + "'"
+                                               + CcddUtilities.removeHTMLTags(names)
+                                               + " updated");
             }
             catch (SQLException se)
             {
                 // Inform the user that updating the tables failed
                 eventLog.logFailEvent(editorDialog,
                                       "Cannot update table type '"
-                                          + typeName
-                                          + "'"
-                                          + CcddUtilities.removeHTMLTags(names)
-                                          + "; cause '"
-                                          + se.getMessage()
-                                          + "'",
+                                                    + typeName
+                                                    + "'"
+                                                    + CcddUtilities.removeHTMLTags(names)
+                                                    + "; cause '"
+                                                    + se.getMessage()
+                                                    + "'",
                                       "<html><b>Cannot update table type '</b>"
-                                          + typeName
-                                          + "<b>'"
-                                          + names);
+                                                           + typeName
+                                                           + "<b>'"
+                                                           + names);
                 errorFlag = true;
             }
 
@@ -7120,8 +7117,8 @@ public class CcddDbTableCommandHandler
                     // Inform the user that updating the data fields failed
                     eventLog.logFailEvent(editorWindow,
                                           "Cannot update data fields; cause '"
-                                              + se.getMessage()
-                                              + "'",
+                                                        + se.getMessage()
+                                                        + "'",
                                           "<html><b>Cannot update data fields");
                     errorFlag = true;
                 }
@@ -7425,8 +7422,8 @@ public class CcddDbTableCommandHandler
                         // column containing the data type (macro) reference
                         typeDefn = tableTypeHandler.getTypeDefinition(modifiedTable.getEditor().getTableInformation().getType());
                         int changeColumnIndex = isPrototype
-                                                           ? typeDefn.getColumnIndexByDbName(changeColumn)
-                                                           : typeDefn.getColumnIndexByUserName(changeColumn);
+                                                            ? typeDefn.getColumnIndexByDbName(changeColumn)
+                                                            : typeDefn.getColumnIndexByUserName(changeColumn);
 
                         // Check if a change was made to the user-defined data
                         // type (macro) name
@@ -7443,8 +7440,8 @@ public class CcddDbTableCommandHandler
                                 // a prototype use the table's type to get the
                                 // column index for the variable name
                                 if (isPrototype
-                                               ? matchColumn.equals(tableData.get(row)[DefaultColumn.PRIMARY_KEY.ordinal()])
-                                               : matchColumn.equals(tableData.get(row)[typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE)].toString()))
+                                                ? matchColumn.equals(tableData.get(row)[DefaultColumn.PRIMARY_KEY.ordinal()])
+                                                : matchColumn.equals(tableData.get(row)[typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE)].toString()))
                                 {
                                     // Step through each column in the row,
                                     // skipping the primary key and row index
@@ -7490,8 +7487,8 @@ public class CcddDbTableCommandHandler
                         // Check if a change was made to the data type size or
                         // base type, or macro value
                         if ((isDataType
-                            && (dataTypeHandler.getSizeInBytes(oldName) != ((CcddDataTypeHandler) newHandler).getSizeInBytes(newName)
-                            || !dataTypeHandler.getBaseDataType(oldName).equals(((CcddDataTypeHandler) newHandler).getBaseDataType(newName))))
+                             && (dataTypeHandler.getSizeInBytes(oldName) != ((CcddDataTypeHandler) newHandler).getSizeInBytes(newName)
+                                 || !dataTypeHandler.getBaseDataType(oldName).equals(((CcddDataTypeHandler) newHandler).getBaseDataType(newName))))
 
                             || (!isDataType
                                 && macroHandler.getMacroValue(oldName) != null
@@ -7509,8 +7506,8 @@ public class CcddDbTableCommandHandler
                                 // use the table's type to get the column index
                                 // for the variable name
                                 if (isPrototype
-                                               ? matchColumn.equals(tableData.get(row)[DefaultColumn.PRIMARY_KEY.ordinal()])
-                                               : matchColumn.equals(tableData.get(row)[typeDefn.getColumnIndicesByInputType(InputDataType.VARIABLE).get(0)].toString()))
+                                                ? matchColumn.equals(tableData.get(row)[DefaultColumn.PRIMARY_KEY.ordinal()])
+                                                : matchColumn.equals(tableData.get(row)[typeDefn.getColumnIndicesByInputType(InputDataType.VARIABLE).get(0)].toString()))
                                 {
                                     // Step through each column in the row,
                                     // skipping the primary key and row index
@@ -7749,11 +7746,11 @@ public class CcddDbTableCommandHandler
                                             false,
                                             false,
                                             (isDataType
-                                                       ? (CcddDataTypeHandler) newHandler
-                                                       : null),
+                                                        ? (CcddDataTypeHandler) newHandler
+                                                        : null),
                                             (isDataType
-                                                       ? null
-                                                       : (CcddMacroHandler) newHandler),
+                                                        ? null
+                                                        : (CcddMacroHandler) newHandler),
                                             dialog))
                         {
                             throw new SQLException("table modification error");
@@ -7762,12 +7759,12 @@ public class CcddDbTableCommandHandler
 
                     // Store the data type or macro table
                     dbCommand.executeDbUpdate(storeNonTableTypesInfoTableCommand((isDataType
-                                                                                            ? InternalTable.DATA_TYPES
-                                                                                            : InternalTable.MACROS),
+                                                                                             ? InternalTable.DATA_TYPES
+                                                                                             : InternalTable.MACROS),
                                                                                  CcddUtilities.removeArrayListColumn(updates,
                                                                                                                      (isDataType
-                                                                                                                                ? DataTypesColumn.OID.ordinal()
-                                                                                                                                : MacrosColumn.OID.ordinal())),
+                                                                                                                                 ? DataTypesColumn.OID.ordinal()
+                                                                                                                                 : MacrosColumn.OID.ordinal())),
                                                                                  null,
                                                                                  dialog),
                                               dialog);
@@ -7778,7 +7775,7 @@ public class CcddDbTableCommandHandler
                     // Inform the user that the update succeeded
                     eventLog.logEvent(SUCCESS_MSG,
                                       changeName
-                                          + " and all affected tables updated");
+                                                   + " and all affected tables updated");
                 }
                 catch (SQLException se)
                 {
@@ -7787,12 +7784,12 @@ public class CcddDbTableCommandHandler
                         // Inform the user that updating the macros failed
                         eventLog.logFailEvent(dialog,
                                               "Cannot update "
-                                                  + changeName.toLowerCase()
-                                                  + "; cause '"
-                                                  + se.getMessage()
-                                                  + "'",
+                                                      + changeName.toLowerCase()
+                                                      + "; cause '"
+                                                      + se.getMessage()
+                                                      + "'",
                                               "<html><b>Cannot update "
-                                                  + changeName.toLowerCase());
+                                                             + changeName.toLowerCase());
 
                         // Revert the changes to the tables that were
                         // successfully updated prior the current table
@@ -7807,8 +7804,8 @@ public class CcddDbTableCommandHandler
                         // failed
                         eventLog.logFailEvent(dialog,
                                               "Cannot revert changes to table(s); cause '"
-                                                  + se.getMessage()
-                                                  + "'",
+                                                      + se.getMessage()
+                                                      + "'",
                                               "<html><b>Cannot revert changes to table(s)");
                     }
 

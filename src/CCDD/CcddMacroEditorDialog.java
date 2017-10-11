@@ -101,7 +101,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
             this.macroName = macroName;
 
             // Get the references to the specified macro in the data tables
-            references = macroHandler.getMacroReferences(macroName,
+            references = macroHandler.getMacroReferences(macroHandler.getFullMacroName(macroName),
                                                          CcddMacroEditorDialog.this);
         }
 
@@ -322,8 +322,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                                 // deleted
                                 new CcddDialogHandler().showMessageDialog(CcddMacroEditorDialog.this,
                                                                           "<html><b>Cannot delete macro '"
-                                                                              + name
-                                                                              + "'; macro is referenced by a data table",
+                                                                                                      + name
+                                                                                                      + "'; macro is referenced by a data table",
                                                                           "Delete Macro",
                                                                           JOptionPane.QUESTION_MESSAGE,
                                                                           DialogOption.OK_OPTION);
@@ -742,7 +742,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                         // Inform the user that the input value is invalid
                         new CcddDialogHandler().showMessageDialog(CcddMacroEditorDialog.this,
                                                                   "<html><b>"
-                                                                      + ce.getMessage(),
+                                                                                              + ce.getMessage(),
                                                                   "Invalid Input",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);
@@ -844,8 +844,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                 // any unstored changes exist
                 setTitle(DIALOG_TITLE
                          + (macroTable.isTableChanged(committedData)
-                                                                    ? "*"
-                                                                    : ""));
+                                                                     ? "*"
+                                                                     : ""));
 
                 // Force the table to redraw so that changes to the cells are
                 // displayed
@@ -888,11 +888,11 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
         // changes exist then confirm discarding the changes
         if (macroTable.isLastCellValid()
             && (!macroTable.isTableChanged(committedData)
-            || new CcddDialogHandler().showMessageDialog(CcddMacroEditorDialog.this,
-                                                         "<html><b>Discard changes?",
-                                                         "Discard Changes",
-                                                         JOptionPane.QUESTION_MESSAGE,
-                                                         DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
+                || new CcddDialogHandler().showMessageDialog(CcddMacroEditorDialog.this,
+                                                             "<html><b>Discard changes?",
+                                                             "Discard Changes",
+                                                             JOptionPane.QUESTION_MESSAGE,
+                                                             DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
         {
             // Close the dialog
             closeDialog();
@@ -946,10 +946,10 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                         // other columns and rows
                         if (new CcddDialogHandler().showMessageDialog(CcddMacroEditorDialog.this,
                                                                       "<html><b>Data must be provided for column '"
-                                                                          + macroTable.getColumnName(column)
-                                                                          + "' [row "
-                                                                          + (row + 1)
-                                                                          + "]",
+                                                                                                  + macroTable.getColumnName(column)
+                                                                                                  + "' [row "
+                                                                                                  + (row + 1)
+                                                                                                  + "]",
                                                                       "Missing Data",
                                                                       JOptionPane.WARNING_MESSAGE,
                                                                       DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)

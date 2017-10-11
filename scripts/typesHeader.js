@@ -378,7 +378,7 @@ function outputStructure(file, structIndex)
 
                 // Adjust the variable's byte offset within the structure to
                 // include the header (if present)
-                varOffset = +varOffset + +headerOffset;
+                varOffset = (+varOffset + +headerOffset).toFixed(0);
 
                 var rateInfo = "";
 

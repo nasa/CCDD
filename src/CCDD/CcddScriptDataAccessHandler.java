@@ -877,42 +877,22 @@ public class CcddScriptDataAccessHandler
     }
 
     /**************************************************************************
-     * Get the structure table name to which the specified row's data belongs.
-     * Convenience method that assumes the table type is "structure"
+     * Get the prototype structure table name to which the specified row's data
+     * belongs. Convenience method that assumes the table type is "structure"
      *
      * @param row
      *            table data row index
      *
-     * @return Structure table name to which the current row's parameter
-     *         belongs, including paths for child structure tables; returns a
-     *         blank if an instance of the structure table type or the row
-     *         doesn't exist
+     * @return Prototype structure table name to which the current row's
+     *         parameter belongs; returns a blank if an instance of the
+     *         structure table type or the row doesn't exist
      *************************************************************************/
     public String getStructureTableNameByRow(int row)
     {
-        return getTableNameByRow(TYPE_STRUCTURE, row, false);
-    }
-
-    /**************************************************************************
-     * Get the structure table name to which the specified row's data belongs.
-     * Convenience method that assumes the table type is "structure"
-     *
-     * @param row
-     *            table data row index
-     *
-     * @param prototypeOnly
-     *            true to return only the prototype name for any child
-     *            structures; false to include the full path for child
-     *            structures
-     *
-     * @return Structure table name to which the current row's parameter
-     *         belongs with paths for child structure tables excluded based on
-     *         the input flag; returns a blank if an instance of the structure
-     *         table type or the row doesn't exist
-     *************************************************************************/
-    public String getStructureTableNameByRow(int row, boolean prototypeOnly)
-    {
-        return getTableNameByRow(TYPE_STRUCTURE, row, prototypeOnly);
+        return getTablePathByRow(TYPE_STRUCTURE,
+                                 row,
+                                 TablePathType.PROTOTYPE,
+                                 true);
     }
 
     /**************************************************************************
@@ -928,12 +908,15 @@ public class CcddScriptDataAccessHandler
      *************************************************************************/
     public String getCommandTableNameByRow(int row)
     {
-        return getTableNameByRow(TYPE_COMMAND, row);
+        return getTablePathByRow(TYPE_COMMAND,
+                                 row,
+                                 TablePathType.PROTOTYPE,
+                                 true);
     }
 
     /**************************************************************************
-     * Get the table name for the type specified to which the specified row's
-     * parameter belongs
+     * Get the prototype table name for the type specified to which the
+     * specified row's parameter belongs
      *
      * @param tableType
      *            table type (case insensitive). All structure table types are
@@ -944,63 +927,16 @@ public class CcddScriptDataAccessHandler
      * @param row
      *            table data row index
      *
-     * @return Table name to which the current row's parameter belongs,
-     *         including paths for child structure tables; return a blank if an
-     *         instance of the table type or the row doesn't exist
+     * @return Prototype table name to which the current row's parameter
+     *         belongs; return a blank if an instance of the table type or the
+     *         row doesn't exist
      *************************************************************************/
     public String getTableNameByRow(String tableType, int row)
     {
-        return getTableNameByRow(tableType, row, false);
-    }
-
-    /**************************************************************************
-     * Get the table name for the type specified to which the specified row's
-     * parameter belongs
-     *
-     * @param tableType
-     *            table type (case insensitive). All structure table types are
-     *            combined and are referenced by the type name "Structure", and
-     *            all command table types are combined and are referenced by
-     *            the type name "Command"
-     *
-     * @param row
-     *            table data row index
-     *
-     * @param prototypeOnly
-     *            true to return only the prototype name for any child
-     *            structures; false to include the full path for child
-     *            structures
-     *
-     * @return Table name to which the current row's parameter belongs, with
-     *         paths for child structure tables excluded based on the input
-     *         flag; return a blank if an instance of the table type or the row
-     *         doesn't exist
-     *************************************************************************/
-    public String getTableNameByRow(String tableType, int row, boolean prototypeOnly)
-    {
-        String tableName = "";
-
-        // Get the reference to the table information class for the requested
-        // table type
-        TableInformation tableInfo = getTableInformation(tableType);
-
-        // Check that the table type exists and that the row index is valid
-        if (tableInfo != null && row < tableInfo.getData().length)
-        {
-            // Store the table name for the parameter at the specified row
-            tableName = tableInfo.getData()[row][tableInfo.getData()[row].length
-                                                 - PATH_COLUMN_DELTA];
-
-            // Check if only prototype names should be returned for child
-            // structures
-            if (prototypeOnly)
-            {
-                // Get the prototype name form the table name
-                tableName = TableInformation.getPrototypeName(tableName);
-            }
-        }
-
-        return tableName;
+        return getTablePathByRow(tableType,
+                                 row,
+                                 TablePathType.PROTOTYPE,
+                                 true);
     }
 
     /**************************************************************************
@@ -1012,28 +948,21 @@ public class CcddScriptDataAccessHandler
      *         structure tables; returns an empty array if an instance of the
      *         structure table type doesn't exist
      *************************************************************************/
-    public String[] getStructureTableNames()
+    public String[] getStructureTablePaths()
     {
         return getTableNames(TYPE_STRUCTURE, false);
     }
 
     /**************************************************************************
-     * Get array of all structure table names referenced in the table data.
-     * Convenience method that specifies the table type as "structure"
+     * Get array of all prototype structure table names referenced in the table
+     * data. Convenience method that specifies the table type as "structure"
      *
-     * @param prototypeOnly
-     *            true to return only the prototype name for any child
-     *            structures; false to include the full path for child
-     *            structures
-     *
-     * @return Array of all structure table names, with paths for child
-     *         structure tables excluded based on the input flag; returns an
-     *         empty array if an instance of the structure table type doesn't
-     *         exist
+     * @return Array of all prototype structure table names; returns an empty
+     *         array if an instance of the structure table type doesn't exist
      *************************************************************************/
-    public String[] getStructureTableNames(boolean prototypeOnly)
+    public String[] getStructureTableNames()
     {
-        return getTableNames(TYPE_STRUCTURE, prototypeOnly);
+        return getTableNames(TYPE_STRUCTURE, true);
     }
 
     /**************************************************************************
@@ -1089,6 +1018,7 @@ public class CcddScriptDataAccessHandler
      *************************************************************************/
     public String[] getTableNames(String tableType, boolean prototypeOnly)
     {
+        // TODO
         List<String> names = new ArrayList<String>();
 
         // Get the reference to the table information class for the requested
@@ -1222,8 +1152,8 @@ public class CcddScriptDataAccessHandler
         // the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getStructureTypeNameByRow(row));
 
-        // Check if the table type exists
-        if (typeDefn != null)
+        // Check if the table type exists and represents a structure
+        if (typeDefn != null && typeDefn.isStructure())
         {
             // Get the reference to the table information
             TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
@@ -1259,8 +1189,8 @@ public class CcddScriptDataAccessHandler
         // the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getStructureTypeNameByRow(row));
 
-        // Check if the table type exists
-        if (typeDefn != null)
+        // Check if the table type exists and represents a structure
+        if (typeDefn != null && typeDefn.isStructure())
         {
             // Get the reference to the table information
             TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
@@ -1326,8 +1256,8 @@ public class CcddScriptDataAccessHandler
         // the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getStructureTypeNameByRow(row));
 
-        // Check if the table type exists
-        if (typeDefn != null)
+        // Check if the table type exists and represents a structure
+        if (typeDefn != null && typeDefn.isStructure())
         {
             // Get the reference to the table information
             TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
@@ -1400,8 +1330,8 @@ public class CcddScriptDataAccessHandler
         // the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getStructureTypeNameByRow(row));
 
-        // Check if the table type exists
-        if (typeDefn != null)
+        // Check if the table type exists and represents a structure
+        if (typeDefn != null && typeDefn.isStructure())
         {
             // Get the reference to the table information
             TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
@@ -1429,7 +1359,8 @@ public class CcddScriptDataAccessHandler
      *
      * @return Variable description at the specified row in the structure data,
      *         with any macro replaced by its corresponding value; null if the
-     *         row index is invalid
+     *         row index is invalid or no column has the 'Description' input
+     *         type
      *************************************************************************/
     public String getStructureDescription(int row)
     {
@@ -1445,7 +1376,7 @@ public class CcddScriptDataAccessHandler
      *
      * @return Variable description at the specified row in the structure data,
      *         with any embedded macro(s) left in place; null if the row index
-     *         is invalid
+     *         is invalid or no column has the 'Description' input type
      *************************************************************************/
     public String getStructureDescriptionWithMacros(int row)
     {
@@ -1464,7 +1395,8 @@ public class CcddScriptDataAccessHandler
      *            false to return the data with any macro names in place
      *
      * @return Variable description at the specified row in the structure data;
-     *         null if the row index is invalid
+     *         null if the row index is invalid or no column has the
+     *         'Description' input type
      *************************************************************************/
     private String getStructureDescription(int row, boolean expandMacros)
     {
@@ -1474,20 +1406,28 @@ public class CcddScriptDataAccessHandler
         // the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getStructureTypeNameByRow(row));
 
-        // Check if the table type exists
-        if (typeDefn != null)
+        // Check if the table type exists and represents a structure
+        if (typeDefn != null && typeDefn.isStructure())
         {
             // Get the reference to the table information
             TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
 
-            // Get the description
-            description = tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION)];
+            // Get the index of the first column with the 'Description' input
+            // type
+            int column = typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION);
 
-            // Check if any macros should be expanded
-            if (expandMacros)
+            // Check if the column exists
+            if (column != -1)
             {
-                // Expand any macros
-                description = macroHandler.getMacroExpansion(description);
+                // Get the description
+                description = tableInfo.getData()[row][column];
+
+                // Check if any macros should be expanded
+                if (expandMacros)
+                {
+                    // Expand any macros
+                    description = macroHandler.getMacroExpansion(description);
+                }
             }
         }
 
@@ -1503,7 +1443,7 @@ public class CcddScriptDataAccessHandler
      *
      * @return Variable units at the specified row in the structure data, with
      *         any macro replaced by its corresponding value; null if the row
-     *         index is invalid
+     *         index is invalid or no column has the 'Units' input type
      *************************************************************************/
     public String getStructureUnits(int row)
     {
@@ -1519,7 +1459,7 @@ public class CcddScriptDataAccessHandler
      *
      * @return Variable units at the specified row in the structure data, with
      *         any embedded macro(s) left in place; null if the row index is
-     *         invalid
+     *         invalid or no column has the 'Units' input type
      *************************************************************************/
     public String getStructureUnitsWithMacros(int row)
     {
@@ -1538,7 +1478,8 @@ public class CcddScriptDataAccessHandler
      *            false to return the data with any macro names in place
      *
      * @return Variable units at the specified row in the structure data; null
-     *         if the row index is invalid
+     *         if the row index is invalid or no column has the 'Units' input
+     *         type
      *************************************************************************/
     private String getStructureUnits(int row, boolean expandMacros)
     {
@@ -1548,20 +1489,28 @@ public class CcddScriptDataAccessHandler
         // the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getStructureTypeNameByRow(row));
 
-        // Check if the table type exists
-        if (typeDefn != null)
+        // Check if the table type exists and represents a structure
+        if (typeDefn != null && typeDefn.isStructure())
         {
             // Get the reference to the table information
             TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
 
-            // Get the units
-            units = tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(InputDataType.UNITS)];
+            // Get the index of the first column with the 'Units' input
+            // type
+            int column = typeDefn.getColumnIndexByInputType(InputDataType.UNITS);
 
-            // Check if any macros should be expanded
-            if (expandMacros)
+            // Check if the column exists
+            if (column != -1)
             {
-                // Expand any macros
-                units = macroHandler.getMacroExpansion(units);
+                // Get the units
+                units = tableInfo.getData()[row][column];
+
+                // Check if any macros should be expanded
+                if (expandMacros)
+                {
+                    // Expand any macros
+                    units = macroHandler.getMacroExpansion(units);
+                }
             }
         }
 
@@ -1622,8 +1571,8 @@ public class CcddScriptDataAccessHandler
         // the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getStructureTypeNameByRow(row));
 
-        // Check if the table type exists
-        if (typeDefn != null)
+        // Check if the table type exists and represents a structure
+        if (typeDefn != null && typeDefn.isStructure())
         {
             // Get the reference to the table information
             TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
@@ -1665,8 +1614,8 @@ public class CcddScriptDataAccessHandler
         // the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getStructureTypeNameByRow(row));
 
-        // Check if the table type exists
-        if (typeDefn != null)
+        // Check if the table type exists and represents a structure
+        if (typeDefn != null && typeDefn.isStructure())
         {
             // Get the reference to the table information
             TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
@@ -1736,8 +1685,8 @@ public class CcddScriptDataAccessHandler
         // the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
 
-        // Check if the table type exists
-        if (typeDefn != null)
+        // Check if the table type exists and represents a command
+        if (typeDefn != null && typeDefn.isCommand())
         {
             // Get the reference to the table information
             TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
@@ -1810,8 +1759,8 @@ public class CcddScriptDataAccessHandler
         // the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
 
-        // Check if the table type exists
-        if (typeDefn != null)
+        // Check if the table type exists and represents a command
+        if (typeDefn != null && typeDefn.isCommand())
         {
             // Get the reference to the table information
             TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
@@ -1863,8 +1812,8 @@ public class CcddScriptDataAccessHandler
         // Get the table type definition based on the table type name
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableType);
 
-        // Check if the table type exists
-        if (typeDefn != null)
+        // Check if the table type exists and represents a command
+        if (typeDefn != null && typeDefn.isCommand())
         {
             // Get the number of arguments associated with this command table
             // type
@@ -1941,8 +1890,8 @@ public class CcddScriptDataAccessHandler
         // the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
 
-        // Check if the table type exists
-        if (typeDefn != null)
+        // Check if the table type exists and represents a command
+        if (typeDefn != null && typeDefn.isCommand())
         {
             // Get the list of command arguments associated with this command
             // table type
@@ -1993,8 +1942,8 @@ public class CcddScriptDataAccessHandler
         // the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
 
-        // Check if the table type exists
-        if (typeDefn != null)
+        // Check if the table type exists and represents a command
+        if (typeDefn != null && typeDefn.isCommand())
         {
             // Get the list of command arguments associated with this command
             // table type
@@ -2084,8 +2033,8 @@ public class CcddScriptDataAccessHandler
         // the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
 
-        // Check if the table type exists
-        if (typeDefn != null)
+        // Check if the table type exists and represents a command
+        if (typeDefn != null && typeDefn.isCommand())
         {
             // Get the list of command arguments associated with this command
             // table type
@@ -2196,8 +2145,8 @@ public class CcddScriptDataAccessHandler
         // the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
 
-        // Check if the table type exists
-        if (typeDefn != null)
+        // Check if the table type exists and represents a command
+        if (typeDefn != null && typeDefn.isCommand())
         {
             // Get the list of command arguments associated with this command
             // table type
@@ -2295,8 +2244,8 @@ public class CcddScriptDataAccessHandler
         // the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
 
-        // Check if the table type exists
-        if (typeDefn != null)
+        // Check if the table type exists and represents a command
+        if (typeDefn != null && typeDefn.isCommand())
         {
             // Get the list of command arguments associated with this command
             // table type
@@ -2394,8 +2343,8 @@ public class CcddScriptDataAccessHandler
         // the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
 
-        // Check if the table type exists
-        if (typeDefn != null)
+        // Check if the table type exists and represents a command
+        if (typeDefn != null && typeDefn.isCommand())
         {
             // Get the list of command arguments associated with this command
             // table type
@@ -2626,7 +2575,7 @@ public class CcddScriptDataAccessHandler
         List<String> orderedNames = new ArrayList<String>();
 
         // Get the list of all referenced structure names
-        List<String> structureNames = Arrays.asList(getStructureTableNames(true));
+        List<String> structureNames = Arrays.asList(getStructureTableNames());
 
         // Check if any structures exist
         if (!structureNames.isEmpty())
@@ -2979,6 +2928,54 @@ public class CcddScriptDataAccessHandler
     }
 
     /**************************************************************************
+     * Get the structure path to which the specified row's data belongs with
+     * any embedded macro replaced by its corresponding value. Convenience
+     * method that assumes the table type is "structure"
+     *
+     * @param row
+     *            table data row index
+     *
+     * @return The structure path to the current row's parameter with any
+     *         embedded macro replaced by its corresponding value; returns a
+     *         blank if an instance of the table type doesn't exist. The path
+     *         starts with the top-level table name and is followed by a comma
+     *         and then the parent structure and variable name(s) that
+     *         define(s) the table's path. Each parent and its associated
+     *         variable name are separated by a period. Each parent/variable
+     *         pair in the path is separated by a comma. The format is:
+     *
+     *         top-level<,variable1.parent1<,variable2.parent2<...>>>
+     *************************************************************************/
+    public String getStructurePathByRow(int row)
+    {
+        return getTablePathByRow(TYPE_STRUCTURE, row, TablePathType.PARENT_AND_VARIABLE, true);
+    }
+
+    /**************************************************************************
+     * Get the structure path to which the specified row's data belongs with
+     * any embedded macro(s) left in place. Convenience method that assumes the
+     * table type is "structure"
+     *
+     * @param row
+     *            table data row index
+     *
+     * @return The structure path to the current row's parameter with any
+     *         embedded macro(s) left in place; returns a blank if an instance
+     *         of the table type doesn't exist. The path starts with the
+     *         top-level table name and is followed by a comma and then the
+     *         parent structure and variable name(s) that define(s) the table's
+     *         path. Each parent and its associated variable name are separated
+     *         by a period. Each parent/variable pair in the path is separated
+     *         by a comma. The format is:
+     *
+     *         top-level<,variable1.parent1<,variable2.parent2<...>>>
+     *************************************************************************/
+    public String getStructurePathByRowWithMacros(int row)
+    {
+        return getTablePathByRow(TYPE_STRUCTURE, row, TablePathType.PARENT_AND_VARIABLE, false);
+    }
+
+    /**************************************************************************
      * Get the path to which the specified row's data belongs with any embedded
      * macro replaced by its corresponding value
      *
@@ -3040,8 +3037,7 @@ public class CcddScriptDataAccessHandler
     /**************************************************************************
      * Get the structure path to which the specified row's data belongs,
      * showing only the top-level structure and variable names and with any
-     * embedded macro replaced by its corresponding value. This format is used
-     * when referencing a structure table’s data fields
+     * embedded macro replaced by its corresponding value
      *
      * @param row
      *            table data row index
@@ -3064,8 +3060,7 @@ public class CcddScriptDataAccessHandler
     /**************************************************************************
      * Get the structure path to which the specified row's data belongs,
      * showing only the top-level structure and variable names and with any
-     * embedded macro(s) left in place. This format is used when referencing a
-     * structure table’s data fields
+     * embedded macro(s) left in place
      *
      * @param row
      *            table data row index
@@ -3166,6 +3161,7 @@ public class CcddScriptDataAccessHandler
                                      TablePathType pathType,
                                      boolean expandMacros)
     {
+        // TODO
         String structurePath = "";
 
         // Get the reference to the table information class for the specified
@@ -3190,6 +3186,11 @@ public class CcddScriptDataAccessHandler
                     case PARENT_AND_VARIABLE:
                         // Get the path as stored, with the parent structures
                         // in place
+                        break;
+
+                    case PROTOTYPE:
+                        // Get the table's prototype table name
+                        structurePath = TableInformation.getPrototypeName(structurePath);
                         break;
 
                     case VARIABLE_ONLY:

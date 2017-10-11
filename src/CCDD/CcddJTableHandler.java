@@ -4002,6 +4002,15 @@ public abstract class CcddJTableHandler extends JTable
                                 }
                             }
                         }
+                        // Check if the model (displayed) value matches the one
+                        // as altered (potentially) by the cell content
+                        // validation
+                        else if (!tableData.get(editRow)[editColumn].equals(tableModel.getValueAt(editRow, editColumn)))
+                        {
+                            // Load the altered value into the model so that
+                            // the display matches the altered value
+                            tableModel.setValueAt(oldValue, editRow, editColumn, false);
+                        }
                     }
                 }
             }

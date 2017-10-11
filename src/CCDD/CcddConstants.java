@@ -408,6 +408,7 @@ public class CcddConstants
     protected static enum TablePathType
     {
         PARENT_AND_VARIABLE,
+        PROTOTYPE,
         VARIABLE_ONLY,
         ITOS_RECORD
     }
@@ -5932,7 +5933,7 @@ public class CcddConstants
                + TABLE_DESCRIPTION_SEPARATOR
                + "' || column_value AS search_result "
                + "FROM search_tables(E'_search_text_', "
-               + "_case_insensitive_, _allow_regex_,"
+               + "_case_insensitive_, _allow_regex_, "
                + "'_selected_tables_', '{_columns_}') "
                + "ORDER BY table_name, column_name ASC;"),
 

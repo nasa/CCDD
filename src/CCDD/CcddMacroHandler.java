@@ -750,7 +750,9 @@ public class CcddMacroHandler
                                                  {"_allow_regex_",
                                                   "false"},
                                                  {"_selected_tables_",
-                                                  SearchType.DATA.toString()}},
+                                                  SearchType.DATA.toString()},
+                                                 {"_columns_",
+                                                  ""}},
                                  parent);
     }
 

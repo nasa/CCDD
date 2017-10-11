@@ -314,9 +314,11 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                         {
                             // Get the data type name
                             String name = CcddDataTypeHandler.getDataTypeName(dataTypeTable.getValueAt(row,
-                                                                                                       DataTypesColumn.USER_NAME.ordinal()).toString(),
+                                                                                                       DataTypesColumn.USER_NAME.ordinal())
+                                                                                           .toString(),
                                                                               dataTypeTable.getValueAt(row,
-                                                                                                       DataTypesColumn.C_NAME.ordinal()).toString());
+                                                                                                       DataTypesColumn.C_NAME.ordinal())
+                                                                                           .toString());
 
                             // Check if the data type is used in any of the
                             // data tables
@@ -330,8 +332,8 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                 // deleted
                                 new CcddDialogHandler().showMessageDialog(CcddDataTypeEditorDialog.this,
                                                                           "<html><b>Cannot delete data type '"
-                                                                              + name
-                                                                              + "'; data type is referenced by a data table",
+                                                                                                         + name
+                                                                                                         + "'; data type is referenced by a data table",
                                                                           "Delete Data Type",
                                                                           JOptionPane.QUESTION_MESSAGE,
                                                                           DialogOption.OK_OPTION);
@@ -755,13 +757,13 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                             && ((column == DataTypeEditorColumnInfo.SIZE.ordinal()
                                  && Integer.valueOf(newValueS) < Integer.valueOf(oldValueS)
                                  && (tableData.get(row)[DataTypeEditorColumnInfo.BASE_TYPE.ordinal()].equals(BaseDataTypeInfo.SIGNED_INT.getName())
-                            || tableData.get(row)[DataTypeEditorColumnInfo.BASE_TYPE.ordinal()].equals(BaseDataTypeInfo.UNSIGNED_INT.getName())))
+                                     || tableData.get(row)[DataTypeEditorColumnInfo.BASE_TYPE.ordinal()].equals(BaseDataTypeInfo.UNSIGNED_INT.getName())))
 
-                            || (column == DataTypeEditorColumnInfo.BASE_TYPE.ordinal()
-                                && (oldValueS.equals(BaseDataTypeInfo.SIGNED_INT.getName())
-                                || oldValueS.equals(BaseDataTypeInfo.UNSIGNED_INT.getName()))
-                                && !(newValueS.equals(BaseDataTypeInfo.SIGNED_INT.getName())
-                            || newValueS.equals(BaseDataTypeInfo.UNSIGNED_INT.getName())))))
+                                || (column == DataTypeEditorColumnInfo.BASE_TYPE.ordinal()
+                                    && (oldValueS.equals(BaseDataTypeInfo.SIGNED_INT.getName())
+                                        || oldValueS.equals(BaseDataTypeInfo.UNSIGNED_INT.getName()))
+                                    && !(newValueS.equals(BaseDataTypeInfo.SIGNED_INT.getName())
+                                         || newValueS.equals(BaseDataTypeInfo.UNSIGNED_INT.getName())))))
                         {
                             // Get the data type's index
                             String index = tableData.get(row)[DataTypeEditorColumnInfo.OID.ordinal()].toString();
@@ -856,8 +858,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                                 // conflict
                                                 if (bitLengthIndex != -1
                                                     && !refColumns[bitLengthIndex].isEmpty()
-                                                    && Integer.valueOf(newValueS) * 8
-                                                    < Integer.valueOf(refColumns[bitLengthIndex])
+                                                    && Integer.valueOf(newValueS) * 8 < Integer.valueOf(refColumns[bitLengthIndex])
                                                     && !tableNames.contains(refNameAndType[0]))
                                                 {
                                                     // The bit length is now
@@ -953,7 +954,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                         // Inform the user that the input value is invalid
                         new CcddDialogHandler().showMessageDialog(CcddDataTypeEditorDialog.this,
                                                                   "<html><b>"
-                                                                      + ce.getMessage(),
+                                                                                                 + ce.getMessage(),
                                                                   "Invalid Input",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);
@@ -1018,11 +1019,13 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
                     // Check if both the user name and C type columns are blank
                     if ((modelColumn == DataTypeEditorColumnInfo.USER_NAME.ordinal()
-                        || modelColumn == DataTypeEditorColumnInfo.C_NAME.ordinal())
+                         || modelColumn == DataTypeEditorColumnInfo.C_NAME.ordinal())
                         && dataTypeTable.getValueAt(row,
-                                                    DataTypeEditorColumnInfo.USER_NAME.ordinal()).toString().isEmpty()
+                                                    DataTypeEditorColumnInfo.USER_NAME.ordinal())
+                                        .toString().isEmpty()
                         && dataTypeTable.getValueAt(row,
-                                                    DataTypeEditorColumnInfo.C_NAME.ordinal()).toString().isEmpty())
+                                                    DataTypeEditorColumnInfo.C_NAME.ordinal())
+                                        .toString().isEmpty())
                     {
                         // Set the flag indicating that the cell value is
                         // invalid
@@ -1070,8 +1073,8 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                 // unstored changes exist
                 setTitle(DIALOG_TITLE
                          + (dataTypeTable.isTableChanged(committedData)
-                                                                       ? "*"
-                                                                       : ""));
+                                                                        ? "*"
+                                                                        : ""));
 
                 // Force the table to redraw so that changes to the cells are
                 // displayed
@@ -1114,11 +1117,11 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
         // changes exist then confirm discarding the changes
         if (dataTypeTable.isLastCellValid()
             && (!dataTypeTable.isTableChanged(committedData)
-            || new CcddDialogHandler().showMessageDialog(CcddDataTypeEditorDialog.this,
-                                                         "<html><b>Discard changes?",
-                                                         "Discard Changes",
-                                                         JOptionPane.QUESTION_MESSAGE,
-                                                         DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
+                || new CcddDialogHandler().showMessageDialog(CcddDataTypeEditorDialog.this,
+                                                             "<html><b>Discard changes?",
+                                                             "Discard Changes",
+                                                             JOptionPane.QUESTION_MESSAGE,
+                                                             DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
         {
             // Close the dialog
             closeDialog();
@@ -1193,9 +1196,11 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                 // Check if both the user-defined name and the C-language name
                 // is blank
                 if (dataTypeTable.getValueAt(row,
-                                             DataTypeEditorColumnInfo.USER_NAME.ordinal()).toString().isEmpty()
+                                             DataTypeEditorColumnInfo.USER_NAME.ordinal())
+                                 .toString().isEmpty()
                     && dataTypeTable.getValueAt(row,
-                                                DataTypeEditorColumnInfo.C_NAME.ordinal()).toString().isEmpty())
+                                                DataTypeEditorColumnInfo.C_NAME.ordinal())
+                                    .toString().isEmpty())
                 {
                     // Set the 'data is missing' flag
                     dataIsMissing = true;
@@ -1205,12 +1210,12 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                     // columns and rows
                     if (new CcddDialogHandler().showMessageDialog(CcddDataTypeEditorDialog.this,
                                                                   "<html><b>Data must be provided for column '"
-                                                                      + dataTypeTable.getColumnName(DataTypeEditorColumnInfo.USER_NAME.ordinal())
-                                                                      + "' or '"
-                                                                      + dataTypeTable.getColumnName(DataTypeEditorColumnInfo.C_NAME.ordinal())
-                                                                      + "' [row "
-                                                                      + (row + 1)
-                                                                      + "]",
+                                                                                                 + dataTypeTable.getColumnName(DataTypeEditorColumnInfo.USER_NAME.ordinal())
+                                                                                                 + "' or '"
+                                                                                                 + dataTypeTable.getColumnName(DataTypeEditorColumnInfo.C_NAME.ordinal())
+                                                                                                 + "' [row "
+                                                                                                 + (row + 1)
+                                                                                                 + "]",
                                                                   "Missing Data",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
@@ -1235,10 +1240,10 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                         // other columns and rows
                         if (new CcddDialogHandler().showMessageDialog(CcddDataTypeEditorDialog.this,
                                                                       "<html><b>Data must be provided for column '"
-                                                                          + dataTypeTable.getColumnName(column)
-                                                                          + "' [row "
-                                                                          + (row + 1)
-                                                                          + "]",
+                                                                                                     + dataTypeTable.getColumnName(column)
+                                                                                                     + "' [row "
+                                                                                                     + (row + 1)
+                                                                                                     + "]",
                                                                       "Missing Data",
                                                                       JOptionPane.WARNING_MESSAGE,
                                                                       DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)

@@ -671,15 +671,15 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         // Create the starting message number/ID label
         tabInfo.setStartLbl(new JLabel("Starting "
                                        + (isTlmName
-                                                   ? "number"
-                                                   : "ID")));
+                                                    ? "number"
+                                                    : "ID")));
         tabInfo.getStartLbl().setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         inputPnl.add(tabInfo.getStartLbl(), gbc);
 
         // Create the starting message number/ID field
         tabInfo.setStartFld(new JTextField((isTlmName
-                                                     ? "0"
-                                                     : "0x0"),
+                                                      ? "0"
+                                                      : "0x0"),
                                            7));
         tabInfo.getStartFld().setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         tabInfo.getStartFld().setEditable(true);
@@ -687,16 +687,16 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         tabInfo.getStartFld().setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         tabInfo.getStartFld().setBorder(border);
         tabInfo.getStartFld().setToolTipText(isTlmName
-                                                      ? null
-                                                      : CcddUtilities.wrapText("<html>Format: <i>&lt;</i>0x<i>&gt;hexadecimal digits",
-                                                                               ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                                                       ? null
+                                                       : CcddUtilities.wrapText("<html>Format: <i>&lt;</i>0x<i>&gt;hexadecimal digits",
+                                                                                ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         gbc.gridx++;
         inputPnl.add(tabInfo.getStartFld(), gbc);
 
         // Create the message name/ID interval label
         tabInfo.setIntervalLbl(new JLabel((isTlmName
-                                                    ? "Message"
-                                                    : "ID")
+                                                     ? "Message"
+                                                     : "ID")
                                           + " interval"));
         tabInfo.getIntervalLbl().setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         gbc.gridx = 0;
@@ -718,8 +718,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                            + tabInfo.getType()
                                            + " message "
                                            + (isTlmName
-                                                       ? "names"
-                                                       : "IDs")));
+                                                        ? "names"
+                                                        : "IDs")));
         tabInfo.getAssignCbx().setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
 
         // Add a listener for check box selection changes
@@ -749,8 +749,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         // Create the overwrite existing name/IDs check box
         tabInfo.setOverwriteCbx(new JCheckBox("Overwrite existing "
                                               + (isTlmName
-                                                          ? "names"
-                                                          : "IDs")));
+                                                           ? "names"
+                                                           : "IDs")));
         tabInfo.getOverwriteCbx().setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         gbc.gridy++;
         tabPnl.add(tabInfo.getOverwriteCbx(), gbc);
@@ -839,7 +839,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         boolean isChanges = false;
 
         // Get the starting message ID and ID interval values
-        int startID = Integer.decode(type.getStartFld().getText());
+        int startID = Integer.parseInt(type.getStartFld().getText().replaceFirst("^0x", ""), 16);
         int interval = Integer.valueOf(type.getIntervalFld().getText());
 
         // ////////////////////////////////////////////////////////////////////
@@ -912,7 +912,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                     if (editor.getTable().isCellEditable(editor.getTable().convertRowIndexToView(row),
                                                                          editor.getTable().convertColumnIndexToView(idColumn))
                                         && (type.getOverwriteCbx().isSelected()
-                                        || tableData[row][idColumn].toString().isEmpty()))
+                                            || tableData[row][idColumn].toString().isEmpty()))
                                     {
                                         // Set the column message ID value to
                                         // the next unused message ID
@@ -970,7 +970,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             if (fieldInfo.getInputType().equals(InputDataType.MESSAGE_ID)
                 && tables.contains(fieldInfo.getOwnerName())
                 && (type.getOverwriteCbx().isSelected()
-                || fieldInfo.getValue().isEmpty()))
+                    || fieldInfo.getValue().isEmpty()))
             {
                 // Set the message ID data field value to the next unused
                 // message ID
@@ -1059,7 +1059,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             if (fieldInfo.getInputType().equals(InputDataType.MESSAGE_ID)
                 && fieldInfo.getOwnerName().startsWith(GROUP_DATA_FIELD_IDENT)
                 && (type.getOverwriteCbx().isSelected()
-                || fieldInfo.getValue().isEmpty()))
+                    || fieldInfo.getValue().isEmpty()))
             {
                 // Set the message ID data field value to the next unused
                 // message ID
@@ -1327,7 +1327,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             // Inform the user that the input value is invalid
             new CcddDialogHandler().showMessageDialog(CcddAssignMessageIDDialog.this,
                                                       "<html><b>"
-                                                          + ce.getMessage(),
+                                                                                      + ce.getMessage(),
                                                       "Missing/Invalid Input",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
