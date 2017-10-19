@@ -1018,7 +1018,6 @@ public class CcddScriptDataAccessHandler
      *************************************************************************/
     public String[] getTableNames(String tableType, boolean prototypeOnly)
     {
-        // TODO
         List<String> names = new ArrayList<String>();
 
         // Get the reference to the table information class for the requested
@@ -1817,7 +1816,7 @@ public class CcddScriptDataAccessHandler
         {
             // Get the number of arguments associated with this command table
             // type
-            numArguments = typeDefn.getAssociatedCommandColumns(false).size();
+            numArguments = typeDefn.getAssociatedCommandArgumentColumns(false).size();
         }
 
         return numArguments;
@@ -1895,7 +1894,7 @@ public class CcddScriptDataAccessHandler
         {
             // Get the list of command arguments associated with this command
             // table type
-            List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandColumns(false);
+            List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
 
             // Check if the argument number is valid and that the argument name
             // exists
@@ -1947,7 +1946,7 @@ public class CcddScriptDataAccessHandler
         {
             // Get the list of command arguments associated with this command
             // table type
-            List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandColumns(false);
+            List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
 
             // Check if the argument number is valid and that the argument data
             // type exists
@@ -2038,7 +2037,7 @@ public class CcddScriptDataAccessHandler
         {
             // Get the list of command arguments associated with this command
             // table type
-            List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandColumns(false);
+            List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
 
             // Check if the argument number is valid and that other argument
             // columns exist
@@ -2150,7 +2149,7 @@ public class CcddScriptDataAccessHandler
         {
             // Get the list of command arguments associated with this command
             // table type
-            List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandColumns(false);
+            List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
 
             // Check if the argument number is valid and that the argument
             // enumeration exists
@@ -2249,7 +2248,7 @@ public class CcddScriptDataAccessHandler
         {
             // Get the list of command arguments associated with this command
             // table type
-            List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandColumns(false);
+            List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
 
             // Check if the argument number is valid and that the argument
             // minimum value exists
@@ -2348,7 +2347,7 @@ public class CcddScriptDataAccessHandler
         {
             // Get the list of command arguments associated with this command
             // table type
-            List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandColumns(false);
+            List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
 
             // Check if the argument number is valid and that the argument
             // maximum value exists
@@ -3126,8 +3125,8 @@ public class CcddScriptDataAccessHandler
     }
 
     /**************************************************************************
-     * Get the variable path for the structure on the specified row in the
-     * specified format
+     * Get the path or prototype table name for the table on the specified row
+     * in the specified format
      *
      * @param tableType
      *            table type (case insensitive). All structure table types are
@@ -3142,8 +3141,9 @@ public class CcddScriptDataAccessHandler
      *            the format of the path to return:
      *            TablePathType.VARIABLE_AND_PARENT to return the path with the
      *            variable names and associated parent structure names,
-     *            TablePathType.VARIABLE_ONLY to return the path with only the
-     *            variable names (parent names removed), or
+     *            TablePathType.PROTOTYPE to return the name of the prototype
+     *            table, TablePathType.VARIABLE_ONLY to return the path with
+     *            only the variable names (parent names removed), or
      *            TablePathType.ITOS_RECORD to return the path formatted for
      *            use in an ITOS record file
      *
@@ -3151,17 +3151,17 @@ public class CcddScriptDataAccessHandler
      *            true to replace any macros with their corresponding value;
      *            false to return the data with any macro names in place
      *
-     * @return The table path, for the structure table, to the current row's
-     *         parameter; returns a blank if an instance of the structure table
-     *         type doesn't exist. Depending on the input flag, any macro is
-     *         replaced by its corresponding value or left in place
+     * @return The table path (or prototype name), for the structure table, to
+     *         the current row's parameter; returns a blank if an instance of
+     *         the structure table type doesn't exist. Depending on the input
+     *         flag, any macro is replaced by its corresponding value or left
+     *         in place
      *************************************************************************/
     private String getTablePathByRow(String tableType,
                                      int row,
                                      TablePathType pathType,
                                      boolean expandMacros)
     {
-        // TODO
         String structurePath = "";
 
         // Get the reference to the table information class for the specified

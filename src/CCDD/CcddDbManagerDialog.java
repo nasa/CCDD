@@ -19,13 +19,18 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -59,6 +64,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
     private JTextField nameFld;
     private JTextArea descriptionFld;
     private JScrollPane descScrollPane;
+    private JCheckBox stampChkBx;
 
     // Array containing the radio button or check box text and descriptions
     private String[][] arrayItemData;
@@ -72,6 +78,9 @@ public class CcddDbManagerDialog extends CcddDialogHandler
     private final int DB_NAME = 1;
     private final int DB_LOCK = 2;
     private final int DB_DESC = 3;
+
+    // Text to automatically append to the end of a project name when copying
+    private final String COPY_APPEND = "_copy";
 
     /**************************************************************************
      * Project database manager dialog class constructor
@@ -182,8 +191,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         // Create a panel containing a grid of radio buttons
                         // representing the databases from which to choose
                         if (!addRadioButtons((dbControl.getDatabase() == DEFAULT_DATABASE
-                                                                                         ? null
-                                                                                         : dbControl.getDatabase()),
+                                                                                          ? null
+                                                                                          : dbControl.getDatabase()),
                                              false,
                                              arrayItemData,
                                              disabledItems,
@@ -251,6 +260,59 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                                    selectPnl,
                                                    false,
                                                    gbc);
+
+                            // Create a date and time stamp check box
+                            stampChkBx = new JCheckBox("Append date and time to project name");
+                            stampChkBx.setBorder(BorderFactory.createEmptyBorder());
+                            stampChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                            stampChkBx.setSelected(false);
+                            stampChkBx.setEnabled(false);
+
+                            // Create a listener for check box selection
+                            // actions
+                            stampChkBx.addActionListener(new ActionListener()
+                            {
+                                String timeStamp = "";
+                                boolean isCopy = false;
+
+                                /**********************************************
+                                 * Handle check box selection actions
+                                 *********************************************/
+                                @Override
+                                public void actionPerformed(ActionEvent ae)
+                                {
+                                    // Check if the data and time stamp check
+                                    // box is selected
+                                    if (((JCheckBox) ae.getSource()).isSelected())
+                                    {
+                                        // Get the current date and time stamp
+                                        timeStamp = "_" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+
+                                        isCopy = nameFld.getText().endsWith(COPY_APPEND);
+
+                                        // Append the date and time stamp to
+                                        // the file name
+                                        nameFld.setText(nameFld.getText().replaceFirst("(?:"
+                                                                                       + COPY_APPEND
+                                                                                       + "$|$)",
+                                                                                       timeStamp));
+                                    }
+                                    // The check box is not selected
+                                    else
+                                    {
+                                        // Remove the date and time stamp
+                                        nameFld.setText(nameFld.getText().replaceFirst(timeStamp,
+                                                                                       isCopy
+                                                                                              ? COPY_APPEND
+                                                                                              : ""));
+                                    }
+                                }
+                            });
+
+                            gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() * 2;
+                            gbc.gridy++;
+                            selectPnl.add(stampChkBx, gbc);
+                            gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
                         }
                         // No database exists to choose
                         else
@@ -318,7 +380,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                     switch (dialogType)
                     {
                         case CREATE:
-                            // Create the database name and description labels
+                            // Create the project name and description labels
                             // and fields
                             addDatabaseInputFields("New project name",
                                                    selectPnl,
@@ -371,11 +433,11 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                                   DialogOption.RENAME_OPTION,
                                                   true) == OK_BUTTON
                                 && (!getRadioButtonSelected().equals(dbControl.getDatabase())
-                                || ccddMain.ignoreUncommittedChanges("Open Project",
-                                                                     "Discard changes?",
-                                                                     true,
-                                                                     null,
-                                                                     CcddDbManagerDialog.this)))
+                                    || ccddMain.ignoreUncommittedChanges("Open Project",
+                                                                         "Discard changes?",
+                                                                         true,
+                                                                         null,
+                                                                         CcddDbManagerDialog.this)))
                             {
                                 // Rename the database
                                 dbControl.renameDatabaseInBackground(getRadioButtonSelected(),
@@ -396,12 +458,12 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                                   DialogOption.COPY_OPTION,
                                                   true) == OK_BUTTON
                                 && (!getRadioButtonSelected().equals(dbControl.getDatabase())
-                                || (getRadioButtonSelected().equals(dbControl.getDatabase())
-                                && ccddMain.ignoreUncommittedChanges("Copy Project",
-                                                                     "Discard changes?",
-                                                                     true,
-                                                                     null,
-                                                                     CcddDbManagerDialog.this))))
+                                    || (getRadioButtonSelected().equals(dbControl.getDatabase())
+                                        && ccddMain.ignoreUncommittedChanges("Copy Project",
+                                                                             "Discard changes?",
+                                                                             true,
+                                                                             null,
+                                                                             CcddDbManagerDialog.this))))
                             {
                                 // Copy the database
                                 dbControl.copyDatabaseInBackground(getRadioButtonSelected(),
@@ -464,8 +526,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         // which the user has access
         new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                   "<html><b>No project exists for which user '</b>"
-                                                      + dbControl.getUser()
-                                                      + "<b>' has access",
+                                                                           + dbControl.getUser()
+                                                                           + "<b>' has access",
                                                   action + " Project",
                                                   JOptionPane.WARNING_MESSAGE,
                                                   DialogOption.OK_OPTION);
@@ -519,8 +581,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         nameFld = new JTextField("", 20);
         nameFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
         nameFld.setBackground(enabled
-                                     ? ModifiableColorInfo.INPUT_BACK.getColor()
-                                     : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
+                                      ? ModifiableColorInfo.INPUT_BACK.getColor()
+                                      : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
         nameFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         nameFld.setEditable(enabled);
         nameFld.setBorder(border);
@@ -531,8 +593,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         descriptionFld = new JTextArea("", 3, 20);
         descriptionFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
         descriptionFld.setBackground(enabled
-                                            ? ModifiableColorInfo.INPUT_BACK.getColor()
-                                            : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
+                                             ? ModifiableColorInfo.INPUT_BACK.getColor()
+                                             : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
         descriptionFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         descriptionFld.setEditable(enabled);
         descriptionFld.setLineWrap(true);
@@ -541,8 +603,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         descriptionFld.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
         descScrollPane = new JScrollPane(descriptionFld);
         descScrollPane.setBackground(enabled
-                                            ? ModifiableColorInfo.INPUT_BACK.getColor()
-                                            : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
+                                             ? ModifiableColorInfo.INPUT_BACK.getColor()
+                                             : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
         descScrollPane.setBorder(border);
 
         // Add the name and description labels and fields to a panel
@@ -608,7 +670,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         {
                             // Append text to the name to differentiate the
                             // copy from the original
-                            name += "_copy";
+                            name += COPY_APPEND;
                         }
 
                         // Place the type name in the name field and the
@@ -622,6 +684,13 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         descriptionFld.setEditable(true);
                         descriptionFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                         descScrollPane.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
+
+                        // Check if this is a copy type dialog
+                        if (dialogType == DbManagerDialogType.COPY)
+                        {
+                            // Enable the date and time stamp check box
+                            stampChkBx.setEnabled(true);
+                        }
                     }
                 }
             }
@@ -656,8 +725,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         // Set the target, project or owner, depending on the
                         // dialog type
                         String target = (dialogType == DbManagerDialogType.CREATE)
-                                                                                  ? " Owner"
-                                                                                  : "";
+                                                                                   ? " Owner"
+                                                                                   : "";
 
                         // Inform the user that the project or owner isn't
                         // selected
@@ -732,8 +801,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                     {
                         // Get the string describing the action to perform
                         String action = dialogType == DbManagerDialogType.DELETE
-                                                                                ? "delete"
-                                                                                : "unlock";
+                                                                                 ? "delete"
+                                                                                 : "unlock";
 
                         // Inform the user that a project must be selected
                         throw new CCDDException("Must select a project to "
@@ -748,7 +817,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             // Inform the user that the input value is invalid
             new CcddDialogHandler().showMessageDialog(CcddDbManagerDialog.this,
                                                       "<html><b>"
-                                                          + ce.getMessage(),
+                                                                                + ce.getMessage(),
                                                       "Invalid Input",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -830,7 +899,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             // databases are to be disabled, and if the item is not specified
             // as enabled
             if (((isOnlyUnlocked && isLocked)
-                || (isOnlyLocked && !isLocked))
+                 || (isOnlyLocked && !isLocked))
                 && !arrayItemData[index][DB_NAME].equals(enabledItem))
             {
                 // Add the index of the item to the disabled list
@@ -902,6 +971,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         // Remove the column containing the database version of the project
         // name
         arrayItemData = CcddUtilities.removeArrayListColumn(Arrays.asList(arrayItemData),
-                                                            DB_DBNAME).toArray(new String[0][0]);
+                                                            DB_DBNAME)
+                                     .toArray(new String[0][0]);
     }
 }

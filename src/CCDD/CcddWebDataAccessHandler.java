@@ -2574,7 +2574,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
                         // Get the list containing command argument column
                         // indices for each argument grouping
-                        commandArguments = typeDefn.getAssociatedCommandColumns(false);
+                        commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
                     }
 
                     // Check if the macro names should be replaced with the

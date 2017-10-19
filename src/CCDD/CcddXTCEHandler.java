@@ -9,8 +9,6 @@
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
-import static CCDD.CcddConstants.CONTAINS_DESCRIPTION;
-import static CCDD.CcddConstants.CONTAINS_UNITS;
 import static CCDD.CcddConstants.IGNORE_BUTTON;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.TYPE_COMMAND;
@@ -280,8 +278,8 @@ public class CcddXTCEHandler implements CcddImportExportInterface
             // Inform the user that the XTCE/JAXB set up failed
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>XTCE conversion setup failed; cause '"
-                                                          + je.getMessage()
-                                                          + "'",
+                                                              + je.getMessage()
+                                                              + "'",
                                                       "XTCE Error",
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -326,8 +324,8 @@ public class CcddXTCEHandler implements CcddImportExportInterface
     @Override
     public void importFromFile(File importFile,
                                ImportType importType) throws CCDDException,
-                                                     IOException,
-                                                     Exception
+                                                      IOException,
+                                                      Exception
     {
         try
         {
@@ -375,10 +373,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
             // Inform the user that the database import failed
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Cannot import XTCE XML from file<br>'</b>"
-                                                          + importFile.getAbsolutePath()
-                                                          + "<b>'; cause '"
-                                                          + je.getMessage()
-                                                          + "'",
+                                                              + importFile.getAbsolutePath()
+                                                              + "<b>'; cause '"
+                                                              + je.getMessage()
+                                                              + "'",
                                                       "File Error",
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -461,14 +459,14 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                 // Output the file creation information
                 marshaller.setProperty("com.sun.xml.internal.bind.xmlHeaders",
                                        "\n<!-- Created "
-                                           + new Date().toString()
-                                           + " : project = "
-                                           + dbControl.getDatabase()
-                                           + " : host = "
-                                           + dbControl.getServer()
-                                           + " : user = "
-                                           + dbControl.getUser()
-                                           + " -->");
+                                                                               + new Date().toString()
+                                                                               + " : project = "
+                                                                               + dbControl.getDatabase()
+                                                                               + " : host = "
+                                                                               + dbControl.getServer()
+                                                                               + " : user = "
+                                                                               + dbControl.getUser()
+                                                                               + " -->");
             }
             catch (JAXBException je)
             {
@@ -484,10 +482,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
             // Inform the user that the database export failed
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Cannot export as XTCE XML to file<br>'</b>"
-                                                          + exportFile.getAbsolutePath()
-                                                          + "<b>'; cause '"
-                                                          + je.getMessage()
-                                                          + "'",
+                                                              + exportFile.getAbsolutePath()
+                                                              + "<b>'; cause '"
+                                                              + je.getMessage()
+                                                              + "'",
                                                       "File Error",
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -679,7 +677,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
             /******************************************************************
              * Other data processing
-             * ***************************************************************/
+             ***************************************************************/
             // Get the table type and data fields for this table. Also, if this
             // table's type isn't a structure or a command then get the table's
             // column information
@@ -721,8 +719,8 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                         // Get the data field inputs. If not present use a
                         // blank to prevent an error when separating the inputs
                         String inputs = ancillaryData.getValue() != null
-                                                                        ? ancillaryData.getValue()
-                                                                        : "";
+                                                                         ? ancillaryData.getValue()
+                                                                         : "";
 
                         // Parse data field. The values are comma-separated;
                         // however, commas within quotes are ignored - this
@@ -746,11 +744,11 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                             // are incorrect
                             int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                 "<html><b>Table '</b>"
-                                                                                                    + tableDefn.getName()
-                                                                                                    + "<b>' has missing or extra data "
-                                                                                                    + "field input(s) in import file '</b>"
-                                                                                                    + importFileName
-                                                                                                    + "<b>'; continue?",
+                                                                                                        + tableDefn.getName()
+                                                                                                        + "<b>' has missing or extra data "
+                                                                                                        + "field input(s) in import file '</b>"
+                                                                                                        + importFileName
+                                                                                                        + "<b>'; continue?",
                                                                                                 "Data Field Error",
                                                                                                 "Ignore this invalid data field",
                                                                                                 "Ignore this and any remaining invalid data fields",
@@ -819,7 +817,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
             /******************************************************************
              * Telemetry processing
-             * ***************************************************************/
+             ***************************************************************/
             // Get the child system's telemetry metadata information
             TelemetryMetaDataType tlmMetaData = childSystem.getTelemetryMetaData();
 
@@ -827,30 +825,13 @@ public class CcddXTCEHandler implements CcddImportExportInterface
             // table type is recognized
             if (tlmMetaData != null && typeDefn != null)
             {
-                String descColName;
-                String unitsColName;
-
                 // Get variable name, data type, enumeration, description, and
                 // units column indices
-                int variableNameIndex = typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.VARIABLE));
-                int dataTypeIndex = typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.PRIM_AND_STRUCT));
-                int enumerationIndex = typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.ENUMERATION));
-                int descriptionIndex = -1;
-                int unitsIndex = -1;
-
-                // Get the description column name
-                if ((descColName = typeDefn.getColumnNameByInputType(InputDataType.DESCRIPTION)) != null)
-                {
-                    // Get the description column index
-                    descriptionIndex = typeDefn.getVisibleColumnIndexByUserName(descColName);
-                }
-
-                // Get the units column name
-                if ((unitsColName = typeDefn.getColumnNameByInputType(InputDataType.UNITS)) != null)
-                {
-                    // Get the units column index
-                    unitsIndex = typeDefn.getVisibleColumnIndexByUserName(unitsColName);
-                }
+                int variableNameIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE));
+                int dataTypeIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT));
+                int enumerationIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.ENUMERATION));
+                int descriptionIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION));
+                int unitsIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.UNITS));
 
                 // Get the telemetry information
                 ParameterSetType parmSetType = tlmMetaData.getParameterSet();
@@ -1046,7 +1027,8 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                 && !dataType.isEmpty()
                                 && tableDefn.getData().get(row
                                                            * numColumns
-                                                           + dataTypeIndex).isEmpty())
+                                                           + dataTypeIndex)
+                                            .isEmpty())
                             {
                                 // Store the data type
                                 tableDefn.getData().set(row
@@ -1061,7 +1043,8 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                 && tlm.getShortDescription() != null
                                 && tableDefn.getData().get(row
                                                            * numColumns
-                                                           + descriptionIndex).isEmpty())
+                                                           + descriptionIndex)
+                                            .isEmpty())
                             {
                                 // Store the description
                                 tableDefn.getData().set(row
@@ -1076,7 +1059,8 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                 && unitSet != null
                                 && tableDefn.getData().get(row
                                                            * numColumns
-                                                           + unitsIndex).isEmpty())
+                                                           + unitsIndex)
+                                            .isEmpty())
                             {
                                 List<UnitType> unitType = unitSet.getUnit();
 
@@ -1097,7 +1081,8 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                 && enumeration != null
                                 && tableDefn.getData().get(row
                                                            * numColumns
-                                                           + enumerationIndex).isEmpty())
+                                                           + enumerationIndex)
+                                            .isEmpty())
                             {
                                 // Store the enumeration parameters. This
                                 // accounts only for the first enumeration for
@@ -1117,7 +1102,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
 
             /******************************************************************
              * Command processing
-             * ***************************************************************/
+             ***************************************************************/
             // Get the child system's command metadata information
             CommandMetaDataType cmdMetaData = childSystem.getCommandMetaData();
 
@@ -1125,24 +1110,26 @@ public class CcddXTCEHandler implements CcddImportExportInterface
             // table type is recognized
             if (cmdMetaData != null && typeDefn != null)
             {
-                String descColName;
-                int cmdDescriptionIndex = -1;
-
-                // Get the command name column
-                int commandNameIndex = typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.COMMAND_NAME));
-
                 // Get the list containing command argument name, data type,
                 // enumeration, minimum, maximum, and other associated column
                 // indices for each argument grouping
-                List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandColumns(true);
+                List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(true);
 
-                // Get the description column name
-                if ((descColName = typeDefn.getColumnNameByInputType(InputDataType.DESCRIPTION)) != null)
+                // Get the command name and description columns
+                int commandNameIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_NAME));
+                int cmdDescriptionIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION));
+
+                // Check if the description column belongs to a command
+                // argument
+                if (commandArguments.size() != 0
+                    && cmdDescriptionIndex > commandArguments.get(0).getName())
                 {
-                    // Get the description column index
-                    cmdDescriptionIndex = typeDefn.getVisibleColumnIndexByUserName(descColName);
+                    // Reset the command description index to indicate no
+                    // description exists
+                    cmdDescriptionIndex = -1;
                 }
 
+                // Get the description column name
                 // Get the command set information
                 MetaCommandSet metaCmdSet = cmdMetaData.getMetaCommandSet();
 
@@ -1207,7 +1194,8 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                     // populated by other command metadata
                                     if (tableDefn.getData().get(row
                                                                 * numColumns
-                                                                + column).isEmpty())
+                                                                + column)
+                                                 .isEmpty())
                                     {
                                         // Update the table data at the row and
                                         // column specified with the value from
@@ -1427,32 +1415,26 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                                             enumeration);
                                 }
 
-                                // Step through the other command argument
-                                // columns for this command
-                                for (int cmdArgCol : cmdArg.getOther())
+                                // Check if the command argument description is
+                                // present
+                                if (cmdArg.getDescription() != -1
+                                    && description != null)
                                 {
-                                    // Check if a command argument description
-                                    // exists and the column name references
-                                    // the description
-                                    if (description != null
-                                        && typeDefn.getColumnNamesVisible()[cmdArgCol].matches(CONTAINS_DESCRIPTION))
-                                    {
-                                        // Store the command argument
-                                        // description
-                                        tableDefn.getData().set(row
-                                                                + cmdArgCol,
-                                                                description);
-                                    }
-                                    // Check if a command argument units exists
-                                    // and the column name references the units
-                                    else if (units != null
-                                             && typeDefn.getColumnNamesVisible()[cmdArgCol].matches(CONTAINS_UNITS))
-                                    {
-                                        // Store the command argument units
-                                        tableDefn.getData().set(row
-                                                                + cmdArgCol,
-                                                                units);
-                                    }
+                                    // Store the command argument description
+                                    tableDefn.getData().set(row
+                                                            + cmdArg.getDescription(),
+                                                            description);
+                                }
+
+                                // Check if the command argument units is
+                                // present
+                                if (cmdArg.getUnits() != -1
+                                    && units != null)
+                                {
+                                    // Store the command argument units
+                                    tableDefn.getData().set(row
+                                                            + cmdArg.getUnits(),
+                                                            units);
                                 }
                             }
                         }
@@ -1487,7 +1469,8 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                     // (except for the data type)
                                     if (tableDefn.getData().get(row
                                                                 * numColumns
-                                                                + column).isEmpty()
+                                                                + column)
+                                                 .isEmpty()
                                         || column == commandArguments.get(cmdArgIndex).getDataType())
                                     {
                                         // Update the table data at the row and
@@ -1563,12 +1546,12 @@ public class CcddXTCEHandler implements CcddImportExportInterface
             // Inform the user that the column name is invalid
             int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                 "<html><b>Table '</b>"
-                                                                                    + tableName
-                                                                                    + "<b>' column name '</b>"
-                                                                                    + columnName
-                                                                                    + "<b>' unrecognized in import file '</b>"
-                                                                                    + importFileName
-                                                                                    + "<b>'; continue?",
+                                                                                        + tableName
+                                                                                        + "<b>' column name '</b>"
+                                                                                        + columnName
+                                                                                        + "<b>' unrecognized in import file '</b>"
+                                                                                        + importFileName
+                                                                                        + "<b>'; continue?",
                                                                                 "Column Error",
                                                                                 "Ignore this invalid column name",
                                                                                 "Ignore this and any remaining invalid column names",
@@ -1659,10 +1642,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                         // incorrect
                         int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                             "<html><b>Table type '"
-                                                                                                + definition[0]
-                                                                                                + "' definition has missing or extra input(s) in import file '</b>"
-                                                                                                + importFileName
-                                                                                                + "<b>'; continue?",
+                                                                                                    + definition[0]
+                                                                                                    + "' definition has missing or extra input(s) in import file '</b>"
+                                                                                                    + importFileName
+                                                                                                    + "<b>'; continue?",
                                                                                             "Table Type Error",
                                                                                             "Ignore this table type",
                                                                                             "Ignore this and any remaining invalid table types",
@@ -1700,8 +1683,8 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                             // blank to prevent an error when separating the
                             // inputs
                             String inputs = ancillaryData.getValue() != null
-                                                                            ? ancillaryData.getValue()
-                                                                            : "";
+                                                                             ? ancillaryData.getValue()
+                                                                             : "";
 
                             // Parse data field. The values are
                             // comma-separated; however, commas within quotes
@@ -1727,11 +1710,11 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                 // inputs are incorrect
                                 int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                     "<html><b>Table type '</b>"
-                                                                                                        + tableTypeName
-                                                                                                        + "<b>' has missing or extra data field "
-                                                                                                        + "input(s) in import file '</b>"
-                                                                                                        + importFileName
-                                                                                                        + "<b>'; continue?",
+                                                                                                            + tableTypeName
+                                                                                                            + "<b>' has missing or extra data field "
+                                                                                                            + "input(s) in import file '</b>"
+                                                                                                            + importFileName
+                                                                                                            + "<b>'; continue?",
                                                                                                     "Data Field Error",
                                                                                                     "Ignore this invalid data field",
                                                                                                     "Ignore this and any remaining invalid data fields",
@@ -1826,9 +1809,9 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                         // incorrect
                         int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                             "<html><b>Missing or extra data type definition "
-                                                                                                + "input(s) in import file '</b>"
-                                                                                                + importFileName
-                                                                                                + "<b>'; continue?",
+                                                                                                    + "input(s) in import file '</b>"
+                                                                                                    + importFileName
+                                                                                                    + "<b>'; continue?",
                                                                                             "Data Type Error",
                                                                                             "Ignore this data type",
                                                                                             "Ignore this and any remaining invalid data types",
@@ -1916,9 +1899,9 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                         // Inform the user that the macro inputs are incorrect
                         int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                             "<html><b>Missing or extra macro definition "
-                                                                                                + "input(s) in import file '</b>"
-                                                                                                + importFileName
-                                                                                                + "<b>'; continue?",
+                                                                                                    + "input(s) in import file '</b>"
+                                                                                                    + importFileName
+                                                                                                    + "<b>'; continue?",
                                                                                             "Macro Error",
                                                                                             "Ignore this macro",
                                                                                             "Ignore this and any remaining invalid macros",
@@ -2007,9 +1990,9 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                         // are incorrect
                         int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                             "<html><b>Missing or extra reserved message ID "
-                                                                                                + "definition input(s) in import file '</b>"
-                                                                                                + importFileName
-                                                                                                + "<b>'; continue?",
+                                                                                                    + "definition input(s) in import file '</b>"
+                                                                                                    + importFileName
+                                                                                                    + "<b>'; continue?",
                                                                                             "Reserved Message ID Error",
                                                                                             "Ignore this reserved message ID",
                                                                                             "Ignore this and any remaining invalid reserved message IDs",
@@ -2126,12 +2109,12 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                 // Add the data type definition to the list
                 dataTypeDefinitions.add(new String[] {XTCETags.DATA_TYPE.getTag(),
                                                       dataType[DataTypesColumn.USER_NAME.ordinal()]
-                                                          + ","
-                                                          + dataType[DataTypesColumn.C_NAME.ordinal()]
-                                                          + ","
-                                                          + dataType[DataTypesColumn.SIZE.ordinal()]
-                                                          + ","
-                                                          + dataType[DataTypesColumn.BASE_TYPE.ordinal()]});
+                                                                                   + ","
+                                                                                   + dataType[DataTypesColumn.C_NAME.ordinal()]
+                                                                                   + ","
+                                                                                   + dataType[DataTypesColumn.SIZE.ordinal()]
+                                                                                   + ","
+                                                                                   + dataType[DataTypesColumn.BASE_TYPE.ordinal()]});
             }
         }
 
@@ -2180,8 +2163,8 @@ public class CcddXTCEHandler implements CcddImportExportInterface
             // Add the reserved message ID definition to the list
             reservedMsgIDs.add(new String[] {XTCETags.RESERVED_MSG_ID.getTag(),
                                              reservedMsgIDDefn[ReservedMsgIDsColumn.MSG_ID.ordinal()]
-                                                 + ","
-                                                 + reservedMsgIDDefn[ReservedMsgIDsColumn.DESCRIPTION.ordinal()]});
+                                                                                + ","
+                                                                                + reservedMsgIDDefn[ReservedMsgIDsColumn.DESCRIPTION.ordinal()]});
         }
 
         return reservedMsgIDs;
@@ -2202,10 +2185,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
             // Add the variable path to the list
             variablePaths.add(new String[] {XTCETags.VARIABLE_PATH.getTag(),
                                             "\""
-                                                + variablePath[0]
-                                                + "\",\""
-                                                + variablePath[1]
-                                                + "\""});
+                                                                             + variablePath[0]
+                                                                             + "\",\""
+                                                                             + variablePath[1]
+                                                                             + "\""});
         }
 
         return variablePaths;
@@ -2266,10 +2249,10 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                 // Get the table's basic type - structure, command, or the
                 // original table type if not structure or command table
                 String tableType = typeDefn.isStructure()
-                                                         ? TYPE_STRUCTURE
-                                                         : typeDefn.isCommand()
-                                                                               ? TYPE_COMMAND
-                                                                               : tableInfo.getType();
+                                                          ? TYPE_STRUCTURE
+                                                          : typeDefn.isCommand()
+                                                                                 ? TYPE_COMMAND
+                                                                                 : tableInfo.getType();
 
                 // Check if the table type is valid
                 if (tableType != null)
@@ -2341,14 +2324,14 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                     // else create a new space system using the system name
                     // from the table's data field
                     parentSystem = (existingSystem == null)
-                                                           ? addSpaceSystem(parentSystem,
-                                                                            systemName,
-                                                                            null,
-                                                                            classification2Attr,
-                                                                            validationStatusAttr,
-                                                                            versionAttr,
-                                                                            null)
-                                                           : existingSystem;
+                                                            ? addSpaceSystem(parentSystem,
+                                                                             systemName,
+                                                                             null,
+                                                                             classification2Attr,
+                                                                             validationStatusAttr,
+                                                                             versionAttr,
+                                                                             null)
+                                                            : existingSystem;
 
                     // Create a list to contain the additional table
                     // information; e.g., the table's type and data field names
@@ -2516,23 +2499,23 @@ public class CcddXTCEHandler implements CcddImportExportInterface
             // Store the data field information
             fieldData.add(new String[] {XTCETags.DATA_FIELD.getTag()
                                         + (identifier == null
-                                                             ? ""
-                                                             : identifier),
+                                                              ? ""
+                                                              : identifier),
                                         "\""
-                                            + field.getFieldName()
-                                            + "\",\""
-                                            + field.getDescription()
-                                            + "\",\""
-                                            + field.getSize()
-                                            + "\",\""
-                                            + field.getInputType().getInputName()
-                                            + "\",\""
-                                            + field.isRequired()
-                                            + "\",\""
-                                            + field.getApplicabilityType().getApplicabilityName()
-                                            + "\",\""
-                                            + field.getValue()
-                                            + "\""});
+                                                                             + field.getFieldName()
+                                                                             + "\",\""
+                                                                             + field.getDescription()
+                                                                             + "\",\""
+                                                                             + field.getSize()
+                                                                             + "\",\""
+                                                                             + field.getInputType().getInputName()
+                                                                             + "\",\""
+                                                                             + field.isRequired()
+                                                                             + "\",\""
+                                                                             + field.getApplicabilityType().getApplicabilityName()
+                                                                             + "\",\""
+                                                                             + field.getValue()
+                                                                             + "\""});
         }
     }
 
@@ -2822,7 +2805,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
             if (((column != DefaultColumn.PRIMARY_KEY.ordinal()
                   && column != DefaultColumn.ROW_INDEX.ordinal()
                   && column != varColumn)
-                  || (column == bitColumn && bitLength != null))
+                 || (column == bitColumn && bitLength != null))
                 && !tableInfo.getData()[row][column].isEmpty())
             {
                 // Store the column value size. This is treated as ancillary
@@ -2858,8 +2841,8 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                      variableName,
                      dataType,
                      (typeColumn == -1
-                                      ? null
-                                      : typeDefn.getColumnNamesUser()[typeColumn]),
+                                       ? null
+                                       : typeDefn.getColumnNamesUser()[typeColumn]),
                      enumeration,
                      units,
                      description,
@@ -2882,7 +2865,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
         // Get the list containing command argument name, data type,
         // enumeration, minimum, maximum, and other associated column indices
         // for each argument grouping
-        List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandColumns(false);
+        List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
 
         // Step through each row in the table
         for (String[] rowData : tableInfo.getData())
@@ -2979,33 +2962,28 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                             // column is a command argument
                                             isCmdArg[colB] = true;
                                         }
-                                        // Check if the column is among the
-                                        // associated command argument columns
-                                        else if (cmdArg.getOther().contains(colB))
+                                        // Check if this is the command
+                                        // argument description column
+                                        else if (colB == cmdArg.getDescription())
                                         {
+                                            // Store the command argument
+                                            // description
+                                            description = rowData[colB];
+
                                             // Set the flag indicating the
                                             // column is a command argument
                                             isCmdArg[colB] = true;
+                                        }
+                                        // Check if this is the command
+                                        // argument units column
+                                        else if (colB == cmdArg.getUnits())
+                                        {
+                                            // Store the command argument units
+                                            units = rowData[colB];
 
-                                            // Check if the command argument
-                                            // column name contains the text
-                                            // "units"
-                                            if (colName.matches(CONTAINS_UNITS))
-                                            {
-                                                // Assume this is the command
-                                                // argument's units column
-                                                units = rowData[colB];
-                                            }
-                                            // Check if the command argument
-                                            // column name contains the text
-                                            // "description"
-                                            else if (colName.matches(CONTAINS_DESCRIPTION))
-                                            {
-                                                // Assume this is the command
-                                                // argument's description
-                                                // column
-                                                description = rowData[colB];
-                                            }
+                                            // Set the flag indicating the
+                                            // column is a command argument
+                                            isCmdArg[colB] = true;
                                         }
                                         // Check if this is the command
                                         // argument minimum or maximum column
@@ -3018,7 +2996,7 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                                         }
                                         // The column isn't associated with
                                         // this command argument
-                                        else
+                                        else if (!cmdArg.getOther().contains(colB))
                                         {
                                             // Remove the column information
                                             otherArgCols.remove(otherArgCols.size() - 1);
@@ -3642,8 +3620,8 @@ public class CcddXTCEHandler implements CcddImportExportInterface
                         // 'char' and 2 for a 'string'
                         commandDescription = factory.createStringDataType();
                         ((StringDataType) commandDescription).setCharacterWidth(BigInteger.valueOf(dataTypeHandler.isString(argumentType)
-                                                                                                                                         ? 2
-                                                                                                                                         : 1));
+                                                                                                                                          ? 2
+                                                                                                                                          : 1));
                         StringDataEncodingType stringEncodingType = factory.createStringDataEncodingType();
                         commandDescription.setStringDataEncoding(stringEncodingType);
                         break;
@@ -3769,11 +3747,11 @@ public class CcddXTCEHandler implements CcddImportExportInterface
             // Inform the user that the enumeration format is invalid
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Enumeration '"
-                                                          + enumeration
-                                                          + "' format invalid in table '"
-                                                          + system.getName()
-                                                          + "'; "
-                                                          + ce.getMessage(),
+                                                              + enumeration
+                                                              + "' format invalid in table '"
+                                                              + system.getName()
+                                                              + "'; "
+                                                              + ce.getMessage(),
                                                       "Enumeration Error",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);

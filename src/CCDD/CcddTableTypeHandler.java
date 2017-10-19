@@ -134,20 +134,23 @@ public class CcddTableTypeHandler
         protected Object[][] getData()
         {
             // Create storage for the type data
-            Object[][] data = new Object[columnNamesDatabase.size() - NUM_HIDDEN_COLUMNS][TableTypeEditorColumnInfo.values().length];
+            Object[][] data = new Object[getColumnCountVisible()][TableTypeEditorColumnInfo.values().length];
 
             // Step through each row
             for (int index = NUM_HIDDEN_COLUMNS; index < columnNamesDatabase.size(); index++)
             {
+                // Calculate the visible column index
+                int visibleIndex = getVisibleColumnIndex(index);
+
                 // Store the column information
-                data[index - NUM_HIDDEN_COLUMNS][TableTypeEditorColumnInfo.INDEX.ordinal()] = columnIndex.get(index);
-                data[index - NUM_HIDDEN_COLUMNS][TableTypeEditorColumnInfo.NAME.ordinal()] = columnNamesUser.get(index);
-                data[index - NUM_HIDDEN_COLUMNS][TableTypeEditorColumnInfo.DESCRIPTION.ordinal()] = columnToolTip.get(index);
-                data[index - NUM_HIDDEN_COLUMNS][TableTypeEditorColumnInfo.UNIQUE.ordinal()] = isRowValueUnique.get(index);
-                data[index - NUM_HIDDEN_COLUMNS][TableTypeEditorColumnInfo.REQUIRED.ordinal()] = isColumnRequired.get(index);
-                data[index - NUM_HIDDEN_COLUMNS][TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal()] = isStructureOk.get(index);
-                data[index - NUM_HIDDEN_COLUMNS][TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal()] = isPointerOk.get(index);
-                data[index - NUM_HIDDEN_COLUMNS][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()] = columnInputType.get(index).getInputName();
+                data[visibleIndex][TableTypeEditorColumnInfo.INDEX.ordinal()] = columnIndex.get(index);
+                data[visibleIndex][TableTypeEditorColumnInfo.NAME.ordinal()] = columnNamesUser.get(index);
+                data[visibleIndex][TableTypeEditorColumnInfo.DESCRIPTION.ordinal()] = columnToolTip.get(index);
+                data[visibleIndex][TableTypeEditorColumnInfo.UNIQUE.ordinal()] = isRowValueUnique.get(index);
+                data[visibleIndex][TableTypeEditorColumnInfo.REQUIRED.ordinal()] = isColumnRequired.get(index);
+                data[visibleIndex][TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal()] = isStructureOk.get(index);
+                data[visibleIndex][TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal()] = isPointerOk.get(index);
+                data[visibleIndex][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()] = columnInputType.get(index).getInputName();
             }
 
             return data;
@@ -170,7 +173,7 @@ public class CcddTableTypeHandler
          *********************************************************************/
         protected int getColumnCountVisible()
         {
-            return getColumnCountDatabase() - NUM_HIDDEN_COLUMNS;
+            return getVisibleColumnIndex(getColumnCountDatabase());
         }
 
         /**********************************************************************
@@ -440,7 +443,7 @@ public class CcddTableTypeHandler
             if (columnIndex != -1)
             {
                 // Adjust the index to account for the hidden columns
-                columnIndex -= NUM_HIDDEN_COLUMNS;
+                columnIndex = getVisibleColumnIndex(columnIndex);
             }
 
             return columnIndex;
@@ -681,18 +684,25 @@ public class CcddTableTypeHandler
          *            true to adjust the column indices to view coordinates;
          *            false to keep the coordinates in model coordinates
          *
-         * @return List of groupings of associated command argument columns
+         * @return List of groupings of associated command argument columns;
+         *         empty list if no command arguments exist
          *********************************************************************/
-        protected List<AssociatedColumns> getAssociatedCommandColumns(boolean useViewIndex)
+        protected List<AssociatedColumns> getAssociatedCommandArgumentColumns(boolean useViewIndex)
         {
             List<AssociatedColumns> associatedColumns = new ArrayList<AssociatedColumns>();
 
-            // Initialize the starting command argument name, enumeration,
-            // minimum, and maximum columns
-            int nameIndex = 0;
-            int enumIndex = 0;
-            int minIndex = 0;
-            int maxIndex = 0;
+            int argIndex = -1;
+
+            // Initialize the starting command argument name, data type,
+            // enumeration, minimum, maximum, and other columns
+            int nameColumn = -1;
+            int dataTypeColumn = -1;
+            int enumColumn = -1;
+            int minColumn = -1;
+            int maxColumn = -1;
+            int descColumn = -1;
+            int unitsColumn = -1;
+            List<Integer> otherColumn = null;
 
             // Get the column input types
             InputDataType[] inputTypes = getInputTypes();
@@ -700,132 +710,109 @@ public class CcddTableTypeHandler
             // Step through each column defined for this table's type
             for (int index = 0; index < getColumnCountDatabase(); index++)
             {
-                // Check if the column expects a primitive data type input
-                if (inputTypes[index] == InputDataType.PRIMITIVE)
+                // Check if the column expects a command argument name
+                if (inputTypes[index] == InputDataType.ARGUMENT_NAME)
                 {
-                    // Initialize the name, enumeration, minimum, and maximum
+                    argIndex++;
+
+                    // Check if this isn't the first argument name column
+                    // (i.e., this name begins subsequent argument so the prior
+                    // argument's columns can be stored)
+                    if (argIndex != 0)
+                    {
+                        // Add the name, data type, enumeration, minimum,
+                        // maximum, and associated columns column index group
+                        // to the list
+                        associatedColumns.add(new AssociatedColumns(useViewIndex,
+                                                                    nameColumn,
+                                                                    dataTypeColumn,
+                                                                    enumColumn,
+                                                                    minColumn,
+                                                                    maxColumn,
+                                                                    descColumn,
+                                                                    unitsColumn,
+                                                                    otherColumn));
+                    }
+
+                    // Save the name column index and initialize the associated
                     // column indices
-                    int nameColumn = -1;
-                    int enumColumn = -1;
-                    int minColumn = -1;
-                    int maxColumn = -1;
-                    List<Integer> otherColumn = new ArrayList<Integer>();
-
-                    // Step through the remaining columns to find the next name
-                    // input type column
-                    for (; nameIndex < getColumnCountDatabase(); nameIndex++)
-                    {
-                        // Check that this is a name column and that it isn't
-                        // the one already used
-                        if (inputTypes[nameIndex] == InputDataType.ARGUMENT_NAME)
-                        {
-                            // Save the name column index, increment the index
-                            // for matching up with the next argument, and stop
-                            // searching
-                            nameColumn = nameIndex;
-                            nameIndex++;
-                            break;
-                        }
-                    }
-
-                    // Step through the remaining columns to find the next
-                    // enumeration input type column
-                    for (; enumIndex < getColumnCountDatabase(); enumIndex++)
-                    {
-                        // Check that this is an enumeration column and that it
-                        // isn't the one already used
-                        if (inputTypes[enumIndex] == InputDataType.ENUMERATION)
-                        {
-                            // Save the enumeration column index, increment the
-                            // index for matching up with the next argument,
-                            // and stop searching
-                            enumColumn = enumIndex;
-                            enumIndex++;
-                            break;
-                        }
-                    }
-
-                    // Step through the remaining columns to find the next
-                    // minimum input type column
-                    for (; minIndex < getColumnCountDatabase(); minIndex++)
-                    {
-                        // Check that this is a minimum column and that it
-                        // isn't the one already used
-                        if (inputTypes[minIndex] == InputDataType.MINIMUM)
-                        {
-                            // Save the minimum column index, increment the
-                            // index for matching up with the next argument,
-                            // and stop searching
-                            minColumn = minIndex;
-                            minIndex++;
-                            break;
-                        }
-                    }
-
-                    // Step through the remaining columns to find the next
-                    // maximum input type column
-                    for (; maxIndex < getColumnCountDatabase(); maxIndex++)
-                    {
-                        // Check that this is a maximum column and that it
-                        // isn't the one already used
-                        if (inputTypes[maxIndex] == InputDataType.MAXIMUM)
-                        {
-                            // Save the maximum column index, increment the
-                            // index for matching up with the next argument,
-                            // and stop searching
-                            maxColumn = maxIndex;
-                            maxIndex++;
-                            break;
-                        }
-                    }
-
-                    // Get the index of the first column defining this command
-                    // argument
-                    int otherIndex = Math.min(Math.min(Math.min(Math.min(index,
-                                                                         nameIndex),
-                                                                enumIndex),
-                                                       minIndex),
-                                              maxIndex);
-
-                    // Step through the remaining columns in the table
-                    for (; otherIndex < getColumnCountDatabase(); otherIndex++)
-                    {
-                        // Check that this isn't one of the default columns for
-                        // this command argument
-                        if (otherIndex != index
-                            && otherIndex != nameColumn
-                            && otherIndex != enumColumn
-                            && otherIndex != minColumn
-                            && otherIndex != maxColumn)
-                        {
-                            // Check if this is a default column for the next
-                            // new command argument
-                            if (inputTypes[otherIndex] == InputDataType.PRIMITIVE
-                                || inputTypes[otherIndex] == InputDataType.ARGUMENT_NAME
-                                || inputTypes[otherIndex] == InputDataType.ENUMERATION
-                                || inputTypes[otherIndex] == InputDataType.MINIMUM
-                                || inputTypes[otherIndex] == InputDataType.MAXIMUM)
-                            {
-                                // Stop searching
-                                break;
-                            }
-
-                            // Add the column to the list of other columns
-                            // associated with this command argument
-                            otherColumn.add(otherIndex);
-                        }
-                    }
-
-                    // Add the name, data type, enumeration, minimum, maximum,
-                    // and associated columns column index group to the list
-                    associatedColumns.add(new AssociatedColumns(useViewIndex,
-                                                                nameColumn,
-                                                                index,
-                                                                enumColumn,
-                                                                minColumn,
-                                                                maxColumn,
-                                                                otherColumn));
+                    nameColumn = index;
+                    dataTypeColumn = -1;
+                    enumColumn = -1;
+                    minColumn = -1;
+                    maxColumn = -1;
+                    descColumn = -1;
+                    unitsColumn = -1;
+                    otherColumn = new ArrayList<Integer>();
                 }
+                // Check if a command argument name has been found and that the
+                // column doesn't represent the command name or code
+                else if (argIndex != -1
+                         && inputTypes[index] != InputDataType.COMMAND_NAME
+                         && inputTypes[index] != InputDataType.COMMAND_CODE)
+                {
+                    // Check that this is a data type column
+                    if (inputTypes[index] == InputDataType.PRIMITIVE)
+                    {
+                        // Save the data type column index
+                        dataTypeColumn = index;
+                    }
+                    // Check that this is an enumeration column
+                    else if (inputTypes[index] == InputDataType.ENUMERATION)
+                    {
+                        // Save the enumeration column index
+                        enumColumn = index;
+                    }
+                    // Check that this is a minimum column
+                    else if (inputTypes[index] == InputDataType.MINIMUM)
+                    {
+                        // Save the minimum column index
+                        minColumn = index;
+                    }
+                    // Check that this is a maximum column
+                    else if (inputTypes[index] == InputDataType.MAXIMUM)
+                    {
+                        // Save the maximum column index
+                        maxColumn = index;
+                    }
+                    // Check that this is a description column
+                    else if (inputTypes[index] == InputDataType.DESCRIPTION)
+                    {
+                        // Save the description column index
+                        descColumn = index;
+                    }
+                    // Check that this is a units column
+                    else if (inputTypes[index] == InputDataType.UNITS)
+                    {
+                        // Save the units column index
+                        unitsColumn = index;
+                    }
+                    // Not one of the recognized column input types, so treat
+                    // as an 'other' column
+                    else
+                    {
+                        // Add the column to the list of other columns
+                        // associated with this command argument
+                        otherColumn.add(index);
+                    }
+                }
+            }
+
+            // Check if a command argument exists. This stores the final one
+            // detected
+            if (argIndex != 0)
+            {
+                // Add the name, data type, enumeration, minimum, maximum,
+                // and associated columns column index group to the list
+                associatedColumns.add(new AssociatedColumns(useViewIndex,
+                                                            nameColumn,
+                                                            dataTypeColumn,
+                                                            enumColumn,
+                                                            minColumn,
+                                                            maxColumn,
+                                                            descColumn,
+                                                            unitsColumn,
+                                                            otherColumn));
             }
 
             return associatedColumns;
@@ -847,6 +834,19 @@ public class CcddTableTypeHandler
 
         // Create the table type from the definitions stored in the database
         createTypesFromDatabase();
+    }
+
+    /**************************************************************************
+     * Get the visible column index based on the database column index
+     *
+     * @param columnIndex
+     *            database column index
+     *
+     * @return Visible column index based on the database column index
+     *************************************************************************/
+    protected static int getVisibleColumnIndex(int columnIndex)
+    {
+        return columnIndex - NUM_HIDDEN_COLUMNS;
     }
 
     /**************************************************************************
@@ -907,17 +907,17 @@ public class CcddTableTypeHandler
                                typeData[TableTypesColumn.COLUMN_DESCRIPTION.ordinal()].toString(),
                                InputDataType.getInputTypeByName(typeData[TableTypesColumn.INPUT_TYPE.ordinal()].toString()),
                                typeData[TableTypesColumn.ROW_VALUE_UNIQUE.ordinal()].equals("t")
-                                                                                                ? true
-                                                                                                : false,
-                               typeData[TableTypesColumn.COLUMN_REQUIRED.ordinal()].equals("t")
-                                                                                               ? true
-                                                                                               : false,
-                               typeData[TableTypesColumn.STRUCTURE_ALLOWED.ordinal()].equals("t")
                                                                                                  ? true
                                                                                                  : false,
+                               typeData[TableTypesColumn.COLUMN_REQUIRED.ordinal()].equals("t")
+                                                                                                ? true
+                                                                                                : false,
+                               typeData[TableTypesColumn.STRUCTURE_ALLOWED.ordinal()].equals("t")
+                                                                                                  ? true
+                                                                                                  : false,
                                typeData[TableTypesColumn.POINTER_ALLOWED.ordinal()].equals("t")
-                                                                                               ? true
-                                                                                               : false);
+                                                                                                ? true
+                                                                                                : false);
         }
     }
 
@@ -1222,8 +1222,8 @@ public class CcddTableTypeHandler
                 {
                     // Get the name of the column
                     String name = useDbName
-                                           ? typeDefn.getColumnNamesDatabase()[enumIndex]
-                                           : typeDefn.getColumnNamesUser()[enumIndex];
+                                            ? typeDefn.getColumnNamesDatabase()[enumIndex]
+                                            : typeDefn.getColumnNamesUser()[enumIndex];
 
                     // Check if the name hasn't already been added
                     if (!enumColumns.contains(name))

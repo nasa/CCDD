@@ -211,15 +211,20 @@ public class CcddMain
         isHideGUI = false;
         webServer = null;
 
-        // Create lists to store references to open event logs and table editor
-        // dialogs
-        eventLogs = new ArrayList<CcddEventLogDialog>();
-        tableEditorDialogs = new ArrayList<CcddTableEditorDialog>();
-
         // Get the backing store node for storing the program preference keys
         // and values. These are stored by user so that different users can
         // have their own preferences
         progPrefs = Preferences.userNodeForPackage(this.getClass());
+
+        // Set the selected look & feel. This is done prior to creating any of
+        // the GUI (including the session event log) so that the GUI components
+        // initialize with the preferred look & feel
+        boolean isLaFError = setLookAndFeel(null);
+
+        // Create lists to store references to open event logs and table editor
+        // dialogs
+        eventLogs = new ArrayList<CcddEventLogDialog>();
+        tableEditorDialogs = new ArrayList<CcddTableEditorDialog>();
 
         // Create the command line handler
         CcddCommandLineHandler cmdLnHandler = new CcddCommandLineHandler(CcddMain.this, args);
@@ -253,14 +258,14 @@ public class CcddMain
         // Log the CCDD and Java versions
         getSessionEventLog().logEvent(EventLogMessageType.STATUS_MSG,
                                       "CCDD: "
-                                          + ccddVersion
-                                          + " ("
-                                          + buildDate
-                                          + ")  ***  Java: "
-                                          + System.getProperty("java.version")
-                                          + " ("
-                                          + System.getProperty("sun.arch.data.model")
-                                          + "-bit)");
+                                                                      + ccddVersion
+                                                                      + " ("
+                                                                      + buildDate
+                                                                      + ")  ***  Java: "
+                                                                      + System.getProperty("java.version")
+                                                                      + " ("
+                                                                      + System.getProperty("sun.arch.data.model")
+                                                                      + "-bit)");
 
         // Create a keyboard handler to adjust the response to the Enter key to
         // act like the Space key to activate certain control types and to
@@ -268,9 +273,20 @@ public class CcddMain
         // the keyboard focus. Also handle table undo/redo actions
         keyboardHandler = new CcddKeyboardHandler(CcddMain.this);
 
-        // Set the selected look & feel and update the GUI
-        setLookAndFeel(null);
-        updateGUI(GUIUpdateType.LAF, null);
+        // Check if the look & feel failed to load. The error can't be
+        // annunciated via a dialog when the look & feel is loaded since the
+        // main frame doesn't yet exist
+        if (isLaFError)
+        {
+            // Inform the user that there was an error setting the look & feel
+            new CcddDialogHandler().showMessageDialog(frameCCDD,
+                                                      "<html><b>Problem occurred when setting the look & feel to </b>"
+                                                                 + selectedLaF,
+                                                      "L&F Warning",
+                                                      JOptionPane.WARNING_MESSAGE,
+                                                      DialogOption.OK_OPTION);
+
+        }
 
         // Read the command line arguments and make adjustments as needed
         cmdLnHandler.parseCommand(false);
@@ -372,7 +388,7 @@ public class CcddMain
         // Log the Jetty version
         getSessionEventLog().logEvent(EventLogMessageType.STATUS_MSG,
                                       "Jetty: "
-                                          + org.eclipse.jetty.util.Jetty.VERSION);
+                                                                      + org.eclipse.jetty.util.Jetty.VERSION);
         // Create the web server
         webServer = new CcddWebServer(this);
 
@@ -910,8 +926,8 @@ public class CcddMain
     {
         currentDatabase.setText("<html>Project:<b> "
                                 + (dbControl.isDatabaseConnected()
-                                                                  ? dbControl.getDatabase()
-                                                                  : "<i>not connected"));
+                                                                   ? dbControl.getDatabase()
+                                                                   : "<i>not connected"));
     }
 
     /**************************************************************************
@@ -2309,46 +2325,46 @@ public class CcddMain
                 ImageIcon icon = new ImageIcon(getClass().getResource(CCDD_ICON));
                 Image image = icon.getImage().getScaledInstance(iconWidth,
                                                                 icon.getIconHeight()
-                                                                    * iconWidth
-                                                                    / icon.getIconWidth(),
+                                                                           * iconWidth
+                                                                           / icon.getIconWidth(),
                                                                 Image.SCALE_SMOOTH);
                 icon = new ImageIcon(image);
 
                 // Display the application name, author, and version
                 new CcddDialogHandler().showMessageDialog(frameCCDD,
                                                           "<html><b>Core Flight System<br>Command & Data Dictionary</b><br>"
-                                                              + CCDD_AUTHOR
-                                                              + "<br>"
-                                                              + CcddUtilities.colorHTMLText("Version: ",
-                                                                                            ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
-                                                              + ccddVersion
-                                                              + "&#160;&#160;&#160;"
-                                                              + buildDate
-                                                              + "<br><br><b>Supporting software versions:</b><br>&#160;&#160;&#160;"
-                                                              + CcddUtilities.colorHTMLText("Java: ",
-                                                                                            ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
-                                                              + System.getProperty("java.version")
-                                                              + " ("
-                                                              + System.getProperty("sun.arch.data.model")
-                                                              + "-bit)<br>&#160;&#160;&#160;"
-                                                              + CcddUtilities.colorHTMLText(DEFAULT_SERVER + ": ",
-                                                                                            ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
-                                                              + dbControl.getDatabaseVersion()
-                                                              + "<br>&#160;&#160;&#160;"
-                                                              + CcddUtilities.colorHTMLText("JDBC: ",
-                                                                                            ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
-                                                              + dbControl.getJDBCVersion()
-                                                              + "<br>&#160;&#160;&#160;"
-                                                              + CcddUtilities.colorHTMLText("Jetty: ",
-                                                                                            ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
-                                                              + org.eclipse.jetty.util.Jetty.VERSION
-                                                              + "<br><br><b>Scripting language versions:</b>"
-                                                              + scriptHandler.getEngineInformation()
-                                                              + "<br><br>Copyright 2017 United States Government "
-                                                              + "as represented by the<br>Administrator of the "
-                                                              + "National Aeronautics and Space Administration.<br>"
-                                                              + "No copyright is claimed in the United States "
-                                                              + "under Title 17, U.S. Code.<br>All Other Rights Reserved.",
+                                                                     + CCDD_AUTHOR
+                                                                     + "<br>"
+                                                                     + CcddUtilities.colorHTMLText("Version: ",
+                                                                                                   ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
+                                                                     + ccddVersion
+                                                                     + "&#160;&#160;&#160;"
+                                                                     + buildDate
+                                                                     + "<br><br><b>Supporting software versions:</b><br>&#160;&#160;&#160;"
+                                                                     + CcddUtilities.colorHTMLText("Java: ",
+                                                                                                   ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
+                                                                     + System.getProperty("java.version")
+                                                                     + " ("
+                                                                     + System.getProperty("sun.arch.data.model")
+                                                                     + "-bit)<br>&#160;&#160;&#160;"
+                                                                     + CcddUtilities.colorHTMLText(DEFAULT_SERVER + ": ",
+                                                                                                   ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
+                                                                     + dbControl.getDatabaseVersion()
+                                                                     + "<br>&#160;&#160;&#160;"
+                                                                     + CcddUtilities.colorHTMLText("JDBC: ",
+                                                                                                   ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
+                                                                     + dbControl.getJDBCVersion()
+                                                                     + "<br>&#160;&#160;&#160;"
+                                                                     + CcddUtilities.colorHTMLText("Jetty: ",
+                                                                                                   ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
+                                                                     + org.eclipse.jetty.util.Jetty.VERSION
+                                                                     + "<br><br><b>Scripting language versions:</b>"
+                                                                     + scriptHandler.getEngineInformation()
+                                                                     + "<br><br>Copyright 2017 United States Government "
+                                                                     + "as represented by the<br>Administrator of the "
+                                                                     + "National Aeronautics and Space Administration.<br>"
+                                                                     + "No copyright is claimed in the United States "
+                                                                     + "under Title 17, U.S. Code.<br>All Other Rights Reserved.",
                                                           "About CCDD",
                                                           DialogOption.OK_OPTION,
                                                           icon);
@@ -2416,11 +2432,11 @@ public class CcddMain
                                                           "Exit CCDD",
                                                           JOptionPane.QUESTION_MESSAGE,
                                                           DialogOption.OK_CANCEL_OPTION) == OK_BUTTON
-            && ignoreUncommittedChanges("Exit application",
-                                        "Discard changes?",
-                                        true,
-                                        null,
-                                        frameCCDD)))
+                && ignoreUncommittedChanges("Exit application",
+                                            "Discard changes?",
+                                            true,
+                                            null,
+                                            frameCCDD)))
         {
             // Exit the program
             System.exit(status);
@@ -2443,9 +2459,13 @@ public class CcddMain
      * @param laf
      *            name of the selected look & feel; null to use the look & feel
      *            stored in the program preferences
+     *
+     * @return true if an error occurred loading the look & feel
      *************************************************************************/
-    protected void setLookAndFeel(String laf)
+    protected boolean setLookAndFeel(String laf)
     {
+        boolean isLaFError = false;
+
         // Set the default to the cross-platform look & feel
         selectedLaF = "Metal";
         String lafClass = UIManager.getCrossPlatformLookAndFeelClassName();
@@ -2482,18 +2502,13 @@ public class CcddMain
             // Set the adjustments to the selected look & feel
             setLaFAdjustments(selectedLaF);
         }
-
         // Look & feel failed to load
         catch (Exception e)
         {
-            // Inform the user that there was an error setting the look & feel
-            new CcddDialogHandler().showMessageDialog(frameCCDD,
-                                                      "<html><b>Problem occurred when setting the look & feel to </b>"
-                                                          + selectedLaF,
-                                                      "L&F Warning",
-                                                      JOptionPane.WARNING_MESSAGE,
-                                                      DialogOption.OK_OPTION);
+            isLaFError = true;
         }
+
+        return isLaFError;
     }
 
     /**************************************************************************
@@ -2512,23 +2527,18 @@ public class CcddMain
     protected void updateGUI(GUIUpdateType updateType, CcddDialogHandler[] dialogs)
     {
         // Update the main application window
-        updateContainerGUI(updateType, frameCCDD, null);
-
-        boolean isSessionLog = true;
+        updateContainerGUI(updateType, frameCCDD, eventLogs.get(0).getEventTable());
 
         // Step through each open event log
         for (CcddEventLogDialog evtLog : eventLogs)
         {
-            // Check if this isn't the first event log, which is the log for
-            // the current session. Since it exists as part of the main window
-            // it's already updated above
-            if (!isSessionLog)
+            // Check if this isn't the session event log. Since it exists as
+            // part of the main window it's already updated above
+            if (!evtLog.equals(getSessionEventLog()))
             {
                 // Update the log entry dialog
                 updateContainerGUI(updateType, evtLog, evtLog.getEventTable());
             }
-
-            isSessionLog = false;
         }
 
         // Step through each open table editor dialog
@@ -2543,7 +2553,8 @@ public class CcddMain
         if (tableTypeEditorDialog != null && tableTypeEditorDialog.isShowing())
         {
             // Update the table type editor
-            updateContainerGUI(updateType, tableTypeEditorDialog,
+            updateContainerGUI(updateType,
+                               tableTypeEditorDialog,
                                tableTypeEditorDialog.getTypeEditor().getTable());
         }
 
@@ -2626,6 +2637,16 @@ public class CcddMain
         {
             case LAF:
                 SwingUtilities.updateComponentTreeUI(container);
+
+                // Check if a table reference is provided
+                if (table != null)
+                {
+                    // Reset the table header renderer and mouse listener so
+                    // that the header is drawn to match the new look & feel
+                    // and column auto-resizing remains functional
+                    table.resetHeaderOnLaFChange();
+                }
+
                 break;
 
             case FONT:
@@ -2655,8 +2676,9 @@ public class CcddMain
             table.setTableGrid();
         }
 
-        // Force the container contents to be validated
+        // Force the container contents to be validated and redrawn
         container.validate();
+        container.repaint();
     }
 
     /**************************************************************************
@@ -2750,7 +2772,7 @@ public class CcddMain
             // changes
             if (editorDialog.isTablesChanged()
                 && (tableTypes == null
-                || tableTypes.contains(editorDialog.getTableEditor().getTableInformation().getType())))
+                    || tableTypes.contains(editorDialog.getTableEditor().getTableInformation().getType())))
             {
                 // Set the flag to indicate that there are uncommitted changes
                 // and stop searching
@@ -2783,7 +2805,7 @@ public class CcddMain
         // the changes should be ignored
         if (isChanged && new CcddDialogHandler().showMessageDialog(parent,
                                                                    "<html><b>"
-                                                                       + dialogMessage,
+                                                                           + dialogMessage,
                                                                    dialogType,
                                                                    JOptionPane.QUESTION_MESSAGE,
                                                                    DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)

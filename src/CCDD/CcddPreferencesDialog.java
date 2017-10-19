@@ -1031,7 +1031,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                         // Inform the user that the input value is invalid
                         new CcddDialogHandler().showMessageDialog(CcddPreferencesDialog.this,
                                                                   "<html><b>The value for '</b>"
-                                                                      + ce.getMessage(),
+                                                                                              + ce.getMessage(),
                                                                   "Missing/Invalid Input",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);
@@ -1253,7 +1253,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                         // Inform the user that the input value is invalid
                         new CcddDialogHandler().showMessageDialog(CcddPreferencesDialog.this,
                                                                   "<html><b>The value for '</b>"
-                                                                      + ce.getMessage(),
+                                                                                              + ce.getMessage(),
                                                                   "Missing/Invalid Input",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);

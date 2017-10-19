@@ -160,11 +160,6 @@ public class CcddConstants
     // that an erroneous separation doesn't occur
     protected static final String SPLIT_IGNORE_QUOTES = "(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
 
-    // Regular expressions that detect the presence of the specified text
-    // within a string (case insensitive)
-    protected static final String CONTAINS_DESCRIPTION = "(?i).*\\s*" + COL_DESCRIPTION + "\\s*.*";
-    protected static final String CONTAINS_UNITS = "(?i).*\\s*" + COL_UNITS + "\\s*.*";
-
     // Regular expression for identifying part or all of a table and its path
     protected static final String PATH_IDENT = "[a-zA-Z0-9_,\\\\.\\\\[\\\\]]+";
 
@@ -231,6 +226,8 @@ public class CcddConstants
     protected static final String LINKED_VARIABLE_ICON = "/images/linked_variable.png";
     protected static final String LINKED_BIT_VARIABLE_ICON = "/images/linked_bit_variable.png";
     protected static final String LINKED_PACKED_VARIABLE_ICON = "/images/linked_packed_variable.png";
+    protected static final String SORT_ASCEND = "/images/sort_ascend.png";
+    protected static final String SORT_DESCEND = "/images/sort_descend.png";
 
     // Dialog box default icon file names
     protected static final String INFORMATION_ICON = "/images/information.png";
@@ -732,11 +729,20 @@ public class CcddConstants
                 // Check if the component is a table
                 if (comp instanceof JTable)
                 {
-                    // Step through each row in the table
-                    for (int row = 0; row < ((JTable) comp).getRowCount(); row++)
+                    // Step through each column in the table
+                    for (int column = 0; column < ((JTable) comp).getColumnCount(); column++)
                     {
-                        // Step through each column in the table
-                        for (int column = 0; column < ((JTable) comp).getColumnCount(); column++)
+                        // Set the font for the header specified by the column
+                        // to the modifiable font
+                        setModifiableFont(((JTable) comp).getColumnModel().getColumn(column).getHeaderRenderer().getTableCellRendererComponent((JTable) comp,
+                                                                                                                                               "",
+                                                                                                                                               false,
+                                                                                                                                               false,
+                                                                                                                                               -1,
+                                                                                                                                               column));
+
+                        // Step through each row in the table
+                        for (int row = 0; row < ((JTable) comp).getRowCount(); row++)
                         {
                             // Set the font for the cell specified by the row
                             // and column to the modifiable font
@@ -2051,6 +2057,12 @@ public class CcddConstants
                         "Message ID name: same constraints as for an "
                                 + "alphanumeric (see Alphanumeric)"),
 
+        // TODO
+        MESSAGE_ID_NAMES_AND_IDS("Message ID names & IDs",
+                                 ".*",
+                                 "text",
+                                 "Message ID names & IDs"),
+
         MINIMUM("Minimum",
                 "(" + INTEGER.getInputMatch() + ")|("
                            + FLOAT.getInputMatch() + ")",
@@ -2590,7 +2602,7 @@ public class CcddConstants
                         false,
                         false,
                         true,
-                        true),
+                        false),
         ARG_NAME_1(TYPE_COMMAND,
                    COL_ARGUMENT + " 1 Name",
                    "Command argument 1 name",
@@ -2604,7 +2616,7 @@ public class CcddConstants
         ARG_DESCRIPTION_1(TYPE_COMMAND,
                           COL_ARGUMENT + " 1 " + COL_DESCRIPTION,
                           "Command argument 1 description",
-                          InputDataType.TEXT,
+                          InputDataType.DESCRIPTION,
                           false,
                           false,
                           false,
@@ -2614,7 +2626,7 @@ public class CcddConstants
         ARG_UNITS_1(TYPE_COMMAND,
                     COL_ARGUMENT + " 1 " + COL_UNITS,
                     "Command argument 1 units",
-                    InputDataType.TEXT,
+                    InputDataType.UNITS,
                     false,
                     false,
                     false,
@@ -4023,11 +4035,11 @@ public class CcddConstants
                  "Select if a value is required in the column",
                  false,
                  false),
-        STRUCTURE_ALLOWED("<html><center><p style=\"font-size:8px\">Enable if<br>Structure",
+        STRUCTURE_ALLOWED("<html><center>Enable if<br>Structure",
                           "Select if this column is allowed with structure data types",
                           false,
                           false),
-        POINTER_ALLOWED("<html><center><p style=\"font-size:8px\">Enable if<br>Pointer",
+        POINTER_ALLOWED("<html><center>Enable if<br>Pointer",
                         "Select if this column is allowed with pointer data types",
                         false,
                         false);
@@ -4152,9 +4164,9 @@ public class CcddConstants
      *************************************************************************/
     protected static enum SchedulerColumn
     {
-        NAME("<html><center>Message<br>Name", "Time Slot", "Column A"),
-        SIZE("<html><center>Free<br>Bytes", "Time (msec)", "Column B"),
-        ID("<html><center>Common<br>ID", "", "Column C");
+        NAME("Message Name", "Time Slot", "Column A"),
+        SIZE("Free<br>Bytes", "Time (msec)", "Column B"),
+        ID("Common<br>ID", "", "Column C");
 
         private final String tlmColumn;
         private final String appColumn;
@@ -6003,12 +6015,12 @@ public class CcddConstants
     // Event log table header indices
     protected static enum EventColumns
     {
-        INDEX("Index"),
-        SERVER("Server"),
-        PROJECT("Project"),
-        USER(" User "),
-        TIME("Date/Time"),
-        TYPE("  Type  "),
+        INDEX(" Index "),
+        SERVER(" Server "),
+        PROJECT(" Project "),
+        USER("   User   "),
+        TIME(" Date/Time"),
+        TYPE("   Type   "),
         MESSAGE("Message");
 
         private final String columnName;

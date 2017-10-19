@@ -803,7 +803,6 @@ public class CcddUtilities
      * the HTML tags are restored. A non-HTML input string is converted to HTML
      * format, including conversion of any special characters
      *
-     *
      * @param inputText
      *            string to format for wrapping
      *
@@ -1078,7 +1077,9 @@ public class CcddUtilities
                     // inserted into the output string) to determine if the tag
                     // appears in the string after the break tag, and increment
                     // the break tag counter
-                    if (tagIndex > breakTag.getIndex() + tagIndexAdjust)
+                    if (tagIndex > breakTag.getIndex() + (isBreakDone
+                                                                      ? tagIndexAdjust
+                                                                      : 0))
                     {
                         // Add the length of a line break tag to the break
                         // index adjustment value

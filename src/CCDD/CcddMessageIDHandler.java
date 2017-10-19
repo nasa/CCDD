@@ -227,8 +227,8 @@ public class CcddMessageIDHandler
                 // references in the custom values table
                 tableIDs.addAll(dbTable.queryDatabase("SELECT"
                                                       + (isGetDuplicates
-                                                                        ? " "
-                                                                        : " DISTINCT ON (2) ")
+                                                                         ? " "
+                                                                         : " DISTINCT ON (2) ")
                                                       + "* FROM find_columns_by_name('"
                                                       + typeDefn.getColumnNamesUser()[idColumn]
                                                       + "', '"
@@ -243,8 +243,8 @@ public class CcddMessageIDHandler
         // Get the list of all message ID data field values
         tableIDs.addAll(dbTable.queryDatabase("SELECT"
                                               + (isGetDuplicates
-                                                                ? " "
-                                                                : " DISTINCT ON (2) ")
+                                                                 ? " "
+                                                                 : " DISTINCT ON (2) ")
                                               + InternalTable.FIELDS.getColumnName(FieldsColumn.OWNER_NAME.ordinal())
                                               + ", "
                                               + InternalTable.FIELDS.getColumnName(FieldsColumn.FIELD_VALUE.ordinal())
@@ -631,7 +631,7 @@ public class CcddMessageIDHandler
     {
         final List<String[]> msgIDs = getMessageIDsAndNames(parent);
 
-        // Sort the message ID list
+        // Sort the message ID list by owner
         Collections.sort(msgIDs, new Comparator<String[]>()
         {
             /******************************************************************

@@ -16,6 +16,7 @@ import java.awt.AWTException;
 import java.awt.AWTKeyStroke;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -35,6 +36,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.awt.print.Book;
 import java.awt.print.PageFormat;
@@ -96,6 +98,7 @@ import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddUndoHandler.UndoableTableColumnModel;
 import CCDD.CcddUndoHandler.UndoableTableModel;
 import sun.print.ServiceDialog;
+import sun.swing.table.DefaultTableCellHeaderRenderer;
 
 /******************************************************************************
  * CFS Command & Data Dictionary custom Swing table handler class
@@ -190,6 +193,10 @@ public abstract class CcddJTableHandler extends JTable
     private int lastSelectionStart;
     private int lastSelectionEnd;
 
+    // Mouse listener used to resize a column when the right column header
+    // border is double clicked
+    private ResizeColumnListener resizeColumnListener;
+
     /**************************************************************************
      * Custom Swing table handler constructor
      *************************************************************************/
@@ -255,6 +262,7 @@ public abstract class CcddJTableHandler extends JTable
                                                      ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing(),
                                                      ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing(),
                                                      ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing());
+
         // Create the cell selection container
         selectedCells = new CellSelectionHandler();
         focusRow = -1;
@@ -1148,12 +1156,13 @@ public abstract class CcddJTableHandler extends JTable
         // is resized; this is handled manually below
         setAutoResizeMode(AUTO_RESIZE_OFF);
 
-        // Set the table header font and calculate the header height. The
-        // column widths are calculated elsewhere
-        getTableHeader().setFont(ModifiableFontInfo.TABLE_HEADER.getFont());
-
         // Set the font for the table cells
         setFont(cellFont);
+
+        // Replace the table's header mouse listener with a version that
+        // captures double clicks on the column header borders in order to
+        // implement automatic resizing
+        resizeColumnListener = new ResizeColumnListener();
 
         // Listen for changes made by the user to the table's cells
         new TableCellListener();
@@ -1405,7 +1414,8 @@ public abstract class CcddJTableHandler extends JTable
                                    convertColumnIndexToView(checkBoxColumnModel.get(index)));
         }
 
-        // Set up the renderers for the table cells
+        // Set up the renderers for the table header and cells
+        setHeaderRenderer();
         setCellRenderers(centerText);
 
         // Set the editor characteristics for the editable cells
@@ -1416,7 +1426,7 @@ public abstract class CcddJTableHandler extends JTable
         {
             // Calculate and set the widths of the tab columns and get the
             // minimum width needed to display the tab's table
-            totalWidth = calcColumnWidths(showScrollBar);
+            totalWidth = calcAndSetColumnWidths(showScrollBar);
         }
 
         return totalWidth;
@@ -1579,6 +1589,8 @@ public abstract class CcddJTableHandler extends JTable
                 @Override
                 public void toggleSortOrder(int column)
                 {
+                    // Get the reference to the sort keys. The list size is
+                    // zero if the rows aren't sorted
                     List<? extends SortKey> sortKeys = getSortKeys();
 
                     // Check if this is the same column as for the previous
@@ -1639,7 +1651,86 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**************************************************************************
-     * Set the table header and cell renderers
+     * Table header renderer class for adjusting the font by column
+     *************************************************************************/
+    class HeaderFontRenderer extends DefaultTableCellHeaderRenderer
+    {
+        DefaultTableCellHeaderRenderer renderer;
+
+        /**********************************************************************
+         * Table header renderer class constructor
+         *********************************************************************/
+        public HeaderFontRenderer()
+        {
+            // Get the default table header renderer. This allows manipulation
+            // of look & feels that have specialized header renderers
+            renderer = (DefaultTableCellHeaderRenderer) table.getTableHeader().getDefaultRenderer();
+        }
+
+        /**********************************************************************
+         * Override the table header renderer so that the font can be set based
+         * on the column name content
+         *********************************************************************/
+        @Override
+        public Component getTableCellRendererComponent(JTable jtable,
+                                                       Object value,
+                                                       boolean isSelected,
+                                                       boolean hasFocus,
+                                                       int row,
+                                                       int column)
+        {
+            // Get the column index in model coordinates
+            int modelColumn = table.convertColumnIndexToModel(column);
+
+            // Check if the column name contains an HTML line break tag
+            if (columnNames[modelColumn].contains("<br>"))
+            {
+                // Adjust the font smaller
+                getTableHeader().setFont(ModifiableFontInfo.TABLE_HEADER.getFont()
+                                                                        .deriveFont(Math.max(ModifiableFontInfo.TABLE_HEADER.getFont().getSize() - 3,
+                                                                                             9f)));
+            }
+            // The column name appears on a single line
+            else
+            {
+                // Set the column name font
+                getTableHeader().setFont(ModifiableFontInfo.TABLE_HEADER.getFont());
+            }
+
+            return renderer.getTableCellRendererComponent(jtable,
+                                                          value,
+                                                          isSelected,
+                                                          hasFocus,
+                                                          row,
+                                                          column);
+        }
+    }
+
+    /**************************************************************************
+     * Set the table header renderer
+     *************************************************************************/
+    private void setHeaderRenderer()
+    {
+        // Get the reference to the default header renderer to shorten
+        // subsequent calls
+        DefaultTableCellHeaderRenderer headerRenderer = new HeaderFontRenderer();
+
+        // Center the table column header text
+        headerRenderer.setHorizontalAlignment(JLabel.CENTER);
+
+        // Set the table's column size
+        for (int column = 0; column < getColumnCount(); column++)
+        {
+            // Get the table column to shorten the calls below
+            TableColumn tableColumn = getColumnModel().getColumn(column);
+
+            // Set the header renderer
+            tableColumn.setHeaderRenderer(headerRenderer);
+        }
+    }
+
+    /**************************************************************************
+     * Set the table cell renderers
      *
      * @param centerText
      *            true to center the text within the cells
@@ -1658,17 +1749,11 @@ public abstract class CcddJTableHandler extends JTable
         // check boxes
         BooleanCellRenderer booleanCellRenderer = new BooleanCellRenderer();
 
-        // Center the table column header text
-        ((DefaultTableCellRenderer) getTableHeader().getDefaultRenderer()).setHorizontalAlignment(JLabel.CENTER);
-
         // Set the table's column size
         for (int column = 0; column < getColumnCount(); column++)
         {
             // Get the table column to shorten the calls below
             TableColumn tableColumn = getColumnModel().getColumn(column);
-
-            // Set the header renderer
-            tableColumn.setHeaderRenderer(getTableHeader().getDefaultRenderer());
 
             // Check if the column doesn't display a check box
             if (!checkBoxColumnView.contains(column))
@@ -1698,7 +1783,7 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @return Combined width of all visible columns in pixels
      *************************************************************************/
-    private int calcColumnWidths(boolean showScrollBar)
+    private int calcAndSetColumnWidths(boolean showScrollBar)
     {
         // Create storage for the minimum header and data column widths
         minHeaderWidth = new int[getColumnCount()];
@@ -1707,46 +1792,9 @@ public abstract class CcddJTableHandler extends JTable
         // Set the table's column sizes
         for (int column = 0; column < getColumnCount(); column++)
         {
-            // Get the table column to shorten the calls below
-            TableColumn tableColumn = getColumnModel().getColumn(column);
-
-            // Get the table header renderer
-            TableCellRenderer renderer = tableColumn.getHeaderRenderer();
-
-            // Get the component used to draw the table header cell
-            Component comp = renderer.getTableCellRendererComponent(this,
-                                                                    getColumnName(column),
-                                                                    false,
-                                                                    false,
-                                                                    -1,
-                                                                    column);
-
-            // Save the width required to hold the header text
-            minHeaderWidth[column] = comp.getPreferredSize().width
-                                     + ModifiableSpacingInfo.HEADER_HORIZONTAL_PADDING.getSpacing();
-            minDataWidth[column] = minHeaderWidth[column];
-
-            // Step through each row in the table
-            for (int row = 0; row < getRowCount(); row++)
-            {
-                // Get the component used to draw the table cell from the
-                // cell's renderer
-                comp = super.prepareRenderer(getDefaultRenderer(String.class),
-                                             row,
-                                             column);
-
-                // Compare the width of the cell to the largest width found
-                // so far and store it if it's larger, but no larger than a
-                // specified maximum starting width
-                minDataWidth[column] = Math.min(Math.max(comp.getPreferredSize().width
-                                                         + ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() * 2,
-                                                         minDataWidth[column]),
-                                                ModifiableSizeInfo.MAX_INIT_CELL_WIDTH.getSize());
-            }
+            // Calculate and set the specified column's width
+            calcAndSetColumnWidth(column);
         }
-
-        // Set the table column widths
-        setColumnWidths();
 
         // Return the total width of the table. Include space for the table's
         // vertical scroll bar, if present
@@ -1757,59 +1805,82 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**************************************************************************
-     * Get the widths of the visible table columns using the larger of the
-     * column's header and data widths
+     * Calculate and then set the minimum width for the specified column
      *
-     * @return Widths of the visible table columns using the larger of the
-     *         column's minimum header and data widths
+     * @param column
+     *            index of the column to size, view coordinates
      *************************************************************************/
-    protected int[] getColumnWidths()
+    private void calcAndSetColumnWidth(int column)
     {
-        int[] maxMinWidth = new int[minHeaderWidth.length];
+        // Get the table column to shorten the calls below
+        TableColumn tableColumn = getColumnModel().getColumn(column);
 
-        // Step through each visible column
-        for (int column = 0; column < minHeaderWidth.length; column++)
+        // Get the component used to draw the table header cell
+        Component comp = tableColumn.getHeaderRenderer().getTableCellRendererComponent(table,
+                                                                                       getColumnName(column),
+                                                                                       false,
+                                                                                       false,
+                                                                                       -1,
+                                                                                       column);
+
+        // Remove any padding added to the column name (to force its width
+        // larger when setting the initial column width)
+        tableColumn.setHeaderValue(getColumnName(column).trim());
+
+        // Save the width required to hold the header text and use it to
+        // initialize the data cell width
+        minHeaderWidth[column] = comp.getPreferredSize().width
+                                 + ModifiableSpacingInfo.HEADER_HORIZONTAL_PADDING.getSpacing();
+        minDataWidth[column] = minHeaderWidth[column];
+
+        // Step through each row in the table
+        for (int row = 0; row < getRowCount(); row++)
         {
-            // Store the larger of the minimum header width and the minimum
-            // data width
-            maxMinWidth[column] = Math.max(minHeaderWidth[column],
-                                           minDataWidth[column]);
+            // Get the component used to draw the table cell from the
+            // cell's renderer
+            comp = super.prepareRenderer(getDefaultRenderer(String.class),
+                                         row,
+                                         column);
+
+            // Compare the width of the cell to the largest width found
+            // so far and store it if it's larger, but no larger than a
+            // specified maximum starting width
+            minDataWidth[column] = Math.min(Math.max(comp.getPreferredSize().width
+                                                     + ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() * 2,
+                                                     minDataWidth[column]),
+                                            ModifiableSizeInfo.MAX_INIT_CELL_WIDTH.getSize());
         }
 
-        return maxMinWidth;
+        // Get the column index in model coordinates
+        int modelColumn = convertColumnIndexToModel(column);
+
+        // Set whether or not the column can be resized based on the
+        // caller's input
+        tableColumn.setResizable(isColumnResizable(modelColumn));
+
+        // Check if the column is resizable
+        if (!isColumnResizable(modelColumn))
+        {
+            // Set the maximum size of the column to prevent it from being
+            // resized
+            tableColumn.setMaxWidth(minDataWidth[column]);
+        }
+
+        // Set the current and preferred width of the table column
+        tableColumn.setPreferredWidth(minDataWidth[column]);
+        tableColumn.setWidth(minDataWidth[column]);
     }
 
     /**************************************************************************
-     * Set the widths of the visible table columns based on the header and data
-     * text widths
+     * Get the array of minimum widths of the visible table columns. Since the
+     * minimum cell width is initialized to the minimum header width the cell
+     * width represents the overall minimum width
+     *
+     * @return Array of minimum widths of the visible table columns
      *************************************************************************/
-    private void setColumnWidths()
+    protected int[] getColumnWidths()
     {
-        // Step through each column in the table
-        for (int column = 0; column < getColumnCount(); column++)
-        {
-            // Get the table column to shorten the calls below
-            TableColumn tableColumn = getColumnModel().getColumn(column);
-
-            // Get the column index in model coordinates
-            int modelColumn = convertColumnIndexToModel(column);
-
-            // Set whether or not the column can be resized based on the
-            // caller's input
-            tableColumn.setResizable(isColumnResizable(modelColumn));
-
-            // Check if the column is resizable
-            if (!isColumnResizable(modelColumn))
-            {
-                // Set the maximum size of the column to prevent it from being
-                // resized
-                tableColumn.setMaxWidth(minDataWidth[column]);
-            }
-
-            // Set the minimum and preferred width of the table column
-            tableColumn.setPreferredWidth(minDataWidth[column]);
-            tableColumn.setMinWidth(minHeaderWidth[column]);
-        }
+        return minDataWidth;
     }
 
     /**************************************************************************
@@ -3356,7 +3427,7 @@ public abstract class CcddJTableHandler extends JTable
                 // Set the text area's width to the table column width. This
                 // causes the JTextArea to calculate the height required to
                 // show all of the cell's text. Subtract 1 from the width so
-                // that cell text matching the exact width don't have text
+                // that cell text matching the exact width doesn't have text
                 // truncated
                 setSize(jtable.getColumnModel().getColumn(column).getWidth() - 1,
                         jtable.getRowHeight(row));
@@ -4063,6 +4134,137 @@ public abstract class CcddJTableHandler extends JTable
                 oldValue = tableModel.getValueAt(editRow, editColumn);
             }
         }
+    }
+
+    /**************************************************************************
+     * Resize-capturing mouse listener class. This replaces the table header
+     * mouse listener so that a double-click on column header's right border
+     * causes the column to be resized based on the header and cell content
+     *************************************************************************/
+    public class ResizeColumnListener implements MouseListener
+    {
+        private MouseListener headerListener;
+        private final JTableHeader header;
+
+        /**********************************************************************
+         * Resize-capturing mouse listener class constructor
+         *********************************************************************/
+        public ResizeColumnListener()
+        {
+            // Get the reference to the table's header
+            header = getTableHeader();
+
+            // Step through each mouse listener registered with the table
+            for (MouseListener ml : header.getMouseListeners())
+            {
+                // Check if the class name references the header
+                if (ml.getClass().toString().contains("BasicTableHeaderUI"))
+                {
+                    // Store the mouse listener for the table header
+                    headerListener = ml;
+
+                    // Replace the mouse listener with the resize-capturing
+                    // listener
+                    header.removeMouseListener(ml);
+                    header.addMouseListener(this);
+                }
+            }
+        }
+
+        /**********************************************************************
+         * Override in order to capture double click of the mouse button so
+         * that a column can be resized
+         *********************************************************************/
+        @Override
+        public void mouseClicked(MouseEvent me)
+        {
+            // Check if the cursor isn't the one for resizing (indicates that
+            // the mouse is outside of the "resize zone")
+            if (header.getCursor() != Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR))
+            {
+                // Perform the default action
+                headerListener.mouseClicked(me);
+            }
+            // Mouse pointer is in the "resize zone"; check if the mouse button
+            // was double clicked
+            else if (me.getClickCount() == 2)
+            {
+                // Adjust the mouse x-coordinate to get the correct column (the
+                // one to the left of the pointer). Resizing is active when the
+                // pointer is +/-3 pixels from the border between columns
+                Point p = me.getPoint();
+                p.x -= 3;
+
+                // Get the index of the selected column
+                int column = columnAtPoint(p);
+
+                // Check if the column is resizable (it has to be if the resize
+                // cursor appears)
+                if (isColumnResizable(convertColumnIndexToModel(column)))
+                {
+                    // Calculate and set the specified column's width
+                    calcAndSetColumnWidth(column);
+
+                    // Force table to redraw
+                    tableModel.fireTableDataChanged();
+                }
+
+                // Generate event to reset the cursor
+                header.dispatchEvent(new MouseEvent(header,
+                                                    MouseEvent.MOUSE_MOVED,
+                                                    me.getWhen(),
+                                                    me.getModifiers(),
+                                                    me.getX(),
+                                                    me.getY(),
+                                                    0,
+                                                    false));
+            }
+        }
+
+        // Perform the default action for the remaining mouse events
+        @Override
+        public void mouseEntered(MouseEvent me)
+        {
+            headerListener.mouseEntered(me);
+        }
+
+        @Override
+        public void mouseExited(MouseEvent me)
+        {
+            headerListener.mouseExited(me);
+        }
+
+        @Override
+        public void mousePressed(MouseEvent me)
+        {
+            headerListener.mousePressed(me);
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent me)
+        {
+            headerListener.mouseReleased(me);
+        }
+    }
+
+    /**************************************************************************
+     * Reset the table header renderer and the mouse listener for column
+     * resizing (via mouse button double click) following a change to the look
+     * & feel
+     *************************************************************************/
+    protected void resetHeaderOnLaFChange()
+    {
+        // Remove the current table header mouse listener for column resizing
+        // and replace it with the version that captures double clicks in order
+        // to implement automatic resizing. This is necessary since the header
+        // UI, which responds to mouse inputs, is 'damaged' during a look &
+        // feel change
+        getTableHeader().removeMouseListener(resizeColumnListener);
+        resizeColumnListener = new ResizeColumnListener();
+
+        // Reset the table header renderer so that the header is drawn to match
+        // the new look & feel
+        setHeaderRenderer();
     }
 
     /**************************************************************************

@@ -1312,6 +1312,8 @@ public class CcddClasses
         private final int dataType;
         private final int enumeration;
         private final MinMaxPair minMax;
+        private final int description;
+        private final int units;
         private final List<Integer> other;
 
         /**********************************************************************
@@ -1342,6 +1344,14 @@ public class CcddClasses
          *            command argument maximum value column index, model
          *            coordinates; -1 if none
          *
+         * @param description
+         *            command argument description column index, model
+         *            coordinates; -1 if none
+         *
+         * @param units
+         *            command argument units column index, model coordinates;
+         *            -1 if none
+         *
          * @param other
          *            list of other associated column indices, model
          *            coordinates; null if none
@@ -1352,6 +1362,8 @@ public class CcddClasses
                                     int enumeration,
                                     int minimum,
                                     int maximum,
+                                    int description,
+                                    int units,
                                     List<Integer> other)
         {
             // Store the column indices. Adjust to view coordinates based on
@@ -1376,6 +1388,12 @@ public class CcddClasses
                                                                - (useViewIndex
                                                                                ? NUM_HIDDEN_COLUMNS
                                                                                : 0));
+            this.description = description - (useViewIndex
+                                                           ? NUM_HIDDEN_COLUMNS
+                                                           : 0);
+            this.units = units - (useViewIndex
+                                               ? NUM_HIDDEN_COLUMNS
+                                               : 0);
 
             // Check if other associated columns are provided
             if (other != null)
@@ -1414,7 +1432,7 @@ public class CcddClasses
          *********************************************************************/
         AssociatedColumns(int dataType, int enumeration)
         {
-            this(false, -1, dataType, enumeration, -1, -1, null);
+            this(false, -1, dataType, enumeration, -1, -1, -1, -1, null);
         }
 
         /**********************************************************************
@@ -1465,6 +1483,26 @@ public class CcddClasses
         protected int getMaximum()
         {
             return minMax.getMaximum();
+        }
+
+        /**********************************************************************
+         * Get the command argument description column index
+         *
+         * @return Command argument description column index
+         *********************************************************************/
+        protected int getDescription()
+        {
+            return description;
+        }
+
+        /**********************************************************************
+         * Get the command argument units column index
+         *
+         * @return Command argument units column index
+         *********************************************************************/
+        protected int getUnits()
+        {
+            return units;
         }
 
         /**********************************************************************

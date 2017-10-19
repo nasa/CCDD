@@ -8,31 +8,38 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.CCDD_PROJECT_IDENTIFIER;
+import static CCDD.CcddConstants.DATABASE_COMMENT_SEPARATOR;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.SCRIPT_DESCRIPTION_TAG;
 import static CCDD.CcddConstants.USERS_GUIDE;
 
 import java.awt.Component;
 import java.awt.Desktop;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLDecoder;
-import java.nio.CharBuffer;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.BorderFactory;
+import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
@@ -50,7 +57,9 @@ import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.InternalTable.ReservedMsgIDsColumn;
+import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiablePathInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddImportExportInterface.ImportType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
@@ -170,18 +179,79 @@ public class CcddFileIOHandler
         // Get the name of the currently open database
         String databaseName = dbControl.getDatabase();
 
-        // Allow the user to select the backup file path + name
-        File[] dataFile = new CcddDialogHandler().choosePathFile(ccddMain,
-                                                                 ccddMain.getMainFrame(),
-                                                                 databaseName + FileExtension.DBU.getExtension(),
-                                                                 null,
-                                                                 new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.DBU.getDescription(),
-                                                                                                                            FileExtension.DBU.getExtensionName())},
+        // Set the initial layout manager characteristics
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
+                                                        GridBagConstraints.BOTH,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                                   0,
+                                                                   0),
+                                                        0,
+                                                        0);
 
-                                                                 false,
-                                                                 "Backup Project " + databaseName,
-                                                                 ccddMain.getProgPrefs().get(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPreferenceKey(), null),
-                                                                 DialogOption.BACKUP_OPTION);
+        // Create the backup file choice dialog
+        final CcddDialogHandler dlg = new CcddDialogHandler();
+
+        // Create a date and time stamp check box
+        JCheckBox stampChkBx = new JCheckBox("Append date and time to file name");
+        stampChkBx.setBorder(BorderFactory.createEmptyBorder());
+        stampChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        stampChkBx.setSelected(false);
+
+        // Create a listener for check box selection actions
+        stampChkBx.addActionListener(new ActionListener()
+        {
+            String timeStamp = "";
+
+            /******************************************************************
+             * Handle check box selection actions
+             *****************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                // Check if the data and time stamp check box is selected
+                if (((JCheckBox) ae.getSource()).isSelected())
+                {
+                    // Get the current date and time stamp
+                    timeStamp = "_" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+
+                    // Append the date and time stamp to the file name
+                    dlg.getFileNameField().setText(dlg.getFileNameField().getText().replaceFirst(Pattern.quote(FileExtension.DBU.getExtension()),
+                                                                                                 timeStamp + FileExtension.DBU.getExtension()));
+                }
+                // The check box is not selected
+                else
+                {
+                    // Remove the date and time stamp
+                    dlg.getFileNameField().setText(dlg.getFileNameField().getText().replaceFirst(timeStamp, ""));
+                }
+            }
+        });
+
+        // Create a panel to contain the date and time stamp check box
+        JPanel stampPnl = new JPanel(new GridBagLayout());
+        stampPnl.setBorder(BorderFactory.createEmptyBorder());
+        stampPnl.add(stampChkBx, gbc);
+
+        // Allow the user to select the backup file path + name
+        File[] dataFile = dlg.choosePathFile(ccddMain,
+                                             ccddMain.getMainFrame(),
+                                             databaseName + FileExtension.DBU.getExtension(),
+                                             null,
+                                             new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.DBU.getDescription(),
+                                                                                                        FileExtension.DBU.getExtensionName())},
+                                             false,
+                                             false,
+                                             "Backup Project " + databaseName,
+                                             ccddMain.getProgPrefs().get(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPreferenceKey(), null),
+                                             DialogOption.BACKUP_OPTION,
+                                             stampPnl);
 
         // Check if a file was chosen
         if (dataFile != null && dataFile[0] != null)
@@ -248,6 +318,8 @@ public class CcddFileIOHandler
      *************************************************************************/
     protected void restoreDatabaseFromFile()
     {
+        File tempFile = null;
+
         // Allow the user to select the backup file path + name to load from
         File[] dataFile = new CcddDialogHandler().choosePathFile(ccddMain,
                                                                  ccddMain.getMainFrame(),
@@ -263,8 +335,8 @@ public class CcddFileIOHandler
         // Check if a file was chosen
         if (dataFile != null && dataFile[0] != null)
         {
-            FileInputStream fis = null;
-            FileChannel fc = null;
+            BufferedReader br = null;
+            BufferedWriter bw = null;
 
             try
             {
@@ -276,100 +348,83 @@ public class CcddFileIOHandler
                                             + "'");
                 }
 
-                // Set up Charset and CharsetDecoder for ISO-8859-15
-                Charset charset = Charset.forName("ISO-8859-15");
-                CharsetDecoder decoder = charset.newDecoder();
+                boolean ownerFound = false;
+                boolean commentFound = false;
+                String line;
+                String projectName = null;
+                String projectOwner = null;
+                String projectDescription = null;
 
-                // Set up the pattern to match
-                Pattern pattern = Pattern.compile("-- Name: ");
+                // Create a temporary file in which to copy the backup file
+                // contents
+                tempFile = File.createTempFile(dataFile[0].getName(), "");
 
-                // Pattern used to detect separate lines
-                Pattern linePattern = Pattern.compile(".*\r?\n");
+                // Create a buffered reader to read the file and a buffered
+                // writer to write the file
+                br = new BufferedReader(new FileReader(dataFile[0]));
+                bw = new BufferedWriter(new FileWriter(tempFile));
 
-                boolean isFound = false;
-
-                // Open the file and then get a channel from the stream
-                fis = new FileInputStream(dataFile[0]);
-                fc = fis.getChannel();
-
-                // Get the file's size and then map it into memory
-                MappedByteBuffer byteBuffer = fc.map(FileChannel.MapMode.READ_ONLY,
-                                                     0,
-                                                     fc.size());
-
-                // Decode the file into a char buffer
-                CharBuffer charBuffer = decoder.decode(byteBuffer);
-
-                // Create the line and pattern matchers, then perform the
-                // search
-                Matcher lineMatch = linePattern.matcher(charBuffer);
-                Matcher patternMatch = null;
-
-                // For each line in the file
-                while (lineMatch.find())
+                // Read each line in the backup file
+                while ((line = br.readLine()) != null)
                 {
-                    // Get the line from the file
-                    CharSequence charSeq = lineMatch.group();
-
-                    // Check if this is the first pass through the loop for
-                    // this file
-                    if (patternMatch == null)
+                    // Check if the database owner hasn't been found already
+                    // and that the line contains the owner information
+                    if (!ownerFound
+                        && line.matches("-- Name: [^;]+; Type: [^;]+; Schema: [^;]+; Owner: .+"))
                     {
-                        // Create a pattern matcher for the target pattern
-                        // using the current line information
-                        patternMatch = pattern.matcher(charSeq);
-                    }
-                    // Not the first pass
-                    else
-                    {
-                        // Reset the matcher with the new line information
-                        patternMatch.reset(charSeq);
+                        // Get the owner and store it, and set the flag
+                        // indicating the owner is located
+                        projectOwner = line.replaceFirst(".*Owner: ", "");
+                        ownerFound = true;
                     }
 
-                    // Check if the line contains the target pattern
-                    if (patternMatch.find())
+                    // Check if the database comment hasn't been found already
+                    // and that the line contains the comment information
+                    if (!commentFound
+                        && line.matches("COMMENT ON DATABASE .+ IS '"
+                                        + CCDD_PROJECT_IDENTIFIER
+                                        + ".+"))
                     {
                         // Split the line read from the file in order to get
-                        // the database name and owner
-                        String[] parts = charSeq.toString().trim().split(";");
+                        // the project name and description
+                        String[] parts = line.trim().split(DATABASE_COMMENT_SEPARATOR, 4);
 
                         // Check if the necessary components of the comment
                         // exist
                         if (parts.length == 4)
                         {
-                            // Extract the database name and owner
-                            String[] databaseName = parts[0].split(":");
-                            String[] databaseOwner = parts[3].split(":");
+                            // Extract the project name (with case
+                            // preserved) and description, and set the flag
+                            // indicating the comment is located
+                            projectName = parts[1];
+                            projectDescription = CcddUtilities.removeTrailer(parts[2], "'");
+                            commentFound = true;
 
-                            // Check that a name and owner exist
-                            if (databaseName.length == 2
-                                && databaseOwner.length == 2)
-                            {
-                                // Set the flag to indicate the database name
-                                // and owner exist
-                                isFound = true;
-
-                                // Restore the database from the selected file
-                                dbControl.restoreDatabase(databaseName[1].trim(),
-                                                          databaseOwner[1].trim(),
-                                                          dataFile[0]);
-
-                                // Stop searching the file
-                                break;
-                            }
+                            // Insert a comment indicator into the file so that
+                            // this line isn't executed when the database is
+                            // restored
+                            line = "-- " + line;
                         }
                     }
 
-                    // Check if the end of the file has been reached
-                    if (lineMatch.end() == charBuffer.limit())
-                    {
-                        // Exit the loop
-                        break;
-                    }
+                    // Write the line to the temporary file
+                    bw.write(line + "\n");
                 }
 
-                // Check if the database name and owner couldn't be located
-                if (!isFound)
+                // Check if the project owner, name, and description exist
+                if (ownerFound && commentFound)
+                {
+                    // Restore the database from the temporary file. This file
+                    // has the line that disables creation of the database
+                    // comment, which is handled when the restored database is
+                    // created
+                    dbControl.restoreDatabase(projectName,
+                                              projectOwner,
+                                              projectDescription,
+                                              tempFile);
+                }
+                // The project owner, name, and description don't exist
+                else
                 {
                     throw new CCDDException("File<br>'</b>"
                                             + dataFile[0].getAbsolutePath()
@@ -380,8 +435,7 @@ public class CcddFileIOHandler
             {
                 // Inform the user that the backup file error occurred
                 new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                          "<html><b>"
-                                                                                   + ce.getMessage(),
+                                                          "<html><b>" + ce.getMessage(),
                                                           "File Error",
                                                           ce.getMessageType(),
                                                           DialogOption.OK_OPTION);
@@ -403,20 +457,20 @@ public class CcddFileIOHandler
             {
                 try
                 {
-                    // Check if the file channel is open
-                    if (fc != null)
+                    // Check if the input file is open
+                    if (br != null)
                     {
-                        // Close the channel
-                        fc.close();
+                        // Close the input file
+                        br.close();
                     }
                 }
                 catch (IOException ioe)
                 {
-                    // Inform the user that the file channel cannot be closed
+                    // Inform the user that the input file cannot be closed
                     new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                               "<html><b>Cannot close backup file<br>'</b>"
                                                                                        + dataFile[0].getAbsolutePath()
-                                                                                       + "<b>' (file channel)",
+                                                                                       + "<b>'",
                                                               "File Warning",
                                                               JOptionPane.WARNING_MESSAGE,
                                                               DialogOption.OK_OPTION);
@@ -425,21 +479,21 @@ public class CcddFileIOHandler
                 {
                     try
                     {
-                        // Check if the file stream is open
-                        if (fis != null)
+                        // Check if the output file is open
+                        if (bw != null)
                         {
-                            // Close the stream
-                            fis.close();
+                            // Close the output file
+                            bw.close();
                         }
                     }
                     catch (IOException ioe)
                     {
-                        // Inform the user that the file input stream cannot be
+                        // Inform the user that the output file cannot be
                         // closed
                         new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                                   "<html><b>Cannot close backup file<br>'</b>"
-                                                                                           + dataFile[0].getAbsolutePath()
-                                                                                           + "<b>' (file input stream)",
+                                                                                           + tempFile.getAbsolutePath()
+                                                                                           + "<b>'",
                                                                   "File Warning",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);

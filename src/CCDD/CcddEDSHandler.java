@@ -9,8 +9,6 @@
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
-import static CCDD.CcddConstants.CONTAINS_DESCRIPTION;
-import static CCDD.CcddConstants.CONTAINS_UNITS;
 import static CCDD.CcddConstants.IGNORE_BUTTON;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.TYPE_COMMAND;
@@ -250,8 +248,8 @@ public class CcddEDSHandler implements CcddImportExportInterface
             // Inform the user that the EDS/JAXB set up failed
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>EDS conversion setup failed; cause '"
-                                                          + je.getMessage()
-                                                          + "'",
+                                                              + je.getMessage()
+                                                              + "'",
                                                       "EDS Error",
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -296,8 +294,8 @@ public class CcddEDSHandler implements CcddImportExportInterface
     @Override
     public void importFromFile(File importFile,
                                ImportType importType) throws CCDDException,
-                                                     IOException,
-                                                     Exception
+                                                      IOException,
+                                                      Exception
     {
         try
         {
@@ -316,10 +314,10 @@ public class CcddEDSHandler implements CcddImportExportInterface
             // Inform the user that the database import failed
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Cannot import EDS XML from file<br>'</b>"
-                                                          + importFile.getAbsolutePath()
-                                                          + "<b>'; cause '"
-                                                          + je.getMessage()
-                                                          + "'",
+                                                              + importFile.getAbsolutePath()
+                                                              + "<b>'; cause '"
+                                                              + je.getMessage()
+                                                              + "'",
                                                       "File Error",
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -397,14 +395,14 @@ public class CcddEDSHandler implements CcddImportExportInterface
                 // Output the file creation information
                 marshaller.setProperty("com.sun.xml.internal.bind.xmlHeaders",
                                        "\n<!-- Created "
-                                           + new Date().toString()
-                                           + " : project = "
-                                           + dbControl.getDatabase()
-                                           + " : host = "
-                                           + dbControl.getServer()
-                                           + " : user = "
-                                           + dbControl.getUser()
-                                           + " -->");
+                                                                               + new Date().toString()
+                                                                               + " : project = "
+                                                                               + dbControl.getDatabase()
+                                                                               + " : host = "
+                                                                               + dbControl.getServer()
+                                                                               + " : user = "
+                                                                               + dbControl.getUser()
+                                                                               + " -->");
             }
             catch (JAXBException je)
             {
@@ -420,10 +418,10 @@ public class CcddEDSHandler implements CcddImportExportInterface
             // Inform the user that the database export failed
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Cannot export as EDS XML to file<br>'</b>"
-                                                          + exportFile.getAbsolutePath()
-                                                          + "<b>'; cause '"
-                                                          + je.getMessage()
-                                                          + "'",
+                                                              + exportFile.getAbsolutePath()
+                                                              + "<b>'; cause '"
+                                                              + je.getMessage()
+                                                              + "'",
                                                       "File Error",
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -549,7 +547,6 @@ public class CcddEDSHandler implements CcddImportExportInterface
         int variableNameIndex = -1;
         int dataTypeIndex = -1;
         int descriptionIndex = -1;
-        int unitsIndex;
         int commandNameIndex = -1;
         int cmdDescriptionIndex = -1;
         int numColumns = 0;
@@ -615,8 +612,8 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                             // prevent an error when separating
                                             // the inputs
                                             String inputs = genType.getShortDescription() != null
-                                                                                                 ? genType.getShortDescription()
-                                                                                                 : "";
+                                                                                                  ? genType.getShortDescription()
+                                                                                                  : "";
 
                                             // Extract the table type
                                             // information
@@ -664,11 +661,11 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                                 // table type name is incorrect
                                                 int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                                     "<html><b>Table type '"
-                                                                                                                        + genType.getName()
-                                                                                                                        + "' definition has missing or extra "
-                                                                                                                        + "input(s) in import file '</b>"
-                                                                                                                        + importFileName
-                                                                                                                        + "<b>'; continue?",
+                                                                                                                            + genType.getName()
+                                                                                                                            + "' definition has missing or extra "
+                                                                                                                            + "input(s) in import file '</b>"
+                                                                                                                            + importFileName
+                                                                                                                            + "<b>'; continue?",
                                                                                                                     "Table Type Error",
                                                                                                                     "Ignore this table type",
                                                                                                                     "Ignore this and any remaining invalid table types",
@@ -702,9 +699,9 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                             // type name is missing
                                             int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                                 "<html><b>Missing table type "
-                                                                                                                    + "name in import file '</b>"
-                                                                                                                    + importFileName
-                                                                                                                    + "<b>'; continue?",
+                                                                                                                        + "name in import file '</b>"
+                                                                                                                        + importFileName
+                                                                                                                        + "<b>'; continue?",
                                                                                                                 "Table Type Error",
                                                                                                                 "Ignore this table type",
                                                                                                                 "Ignore this and any remaining invalid table types",
@@ -761,8 +758,8 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                                     // an error when separating
                                                     // the inputs
                                                     String inputs = genType.getShortDescription() != null
-                                                                                                         ? genType.getShortDescription()
-                                                                                                         : "";
+                                                                                                          ? genType.getShortDescription()
+                                                                                                          : "";
 
                                                     // Parse data field. The
                                                     // values are
@@ -797,11 +794,11 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                                         // inputs are incorrect
                                                         int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                                             "<html><b>Table type '</b>"
-                                                                                                                                + tableTypeName
-                                                                                                                                + "<b>' has missing or extra data field "
-                                                                                                                                + "input(s) in import file '</b>"
-                                                                                                                                + importFileName
-                                                                                                                                + "<b>'; continue?",
+                                                                                                                                    + tableTypeName
+                                                                                                                                    + "<b>' has missing or extra data field "
+                                                                                                                                    + "input(s) in import file '</b>"
+                                                                                                                                    + importFileName
+                                                                                                                                    + "<b>'; continue?",
                                                                                                                             "Data Field Error",
                                                                                                                             "Ignore this invalid data field",
                                                                                                                             "Ignore this and any remaining invalid data fields",
@@ -1029,8 +1026,8 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                         // inputs are incorrect
                                         int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                             "<html><b>Missing or extra data type definition input(s) in import file '</b>"
-                                                                                                                + importFileName
-                                                                                                                + "<b>'; continue?",
+                                                                                                                    + importFileName
+                                                                                                                    + "<b>'; continue?",
                                                                                                             "Data Type Error",
                                                                                                             "Ignore this data type",
                                                                                                             "Ignore this and any remaining invalid data types",
@@ -1085,8 +1082,8 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                         // (add a blank for the OID column)
                                         macroDefns.add(new String[] {genType.getName(),
                                                                      (genType.getShortDescription() != null
-                                                                                                           ? genType.getShortDescription()
-                                                                                                           : ""),
+                                                                                                            ? genType.getShortDescription()
+                                                                                                            : ""),
                                                                      ""});
                                     }
                                     // Incorrect number of inputs. Check if the
@@ -1098,9 +1095,9 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                         // inputs are incorrect
                                         int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                             "<html><b>Missing or extra macro definition "
-                                                                                                                + "input(s) in import file '</b>"
-                                                                                                                + importFileName
-                                                                                                                + "<b>'; continue?",
+                                                                                                                    + "input(s) in import file '</b>"
+                                                                                                                    + importFileName
+                                                                                                                    + "<b>'; continue?",
                                                                                                             "Macro Error",
                                                                                                             "Ignore this macro",
                                                                                                             "Ignore this and any remaining invalid macros",
@@ -1157,8 +1154,8 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                         // for the OID column)
                                         reservedMsgIDDefns.add(new String[] {genType.getName(),
                                                                              (genType.getShortDescription() != null
-                                                                                                                   ? genType.getShortDescription()
-                                                                                                                   : ""),
+                                                                                                                    ? genType.getShortDescription()
+                                                                                                                    : ""),
                                                                              ""});
                                     }
                                     // Incorrect number of inputs. Check if the
@@ -1170,9 +1167,9 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                         // message ID inputs are incorrect
                                         int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                             "<html><b>Missing or extra reserved message ID "
-                                                                                                                + "definition input(s) in import file '</b>"
-                                                                                                                + importFileName
-                                                                                                                + "<b>'; continue?",
+                                                                                                                    + "definition input(s) in import file '</b>"
+                                                                                                                    + importFileName
+                                                                                                                    + "<b>'; continue?",
                                                                                                             "Reserved Message ID Error",
                                                                                                             "Ignore this reserved message ID",
                                                                                                             "Ignore this and any remaining invalid reserved message IDs",
@@ -1207,7 +1204,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
                     // identifier : table name< : system name>)
                     else if (pass == 2
                              && (importType == ImportType.IMPORT_ALL
-                             || tableDefinitions.size() == 0)
+                                 || tableDefinitions.size() == 0)
                              && nameSpace.getName().startsWith(EDSTags.TABLE.getTag() + ":")
                              && nameSpace.getDeclaredInterfaceSet() != null
                              && nameSpace.getName().matches("[^:]+?:[^:]+?(?::[^:]*)?$"))
@@ -1344,7 +1341,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                 {
                                     /******************************************
                                      * Telemetry processing
-                                     * ***************************************/
+                                     ***************************************/
                                     // Check if the interface contains a
                                     // parameter set
                                     if (intfcDecType.getParameterSet() != null
@@ -1392,7 +1389,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
                                     /******************************************
                                      * Command processing
-                                     * ***************************************/
+                                     ***************************************/
                                     // Check if the interface contains a
                                     // command set
                                     if (intfcDecType.getCommandSet() != null
@@ -1446,27 +1443,14 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                                         newRow[commandArguments.get(index).getDataType()] = cmdType.getArgument().get(index).getType();
                                                     }
 
-                                                    // Step through the other
-                                                    // associated command
-                                                    // argument columns
-                                                    for (int column : commandArguments.get(index).getOther())
+                                                    // Check if a command
+                                                    // argument description
+                                                    // exists and if this is
+                                                    // the command argument
+                                                    // description column
+                                                    if (cmdType.getArgument().get(index).getShortDescription() != null)
                                                     {
-                                                        // Check if a command
-                                                        // argument description
-                                                        // exists and if this
-                                                        // is the command
-                                                        // argument description
-                                                        // column
-                                                        if (cmdType.getArgument().get(index).getShortDescription() != null
-                                                            && typeDefn.getColumnNamesVisible()[column].matches(CONTAINS_DESCRIPTION))
-                                                        {
-                                                            // Store the
-                                                            // command argument
-                                                            // description and
-                                                            // stop searching
-                                                            newRow[column] = cmdType.getArgument().get(index).getShortDescription();
-                                                            break;
-                                                        }
+                                                        newRow[commandArguments.get(index).getDescription()] = cmdType.getArgument().get(index).getShortDescription();
                                                     }
                                                 }
                                             }
@@ -1480,7 +1464,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
 
                                 /**********************************************
                                  * Generic type processing
-                                 * *******************************************/
+                                 *******************************************/
                                 // Check if this interface contains a generic
                                 // type set. The generic type set is used to
                                 // column data, data fields, and enumeration
@@ -1521,92 +1505,16 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                                 // columns for this table type
                                                 numColumns = typeDefn.getColumnCountVisible();
 
-                                                // Get the array of visible
-                                                // column names
-                                                String[] columnNames = typeDefn.getColumnNamesVisible();
-
                                                 // Check if this is a structure
                                                 // type table
                                                 if (typeDefn.isStructure())
                                                 {
-                                                    String descColName;
-
                                                     // Get the structure column
                                                     // indices, if this is a
                                                     // structure type
-                                                    variableNameIndex = typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.VARIABLE));
-                                                    dataTypeIndex = typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.PRIM_AND_STRUCT));
-
-                                                    // Get the description
-                                                    // column name
-                                                    if ((descColName = typeDefn.getColumnNameByInputType(InputDataType.DESCRIPTION)) != null)
-                                                    {
-                                                        // Get the variable
-                                                        // description column,
-                                                        // if present
-                                                        descriptionIndex = typeDefn.getVisibleColumnIndexByUserName(descColName);
-                                                    }
-
-                                                    // Check if the column by
-                                                    // the default name isn't
-                                                    // present
-                                                    if (descriptionIndex == -1)
-                                                    {
-                                                        // Step through each
-                                                        // column
-                                                        for (int column = 0; column < numColumns; column++)
-                                                        {
-                                                            // Check if the
-                                                            // column name
-                                                            // contain
-                                                            // 'description'
-                                                            if (columnNames[column].matches(CONTAINS_DESCRIPTION))
-                                                            {
-                                                                // Set this
-                                                                // column as
-                                                                // the
-                                                                // description
-                                                                // column and
-                                                                // stop
-                                                                // searching
-                                                                descriptionIndex = column;
-                                                                break;
-                                                            }
-                                                        }
-                                                    }
-
-                                                    // Get the units column. If
-                                                    // the default units column
-                                                    // name isn't used then the
-                                                    // first column containing
-                                                    // 'units' is selected
-                                                    unitsIndex = typeDefn.getVisibleColumnIndexByUserName(DefaultColumn.UNITS.getName());
-
-                                                    // Check if the column by
-                                                    // the default name isn't
-                                                    // present
-                                                    if (unitsIndex == -1)
-                                                    {
-                                                        // Step through each
-                                                        // column
-                                                        for (int column = 0; column < numColumns; column++)
-                                                        {
-                                                            // Check if the
-                                                            // column name
-                                                            // contain 'units'
-                                                            if (columnNames[column].matches(CONTAINS_UNITS))
-                                                            {
-                                                                // Set this
-                                                                // column as
-                                                                // the units
-                                                                // column and
-                                                                // stop
-                                                                // searching
-                                                                unitsIndex = column;
-                                                                break;
-                                                            }
-                                                        }
-                                                    }
+                                                    variableNameIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE));
+                                                    dataTypeIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT));
+                                                    descriptionIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION));
                                                 }
                                                 // Check if this is a command
                                                 // type table
@@ -1619,11 +1527,11 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                                     // other associated column
                                                     // indices for each
                                                     // argument grouping
-                                                    commandArguments = typeDefn.getAssociatedCommandColumns(true);
+                                                    commandArguments = typeDefn.getAssociatedCommandArgumentColumns(true);
 
                                                     // Get the command name
                                                     // column
-                                                    commandNameIndex = typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.COMMAND_NAME));
+                                                    commandNameIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_NAME));
 
                                                     // Get the command
                                                     // description column. If
@@ -1635,77 +1543,19 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                                     // selected that doesn't
                                                     // refer to a command
                                                     // argument
-                                                    cmdDescriptionIndex = typeDefn.getVisibleColumnIndexByUserName(DefaultColumn.DESCRIPTION_CMD.getName());
+                                                    cmdDescriptionIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION));
 
-                                                    // Check if the column by
-                                                    // the default name isn't
-                                                    // present
-                                                    if (cmdDescriptionIndex == -1)
+                                                    // Check if the description
+                                                    // column belongs to a
+                                                    // command argument
+                                                    if (commandArguments.size() != 0
+                                                        && cmdDescriptionIndex > commandArguments.get(0).getName())
                                                     {
-                                                        // Step through each
-                                                        // column
-                                                        for (int column = 0; column < numColumns; column++)
-                                                        {
-                                                            // Check if the
-                                                            // column name
-                                                            // contain
-                                                            // 'description'
-                                                            if (columnNames[column].matches(CONTAINS_DESCRIPTION))
-                                                            {
-                                                                boolean isArgDesc = false;
-
-                                                                // Step through
-                                                                // the command
-                                                                // argument
-                                                                // columns
-                                                                for (AssociatedColumns argCols : commandArguments)
-                                                                {
-                                                                    // Check if
-                                                                    // this
-                                                                    // column
-                                                                    // is the
-                                                                    // description
-                                                                    // for a
-                                                                    // command
-                                                                    // argument
-                                                                    if (argCols.getOther().contains(column))
-                                                                    {
-                                                                        // Set
-                                                                        // the
-                                                                        // flag
-                                                                        // indicating
-                                                                        // this
-                                                                        // is a
-                                                                        // command
-                                                                        // argument
-                                                                        // description
-                                                                        // and
-                                                                        // stop
-                                                                        // searching
-                                                                        isArgDesc = true;
-                                                                        break;
-                                                                    }
-                                                                }
-
-                                                                // Check if the
-                                                                // column isn't
-                                                                // a command
-                                                                // argument
-                                                                // description
-                                                                if (!isArgDesc)
-                                                                {
-                                                                    // Set this
-                                                                    // column
-                                                                    // as the
-                                                                    // description
-                                                                    // column
-                                                                    // and stop
-                                                                    // searching
-                                                                    cmdDescriptionIndex = column;
-                                                                    break;
-                                                                }
-                                                            }
-                                                        }
+                                                        // Reset the command
+                                                        // description index to
+                                                        // indicate no
+                                                        // description exists
+                                                        cmdDescriptionIndex = -1;
                                                     }
                                                 }
                                             }
@@ -1720,8 +1570,8 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                                 // to prevent an error when
                                                 // separating the inputs
                                                 String inputs = genType.getShortDescription() != null
-                                                                                                     ? genType.getShortDescription()
-                                                                                                     : "";
+                                                                                                      ? genType.getShortDescription()
+                                                                                                      : "";
 
                                                 // Parse data field. The values
                                                 // are comma-separated;
@@ -1752,11 +1602,11 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                                     // are incorrect
                                                     int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                                         "<html><b>Table '</b>"
-                                                                                                                            + tableDefn.getName()
-                                                                                                                            + "<b>' has missing or extra data field "
-                                                                                                                            + "input(s) in import file '</b>"
-                                                                                                                            + importFileName
-                                                                                                                            + "<b>'; continue?",
+                                                                                                                                + tableDefn.getName()
+                                                                                                                                + "<b>' has missing or extra data field "
+                                                                                                                                + "input(s) in import file '</b>"
+                                                                                                                                + importFileName
+                                                                                                                                + "<b>'; continue?",
                                                                                                                         "Data Field Error",
                                                                                                                         "Ignore this invalid data field",
                                                                                                                         "Ignore this and any remaining invalid data fields",
@@ -1825,7 +1675,8 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                                     // present)
                                                     if (tableDefn.getData().get(row
                                                                                 * numColumns
-                                                                                + column).isEmpty())
+                                                                                + column)
+                                                                 .isEmpty())
                                                     {
                                                         // Replace the value
                                                         // for the specified
@@ -1845,12 +1696,12 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                                     // column name is invalid
                                                     int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                                         "<html><b>Table '</b>"
-                                                                                                                            + tableDefn.getName()
-                                                                                                                            + "<b>' column name '</b>"
-                                                                                                                            + columnName
-                                                                                                                            + "<b>' unrecognized in import file '</b>"
-                                                                                                                            + importFileName
-                                                                                                                            + "<b>'; continue?",
+                                                                                                                                + tableDefn.getName()
+                                                                                                                                + "<b>' column name '</b>"
+                                                                                                                                + columnName
+                                                                                                                                + "<b>' unrecognized in import file '</b>"
+                                                                                                                                + importFileName
+                                                                                                                                + "<b>'; continue?",
                                                                                                                         "Column Error",
                                                                                                                         "Ignore this invalid column name",
                                                                                                                         "Ignore this and any remaining invalid column names",
@@ -2078,10 +1929,10 @@ public class CcddEDSHandler implements CcddImportExportInterface
                     // Parse the definition and add it to the list
                     dataTypeDefinitions.add(new String[] {dataType[DataTypesColumn.USER_NAME.ordinal()],
                                                           dataType[DataTypesColumn.C_NAME.ordinal()]
-                                                              + ","
-                                                              + dataType[DataTypesColumn.SIZE.ordinal()]
-                                                              + ","
-                                                              + dataType[DataTypesColumn.BASE_TYPE.ordinal()]});
+                                                                                                         + ","
+                                                                                                         + dataType[DataTypesColumn.SIZE.ordinal()]
+                                                                                                         + ","
+                                                                                                         + dataType[DataTypesColumn.BASE_TYPE.ordinal()]});
                 }
             }
 
@@ -2236,10 +2087,10 @@ public class CcddEDSHandler implements CcddImportExportInterface
             // Get the table's basic type - structure, command, or the original
             // table type if not structure or command table
             String tableType = typeDefn.isStructure()
-                                                     ? TYPE_STRUCTURE
-                                                     : typeDefn.isCommand()
-                                                                           ? TYPE_COMMAND
-                                                                           : tableInfo.getType();
+                                                      ? TYPE_STRUCTURE
+                                                      : typeDefn.isCommand()
+                                                                             ? TYPE_COMMAND
+                                                                             : tableInfo.getType();
 
             // Check if the table type is recognized and that the table's data
             // successfully loaded
@@ -2306,36 +2157,19 @@ public class CcddEDSHandler implements CcddImportExportInterface
                 // Check if this is a structure table
                 if (tableType.equals(TYPE_STRUCTURE))
                 {
-                    String descColName;
-                    String unitsColName;
-
                     // Get the default column indices
                     int varColumn = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
                     int typeColumn = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
                     int sizeColumn = typeDefn.getColumnIndexByInputType(InputDataType.ARRAY_INDEX);
                     int bitColumn = typeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH);
                     List<Integer> enumColumn = typeDefn.getColumnIndicesByInputType(InputDataType.ENUMERATION);
-                    int descColumn = -1;
-                    int unitsColumn = -1;
-
-                    // Get the description column name
-                    if ((descColName = typeDefn.getColumnNameByInputType(InputDataType.DESCRIPTION)) != null)
-                    {
-                        // Get the description column index
-                        descColumn = typeDefn.getVisibleColumnIndexByUserName(descColName);
-                    }
-
-                    // Get the units column name
-                    if ((unitsColName = typeDefn.getColumnNameByInputType(InputDataType.UNITS)) != null)
-                    {
-                        // Get the units column index
-                        unitsColumn = typeDefn.getVisibleColumnIndexByUserName(unitsColName);
-                    }
+                    int descColumn = typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION);
+                    int unitsColumn = typeDefn.getColumnIndexByInputType(InputDataType.UNITS);
 
                     // Get the structure table description
                     String description = tableInfo.getDescription().isEmpty()
-                                                                             ? null
-                                                                             : tableInfo.getDescription();
+                                                                              ? null
+                                                                              : tableInfo.getDescription();
 
                     // Add the structure to the telemetry data sheet
                     nameSpace = addNameSpace(systemName,
@@ -2400,8 +2234,8 @@ public class CcddEDSHandler implements CcddImportExportInterface
                 {
                     // Get the structure table description
                     String description = tableInfo.getDescription().isEmpty()
-                                                                             ? null
-                                                                             : tableInfo.getDescription();
+                                                                              ? null
+                                                                              : tableInfo.getDescription();
 
                     // Create a name space if not already present
                     nameSpace = addNameSpace(systemName,
@@ -2500,23 +2334,23 @@ public class CcddEDSHandler implements CcddImportExportInterface
             // Store the data field information
             fieldData.add(new String[] {EDSTags.DATA_FIELD.getTag()
                                         + (identifier == null
-                                                             ? ""
-                                                             : ":" + identifier),
+                                                              ? ""
+                                                              : ":" + identifier),
                                         "\""
-                                            + field.getFieldName()
-                                            + "\",\""
-                                            + field.getDescription()
-                                            + "\",\""
-                                            + field.getSize()
-                                            + "\",\""
-                                            + field.getInputType().getInputName()
-                                            + "\",\""
-                                            + field.isRequired()
-                                            + "\",\""
-                                            + field.getApplicabilityType().getApplicabilityName()
-                                            + "\",\""
-                                            + field.getValue()
-                                            + "\""});
+                                                                                   + field.getFieldName()
+                                                                                   + "\",\""
+                                                                                   + field.getDescription()
+                                                                                   + "\",\""
+                                                                                   + field.getSize()
+                                                                                   + "\",\""
+                                                                                   + field.getInputType().getInputName()
+                                                                                   + "\",\""
+                                                                                   + field.isRequired()
+                                                                                   + "\",\""
+                                                                                   + field.getApplicabilityType().getApplicabilityName()
+                                                                                   + "\",\""
+                                                                                   + field.getValue()
+                                                                                   + "\""});
         }
 
         return fieldData;
@@ -2728,7 +2562,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
                 if (((column != DefaultColumn.PRIMARY_KEY.ordinal()
                       && column != DefaultColumn.ROW_INDEX.ordinal()
                       && column != varColumn)
-                      || (column == bitColumn && bitLength != null))
+                     || (column == bitColumn && bitLength != null))
                     && !tableInfo.getData()[row][column].isEmpty())
                 {
                     // Store the column value size. This is treated as
@@ -2796,7 +2630,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
         // Get the list containing command argument name, data type,
         // enumeration, minimum, maximum, and other associated column indices
         // for each argument grouping
-        List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandColumns(false);
+        List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
 
         // Step through each row in the table
         for (String[] rowData : tableInfo.getData())
@@ -2810,12 +2644,11 @@ public class CcddEDSHandler implements CcddImportExportInterface
             // argument that has been processed
             boolean[] isCmdArg = new boolean[rowData.length];
 
-            // Step through each column in the row
+            // Step through each column in the row, skipping the primary key
+            // and index columns
             for (int colA = NUM_HIDDEN_COLUMNS; colA < rowData.length; colA++)
             {
-                // Check that this isn't the column containing the table's
-                // primary key or row index, and that the column value isn't
-                // blank
+                // Check if the column value isn't blank
                 if (!rowData[colA].isEmpty())
                 {
                     // Get the column name
@@ -2895,33 +2728,29 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                             // column is a command argument
                                             isCmdArg[colB] = true;
                                         }
-                                        // Check if the column is among the
-                                        // associated command argument columns
-                                        else if (cmdArg.getOther().contains(colB))
+                                        // Check if this is the command
+                                        // argument description column
+                                        else if (colB == cmdArg.getDescription())
                                         {
+                                            // Store the command argument
+                                            // description and column name
+                                            description = rowData[colB];
+
                                             // Set the flag indicating the
                                             // column is a command argument
                                             isCmdArg[colB] = true;
+                                        }
+                                        // Check if this is the command
+                                        // argument units column
+                                        else if (colB == cmdArg.getUnits())
+                                        {
+                                            // Store the command argument
+                                            // description and column name
+                                            units = rowData[colB];
 
-                                            // Check if the command argument
-                                            // column name contains the text
-                                            // "units"
-                                            if (colName.matches(CONTAINS_UNITS))
-                                            {
-                                                // Assume this is the command
-                                                // argument's units column
-                                                units = rowData[colB];
-                                            }
-                                            // Check if the command argument
-                                            // column name contains the text
-                                            // "description"
-                                            else if (colName.matches(CONTAINS_DESCRIPTION))
-                                            {
-                                                // Assume this is the command
-                                                // argument's description
-                                                // column
-                                                description = rowData[colB];
-                                            }
+                                            // Set the flag indicating the
+                                            // column is a command argument
+                                            isCmdArg[colB] = true;
                                         }
                                         // Check if this is the command
                                         // argument minimum or maximum column
@@ -2934,7 +2763,7 @@ public class CcddEDSHandler implements CcddImportExportInterface
                                         }
                                         // The column isn't associated with
                                         // this command argument
-                                        else
+                                        else if (!cmdArg.getOther().contains(colB))
                                         {
                                             // Remove the column information
                                             otherArgCols.remove(otherArgCols.size() - 1);
@@ -3447,11 +3276,11 @@ public class CcddEDSHandler implements CcddImportExportInterface
             // Inform the user that the enumeration format is invalid
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Enumeration '"
-                                                          + enumeration
-                                                          + "' format invalid in table '"
-                                                          + nameSpace.getName()
-                                                          + "'; "
-                                                          + ce.getMessage(),
+                                                              + enumeration
+                                                              + "' format invalid in table '"
+                                                              + nameSpace.getName()
+                                                              + "'; "
+                                                              + ce.getMessage(),
                                                       "Enumeration Error",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
