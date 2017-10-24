@@ -100,8 +100,6 @@ public class CcddMain
     private CcddTableTypeHandler tableTypeHandler;
     private CcddTableTypeEditorDialog tableTypeEditorDialog;
     private CcddDataTypeEditorDialog dataTypeEditorDialog;
-    private CcddMacroEditorDialog macroEditorDialog;
-    private CcddReservedMsgIDEditorDialog msgIDEditorDialog;
     private CcddGroupManagerDialog groupManagerDialog;
     private final CcddFileIOHandler fileIOHandler;
     private final CcddScriptHandler scriptHandler;
@@ -195,7 +193,7 @@ public class CcddMain
 
     // Flag indicating if dialog messages should be displayed on the command
     // line instead of in dialog boxes
-    boolean isHideGUI;
+    private boolean isHideGUI;
 
     /**************************************************************************
      * Create the application
@@ -651,27 +649,6 @@ public class CcddMain
     }
 
     /**************************************************************************
-     * Get the reference to the macro editor dialog
-     *
-     * @return Reference to the macro editor dialog
-     *************************************************************************/
-    protected CcddMacroEditorDialog getMacroEditor()
-    {
-        return macroEditorDialog;
-    }
-
-    /**************************************************************************
-     * Set the reference to the macro editor dialog
-     *
-     * @param macroEditorDialog
-     *            reference to the macro editor dialog
-     *************************************************************************/
-    protected void setMacroEditor(CcddMacroEditorDialog macroEditorDialog)
-    {
-        this.macroEditorDialog = macroEditorDialog;
-    }
-
-    /**************************************************************************
      * Get the data field table editor
      *
      * @return Data field table editor
@@ -679,27 +656,6 @@ public class CcddMain
     protected CcddFieldTableEditorDialog getFieldTableEditor()
     {
         return fieldTblEditorDialog;
-    }
-
-    /**************************************************************************
-     * Get the reference to the reserved message ID editor dialog
-     *
-     * @return Reference to the reserved message ID editor dialog
-     *************************************************************************/
-    protected CcddReservedMsgIDEditorDialog getReservedMsgIDEditor()
-    {
-        return msgIDEditorDialog;
-    }
-
-    /**************************************************************************
-     * Set the reference to the reserved message ID editor dialog
-     *
-     * @param msgIDEditorDialog
-     *            reference to the reserved message ID editor dialog
-     *************************************************************************/
-    protected void setReservedMsgIDEditor(CcddReservedMsgIDEditorDialog msgIDEditorDialog)
-    {
-        this.msgIDEditorDialog = msgIDEditorDialog;
     }
 
     /**************************************************************************
@@ -823,7 +779,7 @@ public class CcddMain
      * following a data table addition, deletion, or name change, and for a
      * group deletion or name change
      *************************************************************************/
-    protected void updateScriptAsscociationsDialogs()
+    protected void updateScriptAssociationsDialogs()
     {
         // Check if the script association manager dialog is open
         if (scriptManagerDialog != null && scriptManagerDialog.isShowing())
@@ -2028,7 +1984,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddMessageIDHandler(CcddMain.this).displayOwnersNamesAndIDs(getMainFrame());
+                new CcddMessageIDDialog(CcddMain.this);
             }
         });
 
@@ -2041,7 +1997,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddMessageIDHandler(CcddMain.this).displayDuplicates(getMainFrame());
+                new CcddDuplicateMsgIDDialog(CcddMain.this);
             }
         });
 

@@ -57,19 +57,19 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Table type manager dialog class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param editorDialog
      *            reference to the type editor dialog dialog
-     * 
+     *
      * @param dialogType
      *            type manager dialog type: NEW, EDIT, RENAME, COPY, DELETE
      *************************************************************************/
-    protected CcddTableTypeManagerDialog(CcddMain ccddMain,
-                                         CcddTableTypeEditorDialog editorDialog,
-                                         ManagerDialogType dialogType)
+    CcddTableTypeManagerDialog(CcddMain ccddMain,
+                               CcddTableTypeEditorDialog editorDialog,
+                               ManagerDialogType dialogType)
     {
         this.editorDialog = editorDialog;
         this.dialogType = dialogType;
@@ -97,15 +97,15 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
     /**************************************************************************
      * Perform the steps needed following execution of a table type management
      * operation
-     * 
+     *
      * @param commandError
      *            false if the database commands successfully completed; true
      *            if an error occurred and the changes were not made
-     * 
+     *
      * @param fieldDefinitions
      *            list of field definitions; null if this is not a copy
      *            operation
-     * 
+     *
      * @param tableNames
      *            array of deleted table names; null if this is not a delete
      *            operation
@@ -292,8 +292,8 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                 // Check that the user confirms deletion of the table type
                 if (showMessageDialog(editorDialog,
                                       "<html><b>Delete table type '</b>"
-                                          + activeTypeName
-                                          + "<b>'?",
+                                                    + activeTypeName
+                                                    + "<b>'?",
                                       "Delete Type",
                                       JOptionPane.QUESTION_MESSAGE,
                                       DialogOption.DELETE_OPTION) == OK_BUTTON)
@@ -319,16 +319,16 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Add a type name field to the dialog
-     * 
+     *
      * @param labelText
      *            text to display beside the input field
-     * 
+     *
      * @param initialValue
      *            text to initially display in the name field
-     * 
+     *
      * @param dialogPnl
      *            panel to which to add the input field
-     * 
+     *
      * @param dialogGbc
      *            dialog panel GridBagLayout layout constraints
      *************************************************************************/
@@ -387,7 +387,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Verify that the dialog content is valid
-     * 
+     *
      * @return true if the input values are valid
      *************************************************************************/
     @Override
@@ -440,7 +440,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
             // Inform the user that the input value is invalid
             new CcddDialogHandler().showMessageDialog(CcddTableTypeManagerDialog.this,
                                                       "<html><b>"
-                                                          + ce.getMessage(),
+                                                                                       + ce.getMessage(),
                                                       "Missing/Invalid Input",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);

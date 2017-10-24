@@ -33,7 +33,6 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -225,12 +224,12 @@ public class CcddClasses
          *            true if this table represents a root table of type
          *            'structure'
          *********************************************************************/
-        private TableInformation(String tableType,
-                                 String tablePath,
-                                 String[][] tableData,
-                                 String columnOrder,
-                                 String description,
-                                 boolean isRootStructure)
+        TableInformation(String tableType,
+                         String tablePath,
+                         String[][] tableData,
+                         String columnOrder,
+                         String description,
+                         boolean isRootStructure)
         {
             this.tableType = tableType;
             this.tablePath = tablePath;
@@ -281,13 +280,13 @@ public class CcddClasses
          * @param fieldDefinition
          *            array of field definitions
          *********************************************************************/
-        protected TableInformation(String tableType,
-                                   String tablePath,
-                                   String[][] tableData,
-                                   String columnOrder,
-                                   String description,
-                                   boolean isRootStructure,
-                                   Object[][] fieldDefinition)
+        TableInformation(String tableType,
+                         String tablePath,
+                         String[][] tableData,
+                         String columnOrder,
+                         String description,
+                         boolean isRootStructure,
+                         Object[][] fieldDefinition)
         {
             this(tableType,
                  tablePath,
@@ -343,13 +342,13 @@ public class CcddClasses
          * @param fieldInfo
          *            list of FieldInformation references
          *********************************************************************/
-        protected TableInformation(String tableType,
-                                   String tablePath,
-                                   String[][] tableData,
-                                   String columnOrder,
-                                   String description,
-                                   boolean isRootStructure,
-                                   List<FieldInformation> fieldInfo)
+        TableInformation(String tableType,
+                         String tablePath,
+                         String[][] tableData,
+                         String columnOrder,
+                         String description,
+                         boolean isRootStructure,
+                         List<FieldInformation> fieldInfo)
         {
             this(tableType,
                  tablePath,
@@ -376,7 +375,7 @@ public class CcddClasses
          *            succeeding pair coming from the next level down in the
          *            structure's hierarchy
          *********************************************************************/
-        protected TableInformation(String tablePath)
+        TableInformation(String tablePath)
         {
             this.tablePath = tablePath;
             errorFlag = true;
@@ -712,7 +711,6 @@ public class CcddClasses
         private final List<String> variableNames;
         private final List<String> bitLengths;
         private final List<String[]> rates;
-        private final List<String[]> enumerations;
 
         /**********************************************************************
          * Table members class constructor
@@ -735,17 +733,13 @@ public class CcddClasses
          *
          * @param rates
          *            list of the rates associated with the variables
-         *
-         * @param enumerations
-         *            list of the enumerations associated with the variables
          *********************************************************************/
-        protected TableMembers(String name,
-                               String type,
-                               List<String> dataTypes,
-                               List<String> variableNames,
-                               List<String> bitLengths,
-                               List<String[]> rates,
-                               List<String[]> enumerations)
+        TableMembers(String name,
+                     String type,
+                     List<String> dataTypes,
+                     List<String> variableNames,
+                     List<String> bitLengths,
+                     List<String[]> rates)
         {
             this.name = name;
             this.type = type;
@@ -753,7 +747,6 @@ public class CcddClasses
             this.variableNames = variableNames;
             this.bitLengths = bitLengths;
             this.rates = rates;
-            this.enumerations = enumerations;
         }
 
         /**********************************************************************
@@ -799,17 +792,6 @@ public class CcddClasses
         }
 
         /**********************************************************************
-         * Get the list of this table's bit lengths associated with the
-         * variables
-         *
-         * @return List of this table's variable bit lengths
-         *********************************************************************/
-        protected List<String> getBitLengths()
-        {
-            return bitLengths;
-        }
-
-        /**********************************************************************
          * Get the list of this table's rates associated with the variables
          *
          * @return List of this table's rates
@@ -817,17 +799,6 @@ public class CcddClasses
         protected List<String[]> getRates()
         {
             return rates;
-        }
-
-        /**********************************************************************
-         * Get the list of this table's enumerations associated with the
-         * variables
-         *
-         * @return List of this table's enumerations
-         *********************************************************************/
-        protected List<String[]> getEnumerations()
-        {
-            return enumerations;
         }
 
         /**********************************************************************
@@ -1073,7 +1044,7 @@ public class CcddClasses
         /**********************************************************************
          * Table definition class constructor
          *********************************************************************/
-        protected TableDefinition()
+        TableDefinition()
         {
             // Initialize storage for the table information
             data = new ArrayList<String>();
@@ -1090,7 +1061,7 @@ public class CcddClasses
          * @param description
          *            table description
          *********************************************************************/
-        protected TableDefinition(String tableName, String description)
+        TableDefinition(String tableName, String description)
         {
             this();
 
@@ -1227,7 +1198,7 @@ public class CcddClasses
          * @param description
          *            table type description
          *********************************************************************/
-        protected TableTypeDefinition(String typeName, String description)
+        TableTypeDefinition(String typeName, String description)
         {
             this.typeName = typeName;
             this.description = description;
@@ -1578,7 +1549,7 @@ public class CcddClasses
          * @param toolTipText
          *            text to display when mouse pointer hovers over the node
          *********************************************************************/
-        protected ToolTipTreeNode(String nodeName, String toolTipText)
+        ToolTipTreeNode(String nodeName, String toolTipText)
         {
             super(nodeName);
 
@@ -1660,14 +1631,14 @@ public class CcddClasses
          * @param value
          *            field value
          *********************************************************************/
-        protected FieldInformation(String ownerName,
-                                   String fieldName,
-                                   String description,
-                                   int charSize,
-                                   InputDataType fieldType,
-                                   boolean isRequired,
-                                   ApplicabilityType applicability,
-                                   String value)
+        FieldInformation(String ownerName,
+                         String fieldName,
+                         String description,
+                         int charSize,
+                         InputDataType fieldType,
+                         boolean isRequired,
+                         ApplicabilityType applicability,
+                         String value)
         {
             this.ownerName = ownerName;
             this.fieldName = fieldName;
@@ -1710,14 +1681,14 @@ public class CcddClasses
          * @param value
          *            field value
          *********************************************************************/
-        protected FieldInformation(String ownerName,
-                                   String fieldName,
-                                   String description,
-                                   int charSize,
-                                   String inputType,
-                                   boolean isRequired,
-                                   String applicabilityType,
-                                   String value)
+        FieldInformation(String ownerName,
+                         String fieldName,
+                         String description,
+                         int charSize,
+                         String inputType,
+                         boolean isRequired,
+                         String applicabilityType,
+                         String value)
         {
             this(ownerName,
                  fieldName,
@@ -1906,10 +1877,10 @@ public class CcddClasses
          * @param fieldInformation
          *            data field information
          *********************************************************************/
-        protected GroupInformation(String name,
-                                   String description,
-                                   Boolean isApplication,
-                                   List<FieldInformation> fieldInformation)
+        GroupInformation(String name,
+                         String description,
+                         Boolean isApplication,
+                         List<FieldInformation> fieldInformation)
         {
             this(name, description, isApplication, null, fieldInformation);
         }
@@ -1933,11 +1904,11 @@ public class CcddClasses
          * @param fieldInformation
          *            data field information
          *********************************************************************/
-        protected GroupInformation(String name,
-                                   String description,
-                                   Boolean isApplication,
-                                   List<String> tables,
-                                   List<FieldInformation> fieldInformation)
+        GroupInformation(String name,
+                         String description,
+                         Boolean isApplication,
+                         List<String> tables,
+                         List<FieldInformation> fieldInformation)
         {
             tablesAndAncestors = new ArrayList<String>();
             tableMembers = new ArrayList<String>();
@@ -2141,7 +2112,7 @@ public class CcddClasses
     {
         private final String rateName;
         private String linkName;
-        private String sampleRate;
+        private final String sampleRate;
         private String description;
 
         /**********************************************************************
@@ -2156,9 +2127,9 @@ public class CcddClasses
          * @param description
          *            link description
          *********************************************************************/
-        protected LinkInformation(String rateName,
-                                  String linkName,
-                                  String description)
+        LinkInformation(String rateName,
+                        String linkName,
+                        String description)
         {
             this(rateName, linkName, "0", description);
         }
@@ -2179,10 +2150,10 @@ public class CcddClasses
          * @param description
          *            link description
          *********************************************************************/
-        protected LinkInformation(String rateName,
-                                  String linkName,
-                                  String sampleRate,
-                                  String description)
+        LinkInformation(String rateName,
+                        String linkName,
+                        String sampleRate,
+                        String description)
         {
             this.rateName = rateName;
             this.linkName = linkName;
@@ -2230,17 +2201,6 @@ public class CcddClasses
         protected String getSampleRate()
         {
             return sampleRate;
-        }
-
-        /**********************************************************************
-         * Set the link rate in samples per second
-         *
-         * @param sampleRate
-         *            link rate in samples per second
-         *********************************************************************/
-        protected void setSampleRate(String sampleRate)
-        {
-            this.sampleRate = sampleRate;
         }
 
         /**********************************************************************
@@ -2469,44 +2429,6 @@ public class CcddClasses
         }
 
         /**********************************************************************
-         * Get the index position of the specified array member
-         *
-         * @param arrayIndex
-         *            array giving the dimension indices for the specified
-         *            array member
-         *
-         * @param arraySize
-         *            array giving the size of each of the array's dimensions
-         *
-         * @return Index position of the array member
-         *********************************************************************/
-        protected static int getArrayMemberPosition(int[] arrayIndex,
-                                                    int[] arraySize)
-        {
-            int position = 0;
-
-            // Step through the array dimensions
-            for (int indexA = 0; indexA < arraySize.length; indexA++)
-            {
-                int multiplier = 1;
-
-                // Step though the remaining array dimensions
-                for (int indexB = indexA + 1; indexB < arraySize.length; indexB++)
-                {
-                    // Update the multiplier with the current array dimension
-                    // size
-                    multiplier *= arraySize[indexB];
-                }
-
-                // Add the index value for the current dimension multiplied by
-                // the subsequent dimension sizes
-                position += arrayIndex[indexA] * multiplier;
-            }
-
-            return position;
-        }
-
-        /**********************************************************************
          * Compare two array variable members by array dimension value(s)
          *
          * @param arrayVariable1
@@ -2581,7 +2503,7 @@ public class CcddClasses
          * @param rateName
          *            rate column name (viewable) for this data stream
          *********************************************************************/
-        protected RateInformation(String rateName)
+        RateInformation(String rateName)
         {
             this.rateName = rateName;
 
@@ -2733,64 +2655,6 @@ public class CcddClasses
     }
 
     /**************************************************************************
-     * Node removal results class
-     *************************************************************************/
-    protected static class NodeCheckResults
-    {
-        private final boolean isRemoved;
-        private boolean isRemoveAll;
-
-        /**********************************************************************
-         * Node removal results class constructor
-         *
-         * @param isRemoved
-         *            true if one or more nodes have been removed
-         *
-         * @param isRemoveAll
-         *            true if all nodes should be removed
-         *********************************************************************/
-        protected NodeCheckResults(boolean isRemoved, boolean isRemoveAll)
-        {
-            this.isRemoved = isRemoved;
-            this.isRemoveAll = isRemoveAll;
-        }
-
-        /**********************************************************************
-         * Get the status of the flag that indicates if one or more nodes have
-         * been removed
-         *
-         * @return true if one or more nodes have been removed
-         *********************************************************************/
-        protected boolean isRemoved()
-        {
-            return isRemoved;
-        }
-
-        /**********************************************************************
-         * Get the status of the flag that indicates all nodes should be
-         * removed
-         *
-         * @return true if all nodes should be removed
-         *********************************************************************/
-        protected boolean isRemoveAll()
-        {
-            return isRemoveAll;
-        }
-
-        /**********************************************************************
-         * Set the status of the flag that indicates all nodes should be
-         * removed
-         *
-         * @param isRemoveAll
-         *            true if all nodes should be removed
-         *********************************************************************/
-        protected void setRemoveAll(boolean isRemoveAll)
-        {
-            this.isRemoveAll = isRemoveAll;
-        }
-    }
-
-    /**************************************************************************
      * Node indices for bit-packed variables class
      *************************************************************************/
     protected static class NodeIndex
@@ -2814,7 +2678,7 @@ public class CcddClasses
          *            node index for the selected member in a group of
          *            bit-packed variables
          *********************************************************************/
-        protected NodeIndex(int firstIndex, int lastIndex, int tableIndex)
+        NodeIndex(int firstIndex, int lastIndex, int tableIndex)
         {
             this.firstIndex = firstIndex;
             this.lastIndex = lastIndex;
@@ -2878,7 +2742,7 @@ public class CcddClasses
          * @param associates
          *            list of associated variables
          *********************************************************************/
-        protected AssociatedVariable(int totalSize, List<Variable> associates)
+        AssociatedVariable(int totalSize, List<Variable> associates)
         {
             this.totalSize = totalSize;
             this.associates = associates;
@@ -2995,7 +2859,7 @@ public class CcddClasses
     protected static class Variable implements Comparable<Variable>
     {
         private int size;
-        private String pathName;
+        private final String pathName;
         private final float rate;
 
         // Indices of the messages in which the variable is contained
@@ -3013,7 +2877,7 @@ public class CcddClasses
          * @param rate
          *            variable rate, Hertz
          *********************************************************************/
-        protected Variable(int size, String pathName, float rate)
+        Variable(int size, String pathName, float rate)
         {
             this.size = size;
             this.pathName = pathName;
@@ -3051,37 +2915,6 @@ public class CcddClasses
         protected String getFullName()
         {
             return pathName;
-        }
-
-        /**********************************************************************
-         * Set the full path and the name of the variable
-         *
-         * @param pathName
-         *            variable's full path and name
-         *********************************************************************/
-        protected void setFullName(String pathName)
-        {
-            this.pathName = pathName;
-        }
-
-        /**********************************************************************
-         * Get the variable name
-         *
-         * @return Variable name
-         *********************************************************************/
-        protected String getName()
-        {
-            return pathName.replaceAll("[^\\.]*\\.|:.*$", "");
-        }
-
-        /**********************************************************************
-         * Get the bit length of the variable
-         *
-         * @return Bit length of the variable
-         *********************************************************************/
-        protected String getBitLength()
-        {
-            return pathName.replaceAll("^.*:(.*)$|^.*$", "$1");
         }
 
         /**********************************************************************
@@ -3184,7 +3017,7 @@ public class CcddClasses
      *************************************************************************/
     protected static class TelemetryData extends Variable
     {
-        private String dataType;
+        private final String dataType;
         private String link;
 
         /**********************************************************************
@@ -3199,7 +3032,7 @@ public class CcddClasses
          * @param rate
          *            variable rate, Hertz
          *********************************************************************/
-        protected TelemetryData(String dataType, String pathName, float rate)
+        TelemetryData(String dataType, String pathName, float rate)
         {
             super(ccddMain.getDataTypeHandler().getSizeInBytes(dataType), pathName, rate);
             this.dataType = dataType;
@@ -3218,23 +3051,6 @@ public class CcddClasses
         protected String getDataType()
         {
             return dataType;
-        }
-
-        /**********************************************************************
-         * Set the variable data type
-         *
-         * @param dataType
-         *            variable data type
-         *********************************************************************/
-        protected void setDataType(String dataType)
-        {
-            // Update the data type in the variable name and path
-            setFullName(getFullName().replaceFirst("^(.*,)*"
-                                                   + this.dataType
-                                                   + "\\.",
-                                                   "$1" + dataType + "."));
-
-            this.dataType = dataType;
         }
 
         /**********************************************************************
@@ -3312,17 +3128,17 @@ public class CcddClasses
          * @param schGroup
          *            application schedule group
          *********************************************************************/
-        protected ApplicationData(String name,
-                                  float rate,
-                                  int runTime,
-                                  int priority,
-                                  int messageRate,
-                                  String wakeUpname,
-                                  String wakeUpID,
-                                  int hkSendRate,
-                                  String hkWakeUpName,
-                                  String hkWakeUpID,
-                                  String schGroup)
+        ApplicationData(String name,
+                        float rate,
+                        int runTime,
+                        int priority,
+                        int messageRate,
+                        String wakeUpname,
+                        String wakeUpID,
+                        int hkSendRate,
+                        String hkWakeUpName,
+                        String hkWakeUpID,
+                        String schGroup)
         {
             // Call the variable constructor
             super(runTime, name, rate);
@@ -3359,9 +3175,9 @@ public class CcddClasses
         }
 
         /**********************************************************************
-         * Get the application priority
+         * Get the message rate
          *
-         * @return Application priority
+         * @return Message rate
          *********************************************************************/
         protected int getMessageRate()
         {
@@ -3369,10 +3185,10 @@ public class CcddClasses
         }
 
         /**********************************************************************
-         * Set the application message rate
+         * Set the message rate
          *
-         * @param priority
-         *            new application message rate
+         * @param messageRate
+         *            message rate
          *********************************************************************/
         protected void setMessageRate(int messageRate)
         {
@@ -3538,11 +3354,11 @@ public class CcddClasses
          *            sub-message initialization; null if this is not a parent
          *            message
          *********************************************************************/
-        protected Message(String messageName,
-                          String messageID,
-                          int totalBytes,
-                          Message parentMessage,
-                          List<Message> subMessages)
+        Message(String messageName,
+                String messageID,
+                int totalBytes,
+                Message parentMessage,
+                List<Message> subMessages)
         {
             name = messageName;
             id = messageID;
@@ -3564,7 +3380,7 @@ public class CcddClasses
          * @param bytes
          *            size of the initial amount of bytes in the message
          *********************************************************************/
-        protected Message(String messageName, String messageID, int bytes)
+        Message(String messageName, String messageID, int bytes)
         {
             this(messageName, messageID, bytes, null, new ArrayList<Message>());
 
@@ -3588,10 +3404,10 @@ public class CcddClasses
          * @param msg
          *            parent of the sub-message
          *********************************************************************/
-        protected Message(String subMessageName,
-                          String subMsgID,
-                          int bytes,
-                          Message msg)
+        Message(String subMessageName,
+                String subMsgID,
+                int bytes,
+                Message msg)
         {
             this(subMessageName, subMsgID, bytes, msg, null);
         }
@@ -4046,40 +3862,6 @@ public class CcddClasses
         }
 
         /**********************************************************************
-         * Add bytes to the message
-         *
-         * @param bytes
-         *            number of bytes to add
-         *********************************************************************/
-        protected void addBytes(int bytes)
-        {
-            bytesRemaining += bytes;
-
-            // Add the bytes to the sub-messages
-            addBytesToSubMessages(bytes);
-        }
-
-        /**********************************************************************
-         * Add bytes to the sub-messages
-         *
-         * @param bytes
-         *            bytes to add
-         *********************************************************************/
-        private void addBytesToSubMessages(int bytes)
-        {
-            // Check if the message has a sub-message
-            if (subMessages != null)
-            {
-                // Step through each sub-message
-                for (Message sub : subMessages)
-                {
-                    // Add the bytes to the sub-message
-                    sub.addBytes(bytes);
-                }
-            }
-        }
-
-        /**********************************************************************
          * Check if a variable is in the message
          *
          * @param varName
@@ -4106,20 +3888,6 @@ public class CcddClasses
 
             return isInMsg;
         }
-
-        /**********************************************************************
-         * Swap the position of two variables
-         *
-         * @param index1
-         *            first index
-         *
-         * @param index2
-         *            second index
-         *********************************************************************/
-        protected void swapVariablePosition(int index1, int index2)
-        {
-            Collections.swap(variables, index1, index2);
-        }
     }
 
     /**************************************************************************
@@ -4144,9 +3912,9 @@ public class CcddClasses
          * @param rateName
          *            rate column name
          *********************************************************************/
-        protected DataStream(List<Message> messages,
-                             List<Variable> varList,
-                             String rateName)
+        DataStream(List<Message> messages,
+                   List<Variable> varList,
+                   String rateName)
         {
             this.messages = messages;
             this.varList = varList;
@@ -4162,7 +3930,7 @@ public class CcddClasses
          * @param varList
          *            list of variables in the data stream
          *********************************************************************/
-        protected DataStream(List<Message> messages, List<Variable> varList)
+        DataStream(List<Message> messages, List<Variable> varList)
         {
             this(messages, varList, "");
         }
@@ -4173,7 +3941,7 @@ public class CcddClasses
          * @param rateName
          *            rate column name
          *********************************************************************/
-        protected DataStream(String rateName)
+        DataStream(String rateName)
         {
             this(new ArrayList<Message>(), new ArrayList<Variable>(), rateName);
         }
@@ -4187,7 +3955,7 @@ public class CcddClasses
          * @param rateName
          *            rate column name
          *********************************************************************/
-        protected DataStream(List<Message> messages, String rateName)
+        DataStream(List<Message> messages, String rateName)
         {
             this(messages, new ArrayList<Variable>(), rateName);
         }
@@ -4315,7 +4083,7 @@ public class CcddClasses
          * @param font
          *            combo box list item font
          *********************************************************************/
-        protected PaddedComboBox(Font font)
+        PaddedComboBox(Font font)
         {
             setListItemCharacteristics(null, font);
         }
@@ -4330,7 +4098,7 @@ public class CcddClasses
          * @param font
          *            combo box list item font
          *********************************************************************/
-        protected PaddedComboBox(String[] items, Font font)
+        PaddedComboBox(String[] items, Font font)
         {
             super(items);
 
@@ -4350,7 +4118,7 @@ public class CcddClasses
          * @param font
          *            combo box list item font
          *********************************************************************/
-        protected PaddedComboBox(String[] items, String[] toolTips, Font font)
+        PaddedComboBox(String[] items, String[] toolTips, Font font)
         {
             super(items);
 
@@ -4530,10 +4298,10 @@ public class CcddClasses
          * @param fontSize
          *            font size
          *********************************************************************/
-        protected ModifiableFont(String fontIdentifier,
-                                 String fontFamily,
-                                 int fontStyle,
-                                 int fontSize)
+        ModifiableFont(String fontIdentifier,
+                       String fontFamily,
+                       int fontStyle,
+                       int fontSize)
         {
             // Create the font
             super(fontFamily, fontStyle, fontSize);
@@ -4583,10 +4351,10 @@ public class CcddClasses
          * @param blue
          *            blue color component
          *********************************************************************/
-        protected ModifiableColor(String colorIdentifier,
-                                  int red,
-                                  int green,
-                                  int blue)
+        ModifiableColor(String colorIdentifier,
+                        int red,
+                        int green,
+                        int blue)
         {
             // Create the color
             super(red, green, blue);
@@ -4626,7 +4394,7 @@ public class CcddClasses
          * @param color
          *            check box color
          *********************************************************************/
-        protected ColorCheckBox(String text, ModifiableColor color)
+        ColorCheckBox(String text, ModifiableColor color)
         {
             // Set the check box icon color
             setIconColor(color);
@@ -4853,7 +4621,7 @@ public class CcddClasses
          * @param column
          *            cell column in view coordinates
          *********************************************************************/
-        protected SelectedCell(int row, int column)
+        SelectedCell(int row, int column)
         {
             this.row = row;
             this.column = column;
@@ -4932,7 +4700,7 @@ public class CcddClasses
         /**********************************************************************
          * Table cell selection handler constructor
          *********************************************************************/
-        protected CellSelectionHandler()
+        CellSelectionHandler()
         {
             cells = new ArrayList<SelectedCell>();
         }
@@ -5201,7 +4969,7 @@ public class CcddClasses
          * WrapLayout constructor. Creates a new WrapLayout with a left
          * alignment and a default 5-unit horizontal and vertical gap.
          *********************************************************************/
-        protected WrapLayout()
+        WrapLayout()
         {
             super();
         }
@@ -5215,7 +4983,7 @@ public class CcddClasses
          * @param align
          *            the alignment value
          *********************************************************************/
-        protected WrapLayout(int align)
+        WrapLayout(int align)
         {
             super(align);
         }
@@ -5410,7 +5178,7 @@ public class CcddClasses
          * Multiple line label class constructor. Assumes the label text is
          * blank
          *********************************************************************/
-        protected MultilineLabel()
+        MultilineLabel()
         {
             this("");
         }
@@ -5421,7 +5189,7 @@ public class CcddClasses
          * @param text
          *            label text
          *********************************************************************/
-        protected MultilineLabel(String text)
+        MultilineLabel(String text)
         {
             super(text);
 
@@ -5584,7 +5352,7 @@ public class CcddClasses
          *            list containing the strings from which the
          *            auto-completion text is extracted
          *********************************************************************/
-        protected AutoCompleteTextField(List<String> autoCompList)
+        AutoCompleteTextField(List<String> autoCompList)
         {
             this(autoCompList, 10);
         }
@@ -5597,7 +5365,7 @@ public class CcddClasses
          *            maximum number of items to maintain in the auto-complete
          *            list
          *********************************************************************/
-        protected AutoCompleteTextField(int maxItems)
+        AutoCompleteTextField(int maxItems)
         {
             this(new ArrayList<String>(), maxItems);
         }
@@ -5613,7 +5381,7 @@ public class CcddClasses
          *            maximum number of items to maintain in the auto-complete
          *            list
          *********************************************************************/
-        protected AutoCompleteTextField(List<String> autoCompList, int maxItems)
+        AutoCompleteTextField(List<String> autoCompList, int maxItems)
         {
             this.autoCompList = autoCompList;
             this.maxItems = maxItems;
@@ -5936,7 +5704,7 @@ public class CcddClasses
         /**********************************************************************
          * Font chooser constructor. Uses a default list of font sizes
          *********************************************************************/
-        protected JFontChooser()
+        JFontChooser()
         {
             this(DEFAULT_FONT_SIZE_STRINGS);
         }
@@ -5948,7 +5716,7 @@ public class CcddClasses
          *            array containing the available font sizes; null to use
          *            the default sizes
          *********************************************************************/
-        protected JFontChooser(String[] fontSizeStrings)
+        JFontChooser(String[] fontSizeStrings)
         {
             if (fontSizeStrings == null)
             {
@@ -6299,7 +6067,7 @@ public class CcddClasses
             /******************************************************************
              * Font chooser text field focus handling class constructor
              *****************************************************************/
-            public TextFieldFocusHandlerForTextSelection(JTextComponent textComponent)
+            TextFieldFocusHandlerForTextSelection(JTextComponent textComponent)
             {
                 this.textComponent = textComponent;
             }
@@ -6334,7 +6102,7 @@ public class CcddClasses
             /******************************************************************
              * Font chooser text field key handling class constructor
              *****************************************************************/
-            public TextFieldKeyHandlerForListSelectionUpDown(JList<String> list)
+            TextFieldKeyHandlerForListSelectionUpDown(JList<String> list)
             {
                 targetList = list;
             }
@@ -6388,14 +6156,14 @@ public class CcddClasses
             /******************************************************************
              * Font chooser list selector class
              *****************************************************************/
-            public class ListSelector implements Runnable
+            class ListSelector implements Runnable
             {
                 private final int index;
 
                 /**************************************************************
                  * Font chooser list selector class constructor
                  *************************************************************/
-                public ListSelector(int index)
+                ListSelector(int index)
                 {
                     this.index = index;
                 }
@@ -6413,7 +6181,7 @@ public class CcddClasses
             /******************************************************************
              * Font chooser list search handling class constructor
              *****************************************************************/
-            public ListSearchTextFieldDocumentHandler(JList<String> targetList)
+            ListSearchTextFieldDocumentHandler(JList<String> targetList)
             {
                 this.targetList = targetList;
             }

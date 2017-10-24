@@ -49,11 +49,11 @@ public class CcddWebServer
 
     /**************************************************************************
      * Web server class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
-    protected CcddWebServer(CcddMain ccddMain)
+    CcddWebServer(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
         this.eventLog = ccddMain.getSessionEventLog();
@@ -71,7 +71,7 @@ public class CcddWebServer
 
     /**************************************************************************
      * Get the reference to the web data access handler class
-     * 
+     *
      * @return Reference to the web data access handler class
      *************************************************************************/
     protected CcddWebDataAccessHandler getWebAccessHandler()
@@ -82,7 +82,7 @@ public class CcddWebServer
     /**************************************************************************
      * Create the web server
      *************************************************************************/
-    protected void createServer()
+    private void createServer()
     {
         try
         {
@@ -191,8 +191,8 @@ public class CcddWebServer
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Web Server Error",
                                   "Cannot create web server; cause '"
-                                      + e.getMessage()
-                                      + "'",
+                                                      + e.getMessage()
+                                                      + "'",
                                   "<html><b>Cannot create web server");
         }
     }
@@ -210,7 +210,7 @@ public class CcddWebServer
             // Inform the user that the web server started
             eventLog.logEvent(EventLogMessageType.SERVER_MSG,
                               "Web server started; listening on port "
-                                  + ((ServerConnector) server.getConnectors()[0]).getLocalPort());
+                                                              + ((ServerConnector) server.getConnectors()[0]).getLocalPort());
         }
         catch (Exception e)
         {
@@ -218,8 +218,8 @@ public class CcddWebServer
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Web Server Error",
                                   "Web server failed to start; cause '"
-                                      + e.getMessage()
-                                      + "'",
+                                                      + e.getMessage()
+                                                      + "'",
                                   "<html><b>Web server failed to start");
         }
     }
@@ -244,8 +244,8 @@ public class CcddWebServer
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Web Server Error",
                                   "Web server failed to stop; cause '"
-                                      + e.getMessage()
-                                      + "'",
+                                                      + e.getMessage()
+                                                      + "'",
                                   "<html><b>Web server failed to stop");
         }
     }
@@ -254,14 +254,14 @@ public class CcddWebServer
      * Server message logging class. Formats the message and outputs it to the
      * event log file
      *************************************************************************/
-    public class ServerLogging implements Logger
+    private class ServerLogging implements Logger
     {
         private boolean isDebug;
 
         /**********************************************************************
          * Server message logging class constructor
          *********************************************************************/
-        protected ServerLogging()
+        ServerLogging()
         {
             // Set the flag to indicate that debugging is initially disabled
             isDebug = false;
@@ -270,13 +270,13 @@ public class CcddWebServer
         /**********************************************************************
          * Create the log message from the input information and output the
          * formatted message to the log file
-         * 
+         *
          * @param type
          *            message type
-         * 
+         *
          * @param msg
          *            message contents; may be null
-         * 
+         *
          * @param args
          *            message arguments; may be null
          *********************************************************************/
@@ -284,8 +284,8 @@ public class CcddWebServer
         {
             // Build the server event log message
             String message = msg != null
-                                        ? msg.replaceFirst("\\{\\}$", "")
-                                        : "";
+                                         ? msg.replaceFirst("\\{\\}$", "")
+                                         : "";
 
             // Step through each argument
             for (Object arg : args)

@@ -33,7 +33,7 @@ public class CcddGroupHandler
      *            reference to the undo handler; null if undo/redo operations
      *            are not needed for the groups
      *************************************************************************/
-    protected CcddGroupHandler(CcddUndoHandler undoHandler)
+    CcddGroupHandler(CcddUndoHandler undoHandler)
     {
         // Check if no undo handler is specified
         if (undoHandler == null)
@@ -58,8 +58,8 @@ public class CcddGroupHandler
      * @param groupInformation
      *            group information list
      *************************************************************************/
-    protected CcddGroupHandler(CcddUndoHandler undoHandler,
-                               List<String[]> groupDefinitions)
+    CcddGroupHandler(CcddUndoHandler undoHandler,
+                     List<String[]> groupDefinitions)
     {
         this(undoHandler);
         buildGroupInformation(groupDefinitions);
@@ -78,9 +78,9 @@ public class CcddGroupHandler
      * @param component
      *            GUI component calling this method
      *************************************************************************/
-    protected CcddGroupHandler(CcddMain ccddMain,
-                               CcddUndoHandler undoHandler,
-                               Component component)
+    CcddGroupHandler(CcddMain ccddMain,
+                     CcddUndoHandler undoHandler,
+                     Component component)
     {
         this(undoHandler,
              ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.GROUPS,

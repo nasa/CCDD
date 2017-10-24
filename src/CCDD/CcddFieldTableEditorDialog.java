@@ -130,7 +130,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
      * @param ccddMain
      *            main class
      *************************************************************************/
-    protected CcddFieldTableEditorDialog(CcddMain ccddMain)
+    CcddFieldTableEditorDialog(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
         dbTable = ccddMain.getDbTableCommandHandler();
@@ -1315,15 +1315,16 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             for (int column = 0; column < dataFieldTable.getColumnCount(); column++)
             {
                 // Get the owner for this row
-                String owner = dataFieldTable.getModel().getValueAt(row,
-                                                                    FieldTableEditorColumnInfo.OWNER.ordinal())
-                                             .toString().trim();
+                String ownerName = dataFieldTable.getModel().getValueAt(row,
+                                                                        FieldTableEditorColumnInfo.OWNER.ordinal())
+                                                 .toString().trim();
 
                 // Check if the cell at these coordinates is selected and that
                 // the data field for this row belongs to a table (versus a
                 // group or type)
                 if (dataFieldTable.isCellSelected(dataFieldTable.convertRowIndexToView(row), column)
-                    && !owner.contains(":"))
+                    && !ownerName.startsWith(CcddFieldHandler.getFieldTypeName(""))
+                    && !ownerName.startsWith(CcddFieldHandler.getFieldGroupName("")))
                 {
                     // Get the structure path for this row
                     String path = dataFieldTable.getModel().getValueAt(row,
@@ -1332,7 +1333,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
                     // Add the table path to the list and stop checking the
                     // columns in this row
-                    tablePaths.add(getOwnerWithPath(owner, path));
+                    tablePaths.add(getOwnerWithPath(ownerName, path));
                     break;
                 }
             }
@@ -1511,7 +1512,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                         // Add the new row to the list
                         ownerDataFields.add(newTable);
 
-                        // Check if this owner has a path (ie.e, it's a
+                        // Check if this owner has a path (i.e., it's a
                         // structure table)
                         if (!pathName.isEmpty())
                         {

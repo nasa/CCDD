@@ -29,7 +29,7 @@ public class CcddUndoManager extends UndoManager
     /**************************************************************************
      * Undo/redo edits manager class constructor
      *************************************************************************/
-    protected CcddUndoManager()
+    CcddUndoManager()
     {
         super();
 

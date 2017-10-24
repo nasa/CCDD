@@ -50,7 +50,7 @@ public class CcddButtonPanelHandler
     /**************************************************************************
      * Button panel handling class constructor
      *************************************************************************/
-    protected CcddButtonPanelHandler()
+    CcddButtonPanelHandler()
     {
         // Initialize the button panel and set the button spacing
         buttonPnl = new JPanel();
@@ -161,7 +161,8 @@ public class CcddButtonPanelHandler
             int width = button.getIcon().getIconWidth()
                         + button.getIconTextGap()
                         + (int) button.getFontMetrics(ModifiableFontInfo.DIALOG_BUTTON.getFont()).getStringBounds(button.getText(),
-                                                                                                                  button.getGraphics()).getWidth()
+                                                                                                                  button.getGraphics())
+                                      .getWidth()
                         + button.getMargin().left
                         + button.getMargin().right
                         + button.getBorder().getBorderInsets(button).left
@@ -176,7 +177,8 @@ public class CcddButtonPanelHandler
 
             // Get the height of the button text
             int height = (int) button.getFontMetrics(ModifiableFontInfo.DIALOG_BUTTON.getFont()).getStringBounds(button.getText(),
-                                                                                                                 button.getGraphics()).getHeight();
+                                                                                                                 button.getGraphics())
+                                     .getHeight();
 
             // Check if the button's icon height is greater than the text
             // height
@@ -217,10 +219,10 @@ public class CcddButtonPanelHandler
         // and heights
         Dimension buttonPnlCoord = new Dimension(maxWidth * numColumns
                                                  + (ModifiableSpacingInfo.BUTTON_GAP.getSpacing() + 1)
-                                                 * (numColumns + 1),
+                                                   * (numColumns + 1),
                                                  maxHeight * buttonRows
-                                                     + (ModifiableSpacingInfo.BUTTON_GAP.getSpacing() + 1)
-                                                     * (buttonRows + 1));
+                                                                       + (ModifiableSpacingInfo.BUTTON_GAP.getSpacing() + 1)
+                                                                         * (buttonRows + 1));
 
         // Set the button panel to a fixed size so that the buttons stay
         // positioned correctly relative to each other
@@ -390,9 +392,17 @@ public class CcddButtonPanelHandler
             // Create the button panel based on the option type provided
             buttonPnl = createButtonPanel(optionType);
 
-            // Default to the first button when using the a button panel based
-            // on the option type
-            defaultBtn = (JButton) buttonPnl.getComponent(0);
+            // Check if the option type specifies a default button
+            if (optionType.getDefaultButton() != -1)
+            {
+                // Default to the button as specified by the option type
+                defaultBtn = (JButton) buttonPnl.getComponent(optionType.getDefaultButton());
+            }
+            // No default button is specified
+            else
+            {
+                defaultBtn = null;
+            }
         }
         // A button panel was provided
         else

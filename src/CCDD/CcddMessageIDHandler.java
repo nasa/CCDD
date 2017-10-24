@@ -14,35 +14,20 @@ import static CCDD.CcddConstants.TYPE_OTHER;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
 import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
-import javax.swing.border.EtchedBorder;
-
 import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.Message;
-import CCDD.CcddConstants.DialogOption;
-import CCDD.CcddConstants.DuplicateMsgIDColumnInfo;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
-import CCDD.CcddConstants.ModifiableColorInfo;
-import CCDD.CcddConstants.ModifiableFontInfo;
-import CCDD.CcddConstants.ModifiableSpacingInfo;
-import CCDD.CcddConstants.MsgIDColumnInfo;
-import CCDD.CcddConstants.TableSelectionMode;
+import CCDD.CcddConstants.MessageIDSortOrder;
+import CCDD.CcddConstants.MsgIDListColumnIndex;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************
@@ -151,6 +136,16 @@ public class CcddMessageIDHandler
     protected List<String> getOtherTables()
     {
         return otherTables;
+    }
+
+    /**************************************************************************
+     * Get the list of duplicate message IDs
+     *
+     * @return List of duplicate message IDS
+     *************************************************************************/
+    protected ArrayListMultiple getDuplicates()
+    {
+        return duplicates;
     }
 
     /**************************************************************************
@@ -391,10 +386,18 @@ public class CcddMessageIDHandler
      * data field, and so on. If more names are defined than IDs or vice versa
      * then a blank ID/name is paired with the unmatched name/ID
      *
+     * @param sortOrder
+     *            order in which to sort the message ID list: BY_OWNER or
+     *            BY_NAME
+     *
+     * @param parent
+     *            GUI component calling this method
+     *
      * @return List containing every message ID name and its corresponding
      *         message ID, and the owning entity
      *************************************************************************/
-    protected List<String[]> getMessageIDsAndNames(Component parent)
+    protected List<String[]> getMessageIDsAndNames(MessageIDSortOrder sortOrder,
+                                                   Component parent)
     {
         String id;
         List<String[]> ownersNamesAndIDs = new ArrayList<String[]>();
@@ -532,6 +535,45 @@ public class CcddMessageIDHandler
                                                        + " !~ E'^.+\\\\..*$';",
                                                        parent));
 
+        // Sort the message ID list in the order specified
+        switch (sortOrder)
+        {
+            case BY_OWNER:
+                // Sort the message ID list by owner
+                Collections.sort(ownersNamesAndIDs, new Comparator<String[]>()
+                {
+                    /******************************************************************
+                     * Sort the message IDs list based on the message ID owner,
+                     * ignoring case
+                     *****************************************************************/
+                    @Override
+                    public int compare(final String[] msgID1, final String[] msgID2)
+                    {
+                        return msgID1[MsgIDListColumnIndex.OWNER.ordinal()].toLowerCase().compareTo(msgID2[MsgIDListColumnIndex.OWNER.ordinal()].toLowerCase());
+                    }
+                });
+
+                break;
+
+            case BY_NAME:
+                // Sort the message ID list by ID name
+                Collections.sort(ownersNamesAndIDs, new Comparator<String[]>()
+                {
+                    /**************************************************************
+                     * Sort the message names & IDs list based on the message
+                     * ID name, ignoring case
+                     *************************************************************/
+                    @Override
+                    public int compare(final String[] msgID1, final String[] msgID2)
+                    {
+                        return msgID1[MsgIDListColumnIndex.MESSAGE_ID_NAME.ordinal()].toLowerCase()
+                                                                                .compareTo(msgID2[MsgIDListColumnIndex.MESSAGE_ID_NAME.ordinal()].toLowerCase());
+                    }
+                });
+
+                break;
+        }
+
         return ownersNamesAndIDs;
     }
 
@@ -618,239 +660,5 @@ public class CcddMessageIDHandler
                 duplicates.get(index)[0] += "\n" + ownerAndID[0];
             }
         }
-    }
-
-    /**************************************************************************
-     * Display the owner, message ID name, and message ID dialog
-     *
-     * @param parent
-     *            GUI component calling this method
-     *************************************************************************/
-    @SuppressWarnings("serial")
-    protected void displayOwnersNamesAndIDs(final Component parent)
-    {
-        final List<String[]> msgIDs = getMessageIDsAndNames(parent);
-
-        // Sort the message ID list by owner
-        Collections.sort(msgIDs, new Comparator<String[]>()
-        {
-            /******************************************************************
-             * Sort the message IDs list based on the message ID owner,
-             * ignoring case
-             *****************************************************************/
-            @Override
-            public int compare(final String[] msgID1, final String[] msgID2)
-            {
-                return msgID1[MsgIDColumnInfo.OWNER.ordinal()].toLowerCase().compareTo(msgID2[MsgIDColumnInfo.OWNER.ordinal()].toLowerCase());
-            }
-        });
-
-        // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        1.0,
-                                                        0.0,
-                                                        GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
-                                                                   0,
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
-                                                        0,
-                                                        0);
-
-        // Create panels to hold the components of the dialog
-        JPanel dialogPnl = new JPanel(new GridBagLayout());
-        dialogPnl.setBorder(BorderFactory.createEmptyBorder());
-
-        // Create the table to display the message IDs and names
-        CcddJTableHandler msgIDTable = new CcddJTableHandler()
-        {
-            /******************************************************************
-             * Allow multiple line display in the all columns
-             *****************************************************************/
-            @Override
-            protected boolean isColumnMultiLine(int column)
-            {
-                return true;
-            }
-
-            /******************************************************************
-             * Load the message ID data into the table and format the table
-             * cells
-             *****************************************************************/
-            @Override
-            protected void loadAndFormatData()
-            {
-                // Place the data into the table model along with the column
-                // names, set up the editors and renderers for the table cells,
-                // set up the table grid lines, and calculate the minimum width
-                // required to display the table information
-                setUpdatableCharacteristics(msgIDs.toArray(new String[0][0]),
-                                            MsgIDColumnInfo.getColumnNames(),
-                                            null,
-                                            null,
-                                            null,
-                                            MsgIDColumnInfo.getToolTips(),
-                                            true,
-                                            true,
-                                            true,
-                                            true);
-            }
-        };
-
-        // Place the table into a scroll pane
-        JScrollPane scrollPane = new JScrollPane(msgIDTable);
-
-        // Set up the field table parameters
-        msgIDTable.setFixedCharacteristics(scrollPane,
-                                           false,
-                                           ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
-                                           TableSelectionMode.SELECT_BY_CELL,
-                                           true,
-                                           ModifiableColorInfo.TABLE_BACK.getColor(),
-                                           false,
-                                           true,
-                                           ModifiableFontInfo.OTHER_TABLE_CELL.getFont(),
-                                           true);
-
-        // Define the panel to contain the table
-        JPanel msgIDTblPnl = new JPanel();
-        msgIDTblPnl.setLayout(new BoxLayout(msgIDTblPnl, BoxLayout.X_AXIS));
-        msgIDTblPnl.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-        msgIDTblPnl.add(scrollPane);
-
-        // Add the table to the dialog
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.weighty = 1.0;
-        gbc.gridx = 0;
-        gbc.gridy++;
-        dialogPnl.add(msgIDTblPnl, gbc);
-
-        new CcddDialogHandler().showOptionsDialog(parent,
-                                                  dialogPnl,
-                                                  "Show All Message IDs",
-                                                  DialogOption.PRINT_OPTION,
-                                                  true);
-    }
-
-    /**************************************************************************
-     * Display the duplicate message ID dialog
-     *
-     * @param parent
-     *            GUI component calling this method
-     *************************************************************************/
-    @SuppressWarnings("serial")
-    protected void displayDuplicates(Component parent)
-    {
-        // Get the list of message IDs in use
-        getMessageIDsInUse(true, true, true, true, true, false, null, true, parent);
-
-        // Sort the duplicates list
-        Collections.sort(duplicates, new Comparator<String[]>()
-        {
-            /******************************************************************
-             * Sort the duplicates list based on the message ID (second column)
-             *****************************************************************/
-            @Override
-            public int compare(final String[] msgID1, final String[] msgID2)
-            {
-                return Integer.decode(msgID1[1]).compareTo(Integer.decode(msgID2[1]));
-            }
-        });
-
-        // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        1.0,
-                                                        0.0,
-                                                        GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
-                                                                   0,
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
-                                                        0,
-                                                        0);
-
-        // Create panels to hold the components of the dialog
-        JPanel dialogPnl = new JPanel(new GridBagLayout());
-        dialogPnl.setBorder(BorderFactory.createEmptyBorder());
-
-        // Create the table to display the duplicate message IDs
-        CcddJTableHandler duplicatesTable = new CcddJTableHandler()
-        {
-            /******************************************************************
-             * Allow multiple line display in the specified columns
-             *****************************************************************/
-            @Override
-            protected boolean isColumnMultiLine(int column)
-            {
-                return column == DuplicateMsgIDColumnInfo.OWNERS.ordinal();
-            }
-
-            /******************************************************************
-             * Load the duplicate message ID data into the table and format the
-             * table cells
-             *****************************************************************/
-            @Override
-            protected void loadAndFormatData()
-            {
-                // Place the data into the table model along with the column
-                // names, set up the editors and renderers for the table cells,
-                // set up the table grid lines, and calculate the minimum width
-                // required to display the table information
-                setUpdatableCharacteristics(duplicates.toArray(new String[0][0]),
-                                            DuplicateMsgIDColumnInfo.getColumnNames(),
-                                            "1:0",
-                                            null,
-                                            null,
-                                            DuplicateMsgIDColumnInfo.getToolTips(),
-                                            true,
-                                            true,
-                                            true,
-                                            true);
-            }
-        };
-
-        // Place the table into a scroll pane
-        JScrollPane scrollPane = new JScrollPane(duplicatesTable);
-
-        // Set up the field table parameters
-        duplicatesTable.setFixedCharacteristics(scrollPane,
-                                                false,
-                                                ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
-                                                TableSelectionMode.SELECT_BY_CELL,
-                                                true,
-                                                ModifiableColorInfo.TABLE_BACK.getColor(),
-                                                false,
-                                                true,
-                                                ModifiableFontInfo.OTHER_TABLE_CELL.getFont(),
-                                                true);
-
-        // Define the panel to contain the table
-        JPanel resultsTblPnl = new JPanel();
-        resultsTblPnl.setLayout(new BoxLayout(resultsTblPnl, BoxLayout.X_AXIS));
-        resultsTblPnl.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-        resultsTblPnl.add(scrollPane);
-
-        // Add the table to the dialog
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.weighty = 1.0;
-        gbc.gridx = 0;
-        gbc.gridy++;
-        dialogPnl.add(resultsTblPnl, gbc);
-
-        new CcddDialogHandler().showOptionsDialog(parent,
-                                                  dialogPnl,
-                                                  "Duplicate Message IDs",
-                                                  DialogOption.PRINT_OPTION,
-                                                  true);
     }
 }

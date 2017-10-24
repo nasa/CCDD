@@ -114,7 +114,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
      * @param isSessionLog
      *            true if this is the event log for the current session
      *************************************************************************/
-    protected CcddEventLogDialog(final CcddMain ccddMain, boolean isSessionLog)
+    CcddEventLogDialog(final CcddMain ccddMain, boolean isSessionLog)
     {
         this(ccddMain, null, null, isSessionLog);
     }
@@ -137,10 +137,10 @@ public class CcddEventLogDialog extends CcddFrameHandler
      * @param isSessionLog
      *            true if this is the event log for the current session
      *************************************************************************/
-    protected CcddEventLogDialog(final CcddMain ccddMain,
-                                 File logFile,
-                                 Long targetRow,
-                                 boolean isSessionLog)
+    CcddEventLogDialog(final CcddMain ccddMain,
+                       File logFile,
+                       Long targetRow,
+                       boolean isSessionLog)
     {
         this.ccddMain = ccddMain;
         this.isSessionLog = isSessionLog;
@@ -790,9 +790,9 @@ public class CcddEventLogDialog extends CcddFrameHandler
                 // part of the name, and the log file path if set by command
                 // line command
                 logFile = new File((!ModifiablePathInfo.SESSION_LOG_FILE_PATH.getPath().isEmpty()
-                                                                                                 ? ModifiablePathInfo.SESSION_LOG_FILE_PATH.getPath()
-                                                                                                   + File.separator
-                                                                                                 : "")
+                                                                                                  ? ModifiablePathInfo.SESSION_LOG_FILE_PATH.getPath()
+                                                                                                    + File.separator
+                                                                                                  : "")
                                    + "CCDD-"
                                    + getDateTimeStamp("yyyyMMdd_HHmmss")
                                    + ".log");
@@ -857,8 +857,8 @@ public class CcddEventLogDialog extends CcddFrameHandler
                     // located
                     new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                               "<html><b>Cannot locate event log file<br>'</b>"
-                                                                  + file[0].getAbsolutePath()
-                                                                  + "<b>'",
+                                                                                       + file[0].getAbsolutePath()
+                                                                                       + "<b>'",
                                                               "File Error",
                                                               JOptionPane.ERROR_MESSAGE,
                                                               DialogOption.OK_OPTION);
@@ -927,8 +927,8 @@ public class CcddEventLogDialog extends CcddFrameHandler
                                                    getDateTimeStampLog(parts[EventColumns.TIME.ordinal() - 1]),
                                                    getMessageType(parts[EventColumns.TYPE.ordinal() - 1]).getTypeMsg(),
                                                    (targetRow == null
-                                                                     ? truncateLogMessage(parts[EventColumns.MESSAGE.ordinal() - 1])
-                                                                     : parts[EventColumns.MESSAGE.ordinal() - 1])});
+                                                                      ? truncateLogMessage(parts[EventColumns.MESSAGE.ordinal() - 1])
+                                                                      : parts[EventColumns.MESSAGE.ordinal() - 1])});
 
                     // Check if a target time stamp is provided (i.e., only a
                     // single log entry is loaded for this event log)

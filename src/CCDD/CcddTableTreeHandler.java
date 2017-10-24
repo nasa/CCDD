@@ -462,16 +462,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**************************************************************************
-     * Get the list of table members
-     *
-     * @return List of table members
-     *************************************************************************/
-    protected List<TableMembers> getTableMembers()
-    {
-        return tableMembers;
-    }
-
-    /**************************************************************************
      * Get the status of the group filter
      *
      * @return true if the group filter is enabled
@@ -1485,38 +1475,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         {
             // Remove the variable name, leaving the table name
             nodeName = nodeName.substring(0, index);
-        }
-
-        return nodeName;
-    }
-
-    /**************************************************************************
-     * Get the variable name (including the bit length, if present) from the
-     * node name
-     *
-     * @param nodeName
-     *            node name
-     *
-     * @return Variable name portion of the node name; blank if no variable
-     *         name is present
-     *************************************************************************/
-    protected String getVariableFromNodeName(String nodeName)
-    {
-        // Get the index of a period, if present, which separates the data type
-        // and variable names
-        int index = nodeName.indexOf(".");
-
-        // Check if the node name contains the variable name
-        if (index != -1)
-        {
-            // Remove the data type, leaving the variable name
-            nodeName = nodeName.substring(index + 1);
-        }
-        // No variable name is present
-        else
-        {
-            // Set the variable name to a blank
-            nodeName = "";
         }
 
         return nodeName;

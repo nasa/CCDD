@@ -95,7 +95,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
     /**************************************************************************
      * Data type data table references class
      *************************************************************************/
-    class DataTypeReference
+    private class DataTypeReference
     {
         private final String dataTypeName;
         private final String[] references;
@@ -199,7 +199,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
      * Copy the data type data so it can be used to determine if changes are
      * made
      *************************************************************************/
-    protected void storeCurrentData()
+    private void storeCurrentData()
     {
         // Check if the table has fields
         if (!dataTypeHandler.getDataTypeData().isEmpty())
@@ -1169,7 +1169,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
      *
      * @return List containing the updated data types
      *************************************************************************/
-    protected List<String[]> getUpdatedData()
+    private List<String[]> getUpdatedData()
     {
         return Arrays.asList(CcddUtilities.convertObjectToString(dataTypeTable.getTableData(true)));
     }
@@ -1179,7 +1179,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
      *
      * @return true if a row is missing data in a required column
      *************************************************************************/
-    protected boolean checkForMissingColumns()
+    private boolean checkForMissingColumns()
     {
         boolean dataIsMissing = false;
         boolean stopCheck = false;

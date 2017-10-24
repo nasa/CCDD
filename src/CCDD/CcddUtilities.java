@@ -19,8 +19,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 
 import CCDD.CcddConstants.DialogOption;
@@ -55,7 +53,7 @@ public class CcddUtilities
          *            HTML tag replacement character for HTML reserved
          *            characters
          *********************************************************************/
-        private HTMLTag(String htmlTag, String tagChar)
+        HTMLTag(String htmlTag, String tagChar)
         {
             this.htmlTag = htmlTag;
             this.tagChar = tagChar;
@@ -162,7 +160,7 @@ public class CcddUtilities
          * @param tag
          *            tag text
          *********************************************************************/
-        private Tags(int index, String tag)
+        Tags(int index, String tag)
         {
             this.index = index;
             this.tag = tag;
@@ -1139,88 +1137,6 @@ public class CcddUtilities
         }
 
         return outputText;
-    }
-
-    /**************************************************************************
-     * Move the selected item(s) up or down in the specified JList list object
-     *
-     * @param list
-     *            JList containing the selected items
-     *
-     * @param model
-     *            JList model (short form, which does not contain the script
-     *            path)
-     *
-     * @param longModel
-     *            JList mode (long form, which contains the script path)
-     *
-     * @param direction
-     *            direction to move the items: -1 to move up one line, +1 to
-     *            move down one line
-     *************************************************************************/
-    protected static void moveListItems(JList<String> list,
-                                        DefaultListModel<String> model,
-                                        DefaultListModel<String> longModel,
-                                        int direction)
-    {
-        // Get the array of selected items
-        int[] items = list.getSelectedIndices();
-
-        // Check that at least one item is selected
-        if (items.length != 0)
-        {
-            int start;
-            int end;
-            int limit;
-
-            // Check if the items are to be moved up
-            if (direction < 0)
-            {
-                // Set the start and end indices for the selected item array,
-                // and the limiting (lowest) item position in the list
-                start = 0;
-                end = items.length;
-                limit = 0;
-            }
-            // Items are to be moved down
-            else
-            {
-                // Set the start and end indices for the selected item array,
-                // and the limiting (highest) item position in the list
-                start = items.length - 1;
-                end = -1;
-                limit = list.getModel().getSize() - 1;
-            }
-
-            // Check if the selected items are not already at the movement
-            // limit
-            if (items[start] != limit)
-            {
-                // Step through the selected items
-                for (int index = start; index != end; index -= direction)
-                {
-                    // Remove the item from the list and reinsert it at the new
-                    // position based on the specified movement direction. Do
-                    // this for the 'short' and 'long' versions of the list
-                    // model
-                    String item = model.remove(items[index]);
-                    model.add(items[index] + direction, item);
-                    item = longModel.remove(items[index]);
-                    longModel.add(items[index] + direction, item);
-
-                    // Update the item array to reflect the new position within
-                    // the list
-                    items[index] += direction;
-                }
-
-                // Reselect the originally selected item(s)
-                list.setSelectedIndices(items);
-
-                // Scroll the list to keep the selected item(s) visible
-                list.scrollRectToVisible(list.getCellBounds(list.getMinSelectionIndex(),
-                                                            list.getMaxSelectionIndex()));
-            }
-        }
     }
 
     /**************************************************************************

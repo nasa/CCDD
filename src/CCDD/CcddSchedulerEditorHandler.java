@@ -78,13 +78,10 @@ public class CcddSchedulerEditorHandler
     private JTabbedPane tabbedPane;
 
     // Size of each message
-    private int emptyMessageSize;
+    private final int emptyMessageSize;
 
     // Total number of bytes per a second
-    private int totalBytes;
-
-    // Total number of messages per second
-    private final int msgsPerSecond;
+    private final int totalBytes;
 
     // Total number of parent messages
     private final int totalMessages;
@@ -128,17 +125,16 @@ public class CcddSchedulerEditorHandler
      *
      * @param msgsPerSecond
      *************************************************************************/
-    public CcddSchedulerEditorHandler(CcddMain ccddMain,
-                                      CcddSchedulerHandler schedulerHndlr,
-                                      int totalMessages,
-                                      int totalBytes,
-                                      int msgsPerSecond)
+    CcddSchedulerEditorHandler(CcddMain ccddMain,
+                               CcddSchedulerHandler schedulerHndlr,
+                               int totalMessages,
+                               int totalBytes,
+                               int msgsPerSecond)
     {
         this.ccddMain = ccddMain;
         this.schedulerHndlr = schedulerHndlr;
         this.totalMessages = totalMessages;
         this.totalBytes = totalBytes;
-        this.msgsPerSecond = msgsPerSecond;
 
         // Calculate the period (= total messages / total messages per second)
         period = Float.valueOf(totalMessages) / Float.valueOf(msgsPerSecond);
@@ -882,37 +878,6 @@ public class CcddSchedulerEditorHandler
     }
 
     /**************************************************************************
-     * Update the total bytes and message size
-     *
-     * @param totalBytes
-     *            number of total bytes per second
-     *************************************************************************/
-    protected void changeTotalBytes(int totalBytes)
-    {
-        // Assign total bytes
-        this.totalBytes = totalBytes;
-
-        // Assign the current message size
-        int delta = emptyMessageSize;
-
-        // Update the message size
-        emptyMessageSize = totalBytes / msgsPerSecond;
-
-        // Find the difference between the old and new message sizes
-        delta = emptyMessageSize - delta;
-
-        // Step through each message
-        for (int msgIndex = 0; msgIndex < messages.size(); msgIndex++)
-        {
-            // Add the difference to the message
-            messages.get(msgIndex).addBytes(delta);
-
-            // Update the value for the bytes column
-            updateRemainingBytesColumn(msgIndex);
-        }
-    }
-
-    /**************************************************************************
      * Set the bytes column for all messages in the scheduler table
      *************************************************************************/
     protected void updateRemainingBytesColumn()
@@ -1514,8 +1479,8 @@ public class CcddSchedulerEditorHandler
      *
      * @return List of the variable names removed
      *************************************************************************/
-    protected List<String> removeVariablesFromMessages(List<Variable> variables,
-                                                       int row)
+    private List<String> removeVariablesFromMessages(List<Variable> variables,
+                                                     int row)
     {
         List<Integer> msgIndices;
         List<String> removedVarNames = new ArrayList<String>();
@@ -1791,7 +1756,7 @@ public class CcddSchedulerEditorHandler
      *
      * @return The currently selected (sub-)message; null if none is selected
      *************************************************************************/
-    protected Message getSelectedMessage()
+    private Message getSelectedMessage()
     {
         Message message = null;
 

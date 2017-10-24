@@ -86,7 +86,7 @@ public class CcddTableTypeHandler
          *
          * @return table type
          *********************************************************************/
-        protected TypeDefinition(String tableType)
+        private TypeDefinition(String tableType)
         {
             this.tableType = tableType;
             columnIndex = new ArrayList<Integer>();
@@ -825,7 +825,7 @@ public class CcddTableTypeHandler
      * @param ccddMain
      *            main class
      *************************************************************************/
-    protected CcddTableTypeHandler(CcddMain ccddMain)
+    CcddTableTypeHandler(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
         dbTable = ccddMain.getDbTableCommandHandler();
@@ -1046,32 +1046,6 @@ public class CcddTableTypeHandler
         Collections.sort(types);
 
         return types.toArray(new String[0]);
-    }
-
-    /**************************************************************************
-     * Get the array of column names as used in the database for the specified
-     * table type
-     *
-     * @param typeName
-     *            table type name
-     *
-     * @return Array of column names as used in the database
-     *************************************************************************/
-    protected String[] getColumnNamesDb(String typeName)
-    {
-        String[] columnNames = null;
-
-        // Get the type definition based on the type name
-        TypeDefinition typeDefinition = getTypeDefinition(typeName);
-
-        // Check if the type exists
-        if (typeDefinition != null)
-        {
-            // Get the column names for the type
-            columnNames = typeDefinition.getColumnNamesDatabase();
-        }
-
-        return columnNames;
     }
 
     /**************************************************************************

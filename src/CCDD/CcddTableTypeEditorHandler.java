@@ -85,7 +85,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     private TableTypeIndicator typeOfTable;
 
     // Table types
-    protected static enum TableTypeIndicator
+    private static enum TableTypeIndicator
     {
         IS_STRUCTURE,
         IS_COMMAND,

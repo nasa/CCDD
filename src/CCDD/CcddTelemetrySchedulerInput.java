@@ -112,11 +112,11 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
      *            list containing the paths to all elements in the
      *            allVariableTree tree
      *************************************************************************/
-    protected CcddTelemetrySchedulerInput(CcddMain ccddMain,
-                                          CcddTelemetrySchedulerDialog schedulerDlg,
-                                          String rateName,
-                                          CcddTableTreeHandler allVariableTree,
-                                          List<String> allVariableTreePaths)
+    CcddTelemetrySchedulerInput(CcddMain ccddMain,
+                                CcddTelemetrySchedulerDialog schedulerDlg,
+                                String rateName,
+                                CcddTableTreeHandler allVariableTree,
+                                List<String> allVariableTreePaths)
     {
         this.ccddMain = ccddMain;
         this.schedulerDlg = schedulerDlg;

@@ -144,48 +144,6 @@ public class CcddLinkHandler
     }
 
     /**************************************************************************
-     * Get the index of the link definition specified by the rate name, link
-     * name, and variable path
-     *
-     * @param rateName
-     *            rate column name
-     *
-     * @param linkName
-     *            link name
-     *
-     * @param variablePath
-     *            full variable path, including the parent table name, data
-     *            types, and variable names
-     *
-     * @return Index of the specified link; -1 if the link doesn't exist
-     *************************************************************************/
-    protected int getLinkDefinitionIndex(String rateName,
-                                         String linkName,
-                                         String variablePath)
-    {
-        int linkRow = -1;
-
-        // Step through the link definitions
-        for (String[] linkDefn : linkDefinitions)
-        {
-            // Increment the link row
-            linkRow++;
-
-            // Check if this is the definition of the current
-            // variable's link
-            if (linkDefn[LinksColumn.RATE_NAME.ordinal()].equals(rateName)
-                && linkDefn[LinksColumn.LINK_NAME.ordinal()].equals(linkName)
-                && linkDefn[LinksColumn.MEMBER.ordinal()].equals(variablePath))
-            {
-                // Stop searching
-                break;
-            }
-        }
-
-        return linkRow;
-    }
-
-    /**************************************************************************
      * Get the reference to a specified link's definitions
      *
      * @param linkName
@@ -515,7 +473,8 @@ public class CcddLinkHandler
                 {
                     // Get the application name field information
                     String appName = fieldHandler.getFieldInformationByName(parentAndPath[0],
-                                                                            applicationFieldName).getValue();
+                                                                            applicationFieldName)
+                                                 .getValue();
 
                     // Check that the application name field exists for the
                     // specified table and that this name hasn't already been
@@ -802,8 +761,8 @@ public class CcddLinkHandler
         // Get the bit length associated with the variable; use 0 if no bit
         // length is specified
         int bits = bitLength.matches("\\d+")
-                                            ? bits = Integer.valueOf(bitLength)
-                                            : 0;
+                                             ? bits = Integer.valueOf(bitLength)
+                                             : 0;
 
         // Update the bit counter using the bit length
         bitCount += bits;

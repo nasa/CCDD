@@ -193,7 +193,7 @@ public class CcddDialogHandler extends JDialog
     /**************************************************************************
      * Dialog box handler constructor
      *************************************************************************/
-    protected CcddDialogHandler()
+    CcddDialogHandler()
     {
         buttonSelected = JOptionPane.CLOSED_OPTION;
         checkBox = null;
@@ -846,56 +846,6 @@ public class CcddDialogHandler extends JDialog
     }
 
     /**************************************************************************
-     * Display a modal, user-interactive dialog using user-supplied buttons.
-     * The dialog may be resized, based on the input flag. Return the button
-     * type selected
-     *
-     * @param parent
-     *            window to center the dialog over
-     *
-     * @param dialogPanel
-     *            panel containing the dialog components
-     *
-     * @param lowerPanel
-     *            panel containing the dialog buttons
-     *
-     * @param defaultBtn
-     *            reference to the JButton that is actuated if the Enter key is
-     *            pressed; null to have no default button
-     *
-     * @param title
-     *            title to display in the dialog window frame
-     *
-     * @param resizable
-     *            true to allow the dialog to be resized
-     *
-     * @param modal
-     *            false to allow the main application window to still be
-     *            operated while the dialog is open
-     *
-     * @return Selected button type
-     *************************************************************************/
-    protected int showOptionsDialog(Component parent,
-                                    Object dialogPanel,
-                                    JPanel lowerPanel,
-                                    JButton defaultBtn,
-                                    String title,
-                                    boolean resizable,
-                                    boolean modal)
-    {
-        // Used for the Preferences dialog
-        return createDialog(parent,
-                            dialogPanel,
-                            lowerPanel,
-                            defaultBtn,
-                            title,
-                            DialogOption.OK_OPTION,
-                            null,
-                            resizable,
-                            modal);
-    }
-
-    /**************************************************************************
      * Display a dialog that allows the user to select one or more files
      *
      * @param main
@@ -1488,57 +1438,6 @@ public class CcddDialogHandler extends JDialog
         }
 
         return colorPanel;
-    }
-
-    /**************************************************************************
-     * Display a non-resizable, modal, user-interactive color choice dialog
-     * using buttons defined by the supplied option type and return the color
-     * selected (null if the Cancel button is pressed)
-     *
-     * @param parent
-     *            window to center the dialog over
-     *
-     * @param title
-     *            title to display in the dialog window frame
-     *
-     * @param optionType
-     *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION,
-     *            READ_OPTION, PRINT_OPTION, CLOSE_OPTION, OK_OPTION, or
-     *            OK_CANCEL_OPTION
-     *
-     * @param initialColor
-     *            color initially selected when the dialog appears
-     *
-     * @return Selected color (null if Cancel button pressed)
-     *************************************************************************/
-    protected Color showColorDialog(Component parent,
-                                    String title,
-                                    DialogOption optionType,
-                                    Color initialColor)
-    {
-        Color selectedColor = null;
-
-        // Create a color chooser and set the selected color to the initial
-        // color
-        final JColorChooser chooser = new JColorChooser(initialColor);
-
-        // Display the color choice dialog and check if the user selected the
-        // Okay button
-        if (createDialog(parent,
-                         getColorChoicePanel(chooser, initialColor),
-                         null,
-                         null,
-                         title,
-                         optionType,
-                         null,
-                         false,
-                         true) == OK_BUTTON)
-        {
-            // Set the color to the one chosen
-            selectedColor = chooser.getColor();
-        }
-
-        return selectedColor;
     }
 
     /**************************************************************************
@@ -2484,8 +2383,8 @@ public class CcddDialogHandler extends JDialog
      * @return Point giving the x, y coordinates of the component rectangle
      *         adjusted to fit within the specified screen's bounds
      *************************************************************************/
-    protected static Point positionInsideRectangle(Rectangle comp,
-                                                   Rectangle screen)
+    private static Point positionInsideRectangle(Rectangle comp,
+                                                 Rectangle screen)
     {
         // Check if the new dialog is off the right of the screen
         if (comp.x + comp.width > screen.x + screen.width)
@@ -2525,7 +2424,7 @@ public class CcddDialogHandler extends JDialog
      *
      * @return Array of rectangles representing the bounds of the screen(s)
      *************************************************************************/
-    protected static Rectangle[] getScreenRectangles()
+    private static Rectangle[] getScreenRectangles()
     {
         Rectangle[] screenBounds;
 

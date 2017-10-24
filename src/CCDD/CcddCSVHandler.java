@@ -68,7 +68,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
     /**************************************************************************
      * CSV data type tags
      *************************************************************************/
-    protected enum CSVTags
+    private enum CSVTags
     {
         COLUMN_NAMES("_column_data_"),
         CELL_DATA(""),
@@ -171,8 +171,8 @@ public class CcddCSVHandler implements CcddImportExportInterface
     @Override
     public void importFromFile(File importFile,
                                ImportType importType) throws CCDDException,
-                                                     IOException,
-                                                     Exception
+                                                      IOException,
+                                                      Exception
     {
         BufferedReader br = null;
 
@@ -372,8 +372,8 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                     // definition
                                                     tableTypeDefn = new TableTypeDefinition(columnValues[0],
                                                                                             (columnValues.length == 2
-                                                                                                                     ? columnValues[1]
-                                                                                                                     : ""));
+                                                                                                                      ? columnValues[1]
+                                                                                                                      : ""));
                                                     tableTypeDefns.add(tableTypeDefn);
                                                 }
                                                 // Check if the user hasn't
@@ -386,8 +386,8 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                     // missing
                                                     int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                                         "<html><b>Missing table type name in import file '</b>"
-                                                                                                                            + importFile.getAbsolutePath()
-                                                                                                                            + "<b>'; continue?",
+                                                                                                                                + importFile.getAbsolutePath()
+                                                                                                                                + "<b>'; continue?",
                                                                                                                         "Table Type Error",
                                                                                                                         "Ignore this table type",
                                                                                                                         "Ignore this and any remaining invalid table types",
@@ -493,11 +493,11 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                     // incorrect
                                                     int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                                         "<html><b>Table type '"
-                                                                                                                            + tableTypeDefn.getTypeName()
-                                                                                                                            + "' definition has missing or extra "
-                                                                                                                            + "input(s) in import file '</b>"
-                                                                                                                            + importFile.getAbsolutePath()
-                                                                                                                            + "<b>'; continue?",
+                                                                                                                                + tableTypeDefn.getTypeName()
+                                                                                                                                + "' definition has missing or extra "
+                                                                                                                                + "input(s) in import file '</b>"
+                                                                                                                                + importFile.getAbsolutePath()
+                                                                                                                                + "<b>'; continue?",
                                                                                                                         "Table Type Error",
                                                                                                                         "Ignore this table type",
                                                                                                                         "Ignore this and any remaining invalid table types",
@@ -557,11 +557,11 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                     // are incorrect
                                                     int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                                         "<html><b>Table type '</b>"
-                                                                                                                            + tableTypeDefn.getTypeName()
-                                                                                                                            + "<b>' has missing or extra data field "
-                                                                                                                            + "input(s) in import file '</b>"
-                                                                                                                            + importFile.getAbsolutePath()
-                                                                                                                            + "<b>'; continue?",
+                                                                                                                                + tableTypeDefn.getTypeName()
+                                                                                                                                + "<b>' has missing or extra data field "
+                                                                                                                                + "input(s) in import file '</b>"
+                                                                                                                                + importFile.getAbsolutePath()
+                                                                                                                                + "<b>'; continue?",
                                                                                                                         "Data Field Error",
                                                                                                                         "Ignore this invalid data field",
                                                                                                                         "Ignore this and any remaining invalid data fields",
@@ -619,9 +619,9 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                     // incorrect
                                                     int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                                         "<html><b>Missing or extra data type definition "
-                                                                                                                            + "input(s) in import file '</b>"
-                                                                                                                            + importFile.getAbsolutePath()
-                                                                                                                            + "<b>'; continue?",
+                                                                                                                                + "input(s) in import file '</b>"
+                                                                                                                                + importFile.getAbsolutePath()
+                                                                                                                                + "<b>'; continue?",
                                                                                                                         "Data Type Error",
                                                                                                                         "Ignore this data type",
                                                                                                                         "Ignore this and any remaining invalid data types",
@@ -667,8 +667,8 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                     // represent the OID)
                                                     macroDefns.add(new String[] {columnValues[0],
                                                                                  (columnValues.length == 2
-                                                                                                          ? columnValues[1]
-                                                                                                          : ""),
+                                                                                                           ? columnValues[1]
+                                                                                                           : ""),
                                                                                  ""});
                                                 }
                                                 // Check if the user
@@ -681,9 +681,9 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                     // incorrect
                                                     int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                                         "<html><b>Missing or extra macro definition "
-                                                                                                                            + "input(s) in import file '</b>"
-                                                                                                                            + importFile.getAbsolutePath()
-                                                                                                                            + "<b>'; continue?",
+                                                                                                                                + "input(s) in import file '</b>"
+                                                                                                                                + importFile.getAbsolutePath()
+                                                                                                                                + "<b>'; continue?",
                                                                                                                         "Macro Error",
                                                                                                                         "Ignore this macro",
                                                                                                                         "Ignore this and any remaining invalid macros",
@@ -741,9 +741,9 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                     // inputs are incorrect
                                                     int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                                         "<html><b>Missing or extra reserved message ID "
-                                                                                                                            + "definition input(s) in import file '</b>"
-                                                                                                                            + importFile.getAbsolutePath()
-                                                                                                                            + "<b>'; continue?",
+                                                                                                                                + "definition input(s) in import file '</b>"
+                                                                                                                                + importFile.getAbsolutePath()
+                                                                                                                                + "<b>'; continue?",
                                                                                                                         "Reserved Message ID Error",
                                                                                                                         "Ignore this data type",
                                                                                                                         "Ignore this and any remaining invalid reserved message IDs",
@@ -887,12 +887,12 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                         // invalid
                                                         int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                                             "<html><b>Table '</b>"
-                                                                                                                                + tableDefn.getName()
-                                                                                                                                + "<b>' column name '</b>"
-                                                                                                                                + columnValues[index]
-                                                                                                                                + "<b>' unrecognized in import file '</b>"
-                                                                                                                                + importFile.getAbsolutePath()
-                                                                                                                                + "<b>'; continue?",
+                                                                                                                                    + tableDefn.getName()
+                                                                                                                                    + "<b>' column name '</b>"
+                                                                                                                                    + columnValues[index]
+                                                                                                                                    + "<b>' unrecognized in import file '</b>"
+                                                                                                                                    + importFile.getAbsolutePath()
+                                                                                                                                    + "<b>'; continue?",
                                                                                                                             "Column Error",
                                                                                                                             "Ignore this invalid column name",
                                                                                                                             "Ignore this and any remaining invalid column names",
@@ -1004,11 +1004,11 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                     // are incorrect
                                                     int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
                                                                                                                         "<html><b>Table '</b>"
-                                                                                                                            + tableDefn.getName()
-                                                                                                                            + "<b>' has missing or extra data field "
-                                                                                                                            + "input(s) in import file '</b>"
-                                                                                                                            + importFile.getAbsolutePath()
-                                                                                                                            + "<b>'; continue?",
+                                                                                                                                + tableDefn.getName()
+                                                                                                                                + "<b>' has missing or extra data field "
+                                                                                                                                + "input(s) in import file '</b>"
+                                                                                                                                + importFile.getAbsolutePath()
+                                                                                                                                + "<b>'; continue?",
                                                                                                                         "Data Field Error",
                                                                                                                         "Ignore this invalid data field",
                                                                                                                         "Ignore this and any remaining invalid data fields",
@@ -1147,8 +1147,8 @@ public class CcddCSVHandler implements CcddImportExportInterface
                 // Inform the user that the file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
                                                           "<html><b>Cannot close import file<br>'</b>"
-                                                              + importFile.getAbsolutePath()
-                                                              + "<b>'",
+                                                                  + importFile.getAbsolutePath()
+                                                                  + "<b>'",
                                                           "File Warning",
                                                           JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
@@ -1243,16 +1243,16 @@ public class CcddCSVHandler implements CcddImportExportInterface
                     // Output the file creation information (for the first pass
                     // only)
                     pw.printf((!addLineFeed
-                                           ? "# Created "
-                                             + new Date().toString()
-                                             + " : project = "
-                                             + dbControl.getDatabase()
-                                             + " : host = "
-                                             + dbControl.getServer()
-                                             + " : user = "
-                                             + dbControl.getUser()
-                                             + "\n"
-                                           : "")
+                                            ? "# Created "
+                                              + new Date().toString()
+                                              + " : project = "
+                                              + dbControl.getDatabase()
+                                              + " : host = "
+                                              + dbControl.getServer()
+                                              + " : user = "
+                                              + dbControl.getUser()
+                                              + "\n"
+                                            : "")
                               + "\n");
 
                     // Get the table type definition based on the type name
@@ -1541,8 +1541,8 @@ public class CcddCSVHandler implements CcddImportExportInterface
             // Inform the user that the data file cannot be written to
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Cannot write to export file<br>'</b>"
-                                                          + exportFile.getAbsolutePath()
-                                                          + "<b>'",
+                                                              + exportFile.getAbsolutePath()
+                                                              + "<b>'",
                                                       "File Error",
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -1584,8 +1584,8 @@ public class CcddCSVHandler implements CcddImportExportInterface
                 // Inform the user that the data file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
                                                           "<html><b>Cannot close export file<br>'</b>"
-                                                              + exportFile.getAbsolutePath()
-                                                              + "<b>'",
+                                                                  + exportFile.getAbsolutePath()
+                                                                  + "<b>'",
                                                           "File Warning",
                                                           JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);

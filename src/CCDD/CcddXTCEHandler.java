@@ -237,9 +237,9 @@ public class CcddXTCEHandler implements CcddImportExportInterface
      * @param parent
      *            GUI component instantiating this class
      *************************************************************************/
-    protected CcddXTCEHandler(CcddMain ccddMain,
-                              CcddFieldHandler fieldHandler,
-                              Component parent)
+    CcddXTCEHandler(CcddMain ccddMain,
+                    CcddFieldHandler fieldHandler,
+                    Component parent)
     {
         this.ccddMain = ccddMain;
         this.fieldHandler = fieldHandler;

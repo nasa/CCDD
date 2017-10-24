@@ -425,9 +425,9 @@ public class CcddDataTypeHandler
         {
             // Use the Java float and double minimum values
             minimum = bytes == 4
-                                 ? Float.MIN_VALUE
+                                 ? -Float.MAX_VALUE
                                  : bytes == 8
-                                              ? Double.MIN_VALUE
+                                              ? -Double.MAX_VALUE
                                               : 0;
         }
 

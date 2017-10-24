@@ -76,7 +76,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     // Flag that indicates if the table tree path list should only include
     // table names to a specified level in the tree. This is used to get the
     // root tables
-    boolean isMaxLevel;
+    private boolean isMaxLevel;
 
     /**************************************************************************
      * Web data access handler class constructor
@@ -84,7 +84,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * @param ccddMain
      *            main class
      *************************************************************************/
-    protected CcddWebDataAccessHandler(CcddMain ccddMain)
+    CcddWebDataAccessHandler(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
         dbControl = ccddMain.getDbControlHandler();
@@ -172,8 +172,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Web Server Error",
                                   "Cannot respond to web server request; cause '"
-                                      + ioe.getMessage()
-                                      + "'",
+                                                      + ioe.getMessage()
+                                                      + "'",
                                   "<html><b>Cannot respond to web server request");
         }
     }
@@ -291,7 +291,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             if (separators[0].matches(".*[\\[\\]].*")
                 || !separators[1].matches(TRUE_OR_FALSE)
                 || (separators[1].matches("(?i:false)")
-                && separators[2].matches(".*[\\[\\]].*")))
+                    && separators[2].matches(".*[\\[\\]].*")))
 
             {
                 throw new CCDDException("Invalid character(s) in separator field(s)");
@@ -322,13 +322,13 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         // command)
         eventLog.logEvent(EventLogMessageType.SERVER_MSG,
                           "Request component '"
-                              + component
-                              + "' item '"
-                              + (component.contains("authentic")
-                                                                ? item.replaceFirst("=.*(?:;|$)",
-                                                                                    "=*****")
-                                                                : item)
-                              + "'");
+                                                          + component
+                                                          + "' item '"
+                                                          + (component.contains("authentic")
+                                                                                             ? item.replaceFirst("=.*(?:;|$)",
+                                                                                                                 "=*****")
+                                                                                             : item)
+                                                          + "'");
 
         try
         {
@@ -350,7 +350,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
                 switch (parts[0].toLowerCase())
                 {
-                // Display macro names command
+                    // Display macro names command
                     case "macro":
                     case "macros":
                         // Set the flag so that the macro names (in place of
@@ -381,10 +381,10 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 // Set the tree type (instance, prototype, or both) based on
                 // the command
                 tableTreeType = component.equals("table")
-                                                         ? TableTreeType.TABLES
-                                                         : (component.equals("proto_table")
-                                                                                           ? TableTreeType.PROTOTYPE_TABLES
-                                                                                           : TableTreeType.INSTANCE_TABLES);
+                                                          ? TableTreeType.TABLES
+                                                          : (component.equals("proto_table")
+                                                                                             ? TableTreeType.PROTOTYPE_TABLES
+                                                                                             : TableTreeType.INSTANCE_TABLES);
 
                 // Set the maximum level flag if only root table information is
                 // requested
@@ -623,8 +623,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Web Server Error",
                                   "Invalid web server request; cause '"
-                                      + ce.getMessage()
-                                      + "'",
+                                                      + ce.getMessage()
+                                                      + "'",
                                   "<html><b>Invalid web server request");
         }
         catch (Exception e)
@@ -639,7 +639,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // Remove the extraneous escape (\) characters that the JSON
             // encoder inserts into the string
             response = response.replaceAll("\\\\\\\\",
-                                           "\\\\").replaceAll("\\\\/", "/");
+                                           "\\\\")
+                               .replaceAll("\\\\/", "/");
         }
 
         return response;
@@ -826,8 +827,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         projectJO.put("Project", dbControl.getProject());
         projectJO.put("Description", dbControl.getDatabaseDescription(dbControl.getProject()));
         projectJO.put("Status", (dbControl.getDatabaseLockStatus(dbControl.getProject())
-                                                                                        ? "locked"
-                                                                                        : "unlocked"));
+                                                                                         ? "locked"
+                                                                                         : "unlocked"));
         projectJO.put("User", CcddUtilities.removeTrailer(user, ", "));
         projectJO.put("Owner", dbControl.getOwner());
         projectJO.put("Server", dbControl.getHost());
@@ -854,8 +855,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         return allTablesTree.getTableTreePathList(null,
                                                   (ToolTipTreeNode) allTablesTree.getRootNode(),
                                                   isMaxLevel
-                                                            ? allTablesTree.getHeaderNodeLevel()
-                                                            : -1);
+                                                             ? allTablesTree.getHeaderNodeLevel()
+                                                             : -1);
     }
 
     /**************************************************************************
@@ -1227,8 +1228,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 // used to prevent the extraneous brackets from enclosing the
                 // response
                 response = (isSingle)
-                                     ? responseJO.toString()
-                                     : responseJA.toString();
+                                      ? responseJO.toString()
+                                      : responseJA.toString();
             }
         }
 
@@ -1290,8 +1291,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     // Store the table name and its size in bytes
                     responseJO.put(JSONTags.TABLE_NAME.getTag(),
                                    (isSingle
-                                            ? tableName
-                                            : namesAndType[0]));
+                                             ? tableName
+                                             : namesAndType[0]));
                     responseJO.put(JSONTags.TABLE_BYTE_SIZE.getTag(),
                                    linkHandler.getDataTypeSizeInBytes(namesAndType[0]));
 
@@ -1318,8 +1319,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // used to prevent the extraneous brackets from enclosing the
             // response
             response = (isSingle)
-                                 ? responseJO.toString()
-                                 : responseJA.toString();
+                                  ? responseJO.toString()
+                                  : responseJA.toString();
         }
 
         return response;
@@ -1479,8 +1480,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     {
                         throw new CCDDException("error parsing "
                                                 + (applicationOnly
-                                                                  ? "application"
-                                                                  : "group")
+                                                                   ? "application"
+                                                                   : "group")
                                                 + " tables");
                     }
                 }
@@ -1500,7 +1501,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // represents an application
             if (groupInfo != null
                 && (!applicationOnly
-                || groupInfo.isApplication()))
+                    || groupInfo.isApplication()))
             {
                 JSONArray dataJA = new JSONArray();
 
@@ -1527,12 +1528,12 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 {
                     // Add the group name and tables to the output
                     groupNameAndTable.put((applicationOnly
-                                                          ? JSONTags.APPLICATION_NAME.getTag()
-                                                          : JSONTags.GROUP_NAME.getTag()),
+                                                           ? JSONTags.APPLICATION_NAME.getTag()
+                                                           : JSONTags.GROUP_NAME.getTag()),
                                           groupName);
                     groupNameAndTable.put((applicationOnly
-                                                          ? JSONTags.APPLICATION_TABLE.getTag()
-                                                          : JSONTags.GROUP_TABLE.getTag()),
+                                                           ? JSONTags.APPLICATION_TABLE.getTag()
+                                                           : JSONTags.GROUP_TABLE.getTag()),
                                           dataJA);
                     response = groupNameAndTable.toString();
                 }
@@ -1611,8 +1612,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     {
                         throw new CCDDException("error parsing "
                                                 + (applicationOnly
-                                                                  ? "application"
-                                                                  : "group")
+                                                                   ? "application"
+                                                                   : "group")
                                                 + " description");
                     }
                 }
@@ -1632,7 +1633,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // represents an application
             if (groupInfo != null
                 && (!applicationOnly
-                || groupInfo.isApplication()))
+                    || groupInfo.isApplication()))
             {
                 JSONObject groupNameAndDesc = new JSONObject();
 
@@ -1641,12 +1642,12 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 {
                     // Add the group name and description to the output
                     groupNameAndDesc.put((applicationOnly
-                                                         ? JSONTags.APPLICATION_NAME.getTag()
-                                                         : JSONTags.GROUP_NAME.getTag()),
+                                                          ? JSONTags.APPLICATION_NAME.getTag()
+                                                          : JSONTags.GROUP_NAME.getTag()),
                                          groupName);
                     groupNameAndDesc.put((applicationOnly
-                                                         ? JSONTags.APPLICATION_DESCRIPTION.getTag()
-                                                         : JSONTags.GROUP_DESCRIPTION.getTag()),
+                                                          ? JSONTags.APPLICATION_DESCRIPTION.getTag()
+                                                          : JSONTags.GROUP_DESCRIPTION.getTag()),
                                          response);
                     response = groupNameAndDesc.toString();
                 }
@@ -1656,8 +1657,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     // Get the description. If no description exists then use a
                     // blank
                     response = groupInfo.getDescription() != null
-                                                                 ? groupInfo.getDescription()
-                                                                 : "";
+                                                                  ? groupInfo.getDescription()
+                                                                  : "";
                 }
             }
         }
@@ -1728,8 +1729,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     {
                         throw new CCDDException("error parsing "
                                                 + (applicationOnly
-                                                                  ? "application"
-                                                                  : "group")
+                                                                   ? "application"
+                                                                   : "group")
                                                 + " data fields");
                     }
                 }
@@ -1749,7 +1750,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // represents an application
             if (groupInfo != null
                 && (!applicationOnly
-                || groupInfo.isApplication()))
+                    || groupInfo.isApplication()))
             {
                 JSONArray groupFieldsJA = new JSONArray();
 
@@ -1773,12 +1774,12 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     // Add the group name and group data fields to the output
                     JSONObject groupNameAndFields = new JSONObject();
                     groupNameAndFields.put((applicationOnly
-                                                           ? JSONTags.APPLICATION_NAME.getTag()
-                                                           : JSONTags.GROUP_NAME.getTag()),
+                                                            ? JSONTags.APPLICATION_NAME.getTag()
+                                                            : JSONTags.GROUP_NAME.getTag()),
                                            groupName);
                     groupNameAndFields.put((applicationOnly
-                                                           ? JSONTags.APPLICATION_FIELD.getTag()
-                                                           : JSONTags.GROUP_FIELD.getTag()),
+                                                            ? JSONTags.APPLICATION_FIELD.getTag()
+                                                            : JSONTags.GROUP_FIELD.getTag()),
                                            groupFieldsJA);
                     response = groupNameAndFields.toString();
                 }
@@ -1832,8 +1833,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
             // Store the group/application name(s)
             responseJO.put((applicationOnly
-                                           ? JSONTags.APPLICATION_NAMES.getTag()
-                                           : JSONTags.GROUP_NAMES.getTag()),
+                                            ? JSONTags.APPLICATION_NAMES.getTag()
+                                            : JSONTags.GROUP_NAMES.getTag()),
                            namesJA);
             response = responseJO.toString();
         }
@@ -1943,7 +1944,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // represents an application
             if (groupInfo != null
                 && (!applicationOnly
-                || groupInfo.isApplication()))
+                    || groupInfo.isApplication()))
             {
                 try
                 {
@@ -2238,9 +2239,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // stream, and that the rate value filter, if present, is in the
             // expected format
             if ((filter[1].isEmpty()
-                || Arrays.asList(dataStreamNames).contains(filter[1]))
+                 || Arrays.asList(dataStreamNames).contains(filter[1]))
                 && (filter[2].isEmpty()
-                || filter[2].matches("\\d+(?:$|(?:\\.|\\s*/\\s*)\\d+)")))
+                    || filter[2].matches("\\d+(?:$|(?:\\.|\\s*/\\s*)\\d+)")))
             {
                 // Store the group name, stream name, and rate filters
                 groupFilter = filter[0];
@@ -2396,7 +2397,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                 // no filter is in effect)
                                 if (!tableInfo.getData()[row][rateIndex].isEmpty()
                                     && (rateFilter.isEmpty()
-                                    || tableInfo.getData()[row][rateIndex].equals(rateFilter)))
+                                        || tableInfo.getData()[row][rateIndex].equals(rateFilter)))
                                 {
                                     hasRate = true;
 
@@ -2729,7 +2730,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     {
         // Add the table type definitions to the output
         return jsonHandler.getTableTypeDefinitions(null,
-                                                   new JSONObject()).toJSONString();
+                                                   new JSONObject())
+                          .toJSONString();
     }
 
     /**************************************************************************
@@ -2742,7 +2744,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     {
         // Add the data type definitions to the output
         return jsonHandler.getDataTypeDefinitions(null,
-                                                  new JSONObject()).toJSONString();
+                                                  new JSONObject())
+                          .toJSONString();
     }
 
     /**************************************************************************
@@ -2755,6 +2758,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     {
         // Add the macro definitions to the output
         return jsonHandler.getMacroDefinitions(null,
-                                               new JSONObject()).toJSONString();
+                                               new JSONObject())
+                          .toJSONString();
     }
 }

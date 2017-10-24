@@ -25,7 +25,7 @@ public class CcddReservedMsgIDHandler
     /**************************************************************************
      * Reserved message ID handler class constructor used when setting the
      * macros from a source other than those in the project database
-     * 
+     *
      * @param reservedMsgIDs
      *            list of string arrays containing reserved message IDs and
      *            corresponding descriptions
@@ -36,8 +36,8 @@ public class CcddReservedMsgIDHandler
     }
 
     /**************************************************************************
-     * Macro handler class constructor
-     * 
+     * Reserved message ID handler class constructor
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
@@ -51,7 +51,7 @@ public class CcddReservedMsgIDHandler
 
     /**************************************************************************
      * Get the reserved message ID data
-     * 
+     *
      * @return List of string arrays containing reserved message IDs and the
      *         corresponding descriptions
      *************************************************************************/
@@ -62,7 +62,7 @@ public class CcddReservedMsgIDHandler
 
     /**************************************************************************
      * Set the reserved message ID data to the supplied array
-     * 
+     *
      * @param reservedMsgIDData
      *            list of string arrays containing reserved message IDs and the
      *            corresponding descriptions
@@ -75,7 +75,7 @@ public class CcddReservedMsgIDHandler
     /**************************************************************************
      * Get a list of all reserved message ID values, converting ID ranges into
      * individual values
-     * 
+     *
      * @return List containing all of the reserved message ID values
      *************************************************************************/
     protected List<Integer> getReservedMsgIDs()
@@ -107,11 +107,11 @@ public class CcddReservedMsgIDHandler
     /**************************************************************************
      * Parse a reserved message ID or ID range string into the single, or lower
      * and upper (if present), value(s)
-     * 
+     *
      * @param reservedMsgIDs
      *            string showing the single, or lower and upper (if present),
      *            reserved message ID
-     * 
+     *
      * @return Integer array where the first value is the lower (or single) ID,
      *         and the second value is the upper ID (if a range; -1 if not a
      *         range)
@@ -137,13 +137,13 @@ public class CcddReservedMsgIDHandler
 
     /**************************************************************************
      * Determine if the supplied message IDs match or their ranges overlap
-     * 
+     *
      * @param idA
      *            integer array defining the message ID or ID range to test
-     * 
+     *
      * @param otherID
      *            message ID or ID range to which to compare
-     * 
+     *
      * @return true if the IDs or ID ranges overlap
      *************************************************************************/
     protected boolean isWithinRange(int[] idA, String otherID)
@@ -152,9 +152,9 @@ public class CcddReservedMsgIDHandler
         int[] idB = parseReservedMsgIDs(otherID);
 
         return ((
-                // Check if the new and other IDs are single values (not
-                // ranges), and that the IDs match
-                idA[1] == -1 && idB[1] == -1 && idA[0] == idB[0])
+        // Check if the new and other IDs are single values (not
+        // ranges), and that the IDs match
+        idA[1] == -1 && idB[1] == -1 && idA[0] == idB[0])
 
                 // Check is the new ID is a single value and the other is a
                 // range, and if the new ID falls within the other range
@@ -175,14 +175,14 @@ public class CcddReservedMsgIDHandler
                 || idA[1] != -1
                    && idB[1] != -1
                    && Math.max(idA[0], idB[0]) <= Math.min(idA[1], idB[1]));
-            }
+    }
 
     /**************************************************************************
      * Check if the supplied message ID is already reserved
-     * 
+     *
      * @param msgID
      *            message ID
-     * 
+     *
      * @return true if the supplied message ID is already reserved
      *************************************************************************/
     protected boolean isReservedMsgIDExists(String msgID)

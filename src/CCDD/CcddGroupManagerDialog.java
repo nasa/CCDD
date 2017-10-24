@@ -153,7 +153,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
      * @param ccddMain
      *            main class
      *************************************************************************/
-    protected CcddGroupManagerDialog(CcddMain ccddMain)
+    CcddGroupManagerDialog(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
 
@@ -205,10 +205,15 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             }
 
             // Update the script associations manager and executive dialogs
-            ccddMain.updateScriptAsscociationsDialogs();
+            ccddMain.updateScriptAssociationsDialogs();
 
             // Remove the group dialog's change indicator
             setTitle(DIALOG_TITLE);
+
+            // Update the message ID names combo boxes in any open table
+            // editors in case the group has a message ID name or message ID
+            // data field that may have changed
+            dbTable.updateMessageIDNamesColumns(CcddGroupManagerDialog.this);
         }
 
         // Discard any store edits
@@ -367,8 +372,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                             // disable and clear the description field, and
                             // remove any data fields
                             setGroupAndFields(selected.length == 1
-                                                                  ? selected[0]
-                                                                  : null);
+                                                                   ? selected[0]
+                                                                   : null);
 
                             // Check if the node change isn't set to be ignored
                             // for undo/redo purposes. The undo handler sets
@@ -984,8 +989,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         applicationCb.setEnabled(enable);
 
         applicationCb.setSelected(enable
-                                        ? isApplication
-                                        : false);
+                                         ? isApplication
+                                         : false);
     }
 
     /**************************************************************************
@@ -1379,7 +1384,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                               + selected[0]
                               + "' to:",
                               selected[0]
-                                  + "_copy",
+                                         + "_copy",
                               dialogPnl);
 
             // Create the group copying dialog
@@ -1540,7 +1545,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             // Inform the user that the input value is invalid
             new CcddDialogHandler().showMessageDialog(CcddGroupManagerDialog.this,
                                                       "<html><b>"
-                                                          + ce.getMessage(),
+                                                                                   + ce.getMessage(),
                                                       "Missing/Invalid Input",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -1751,8 +1756,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // exist
         setTitle(DIALOG_TITLE
                  + (isGroupsChanged()
-                                     ? "*"
-                                     : ""));
+                                      ? "*"
+                                      : ""));
     }
 
     /**************************************************************************

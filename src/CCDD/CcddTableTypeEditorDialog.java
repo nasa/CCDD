@@ -131,26 +131,6 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     }
 
     /**************************************************************************
-     * Get the currently active data field editor dialog
-     *
-     * @return Currently active data field editor dialog. Return null if no
-     *         table types exist
-     *************************************************************************/
-    protected CcddFieldEditorDialog getFieldEditorDialog()
-    {
-        CcddFieldEditorDialog fieldEditorDlg = null;
-
-        // Check if a table type exists
-        if (activeEditor != null)
-        {
-            // Get the table type's field editor dialog reference
-            fieldEditorDlg = activeEditor.getFieldEditorDialog();
-        }
-
-        return fieldEditorDlg;
-    }
-
-    /**************************************************************************
      * Set the active table type editor's name
      *
      * @param typeName
@@ -1157,12 +1137,12 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         // exists then confirm discarding the changes
         if (activeEditor == null
             || (activeEditor.getTable().isLastCellValid()
-            && (!isTablesChanged()
-            || new CcddDialogHandler().showMessageDialog(CcddTableTypeEditorDialog.this,
-                                                         "<html><b>Discard changes?",
-                                                         "Discard Changes",
-                                                         JOptionPane.QUESTION_MESSAGE,
-                                                         DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)))
+                && (!isTablesChanged()
+                    || new CcddDialogHandler().showMessageDialog(CcddTableTypeEditorDialog.this,
+                                                                 "<html><b>Discard changes?",
+                                                                 "Discard Changes",
+                                                                 JOptionPane.QUESTION_MESSAGE,
+                                                                 DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)))
         {
             // Close the editor dialog
             closeFrame();
@@ -1326,9 +1306,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
             // exist
             tabbedPane.setTitleAt(index,
                                   tabbedPane.getTitleAt(index).replaceAll("\\*", "")
-                                      + (typeEditor.isTableChanged()
-                                                                    ? "*"
-                                                                    : ""));
+                                         + (typeEditor.isTableChanged()
+                                                                        ? "*"
+                                                                        : ""));
         }
     }
 

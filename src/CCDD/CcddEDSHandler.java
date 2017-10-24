@@ -207,9 +207,9 @@ public class CcddEDSHandler implements CcddImportExportInterface
      * @param parent
      *            GUI component instantiating this class
      *************************************************************************/
-    protected CcddEDSHandler(CcddMain ccddMain,
-                             CcddFieldHandler fieldHandler,
-                             Component parent)
+    CcddEDSHandler(CcddMain ccddMain,
+                   CcddFieldHandler fieldHandler,
+                   Component parent)
     {
         this.ccddMain = ccddMain;
         this.fieldHandler = fieldHandler;

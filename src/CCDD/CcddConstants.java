@@ -121,9 +121,6 @@ public class CcddConstants
     // Separator for the table description list database query
     protected static final String TABLE_DESCRIPTION_SEPARATOR = "\\\\";
 
-    // Separator for multiple enumeration columns in a table member query
-    protected static final String ENUMERATION_SEPARATOR = "\\\\\\";
-
     // Separator for rate values and table names in the telemetry scheduler
     // table
     protected static final String TLM_SCH_SEPARATOR = "\\";
@@ -219,15 +216,12 @@ public class CcddConstants
     protected static final String SEARCH_ICON = "/images/search.png";
     protected static final String TABLE_ICON = "/images/table.png";
     protected static final String CCDD_ICON = "/images/CCDD.png";
-    protected static final String CALCULATOR_ICON = "/images/calculator.png";
     protected static final String VARIABLE_ICON = "/images/variable.png";
     protected static final String BIT_VARIABLE_ICON = "/images/bit_variable.png";
     protected static final String PACKED_VARIABLE_ICON = "/images/packed_variable.png";
     protected static final String LINKED_VARIABLE_ICON = "/images/linked_variable.png";
     protected static final String LINKED_BIT_VARIABLE_ICON = "/images/linked_bit_variable.png";
     protected static final String LINKED_PACKED_VARIABLE_ICON = "/images/linked_packed_variable.png";
-    protected static final String SORT_ASCEND = "/images/sort_ascend.png";
-    protected static final String SORT_DESCEND = "/images/sort_descend.png";
 
     // Dialog box default icon file names
     protected static final String INFORMATION_ICON = "/images/information.png";
@@ -247,7 +241,6 @@ public class CcddConstants
     protected static final int CANCEL_BUTTON = JOptionPane.CANCEL_OPTION;
     protected static final int UPDATE_BUTTON = 0xfd;
     protected static final int IGNORE_BUTTON = 0xfc;
-    protected static final int PRINT_BUTTON = 0xfb;
 
     // GUI update type
     protected static enum GUIUpdateType
@@ -434,6 +427,13 @@ public class CcddConstants
         TELEMETRY
     }
 
+    // Message ID owner, name, and ID value list sort order
+    protected static enum MessageIDSortOrder
+    {
+        BY_OWNER,
+        BY_NAME
+    }
+
     // Rate parameters
     protected static enum RateParameter
     {
@@ -477,14 +477,6 @@ public class CcddConstants
     {
         TELEMETRY_SCHEDULER,
         APPLICATION_SCHEDULER
-    }
-
-    // Data table update types
-    protected static enum UpdateType
-    {
-        ADDITION,
-        MODIFICATION,
-        DELETION
     }
 
     // Modifiable font information
@@ -933,17 +925,6 @@ public class CcddConstants
         protected ModifiableColor getColor()
         {
             return color;
-        }
-
-        /**********************************************************************
-         * Set the modifiable color
-         *
-         * @param color
-         *            modifiable color
-         *********************************************************************/
-        protected void setColor(ModifiableColor color)
-        {
-            this.color = color;
         }
 
         /**********************************************************************
@@ -1619,38 +1600,6 @@ public class CcddConstants
         }
 
         /**********************************************************************
-         * Get the modifiable path information reference with the specified
-         * program preferences key
-         *
-         * @param prefKey
-         *            modifiable path program preferences key
-         *
-         * @return Modifiable path information reference that has a program
-         *         preferences key matching the one specified; null if no
-         *         modifiable path's key matches
-         *********************************************************************/
-        protected static ModifiablePathInfo getModifiablePathInfo(String prefKey)
-        {
-            ModifiablePathInfo modifiablePath = null;
-
-            // Step through each modifiable path
-            for (ModifiablePathInfo modPath : ModifiablePathInfo.values())
-            {
-                // Check if the path's program preferences key matches the one
-                // supplied
-                if (modPath.preferenceKey.equals(prefKey))
-                {
-                    // Store the modifiable path information reference and stop
-                    // searching
-                    modifiablePath = modPath;
-                    break;
-                }
-            }
-
-            return modifiablePath;
-        }
-
-        /**********************************************************************
          * Set the modifiable paths to the values stored in the program
          * preferences
          *
@@ -2057,11 +2006,11 @@ public class CcddConstants
                         "Message ID name: same constraints as for an "
                                 + "alphanumeric (see Alphanumeric)"),
 
-        // TODO
-        MESSAGE_ID_NAMES_AND_IDS("Message ID names & IDs",
+        MESSAGE_ID_NAMES_AND_IDS("Message names & IDs",
                                  ".*",
                                  "text",
-                                 "Message ID names & IDs"),
+                                 "Message ID names & ID numbers in the "
+                                         + "format '<ID name> (<ID number>)'"),
 
         MINIMUM("Minimum",
                 "(" + INTEGER.getInputMatch() + ")|("
@@ -2110,7 +2059,8 @@ public class CcddConstants
         TEXT_MULTI("Text (multi-line)",
                    "(?s).*",
                    "text",
-                   "Multi-line text, including alphabetic, numeric, special, and new line characters"),
+                   "Multi-line text, including alphabetic, "
+                           + "numeric, special, and new line characters"),
 
         TEXT_WHT_SPC("Text (spaces)",
                      ".*",
@@ -2120,7 +2070,8 @@ public class CcddConstants
         TEXT_MULTI_WHT_SPC("Text (multi-line, spaces)",
                            ".*",
                            "text",
-                           "Multi-line text (see Text (multi-line)) with leading/traling white space characters preserved"),
+                           "Multi-line text (see Text (multi-line)) with "
+                                   + "leading/trailing white space characters preserved"),
 
         UNITS("Units",
               ".*",
@@ -3695,16 +3646,6 @@ public class CcddConstants
                 this.columnName = columnName;
                 this.dataType = dataType;
             }
-
-            /******************************************************************
-             * Get the reserved message IDs table column name
-             *
-             * @return Reserved message IDs table column name
-             *****************************************************************/
-            protected String getColumnName()
-            {
-                return columnName;
-            }
         }
 
         /**********************************************************************
@@ -4980,26 +4921,6 @@ public class CcddConstants
         }
 
         /**********************************************************************
-         * Get the script association table column name
-         *
-         * @return Script association table column name
-         *********************************************************************/
-        protected String getColumnName()
-        {
-            return columnName;
-        }
-
-        /**********************************************************************
-         * Get the script association table column tool tip
-         *
-         * @return Script association table column tool tip
-         *********************************************************************/
-        protected String getToolTip()
-        {
-            return toolTip;
-        }
-
-        /**********************************************************************
          * Get the script association table column names
          *
          * @return Array containing the script association table column names
@@ -5146,37 +5067,6 @@ public class CcddConstants
         }
 
         /**********************************************************************
-         * Get the search results table column tool tip for the specified
-         * search dialog type
-         *
-         * @param searchType
-         *            search dialog type: TABLES, SCRIPTS, or LOG
-         *
-         * @return Search results table column tool tip
-         *********************************************************************/
-        protected String getToolTip(SearchDialogType searchType)
-        {
-            String toolTip = null;
-
-            switch (searchType)
-            {
-                case TABLES:
-                    toolTip = tableToolTip;
-                    break;
-
-                case SCRIPTS:
-                    toolTip = scriptToolTip;
-                    break;
-
-                case LOG:
-                    toolTip = logToolTip;
-                    break;
-            }
-
-            return toolTip;
-        }
-
-        /**********************************************************************
          * Get the search results table column names for the specified search
          * dialog type
          *
@@ -5281,26 +5171,6 @@ public class CcddConstants
         }
 
         /**********************************************************************
-         * Get the duplicate message ID table column header
-         *
-         * @return Duplicate message ID table column name
-         *********************************************************************/
-        protected String getColumnName()
-        {
-            return columnName;
-        }
-
-        /**********************************************************************
-         * Get the duplicate message ID table column tool tip
-         *
-         * @return Duplicate message ID table column tool tip
-         *********************************************************************/
-        protected String getToolTip()
-        {
-            return toolTip;
-        }
-
-        /**********************************************************************
          * Get the duplicate message ID table column names
          *
          * @return Array containing the duplicate message ID table column names
@@ -5345,11 +5215,22 @@ public class CcddConstants
     }
 
     /**************************************************************************
-     * Message ID owner, name, and ID table column information
+     * Message ID list column order
      *************************************************************************/
-    protected static enum MsgIDColumnInfo
+    protected static enum MsgIDListColumnIndex
+    {
+        OWNER,
+        MESSAGE_ID_NAME,
+        MESSAGE_ID
+    }
+
+    /**************************************************************************
+     * Message ID table owner, name, and ID table column information
+     *************************************************************************/
+    protected static enum MsgIDTableColumnInfo
     {
         OWNER("Owner", "Message ID owner (table, group, or telemetry message)"),
+        PATH("Structure Path", "Structure table path"),
         MESSAGE_ID_NAME("Message ID Name", "Message ID name"),
         MESSAGE_ID("Message ID", "Message ID");
 
@@ -5357,7 +5238,8 @@ public class CcddConstants
         private final String toolTip;
 
         /**********************************************************************
-         * Message ID owner, name, and ID table column information constructor
+         * Message table ID owner, name, and ID table column information
+         * constructor
          *
          * @param columnName
          *            text to display for the message ID owner, name, and ID
@@ -5367,45 +5249,25 @@ public class CcddConstants
          *            tool tip text to display for the message ID owner, name,
          *            and ID table column
          *********************************************************************/
-        MsgIDColumnInfo(String columnName, String toolTip)
+        MsgIDTableColumnInfo(String columnName, String toolTip)
         {
             this.columnName = columnName;
             this.toolTip = toolTip;
         }
 
         /**********************************************************************
-         * Get the message ID owner, name, and ID table column header
+         * Get the message ID table owner, name, and ID table column names
          *
-         * @return Message ID owner, name, and ID table column name
-         *********************************************************************/
-        protected String getColumnName()
-        {
-            return columnName;
-        }
-
-        /**********************************************************************
-         * Get the message ID owner, name, and ID table column tool tip
-         *
-         * @return Message ID owner, name, and ID table column tool tip
-         *********************************************************************/
-        protected String getToolTip()
-        {
-            return toolTip;
-        }
-
-        /**********************************************************************
-         * Get the message ID owner, name, and ID table column names
-         *
-         * @return Array containing the message ID owner, name, and ID table
-         *         column names
+         * @return Array containing the message ID table owner, name, and ID
+         *         table column names
          *********************************************************************/
         protected static String[] getColumnNames()
         {
-            String[] names = new String[MsgIDColumnInfo.values().length];
+            String[] names = new String[MsgIDTableColumnInfo.values().length];
             int index = 0;
 
             // Step through each column
-            for (MsgIDColumnInfo type : MsgIDColumnInfo.values())
+            for (MsgIDTableColumnInfo type : MsgIDTableColumnInfo.values())
             {
                 // Store the column name
                 names[index] = type.columnName;
@@ -5416,18 +5278,18 @@ public class CcddConstants
         }
 
         /**********************************************************************
-         * Get the message ID owner, name, and ID table column tool tips
+         * Get the message ID table owner, name, and ID table column tool tips
          *
-         * @return Array containing the message ID owner, name, and ID table
-         *         column tool tips
+         * @return Array containing the message ID table owner, name, and ID
+         *         table column tool tips
          *********************************************************************/
         protected static String[] getToolTips()
         {
-            String[] toolTips = new String[MsgIDColumnInfo.values().length];
+            String[] toolTips = new String[MsgIDTableColumnInfo.values().length];
             int index = 0;
 
             // Step through each column
-            for (MsgIDColumnInfo type : MsgIDColumnInfo.values())
+            for (MsgIDTableColumnInfo type : MsgIDTableColumnInfo.values())
             {
                 // Get the tool tip text
                 toolTips[index] = type.toolTip;
@@ -5465,26 +5327,6 @@ public class CcddConstants
         {
             this.columnName = columnName;
             this.toolTip = toolTip;
-        }
-
-        /**********************************************************************
-         * Get the link copy error table column header
-         *
-         * @return Link copy error table column name
-         *********************************************************************/
-        protected String getColumnName()
-        {
-            return columnName;
-        }
-
-        /**********************************************************************
-         * Get the link copy error table column tool tip
-         *
-         * @return Link copy error table column tool tip
-         *********************************************************************/
-        protected String getToolTip()
-        {
-            return toolTip;
         }
 
         /**********************************************************************
@@ -5557,26 +5399,6 @@ public class CcddConstants
         {
             this.columnName = columnName;
             this.toolTip = toolTip;
-        }
-
-        /**********************************************************************
-         * Get the verification table column name
-         *
-         * @return Verification table column name
-         *********************************************************************/
-        protected String getColumnName()
-        {
-            return columnName;
-        }
-
-        /**********************************************************************
-         * Get the verification table column tool tip
-         *
-         * @return Verification table column tool tip
-         *********************************************************************/
-        protected String getToolTip()
-        {
-            return toolTip;
         }
 
         /**********************************************************************
@@ -5801,11 +5623,6 @@ public class CcddConstants
                               + "' AND relkind = 'r' AND obj_description(oid) != '') "
                               + "AS alias1) AS alias2 ORDER BY name ASC;"),
 
-        // Get the list of all tables (data and information), sorted
-        // alphabetically
-        ALL_TABLES("SELECT tablename FROM pg_tables "
-                   + "WHERE schemaname = 'public' ORDER BY tablename ASC;"),
-
         // Check if a specific table exists in the database (case insensitive)
         SPECIFIC_TABLE("SELECT 1 FROM pg_tables WHERE tablename ~* E'^_table_name_$';"),
 
@@ -5952,6 +5769,11 @@ public class CcddConstants
         // ////////////////////////////////////////////////////////////////////
         // THE REMAINING COMMANDS ARE NOT USED BUT ARE RETAINED AS EXAMPLES
         // ////////////////////////////////////////////////////////////////////
+        // Get the list of all tables (data and information), sorted
+        // alphabetically
+        ALL_TABLES("SELECT tablename FROM pg_tables "
+                   + "WHERE schemaname = 'public' ORDER BY tablename ASC;"),
+
         // Get the list of columns for a table, sorted alphabetically. '___'
         // should be replaced by the table to search
         TABLE_COLUMNS("SELECT column_name FROM information_schema.columns "
@@ -6134,32 +5956,30 @@ public class CcddConstants
      *************************************************************************/
     protected static enum DialogOption
     {
-        OK_CANCEL_OPTION("Okay", 'O', "Cancel", OK_ICON, 2),
-        OK_OPTION("Okay", 'O', "", OK_ICON, 1),
-        CLOSE_OPTION("Close", 'C', "", CLOSE_ICON, 1),
-        OPEN_OPTION("Open", 'O', "Cancel", OK_ICON, 2),
-        SAVE_OPTION("Save", 'S', "Cancel", STORE_ICON, 2),
-        PRINT_OPTION("Print", 'P', "Close", PRINT_ICON, 2),
-        CREATE_OPTION("Create", 'R', "Cancel", INSERT_ICON, 2),
-        DELETE_OPTION("Delete", 'D', "Cancel", DELETE_ICON, 2),
-        IMPORT_OPTION("Import", 'I', "Cancel", IMPORT_ICON, 2),
-        EXPORT_OPTION("Export", 'E', "Cancel", EXPORT_ICON, 2),
-        LOAD_OPTION("Load", 'L', "Cancel", IMPORT_ICON, 2),
-        RENAME_OPTION("Rename", 'R', "Cancel", RENAME_ICON, 2),
-        COPY_OPTION("Copy", 'P', "Cancel", COPY_ICON, 2),
-        BACKUP_OPTION("Backup", 'B', "Cancel", COPY_ICON, 2),
-        RESTORE_OPTION("Restore", 'R', "Cancel", UNDO_ICON, 2),
-        STORE_OPTION("Store", 'S', "Cancel", COPY_ICON, 2),
-        RETRIEVE_OPTION("Retrieve", 'R', "Cancel", UNDO_ICON, 2),
-        UNLOCK_OPTION("Unlock", 'U', "Cancel", UNLOCK_ICON, 2),
-        SEARCH_OPTION("Search", 'S', "Cancel", SEARCH_ICON, 2),
-        HALT_OPTION("Halt", 'H', "", HALT_EXECUTION_ICON, 1);
+        OK_CANCEL_OPTION("Okay", 'O', "Cancel", OK_ICON, 2, 0),
+        OK_OPTION("Okay", 'O', "", OK_ICON, 1, 0),
+        OPEN_OPTION("Open", 'O', "Cancel", OK_ICON, 2, -1),
+        PRINT_OPTION("Print", 'P', "Close", PRINT_ICON, 2, -1),
+        CREATE_OPTION("Create", 'R', "Cancel", INSERT_ICON, 2, -1),
+        DELETE_OPTION("Delete", 'D', "Cancel", DELETE_ICON, 2, -1),
+        IMPORT_OPTION("Import", 'I', "Cancel", IMPORT_ICON, 2, -1),
+        EXPORT_OPTION("Export", 'E', "Cancel", EXPORT_ICON, 2, -1),
+        LOAD_OPTION("Load", 'L', "Cancel", IMPORT_ICON, 2, -1),
+        RENAME_OPTION("Rename", 'R', "Cancel", RENAME_ICON, 2, -1),
+        COPY_OPTION("Copy", 'P', "Cancel", COPY_ICON, 2, -1),
+        BACKUP_OPTION("Backup", 'B', "Cancel", COPY_ICON, 2, -1),
+        RESTORE_OPTION("Restore", 'R', "Cancel", UNDO_ICON, 2, -1),
+        STORE_OPTION("Store", 'S', "Cancel", COPY_ICON, 2, -1),
+        RETRIEVE_OPTION("Retrieve", 'R', "Cancel", UNDO_ICON, 2, -1),
+        UNLOCK_OPTION("Unlock", 'U', "Cancel", UNLOCK_ICON, 2, -1),
+        HALT_OPTION("Halt", 'H', "", HALT_EXECUTION_ICON, 1, 0);
 
         private final String buttonText;
         private final char buttonMnemonic;
         private final String secondaryButtonText;
         private final String buttonIcon;
         private final int numButtons;
+        private final int defaultButton;
 
         /**********************************************************************
          * Dialog option types constructor
@@ -6179,18 +5999,23 @@ public class CcddConstants
          *
          * @param numButtons
          *            number of buttons to display in the dialog
+         *
+         * @param defaultButton
+         *            index of the button selected by default
          *********************************************************************/
         DialogOption(String buttonText,
                      char buttonMnemonic,
                      String secondaryButtonText,
                      String buttonIcon,
-                     int numButtons)
+                     int numButtons,
+                     int defaultButton)
         {
             this.buttonText = buttonText;
             this.buttonMnemonic = buttonMnemonic;
             this.secondaryButtonText = secondaryButtonText;
             this.buttonIcon = buttonIcon;
             this.numButtons = numButtons;
+            this.defaultButton = defaultButton;
         }
 
         /**********************************************************************
@@ -6241,6 +6066,16 @@ public class CcddConstants
         protected int getNumButtons()
         {
             return numButtons;
+        }
+
+        /**********************************************************************
+         * Get the index of the default button
+         *
+         * @return Index of the default button
+         *********************************************************************/
+        protected int getDefaultButton()
+        {
+            return defaultButton;
         }
     }
 

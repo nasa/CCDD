@@ -45,6 +45,7 @@ import CCDD.CcddConstants.CopyTableEntry;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
+import CCDD.CcddConstants.MessageIDSortOrder;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiablePathInfo;
@@ -54,42 +55,42 @@ import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /******************************************************************************
  * CFS Command & Data Dictionary script data access class. This class contains
- * public methods that are accessible to the data output scripts
+ * public static methods that are accessible to the data output scripts
  *****************************************************************************/
 public class CcddScriptDataAccessHandler
 {
     // Class references
-    private final CcddMain ccddMain;
-    private final CcddDbTableCommandHandler dbTable;
-    private final CcddDbControlHandler dbControl;
-    private final CcddTableTypeHandler tableTypeHandler;
-    private final CcddDataTypeHandler dataTypeHandler;
-    private final CcddFileIOHandler fileIOHandler;
-    private final CcddLinkHandler linkHandler;
-    private final CcddFieldHandler fieldHandler;
-    private final CcddGroupHandler groupHandler;
-    private final CcddRateParameterHandler rateHandler;
-    private final CcddMacroHandler macroHandler;
-    private CcddTableTreeHandler tableTree;
-    private CcddApplicationSchedulerTableHandler schTable;
-    private CcddCopyTableHandler copyHandler;
-    private CcddVariableConversionHandler variableHandler;
+    private static CcddMain ccddMain;
+    private static CcddDbTableCommandHandler dbTable;
+    private static CcddDbControlHandler dbControl;
+    private static CcddTableTypeHandler tableTypeHandler;
+    private static CcddDataTypeHandler dataTypeHandler;
+    private static CcddFileIOHandler fileIOHandler;
+    private static CcddLinkHandler linkHandler;
+    private static CcddFieldHandler fieldHandler;
+    private static CcddGroupHandler groupHandler;
+    private static CcddRateParameterHandler rateHandler;
+    private static CcddMacroHandler macroHandler;
+    private static CcddTableTreeHandler tableTree;
+    private static CcddApplicationSchedulerTableHandler schTable;
+    private static CcddCopyTableHandler copyHandler;
+    private static CcddVariableConversionHandler variableHandler;
 
     // Calling GUI component
-    private final Component parent;
+    private static Component parent;
 
     // Name of the script file being executed
-    private final String scriptFileName;
+    private static String scriptFileName;
 
     // List of group names references in the script association
-    private final List<String> groupNames;
+    private static List<String> groupNames;
 
     // Data table information array
-    private final TableInformation[] tableInformation;
+    private static TableInformation[] tableInformation;
 
     // Flag indicating if the variable handler references all variables (true)
     // or only those contained in the associated structure tables (false)
-    private boolean isAllVariables;
+    private static boolean isAllVariables;
 
     /**************************************************************************
      * Script data access class constructor
@@ -122,23 +123,23 @@ public class CcddScriptDataAccessHandler
      *            application; main window frame if executing from the command
      *            line)
      *************************************************************************/
-    protected CcddScriptDataAccessHandler(CcddMain ccddMain,
-                                          TableInformation[] tableInformation,
-                                          CcddLinkHandler linkHandler,
-                                          CcddFieldHandler fieldHandler,
-                                          CcddGroupHandler groupHandler,
-                                          String scriptFileName,
-                                          List<String> groupNames,
-                                          Component scriptDialog)
+    CcddScriptDataAccessHandler(CcddMain ccddMain,
+                                TableInformation[] tableInformation,
+                                CcddLinkHandler linkHandler,
+                                CcddFieldHandler fieldHandler,
+                                CcddGroupHandler groupHandler,
+                                String scriptFileName,
+                                List<String> groupNames,
+                                Component scriptDialog)
     {
-        this.ccddMain = ccddMain;
-        this.tableInformation = tableInformation;
-        this.linkHandler = linkHandler;
-        this.fieldHandler = fieldHandler;
-        this.groupHandler = groupHandler;
-        this.scriptFileName = scriptFileName;
-        this.groupNames = groupNames;
-        this.parent = scriptDialog;
+        CcddScriptDataAccessHandler.ccddMain = ccddMain;
+        CcddScriptDataAccessHandler.tableInformation = tableInformation;
+        CcddScriptDataAccessHandler.linkHandler = linkHandler;
+        CcddScriptDataAccessHandler.fieldHandler = fieldHandler;
+        CcddScriptDataAccessHandler.groupHandler = groupHandler;
+        CcddScriptDataAccessHandler.scriptFileName = scriptFileName;
+        CcddScriptDataAccessHandler.groupNames = groupNames;
+        CcddScriptDataAccessHandler.parent = scriptDialog;
         dbTable = ccddMain.getDbTableCommandHandler();
         dbControl = ccddMain.getDbControlHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
@@ -159,7 +160,7 @@ public class CcddScriptDataAccessHandler
      * where the converted name matches another variable's are saved in the
      * latter two lists
      *************************************************************************/
-    private void createVariableHandler(boolean getAllVariables)
+    private static void createVariableHandler(boolean getAllVariables)
     {
         // Check if the variable handler hasn't already been created, or if it
         // has then check if the previous handler only included the subset of
@@ -235,7 +236,7 @@ public class CcddScriptDataAccessHandler
      * @return Table information class for the type specified; return null if
      *         an instance of the table type doesn't exist
      *************************************************************************/
-    private TableInformation getTableInformation(String tableType)
+    private static TableInformation getTableInformation(String tableType)
     {
         TableInformation tableInfo = null;
 
@@ -280,7 +281,7 @@ public class CcddScriptDataAccessHandler
      *
      * @return Name of the script file being executed
      *************************************************************************/
-    public String getScriptName()
+    public static String getScriptName()
     {
         return scriptFileName;
     }
@@ -290,7 +291,7 @@ public class CcddScriptDataAccessHandler
      *
      * @return Name of the user executing the script
      *************************************************************************/
-    public String getUser()
+    public static String getUser()
     {
         return dbControl.getUser();
     }
@@ -300,7 +301,7 @@ public class CcddScriptDataAccessHandler
      *
      * @return Name of the project database
      *************************************************************************/
-    public String getProject()
+    public static String getProject()
     {
         return dbControl.getDatabase();
     }
@@ -310,7 +311,7 @@ public class CcddScriptDataAccessHandler
      *
      * @return Script output folder path
      *************************************************************************/
-    public String getOutputPath()
+    public static String getOutputPath()
     {
         return ModifiablePathInfo.SCRIPT_OUTPUT_PATH.getPath().isEmpty()
                                                                          ? ""
@@ -330,7 +331,7 @@ public class CcddScriptDataAccessHandler
      * @return Character length of the longest string in the supplied array;
      *         null if an input is invalid
      *************************************************************************/
-    public Integer getLongestString(String[] strgArray, Integer minWidth)
+    public static Integer getLongestString(String[] strgArray, Integer minWidth)
     {
         // Check if no initial minimum is specified
         if (minWidth == null)
@@ -367,8 +368,8 @@ public class CcddScriptDataAccessHandler
      * @return Character length of the longest string in each column of the
      *         supplied array; null if any of the inputs is invalid
      *************************************************************************/
-    public Integer[] getLongestStrings(String[][] strgArray,
-                                       Integer[] minWidths)
+    public static Integer[] getLongestStrings(String[][] strgArray,
+                                              Integer[] minWidths)
     {
         // Check if the string array contains at least one row and column, and
         // that either no initial minimum widths are specified or that the
@@ -429,7 +430,7 @@ public class CcddScriptDataAccessHandler
      *
      * @return Current date and time
      *************************************************************************/
-    public String getDateAndTime()
+    public static String getDateAndTime()
     {
         return new Date().toString();
     }
@@ -442,7 +443,7 @@ public class CcddScriptDataAccessHandler
      *         its corresponding C-language, size (in bytes), and base data
      *         type values
      *************************************************************************/
-    public String[][] getDataTypeDefinitions()
+    public static String[][] getDataTypeDefinitions()
     {
         return dataTypeHandler.getDataTypeData().toArray(new String[0][0]);
     }
@@ -455,7 +456,7 @@ public class CcddScriptDataAccessHandler
      *
      * @return true if the supplied data type is a primitive; false otherwise
      *************************************************************************/
-    public boolean isDataTypePrimitive(String dataType)
+    public static boolean isDataTypePrimitive(String dataType)
     {
         return dataTypeHandler.isPrimitive(dataType);
     }
@@ -469,7 +470,7 @@ public class CcddScriptDataAccessHandler
      * @return C type for the specified data type; returns null if the data
      *         type doesn't exist or isn't a primitive type
      *************************************************************************/
-    public String getCDataType(String dataType)
+    public static String getCDataType(String dataType)
     {
         String cType = null;
 
@@ -495,7 +496,7 @@ public class CcddScriptDataAccessHandler
      * @return Base type for the specified data type; returns null if the data
      *         type doesn't exist or isn't a primitive type
      *************************************************************************/
-    public String getBaseDataType(String dataType)
+    public static String getBaseDataType(String dataType)
     {
         String baseType = null;
 
@@ -521,7 +522,7 @@ public class CcddScriptDataAccessHandler
      * @return Number of bytes required to store the data type; returns 0 if
      *         the data type doesn't exist
      *************************************************************************/
-    public int getDataTypeSizeInBytes(String dataType)
+    public static int getDataTypeSizeInBytes(String dataType)
     {
         return linkHandler.getDataTypeSizeInBytes(dataType);
     }
@@ -548,7 +549,7 @@ public class CcddScriptDataAccessHandler
      *         the data type, unmodified, if the data type is a table (i.e.,
      *         it's a structure), or null if the data type is unrecognized
      *************************************************************************/
-    public String getITOSEncodedDataType(String dataType, String encoding)
+    public static String getITOSEncodedDataType(String dataType, String encoding)
     {
         String encodedType = null;
 
@@ -723,7 +724,7 @@ public class CcddScriptDataAccessHandler
      *
      * @return ITOS limit name; returns blank if the index is invalid
      *************************************************************************/
-    public String getITOSLimitName(int index)
+    public static String getITOSLimitName(int index)
     {
         String[] limitNames = new String[] {
                                             "redLow",
@@ -750,7 +751,7 @@ public class CcddScriptDataAccessHandler
      * @return Array of root structure table names; returns a blank if an
      *         instance of the structure table type doesn't exist
      *************************************************************************/
-    public String[] getRootStructureTableNames()
+    public static String[] getRootStructureTableNames()
     {
         return getRootTableNames(TYPE_STRUCTURE);
     }
@@ -770,7 +771,7 @@ public class CcddScriptDataAccessHandler
      * @return Array of root table names for the type specified; returns a
      *         blank if an instance of the table type doesn't exist
      *************************************************************************/
-    public String[] getRootTableNames(String tableType)
+    public static String[] getRootTableNames(String tableType)
     {
         List<String> name = new ArrayList<String>();
 
@@ -810,7 +811,7 @@ public class CcddScriptDataAccessHandler
      *         "structure"; -1 if an instance of the structure table type
      *         doesn't exist
      *************************************************************************/
-    public int getStructureTableNumRows()
+    public static int getStructureTableNumRows()
     {
         return getTableNumRows(TYPE_STRUCTURE);
     }
@@ -821,7 +822,7 @@ public class CcddScriptDataAccessHandler
      * @return Number of rows of data in the table of the type "command"; -1 if
      *         an instance of the command table type doesn't exist
      *************************************************************************/
-    public int getCommandTableNumRows()
+    public static int getCommandTableNumRows()
     {
         return getTableNumRows(TYPE_COMMAND);
     }
@@ -838,7 +839,7 @@ public class CcddScriptDataAccessHandler
      * @return Number of rows of data in the table for the table type
      *         specified; -1 if an instance of the table type doesn't exist
      *************************************************************************/
-    public int getTableNumRows(String tableType)
+    public static int getTableNumRows(String tableType)
     {
         int numRows = -1;
 
@@ -862,7 +863,7 @@ public class CcddScriptDataAccessHandler
      * @return Number of rows of data for all table types; 0 if there is no
      *         table data
      *************************************************************************/
-    public int getTableNumRows()
+    public static int getTableNumRows()
     {
         int numRows = 0;
 
@@ -887,7 +888,7 @@ public class CcddScriptDataAccessHandler
      *         parameter belongs; returns a blank if an instance of the
      *         structure table type or the row doesn't exist
      *************************************************************************/
-    public String getStructureTableNameByRow(int row)
+    public static String getStructureTableNameByRow(int row)
     {
         return getTablePathByRow(TYPE_STRUCTURE,
                                  row,
@@ -906,7 +907,7 @@ public class CcddScriptDataAccessHandler
      *         returns a blank if an instance of the command table type or the
      *         row doesn't exist
      *************************************************************************/
-    public String getCommandTableNameByRow(int row)
+    public static String getCommandTableNameByRow(int row)
     {
         return getTablePathByRow(TYPE_COMMAND,
                                  row,
@@ -931,7 +932,7 @@ public class CcddScriptDataAccessHandler
      *         belongs; return a blank if an instance of the table type or the
      *         row doesn't exist
      *************************************************************************/
-    public String getTableNameByRow(String tableType, int row)
+    public static String getTableNameByRow(String tableType, int row)
     {
         return getTablePathByRow(tableType,
                                  row,
@@ -948,7 +949,7 @@ public class CcddScriptDataAccessHandler
      *         structure tables; returns an empty array if an instance of the
      *         structure table type doesn't exist
      *************************************************************************/
-    public String[] getStructureTablePaths()
+    public static String[] getStructureTablePaths()
     {
         return getTableNames(TYPE_STRUCTURE, false);
     }
@@ -960,7 +961,7 @@ public class CcddScriptDataAccessHandler
      * @return Array of all prototype structure table names; returns an empty
      *         array if an instance of the structure table type doesn't exist
      *************************************************************************/
-    public String[] getStructureTableNames()
+    public static String[] getStructureTableNames()
     {
         return getTableNames(TYPE_STRUCTURE, true);
     }
@@ -972,7 +973,7 @@ public class CcddScriptDataAccessHandler
      * @return Array of all command table names; returns an empty array if an
      *         instance of the command table type doesn't exist
      *************************************************************************/
-    public String[] getCommandTableNames()
+    public static String[] getCommandTableNames()
     {
         return getTableNames(TYPE_COMMAND);
     }
@@ -991,7 +992,7 @@ public class CcddScriptDataAccessHandler
      *         tables, represented by the table type; returns an empty array if
      *         an instance of the table type doesn't exist
      *************************************************************************/
-    public String[] getTableNames(String tableType)
+    public static String[] getTableNames(String tableType)
     {
         return getTableNames(tableType, false);
     }
@@ -1016,7 +1017,7 @@ public class CcddScriptDataAccessHandler
      *         returns an empty array if an instance of the table type doesn't
      *         exist
      *************************************************************************/
-    public String[] getTableNames(String tableType, boolean prototypeOnly)
+    public static String[] getTableNames(String tableType, boolean prototypeOnly)
     {
         List<String> names = new ArrayList<String>();
 
@@ -1064,7 +1065,7 @@ public class CcddScriptDataAccessHandler
      *         tables, referenced in the table data; empty array if no tables
      *         exists in the data
      *************************************************************************/
-    public String[] getTableNames()
+    public static String[] getTableNames()
     {
         List<String> names = new ArrayList<String>();
 
@@ -1108,7 +1109,7 @@ public class CcddScriptDataAccessHandler
      *         any macro replaced by its corresponding value; null if the row
      *         index is invalid
      *************************************************************************/
-    public String getStructureVariableName(int row)
+    public static String getStructureVariableName(int row)
     {
         return getStructureVariableName(row, true);
     }
@@ -1124,7 +1125,7 @@ public class CcddScriptDataAccessHandler
      *         any embedded macro(s) left in place; null if the row index is
      *         invalid
      *************************************************************************/
-    public String getStructureVariableNameWithMacros(int row)
+    public static String getStructureVariableNameWithMacros(int row)
     {
         return getStructureVariableName(row, false);
     }
@@ -1143,7 +1144,7 @@ public class CcddScriptDataAccessHandler
      * @return Variable name at the specified row in the structure data; null
      *         if the row index is invalid
      *************************************************************************/
-    private String getStructureVariableName(int row, boolean expandMacros)
+    private static String getStructureVariableName(int row, boolean expandMacros)
     {
         String variableName = null;
 
@@ -1180,7 +1181,7 @@ public class CcddScriptDataAccessHandler
      * @return Variable data type at the specified row in the structure data;
      *         null if the row index is invalid
      *************************************************************************/
-    public String getStructureDataType(int row)
+    public static String getStructureDataType(int row)
     {
         String dataType = null;
 
@@ -1212,7 +1213,7 @@ public class CcddScriptDataAccessHandler
      *         with any macro replaced by its corresponding value; null if the
      *         row index is invalid
      *************************************************************************/
-    public String getStructureArraySize(int row)
+    public static String getStructureArraySize(int row)
     {
         return getStructureArraySize(row, true);
     }
@@ -1228,7 +1229,7 @@ public class CcddScriptDataAccessHandler
      *         with any embedded macro(s) left in place; null if the row index
      *         is invalid
      *************************************************************************/
-    public String getStructureArraySizeWithMacros(int row)
+    public static String getStructureArraySizeWithMacros(int row)
     {
         return getStructureArraySize(row, false);
     }
@@ -1247,7 +1248,7 @@ public class CcddScriptDataAccessHandler
      * @return Variable array size at the specified row in the structure data;
      *         null if the row index is invalid
      *************************************************************************/
-    private String getStructureArraySize(int row, boolean expandMacros)
+    private static String getStructureArraySize(int row, boolean expandMacros)
     {
         String arraySize = null;
 
@@ -1286,7 +1287,7 @@ public class CcddScriptDataAccessHandler
      *         with any macro replaced by its corresponding value; null if the
      *         row index is invalid
      *************************************************************************/
-    public String getStructureBitLength(int row)
+    public static String getStructureBitLength(int row)
     {
         return getStructureBitLength(row, true);
     }
@@ -1302,7 +1303,7 @@ public class CcddScriptDataAccessHandler
      *         with any embedded macro(s) left in place; null if the row index
      *         is invalid
      *************************************************************************/
-    public String getStructureBitLengthWithMacros(int row)
+    public static String getStructureBitLengthWithMacros(int row)
     {
         return getStructureBitLength(row, false);
     }
@@ -1321,7 +1322,7 @@ public class CcddScriptDataAccessHandler
      * @return Variable bit length at the specified row in the structure data;
      *         null if the row index is invalid
      *************************************************************************/
-    private String getStructureBitLength(int row, boolean expandMacros)
+    private static String getStructureBitLength(int row, boolean expandMacros)
     {
         String bitLength = null;
 
@@ -1361,7 +1362,7 @@ public class CcddScriptDataAccessHandler
      *         row index is invalid or no column has the 'Description' input
      *         type
      *************************************************************************/
-    public String getStructureDescription(int row)
+    public static String getStructureDescription(int row)
     {
         return getStructureDescription(row, true);
     }
@@ -1377,7 +1378,7 @@ public class CcddScriptDataAccessHandler
      *         with any embedded macro(s) left in place; null if the row index
      *         is invalid or no column has the 'Description' input type
      *************************************************************************/
-    public String getStructureDescriptionWithMacros(int row)
+    public static String getStructureDescriptionWithMacros(int row)
     {
         return getStructureDescription(row, false);
     }
@@ -1397,7 +1398,7 @@ public class CcddScriptDataAccessHandler
      *         null if the row index is invalid or no column has the
      *         'Description' input type
      *************************************************************************/
-    private String getStructureDescription(int row, boolean expandMacros)
+    private static String getStructureDescription(int row, boolean expandMacros)
     {
         String description = null;
 
@@ -1444,7 +1445,7 @@ public class CcddScriptDataAccessHandler
      *         any macro replaced by its corresponding value; null if the row
      *         index is invalid or no column has the 'Units' input type
      *************************************************************************/
-    public String getStructureUnits(int row)
+    public static String getStructureUnits(int row)
     {
         return getStructureUnits(row, true);
     }
@@ -1460,7 +1461,7 @@ public class CcddScriptDataAccessHandler
      *         any embedded macro(s) left in place; null if the row index is
      *         invalid or no column has the 'Units' input type
      *************************************************************************/
-    public String getStructureUnitsWithMacros(int row)
+    public static String getStructureUnitsWithMacros(int row)
     {
         return getStructureUnits(row, false);
     }
@@ -1480,7 +1481,7 @@ public class CcddScriptDataAccessHandler
      *         if the row index is invalid or no column has the 'Units' input
      *         type
      *************************************************************************/
-    private String getStructureUnits(int row, boolean expandMacros)
+    private static String getStructureUnits(int row, boolean expandMacros)
     {
         String units = null;
 
@@ -1527,7 +1528,7 @@ public class CcddScriptDataAccessHandler
      *         row in the structure data, with any macro replaced by its
      *         corresponding value; null if the row index is invalid
      *************************************************************************/
-    public String[] getStructureEnumerations(int row)
+    public static String[] getStructureEnumerations(int row)
     {
         return getStructureEnumerations(row, true);
     }
@@ -1543,7 +1544,7 @@ public class CcddScriptDataAccessHandler
      *         row in the structure data, with any embedded macro(s) left in
      *         place; null if the row index is invalid
      *************************************************************************/
-    public String[] getStructureEnumerationsWithMacros(int row)
+    public static String[] getStructureEnumerationsWithMacros(int row)
     {
         return getStructureEnumerations(row, false);
     }
@@ -1562,7 +1563,7 @@ public class CcddScriptDataAccessHandler
      * @return Array containing the variable enumeration(s) at the specified
      *         row in the structure data; null if the row index is invalid
      *************************************************************************/
-    private String[] getStructureEnumerations(int row, boolean expandMacros)
+    private static String[] getStructureEnumerations(int row, boolean expandMacros)
     {
         List<String> enumerations = new ArrayList<String>();
 
@@ -1605,7 +1606,7 @@ public class CcddScriptDataAccessHandler
      * @return Array containing the variable rate(s) at the specified row in
      *         the structure data; an empty array if the row index is invalid
      *************************************************************************/
-    public String[] getStructureRates(int row)
+    public static String[] getStructureRates(int row)
     {
         List<String> rates = new ArrayList<String>();
 
@@ -1641,7 +1642,7 @@ public class CcddScriptDataAccessHandler
      *         macro replaced by its corresponding value; null if the row index
      *         is invalid
      *************************************************************************/
-    public String getCommandName(int row)
+    public static String getCommandName(int row)
     {
         return getCommandName(row, true);
     }
@@ -1657,7 +1658,7 @@ public class CcddScriptDataAccessHandler
      *         embedded macro(s) left in place; null if the row index is
      *         invalid
      *************************************************************************/
-    public String getCommandNameWithMacros(int row)
+    public static String getCommandNameWithMacros(int row)
     {
         return getCommandName(row, false);
     }
@@ -1676,7 +1677,7 @@ public class CcddScriptDataAccessHandler
      * @return Command name at the specified row in the command data; null if
      *         the row index is invalid
      *************************************************************************/
-    private String getCommandName(int row, boolean expandMacros)
+    private static String getCommandName(int row, boolean expandMacros)
     {
         String commandName = null;
 
@@ -1715,7 +1716,7 @@ public class CcddScriptDataAccessHandler
      *         macro replaced by its corresponding value; null if the row index
      *         is invalid
      *************************************************************************/
-    public String getCommandCode(int row)
+    public static String getCommandCode(int row)
     {
         return getCommandCode(row, true);
     }
@@ -1731,7 +1732,7 @@ public class CcddScriptDataAccessHandler
      *         embedded macro(s) left in place; null if the row index is
      *         invalid
      *************************************************************************/
-    public String getCommandCodeWithMacros(int row)
+    public static String getCommandCodeWithMacros(int row)
     {
         return getCommandCode(row, false);
     }
@@ -1750,7 +1751,7 @@ public class CcddScriptDataAccessHandler
      * @return Command code (as a string) at the specified row in the command
      *         data; null if the row index is invalid
      *************************************************************************/
-    private String getCommandCode(int row, boolean expandMacros)
+    private static String getCommandCode(int row, boolean expandMacros)
     {
         String commandCode = null;
 
@@ -1789,7 +1790,7 @@ public class CcddScriptDataAccessHandler
      * @return Number of arguments associated with the command table type at
      *         the specified row in the command data
      *************************************************************************/
-    public int getNumCommandArguments(int row)
+    public static int getNumCommandArguments(int row)
     {
         return getNumCommandArguments(getCommandTypeNameByRow(row));
     }
@@ -1804,7 +1805,7 @@ public class CcddScriptDataAccessHandler
      * @return Number of arguments associated with the specified command table
      *         type
      *************************************************************************/
-    public int getNumCommandArguments(String tableType)
+    public static int getNumCommandArguments(String tableType)
     {
         int numArguments = -1;
 
@@ -1837,7 +1838,7 @@ public class CcddScriptDataAccessHandler
      *         specified row in the command data, with any macro replaced by
      *         its corresponding value; null if the row index is invalid
      *************************************************************************/
-    public String getCommandArgumentName(int argumentNumber, int row)
+    public static String getCommandArgumentName(int argumentNumber, int row)
     {
         return getCommandArgumentName(argumentNumber, row, true);
     }
@@ -1857,7 +1858,7 @@ public class CcddScriptDataAccessHandler
      *         specified row in the command data, with any embedded macro(s)
      *         left in place; null if the row index is invalid
      *************************************************************************/
-    public String getCommandArgumentNameWithMacros(int argumentNumber, int row)
+    public static String getCommandArgumentNameWithMacros(int argumentNumber, int row)
     {
         return getCommandArgumentName(argumentNumber, row, false);
     }
@@ -1881,7 +1882,7 @@ public class CcddScriptDataAccessHandler
      *         specified row in the command data; null if the argument number
      *         or row index is invalid
      *************************************************************************/
-    private String getCommandArgumentName(int argumentNumber, int row, boolean expandMacros)
+    private static String getCommandArgumentName(int argumentNumber, int row, boolean expandMacros)
     {
         String argName = null;
 
@@ -1933,7 +1934,7 @@ public class CcddScriptDataAccessHandler
      *         specified row in the command data; null if the argument number
      *         or row index is invalid
      *************************************************************************/
-    public String getCommandArgumentDataType(int argumentNumber, int row)
+    public static String getCommandArgumentDataType(int argumentNumber, int row)
     {
         String argDataType = null;
 
@@ -1980,7 +1981,7 @@ public class CcddScriptDataAccessHandler
      *         replaced by its corresponding value; null if the row index is
      *         invalid
      *************************************************************************/
-    public String getCommandArgumentArraySize(int argumentNumber, int row)
+    public static String getCommandArgumentArraySize(int argumentNumber, int row)
     {
         return getCommandArgumentArraySize(argumentNumber, row, true);
     }
@@ -2000,7 +2001,7 @@ public class CcddScriptDataAccessHandler
      *         at the specified row in the command data, with any embedded
      *         macro(s) left in place; null if the row index is invalid
      *************************************************************************/
-    public String getCommandArgumentArraySizeWithMacros(int argumentNumber, int row)
+    public static String getCommandArgumentArraySizeWithMacros(int argumentNumber, int row)
     {
         return getCommandArgumentArraySize(argumentNumber, row, false);
     }
@@ -2024,7 +2025,7 @@ public class CcddScriptDataAccessHandler
      *         specified row in the command data; null if the argument number
      *         or row index is invalid
      *************************************************************************/
-    private String getCommandArgumentArraySize(int argumentNumber, int row, boolean expandMacros)
+    private static String getCommandArgumentArraySize(int argumentNumber, int row, boolean expandMacros)
     {
         String argArraySize = null;
 
@@ -2092,7 +2093,7 @@ public class CcddScriptDataAccessHandler
      *         replaced by its corresponding value; null if the row index is
      *         invalid
      *************************************************************************/
-    public String getCommandArgumentEnumeration(int argumentNumber, int row)
+    public static String getCommandArgumentEnumeration(int argumentNumber, int row)
     {
         return getCommandArgumentEnumeration(argumentNumber, row, true);
     }
@@ -2112,7 +2113,7 @@ public class CcddScriptDataAccessHandler
      *         at the specified row in the command data, with any embedded
      *         macro(s) left in place; null if the row index is invalid
      *************************************************************************/
-    public String getCommandArgumentEnumerationWithMacros(int argumentNumber, int row)
+    public static String getCommandArgumentEnumerationWithMacros(int argumentNumber, int row)
     {
         return getCommandArgumentEnumeration(argumentNumber, row, false);
     }
@@ -2136,7 +2137,7 @@ public class CcddScriptDataAccessHandler
      *         specified row in the command data; null if the argument number
      *         or row index is invalid
      *************************************************************************/
-    private String getCommandArgumentEnumeration(int argumentNumber, int row, boolean expandMacros)
+    private static String getCommandArgumentEnumeration(int argumentNumber, int row, boolean expandMacros)
     {
         String argEnumeration = null;
 
@@ -2190,7 +2191,7 @@ public class CcddScriptDataAccessHandler
      *         with any macro replaced by its corresponding value; null if the
      *         row index is invalid
      *************************************************************************/
-    public String getCommandArgumentMinimum(int argumentNumber, int row)
+    public static String getCommandArgumentMinimum(int argumentNumber, int row)
     {
         return getCommandArgumentMinimum(argumentNumber, row, true);
     }
@@ -2211,7 +2212,7 @@ public class CcddScriptDataAccessHandler
      *         with any embedded macro(s) left in place; null if the row index
      *         is invalid
      *************************************************************************/
-    public String getCommandArgumentMinimumWithMacros(int argumentNumber, int row)
+    public static String getCommandArgumentMinimumWithMacros(int argumentNumber, int row)
     {
         return getCommandArgumentMinimum(argumentNumber, row, false);
     }
@@ -2235,7 +2236,7 @@ public class CcddScriptDataAccessHandler
      *         specified at the specified row in the command data; null if the
      *         argument number or row index is invalid
      *************************************************************************/
-    private String getCommandArgumentMinimum(int argumentNumber, int row, boolean expandMacros)
+    private static String getCommandArgumentMinimum(int argumentNumber, int row, boolean expandMacros)
     {
         String argMinimum = null;
 
@@ -2289,7 +2290,7 @@ public class CcddScriptDataAccessHandler
      *         with any macro replaced by its corresponding value; null if the
      *         row index is invalid
      *************************************************************************/
-    public String getCommandArgumentMaximum(int argumentNumber, int row)
+    public static String getCommandArgumentMaximum(int argumentNumber, int row)
     {
         return getCommandArgumentMaximum(argumentNumber, row, true);
     }
@@ -2310,7 +2311,7 @@ public class CcddScriptDataAccessHandler
      *         with any embedded macro(s) left in place; null if the row index
      *         is invalid
      *************************************************************************/
-    public String getCommandArgumentMaximumWithMacros(int argumentNumber, int row)
+    public static String getCommandArgumentMaximumWithMacros(int argumentNumber, int row)
     {
         return getCommandArgumentMaximum(argumentNumber, row, false);
     }
@@ -2334,7 +2335,7 @@ public class CcddScriptDataAccessHandler
      *         specified at the specified row in the command data; null if the
      *         argument number or row index is invalid
      *************************************************************************/
-    private String getCommandArgumentMaximum(int argumentNumber, int row, boolean expandMacros)
+    private static String getCommandArgumentMaximum(int argumentNumber, int row, boolean expandMacros)
     {
         String argMaximum = null;
 
@@ -2380,7 +2381,7 @@ public class CcddScriptDataAccessHandler
      * @return Type name referenced in the specified row of the structure table
      *         type data
      *************************************************************************/
-    public String getStructureTypeNameByRow(int row)
+    public static String getStructureTypeNameByRow(int row)
     {
         return getTypeNameByRow(TYPE_STRUCTURE, row);
     }
@@ -2393,7 +2394,7 @@ public class CcddScriptDataAccessHandler
      * @return Type name referenced in the specified row of the command table
      *         type data
      *************************************************************************/
-    public String getCommandTypeNameByRow(int row)
+    public static String getCommandTypeNameByRow(int row)
     {
         return getTypeNameByRow(TYPE_COMMAND, row);
     }
@@ -2416,7 +2417,7 @@ public class CcddScriptDataAccessHandler
      * @return Type name referenced in the specified row of the specified table
      *         type data
      *************************************************************************/
-    public String getTypeNameByRow(String tableType, int row)
+    public static String getTypeNameByRow(String tableType, int row)
     {
         String typeName = "";
 
@@ -2443,7 +2444,7 @@ public class CcddScriptDataAccessHandler
      *
      * @return Type name for the specified table
      *************************************************************************/
-    public String getTypeNameByTable(String tableName)
+    public static String getTypeNameByTable(String tableName)
     {
         String typeName = "";
 
@@ -2479,7 +2480,7 @@ public class CcddScriptDataAccessHandler
      * @return Array containing the names of the columns of the structure table
      *         referenced in the specified row of the structure table data
      *************************************************************************/
-    public String[] getStructureTableColumnNames(int row)
+    public static String[] getStructureTableColumnNames(int row)
     {
         return getTableColumnNames(TYPE_STRUCTURE, row);
     }
@@ -2494,7 +2495,7 @@ public class CcddScriptDataAccessHandler
      * @return Array containing the names of the columns of the command table
      *         referenced in the specified row of the command table data
      *************************************************************************/
-    public String[] getCommandTableColumnNames(int row)
+    public static String[] getCommandTableColumnNames(int row)
     {
         return getTableColumnNames(TYPE_COMMAND, row);
     }
@@ -2515,7 +2516,7 @@ public class CcddScriptDataAccessHandler
      * @return Array containing the names of the columns of the table type
      *         referenced in the specified row of the type's table data
      *************************************************************************/
-    public String[] getTableColumnNames(String tableType, int row)
+    public static String[] getTableColumnNames(String tableType, int row)
     {
         String[] columnNames = null;
 
@@ -2541,7 +2542,7 @@ public class CcddScriptDataAccessHandler
      * @return Array containing the names of the columns of the table type
      *         specified
      *************************************************************************/
-    public String[] getTableColumnNamesByType(String typeName)
+    public static String[] getTableColumnNamesByType(String typeName)
     {
         String[] columnNames = null;
 
@@ -2568,7 +2569,7 @@ public class CcddScriptDataAccessHandler
      *         order in which they are referenced; an empty array is returned
      *         if no structures tables are associated with the script
      *************************************************************************/
-    public String[] getStructureTablesByReferenceOrder()
+    public static String[] getStructureTablesByReferenceOrder()
     {
         List<String> allStructs = new ArrayList<String>();
         List<String> orderedNames = new ArrayList<String>();
@@ -2649,7 +2650,7 @@ public class CcddScriptDataAccessHandler
      *         separated by a comma, and with each data type and variable name
      *         separated by a period; returns a blank is the row is invalid
      *************************************************************************/
-    public String getFullVariableNameRaw(int row)
+    public static String getFullVariableNameRaw(int row)
     {
         String fullName = "";
 
@@ -2688,7 +2689,7 @@ public class CcddScriptDataAccessHandler
      *         separated by an underscore, and with the data types removed;
      *         returns a blank is the row is invalid
      *************************************************************************/
-    public String getFullVariableName(int row)
+    public static String getFullVariableName(int row)
     {
         return getFullVariableName(row, "_");
     }
@@ -2711,7 +2712,7 @@ public class CcddScriptDataAccessHandler
      *         separated by the specified separator character(s), and with the
      *         data types removed; returns a blank is the row is invalid
      *************************************************************************/
-    public String getFullVariableName(int row, String varPathSeparator)
+    public static String getFullVariableName(int row, String varPathSeparator)
     {
         return getFullVariableName(row, varPathSeparator, true, "");
     }
@@ -2740,10 +2741,10 @@ public class CcddScriptDataAccessHandler
      *         separated by the specified separator character(s); returns a
      *         blank is the row is invalid
      *************************************************************************/
-    public String getFullVariableName(int row,
-                                      String varPathSeparator,
-                                      boolean excludeDataTypes,
-                                      String typeNameSeparator)
+    public static String getFullVariableName(int row,
+                                             String varPathSeparator,
+                                             boolean excludeDataTypes,
+                                             String typeNameSeparator)
     {
         String fullName = "";
 
@@ -2792,9 +2793,9 @@ public class CcddScriptDataAccessHandler
      *         separated by the specified separator character(s) and with the
      *         data types removed; returns a blank is the row is invalid
      *************************************************************************/
-    public String getFullVariableName(String variablePath,
-                                      String variableName,
-                                      String varPathSeparator)
+    public static String getFullVariableName(String variablePath,
+                                             String variableName,
+                                             String varPathSeparator)
     {
         return getFullVariableName(variablePath,
                                    variableName,
@@ -2824,7 +2825,7 @@ public class CcddScriptDataAccessHandler
      *         separated by the specified separator character(s), and with the
      *         data types removed; returns a blank is the row is invalid
      *************************************************************************/
-    public String getFullVariableName(String fullName, String varPathSeparator)
+    public static String getFullVariableName(String fullName, String varPathSeparator)
     {
         return getFullVariableName(fullName, varPathSeparator, true, "");
     }
@@ -2858,11 +2859,11 @@ public class CcddScriptDataAccessHandler
      *         separated by the specified separator character(s); returns a
      *         blank is the row is invalid
      *************************************************************************/
-    public String getFullVariableName(String variablePath,
-                                      String variableName,
-                                      String varPathSeparator,
-                                      boolean excludeDataTypes,
-                                      String typeNameSeparator)
+    public static String getFullVariableName(String variablePath,
+                                             String variableName,
+                                             String varPathSeparator,
+                                             boolean excludeDataTypes,
+                                             String typeNameSeparator)
     {
         String fullName = "";
 
@@ -2910,10 +2911,10 @@ public class CcddScriptDataAccessHandler
      *         blank is the row is invalid. Any macro embedded in the variable
      *         name is expanded
      *************************************************************************/
-    public String getFullVariableName(String fullName,
-                                      String varPathSeparator,
-                                      boolean excludeDataTypes,
-                                      String typeNameSeparator)
+    public static String getFullVariableName(String fullName,
+                                             String varPathSeparator,
+                                             boolean excludeDataTypes,
+                                             String typeNameSeparator)
     {
         // Create the variable handler for only those variables referenced in
         // the associated structure tables, if it hasn't already been created
@@ -2945,7 +2946,7 @@ public class CcddScriptDataAccessHandler
      *
      *         top-level<,variable1.parent1<,variable2.parent2<...>>>
      *************************************************************************/
-    public String getStructurePathByRow(int row)
+    public static String getStructurePathByRow(int row)
     {
         return getTablePathByRow(TYPE_STRUCTURE, row, TablePathType.PARENT_AND_VARIABLE, true);
     }
@@ -2969,7 +2970,7 @@ public class CcddScriptDataAccessHandler
      *
      *         top-level<,variable1.parent1<,variable2.parent2<...>>>
      *************************************************************************/
-    public String getStructurePathByRowWithMacros(int row)
+    public static String getStructurePathByRowWithMacros(int row)
     {
         return getTablePathByRow(TYPE_STRUCTURE, row, TablePathType.PARENT_AND_VARIABLE, false);
     }
@@ -2999,7 +3000,7 @@ public class CcddScriptDataAccessHandler
      *
      *         top-level<,variable1.parent1<,variable2.parent2<...>>>
      *************************************************************************/
-    public String getPathByRow(String tableType, int row)
+    public static String getPathByRow(String tableType, int row)
     {
         return getTablePathByRow(tableType, row, TablePathType.PARENT_AND_VARIABLE, true);
     }
@@ -3028,7 +3029,7 @@ public class CcddScriptDataAccessHandler
      *
      *         top-level<,variable1.parent1<,variable2.parent2<...>>>
      *************************************************************************/
-    public String getPathByRowWithMacros(String tableType, int row)
+    public static String getPathByRowWithMacros(String tableType, int row)
     {
         return getTablePathByRow(tableType, row, TablePathType.PARENT_AND_VARIABLE, false);
     }
@@ -3051,7 +3052,7 @@ public class CcddScriptDataAccessHandler
      *
      *         top-level<,variable1<,variable2<...>>>
      *************************************************************************/
-    public String getStructureTableVariablePathByRow(int row)
+    public static String getStructureTableVariablePathByRow(int row)
     {
         return getTablePathByRow(TYPE_STRUCTURE, row, TablePathType.VARIABLE_ONLY, true);
     }
@@ -3073,7 +3074,7 @@ public class CcddScriptDataAccessHandler
      *
      *         top-level<,variable1<,variable2<...>>>
      *************************************************************************/
-    public String getStructureTableVariablePathByRowWithMacros(int row)
+    public static String getStructureTableVariablePathByRowWithMacros(int row)
     {
         return getTablePathByRow(TYPE_STRUCTURE, row, TablePathType.VARIABLE_ONLY, false);
     }
@@ -3096,7 +3097,7 @@ public class CcddScriptDataAccessHandler
      *
      *         top-level<.variable1_parent1<.variable2_parent2<...>>>
      *************************************************************************/
-    public String getStructureTableITOSPathByRow(int row)
+    public static String getStructureTableITOSPathByRow(int row)
     {
         return getTablePathByRow(TYPE_STRUCTURE, row, TablePathType.ITOS_RECORD, true);
     }
@@ -3119,7 +3120,7 @@ public class CcddScriptDataAccessHandler
      *
      *         top-level<.variable1_parent1<.variable2_parent2<...>>>
      *************************************************************************/
-    public String getStructureTableITOSPathByRowWithMacros(int row)
+    public static String getStructureTableITOSPathByRowWithMacros(int row)
     {
         return getTablePathByRow(TYPE_STRUCTURE, row, TablePathType.ITOS_RECORD, false);
     }
@@ -3157,10 +3158,10 @@ public class CcddScriptDataAccessHandler
      *         flag, any macro is replaced by its corresponding value or left
      *         in place
      *************************************************************************/
-    private String getTablePathByRow(String tableType,
-                                     int row,
-                                     TablePathType pathType,
-                                     boolean expandMacros)
+    private static String getTablePathByRow(String tableType,
+                                            int row,
+                                            TablePathType pathType,
+                                            boolean expandMacros)
     {
         String structurePath = "";
 
@@ -3228,7 +3229,7 @@ public class CcddScriptDataAccessHandler
      * @return true if the specified structure is referenced by more than one
      *         table; false otherwise
      *************************************************************************/
-    public boolean isStructureShared(String structureName)
+    public static boolean isStructureShared(String structureName)
     {
         boolean isShared = false;
 
@@ -3279,7 +3280,7 @@ public class CcddScriptDataAccessHandler
      *         (parent or child). Any macro is replaced by its corresponding
      *         value
      *************************************************************************/
-    public String[] getVariablePaths()
+    public static String[] getVariablePaths()
     {
         // Create the variable handler for all the project's variables, if it
         // hasn't already been created
@@ -3299,7 +3300,7 @@ public class CcddScriptDataAccessHandler
      *         table; returns an empty array if the table name is invalid or
      *         the table has no data fields
      *************************************************************************/
-    public String[] getTableDataFieldNames(String tableName)
+    public static String[] getTableDataFieldNames(String tableName)
     {
         return getDataFieldNames(tableName);
     }
@@ -3315,7 +3316,7 @@ public class CcddScriptDataAccessHandler
      *         group; returns an empty array if the group name is invalid or
      *         the group has no data fields
      *************************************************************************/
-    public String[] getGroupDataFieldNames(String groupName)
+    public static String[] getGroupDataFieldNames(String groupName)
     {
         return getDataFieldNames(CcddFieldHandler.getFieldGroupName(groupName));
     }
@@ -3331,7 +3332,7 @@ public class CcddScriptDataAccessHandler
      *         table type; returns an empty array if the table type name is
      *         invalid or the table type has no data fields
      *************************************************************************/
-    public String[] getTypeDataFieldNames(String typeName)
+    public static String[] getTypeDataFieldNames(String typeName)
     {
         return getDataFieldNames(CcddFieldHandler.getFieldTypeName(typeName));
     }
@@ -3346,7 +3347,7 @@ public class CcddScriptDataAccessHandler
      *         owner; returns an empty array if the owner name is invalid or
      *         the owner has no data fields
      *************************************************************************/
-    private String[] getDataFieldNames(String ownerName)
+    private static String[] getDataFieldNames(String ownerName)
     {
         List<String> fieldNames = new ArrayList<String>();
 
@@ -3374,7 +3375,7 @@ public class CcddScriptDataAccessHandler
      *         array if the field name is invalid (i.e., no table has the data
      *         field)
      *************************************************************************/
-    public String[][] getTableDataFieldValues(String fieldName)
+    public static String[][] getTableDataFieldValues(String fieldName)
     {
         return getTableDataFieldValues(null, fieldName);
     }
@@ -3390,7 +3391,7 @@ public class CcddScriptDataAccessHandler
      *         an empty array if the field name is invalid (i.e., no structure
      *         table has the data field)
      *************************************************************************/
-    public String[][] getStructureTableDataFieldValues(String fieldName)
+    public static String[][] getStructureTableDataFieldValues(String fieldName)
     {
         return getTableDataFieldValues(TYPE_STRUCTURE, fieldName);
     }
@@ -3406,7 +3407,7 @@ public class CcddScriptDataAccessHandler
      *         an empty array if the field name is invalid (i.e., no command
      *         table has the data field)
      *************************************************************************/
-    public String[][] getCommandTableDataFieldValues(String fieldName)
+    public static String[][] getCommandTableDataFieldValues(String fieldName)
     {
         return getTableDataFieldValues(TYPE_COMMAND, fieldName);
     }
@@ -3428,7 +3429,7 @@ public class CcddScriptDataAccessHandler
      *         value; returns an empty array if the field name is invalid
      *         (i.e., no table has the data field)
      *************************************************************************/
-    public String[][] getTableDataFieldValues(String tableType, String fieldName)
+    public static String[][] getTableDataFieldValues(String tableType, String fieldName)
     {
         List<String[]> fieldValues = new ArrayList<String[]>();
 
@@ -3464,7 +3465,7 @@ public class CcddScriptDataAccessHandler
      * @return Data field value; returns a null if the table type, table name,
      *         or field name is invalid
      *************************************************************************/
-    public String getTableDataFieldValue(String tableName, String fieldName)
+    public static String getTableDataFieldValue(String tableName, String fieldName)
     {
         return getDataFieldValue(tableName, fieldName);
     }
@@ -3481,7 +3482,7 @@ public class CcddScriptDataAccessHandler
      * @return Data field value; returns a null if the group name or field name
      *         is invalid
      *************************************************************************/
-    public String getGroupDataFieldValue(String groupName, String fieldName)
+    public static String getGroupDataFieldValue(String groupName, String fieldName)
     {
         return getDataFieldValue(CcddFieldHandler.getFieldGroupName(groupName),
                                  fieldName);
@@ -3499,7 +3500,7 @@ public class CcddScriptDataAccessHandler
      * @return Data field value; returns a null if the table type name or field
      *         name is invalid
      *************************************************************************/
-    public String getTypeDataFieldValue(String typeName, String fieldName)
+    public static String getTypeDataFieldValue(String typeName, String fieldName)
     {
         return getDataFieldValue(CcddFieldHandler.getFieldTypeName(typeName),
                                  fieldName);
@@ -3520,7 +3521,7 @@ public class CcddScriptDataAccessHandler
      * @return Data field value; returns a null if the owner name or field name
      *         is invalid
      *************************************************************************/
-    private String getDataFieldValue(String ownerName, String fieldName)
+    private static String getDataFieldValue(String ownerName, String fieldName)
     {
         String fieldValue = null;
 
@@ -3552,8 +3553,8 @@ public class CcddScriptDataAccessHandler
      * @return Data field description; returns a blank if the table type, table
      *         name, or field name is invalid
      *************************************************************************/
-    public String getTableDataFieldDescription(String tableName,
-                                               String fieldName)
+    public static String getTableDataFieldDescription(String tableName,
+                                                      String fieldName)
     {
         return getDataFieldDescription(tableName, fieldName);
     }
@@ -3570,8 +3571,8 @@ public class CcddScriptDataAccessHandler
      * @return Data field description; returns a blank if the group name or
      *         field name is invalid
      *************************************************************************/
-    public String getGroupDataFieldDescription(String groupName,
-                                               String fieldName)
+    public static String getGroupDataFieldDescription(String groupName,
+                                                      String fieldName)
     {
         return getDataFieldDescription(CcddFieldHandler.getFieldGroupName(groupName),
                                        fieldName);
@@ -3589,7 +3590,7 @@ public class CcddScriptDataAccessHandler
      * @return Data field description; returns a blank if the table type name
      *         or field name is invalid
      *************************************************************************/
-    public String getTypeDataFieldDescription(String typeName, String fieldName)
+    public static String getTypeDataFieldDescription(String typeName, String fieldName)
     {
         return getDataFieldDescription(CcddFieldHandler.getFieldTypeName(typeName),
                                        fieldName);
@@ -3610,7 +3611,7 @@ public class CcddScriptDataAccessHandler
      * @return Data field description; returns a blank if the owner name or
      *         field name is invalid
      *************************************************************************/
-    private String getDataFieldDescription(String ownerName, String fieldName)
+    private static String getDataFieldDescription(String ownerName, String fieldName)
     {
         String fieldDescription = "";
 
@@ -3645,7 +3646,7 @@ public class CcddScriptDataAccessHandler
      *         corresponding value; returns null if an instance of the
      *         structure table type, the column name, or the row doesn't exist
      *************************************************************************/
-    public String getStructureTableData(String columnName, int row)
+    public static String getStructureTableData(String columnName, int row)
     {
         return getTableData(TYPE_STRUCTURE, columnName, row);
     }
@@ -3666,7 +3667,7 @@ public class CcddScriptDataAccessHandler
      *         corresponding value; returns null if an instance of the command
      *         table type, the column name, or the row doesn't exist
      *************************************************************************/
-    public String getCommandTableData(String columnName, int row)
+    public static String getCommandTableData(String columnName, int row)
     {
         return getTableData(TYPE_COMMAND, columnName, row);
     }
@@ -3693,7 +3694,7 @@ public class CcddScriptDataAccessHandler
      *         value; returns null if an instance of the table type, the column
      *         name, or the row doesn't exist
      *************************************************************************/
-    public String getTableData(String tableType, String columnName, int row)
+    public static String getTableData(String tableType, String columnName, int row)
     {
         return getTableData(tableType, columnName, row, true);
     }
@@ -3714,7 +3715,7 @@ public class CcddScriptDataAccessHandler
      *         returns null if an instance of the structure table type, the
      *         column name, or the row doesn't exist
      *************************************************************************/
-    public String getStructureTableDataWithMacros(String columnName, int row)
+    public static String getStructureTableDataWithMacros(String columnName, int row)
     {
         return getTableDataWithMacros(TYPE_STRUCTURE, columnName, row);
     }
@@ -3735,7 +3736,7 @@ public class CcddScriptDataAccessHandler
      *         returns null if an instance of the command table type, the
      *         column name, or the row doesn't exist
      *************************************************************************/
-    public String getCommandTableDataWithMacros(String columnName, int row)
+    public static String getCommandTableDataWithMacros(String columnName, int row)
     {
         return getTableDataWithMacros(TYPE_COMMAND, columnName, row);
     }
@@ -3762,7 +3763,7 @@ public class CcddScriptDataAccessHandler
      *         null if an instance of the table type, the column name, or the
      *         row doesn't exist
      *************************************************************************/
-    public String getTableDataWithMacros(String tableType, String columnName, int row)
+    public static String getTableDataWithMacros(String tableType, String columnName, int row)
     {
         return getTableData(tableType, columnName, row, false);
     }
@@ -3792,10 +3793,10 @@ public class CcddScriptDataAccessHandler
      *         name provided; returns null if an instance of the table type,
      *         the column name, or the row doesn't exist
      *************************************************************************/
-    private String getTableData(String tableType,
-                                String columnName,
-                                int row,
-                                boolean expandMacros)
+    private static String getTableData(String tableType,
+                                       String columnName,
+                                       int row,
+                                       boolean expandMacros)
     {
         String tableData = null;
 
@@ -3854,9 +3855,9 @@ public class CcddScriptDataAccessHandler
      *         corresponding value; returns null if an instance of the table
      *         type, the column name, or the variable name doesn't exist
      *************************************************************************/
-    public String getStructureDataByVariableName(String tablePath,
-                                                 String variableName,
-                                                 String columnName)
+    public static String getStructureDataByVariableName(String tablePath,
+                                                        String variableName,
+                                                        String columnName)
     {
         return getTableDataByColumnName(TYPE_STRUCTURE,
                                         tablePath,
@@ -3899,11 +3900,11 @@ public class CcddScriptDataAccessHandler
      *         returns null if an instance of the table type, the matching
      *         column, the data column, or the matching name doesn't exist
      *************************************************************************/
-    public String getTableDataByColumnName(String tableType,
-                                           String tablePath,
-                                           String matchColumnName,
-                                           String matchName,
-                                           String dataColumnName)
+    public static String getTableDataByColumnName(String tableType,
+                                                  String tablePath,
+                                                  String matchColumnName,
+                                                  String matchName,
+                                                  String dataColumnName)
     {
         return getTableDataByColumnName(tableType,
                                         tablePath,
@@ -3934,9 +3935,9 @@ public class CcddScriptDataAccessHandler
      *         returns null if an instance of the table type, the column name,
      *         or the variable name doesn't exist
      *************************************************************************/
-    public String getStructureDataByVariableNameWithMacros(String tablePath,
-                                                           String variableName,
-                                                           String columnName)
+    public static String getStructureDataByVariableNameWithMacros(String tablePath,
+                                                                  String variableName,
+                                                                  String columnName)
     {
         return getTableDataByColumnNameWithMacros(TYPE_STRUCTURE,
                                                   tablePath,
@@ -3979,11 +3980,11 @@ public class CcddScriptDataAccessHandler
      *         an instance of the table type, the matching column, the data
      *         column, or the matching name doesn't exist
      *************************************************************************/
-    public String getTableDataByColumnNameWithMacros(String tableType,
-                                                     String tablePath,
-                                                     String matchColumnName,
-                                                     String matchName,
-                                                     String dataColumnName)
+    public static String getTableDataByColumnNameWithMacros(String tableType,
+                                                            String tablePath,
+                                                            String matchColumnName,
+                                                            String matchName,
+                                                            String dataColumnName)
     {
         return getTableDataByColumnName(tableType,
                                         tablePath,
@@ -4031,12 +4032,12 @@ public class CcddScriptDataAccessHandler
      *         matching column, the data column, or the matching name doesn't
      *         exist
      *************************************************************************/
-    private String getTableDataByColumnName(String tableType,
-                                            String tablePath,
-                                            String matchColumnName,
-                                            String matchName,
-                                            String dataColumnName,
-                                            boolean expandMacros)
+    private static String getTableDataByColumnName(String tableType,
+                                                   String tablePath,
+                                                   String matchColumnName,
+                                                   String matchName,
+                                                   String dataColumnName,
+                                                   boolean expandMacros)
     {
         String tableData = null;
 
@@ -4098,7 +4099,7 @@ public class CcddScriptDataAccessHandler
      * @return Description of the specified table; returns a blank the table
      *         doesn't exist
      *************************************************************************/
-    public String getTableDescription(String tableName)
+    public static String getTableDescription(String tableName)
     {
         // Get the description for the table
         return dbTable.queryTableDescription(tableName, ccddMain.getMainFrame());
@@ -4121,7 +4122,7 @@ public class CcddScriptDataAccessHandler
      *         a blank if an instance of the table type or the row doesn't
      *         exist
      *************************************************************************/
-    public String getTableDescriptionByRow(String tableType, int row)
+    public static String getTableDescriptionByRow(String tableType, int row)
     {
         // Get the description for the table
         return dbTable.queryTableDescription(getPathByRow(tableType, row),
@@ -4134,7 +4135,7 @@ public class CcddScriptDataAccessHandler
      * @return Array where each row contains a macro name and its corresponding
      *         value
      *************************************************************************/
-    public String[][] getMacroDefinitions()
+    public static String[][] getMacroDefinitions()
     {
         return macroHandler.getMacroData().toArray(new String[0][0]);
     }
@@ -4148,7 +4149,7 @@ public class CcddScriptDataAccessHandler
      * @param text
      *            text to display in the dialog
      *************************************************************************/
-    public void showInformationDialog(String text)
+    public static void showInformationDialog(String text)
     {
         // Display the supplied text in an information dialog
         new CcddDialogHandler().showMessageDialog(parent,
@@ -4167,7 +4168,7 @@ public class CcddScriptDataAccessHandler
      * @param text
      *            text to display in the dialog
      *************************************************************************/
-    public void showWarningDialog(String text)
+    public static void showWarningDialog(String text)
     {
         // Display the supplied text in a warning dialog
         new CcddDialogHandler().showMessageDialog(parent,
@@ -4186,7 +4187,7 @@ public class CcddScriptDataAccessHandler
      * @param text
      *            text to display in the dialog
      *************************************************************************/
-    public void showErrorDialog(String text)
+    public static void showErrorDialog(String text)
     {
         // Display the supplied text in an error dialog
         new CcddDialogHandler().showMessageDialog(parent,
@@ -4209,7 +4210,7 @@ public class CcddScriptDataAccessHandler
      *         pressed; returns null if no text or white space is entered, or
      *         if the Cancel button is pressed
      *************************************************************************/
-    public String getInputDialog(String labelText)
+    public static String getInputDialog(String labelText)
     {
         String input = null;
 
@@ -4287,7 +4288,7 @@ public class CcddScriptDataAccessHandler
      *         pressed; returns null if no radio button is selected or if the
      *         Cancel button is pressed
      *************************************************************************/
-    public String getRadioButtonDialog(String label, String[][] buttonInfo)
+    public static String getRadioButtonDialog(String label, String[][] buttonInfo)
     {
         CcddDialogHandler dialog = new CcddDialogHandler();
 
@@ -4344,7 +4345,7 @@ public class CcddScriptDataAccessHandler
      *         button is pressed; returns null if no check box information is
      *         supplied or if the Cancel button is pressed
      *************************************************************************/
-    public boolean[] getCheckBoxDialog(String label, String[][] boxInfo)
+    public static boolean[] getCheckBoxDialog(String label, String[][] boxInfo)
     {
         boolean[] boxStatus = null;
 
@@ -4407,7 +4408,7 @@ public class CcddScriptDataAccessHandler
      *         returned by the database query; returns null if the query
      *         produces an error, or an empty array if there are no results
      *************************************************************************/
-    public String[][] getDatabaseQuery(String sqlCommand)
+    public static String[][] getDatabaseQuery(String sqlCommand)
     {
         return dbTable.queryDatabase(sqlCommand,
                                      ccddMain.getMainFrame())
@@ -4429,7 +4430,7 @@ public class CcddScriptDataAccessHandler
      *         returns null if the input text is empty or the enumeration
      *         separator characters cannot be determined
      *************************************************************************/
-    public String[][] parseEnumerationParameters(String enumeration)
+    public static String[][] parseEnumerationParameters(String enumeration)
     {
         String[][] pairs = null;
 
@@ -4474,8 +4475,8 @@ public class CcddScriptDataAccessHandler
      *         being parsed using the separator; returns null if the input text
      *         is empty
      *************************************************************************/
-    public String[] getArrayFromString(String text,
-                                       String columnSeparator)
+    public static String[] getArrayFromString(String text,
+                                              String columnSeparator)
     {
         return getArrayFromString(text, columnSeparator, null)[0];
     }
@@ -4502,9 +4503,9 @@ public class CcddScriptDataAccessHandler
      *         supplied text after being parsed using the separator; returns
      *         null if the input text is empty
      *************************************************************************/
-    public String[][] getArrayFromString(String text,
-                                         String columnSeparator,
-                                         String rowSeparator)
+    public static String[][] getArrayFromString(String text,
+                                                String columnSeparator,
+                                                String rowSeparator)
     {
         String[][] array = null;
 
@@ -4551,7 +4552,7 @@ public class CcddScriptDataAccessHandler
      *
      * @return PrintWriter object; returns null if the file could not be opened
      *************************************************************************/
-    public PrintWriter openOutputFile(String outputFileName)
+    public static PrintWriter openOutputFile(String outputFileName)
     {
         return fileIOHandler.openOutputFile(outputFileName);
     }
@@ -4566,7 +4567,7 @@ public class CcddScriptDataAccessHandler
      * @param text
      *            text to write to the output file
      *************************************************************************/
-    public void writeToFile(PrintWriter printWriter, String text)
+    public static void writeToFile(PrintWriter printWriter, String text)
     {
         fileIOHandler.writeToFile(printWriter, text);
     }
@@ -4582,7 +4583,7 @@ public class CcddScriptDataAccessHandler
      * @param text
      *            text to write to the output file
      *************************************************************************/
-    public void writeToFileLn(PrintWriter printWriter, String text)
+    public static void writeToFileLn(PrintWriter printWriter, String text)
     {
         fileIOHandler.writeToFileLn(printWriter, text);
     }
@@ -4602,9 +4603,9 @@ public class CcddScriptDataAccessHandler
      *            variable list of arguments referenced by the format
      *            specifiers in the format string
      *************************************************************************/
-    public void writeToFileFormat(PrintWriter printWriter,
-                                  String format,
-                                  Object... args)
+    public static void writeToFileFormat(PrintWriter printWriter,
+                                         String format,
+                                         Object... args)
     {
         fileIOHandler.writeToFileFormat(printWriter, format, args);
     }
@@ -4615,7 +4616,7 @@ public class CcddScriptDataAccessHandler
      * @param printWriter
      *            output file PrintWriter object
      *************************************************************************/
-    public void closeFile(PrintWriter printWriter)
+    public static void closeFile(PrintWriter printWriter)
     {
         fileIOHandler.closeFile(printWriter);
     }
@@ -4632,7 +4633,7 @@ public class CcddScriptDataAccessHandler
      * @return Link description; returns a blank if the data stream or link
      *         don't exist, or the link has no description
      *************************************************************************/
-    public String getLinkDescription(String streamName, String linkName)
+    public static String getLinkDescription(String streamName, String linkName)
     {
         String description = "";
 
@@ -4666,7 +4667,7 @@ public class CcddScriptDataAccessHandler
      *         number of samples / number of seconds; returns a blank if the
      *         data stream or link don't exist
      *************************************************************************/
-    public String getLinkRate(String streamName, String linkName)
+    public static String getLinkRate(String streamName, String linkName)
     {
         String sampleRate = "";
 
@@ -4695,7 +4696,7 @@ public class CcddScriptDataAccessHandler
      *         specified variable is a member; returns an empty array if the
      *         variable does not belong to a link
      *************************************************************************/
-    public String[][] getVariableLinks(String variableName)
+    public static String[][] getVariableLinks(String variableName)
     {
         return linkHandler.getVariableLinks(variableName, true);
     }
@@ -4715,7 +4716,7 @@ public class CcddScriptDataAccessHandler
      *         structure; returns -1 if the parent-variable path combination is
      *         invalid
      *************************************************************************/
-    public int getVariableOffset(String path)
+    public static int getVariableOffset(String path)
     {
         return linkHandler.getVariableOffset(path);
     }
@@ -4732,7 +4733,7 @@ public class CcddScriptDataAccessHandler
      *         name data field associated with each of the tables referenced by
      *         the link entries
      *************************************************************************/
-    public String[] getLinkApplicationNames(String dataFieldName)
+    public static String[] getLinkApplicationNames(String dataFieldName)
     {
         return linkHandler.getApplicationNames(tableInformation[0].getFieldHandler(),
                                                dataFieldName);
@@ -4744,7 +4745,7 @@ public class CcddScriptDataAccessHandler
      * @return Array of group names referenced in the script association; empty
      *         array if no groups are referenced
      *************************************************************************/
-    public String[] getAssociatedGroupNames()
+    public static String[] getAssociatedGroupNames()
     {
         return groupNames.toArray(new String[0]);
     }
@@ -4759,7 +4760,7 @@ public class CcddScriptDataAccessHandler
      * @return Array of group names (application groups only if the input flag
      *         is true); empty array if no groups are defined
      *************************************************************************/
-    public String[] getGroupNames(boolean applicationOnly)
+    public static String[] getGroupNames(boolean applicationOnly)
     {
         return groupHandler.getGroupNames(applicationOnly);
     }
@@ -4773,7 +4774,7 @@ public class CcddScriptDataAccessHandler
      * @return Description for the specified group; blank if the group has no
      *         description or the group doesn't exist
      *************************************************************************/
-    public String getGroupDescription(String groupName)
+    public static String getGroupDescription(String groupName)
     {
         return groupHandler.getGroupDescription(groupName);
     }
@@ -4789,7 +4790,7 @@ public class CcddScriptDataAccessHandler
      *         empty array if the group has no table members, or the group
      *         doesn't exist
      *************************************************************************/
-    public String[] getGroupTables(String groupName)
+    public static String[] getGroupTables(String groupName)
     {
         String[] groupTables = new String[0];
 
@@ -4819,7 +4820,7 @@ public class CcddScriptDataAccessHandler
      *         description, size, input type, required (true or false),
      *         applicability, value[,...]
      *************************************************************************/
-    public String[][] getGroupFields(String groupName)
+    public static String[][] getGroupFields(String groupName)
     {
         List<String[]> groupFields = new ArrayList<String[]>();
 
@@ -4851,7 +4852,7 @@ public class CcddScriptDataAccessHandler
      *
      * @return Array containing the copy table column names
      *************************************************************************/
-    public String[] getCopyTableColumnNames()
+    public static String[] getCopyTableColumnNames()
     {
         String[] columnNames = new String[CopyTableEntry.values().length];
 
@@ -4889,10 +4890,10 @@ public class CcddScriptDataAccessHandler
      *         name is invalid. Any macro embedded in a variable name is
      *         replaced by its corresponding value
      *************************************************************************/
-    public String[][] getCopyTableEntries(String streamName,
-                                          int headerSize,
-                                          String messageIDNameField,
-                                          boolean optimize)
+    public static String[][] getCopyTableEntries(String streamName,
+                                                 int headerSize,
+                                                 String messageIDNameField,
+                                                 boolean optimize)
     {
         // Create the copy table with macros expanded
         return getCopyTableEntries(streamName,
@@ -4927,10 +4928,10 @@ public class CcddScriptDataAccessHandler
      *         entries for the specified data stream or if data stream name is
      *         invalid
      *************************************************************************/
-    public String[][] getCopyTableEntriesWithMacros(String streamName,
-                                                    int headerSize,
-                                                    String messageIDNameField,
-                                                    boolean optimize)
+    public static String[][] getCopyTableEntriesWithMacros(String streamName,
+                                                           int headerSize,
+                                                           String messageIDNameField,
+                                                           boolean optimize)
     {
         // Create the copy table with macros unexpanded
         return getCopyTableEntries(streamName,
@@ -4965,10 +4966,10 @@ public class CcddScriptDataAccessHandler
      *         name is invalid. Any macro embedded in a variable name is
      *         replaced by its corresponding value
      *************************************************************************/
-    public String[][] getCopyTableEntries(String streamName,
-                                          int headerSize,
-                                          String[][] tlmMessageIDs,
-                                          boolean optimize)
+    public static String[][] getCopyTableEntries(String streamName,
+                                                 int headerSize,
+                                                 String[][] tlmMessageIDs,
+                                                 boolean optimize)
     {
         // Convert the array of structure tables and their message ID names to
         // a list
@@ -5008,10 +5009,10 @@ public class CcddScriptDataAccessHandler
      *         entries for the specified data stream or if data stream name is
      *         invalid
      *************************************************************************/
-    public String[][] getCopyTableEntriesWithMacros(String streamName,
-                                                    int headerSize,
-                                                    String[][] tlmMessageIDs,
-                                                    boolean optimize)
+    public static String[][] getCopyTableEntriesWithMacros(String streamName,
+                                                           int headerSize,
+                                                           String[][] tlmMessageIDs,
+                                                           boolean optimize)
     {
         // Convert the array of structure tables and their message ID names to
         // a list
@@ -5058,12 +5059,12 @@ public class CcddScriptDataAccessHandler
      *         are no entries for the specified data stream or if data stream
      *         name is invalid
      *************************************************************************/
-    private String[][] getCopyTableEntries(String streamName,
-                                           int headerSize,
-                                           String messageIDNameField,
-                                           ArrayListMultiple tlmMessageIDs,
-                                           boolean optimize,
-                                           boolean expandMacros)
+    private static String[][] getCopyTableEntries(String streamName,
+                                                  int headerSize,
+                                                  String messageIDNameField,
+                                                  ArrayListMultiple tlmMessageIDs,
+                                                  boolean optimize,
+                                                  boolean expandMacros)
     {
         String[][] entries = new String[0][0];
 
@@ -5102,7 +5103,7 @@ public class CcddScriptDataAccessHandler
      *         returns blank if there are no entries for the specified data
      *         stream or if data stream name is invalid
      *************************************************************************/
-    public String[][] getTelemetryMessageIDs(String streamName)
+    public static String[][] getTelemetryMessageIDs(String streamName)
     {
         String[][] messageIDs = new String[0][0];
 
@@ -5133,15 +5134,15 @@ public class CcddScriptDataAccessHandler
      * then a blank ID/name is paired with the unmatched name/ID
      *
      * @return Two-dimensional array containing every message ID name and its
-     *         corresponding message ID, and the owning entity. Each row in the
-     *         array is an array in the form [owner name], [message ID name],
-     *         [message ID]. The owner name is preceded by 'Group:' if the
-     *         owner is a group, and by "Tlm:' if the owner is a telemetry
-     *         message
+     *         corresponding message ID, and the owning entity, sorted by the
+     *         owner name. Each row in the array is an array in the form [owner
+     *         name], [message ID name], [message ID]. The owner name is
+     *         preceded by 'Group:' if the owner is a group, and by "Tlm:' if
+     *         the owner is a telemetry message
      *************************************************************************/
-    public String[][] getMessageIDOwnersIDsAndNames()
+    public static String[][] getMessageIDOwnersIDsAndNames()
     {
-        return new CcddMessageIDHandler(ccddMain, false).getMessageIDsAndNames(parent).toArray(new String[0][0]);
+        return new CcddMessageIDHandler(ccddMain, false).getMessageIDsAndNames(MessageIDSortOrder.BY_OWNER, parent).toArray(new String[0][0]);
     }
 
     /**************************************************************************
@@ -5150,7 +5151,7 @@ public class CcddScriptDataAccessHandler
      *
      * @return Array containing the unique data stream names
      *************************************************************************/
-    public String[] getDataStreamNames()
+    public static String[] getDataStreamNames()
     {
         return rateHandler.getDataStreamNames();
     }
@@ -5161,7 +5162,7 @@ public class CcddScriptDataAccessHandler
      * @return Array of application names; the list is empty if no application
      *         names exist
      *************************************************************************/
-    public String[] getApplicationNames()
+    public static String[] getApplicationNames()
     {
         return groupHandler.getGroupNames(true);
     }
@@ -5171,7 +5172,7 @@ public class CcddScriptDataAccessHandler
      *
      * @return Two-dimensional array containing the defined parameters
      *************************************************************************/
-    public String[][] getApplicationScheduleDefinitionTableDefines()
+    public static String[][] getApplicationScheduleDefinitionTableDefines()
     {
         // Check if the scheduler table handler doesn't exist
         if (schTable == null)
@@ -5193,7 +5194,7 @@ public class CcddScriptDataAccessHandler
      * @return Array containing the specified entry in the schedule definition
      *         table
      *************************************************************************/
-    public String[][] getApplicationScheduleDefinitionTable(int row)
+    public static String[][] getApplicationScheduleDefinitionTable(int row)
     {
         // Check if the scheduler table handler doesn't exist
         if (schTable == null)
@@ -5210,7 +5211,7 @@ public class CcddScriptDataAccessHandler
      *
      * @return Array containing the message definition table information
      *************************************************************************/
-    public String[] getApplicationMessageDefinitionTable()
+    public static String[] getApplicationMessageDefinitionTable()
     {
         // Check if the scheduler table handler doesn't exist
         if (schTable == null)
@@ -5227,7 +5228,7 @@ public class CcddScriptDataAccessHandler
      *
      * @return Number of time slots in schedule definition table
      *************************************************************************/
-    public int getNumberOfTimeSlots()
+    public static int getNumberOfTimeSlots()
     {
         // Check if the scheduler table handler doesn't exist
         if (schTable == null)
@@ -5244,7 +5245,7 @@ public class CcddScriptDataAccessHandler
      *
      * Display the table information for each associated table type
      *************************************************************************/
-    public void showData()
+    public static void showData()
     {
         if (tableInformation == null
             || tableInformation.length == 0

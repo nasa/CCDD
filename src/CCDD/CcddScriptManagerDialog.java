@@ -101,7 +101,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
      * @param ccddMain
      *            main class
      *************************************************************************/
-    protected CcddScriptManagerDialog(CcddMain ccddMain)
+    CcddScriptManagerDialog(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
 

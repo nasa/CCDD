@@ -475,6 +475,11 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
 
         // Store the data streams
         schedulerDb.storeData(streams);
+
+        // Update the message ID names combo boxes in any open table editors in
+        // case the group has a message ID name or message ID data field that
+        // may have changed
+        ccddMain.getDbTableCommandHandler().updateMessageIDNamesColumns(CcddTelemetrySchedulerDialog.this);
     }
 
     /**************************************************************************

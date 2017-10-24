@@ -322,7 +322,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
      * @param ccddMain
      *            main class
      *************************************************************************/
-    protected CcddAssignMessageIDDialog(CcddMain ccddMain)
+    CcddAssignMessageIDDialog(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
         msgIDDialogType = MessageIDType.TABLE_DATA_FIELD;
@@ -344,9 +344,9 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
      * @param schedulerDlg
      *            component over which to center the dialog
      *************************************************************************/
-    protected CcddAssignMessageIDDialog(CcddMain ccddMain,
-                                        List<Message> messages,
-                                        CcddTelemetrySchedulerDialog schedulerDlg)
+    CcddAssignMessageIDDialog(CcddMain ccddMain,
+                              List<Message> messages,
+                              CcddTelemetrySchedulerDialog schedulerDlg)
     {
         this.ccddMain = ccddMain;
         this.messages = messages;

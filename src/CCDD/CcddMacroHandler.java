@@ -71,7 +71,7 @@ public class CcddMacroHandler
     /**************************************************************************
      * Macro location class
      *************************************************************************/
-    class MacroLocation
+    private class MacroLocation
     {
         private final String macroName;
         private final int start;
@@ -564,34 +564,6 @@ public class CcddMacroHandler
         }
 
         return macroValue;
-    }
-
-    /**************************************************************************
-     * Get the OID value associated with the specified macro name
-     *
-     * @param macroName
-     *            macro name
-     *
-     * @return OID value associated with the specified macro name; returns null
-     *         if the macro doesn't exist
-     *************************************************************************/
-    protected String getMacroIndex(String macroName)
-    {
-        String macroIndex = null;
-
-        // Step through each defined macro
-        for (String[] macro : macros)
-        {
-            // Check if the supplied name matches this macro's name
-            if (macroName.equalsIgnoreCase(macro[MacrosColumn.MACRO_NAME.ordinal()]))
-            {
-                // Get the associated macro OID and stop searching
-                macroIndex = macro[MacrosColumn.OID.ordinal()];
-                break;
-            }
-        }
-
-        return macroIndex;
     }
 
     /**************************************************************************

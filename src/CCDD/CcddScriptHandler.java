@@ -116,7 +116,7 @@ public class CcddScriptHandler
      * @param ccddMain
      *            main class
      *************************************************************************/
-    protected CcddScriptHandler(CcddMain ccddMain)
+    CcddScriptHandler(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
 
@@ -1461,7 +1461,7 @@ public class CcddScriptHandler
                                               + "' using table(s) '"
                                               + tables
                                               + "'; cause '"
-                                              + cause
+                                              + cause.replaceAll("\\n", " ")
                                               + "'",
                               "<html><b>Cannot execute script '</b>"
                                                      + scriptFileName

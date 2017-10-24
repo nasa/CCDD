@@ -85,7 +85,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
     /**************************************************************************
      * Macro data table references class
      *************************************************************************/
-    class MacroReference
+    private class MacroReference
     {
         private final String macroName;
         private final String[] references;
@@ -140,21 +140,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
         dbTable = ccddMain.getDbTableCommandHandler();
         macroHandler = ccddMain.getMacroHandler();
 
-        // Set the reference to this dialog in main
-        ccddMain.setMacroEditor(this);
-
         // Create the macro editor dialog
         initialize();
-    }
-
-    /**************************************************************************
-     * Get the reference to the macro table
-     *
-     * @return Reference to the macro table
-     *************************************************************************/
-    protected CcddJTableHandler getTable()
-    {
-        return macroTable;
     }
 
     /**************************************************************************
@@ -197,7 +184,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
     /**************************************************************************
      * Copy the macro data so it can be used to determine if changes are made
      *************************************************************************/
-    protected void storeCurrentData()
+    private void storeCurrentData()
     {
         // Check if the table has fields
         if (!macroHandler.getMacroData().isEmpty())
@@ -907,7 +894,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
      *
      * @return List containing the updated macro data
      *************************************************************************/
-    protected List<String[]> getUpdatedData()
+    private List<String[]> getUpdatedData()
     {
         return Arrays.asList(CcddUtilities.convertObjectToString(macroTable.getTableData(true)));
     }
@@ -917,7 +904,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
      *
      * @return true if a row is missing data in a required column
      *************************************************************************/
-    protected boolean checkForMissingColumns()
+    private boolean checkForMissingColumns()
     {
         boolean dataIsMissing = false;
         boolean stopCheck = false;

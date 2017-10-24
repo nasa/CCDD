@@ -92,8 +92,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
      *            database dialog type: LOGIN, SERVER, CREATE, OPEN, DELETE, or
      *            UNLOCK
      *************************************************************************/
-    protected CcddDbManagerDialog(CcddMain ccddMain,
-                                  DbManagerDialogType dialogType)
+    CcddDbManagerDialog(CcddMain ccddMain, DbManagerDialogType dialogType)
     {
         this.ccddMain = ccddMain;
         this.dialogType = dialogType;

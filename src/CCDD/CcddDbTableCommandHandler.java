@@ -9,7 +9,6 @@
 package CCDD;
 
 import static CCDD.CcddConstants.DB_SAVE_POINT_NAME;
-import static CCDD.CcddConstants.ENUMERATION_SEPARATOR;
 import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
 import static CCDD.CcddConstants.LIST_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
@@ -62,6 +61,7 @@ import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.InternalTable.OrdersColumn;
 import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
+import CCDD.CcddConstants.MessageIDSortOrder;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.SearchResultsQueryColumn;
 import CCDD.CcddConstants.TableCommentIndex;
@@ -101,7 +101,7 @@ public class CcddDbTableCommandHandler
      * @param ccddMain
      *            main class
      *************************************************************************/
-    protected CcddDbTableCommandHandler(CcddMain ccddMain)
+    CcddDbTableCommandHandler(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
 
@@ -2437,20 +2437,22 @@ public class CcddDbTableCommandHandler
             // Get the table members of all structure tables by extracting the
             // values from the table's data type and variable name columns, if
             // present, sorted by variable name or table index. Non-structure
-            // tables and structure tables with no rows are skipped
+            // tables and structure tables with no rows are skipped. The
+            // information returned by the PostgreSQL function also returns the
+            // bit length, rate(s), and enumeration(s) for each member; the
+            // enumeration information currently isn't used
             ResultSet rowData = dbCommand.executeDbQuery("SELECT * FROM "
                                                          + (sortByName
                                                                        ? "get_table_members_by_name();"
                                                                        : "get_table_members_by_index();"),
                                                          parent);
 
-            // Create a list to contain the database table member data types
-            // variable names, rates, and bit lengths
+            // Create a list to contain the database table member data types,
+            // variable names, bit lengths, and rates
             List<String> dataTypes;
             List<String> variableNames;
             List<String> bitLengths;
             List<String[]> rates;
-            List<String[]> enumerations;
 
             // Set the flag based on if any data was returned by the database
             // query
@@ -2465,21 +2467,18 @@ public class CcddDbTableCommandHandler
                 variableNames = new ArrayList<String>();
                 bitLengths = new ArrayList<String>();
                 rates = new ArrayList<String[]>();
-                enumerations = new ArrayList<String[]>();
 
                 // Get the table name for this query table row
                 String tableName = rowData.getString(1);
 
                 do
                 {
-                    // Get the data type, variable name, bit length, rate(s),
-                    // and enumeration(s) from this query row
+                    // Get the data type, variable name, bit length, and
+                    // rate(s) from this query row
                     String dataType = rowData.getString(2);
                     String variableName = rowData.getString(3);
                     String bitLength = rowData.getString(4);
                     String[] rate = rowData.getString(5).split(",", rateHandler.getNumRateColumns());
-                    String[] enumeration = rowData.getString(6).split(Pattern.quote(ENUMERATION_SEPARATOR),
-                                                                      tableTypeHandler.getStructEnumColNames(true).size());
 
                     // Check if a data type and variable name exist, and that
                     // the data type is not a primitive type (i.e., this is a
@@ -2566,7 +2565,6 @@ public class CcddDbTableCommandHandler
                         variableNames.add(addIndex, variableName);
                         bitLengths.add(addIndex, bitLength);
                         rates.add(addIndex, rate);
-                        enumerations.add(addIndex, enumeration);
                     }
 
                     // Go to the next row in the query results; set the flag to
@@ -2588,8 +2586,7 @@ public class CcddDbTableCommandHandler
                                                   dataTypes,
                                                   variableNames,
                                                   bitLengths,
-                                                  rates,
-                                                  enumerations));
+                                                  rates));
             }
 
             rowData.close();
@@ -2631,7 +2628,6 @@ public class CcddDbTableCommandHandler
                                                     new ArrayList<String>(),
                                                     new ArrayList<String>(),
                                                     new ArrayList<String>(),
-                                                    new ArrayList<String[]>(),
                                                     new ArrayList<String[]>()));
                 }
             }
@@ -3057,7 +3053,7 @@ public class CcddDbTableCommandHandler
      * @param dbTableName
      *            name of the table to which to add rows
      *
-     * @param typeDefinition
+     * @param typeDefn
      *            table type definition
      *
      * @param rootTables
@@ -3074,7 +3070,7 @@ public class CcddDbTableCommandHandler
     private String buildAdditionCommand(TableInformation tableInfo,
                                         List<TableModification> additions,
                                         String dbTableName,
-                                        TypeDefinition typeDefinition,
+                                        TypeDefinition typeDefn,
                                         List<String> rootTables,
                                         boolean skipInternalTables)
     {
@@ -3097,7 +3093,7 @@ public class CcddDbTableCommandHandler
             addCmd.append("INSERT INTO "
                           + dbTableName
                           + " ("
-                          + CcddUtilities.convertArrayToString(typeDefinition.getColumnNamesDatabase())
+                          + CcddUtilities.convertArrayToString(typeDefn.getColumnNamesDatabase())
                           + ") VALUES ");
 
             // Step through each addition
@@ -3123,7 +3119,7 @@ public class CcddDbTableCommandHandler
 
                 // Check if internal tables are to be updated and the parent
                 // table is a structure
-                if (!skipInternalTables && typeDefinition.isStructure())
+                if (!skipInternalTables && typeDefn.isStructure())
                 {
                     // Get the variable name and data type for the variable in
                     // the new row
@@ -3296,7 +3292,7 @@ public class CcddDbTableCommandHandler
      * @param modifications
      *            list of row modification information
      *
-     * @param typeDefinition
+     * @param typeDefn
      *            table type definition
      *
      * @param newDataTypeHandler
@@ -3320,7 +3316,7 @@ public class CcddDbTableCommandHandler
      *************************************************************************/
     private String buildModificationCommand(TableInformation tableInfo,
                                             List<TableModification> modifications,
-                                            TypeDefinition typeDefinition,
+                                            TypeDefinition typeDefn,
                                             CcddDataTypeHandler newDataTypeHandler,
                                             CcddMacroHandler newMacroHandler,
                                             CcddTableTreeHandler tableTree,
@@ -3380,7 +3376,7 @@ public class CcddDbTableCommandHandler
                             || !mod.getOriginalRowData()[column].equals(mod.getRowData()[column]))
                         {
                             // Build the command to change the column value
-                            modCmd.append(typeDefinition.getColumnNamesDatabase()[column]
+                            modCmd.append(typeDefn.getColumnNamesDatabase()[column]
                                           + " = "
                                           + delimitText(mod.getRowData()[column])
                                           + ", ");
@@ -3389,7 +3385,7 @@ public class CcddDbTableCommandHandler
 
                     // Check if the internal tables are to be updated and the
                     // table represents a structure
-                    if (!skipInternalTables && typeDefinition.isStructure())
+                    if (!skipInternalTables && typeDefn.isStructure())
                     {
                         // Get the original and current variable names, data
                         // types, array sizes, and bit lengths
@@ -3970,7 +3966,7 @@ public class CcddDbTableCommandHandler
                     // commands to update the internal tables
                     modCmd = CcddUtilities.removeTrailer(modCmd, ", ");
                     modCmd.append(" WHERE "
-                                  + typeDefinition.getColumnNamesDatabase()[DefaultColumn.PRIMARY_KEY.ordinal()]
+                                  + typeDefn.getColumnNamesDatabase()[DefaultColumn.PRIMARY_KEY.ordinal()]
                                   + " = "
                                   + mod.getRowData()[DefaultColumn.PRIMARY_KEY.ordinal()]
                                   + "; "
@@ -3985,7 +3981,7 @@ public class CcddDbTableCommandHandler
                 // Not a prototype table, so modifications are made to the
                 // custom values table if internal tables are to be updated,
                 // and this table is a structure
-                else if (!skipInternalTables && typeDefinition.isStructure())
+                else if (!skipInternalTables && typeDefn.isStructure())
                 {
                     // Get the variable path, including its name and data type
                     String variablePath = tableInfo.getTablePath()
@@ -4013,7 +4009,7 @@ public class CcddDbTableCommandHandler
                                           + "' AND "
                                           + ValuesColumn.COLUMN_NAME.getColumnName()
                                           + " = '"
-                                          + typeDefinition.getColumnNamesUser()[column]
+                                          + typeDefn.getColumnNamesUser()[column]
                                           + "';");
 
                             // Check if the new value does not begin with the
@@ -4032,7 +4028,7 @@ public class CcddDbTableCommandHandler
                                               + ") VALUES ('"
                                               + variablePath
                                               + "', '"
-                                              + typeDefinition.getColumnNamesUser()[column]
+                                              + typeDefn.getColumnNamesUser()[column]
                                               + "', '"
                                               + mod.getRowData()[column]
                                               + "'); ");
@@ -4103,7 +4099,7 @@ public class CcddDbTableCommandHandler
      * @param dbTableName
      *            name of the table to which to delete rows
      *
-     * @param typeDefinition
+     * @param typeDefn
      *            table type definition
      *
      * @param tableTree
@@ -4120,7 +4116,7 @@ public class CcddDbTableCommandHandler
     private String buildDeletionCommand(TableInformation tableInfo,
                                         List<TableModification> deletions,
                                         String dbTableName,
-                                        TypeDefinition typeDefinition,
+                                        TypeDefinition typeDefn,
                                         CcddTableTreeHandler tableTree,
                                         boolean skipInternalTables)
     {
@@ -4146,13 +4142,13 @@ public class CcddDbTableCommandHandler
                                                       + dbTableName
                                                       + " WHERE "
                                                     : " OR ")
-                              + typeDefinition.getColumnNamesDatabase()[DefaultColumn.PRIMARY_KEY.ordinal()]
+                              + typeDefn.getColumnNamesDatabase()[DefaultColumn.PRIMARY_KEY.ordinal()]
                               + " = "
                               + del.getRowData()[DefaultColumn.PRIMARY_KEY.ordinal()]);
 
                 // Check if the internal tables are to be updated and the
                 // table represents a structure
-                if (!skipInternalTables && typeDefinition.isStructure())
+                if (!skipInternalTables && typeDefn.isStructure())
                 {
                     // Get the variable name, data type, and bit length
                     String variableName = del.getRowData()[del.getVariableColumn()].toString();
@@ -6985,7 +6981,7 @@ public class CcddDbTableCommandHandler
                 }
             }
 
-            // Update the tables with Data Type columns
+            // Update the tables with data type columns
             updateDataTypeColumns(parent);
         }
     }
@@ -7024,6 +7020,40 @@ public class CcddDbTableCommandHandler
 
                     // Force the table to repaint to update the highlighting of
                     // the changed data types
+                    editor.getTable().repaint();
+                }
+            }
+        }
+    }
+
+    /**************************************************************************
+     * Update the message names & IDs columns in the open table editors
+     *
+     * @param parent
+     *            GUI component calling this method
+     *************************************************************************/
+    protected void updateMessageIDNamesColumns(Component parent)
+    {
+        // Check if any editor dialogs are open
+        if (!ccddMain.getTableEditorDialogs().isEmpty())
+        {
+            // Create a message ID handler and get the list of message ID names
+            // and associated ID values
+            CcddMessageIDHandler msgIDHandler = new CcddMessageIDHandler(ccddMain, false);
+            List<String[]> msgIDs = msgIDHandler.getMessageIDsAndNames(MessageIDSortOrder.BY_NAME, parent);
+
+            // Step through each open table editor dialog
+            for (CcddTableEditorDialog editorDialog : ccddMain.getTableEditorDialogs())
+            {
+                // Step through each individual editor
+                for (CcddTableEditorHandler editor : editorDialog.getTableEditors())
+                {
+                    // Update the message ID names combo box list if the table
+                    // contains one
+                    editor.setUpMsgNamesAndIDsColumn(msgIDs);
+
+                    // Force the table to repaint to update the highlighting of
+                    // the changed message ID names
                     editor.getTable().repaint();
                 }
             }

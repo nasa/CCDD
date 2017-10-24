@@ -46,7 +46,7 @@ public class CcddFrameHandler extends JFrame
     /**************************************************************************
      * Frame handler constructor
      *************************************************************************/
-    protected CcddFrameHandler()
+    CcddFrameHandler()
     {
         tableWidth = -1;
         frameMinimumWidth = MIN_WINDOW_WIDTH;
@@ -56,7 +56,7 @@ public class CcddFrameHandler extends JFrame
         {
             /******************************************************************
              * Override the window closing method
-             * 
+             *
              * @param button
              *            button that initiated window closing
              *****************************************************************/
@@ -106,7 +106,7 @@ public class CcddFrameHandler extends JFrame
     /**************************************************************************
      * Get the total width of the table to be displayed in the window which is
      * the sum of the minimum column sizes
-     * 
+     *
      * @return Total width, in pixels, of the minimum column sizes of the table
      *         to be displayed in the window
      *************************************************************************/
@@ -118,7 +118,7 @@ public class CcddFrameHandler extends JFrame
     /**************************************************************************
      * Set the total width of the table to be displayed in the window which is
      * the sum of the minimum column sizes
-     * 
+     *
      * @param width
      *            total width, in pixels, of the minimum column sizes of the
      *            table to be displayed in the window
@@ -130,7 +130,7 @@ public class CcddFrameHandler extends JFrame
 
     /**************************************************************************
      * Adjust the minimum allowed window width
-     * 
+     *
      * @param width
      *            window's minimum allowed width, in pixels
      *************************************************************************/
@@ -142,7 +142,7 @@ public class CcddFrameHandler extends JFrame
     /**************************************************************************
      * Placeholder for method to verify the the window box selection(s) prior
      * to closing
-     * 
+     *
      * @return true
      *************************************************************************/
     protected boolean verifySelection()
@@ -162,7 +162,7 @@ public class CcddFrameHandler extends JFrame
 
     /**************************************************************************
      * Set the number of rows occupied by the window's buttons
-     * 
+     *
      * @param rows
      *            number of window button rows
      *************************************************************************/
@@ -174,7 +174,7 @@ public class CcddFrameHandler extends JFrame
     /**************************************************************************
      * Enable/disable the button panel buttons. Override to include other frame
      * controls
-     * 
+     *
      * @param enable
      *            true to enable the buttons; false to disable
      *************************************************************************/
@@ -186,24 +186,24 @@ public class CcddFrameHandler extends JFrame
     /**************************************************************************
      * Create the window. If no buttons are provided (lower panel) then create
      * the buttons and button listeners needed based on the option type
-     * 
+     *
      * @param parent
      *            window to center the window over
-     * 
+     *
      * @param upperComponent
      *            upper window components
-     * 
+     *
      * @param buttonPnl
      *            panel containing the window's buttons; null if a defined
      *            option type is used
-     * 
+     *
      * @param defaultBtn
      *            reference to the JButton that is actuated if the Enter key is
      *            pressed; null to have no default button
-     * 
+     *
      * @param title
      *            title to display in the window frame
-     * 
+     *
      * @param optionType
      *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION,
      *            READ_OPTION, PRINT_OPTION, CLOSE_OPTION, OK_OPTION, or

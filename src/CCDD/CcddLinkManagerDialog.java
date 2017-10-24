@@ -101,7 +101,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
      * @param ccddMain
      *            main class
      *************************************************************************/
-    protected CcddLinkManagerDialog(CcddMain ccddMain)
+    CcddLinkManagerDialog(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
 
@@ -1288,7 +1288,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
             // Inform the user that the input value is invalid
             new CcddDialogHandler().showMessageDialog(CcddLinkManagerDialog.this,
                                                       "<html><b>"
-                                                          + ce.getMessage(),
+                                                                                  + ce.getMessage(),
                                                       "Missing/Invalid Input",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -1356,9 +1356,9 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
             // exist
             tabbedPane.setTitleAt(index,
                                   tabbedPane.getTitleAt(index).replaceAll("\\*", "")
-                                      + (linkMgrs.get(index).isLinksChanged()
-                                                                             ? "*"
-                                                                             : ""));
+                                         + (linkMgrs.get(index).isLinksChanged()
+                                                                                 ? "*"
+                                                                                 : ""));
         }
     }
 }

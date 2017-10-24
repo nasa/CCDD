@@ -32,6 +32,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.DefaultCellEditor;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
@@ -60,10 +61,11 @@ import CCDD.CcddClasses.TableModification;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.MessageIDSortOrder;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
-import CCDD.CcddConstants.MsgIDColumnInfo;
+import CCDD.CcddConstants.MsgIDListColumnIndex;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -126,7 +128,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     private final int rowIndex;
     private final int primaryKeyIndex;
     private int variablePathIndex;
-    private int msgNameIDIndex; // TODO
+    private List<Integer> msgIDNameIndex;
 
     // Variable path separators and flag to show/hide the data type
     private String varPathSep;
@@ -183,11 +185,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      * @param editorDialog
      *            editor dialog from which this editor was created
      *************************************************************************/
-    protected CcddTableEditorHandler(CcddMain ccddMain,
-                                     TableInformation tableInfo,
-                                     CcddDataTypeHandler newDataTypeHandler,
-                                     CcddMacroHandler newMacroHandler,
-                                     CcddTableEditorDialog editorDialog)
+    CcddTableEditorHandler(CcddMain ccddMain,
+                           TableInformation tableInfo,
+                           CcddDataTypeHandler newDataTypeHandler,
+                           CcddMacroHandler newMacroHandler,
+                           CcddTableEditorDialog editorDialog)
     {
         this.ccddMain = ccddMain;
         this.tableInfo = tableInfo;
@@ -303,16 +305,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     protected CcddJTableHandler getTable()
     {
         return table;
-    }
-
-    /**************************************************************************
-     * Check if this table represents a structure
-     *
-     * @return true if the table represents a structure
-     *************************************************************************/
-    protected boolean isStructure()
-    {
-        return typeDefn.isStructure();
     }
 
     /**************************************************************************
@@ -454,7 +446,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     /**************************************************************************
      * Set the table type definition
      *************************************************************************/
-    protected void setTypeDefinition()
+    private void setTypeDefinition()
     {
         // Get the table type definition
         typeDefn = tableTypeHandler.getTypeDefinition(tableInfo.getType());
@@ -730,7 +722,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             bitLengthIndex = typeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH);
             enumerationIndex = typeDefn.getColumnIndicesByInputType(InputDataType.ENUMERATION);
             rateIndex = typeDefn.getColumnIndicesByInputType(InputDataType.RATE);
-            msgNameIDIndex = typeDefn.getColumnIndexByInputType(InputDataType.MESSAGE_ID_NAMES_AND_IDS);
+            msgIDNameIndex = typeDefn.getColumnIndicesByInputType(InputDataType.MESSAGE_ID_NAMES_AND_IDS);
         }
         // The table doesn't represent a structure
         else
@@ -743,7 +735,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             bitLengthIndex = -1;
             enumerationIndex = new ArrayList<Integer>();
             rateIndex = new ArrayList<Integer>();
-            msgNameIDIndex = -1;
+            msgIDNameIndex = new ArrayList<Integer>();
         }
 
         // Set the variable path column index. This column is only active for a
@@ -1720,6 +1712,16 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                     + typeDefn.getInputTypes()[column].getInputName()
                                                     + "' expected");
                         }
+
+                        // Check if this is a message ID name column
+                        if (msgIDNameIndex.contains(column))
+                        {
+                            // The message ID, which is included with the ID
+                            // name in the combo box list, doesn't appear when
+                            // the item is selected from the list, so remove
+                            // the ID
+                            newValueS = newValueS.replaceFirst(" \\(.*", "");
+                        }
                     }
 
                     // Check if the new value doesn't contain a macro
@@ -2123,8 +2125,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // sample rates for the "Rate" column
                 setUpSampleRateColumn();
 
-                // TODO
-                setUpMsgNamesAndIDsColumn();
+                // Create drop-down combo boxes that display the available
+                // message ID names and values
+                setUpMsgNamesAndIDsColumn(null);
 
                 // Create the mouse listener for the data type column
                 createDataTypeColumnMouseListener();
@@ -3502,11 +3505,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             found = false;
 
             // Step through each combo box item
-            for (int index = 0; index < comboBox.getItemCount() &&
-                                !found; index++)
+            for (int index = 0; index < comboBox.getItemCount() && !found; index++)
             {
-                // Check if the cell matches the combo box item
-                if (comboBox.getItemAt(index).equals(value))
+                // Check if the cell matches the combo box item, or if the
+                // column displays a message ID name list that the name is
+                // present in the list item, ignoring the ID value
+                if (comboBox.getItemAt(index).equals(value)
+                    || (msgIDNameIndex.contains(modelColumn)
+                        && comboBox.getItemAt(index).toString().matches(value + " \\(.*")))
                 {
                     // Set the flag indicating that the cell value is valid and
                     // stop searching
@@ -3752,12 +3758,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         }
     }
 
-    // TODO
     /**************************************************************************
      * Set up or update the combo box containing the available message ID names
      * and corresponding message IDs for display in table column cells
+     *
+     * @param msgIDs
+     *            list of message ID names and the associated ID values
      *************************************************************************/
-    private void setUpMsgNamesAndIDsColumn()
+    protected void setUpMsgNamesAndIDsColumn(List<String[]> msgIDs)
     {
         // Check if a cell is currently being edited
         if (table.getCellEditor() != null)
@@ -3766,48 +3774,53 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             table.getCellEditor().stopCellEditing();
         }
 
-        // Check if this table has a message ID names & IDs column
-        if (msgNameIDIndex != -1)
+        // Check if the table has a message name & ID column
+        if (!msgIDNameIndex.isEmpty())
         {
-            CcddMessageIDHandler msgIDHandler = new CcddMessageIDHandler(ccddMain, false);
-
-            List<String[]> msgIDs = msgIDHandler.getMessageIDsAndNames(editorDialog);
-
-            // Sort the message ID list by ID name
-            Collections.sort(msgIDs, new Comparator<String[]>()
+            // Check if no message name & ID list is provided
+            if (msgIDs == null)
             {
-                /**************************************************************
-                 * Sort the message names & IDs list based on the message ID
-                 * name, ignoring case
-                 *************************************************************/
-                @Override
-                public int compare(final String[] msgID1, final String[] msgID2)
-                {
-                    return msgID1[MsgIDColumnInfo.MESSAGE_ID_NAME.ordinal()].toLowerCase().compareTo(msgID2[MsgIDColumnInfo.MESSAGE_ID_NAME.ordinal()].toLowerCase());
-                }
-            });
-
-            // Get the column reference for the message ID names & IDs column
-            TableColumn msgNameIDColumn = table.getColumnModel().getColumn(table.convertColumnIndexToView(msgNameIDIndex));
+                // Create a message ID handler and get the list of message ID
+                // names and associated ID values
+                CcddMessageIDHandler msgIDHandler = new CcddMessageIDHandler(ccddMain, false);
+                msgIDs = msgIDHandler.getMessageIDsAndNames(MessageIDSortOrder.BY_NAME, editorDialog);
+            }
 
             // Create a combo box for displaying message ID names & IDs
             PaddedComboBox comboBox = new PaddedComboBox(table.getFont());
 
-            // Set the table column editor to the combo box
-            msgNameIDColumn.setCellEditor(new DefaultCellEditor(comboBox));
-
             // Step through each message ID name & ID pair
             for (String[] msgID : msgIDs)
             {
-                // TODO ISSUE: WHAT TO DISPLAY? OWNER MAKES A DIFFERENCE SINCE
-                // OTHERWISE DUPLICATES CAN APPEAR - SHOULD OWNER BE INCLUDED?
-                // WHAT ABOUT USE OF THIS INPUT TYPE IN A DATA FIELD?
-                // Add the message ID name & ID to the combo box list
-                comboBox.addItem(msgID[MsgIDColumnInfo.MESSAGE_ID_NAME.ordinal()]
-                                 + " ("
-                                 + msgID[MsgIDColumnInfo.MESSAGE_ID.ordinal()]
-                                 + ")");
+                // Check if the message ID name isn't blank
+                if (!msgID[MsgIDListColumnIndex.MESSAGE_ID_NAME.ordinal()].isEmpty())
+                {
+                    // Get the message name & ID to display in the list
+                    String item = msgID[MsgIDListColumnIndex.MESSAGE_ID_NAME.ordinal()]
+                                  + " ("
+                                  + msgID[MsgIDListColumnIndex.MESSAGE_ID.ordinal()]
+                                  + ")";
+
+                    // Check if the message name & ID isn't already in the list
+                    if (((DefaultComboBoxModel<String>) comboBox.getModel()).getIndexOf(item) == -1)
+                    {
+                        // Add the message ID name & ID to the combo box list
+                        comboBox.addItem(item);
+                    }
+                }
             }
+
+            // Step through each message ID names column
+            for (Integer column : msgIDNameIndex)
+            {
+                // Get the column reference for the message ID names & IDs
+                // column
+                TableColumn msgNameIDColumn = table.getColumnModel().getColumn(table.convertColumnIndexToView(column));
+
+                // Set the table column editor to the combo box
+                msgNameIDColumn.setCellEditor(new DefaultCellEditor(comboBox));
+            }
+
         }
     }
 
@@ -4962,7 +4975,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         boolean stopCheck = false;
 
         // Check if the table represents a structure
-        if (isStructure())
+        if (typeDefn.isStructure())
         {
             // Step through each row in the table
             for (int row = 0; row < table.getRowCount() && !stopCheck; row++)

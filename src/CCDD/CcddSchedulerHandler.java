@@ -104,9 +104,9 @@ public class CcddSchedulerHandler
      * @param schedulerDlg
      *            reference to the scheduler dialog that created this class
      *************************************************************************/
-    protected CcddSchedulerHandler(CcddMain ccddMain,
-                                   String rateName,
-                                   CcddSchedulerDialogInterface schedulerDlg)
+    CcddSchedulerHandler(CcddMain ccddMain,
+                         String rateName,
+                         CcddSchedulerDialogInterface schedulerDlg)
     {
         this.ccddMain = ccddMain;
         this.rateName = rateName;
@@ -223,14 +223,6 @@ public class CcddSchedulerHandler
     protected void setUnusedField()
     {
         unusedFld.setText(String.valueOf(schedulerEditor.getTotalBytesRemaining()));
-    }
-
-    /**************************************************************************
-     * Get the currently selected message
-     *************************************************************************/
-    protected Message getCurrentSelectedMessage()
-    {
-        return schedulerEditor.getSelectedMessage();
     }
 
     /**************************************************************************
@@ -1471,31 +1463,5 @@ public class CcddSchedulerHandler
         }
 
         return valid;
-    }
-
-    /**************************************************************************
-     * Remove a list of variables from the specified message
-     *
-     * @param varList
-     *            list of variables to be removed
-     *
-     * @param msgIndex
-     *            index of the message from which to remove the variable(s)
-     *************************************************************************/
-    protected void removeVariablesFromMessage(List<Variable> varList, int msgIndex)
-    {
-        // Check if the variable list is provided
-        if (varList != null)
-        {
-            // Remove the variables from the given message
-            List<String> names = schedulerEditor.removeVariablesFromMessages(varList,
-                                                                             msgIndex);
-
-            // Set the variable(s) to be available
-            makeVariableAvailable(names);
-
-            // Set the unused byte label
-            setUnusedField();
-        }
     }
 }

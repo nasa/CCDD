@@ -15,7 +15,6 @@ import static CCDD.CcddConstants.DATABASE_DRIVER;
 import static CCDD.CcddConstants.DEFAULT_DATABASE;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_HOST;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_PORT;
-import static CCDD.CcddConstants.ENUMERATION_SEPARATOR;
 import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
 import static CCDD.CcddConstants.MACRO_IDENTIFIER;
 import static CCDD.CcddConstants.OK_BUTTON;
@@ -119,7 +118,7 @@ public class CcddDbControlHandler
      * @param ccddMain
      *            main class
      *************************************************************************/
-    protected CcddDbControlHandler(CcddMain ccddMain)
+    CcddDbControlHandler(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
 
@@ -1397,13 +1396,9 @@ public class CcddDbControlHandler
                 // Check if any enumeration columns are defined
                 if (enumColumns.size() != 0)
                 {
-                    // Build the enumeration separator portion of the command.
-                    // Account for any backslashes in the separator by doubling
-                    // them
-                    String enumSep = " || E''' || E'"
-                                     + ENUMERATION_SEPARATOR.replaceAll("\\\\",
-                                                                        "\\\\\\\\\\\\\\\\")
-                                     + "' || ''' || ";
+                    // Build the enumeration separator (triple backslashes)
+                    // portion of the command
+                    String enumSep = " || E''' || E'\\\\\\\\\\\\\\\\\\\\\\\\' || ''' || ";
 
                     // Step through each enumeration column name (in its
                     // database form)

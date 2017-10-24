@@ -200,7 +200,7 @@ public abstract class CcddJTableHandler extends JTable
     /**************************************************************************
      * Custom Swing table handler constructor
      *************************************************************************/
-    protected CcddJTableHandler()
+    CcddJTableHandler()
     {
         // Set the number of rows to initially display to the default value
         this(ModifiableSizeInfo.INIT_VIEWABLE_TABLE_ROWS.getSize());
@@ -212,7 +212,7 @@ public abstract class CcddJTableHandler extends JTable
      * @param initialViewableRows
      *            initial number of rows to size the table
      *************************************************************************/
-    protected CcddJTableHandler(int initialViewableRows)
+    CcddJTableHandler(int initialViewableRows)
     {
         this.initialViewableRows = initialViewableRows;
 
@@ -1653,14 +1653,14 @@ public abstract class CcddJTableHandler extends JTable
     /**************************************************************************
      * Table header renderer class for adjusting the font by column
      *************************************************************************/
-    class HeaderFontRenderer extends DefaultTableCellHeaderRenderer
+    private class HeaderFontRenderer extends DefaultTableCellHeaderRenderer
     {
-        DefaultTableCellHeaderRenderer renderer;
+        private final DefaultTableCellHeaderRenderer renderer;
 
         /**********************************************************************
          * Table header renderer class constructor
          *********************************************************************/
-        public HeaderFontRenderer()
+        HeaderFontRenderer()
         {
             // Get the default table header renderer. This allows manipulation
             // of look & feels that have specialized header renderers
@@ -2198,7 +2198,7 @@ public abstract class CcddJTableHandler extends JTable
          * Move cell selection class constructor. Determine the bounds of the
          * currently selected table cells
          *********************************************************************/
-        protected MoveCellSelection()
+        MoveCellSelection()
         {
             startRow = getSelectedRow();
             endRow = getSelectionModel().getMaxSelectionIndex();
@@ -3311,7 +3311,7 @@ public abstract class CcddJTableHandler extends JTable
          * @param centerText
          *            true to center the text within the cells
          *********************************************************************/
-        public SingleLineCellRenderer(boolean centerText)
+        SingleLineCellRenderer(boolean centerText)
         {
             // Set the renderer name so that the key handler in
             // CcddKeyboardHandler:tableEditCellHandler() can recognize cell
@@ -3367,12 +3367,12 @@ public abstract class CcddJTableHandler extends JTable
      * line. This allows adjusting the row height to fit the text and to set
      * the cell border to provide padding around the cell contents
      *************************************************************************/
-    protected class MultiLineCellRenderer extends JTextArea implements TableCellRenderer
+    private class MultiLineCellRenderer extends JTextArea implements TableCellRenderer
     {
         /**********************************************************************
          * Multi-line table cell renderer constructor
          *********************************************************************/
-        public MultiLineCellRenderer()
+        MultiLineCellRenderer()
         {
             // Set the renderer name so that the key handler in
             // CcddKeyboardHandler:tableEditCellHandler() can recognize this
@@ -3449,7 +3449,7 @@ public abstract class CcddJTableHandler extends JTable
          * box shared by all users of this cell renderer for which attempts to
          * change individual cells must account
          *********************************************************************/
-        public BooleanCellRenderer()
+        BooleanCellRenderer()
         {
             // Set the renderer name so that the key handler in
             // CcddKeyboardHandler:tableEditCellHandler() can recognize this
@@ -3924,7 +3924,7 @@ public abstract class CcddJTableHandler extends JTable
         /**********************************************************************
          * TableCellListener class constructor
          *********************************************************************/
-        protected TableCellListener()
+        TableCellListener()
         {
             // Add a property change listener
             addPropertyChangeListener(this);
@@ -3946,10 +3946,10 @@ public abstract class CcddJTableHandler extends JTable
          * @param newValue
          *            new contents for the cell
          *********************************************************************/
-        private TableCellListener(int row,
-                                  int column,
-                                  Object oldValue,
-                                  Object newValue)
+        TableCellListener(int row,
+                          int column,
+                          Object oldValue,
+                          Object newValue)
         {
             this.editRow = row;
             this.editColumn = column;
@@ -4141,7 +4141,7 @@ public abstract class CcddJTableHandler extends JTable
      * mouse listener so that a double-click on column header's right border
      * causes the column to be resized based on the header and cell content
      *************************************************************************/
-    public class ResizeColumnListener implements MouseListener
+    private class ResizeColumnListener implements MouseListener
     {
         private MouseListener headerListener;
         private final JTableHeader header;
@@ -4149,7 +4149,7 @@ public abstract class CcddJTableHandler extends JTable
         /**********************************************************************
          * Resize-capturing mouse listener class constructor
          *********************************************************************/
-        public ResizeColumnListener()
+        ResizeColumnListener()
         {
             // Get the reference to the table's header
             header = getTableHeader();
@@ -4505,7 +4505,7 @@ public abstract class CcddJTableHandler extends JTable
          * @param offset
          *            page number offset
          *********************************************************************/
-        private PageWrapper(Printable delegate, int offset)
+        PageWrapper(Printable delegate, int offset)
         {
             this.offset = offset;
             this.delegate = delegate;

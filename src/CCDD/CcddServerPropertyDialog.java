@@ -68,21 +68,21 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Server properties dialog class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param databaseName
      *            true to use the active database; false to use the default
      *            database. This is only used when opening the database after
      *            changing the login credentials
-     * 
+     *
      * @param dialogType
      *            database dialog type: LOGIN, DB_SERVER, or WEB_SERVER
      *************************************************************************/
-    protected CcddServerPropertyDialog(CcddMain ccddMain,
-                                       boolean useActiveDatabase,
-                                       ServerPropertyDialogType dialogType)
+    CcddServerPropertyDialog(CcddMain ccddMain,
+                             boolean useActiveDatabase,
+                             ServerPropertyDialogType dialogType)
     {
         this.ccddMain = ccddMain;
         this.useActiveDatabase = useActiveDatabase;
@@ -97,15 +97,15 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Server properties dialog class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param dialogType
      *            database dialog type: LOGIN, DB_SERVER, or WEB_SERVER
      *************************************************************************/
-    protected CcddServerPropertyDialog(CcddMain ccddMain,
-                                       ServerPropertyDialogType dialogType)
+    CcddServerPropertyDialog(CcddMain ccddMain,
+                             ServerPropertyDialogType dialogType)
     {
         this(ccddMain, true, dialogType);
     }
@@ -287,8 +287,8 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                         // flag to determine if the active or default database
                         // should be opened
                         dbControl.openDatabaseInBackground(useActiveDatabase
-                                                                            ? dbControl.getDatabase()
-                                                                            : DEFAULT_DATABASE);
+                                                                             ? dbControl.getDatabase()
+                                                                             : DEFAULT_DATABASE);
                     }
                 }
                 // No other user exists to choose
@@ -316,7 +316,8 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
 
                 List<String> servers = new ArrayList<String>(ModifiableSizeInfo.NUM_REMEMBERED_SERVERS.getSize());
                 servers.addAll(Arrays.asList(ccddMain.getProgPrefs().get(SERVER_STRINGS,
-                                                                         "").split(AUTO_COMPLETE_TEXT_SEPARATOR)));
+                                                                         "")
+                                                     .split(AUTO_COMPLETE_TEXT_SEPARATOR)));
                 hostFld = new AutoCompleteTextField(servers,
                                                     ModifiableSizeInfo.NUM_REMEMBERED_SERVERS.getSize());
                 hostFld.setText(dbControl.getHost());
@@ -388,7 +389,8 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                 selectPnl.add(portLbl, gbc);
 
                 portFld = new JTextField(ccddMain.getProgPrefs().get(WEB_SERVER_PORT,
-                                                                     DEFAULT_WEB_SERVER_PORT), 4);
+                                                                     DEFAULT_WEB_SERVER_PORT),
+                                         4);
                 portFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                 portFld.setEditable(true);
                 portFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
@@ -421,7 +423,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Verify that the dialog content is valid
-     * 
+     *
      * @return true if the input values are valid
      *************************************************************************/
     @Override
@@ -500,7 +502,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
             // Inform the user that the input value is invalid
             new CcddDialogHandler().showMessageDialog(CcddServerPropertyDialog.this,
                                                       "<html><b>"
-                                                          + ce.getMessage(),
+                                                                                     + ce.getMessage(),
                                                       "Invalid Input",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);

@@ -90,7 +90,7 @@ public class CcddDbVerificationHandler
     private final CcddEventLogDialog eventLog;
     private final CcddTableTypeHandler tableTypeHandler;
     private final CcddMacroHandler macroHandler;
-    private TypeDefinition typeDefinition;
+    private TypeDefinition typeDefn;
     private CcddJTableHandler updateTable;
 
     // Comments for all tables
@@ -146,8 +146,8 @@ public class CcddDbVerificationHandler
          *            array containing the table data as it exists in the
          *            project database
          *********************************************************************/
-        protected TableStorage(TableInformation tableInformation,
-                               String[][] committedData)
+        TableStorage(TableInformation tableInformation,
+                     String[][] committedData)
         {
             this.tableInformation = tableInformation;
             this.committedData = committedData;
@@ -1970,7 +1970,7 @@ public class CcddDbVerificationHandler
                     tableStorage.add(new TableStorage(tableInfo, committedData));
 
                     // Get the table's type definition
-                    typeDefinition = tableTypeHandler.getTypeDefinition(tableInfo.getType());
+                    typeDefn = tableTypeHandler.getTypeDefinition(tableInfo.getType());
 
                     // Initialize the array check parameters: array data type,
                     // name, number of members, array dimension sizes, and
@@ -1999,7 +1999,7 @@ public class CcddDbVerificationHandler
 
                         // Check if this is a structure table and that the
                         // array size isn't blank
-                        if (typeDefinition.isStructure()
+                        if (typeDefn.isStructure()
                             && tableInfo.getData()[row][arraySizeIndex] != null
                             && !tableInfo.getData()[row][arraySizeIndex].isEmpty())
                         {
@@ -2181,8 +2181,8 @@ public class CcddDbVerificationHandler
             && !data.isEmpty()
             && !(column == variableNameIndex
                  && ArrayVariable.isArrayMember(data))
-            && typeDefinition.getInputTypes()[column] != null
-            && !data.matches(typeDefinition.getInputTypes()[column].getInputMatch()))
+            && typeDefn.getInputTypes()[column] != null
+            && !data.matches(typeDefn.getInputTypes()[column].getInputMatch()))
         {
             // Value doesn't match the input type specified in the type
             // definition
@@ -2191,7 +2191,7 @@ public class CcddDbVerificationHandler
                                       + "' row "
                                       + row
                                       + " column '"
-                                      + typeDefinition.getColumnNamesUser()[column]
+                                      + typeDefn.getColumnNamesUser()[column]
                                       + "' type mismatch",
                                       "Replace with a blank",
                                       row,

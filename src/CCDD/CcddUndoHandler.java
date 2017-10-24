@@ -869,9 +869,9 @@ public class CcddUndoHandler
          * @param newValue
          *            new check box selection state
          *********************************************************************/
-        private CheckBoxEdit(UndoableCheckBox checkBox,
-                             boolean oldValue,
-                             boolean newValue)
+        CheckBoxEdit(UndoableCheckBox checkBox,
+                     boolean oldValue,
+                     boolean newValue)
         {
             this.checkBox = checkBox;
             this.oldValue = oldValue;
@@ -1146,9 +1146,7 @@ public class CcddUndoHandler
          * @param newValue
          *            new text field value
          *********************************************************************/
-        private TextFieldEdit(UndoableTextField textField,
-                              String oldValue,
-                              String newValue)
+        TextFieldEdit(UndoableTextField textField, String oldValue, String newValue)
         {
             this.textField = textField;
             this.oldValue = oldValue;
@@ -1427,9 +1425,7 @@ public class CcddUndoHandler
          * @param newValue
          *            new text area value
          *********************************************************************/
-        private TextAreaEdit(UndoableTextArea textArea,
-                             String oldValue,
-                             String newValue)
+        TextAreaEdit(UndoableTextArea textArea, String oldValue, String newValue)
         {
             this.textArea = textArea;
             this.oldValue = oldValue;
@@ -1942,8 +1938,7 @@ public class CcddUndoHandler
          * @param newDataVector
          *            table data after the update
          *********************************************************************/
-        private DataVectorEdit(Object[][] oldDataVector,
-                               Object[][] newDataVector)
+        DataVectorEdit(Object[][] oldDataVector, Object[][] newDataVector)
         {
             this.oldDataVector = oldDataVector;
             this.newDataVector = newDataVector;
@@ -2006,8 +2001,8 @@ public class CcddUndoHandler
          * @param newSortKeys
          *            sort keys after sorting the rows
          *********************************************************************/
-        private RowSort(List<? extends SortKey> oldSortKeys,
-                        List<? extends SortKey> newSortKeys)
+        RowSort(List<? extends SortKey> oldSortKeys,
+                List<? extends SortKey> newSortKeys)
         {
             this.oldSortKeys = oldSortKeys;
             this.newSortKeys = newSortKeys;
@@ -2088,17 +2083,17 @@ public class CcddUndoHandler
          *            TableEditType.DELETE if removing a row;
          *            TableEditType.MOVE if moving a row or rows
          *********************************************************************/
-        private RowEdit(UndoableTableModel tableModel,
-                        Object[] values,
-                        int row,
-                        int start,
-                        int end,
-                        TableEditType type)
+        RowEdit(UndoableTableModel tableModel,
+                Object[] values,
+                int row,
+                int start,
+                int end,
+                TableEditType type)
         {
             this.tableModel = tableModel;
             this.values = (values == null)
-                                          ? null
-                                          : Arrays.copyOf(values, values.length);
+                                           ? null
+                                           : Arrays.copyOf(values, values.length);
             this.row = row;
             this.start = start;
             this.end = end;
@@ -2204,11 +2199,11 @@ public class CcddUndoHandler
          * @param column
          *            table column in model coordinates
          *********************************************************************/
-        private CellEdit(UndoableTableModel tableModel,
-                         Object oldValue,
-                         Object newValue,
-                         int row,
-                         int column)
+        CellEdit(UndoableTableModel tableModel,
+                 Object oldValue,
+                 Object newValue,
+                 int row,
+                 int column)
         {
             this.tableModel = tableModel;
             this.oldValue = oldValue;
@@ -2389,10 +2384,10 @@ public class CcddUndoHandler
          *            TableEditType.DELETE if removing a column;
          *            TableEditType.MOVE if moving a column
          *********************************************************************/
-        private ColumnEdit(UndoableTableColumnModel tableColumnModel,
-                           int start,
-                           int end,
-                           TableEditType type)
+        ColumnEdit(UndoableTableColumnModel tableColumnModel,
+                   int start,
+                   int end,
+                   TableEditType type)
         {
             this.tableColumnModel = tableColumnModel;
             this.start = start;
@@ -2556,9 +2551,9 @@ public class CcddUndoHandler
          * @param isSelected
          *            true if the cell is selected
          *********************************************************************/
-        private CellSelectEdit(int row,
-                               int column,
-                               boolean isSelected)
+        CellSelectEdit(int row,
+                       int column,
+                       boolean isSelected)
         {
             this.row = row;
             this.column = column;
@@ -2714,8 +2709,8 @@ public class CcddUndoHandler
          * @param newPaths
          *            array of new tree path(s) selected
          *********************************************************************/
-        private TreePathSelectEdit(TreePath[] oldPaths,
-                                   TreePath[] newPaths)
+        TreePathSelectEdit(TreePath[] oldPaths,
+                           TreePath[] newPaths)
         {
             this.oldPaths = oldPaths;
             this.newPaths = newPaths;
@@ -2811,7 +2806,7 @@ public class CcddUndoHandler
          * @param root
          *            tree root node
          *********************************************************************/
-        protected UndoableTreeModel(TreeNode root)
+        UndoableTreeModel(TreeNode root)
         {
             super(root);
 
@@ -2831,7 +2826,7 @@ public class CcddUndoHandler
          *            false if any node can have children, true if each node is
          *            asked to see if it can have children
          *********************************************************************/
-        protected UndoableTreeModel(TreeNode root, boolean asksAllowsChildren)
+        UndoableTreeModel(TreeNode root, boolean asksAllowsChildren)
         {
             super(root, asksAllowsChildren);
 
@@ -3014,9 +3009,9 @@ public class CcddUndoHandler
              * @param index
              *            node index at which to insert the child in the parent
              *****************************************************************/
-            public UndoableNodeAddEdit(MutableTreeNode parent,
-                                       MutableTreeNode child,
-                                       int index)
+            UndoableNodeAddEdit(MutableTreeNode parent,
+                                MutableTreeNode child,
+                                int index)
             {
                 this.child = child;
                 this.parent = parent;
@@ -3142,9 +3137,9 @@ public class CcddUndoHandler
             /******************************************************************
              * Tree node change edit event handler constructor
              *****************************************************************/
-            public UndoableNodeChangeEdit(TreePath path,
-                                          Object oldValue,
-                                          Object newValue)
+            UndoableNodeChangeEdit(TreePath path,
+                                   Object oldValue,
+                                   Object newValue)
             {
                 this.path = path;
                 this.oldValue = oldValue;
@@ -3227,9 +3222,9 @@ public class CcddUndoHandler
             /******************************************************************
              * Tree node remove edit event handler constructor
              *****************************************************************/
-            public UndoableNodeRemoveEdit(MutableTreeNode parent,
-                                          final MutableTreeNode child,
-                                          int index)
+            UndoableNodeRemoveEdit(MutableTreeNode parent,
+                                   final MutableTreeNode child,
+                                   int index)
             {
                 this.parent = parent;
                 this.child = child;
@@ -3434,9 +3429,9 @@ public class CcddUndoHandler
          *            list containing the new state of the data field
          *            information
          *********************************************************************/
-        private DataFieldPanelEdit(CcddInputFieldPanelHandler fieldPnlHandler,
-                                   List<FieldInformation> oldFieldInfo,
-                                   List<FieldInformation> newFieldInfo)
+        DataFieldPanelEdit(CcddInputFieldPanelHandler fieldPnlHandler,
+                           List<FieldInformation> oldFieldInfo,
+                           List<FieldInformation> newFieldInfo)
         {
             this.fieldPnlHandler = fieldPnlHandler;
             this.oldFieldInfo = oldFieldInfo;

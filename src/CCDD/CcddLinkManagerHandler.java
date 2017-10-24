@@ -120,10 +120,10 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
      * @param availableRates
      *            array of sample rates available to this stream
      *************************************************************************/
-    protected CcddLinkManagerHandler(CcddMain ccddMain,
-                                     CcddLinkManagerDialog linkDialog,
-                                     String rateName,
-                                     String[] availableRates)
+    CcddLinkManagerHandler(CcddMain ccddMain,
+                           CcddLinkManagerDialog linkDialog,
+                           String rateName,
+                           String[] availableRates)
     {
         this.ccddMain = ccddMain;
         this.linkDialog = linkDialog;

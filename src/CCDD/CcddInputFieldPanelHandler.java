@@ -54,7 +54,6 @@ import CCDD.CcddUndoHandler.UndoableTextField;
 public abstract class CcddInputFieldPanelHandler
 {
     // Class references
-    private CcddFieldEditorDialog dataFieldEditorDlg;
     private CcddUndoManager undoManager;
     private CcddUndoHandler undoHandler;
     private CcddFieldHandler dataFieldHandler;
@@ -213,8 +212,8 @@ public abstract class CcddInputFieldPanelHandler
     protected void enableDescriptionField(boolean enable, String description)
     {
         Color backColor = enable
-                                ? ModifiableColorInfo.INPUT_BACK.getColor()
-                                : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor();
+                                 ? ModifiableColorInfo.INPUT_BACK.getColor()
+                                 : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor();
         descriptionFld.setText(description);
         descriptionFld.setEditable(enable);
         descriptionFld.setBackground(backColor);
@@ -284,8 +283,8 @@ public abstract class CcddInputFieldPanelHandler
                 {
                     // Update the data field with the check box selection state
                     fieldInfo.setValue(((UndoableCheckBox) fieldInfo.getInputFld()).isSelected()
-                                                                                                ? "true"
-                                                                                                : "false");
+                                                                                                 ? "true"
+                                                                                                 : "false");
                 }
                 // Not a boolean input (check box) data field
                 else
@@ -295,27 +294,6 @@ public abstract class CcddInputFieldPanelHandler
                 }
             }
         }
-    }
-
-    /**************************************************************************
-     * Get the currently active data field editor dialog
-     *
-     * @return Currently active data field editor dialog
-     *************************************************************************/
-    protected CcddFieldEditorDialog getFieldEditorDialog()
-    {
-        return dataFieldEditorDlg;
-    }
-
-    /**************************************************************************
-     * Set the currently active data field editor dialog
-     *
-     * @param fieldEditor
-     *            currently active data field editor dialog
-     *************************************************************************/
-    protected void setFieldEditorDialog(CcddFieldEditorDialog fieldEditorDialog)
-    {
-        this.dataFieldEditorDlg = fieldEditorDialog;
     }
 
     /**************************************************************************
@@ -644,8 +622,8 @@ public abstract class CcddInputFieldPanelHandler
                         inputFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
                         inputFld.setBackground(fieldInfo.getValue().isEmpty()
                                                && fieldInfo.isRequired()
-                                                                        ? ModifiableColorInfo.REQUIRED_BACK.getColor()
-                                                                        : ModifiableColorInfo.INPUT_BACK.getColor());
+                                                                         ? ModifiableColorInfo.REQUIRED_BACK.getColor()
+                                                                         : ModifiableColorInfo.INPUT_BACK.getColor());
 
                         // Set the text field's name so that the undo handler
                         // can identify the text field, even if it's destroyed
@@ -719,12 +697,12 @@ public abstract class CcddInputFieldPanelHandler
                                     // contents is invalid
                                     new CcddDialogHandler().showMessageDialog(fieldPnlHndlrOwner,
                                                                               "<html><b>Invalid characters in field '</b>"
-                                                                                  + fieldInfo.getFieldName()
-                                                                                  + "<b>'; characters consistent with input type '"
-                                                                                  + fieldInfo.getInputType().getInputName()
-                                                                                  + "' expected",
+                                                                                                  + fieldInfo.getFieldName()
+                                                                                                  + "<b>'; characters consistent with input type '"
+                                                                                                  + fieldInfo.getInputType().getInputName()
+                                                                                                  + "' expected",
                                                                               "Invalid "
-                                                                                  + fieldInfo.getInputType().getInputName(),
+                                                                                                                  + fieldInfo.getInputType().getInputName(),
                                                                               JOptionPane.WARNING_MESSAGE,
                                                                               DialogOption.OK_OPTION);
 
@@ -912,7 +890,7 @@ public abstract class CcddInputFieldPanelHandler
         // should be supplied
         ((JTextComponent) fieldInfo.getInputFld()).setBackground(fieldInfo.getValue().isEmpty()
                                                                  && fieldInfo.isRequired()
-                                                                                          ? ModifiableColorInfo.REQUIRED_BACK.getColor()
-                                                                                          : ModifiableColorInfo.INPUT_BACK.getColor());
+                                                                                           ? ModifiableColorInfo.REQUIRED_BACK.getColor()
+                                                                                           : ModifiableColorInfo.INPUT_BACK.getColor());
     }
 }

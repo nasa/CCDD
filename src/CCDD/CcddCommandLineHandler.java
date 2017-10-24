@@ -273,7 +273,7 @@ public class CcddCommandLineHandler
      * @param args
      *            array of command line arguments and associated parameters
      *************************************************************************/
-    protected CcddCommandLineHandler(final CcddMain ccddMain, String[] args)
+    CcddCommandLineHandler(final CcddMain ccddMain, String[] args)
     {
         this.ccddMain = ccddMain;
         this.args = args;
@@ -617,8 +617,8 @@ public class CcddCommandLineHandler
         argument.add(new CommandHandler("execute",
                                         "Execute script(s)",
                                         "[\" or ']script name["
-                                            + LIST_TABLE_DESC_SEPARATOR.trim()
-                                            + "table1 or Group:group1[+...[+tableN or Group:groupN]]][;...][\" or ']",
+                                                             + LIST_TABLE_DESC_SEPARATOR.trim()
+                                                             + "table1 or Group:group1[+...[+tableN or Group:groupN]]][;...][\" or ']",
                                         CommandLineType.NAME,
                                         10)
         {
@@ -1041,7 +1041,7 @@ public class CcddCommandLineHandler
                 // Check if the parameter is a valid color name; if so, get the
                 // RGB value (mask out the alpha portion)
                 val = ((Color) Color.class.getField(parm).get(null)).getRGB()
-                    & 0xffffff;
+                      & 0xffffff;
             }
             catch (Exception e)
             {

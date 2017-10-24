@@ -53,7 +53,7 @@ public class CcddScriptExecutiveDialog extends CcddFrameHandler
      * @param ccddMain
      *            main class
      *************************************************************************/
-    protected CcddScriptExecutiveDialog(CcddMain ccddMain)
+    CcddScriptExecutiveDialog(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
 

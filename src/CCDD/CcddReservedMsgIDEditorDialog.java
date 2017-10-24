@@ -85,21 +85,8 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
         dbTable = ccddMain.getDbTableCommandHandler();
         rsvMsgIDHandler = ccddMain.getReservedMsgIDHandler();
 
-        // Set the reference to this dialog in main
-        ccddMain.setReservedMsgIDEditor(this);
-
         // Create the reserved message ID editor dialog
         initialize();
-    }
-
-    /**************************************************************************
-     * Get the reference to the reserved message ID table
-     *
-     * @return Reference to the reserved message ID table
-     *************************************************************************/
-    protected CcddJTableHandler getTable()
-    {
-        return msgIDTable;
     }
 
     /**************************************************************************
@@ -131,7 +118,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
      * Copy the reserved message ID data so it can be used to determine if
      * changes are made
      *************************************************************************/
-    protected void storeCurrentData()
+    private void storeCurrentData()
     {
         // Check if the table has fields
         if (!rsvMsgIDHandler.getReservedMsgIDData().isEmpty())
@@ -575,7 +562,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                         // Inform the user that the input value is invalid
                         new CcddDialogHandler().showMessageDialog(CcddReservedMsgIDEditorDialog.this,
                                                                   "<html><b>"
-                                                                      + ce.getMessage(),
+                                                                                                      + ce.getMessage(),
                                                                   "Invalid Input",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);
@@ -677,8 +664,8 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                 // any unstored changes exist
                 setTitle(DIALOG_TITLE
                          + (msgIDTable.isTableChanged(committedData)
-                                                                    ? "*"
-                                                                    : ""));
+                                                                     ? "*"
+                                                                     : ""));
 
                 // Force the table to redraw so that changes to the cells are
                 // displayed
@@ -721,11 +708,11 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
         // changes exist then confirm discarding the changes
         if (msgIDTable.isLastCellValid()
             && (!msgIDTable.isTableChanged(committedData)
-            || new CcddDialogHandler().showMessageDialog(CcddReservedMsgIDEditorDialog.this,
-                                                         "<html><b>Discard changes?",
-                                                         "Discard Changes",
-                                                         JOptionPane.QUESTION_MESSAGE,
-                                                         DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
+                || new CcddDialogHandler().showMessageDialog(CcddReservedMsgIDEditorDialog.this,
+                                                             "<html><b>Discard changes?",
+                                                             "Discard Changes",
+                                                             JOptionPane.QUESTION_MESSAGE,
+                                                             DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
         {
             // Close the dialog
             closeDialog();
@@ -740,7 +727,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
      *
      * @return List containing the updated reserved message ID data
      *************************************************************************/
-    protected List<String[]> getUpdatedData()
+    private List<String[]> getUpdatedData()
     {
         return Arrays.asList(CcddUtilities.convertObjectToString(msgIDTable.getTableData(true)));
     }
@@ -750,7 +737,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
      *
      * @return true if a row is missing data in a required column
      *************************************************************************/
-    protected boolean checkForMissingColumns()
+    private boolean checkForMissingColumns()
     {
         boolean dataIsMissing = false;
         boolean stopCheck = false;
@@ -779,10 +766,10 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                         // other columns and rows
                         if (new CcddDialogHandler().showMessageDialog(CcddReservedMsgIDEditorDialog.this,
                                                                       "<html><b>Data must be provided for column '"
-                                                                          + msgIDTable.getColumnName(column)
-                                                                          + "' [row "
-                                                                          + (row + 1)
-                                                                          + "]",
+                                                                                                          + msgIDTable.getColumnName(column)
+                                                                                                          + "' [row "
+                                                                                                          + (row + 1)
+                                                                                                          + "]",
                                                                       "Missing Data",
                                                                       JOptionPane.WARNING_MESSAGE,
                                                                       DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)

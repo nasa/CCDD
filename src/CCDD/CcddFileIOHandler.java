@@ -88,7 +88,7 @@ public class CcddFileIOHandler
      * @param ccddMain
      *            main class
      *************************************************************************/
-    protected CcddFileIOHandler(CcddMain ccddMain)
+    CcddFileIOHandler(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
 
@@ -823,6 +823,10 @@ public class CcddFileIOHandler
                     // Update any open editor's data type columns to include
                     // the new table(s), if applicable
                     dbTable.updateDataTypeColumns(ccddMain.getMainFrame());
+
+                    // Update any open editor's message ID names columns to
+                    // include any new message ID names, if applicable
+                    dbTable.updateMessageIDNamesColumns(ccddMain.getMainFrame());
 
                     eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
                                       "Table import completed successfully");

@@ -206,7 +206,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                 {
                     // Get the text in the input type column
                     String cellValue = fieldTable.getValueAt(row,
-                                                             inputTypeIndex).toString();
+                                                             inputTypeIndex)
+                                                 .toString();
 
                     // Check if the row represents a separator or line break
                     if (cellValue.equals(InputDataType.SEPARATOR.getInputName())
@@ -359,7 +360,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                         // Inform the user that the input value is invalid
                         new CcddDialogHandler().showMessageDialog(CcddFieldEditorDialog.this,
                                                                   "<html><b>"
-                                                                      + ce.getMessage(),
+                                                                                              + ce.getMessage(),
                                                                   "Invalid Input",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);
@@ -500,8 +501,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                 // any unstored changes exist
                 setTitle(DIALOG_TITLE + ": " + ownerName
                          + (fieldTable.isTableChanged(currentData)
-                                                                  ? "*"
-                                                                  : ""));
+                                                                   ? "*"
+                                                                   : ""));
 
                 // Force the table to redraw so that changes to the cells are
                 // displayed
@@ -562,10 +563,6 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         outerPanel = new JPanel(new GridBagLayout());
         outerPanel.add(editorPanel, gbc);
         outerPanel.setBorder(BorderFactory.createEmptyBorder());
-
-        // Set the data field editor and editor dialog references in the parent
-        // table or table type editor
-        fieldPnlHandler.setFieldEditorDialog(this);
 
         // Create the lower (button) panel
         JPanel buttonPnl = new JPanel();
@@ -876,11 +873,11 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // changes exist then confirm discarding the changes
         if (fieldTable.isLastCellValid()
             && (!fieldTable.isTableChanged(currentData)
-            || new CcddDialogHandler().showMessageDialog(CcddFieldEditorDialog.this,
-                                                         "<html><b>Discard changes?",
-                                                         "Discard Changes",
-                                                         JOptionPane.QUESTION_MESSAGE,
-                                                         DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
+                || new CcddDialogHandler().showMessageDialog(CcddFieldEditorDialog.this,
+                                                             "<html><b>Discard changes?",
+                                                             "Discard Changes",
+                                                             JOptionPane.QUESTION_MESSAGE,
+                                                             DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
         {
             // Close the editor dialog
             closeDialog();
@@ -888,31 +885,11 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     }
 
     /**************************************************************************
-     * Get the field table handler
-     *
-     * @return Field table handler
-     *************************************************************************/
-    protected CcddJTableHandler getTable()
-    {
-        return fieldTable;
-    }
-
-    /**************************************************************************
-     * Get the UndoManager for this field table editor
-     *
-     * @return Field table UndoManager
-     *************************************************************************/
-    protected CcddUndoManager getUndoManager()
-    {
-        return fieldTable.getUndoManager();
-    }
-
-    /**************************************************************************
      * Get the updated field data
      *
      * @return Array containing the updated field data
      *************************************************************************/
-    protected Object[][] getUpdatedData()
+    private Object[][] getUpdatedData()
     {
         return fieldTable.getTableData(true);
     }
@@ -1014,7 +991,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
      *
      * @return true if a row is missing data in a required column
      *************************************************************************/
-    protected boolean checkForMissingColumns()
+    private boolean checkForMissingColumns()
     {
         boolean dataIsMissing = false;
         boolean stopCheck = false;
@@ -1043,10 +1020,10 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                         // other columns and rows
                         if (new CcddDialogHandler().showMessageDialog(CcddFieldEditorDialog.this,
                                                                       "<html><b>Data must be provided for column '"
-                                                                          + fieldTable.getColumnName(column)
-                                                                          + "' [row "
-                                                                          + (row + 1)
-                                                                          + "]",
+                                                                                                  + fieldTable.getColumnName(column)
+                                                                                                  + "' [row "
+                                                                                                  + (row + 1)
+                                                                                                  + "]",
                                                                       "Missing Data",
                                                                       JOptionPane.WARNING_MESSAGE,
                                                                       DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)

@@ -18,6 +18,7 @@ import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.GroupInformation;
 import CCDD.CcddClasses.Message;
 import CCDD.CcddClasses.Variable;
+import CCDD.CcddConstants.DefaultApplicationField;
 import CCDD.CcddConstants.SchedulerType;
 
 /******************************************************************************
@@ -129,8 +130,8 @@ public class CcddApplicationSchedulerTableHandler
             public int compare(Variable var, Variable otherVar)
             {
                 return ((ApplicationData) var).getPriority() > ((ApplicationData) var).getPriority()
-                                                                                                    ? 1
-                                                                                                    : 0;
+                                                                                                     ? 1
+                                                                                                     : 0;
             }
         });
     }
@@ -173,7 +174,8 @@ public class CcddApplicationSchedulerTableHandler
             @Override
             public int compare(Variable var, Variable otherVar)
             {
-                return Integer.valueOf(((ApplicationData) var).getWakeUpID().replace("0x", ""), 16).compareTo(Integer.valueOf(((ApplicationData) otherVar).getWakeUpID().replace("0x", ""), 16));
+                return Integer.valueOf(((ApplicationData) var).getWakeUpID().replace("0x", ""), 16)
+                              .compareTo(Integer.valueOf(((ApplicationData) otherVar).getWakeUpID().replace("0x", ""), 16));
             }
         });
 
@@ -303,15 +305,15 @@ public class CcddApplicationSchedulerTableHandler
             ccddMain.getSessionEventLog().logFailEvent(ccddMain.getMainFrame(),
                                                        "Application Error",
                                                        "Invalid "
-                                                           + type
-                                                           + " detected; "
-                                                           + numInvalid
-                                                           + " removed",
+                                                                            + type
+                                                                            + " detected; "
+                                                                            + numInvalid
+                                                                            + " removed",
                                                        "<html><b>Invalid "
-                                                           + type
-                                                           + " detected; "
-                                                           + numInvalid
-                                                           + " removed");
+                                                                                          + type
+                                                                                          + " detected; "
+                                                                                          + numInvalid
+                                                                                          + " removed");
         }
     }
 
@@ -357,17 +359,19 @@ public class CcddApplicationSchedulerTableHandler
 
                     // Get the application's schedule rate
                     FieldInformation appInfo = fieldHandler.getFieldInformationByName(application,
-                                                                                      "Schedule Rate");
+                                                                                      DefaultApplicationField.SCHEDULE_RATE.getFieldName());
 
                     // Check if the application's rate equals its field's rate
                     if (Float.valueOf(appInfo.getValue()) == app.getRate())
                     {
+                        ApplicationData appData = (ApplicationData) app;
+
                         // Set the applications's validity to true
                         isValid = true;
 
                         // Get the run time field information
                         appInfo = fieldHandler.getFieldInformationByName(application,
-                                                                         "Execution Time");
+                                                                         DefaultApplicationField.EXECUTION_TIME.getFieldName());
 
                         // Check if the application's run time changed
                         if (appInfo != null
@@ -379,50 +383,98 @@ public class CcddApplicationSchedulerTableHandler
 
                         // Get the execution priority field information
                         appInfo = fieldHandler.getFieldInformationByName(application,
-                                                                         "Execution Priority");
+                                                                         DefaultApplicationField.PRIORITY.getFieldName());
 
                         // Check if the application's priority changed
                         if (appInfo != null
-                            && Integer.valueOf(appInfo.getValue()) == ((ApplicationData) app).getPriority())
+                            && Integer.valueOf(appInfo.getValue()) != appData.getPriority())
                         {
                             // Update the application's priority
-                            ((ApplicationData) app).setPriority(Integer.valueOf(appInfo.getValue()));
+                            appData.setPriority(Integer.valueOf(appInfo.getValue()));
                         }
 
-                        // Get the wake up ID field information
+                        // Get the message rate field information
                         appInfo = fieldHandler.getFieldInformationByName(application,
-                                                                         "Wake_Up ID");
+                                                                         DefaultApplicationField.MESSAGE_RATE.getFieldName());
 
-                        // Check if the application's wake up ID changed
+                        // Check if the application's message rate changed
                         if (appInfo != null
-                            && appInfo.getValue().equals(((ApplicationData) app).getWakeUpID()))
+                            && Integer.valueOf(appInfo.getValue()) != appData.getMessageRate())
                         {
-                            // Update the application's wake up ID
-                            ((ApplicationData) app).setWakeUpID(appInfo.getValue());
+                            // Update the application's message rate
+                            appData.setMessageRate(Integer.valueOf(appInfo.getValue()));
                         }
 
-                        // Get the wake up name field information
+                        // Get the wake-up name field information
                         appInfo = fieldHandler.getFieldInformationByName(application,
-                                                                         "Wake_Up Name");
+                                                                         DefaultApplicationField.WAKE_UP_NAME.getFieldName());
 
-                        // Check if the application's wake up name changed
+                        // Check if the application's wake-up name changed
                         if (appInfo != null
-                            && Integer.valueOf(appInfo.getValue()) == ((ApplicationData) app).getHkSendRate())
+                            && !appInfo.getValue().equals(appData.getWakeUpName()))
                         {
-                            // Update the application's wake up name
-                            ((ApplicationData) app).setHkSendRate(Integer.valueOf(appInfo.getValue()));
+                            // Update the application's wake-up name
+                            appData.setWakeUpName(appInfo.getValue());
                         }
 
-                        // Get the schedule group name field information
+                        // Get the wake-up ID field information
                         appInfo = fieldHandler.getFieldInformationByName(application,
-                                                                         "SCH_GROUP Name");
+                                                                         DefaultApplicationField.WAKE_UP_ID.getFieldName());
 
-                        // Check if the application's sch group name changed
+                        // Check if the application's wake-up ID changed
                         if (appInfo != null
-                            && appInfo.getValue().equals(((ApplicationData) app).getSchGroup()))
+                            && !appInfo.getValue().equals(appData.getWakeUpID()))
                         {
-                            // Update the application's wake up name
-                            ((ApplicationData) app).setSchGroup(appInfo.getValue());
+                            // Update the application's wake-up ID
+                            appData.setWakeUpID(appInfo.getValue());
+                        }
+
+                        // Get the HK send rate field information
+                        appInfo = fieldHandler.getFieldInformationByName(application,
+                                                                         DefaultApplicationField.HK_SEND_RATE.getFieldName());
+
+                        // Check if the application's HK send rate changed
+                        if (appInfo != null
+                            && Integer.valueOf(appInfo.getValue()) != appData.getHkSendRate())
+                        {
+                            // Update the application's HK send rate
+                            appData.setHkSendRate(Integer.valueOf(appInfo.getValue()));
+                        }
+
+                        // Get the HK wake-up name field information
+                        appInfo = fieldHandler.getFieldInformationByName(application,
+                                                                         DefaultApplicationField.HK_WAKE_UP_NAME.getFieldName());
+
+                        // Check if the application's HK wake-up name changed
+                        if (appInfo != null
+                            && !appInfo.getValue().equals(appData.getHkWakeUpName()))
+                        {
+                            // Update the application's HK wake-up name
+                            appData.setHkWakeUpName(appInfo.getValue());
+                        }
+
+                        // Get the HK wake-up ID field information
+                        appInfo = fieldHandler.getFieldInformationByName(application,
+                                                                         DefaultApplicationField.HK_WAKE_UP_ID.getFieldName());
+
+                        // Check if the application's HK wake-up ID changed
+                        if (appInfo != null
+                            && !appInfo.getValue().equals(appData.getHkWakeUpID()))
+                        {
+                            // Update the application's HK wake-up ID
+                            appData.setHkWakeUpID(appInfo.getValue());
+                        }
+
+                        // Get the schedule group field information
+                        appInfo = fieldHandler.getFieldInformationByName(application,
+                                                                         DefaultApplicationField.SCH_GROUP.getFieldName());
+
+                        // Check if the application's schedule group changed
+                        if (appInfo != null
+                            && !appInfo.getValue().equals(appData.getSchGroup()))
+                        {
+                            // Update the application's schedule group
+                            appData.setSchGroup(appInfo.getValue());
                         }
                     }
 

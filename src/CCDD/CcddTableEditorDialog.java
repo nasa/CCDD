@@ -161,16 +161,6 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     }
 
     /**************************************************************************
-     * Get the currently active data field editor dialog
-     *
-     * @return Currently active data field editor dialog
-     *************************************************************************/
-    protected CcddFieldEditorDialog getFieldEditorDialog()
-    {
-        return activeEditor.getFieldEditorDialog();
-    }
-
-    /**************************************************************************
      * Get the tabbed pane
      *
      * @return Tabbed pane
@@ -364,7 +354,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 && ((mod.getArraySizeColumn() != -1
                      && mod.getOriginalRowData()[mod.getArraySizeColumn()].toString().isEmpty()
                      && !mod.getRowData()[mod.getArraySizeColumn()].toString().isEmpty())
-                     || !mod.getOriginalRowData()[mod.getDataTypeColumn()].toString().equals(mod.getRowData()[mod.getDataTypeColumn()].toString())))
+                    || !mod.getOriginalRowData()[mod.getDataTypeColumn()].toString().equals(mod.getRowData()[mod.getDataTypeColumn()].toString())))
             {
                 // Add the pattern that matches the table editor tab names for
                 // the modified structure. The pattern is [parent
@@ -372,8 +362,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 // structure variable name][,__]
                 invalidatedEditors.add(new String[] {tableInfo.getPrototypeName(),
                                                      mod.getOriginalRowData()[mod.getDataTypeColumn()].toString()
-                                                         + "."
-                                                         + mod.getOriginalRowData()[mod.getVariableColumn()].toString()});
+                                                                                   + "."
+                                                                                   + mod.getOriginalRowData()[mod.getVariableColumn()].toString()});
             }
         }
 
@@ -391,13 +381,16 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 // name][,__]
                 invalidatedEditors.add(new String[] {tableInfo.getPrototypeName(),
                                                      del.getRowData()[del.getDataTypeColumn()].toString()
-                                                         + "."
-                                                         + del.getRowData()[del.getVariableColumn()].toString()});
+                                                                                   + "."
+                                                                                   + del.getRowData()[del.getVariableColumn()].toString()});
             }
         }
 
         // Close the invalid table editors
         dbTblCmdHndlr.closeDeletedTableEditors(invalidatedEditors, main.getMainFrame());
+
+        // Update the tables with message names & IDs columns
+        dbTblCmdHndlr.updateMessageIDNamesColumns(main.getMainFrame());
 
         // Step through the open editor dialogs
         for (CcddTableEditorDialog editorDialog : main.getTableEditorDialogs())
@@ -415,7 +408,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                     // child table of the updated table
                     boolean applyToChild = forceUpdate
                                            || (tableInfo.isPrototype()
-                                           && !tableInfo.equals(editor.getTableInformation()));
+                                               && !tableInfo.equals(editor.getTableInformation()));
 
                     // Check if no link handler is already created and this
                     // Perform the command completion steps for this table
@@ -529,13 +522,13 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         // and the table for the specified editor is an instance of this
         // variable
         if ((isRename
-            && ((protoVarName.equals(oldPrototype) && oldVariableName == null)
-                || protoVarName.startsWith(oldPrototype + ".")
-                || editor.getOwnerName().startsWith(oldPrototype + ":")))
+             && ((protoVarName.equals(oldPrototype) && oldVariableName == null)
+                 || protoVarName.startsWith(oldPrototype + ".")
+                 || editor.getOwnerName().startsWith(oldPrototype + ":")))
             || (oldVariableName != null
                 && !oldVariableName.equals(newVariableName)
                 && (protoVarName.equals(oldVariableName)
-            || protoVarName.endsWith("." + oldVariableName))))
+                    || protoVarName.endsWith("." + oldVariableName))))
         {
             // Update the table information to match the prototype/variable
             // name change
@@ -1566,11 +1559,11 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 // discarding the changes
                 if (activeEditor.getTable().isLastCellValid()
                     && (!activeEditor.isTableChanged()
-                    || new CcddDialogHandler().showMessageDialog(CcddTableEditorDialog.this,
-                                                                 "<html><b>Discard changes?",
-                                                                 "Discard Changes",
-                                                                 JOptionPane.QUESTION_MESSAGE,
-                                                                 DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
+                        || new CcddDialogHandler().showMessageDialog(CcddTableEditorDialog.this,
+                                                                     "<html><b>Discard changes?",
+                                                                     "Discard Changes",
+                                                                     JOptionPane.QUESTION_MESSAGE,
+                                                                     DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
                 {
                     // Close the active table. If this is the only table in the
                     // editor then close the editor
@@ -1696,16 +1689,6 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     protected boolean isArrayOverwriteAll()
     {
         return mntmOverwriteAll.isSelected();
-    }
-
-    /**************************************************************************
-     * Get the selection state of the Array - Overwrite empty radio button
-     *
-     * @return true if the Array - Overwrite empty radio button is selected
-     *************************************************************************/
-    protected boolean isArrayOverwriteEmpty()
-    {
-        return mntmOverwriteEmpty.isSelected();
     }
 
     /**************************************************************************
@@ -1875,9 +1858,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             // exist
             tabbedPane.setTitleAt(index,
                                   tabbedPane.getTitleAt(index).replaceAll("\\*", "")
-                                      + (tableEditor.isTableChanged()
-                                                                     ? "*"
-                                                                     : ""));
+                                         + (tableEditor.isTableChanged()
+                                                                         ? "*"
+                                                                         : ""));
         }
     }
 
@@ -1929,11 +1912,11 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         // changes
         if (activeEditor.getTable().isLastCellValid()
             && (!isTablesChanged()
-            || new CcddDialogHandler().showMessageDialog(CcddTableEditorDialog.this,
-                                                         "<html><b>Discard changes?",
-                                                         "Discard Changes",
-                                                         JOptionPane.QUESTION_MESSAGE,
-                                                         DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
+                || new CcddDialogHandler().showMessageDialog(CcddTableEditorDialog.this,
+                                                             "<html><b>Discard changes?",
+                                                             "Discard Changes",
+                                                             JOptionPane.QUESTION_MESSAGE,
+                                                             DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
         {
             // Close the editor dialog
             closeFrame();

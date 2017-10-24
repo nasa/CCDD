@@ -46,7 +46,7 @@ public class CcddRateParameterHandler
 
     /**************************************************************************
      * Rate parameter handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
@@ -66,7 +66,7 @@ public class CcddRateParameterHandler
     /**************************************************************************
      * Get the maximum number of seconds allowed between downlinking two of the
      * same message
-     * 
+     *
      * @return Maximum number of seconds allowed between downlinking two of the
      *         same message
      *************************************************************************/
@@ -77,7 +77,7 @@ public class CcddRateParameterHandler
 
     /**************************************************************************
      * Get the maximum number of messages that can be downlinked in one second
-     * 
+     *
      * @return Maximum number of messages that can be downlinked in one second
      *************************************************************************/
     protected int getMaxMsgsPerSecond()
@@ -88,7 +88,7 @@ public class CcddRateParameterHandler
     /**************************************************************************
      * Get the value of the flag that indicates if unevenly time-space sample
      * rates are to be included
-     * 
+     *
      * @return true if unevenly time-spaced sample rate values are included;
      *         false if only sample rates that are evenly time-spaced are
      *         included
@@ -100,7 +100,7 @@ public class CcddRateParameterHandler
 
     /**************************************************************************
      * Get the list of rate information, sorted by data stream name
-     * 
+     *
      * @return List of rate information
      *************************************************************************/
     protected List<RateInformation> getRateInformation()
@@ -124,7 +124,7 @@ public class CcddRateParameterHandler
 
     /**************************************************************************
      * Add rate information to the list for the specified rate column name
-     * 
+     *
      * @param rateName
      *            new rate's column name
      *************************************************************************/
@@ -154,10 +154,10 @@ public class CcddRateParameterHandler
      * a new rate entry instead of renaming the existing one. If the new rate
      * column name matches one in another table type then merge it with the
      * existing one and delete the original
-     * 
+     *
      * @param oldRateName
      *            current rate column name
-     * 
+     *
      * @param newRateName
      *            new rate column name
      *************************************************************************/
@@ -216,7 +216,7 @@ public class CcddRateParameterHandler
 
     /**************************************************************************
      * Remove the specified rate's information from the list
-     * 
+     *
      * @param rateName
      *            rate name for the rate information object to remove
      *************************************************************************/
@@ -247,10 +247,10 @@ public class CcddRateParameterHandler
 
     /**************************************************************************
      * Get the rate information with the specified rate column
-     * 
+     *
      * @param rateColumnName
      *            rate column name
-     * 
+     *
      * @return Rate information with the specified rate column; null if the
      *         rate column doesn't exist
      *************************************************************************/
@@ -274,10 +274,10 @@ public class CcddRateParameterHandler
 
     /**************************************************************************
      * Get the rate information with the specified data stream name
-     * 
+     *
      * @param streamName
      *            name of stream
-     * 
+     *
      * @return Rate information with the data stream name; null if the data
      *         stream doesn't exist
      *************************************************************************/
@@ -302,10 +302,10 @@ public class CcddRateParameterHandler
     /**************************************************************************
      * Get the index of the rate information with the specified rate column
      * name
-     * 
+     *
      * @param rateName
      *            rate column name
-     * 
+     *
      * @return Index of the rate information with the specified rate column
      *         name; -1 if no rate information has this rate column name
      *************************************************************************/
@@ -339,10 +339,10 @@ public class CcddRateParameterHandler
 
     /**************************************************************************
      * Get the index of the rate information with the specified stream name
-     * 
+     *
      * @param streamName
      *            stream name
-     * 
+     *
      * @return Index of the rate information with the specified stream name; -1
      *         if no rate information has this stream name
      *************************************************************************/
@@ -371,7 +371,7 @@ public class CcddRateParameterHandler
 
     /**************************************************************************
      * Get the number of unique rate columns
-     * 
+     *
      * @return Number of unique rate columns
      *************************************************************************/
     protected int getNumRateColumns()
@@ -381,7 +381,7 @@ public class CcddRateParameterHandler
 
     /**************************************************************************
      * Set the rate information list based on the unique rate columns
-     * 
+     *
      * @return true if the number of rate columns changed
      *************************************************************************/
     protected boolean setRateInformation()
@@ -533,8 +533,8 @@ public class CcddRateParameterHandler
             ccddMain.getSessionEventLog().logFailEvent(ccddMain.getMainFrame(),
                                                        "Rate Parameter Error",
                                                        "Invalid rate parameter(s): using default values instead; cause '"
-                                                           + e.getMessage()
-                                                           + "'",
+                                                                               + e.getMessage()
+                                                                               + "'",
                                                        "<html><b>Invalid rate parameter(s): using default values instead");
 
             // Use default values
@@ -560,31 +560,31 @@ public class CcddRateParameterHandler
     /**************************************************************************
      * Set the rate parameters, store them in the project database, and
      * calculate the sample rates
-     * 
+     *
      * @param maxSecPerMsg
      *            maximum number of seconds allowed between downlinking two of
      *            the same message
-     * 
+     *
      * @param maxMsgsPerSec
      *            maximum number of messages that can be downlinked in one
      *            second
-     * 
+     *
      * @param streamName
      *            array containing the stream name per stream
-     * 
+     *
      * @param maxMsgsPerCycle
      *            array containing the maximum number of messages that can be
      *            downlinked before repeating the message list per stream
-     * 
+     *
      * @param maxBytesPerSec
      *            array containing the maximum number of bytes that can be
      *            downlinked in one second per stream
-     * 
+     *
      * @param includeUneven
      *            true to include unevenly time-spaced sample rate values;
      *            false to only include sample rates that are evenly
      *            time-spaced
-     * 
+     *
      * @param parent
      *            component calling this method, used for positioning any error
      *            dialogs
@@ -606,8 +606,8 @@ public class CcddRateParameterHandler
         {
             // Store the rate parameters
             rateInformation.get(index).setStreamName(streamName[index].isEmpty()
-                                                                                ? rateInformation.get(index).getRateName()
-                                                                                : streamName[index]);
+                                                                                 ? rateInformation.get(index).getRateName()
+                                                                                 : streamName[index]);
             rateInformation.get(index).setMaxMsgsPerCycle(maxMsgsPerCycle[index]);
             rateInformation.get(index).setMaxBytesPerSec(maxBytesPerSec[index]);
         }
@@ -617,24 +617,6 @@ public class CcddRateParameterHandler
 
         // Calculate the sample rates from the rate parameter values
         calculateSampleRates();
-    }
-
-    /**************************************************************************
-     * Store the maximum bytes per second parameter for the specified stream
-     * 
-     * @param rateInfo
-     *            reference to the data stream's rate information to be updated
-     * 
-     * @param maxBytes
-     *            maximum bytes per second parameter for the given stream
-     *************************************************************************/
-    protected void setMaxBytesPerSecond(RateInformation rateInfo, int maxBytes)
-    {
-        // Set the given data stream's maximum bytes per second value
-        rateInfo.setMaxBytesPerSec(maxBytes);
-
-        // Update the rate parameters in the database
-        dbTable.storeRateParameters(ccddMain.getMainFrame());
     }
 
     /**************************************************************************
@@ -669,24 +651,24 @@ public class CcddRateParameterHandler
     /**************************************************************************
      * Build the array of valid sample rates based on the specified rate
      * parameters
-     * 
+     *
      * @param maxSecPerMsg
      *            maximum number of seconds allowed between downlinking two of
      *            the same message
-     * 
+     *
      * @param maxMsgsPerSec
      *            maximum number of messages that can be downlinked in one
      *            second
-     * 
+     *
      * @param maxMsgsPerCycle
      *            maximum number of messages that can be downlinked before
      *            repeating the message list per stream
-     * 
+     *
      * @param includeUneven
      *            true to include unevenly time-spaced sample rate values;
      *            false to only include sample rates that are evenly
      *            time-spaced
-     * 
+     *
      * @return Array containing the valid sample rates
      *************************************************************************/
     protected String[] calculateSampleRates(int maxSecPerMsg,
@@ -760,13 +742,13 @@ public class CcddRateParameterHandler
      * use the format '1/x', where 'x' is the number of seconds rounded to 5
      * decimal places. Remove any extra trailing zeroes after the decimal and
      * the decimal if no zeroes remain for both the numerator and denominator
-     * 
+     *
      * @param samples
      *            number of samples
-     * 
+     *
      * @param seconds
      *            number of seconds
-     * 
+     *
      * @return Rate, in samples per second, displaying a maximum of 5 decimal
      *         places)
      *************************************************************************/
@@ -793,7 +775,7 @@ public class CcddRateParameterHandler
 
     /**************************************************************************
      * Get an array containing the unique data stream names
-     * 
+     *
      * @return Array containing the unique data stream names
      *************************************************************************/
     protected String[] getDataStreamNames()
@@ -814,13 +796,13 @@ public class CcddRateParameterHandler
      * Get the array of the sample rate values for the specified rate column
      * name with those rates not assigned to any telemetry parameter in the
      * structure tables grayed out
-     * 
+     *
      * @param rateName
      *            rate column name
-     * 
+     *
      * @param parent
      *            GUI component calling this method
-     * 
+     *
      * @return Array of the sample rate values for the specified rate column
      *         name with those rates not assigned to any telemetry parameter in
      *         the structure tables grayed out; an empty array if the rate name

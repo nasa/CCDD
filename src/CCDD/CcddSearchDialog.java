@@ -102,17 +102,17 @@ public class CcddSearchDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Search database tables, scripts, and event log dialog class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param searchType
      *            search dialog type: TABLES, SCRIPTS, or LOG
-     * 
+     *
      * @param targetRow
      *            row index to match if this is an event log entry search on a
      *            table that displays only a single log entry; null otherwise
-     * 
+     *
      * @param eventLog
      *            event log to search; null if not searching a log
      *************************************************************************/
@@ -138,10 +138,10 @@ public class CcddSearchDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Search database tables and scripts class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param searchType
      *            search dialog type: TABLES or SCRIPTS
      *************************************************************************/
@@ -152,7 +152,7 @@ public class CcddSearchDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Get the reference to the search results table
-     * 
+     *
      * @return Reference to the search results table
      *************************************************************************/
     protected CcddJTableHandler getTable()
@@ -162,7 +162,7 @@ public class CcddSearchDialog extends CcddFrameHandler
 
     /**************************************************************************
      * Create the database table or scripts search dialog
-     * 
+     *
      * @param targetRow
      *            row index to match if this is an event log entry search on a
      *            table that displays only a single log entry; null otherwise
@@ -244,7 +244,8 @@ public class CcddSearchDialog extends CcddFrameHandler
                     // list rather than overwriting each other
                     List<String> searches = new ArrayList<String>(ModifiableSizeInfo.NUM_REMEMBERED_SEARCHES.getSize());
                     searches.addAll(Arrays.asList(ccddMain.getProgPrefs().get(SEARCH_STRINGS,
-                                                                              "").split(AUTO_COMPLETE_TEXT_SEPARATOR)));
+                                                                              "")
+                                                          .split(AUTO_COMPLETE_TEXT_SEPARATOR)));
                     searchFld.setList(searches);
                 }
             }
@@ -495,10 +496,10 @@ public class CcddSearchDialog extends CcddFrameHandler
             {
                 return searchDlgType == SearchDialogType.TABLES
                        || (searchDlgType == SearchDialogType.LOG
-                       && column == SearchResultsColumnInfo.CONTEXT.ordinal())
+                           && column == SearchResultsColumnInfo.CONTEXT.ordinal())
                        || (searchDlgType == SearchDialogType.SCRIPTS
-                       && (column == SearchResultsColumnInfo.TARGET.ordinal()
-                       || column == SearchResultsColumnInfo.CONTEXT.ordinal()));
+                           && (column == SearchResultsColumnInfo.TARGET.ordinal()
+                               || column == SearchResultsColumnInfo.CONTEXT.ordinal()));
             }
 
             /******************************************************************
@@ -579,19 +580,20 @@ public class CcddSearchDialog extends CcddFrameHandler
 
             /******************************************************************
              * Highlight the matching search text in the context column cells
-             * 
+             *
              * @param component
              *            reference to the table cell renderer component
-             * 
+             *
              * @param value
              *            cell value
-             * 
+             *
              * @param isSelected
              *            true if the cell is to be rendered with the selection
              *            highlighted
-             * 
-             * @param int row cell row, view coordinates
-             * 
+             *
+             * @param int
+             *            row cell row, view coordinates
+             *
              * @param column
              *            cell column, view coordinates
              *****************************************************************/
@@ -610,16 +612,16 @@ public class CcddSearchDialog extends CcddFrameHandler
 
                     // Create a highlighter painter
                     DefaultHighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(isSelected
-                                                                                                               ? ModifiableColorInfo.INPUT_TEXT.getColor()
-                                                                                                               : ModifiableColorInfo.TEXT_HIGHLIGHT.getColor());
+                                                                                                                ? ModifiableColorInfo.INPUT_TEXT.getColor()
+                                                                                                                : ModifiableColorInfo.TEXT_HIGHLIGHT.getColor());
 
                     // Check if case is to be ignored
                     if (ignoreCaseCb.isSelected())
                     {
                         // Create the match pattern with case ignored
                         pattern = Pattern.compile(allowRegexCb.isSelected()
-                                                                           ? searchFld.getText()
-                                                                           : Pattern.quote(searchFld.getText()),
+                                                                            ? searchFld.getText()
+                                                                            : Pattern.quote(searchFld.getText()),
                                                   Pattern.CASE_INSENSITIVE);
                     }
                     // Only highlight matches with the same case
@@ -627,8 +629,8 @@ public class CcddSearchDialog extends CcddFrameHandler
                     {
                         // Create the match pattern, preserving case
                         pattern = Pattern.compile(allowRegexCb.isSelected()
-                                                                           ? searchFld.getText()
-                                                                           : Pattern.quote(searchFld.getText()));
+                                                                            ? searchFld.getText()
+                                                                            : Pattern.quote(searchFld.getText()));
                     }
 
                     // Create the pattern matcher from the pattern
@@ -731,8 +733,8 @@ public class CcddSearchDialog extends CcddFrameHandler
                                                                                   ignoreCaseCb.isSelected(),
                                                                                   allowRegexCb.isSelected(),
                                                                                   (searchDlgType == SearchDialogType.TABLES
-                                                                                                                           ? dataTablesOnlyCb.isSelected()
-                                                                                                                           : false),
+                                                                                                                            ? dataTablesOnlyCb.isSelected()
+                                                                                                                            : false),
                                                                                   searchColumns);
                             break;
 

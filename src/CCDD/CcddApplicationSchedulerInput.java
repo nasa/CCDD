@@ -63,8 +63,8 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
      * @param ccddMain
      *            main class
      *************************************************************************/
-    protected CcddApplicationSchedulerInput(CcddMain ccddMain,
-                                            CcddApplicationSchedulerDialog schedulerDlg)
+    CcddApplicationSchedulerInput(CcddMain ccddMain,
+                                  CcddApplicationSchedulerDialog schedulerDlg)
     {
         this.ccddMain = ccddMain;
         this.schedulerDlg = schedulerDlg;
@@ -156,10 +156,10 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
         // rates exist, and if none exist set the rate to a dummy value
         List<String> availableRates = Arrays.asList(getAvailableRates());
         updateVariableTree(availableRates.contains("1")
-                                                       ? "1"
-                                                       : (!availableRates.isEmpty()
-                                                                                   ? availableRates.get(0)
-                                                                                   : "0"));
+                                                        ? "1"
+                                                        : (!availableRates.isEmpty()
+                                                                                     ? availableRates.get(0)
+                                                                                     : "0"));
     }
 
     /**************************************************************************
