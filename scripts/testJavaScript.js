@@ -3,7 +3,7 @@
 try
 {
     load("nashorn:mozilla_compat.js");
-    print("Test of a JavaScript script using Nashorn\n");
+    print("Test of a JavaScript script using Nashorn");
 }
 catch (e)
 {
@@ -11,7 +11,6 @@ catch (e)
 }
 
 importClass(Packages.CCDD.CcddScriptDataAccessHandler);
-
 
 // Define the check boxes
 var boxes = [ [ "Box 1", " Box 1 description" ], [ "Box 2", "" ] ];

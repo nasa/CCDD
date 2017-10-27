@@ -1552,24 +1552,32 @@ public class CcddScriptHandler
                     // Get the script engine
                     ScriptEngine scriptEngine = factory.getScriptEngine();
 
-                    // Bind an instance of the script data access handler class
-                    // (named 'ccdd') to the script context so that the
-                    // handler's public access methods can be accessed by the
-                    // script. This is required for JavaScript engine 'Rhino'
-                    // (Java 7 and earlier) or when using 'Nashorn'
-                    // compatibility (Java 8 and later)
+                    // Create an instance of the script data access handler,
+                    // then use this as a reference for the version of the
+                    // access handler class that contains static method calls
+                    // to the non-static version. Some scripting languages work
+                    // with either the non-static or static version (Python,
+                    // Groovy), but others only work with either the non-static
+                    // or static version (JavaScript, Ruby, Scala; this can be
+                    // Java version dependent as well).
+                    CcddScriptDataAccessHandler accessHandler = new CcddScriptDataAccessHandler(ccddMain,
+                                                                                                tableInformation,
+                                                                                                linkHandler,
+                                                                                                fieldHandler,
+                                                                                                groupHandler,
+                                                                                                scriptFileName,
+                                                                                                groupNames,
+                                                                                                component);
+                    CcddScriptDataAccessHandlerStatic staticHandler = new CcddScriptDataAccessHandlerStatic(accessHandler);
+
+                    // Bind the script data access handlers (non-static and
+                    // static versions) to the script context so that the
+                    // handlers' public access methods can be accessed by the
+                    // script using the binding names ('ccdd' or 'ccdds')
                     Bindings scriptBindings = scriptEngine.createBindings();
-                    scriptBindings.put("ccdd",
-                                       new CcddScriptDataAccessHandler(ccddMain,
-                                                                       tableInformation,
-                                                                       linkHandler,
-                                                                       fieldHandler,
-                                                                       groupHandler,
-                                                                       scriptFileName,
-                                                                       groupNames,
-                                                                       component));
-                    scriptEngine.setBindings(scriptBindings,
-                                             ScriptContext.ENGINE_SCOPE);
+                    scriptBindings.put("ccdd", accessHandler);
+                    scriptBindings.put("ccdds", staticHandler);
+                    scriptEngine.setBindings(scriptBindings, ScriptContext.ENGINE_SCOPE);
 
                     // Execute the script
                     scriptEngine.eval(new FileReader(scriptFileName));

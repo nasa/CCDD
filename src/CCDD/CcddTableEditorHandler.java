@@ -19,6 +19,8 @@ import static CCDD.CcddConstants.VARIABLE_PATH_SEPARATOR;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
@@ -2102,11 +2104,20 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // Check that the table is open in a table editor (versus open
                 // for a macro name and/or value change) and if this is the
                 // widest editor table in this tabbed editor dialog
-                if (editorDialog != null
-                    && editorDialog.getTableWidth() < totalWidth)
+                if (editorDialog != null)
                 {
-                    // Set the minimum table size based on the column widths
-                    editorDialog.setTableWidth(totalWidth);
+                    // Get the minimum width needed to display all columns, but
+                    // no wider than the display
+                    int width = Math.min(totalWidth,
+                                         GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getWidth());
+
+                    // Check if the editor's width is less than the minimum
+                    if (editorDialog.getTableWidth() < width)
+                    {
+                        // Set the initial and preferred editor size
+                        editorDialog.setTableWidth(width);
+                        editorDialog.setPreferredSize(new Dimension(width, editorDialog.getPreferredSize().height));
+                    }
                 }
 
                 // Create the drop-down combo box for the column with the

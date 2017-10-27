@@ -18,7 +18,7 @@ if checked != nil
         puts "Check box " + boxes[index][0] \
                 + " selection state is" \
                 + (checked[index] ? "" : " not") \
-                + " checked "
+                + " checked"
     end
 end
 

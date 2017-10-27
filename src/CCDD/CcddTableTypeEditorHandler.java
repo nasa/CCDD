@@ -14,6 +14,8 @@ import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.util.ArrayList;
@@ -712,12 +714,18 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                                              true,
                                                              true);
 
+                // Get the minimum width needed to display all columns, but no
+                // wider than the display
+                int width = Math.min(totalWidth,
+                                     GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getWidth());
+
                 // Check if this is the widest editor table in this tabbed
                 // editor dialog
-                if (editorDialog.getTableWidth() < totalWidth)
+                if (editorDialog.getTableWidth() < width)
                 {
-                    // Set the minimum table size based on the column widths
-                    editorDialog.setTableWidth(totalWidth);
+                    // Set the initial and preferred editor size
+                    editorDialog.setTableWidth(width);
+                    editorDialog.setPreferredSize(new Dimension(width, editorDialog.getPreferredSize().height));
                 }
             }
 

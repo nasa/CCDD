@@ -20,7 +20,7 @@ if (checked != null)
         println "Check box " + boxes[index][0] +
                 " selection state is" +
                 (checked[index] ? "" : " not") +
-                " checked "
+                " checked"
     }
 }
 

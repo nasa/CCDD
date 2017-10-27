@@ -789,7 +789,6 @@ public abstract class CcddInputFieldPanelHandler
         // fields are displayed and the owner's size is adjusted
         fieldPnlHndlrOwner.revalidate();
         fieldPnlHndlrOwner.repaint();
-        fieldPnlHndlrOwner.setMinimumSize(fieldPnlHndlrOwner.getPreferredSize());
     }
 
     /**************************************************************************
