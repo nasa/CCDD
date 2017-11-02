@@ -205,7 +205,24 @@ public class CcddDbTableCommandHandler
      *************************************************************************/
     protected List<String> getRootStructures(Component parent)
     {
-        List<String> topLevelStructures = new ArrayList<String>();
+        return getRootTables(true, parent);
+    }
+
+    /**************************************************************************
+     * Get the list of root (top level) tables
+     *
+     * @param structuresOnly
+     *            true to only include structure tables; false to include
+     *            tables of all types
+     *
+     * @param parent
+     *            GUI component calling this method
+     *
+     * @return List of root tables; empty list if there are no root tables
+     *************************************************************************/
+    protected List<String> getRootTables(boolean structuresOnly, Component parent)
+    {
+        List<String> rootTables = new ArrayList<String>();
 
         // Get the prototype tables and their member tables
         List<TableMembers> tableMembers = loadTableMembers(TableMemberType.TABLES_ONLY,
@@ -215,10 +232,13 @@ public class CcddDbTableCommandHandler
         // Step through each table
         for (TableMembers member : tableMembers)
         {
-            // Check if the member is a structure table type
-            if (tableTypeHandler.getTypeDefinition(member.getTableType()).isStructure())
+            // Check if all table types should be included, or if only
+            // structures are to be included that the member is a structure
+            // table type
+            if (!structuresOnly
+                || tableTypeHandler.getTypeDefinition(member.getTableType()).isStructure())
             {
-                boolean isRootStructure = true;
+                boolean isRootTable = true;
 
                 // Step through each table
                 for (TableMembers otherMember : tableMembers)
@@ -230,21 +250,21 @@ public class CcddDbTableCommandHandler
                     {
                         // Clear the flag indicating this is a root table and
                         // stop searching
-                        isRootStructure = false;
+                        isRootTable = false;
                         break;
                     }
                 }
 
-                // Check if this is a root structure
-                if (isRootStructure)
+                // Check if this is a root table
+                if (isRootTable)
                 {
-                    // Store the root structure's table name
-                    topLevelStructures.add(member.getTableName());
+                    // Store the root table's name
+                    rootTables.add(member.getTableName());
                 }
             }
         }
 
-        return topLevelStructures;
+        return rootTables;
     }
 
     /**************************************************************************
@@ -1992,26 +2012,6 @@ public class CcddDbTableCommandHandler
                             }
                         }
                     }
-
-                    // Check if at least one table was successfully loaded
-                    if (!tableInformation.isEmpty())
-                    {
-                        // Check if no existing editor dialog was supplied
-                        if (currentEditorDlg == null)
-                        {
-                            // Display the table contents in a new table editor
-                            // dialog
-                            ccddMain.getTableEditorDialogs().add(new CcddTableEditorDialog(ccddMain,
-                                                                                           tableInformation));
-                        }
-                        // A table editor dialog is supplied
-                        else
-                        {
-                            // Display the table contents in an existing table
-                            // editor dialog
-                            currentEditorDlg.addTablePanes(tableInformation);
-                        }
-                    }
                 }
                 catch (Exception e)
                 {
@@ -2027,9 +2027,28 @@ public class CcddDbTableCommandHandler
             @Override
             protected void complete()
             {
+                // Check if at least one table was successfully loaded
+                if (!tableInformation.isEmpty())
+                {
+                    // Check if no existing editor dialog was supplied
+                    if (currentEditorDlg == null)
+                    {
+                        // Display the table contents in a new table editor
+                        // dialog
+                        ccddMain.getTableEditorDialogs().add(new CcddTableEditorDialog(ccddMain,
+                                                                                       tableInformation));
+                    }
+                    // A table editor dialog is supplied
+                    else
+                    {
+                        // Display the table contents in an existing table
+                        // editor dialog
+                        currentEditorDlg.addTablePanes(tableInformation);
+                    }
+                }
                 // Check if no table data was loaded due to the table(s)
                 // already being open in an editor
-                if (tableInformation.isEmpty() && tableEditorDlg != null)
+                else if (tableEditorDlg != null)
                 {
                     // Bring the editor dialog to the foreground
                     tableEditorDlg.toFront();
@@ -6234,6 +6253,7 @@ public class CcddDbTableCommandHandler
                         InputDataType inputDataType = InputDataType.getInputTypeByName(add[1]);
                         String dbName = DefaultColumn.convertVisibleToDatabase(add[0],
                                                                                inputDataType);
+
                         // Append the add command
                         command.append("ALTER TABLE "
                                        + dbTable
@@ -7804,8 +7824,7 @@ public class CcddDbTableCommandHandler
 
                     // Inform the user that the update succeeded
                     eventLog.logEvent(SUCCESS_MSG,
-                                      changeName
-                                                   + " and all affected tables updated");
+                                      changeName + " and all affected tables updated");
                 }
                 catch (SQLException se)
                 {

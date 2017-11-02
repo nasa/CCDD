@@ -8,6 +8,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.ALL_TABLES_GROUP_NODE_NAME;
 import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
 import static CCDD.CcddConstants.LINKED_VARIABLES_NODE_NAME;
 import static CCDD.CcddConstants.UNLINKED_VARIABLES_NODE_NAME;
@@ -644,21 +645,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                           parent);
             }
 
-            // Create nodes for all tables
-            ToolTipTreeNode protoAllNode = new ToolTipTreeNode("<html><i>All tables",
-                                                               "All tables");
-            ToolTipTreeNode instAllNode = new ToolTipTreeNode("<html><i>All tables",
-                                                              "All tables");
-
-            // Add the node to the prototype and instance nodes
-            prototype.add(protoAllNode);
-            instance.add(instAllNode);
-
-            // Build the all tables node, filtered by table type
-            addByType(protoAllNode,
-                      instAllNode,
-                      null,
-                      parent);
+            // Add the pseudo-group containing all tables to the prototype and
+            // instance nodes
+            addAllTablesGroup(prototype, instance, parent);
         }
         // Check if groups are to be used to filter the table tree
         else if (isByGroup)
@@ -687,18 +676,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                                    parent);
             }
 
-            // Create nodes for all tables
-            ToolTipTreeNode protoAllNode = new ToolTipTreeNode("<html><i>All tables",
-                                                               "All tables");
-            ToolTipTreeNode instAllNode = new ToolTipTreeNode("<html><i>All tables",
-                                                              "All tables");
-
-            // Add the node to the prototype and instance nodes
-            prototype.add(protoAllNode);
-            instance.add(instAllNode);
-
-            // Build the all tables node
-            buildTopLevelNodes(null, instAllNode, protoAllNode, parent);
+            // Add the pseudo-group containing all tables to the prototype and
+            // instance nodes
+            addAllTablesGroup(prototype, instance, parent);
         }
         // Check if the table types are to be used to filter the table tree
         else if (isByType)
@@ -813,6 +793,49 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 return this;
             }
         });
+    }
+
+    /**************************************************************************
+     * Add the pseudo-group containing all tables to the specified prototype
+     * and instance nodes
+     *
+     * @param protoNode
+     *            parent node for the prototype nodes
+     *
+     * @param instNode
+     *            parent node for the instance nodes
+     *
+     * @param parent
+     *            GUI component calling this method
+     *************************************************************************/
+    private void addAllTablesGroup(ToolTipTreeNode protoNode,
+                                   ToolTipTreeNode instNode,
+                                   Component parent)
+    {
+        // Create nodes for all tables
+        ToolTipTreeNode protoAllNode = new ToolTipTreeNode("<html><i>"
+                                                           + ALL_TABLES_GROUP_NODE_NAME,
+                                                           "Group containing every prototype table");
+        ToolTipTreeNode instAllNode = new ToolTipTreeNode("<html><i>"
+                                                          + ALL_TABLES_GROUP_NODE_NAME,
+                                                          "Group containing every table");
+
+        // Add the node to the prototype and instance nodes
+        protoNode.add(protoAllNode);
+        instNode.add(instAllNode);
+
+        // Check if the tree is filtered by table type
+        if (isByType)
+        {
+            // Build the all tables node, filtered by table type
+            addByType(protoAllNode, instAllNode, null, parent);
+        }
+        // The tree is only filtered by group
+        else
+        {
+            // Build the all tables node
+            buildTopLevelNodes(null, instAllNode, protoAllNode, parent);
+        }
     }
 
     /**************************************************************************

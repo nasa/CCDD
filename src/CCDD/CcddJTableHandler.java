@@ -8,7 +8,6 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.BOOLEAN_CELL_RENDERER;
 import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
 import static CCDD.CcddConstants.REPLACE_INDICATOR;
 
@@ -137,6 +136,9 @@ public abstract class CcddJTableHandler extends JTable
     // Table cell border with padding
     private final Border cellBorder;
 
+    // Table cell border while editing
+    private final Border editBorder;
+
     // Minimum pixel widths needed to display the column headers and column
     // contents
     private int[] minHeaderWidth;
@@ -257,11 +259,16 @@ public abstract class CcddJTableHandler extends JTable
         // undone/redone
         setColumnModel(undoHandler.new UndoableTableColumnModel());
 
-        // Create the border used to pad the table cells
+        // Create the borders used to pad the table cells
         cellBorder = BorderFactory.createEmptyBorder(ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing(),
                                                      ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing(),
                                                      ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing(),
                                                      ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing());
+        editBorder = BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(ModifiableColorInfo.FOCUS_BACK.getColor()),
+                                                        BorderFactory.createEmptyBorder(ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() - 1,
+                                                                                        ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() - 1,
+                                                                                        ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() - 3,
+                                                                                        ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() - 1));
 
         // Create the cell selection container
         selectedCells = new CellSelectionHandler();
@@ -670,10 +677,10 @@ public abstract class CcddJTableHandler extends JTable
     /**************************************************************************
      * Get the next non-empty table row number starting at the supplied index.
      * Rows are empty if the cell values match that returned by the
-     * getEmptyRow() method
+     * getEmptyRow() method. Hidden columns are ignored
      *
      * @param tableRow
-     *            next table row to check for data
+     *            next table row to check for data, model coordinates
      *
      * @return The next row number containing data
      *************************************************************************/
@@ -691,10 +698,11 @@ public abstract class CcddJTableHandler extends JTable
             // Step through each column in the row
             for (int column = 0; column < tableModel.getColumnCount(); column++)
             {
-                // Check if the cell contents doesn't match the default value
-                // (usually empty, though default values, particularly for
-                // check boxes, are possible)
-                if (!emptyRow[column].equals(tableModel.getValueAt(tableRow, column)))
+                // Check if the column is visible and if the cell contents
+                // doesn't match the default value (usually empty, though other
+                // default values, (e.g., for check boxes) are possible)
+                if (convertColumnIndexToView(column) != -1
+                    && !emptyRow[column].equals(tableModel.getValueAt(tableRow, column)))
                 {
                     // Set the flag indicating data exists
                     hasData = true;
@@ -1273,9 +1281,9 @@ public abstract class CcddJTableHandler extends JTable
      *************************************************************************/
     protected Object cleanUpCellValue(Object value, int row, int column)
     {
-        // Check if the cell value represents a string (i.e., it isn't boolean,
-        // etc.)
-        if (value instanceof String)
+        // Check if the cell isn't being actively edited and if the cell value
+        // represents a string (i.e., it isn't boolean, etc.)
+        if (!table.isEditing() && value instanceof String)
         {
             // Remove any leading and trailing white space characters
             value = value.toString().trim();
@@ -1730,6 +1738,208 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**************************************************************************
+     * Create a cell renderer that can display text only on a single line. This
+     * allows the cell border to be set to provide padding around the cell
+     * contents. HTML-formatted text is supported by this renderer
+     *************************************************************************/
+    private class SingleLineCellRenderer extends DefaultTableCellRenderer
+    {
+        /**********************************************************************
+         * Table cell renderer constructor
+         *
+         * @param centerText
+         *            true to center the text within the cells
+         *********************************************************************/
+        SingleLineCellRenderer(boolean centerText)
+        {
+            // Set the font
+            setFont(cellFont);
+
+            // Add inset space around the cell's perimeter to provide padding
+            // between it and the cell's contents
+            setBorder(cellBorder);
+
+            // Set the alignment of the text in the cell
+            setHorizontalAlignment(centerText
+                                              ? JLabel.CENTER
+                                              : JLabel.LEFT);
+
+            // Set to paint every pixel within the cell. This is needed to
+            // prevent a border appearing around the cell for some look & feels
+            setOpaque(true);
+        }
+
+        /**********************************************************************
+         * Override this method so that the cell border is set
+         *********************************************************************/
+        @Override
+        public Border getBorder()
+        {
+            return cellBorder;
+        }
+
+        /**********************************************************************
+         * Override this method so that the text is displayed in the cell
+         *********************************************************************/
+        @Override
+        public Component getTableCellRendererComponent(JTable jtable,
+                                                       Object value,
+                                                       boolean isSelected,
+                                                       boolean hasFocus,
+                                                       int row,
+                                                       int column)
+        {
+            // Set the cell to the string representation of the value
+            setText(value == null ? "" : value.toString());
+
+            return this;
+        }
+    }
+
+    /**************************************************************************
+     * Create a cell renderer for cells that can display text on more than one
+     * line. This allows adjusting the row height to fit the text and to set
+     * the cell border to provide padding around the cell contents
+     *************************************************************************/
+    private class MultiLineCellRenderer extends JTextArea implements TableCellRenderer
+    {
+        /**********************************************************************
+         * Multi-line table cell renderer constructor
+         *********************************************************************/
+        MultiLineCellRenderer()
+        {
+            // Set the cell to be non-editable and for the text to
+            // automatically wrap
+            setEditable(false);
+            setLineWrap(true);
+            setWrapStyleWord(true);
+
+            // Set the font
+            setFont(cellFont);
+
+            // Add inset space around the cell's perimeter to provide padding
+            // between it and the cell's contents
+            setBorder(cellBorder);
+
+            // Set to paint every pixel within the cell. This is needed to
+            // prevent a border appearing around the cell for some look & feels
+            setOpaque(true);
+        }
+
+        /**********************************************************************
+         * Override this method so that the cell border is set
+         *********************************************************************/
+        @Override
+        public Border getBorder()
+        {
+            return cellBorder;
+        }
+
+        /**********************************************************************
+         * Override this method so that the text is displayed in the cell and
+         * the row height can be adjusted to fit the text
+         *********************************************************************/
+        @Override
+        public Component getTableCellRendererComponent(JTable jtable,
+                                                       Object value,
+                                                       boolean isSelected,
+                                                       boolean hasFocus,
+                                                       int row,
+                                                       int column)
+        {
+            // Set the cell to the string representation of the value. Replace
+            // any line feed place-holders with line feed characters
+            setText(value == null
+                                  ? ""
+                                  : value.toString());
+
+            // Check if the row and column indices are valid
+            if (row < table.getRowCount() && column < table.getColumnCount())
+            {
+                // Set the text area's width to the table column width. This
+                // causes the JTextArea to calculate the height required to
+                // show all of the cell's text. Subtract 1 from the width so
+                // that cell text matching the exact width doesn't have text
+                // truncated
+                setSize(jtable.getColumnModel().getColumn(column).getWidth() - 1,
+                        jtable.getRowHeight(row));
+            }
+
+            return this;
+        }
+    }
+
+    /**************************************************************************
+     * Create a cell renderer that can display boolean values as check boxes
+     *************************************************************************/
+    private class BooleanCellRenderer extends DefaultTableCellRenderer
+    {
+        private final JCheckBox checkBox;
+
+        /**********************************************************************
+         * Table cell renderer constructor. Note that there is a single check
+         * box shared by all users of this cell renderer for which attempts to
+         * change individual cells must account
+         *********************************************************************/
+        BooleanCellRenderer()
+        {
+            // Create a check box in which the cell renderer can display
+            // boolean values. If the default boolean renderer is used the cell
+            // background flashes when the check box is toggled
+            checkBox = new JCheckBox();
+
+            // Center the check box within the cell
+            checkBox.setHorizontalAlignment(JLabel.CENTER);
+
+            // Set the opaque flag for the check box so that the background
+            // color of the cell is displayed correctly for alternating rows
+            checkBox.setOpaque(true);
+
+            // Add inset space around the cell's perimeter to provide padding
+            // between it and the cell's contents
+            setBorder(cellBorder);
+        }
+
+        /**********************************************************************
+         * Override this method so that a check box is displayed in the cell
+         *********************************************************************/
+        @Override
+        public Component getTableCellRendererComponent(JTable jtable,
+                                                       Object value,
+                                                       boolean isSelected,
+                                                       boolean hasFocus,
+                                                       int row,
+                                                       int column)
+        {
+            // Check if the value represents a boolean value
+            if (value instanceof Boolean)
+            {
+                // Set the flag to indicate if the cell value can be changed
+                boolean isEditable = isCellEditable(row, column);
+
+                // Check if the check box's enable state differs from the edit
+                // state
+                if (checkBox.isEnabled() != isEditable)
+                {
+                    // Set the check box enable state to match the edit state
+                    // for this cell
+                    checkBox.setEnabled(isEditable);
+                }
+
+                // Check if the cell's current state doesn't match the check
+                // box state
+                if ((Boolean) table.getValueAt(row, column) != checkBox.isSelected())
+                {
+                    // Set the check box state to the new state
+                    checkBox.setSelected((Boolean) value);
+                }
+            }
+
+            return checkBox;
+        }
+    }
+
+    /**************************************************************************
      * Set the table cell renderers
      *
      * @param centerText
@@ -1741,9 +1951,9 @@ public abstract class CcddJTableHandler extends JTable
         // specified columns on a single line
         SingleLineCellRenderer singleLineRenderer = new SingleLineCellRenderer(centerText);
 
-        // Create multi-line renderers for columns that can display text on
-        // multiple lines, one for plain text and one for HTML-formatted text
-        TableCellRenderer multiLineRenderer = new MultiLineCellRenderer();
+        // Create a multi-line renderer for columns that can display text on
+        // multiple lines
+        MultiLineCellRenderer multiLineRenderer = new MultiLineCellRenderer();
 
         // Create a cell renderer to display cells containing boolean values as
         // check boxes
@@ -1769,6 +1979,185 @@ public abstract class CcddJTableHandler extends JTable
             {
                 // Set the cell renderer to display a check box
                 tableColumn.setCellRenderer(booleanCellRenderer);
+            }
+        }
+    }
+
+    /**************************************************************************
+     * Create a cell editor for cells that can display text on more than one
+     * line. This allows adjusting the row height to fit the text as it is
+     * added or deleted
+     *************************************************************************/
+    class MultiLineCellEditor extends DefaultCellEditor
+    {
+        protected JTextArea textArea;
+
+        /**********************************************************************
+         * Multi-line table cell editor constructor
+         *********************************************************************/
+        public MultiLineCellEditor(final JTextArea textArea)
+        {
+            // This is a dummy action required by the interface. The check box
+            // is never used
+            super(new JCheckBox());
+
+            this.textArea = textArea;
+
+            // Set the click count so that a double click is required to
+            // initiate editing on the cell
+            clickCountToStart = 2;
+
+            // Set the cell to be editable and for the text to automatically
+            // wrap
+            textArea.setEditable(true);
+            textArea.setLineWrap(true);
+            textArea.setWrapStyleWord(true);
+
+            // Add a listener for keyboard inputs
+            textArea.addKeyListener(new KeyAdapter()
+            {
+                /**************************************************************
+                 * Handle a key press event so that the table's content can be
+                 * updated, which in turn allows the row height to be adjusted
+                 * automatically
+                 *************************************************************/
+                @Override
+                public void keyPressed(KeyEvent ke)
+                {
+                    // Store the row and column indices for the cell being
+                    // edited
+                    final int row = table.getEditingRow();
+                    final int column = table.getEditingColumn();
+
+                    // Create a runnable object to be executed
+                    SwingUtilities.invokeLater(new Runnable()
+                    {
+                        /******************************************************
+                         * Since the cell text change involves a GUI update use
+                         * invokeLater to execute the call on the event
+                         * dispatch thread following any pending events
+                         *****************************************************/
+                        @Override
+                        public void run()
+                        {
+                            // Update the table cell value to match the text
+                            // entered
+                            table.setValueAt(textArea.getText(),
+                                             row,
+                                             column);
+                        }
+                    });
+                }
+            });
+        }
+
+        /**********************************************************************
+         * Override the method to get the cell editor's component
+         *********************************************************************/
+        @Override
+        public Component getTableCellEditorComponent(JTable table,
+                                                     Object value,
+                                                     boolean isSelected,
+                                                     int row,
+                                                     int column)
+        {
+            // Set the cell to the string representation of the value. Replace
+            // any line feed place-holders with line feed characters
+            textArea.setText(value == null ? "" : value.toString());
+
+            return textArea;
+        }
+
+        /**********************************************************************
+         * Override the method to get the cell editor's content
+         *********************************************************************/
+        @Override
+        public Object getCellEditorValue()
+        {
+            return textArea.getText();
+        }
+    }
+
+    /**************************************************************************
+     * Set the editors for the editable cells based on the column type
+     *************************************************************************/
+    private void setCellEditors()
+    {
+        // Create a focus listener to track the text cursor position when the
+        // cell loses focus
+        FocusListener focusListener = new FocusListener()
+        {
+            /******************************************************************
+             * Handle loss of keyboard focus for the cell
+             *****************************************************************/
+            @Override
+            public void focusLost(FocusEvent fe)
+            {
+                // Check if editing is active in the cell
+                if (table.isEditing())
+                {
+                    // Store the start and end positions of the selected text
+                    lastSelectionStart = ((JTextComponent) fe.getComponent()).getSelectionStart();
+                    lastSelectionEnd = ((JTextComponent) fe.getComponent()).getSelectionEnd();
+                }
+                // Editing is inactive
+                else
+                {
+                    // Reset the text selection positions
+                    lastSelectionStart = -1;
+                    lastSelectionEnd = -1;
+                }
+            }
+
+            /******************************************************************
+             * Handle gain of keyboard focus for the cell
+             *****************************************************************/
+            @Override
+            public void focusGained(FocusEvent fe)
+            {
+            }
+        };
+
+        // Create a text area so that its properties can be set and then used
+        // to create a multi-line editor for cells containing one or more lines
+        // of text
+        JTextArea textFieldMulti = new JTextArea();
+
+        textFieldMulti.setFont(cellFont);
+        textFieldMulti.setBorder(editBorder);
+
+        // Add a listener for cell focus changes
+        textFieldMulti.addFocusListener(focusListener);
+
+        // Create the cell editor for multi-line cells
+        MultiLineCellEditor dceMulti = new MultiLineCellEditor(textFieldMulti);
+
+        // Create a a cell editor for single line cells. The padding differs
+        // from the multi-line cell; using this editor for single line cells
+        // prevents the text from changing vertical alignment when editing is
+        // initiated
+        JTextField textFieldSingle = new JTextField();
+        textFieldSingle.setFont(cellFont);
+        textFieldSingle.setBorder(editBorder);
+
+        // Add a listener for cell focus changes
+        textFieldSingle.addFocusListener(focusListener);
+
+        // Create the cell editor
+        DefaultCellEditor dceSingle = new DefaultCellEditor(textFieldSingle);
+
+        // Step through each column in the table
+        for (int column = 0; column < getColumnCount(); column++)
+        {
+            // Check if the column's contents is not displayed as a check box
+            if (!checkBoxColumnView.contains(column))
+            {
+                // Set the editor so that the contents can be modified within
+                // the table cell. Use the editor appropriate for the number of
+                // cell display lines
+                getColumnModel().getColumn(column).setCellEditor(isColumnMultiLine(convertColumnIndexToModel(column))
+                                                                                                                      ? dceMulti
+                                                                                                                      : dceSingle);
             }
         }
     }
@@ -1931,7 +2320,9 @@ public abstract class CcddJTableHandler extends JTable
     {
         // Check that the column order string was provided. If not, the order
         // of the columns is unchanged
-        if (columnOrder != null && !columnOrder.equals(getColumnOrder()))
+        if (columnOrder != null
+            && !columnOrder.isEmpty()
+            && !columnOrder.equals(getColumnOrder()))
         {
             int numHiddenColumns = 0;
 
@@ -3201,318 +3592,6 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**************************************************************************
-     * Set the editors for the editable cells based on the column type
-     *************************************************************************/
-    private void setCellEditors()
-    {
-        // Create a focus listener to track the text cursor position when the
-        // cell loses focus
-        FocusListener focusListener = new FocusListener()
-        {
-            /******************************************************************
-             * Handle loss of keyboard focus for the cell
-             *****************************************************************/
-            @Override
-            public void focusLost(FocusEvent fe)
-            {
-                // Check if editing is active in the cell
-                if (table.isEditing())
-                {
-                    // Store the start and end positions of the selected text
-                    lastSelectionStart = ((JTextComponent) fe.getComponent()).getSelectionStart();
-                    lastSelectionEnd = ((JTextComponent) fe.getComponent()).getSelectionEnd();
-                }
-                // Editing is inactive
-                else
-                {
-                    // Reset the text selection positions
-                    lastSelectionStart = -1;
-                    lastSelectionEnd = -1;
-                }
-            }
-
-            /******************************************************************
-             * Handle gain of keyboard focus for the cell
-             *****************************************************************/
-            @Override
-            public void focusGained(FocusEvent fe)
-            {
-            }
-        };
-
-        // Create a text field so that its properties can be set and then used
-        // to create a default editor for cells containing one or more lines of
-        // text
-        JTextField textFieldMulti = new JTextField();
-
-        // Set the font used while editing the cell's text
-        textFieldMulti.setFont(cellFont);
-
-        // Set a border to outline and pad the cell contents while editing. The
-        // padding is reduced to account for the outline. The bottom padding
-        // must be reduced an extra amount so that any character descenders
-        // aren't clipped
-        textFieldMulti.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(ModifiableColorInfo.FOCUS_BACK.getColor()),
-                                                                    BorderFactory.createEmptyBorder(ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() - 1,
-                                                                                                    ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() - 1,
-                                                                                                    ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() - 3,
-                                                                                                    ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() - 1)));
-
-        // Add a listener for cell focus changes
-        textFieldMulti.addFocusListener(focusListener);
-
-        // Create the cell editor for multi-line cells
-        DefaultCellEditor dceMulti = new DefaultCellEditor(textFieldMulti);
-
-        // Create a a cell editor for single line cells. The padding differs
-        // from the multi-line cell; using this editor for single line cells
-        // prevents the text from changing vertical alignment when editing is
-        // initiated
-        JTextField textFieldSingle = new JTextField();
-        textFieldSingle.setFont(cellFont);
-        textFieldSingle.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(ModifiableColorInfo.FOCUS_BACK.getColor()),
-                                                                     BorderFactory.createEmptyBorder(ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() - 3,
-                                                                                                     ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() - 1,
-                                                                                                     ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() - 3,
-                                                                                                     ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() - 1)));
-
-        // Add a listener for cell focus changes
-        textFieldSingle.addFocusListener(focusListener);
-
-        // Create the cell editor
-        DefaultCellEditor dceSingle = new DefaultCellEditor(textFieldSingle);
-
-        // Step through each column in the table
-        for (int column = 0; column < getColumnCount(); column++)
-        {
-            // Check if the column's contents is not displayed as a check box
-            if (!checkBoxColumnView.contains(column))
-            {
-                // Set the editor so that the contents can be modified within
-                // the table cell. Use the editor appropriate for the number of
-                // cell display lines
-                getColumnModel().getColumn(column).setCellEditor(isColumnMultiLine(convertColumnIndexToModel(column))
-                                                                                                                      ? dceMulti
-                                                                                                                      : dceSingle);
-            }
-        }
-    }
-
-    /**************************************************************************
-     * Create a cell renderer that can display text only on a single line. This
-     * allows the cell border to be set to provide padding around the cell
-     * contents. HTML-formatted text is supported by this renderer
-     *************************************************************************/
-    private class SingleLineCellRenderer extends DefaultTableCellRenderer
-    {
-        /**********************************************************************
-         * Table cell renderer constructor
-         *
-         * @param centerText
-         *            true to center the text within the cells
-         *********************************************************************/
-        SingleLineCellRenderer(boolean centerText)
-        {
-            // Set the renderer name so that the key handler in
-            // CcddKeyboardHandler:tableEditCellHandler() can recognize cell
-            // type
-            setName("SingleLineCellRenderer");
-
-            // Set the font
-            setFont(cellFont);
-
-            // Add inset space around the cell's perimeter to provide padding
-            // between it and the cell's contents
-            setBorder(cellBorder);
-
-            // Set the alignment of the text in the cell
-            setHorizontalAlignment(centerText
-                                              ? JLabel.CENTER
-                                              : JLabel.LEFT);
-
-            // Set to paint every pixel within the cell. This is needed to
-            // prevent a border appearing around the cell for some look & feels
-            setOpaque(true);
-        }
-
-        /**********************************************************************
-         * Override this method so that the cell border is set
-         *********************************************************************/
-        @Override
-        public Border getBorder()
-        {
-            return cellBorder;
-        }
-
-        /**********************************************************************
-         * Override this method so that the text is displayed in the cell
-         *********************************************************************/
-        @Override
-        public Component getTableCellRendererComponent(JTable jtable,
-                                                       Object value,
-                                                       boolean isSelected,
-                                                       boolean hasFocus,
-                                                       int row,
-                                                       int column)
-        {
-            // Set the cell to the string representation of the value
-            setText(value == null ? "" : value.toString());
-
-            return this;
-        }
-    }
-
-    /**************************************************************************
-     * Create a cell renderer for cells that can display text on more than one
-     * line. This allows adjusting the row height to fit the text and to set
-     * the cell border to provide padding around the cell contents
-     *************************************************************************/
-    private class MultiLineCellRenderer extends JTextArea implements TableCellRenderer
-    {
-        /**********************************************************************
-         * Multi-line table cell renderer constructor
-         *********************************************************************/
-        MultiLineCellRenderer()
-        {
-            // Set the renderer name so that the key handler in
-            // CcddKeyboardHandler:tableEditCellHandler() can recognize this
-            // cell type
-            setName("MultiLineCellRenderer");
-
-            // Set the cell to be non-editable and for the text to
-            // automatically wrap
-            setEditable(false);
-            setLineWrap(true);
-            setWrapStyleWord(true);
-
-            // Set the font
-            setFont(cellFont);
-
-            // Add inset space around the cell's perimeter to provide padding
-            // between it and the cell's contents
-            setBorder(cellBorder);
-
-            // Set to paint every pixel within the cell. This is needed to
-            // prevent a border appearing around the cell for some look & feels
-            setOpaque(true);
-        }
-
-        /**********************************************************************
-         * Override this method so that the cell border is set
-         *********************************************************************/
-        @Override
-        public Border getBorder()
-        {
-            return cellBorder;
-        }
-
-        /**********************************************************************
-         * Override this method so that the text is displayed in the cell and
-         * the row height can be adjusted to fit the text
-         *********************************************************************/
-        @Override
-        public Component getTableCellRendererComponent(JTable jtable,
-                                                       Object value,
-                                                       boolean isSelected,
-                                                       boolean hasFocus,
-                                                       int row,
-                                                       int column)
-        {
-            // Set the cell to the string representation of the value
-            setText(value == null ? "" : value.toString());
-
-            // Check if the row and column indices are valid
-            if (row < table.getRowCount() && column < table.getColumnCount())
-            {
-                // Set the text area's width to the table column width. This
-                // causes the JTextArea to calculate the height required to
-                // show all of the cell's text. Subtract 1 from the width so
-                // that cell text matching the exact width doesn't have text
-                // truncated
-                setSize(jtable.getColumnModel().getColumn(column).getWidth() - 1,
-                        jtable.getRowHeight(row));
-            }
-
-            return this;
-        }
-    }
-
-    /**************************************************************************
-     * Create a cell renderer that can display boolean values as check boxes
-     *************************************************************************/
-    private class BooleanCellRenderer extends DefaultTableCellRenderer
-    {
-        private final JCheckBox checkBox;
-
-        /**********************************************************************
-         * Table cell renderer constructor. Note that there is a single check
-         * box shared by all users of this cell renderer for which attempts to
-         * change individual cells must account
-         *********************************************************************/
-        BooleanCellRenderer()
-        {
-            // Set the renderer name so that the key handler in
-            // CcddKeyboardHandler:tableEditCellHandler() can recognize this
-            // cell type
-            setName(BOOLEAN_CELL_RENDERER);
-
-            // Create a check box in which the cell renderer can display
-            // boolean values. If the default boolean renderer is used the cell
-            // background flashes when the check box is toggled
-            checkBox = new JCheckBox();
-
-            // Center the check box within the cell
-            checkBox.setHorizontalAlignment(JLabel.CENTER);
-
-            // Set the opaque flag for the check box so that the background
-            // color of the cell is displayed correctly for alternating rows
-            checkBox.setOpaque(true);
-
-            // Add inset space around the cell's perimeter to provide padding
-            // between it and the cell's contents
-            setBorder(cellBorder);
-        }
-
-        /**********************************************************************
-         * Override this method so that a check box is displayed in the cell
-         *********************************************************************/
-        @Override
-        public Component getTableCellRendererComponent(JTable jtable,
-                                                       Object value,
-                                                       boolean isSelected,
-                                                       boolean hasFocus,
-                                                       int row,
-                                                       int column)
-        {
-            // Check if the value represents a boolean value
-            if (value instanceof Boolean)
-            {
-                // Set the flag to indicate if the cell value can be changed
-                boolean isEditable = isCellEditable(row, column);
-
-                // Check if the check box's enable state differs from the edit
-                // state
-                if (checkBox.isEnabled() != isEditable)
-                {
-                    // Set the check box enable state to match the edit state
-                    // for this cell
-                    checkBox.setEnabled(isEditable);
-                }
-
-                // Check if the cell's current state doesn't match the check
-                // box state
-                if ((Boolean) table.getValueAt(row, column) != checkBox.isSelected())
-                {
-                    // Set the check box state to the new state
-                    checkBox.setSelected((Boolean) value);
-                }
-            }
-
-            return checkBox;
-        }
-    }
-
-    /**************************************************************************
      * Set the text color for the specified row
      *
      * @param row
@@ -3638,8 +3717,8 @@ public abstract class CcddJTableHandler extends JTable
      * Placeholder for performing any special cell text rendering in multi-line
      * table cells
      *
-     * @param renderer
-     *            reference to the table cell renderer
+     * @param component
+     *            reference to the table cell renderer component
      *
      * @param text
      *            cell text

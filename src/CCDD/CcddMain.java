@@ -12,6 +12,7 @@ import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.CCDD_AUTHOR;
 import static CCDD.CcddConstants.CCDD_ICON;
 import static CCDD.CcddConstants.DATABASE;
+import static CCDD.CcddConstants.DB_SAVE_POINT_NAME;
 import static CCDD.CcddConstants.DEFAULT_DATABASE;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_HOST;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_PORT;
@@ -43,6 +44,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.URLDecoder;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -283,7 +285,6 @@ public class CcddMain
                                                       "L&F Warning",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
-
         }
 
         // Read the command line arguments and make adjustments as needed
@@ -2348,6 +2349,40 @@ public class CcddMain
                     // Check if the database control handler exists
                     if (dbControl != null)
                     {
+                        // Check if the database command handler exists and
+                        // that a save point is active
+                        if (dbCommand != null && dbCommand.getSavePointEnable())
+                        {
+                            try
+                            {
+                                // Revert the changes to the tables that were
+                                // successfully updated prior the current table
+                                dbCommand.executeDbCommand("ROLLBACK TO SAVEPOINT "
+                                                           + DB_SAVE_POINT_NAME
+                                                           + ";",
+                                                           frameCCDD);
+                            }
+                            catch (SQLException se)
+                            {
+                                // Check if the session event log exists
+                                if (!eventLogs.isEmpty())
+                                {
+                                    // Inform the user that the reversion to
+                                    // the save point failed
+                                    getSessionEventLog().logFailEvent(frameCCDD,
+                                                                      "Cannot revert changes to table(s); cause '"
+                                                                                 + se.getMessage()
+                                                                                 + "'",
+                                                                      "<html><b>Cannot revert changes to table(s)");
+                                }
+                            }
+                            finally
+                            {
+                                // Reset the flag for creating a save point
+                                dbCommand.setSavePointEnable(false);
+                            }
+                        }
+
                         // Close the database connection
                         dbControl.closeDatabase();
                     }

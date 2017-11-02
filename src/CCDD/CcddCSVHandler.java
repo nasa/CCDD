@@ -8,8 +8,6 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.CANCEL_BUTTON;
-import static CCDD.CcddConstants.IGNORE_BUTTON;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 
 import java.awt.Component;
@@ -44,7 +42,7 @@ import CCDD.CcddTableTypeHandler.TypeDefinition;
 /******************************************************************************
  * CFS Command & Data Dictionary CSV handler class
  *****************************************************************************/
-public class CcddCSVHandler implements CcddImportExportInterface
+public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImportExportInterface
 {
     // Class references
     private final CcddMain ccddMain;
@@ -167,6 +165,16 @@ public class CcddCSVHandler implements CcddImportExportInterface
      *            and macro definitions, and the data from all the table
      *            definitions; ImportType.FIRST_DATA_ONLY to load only the data
      *            for the first table defined
+     *
+     * @throws CCDDException
+     *             If a data is missing, extraneous, or in error in the import
+     *             file
+     *
+     * @throws IOException
+     *             If an import file I/O error occurs
+     *
+     * @throws Exception
+     *             For any unanticipated errors
      *************************************************************************/
     @Override
     public void importFromFile(File importFile,
@@ -202,6 +210,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                 boolean continueOnColumnError = false;
                 boolean continueOnDataFieldError = false;
                 boolean continueOnReservedMsgIDError = false;
+                boolean continueOnTableTypeFieldError = false;
 
                 // Initialize the input tag
                 CSVTags importTag = null;
@@ -244,20 +253,32 @@ public class CcddCSVHandler implements CcddImportExportInterface
                     // information for a single table in the file
                     while (line != null)
                     {
-                        // Check that the row isn't empty (commas only) and
-                        // isn't a comment line (starts with a # character)
-                        if (!line.replace(",", "").trim().isEmpty()
-                            && !line.startsWith("#"))
+                        // Remove any trailing commas, empty quotes, and
+                        // leading/trailing white space characters from the
+                        // row. If the CSV file is generated from a spreadsheet
+                        // application then extra commas are appended to a row
+                        // if needed for the number of columns to be equal with
+                        // the other rows. These empty trailing columns are
+                        // ignored
+                        line = line.replaceAll("(?:[,\\s]|\\\"\\s*\\\")*$", "");
+
+                        // Check that the row isn't empty and isn't a comment
+                        // line (starts with a # character)
+                        if (!line.isEmpty() && !line.startsWith("#"))
                         {
-                            // Parse table data. The values are
-                            // comma-separated; however, commas within quotes
-                            // are ignored - this allows commas to be included
-                            // in the data values
+                            // Parse the import data. The values are comma-
+                            // separated; however, commas within quotes are
+                            // ignored - this allows commas to be included in
+                            // the data values
                             columnValues = CcddUtilities.splitAndRemoveQuotes(line);
+
+                            // Remove any leading/trailing white space
+                            // characters from the first column value
+                            String firstColumn = columnValues[0].trim();
 
                             // Check if this is the table name and table type
                             // tag
-                            if (columnValues[0].equalsIgnoreCase(CSVTags.NAME_TYPE.getTag()))
+                            if (firstColumn.equalsIgnoreCase(CSVTags.NAME_TYPE.getTag()))
                             {
                                 // Set the input type to look for the table
                                 // name and table type
@@ -277,7 +298,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                             }
                             // Check if this is the table column name tag and
                             // that a table name and type are defined
-                            else if (columnValues[0].equalsIgnoreCase(CSVTags.COLUMN_NAMES.getTag())
+                            else if (firstColumn.equalsIgnoreCase(CSVTags.COLUMN_NAMES.getTag())
                                      && !tablePath.isEmpty())
                             {
                                 // Set the input type to look for the table
@@ -286,7 +307,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                             }
                             // Check if this is the table description tag and
                             // that a table name and type are defined
-                            else if (columnValues[0].equalsIgnoreCase(CSVTags.DESCRIPTION.getTag())
+                            else if (firstColumn.equalsIgnoreCase(CSVTags.DESCRIPTION.getTag())
                                      && !tablePath.isEmpty())
                             {
                                 // Set the input type to look for the table
@@ -295,7 +316,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                             }
                             // Check if this is the data field tag and that a
                             // table name and type are defined
-                            else if (columnValues[0].equalsIgnoreCase(CSVTags.DATA_FIELD.getTag())
+                            else if (firstColumn.equalsIgnoreCase(CSVTags.DATA_FIELD.getTag())
                                      && !tablePath.isEmpty())
                             {
                                 // Set the input type to look for the data
@@ -303,7 +324,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                 importTag = CSVTags.DATA_FIELD;
                             }
                             // Check if this is the table type tag
-                            else if (columnValues[0].equalsIgnoreCase(CSVTags.TABLE_TYPE.getTag()))
+                            else if (firstColumn.equalsIgnoreCase(CSVTags.TABLE_TYPE.getTag()))
                             {
                                 // Set the input type to look for the table
                                 // type definition
@@ -315,7 +336,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
                             }
                             // Check if this is the table type data field tag
                             // and that a table type is defined
-                            else if (columnValues[0].equalsIgnoreCase(CSVTags.TABLE_TYPE_DATA_FIELD.getTag())
+                            else if (firstColumn.equalsIgnoreCase(CSVTags.TABLE_TYPE_DATA_FIELD.getTag())
                                      && tableTypeDefn != null)
                             {
                                 // Set the input type to look for the table
@@ -323,20 +344,20 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                 importTag = CSVTags.TABLE_TYPE_DATA_FIELD;
                             }
                             // Check if this is the data type tag
-                            else if (columnValues[0].equalsIgnoreCase(CSVTags.DATA_TYPE.getTag()))
+                            else if (firstColumn.equalsIgnoreCase(CSVTags.DATA_TYPE.getTag()))
                             {
                                 // Set the input type to look for the data
                                 // type(s)
                                 importTag = CSVTags.DATA_TYPE;
                             }
                             // Check if this is the macro tag
-                            else if (columnValues[0].equalsIgnoreCase(CSVTags.MACRO.getTag()))
+                            else if (firstColumn.equalsIgnoreCase(CSVTags.MACRO.getTag()))
                             {
                                 // Set the input type to look for the macro(s)
                                 importTag = CSVTags.MACRO;
                             }
                             // Check if this is the reserved message IDs tag
-                            else if (columnValues[0].equalsIgnoreCase(CSVTags.RESERVED_MSG_IDS.getTag()))
+                            else if (firstColumn.equalsIgnoreCase(CSVTags.RESERVED_MSG_IDS.getTag()))
                             {
                                 // Set the input type to look for the reserved
                                 // IDs
@@ -376,42 +397,22 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                                                                                       : ""));
                                                     tableTypeDefns.add(tableTypeDefn);
                                                 }
-                                                // Check if the user hasn't
-                                                // already elected to ignore
-                                                // table type errors
-                                                else if (!continueOnTableTypeError)
+                                                // The number of inputs is
+                                                // incorrect
+                                                else
                                                 {
-                                                    // Inform the user that the
-                                                    // table type name is
-                                                    // missing
-                                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                                        "<html><b>Missing table type name in import file '</b>"
-                                                                                                                                + importFile.getAbsolutePath()
-                                                                                                                                + "<b>'; continue?",
-                                                                                                                        "Table Type Error",
-                                                                                                                        "Ignore this table type",
-                                                                                                                        "Ignore this and any remaining invalid table types",
-                                                                                                                        "Stop importing");
-
-                                                    // Check if the Ignore All
-                                                    // button was pressed
-                                                    if (buttonSelected == IGNORE_BUTTON)
-                                                    {
-                                                        // Set the flag to
-                                                        // ignore subsequent
-                                                        // table type errors
-                                                        continueOnTableTypeError = true;
-                                                    }
-                                                    // Check if the Cancel
-                                                    // button was pressed
-                                                    else if (buttonSelected == CANCEL_BUTTON)
-                                                    {
-                                                        // No error message is
-                                                        // provided since the
-                                                        // user chose this
-                                                        // action
-                                                        throw new CCDDException();
-                                                    }
+                                                    // Check if the error
+                                                    // should be ignored or the
+                                                    // import canceled
+                                                    continueOnTableTypeError = getErrorResponse(continueOnTableTypeError,
+                                                                                                "<html><b>Missing table type name in import file '</b>"
+                                                                                                                          + importFile.getAbsolutePath()
+                                                                                                                          + "<b>'; continue?",
+                                                                                                "Table Type Error",
+                                                                                                "Ignore this table type",
+                                                                                                "Ignore this and any remaining invalid table types",
+                                                                                                "Stop importing",
+                                                                                                parent);
                                                 }
                                             }
                                             // This is a column definition
@@ -421,107 +422,48 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                 // of inputs is present
                                                 if (columnValues.length == TableTypeEditorColumnInfo.values().length - 1)
                                                 {
-                                                    // Get the table type
-                                                    // column definition
-                                                    // components
-                                                    String inputType = columnValues[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal() - 1];
-                                                    String unique = columnValues[TableTypeEditorColumnInfo.UNIQUE.ordinal() - 1];
-                                                    String required = columnValues[TableTypeEditorColumnInfo.REQUIRED.ordinal() - 1];
-                                                    String structAllow = columnValues[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal() - 1];
-                                                    String ptrAllow = columnValues[TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal() - 1];
-
-                                                    // Check if the input type
-                                                    // is empty
-                                                    if (inputType.isEmpty())
-                                                    {
-                                                        // Default to text
-                                                        inputType = InputDataType.TEXT.getInputName();
-                                                    }
-
-                                                    // Check if the 'unique'
-                                                    // flag is empty
-                                                    if (unique.isEmpty())
-                                                    {
-                                                        // Default to 'false'
-                                                        unique = "false";
-                                                    }
-
-                                                    // Check if the 'required'
-                                                    // flag is empty
-                                                    if (required.isEmpty())
-                                                    {
-                                                        // Default to 'false'
-                                                        required = "false";
-                                                    }
-
-                                                    // Check if the 'structure
-                                                    // allowed' flag is
-                                                    // empty
-                                                    if (structAllow.isEmpty())
-                                                    {
-                                                        // Default to 'false'
-                                                        structAllow = "false";
-                                                    }
-
-                                                    // Check if the 'pointer
-                                                    // allowed' flag is empty
-                                                    if (ptrAllow.isEmpty())
-                                                    {
-                                                        // Default to 'false'
-                                                        ptrAllow = "false";
-                                                    }
-
                                                     // Add the table type
+                                                    // column definition,
+                                                    // checking for (and if
+                                                    // possible, correcting)
+                                                    // errors
+                                                    continueOnTableTypeError = addImportedTableTypeDefinition(continueOnTableTypeError,
+                                                                                                              tableTypeDefn,
+                                                                                                              new String[] {String.valueOf(columnNumber),
+                                                                                                                            columnValues[TableTypeEditorColumnInfo.NAME.ordinal() - 1],
+                                                                                                                            columnValues[TableTypeEditorColumnInfo.DESCRIPTION.ordinal() - 1],
+                                                                                                                            columnValues[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal() - 1],
+                                                                                                                            columnValues[TableTypeEditorColumnInfo.UNIQUE.ordinal() - 1],
+                                                                                                                            columnValues[TableTypeEditorColumnInfo.REQUIRED.ordinal() - 1],
+                                                                                                                            columnValues[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal() - 1],
+                                                                                                                            columnValues[TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal() - 1]},
+                                                                                                              importFile.getAbsolutePath(),
+                                                                                                              parent);
+
+                                                    // Update the column index
+                                                    // number for the next
                                                     // column definition
-                                                    tableTypeDefn.addColumn(new Object[] {columnNumber,
-                                                                                          columnValues[TableTypeEditorColumnInfo.NAME.ordinal() - 1],
-                                                                                          columnValues[TableTypeEditorColumnInfo.DESCRIPTION.ordinal() - 1],
-                                                                                          inputType,
-                                                                                          Boolean.valueOf(unique),
-                                                                                          Boolean.valueOf(required),
-                                                                                          Boolean.valueOf(structAllow),
-                                                                                          Boolean.valueOf(ptrAllow)});
                                                     columnNumber++;
                                                 }
-                                                // Check if the user hasn't
-                                                // already elected to ignore
-                                                // table type errors
-                                                else if (!continueOnTableTypeError)
+                                                // The number of inputs is
+                                                // incorrect
+                                                else
                                                 {
-                                                    // Inform the user that the
-                                                    // table type name is
-                                                    // incorrect
-                                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                                        "<html><b>Table type '"
-                                                                                                                                + tableTypeDefn.getTypeName()
-                                                                                                                                + "' definition has missing or extra "
-                                                                                                                                + "input(s) in import file '</b>"
-                                                                                                                                + importFile.getAbsolutePath()
-                                                                                                                                + "<b>'; continue?",
-                                                                                                                        "Table Type Error",
-                                                                                                                        "Ignore this table type",
-                                                                                                                        "Ignore this and any remaining invalid table types",
-                                                                                                                        "Stop importing");
-
-                                                    // Check if the Ignore All
-                                                    // button was pressed
-                                                    if (buttonSelected == IGNORE_BUTTON)
-                                                    {
-                                                        // Set the flag to
-                                                        // ignore subsequent
-                                                        // table type errors
-                                                        continueOnTableTypeError = true;
-                                                    }
-                                                    // Check if the Cancel
-                                                    // button was pressed
-                                                    else if (buttonSelected == CANCEL_BUTTON)
-                                                    {
-                                                        // No error message is
-                                                        // provided since the
-                                                        // user chose this
-                                                        // action
-                                                        throw new CCDDException();
-                                                    }
+                                                    // Check if the error
+                                                    // should be ignored or the
+                                                    // import canceled
+                                                    continueOnTableTypeError = getErrorResponse(continueOnTableTypeError,
+                                                                                                "<html><b>Table type '"
+                                                                                                                          + tableTypeDefn.getTypeName()
+                                                                                                                          + "' definition has missing or extra "
+                                                                                                                          + "input(s) in import file '</b>"
+                                                                                                                          + importFile.getAbsolutePath()
+                                                                                                                          + "<b>'; continue?",
+                                                                                                "Table Type Error",
+                                                                                                "Ignore this table type",
+                                                                                                "Ignore this and any remaining invalid table types",
+                                                                                                "Stop importing",
+                                                                                                parent);
                                                 }
                                             }
 
@@ -536,56 +478,42 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                 // of inputs is present
                                                 if (columnValues.length == FieldsColumn.values().length - 1)
                                                 {
-                                                    // Add the table type data
-                                                    // field definition
-                                                    tableTypeDefn.addDataField(new String[] {CcddFieldHandler.getFieldTypeName(tableTypeDefn.getTypeName()),
-                                                                                             columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
-                                                                                             columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
-                                                                                             columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
-                                                                                             columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
-                                                                                             columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
-                                                                                             columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
-                                                                                             columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1]});
+                                                    // Add the data field
+                                                    // definition, checking for
+                                                    // (and if possible,
+                                                    // correcting) errors
+                                                    continueOnTableTypeFieldError = addImportedDataFieldDefinition(continueOnTableTypeFieldError,
+                                                                                                                   tableTypeDefn,
+                                                                                                                   new String[] {CcddFieldHandler.getFieldTypeName(tableTypeDefn.getTypeName()),
+                                                                                                                                 columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
+                                                                                                                                 columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
+                                                                                                                                 columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
+                                                                                                                                 columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
+                                                                                                                                 columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
+                                                                                                                                 columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
+                                                                                                                                 columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1]},
+                                                                                                                   importFile.getAbsolutePath(),
+                                                                                                                   parent);
                                                 }
-                                                // Check that the user hasn't
-                                                // elected to ignore data field
-                                                // errors
-                                                else if (!continueOnDataFieldError)
+                                                // The number of inputs is
+                                                // incorrect
+                                                else
                                                 {
-                                                    // Inform the user that the
-                                                    // data field name inputs
-                                                    // are incorrect
-                                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                                        "<html><b>Table type '</b>"
-                                                                                                                                + tableTypeDefn.getTypeName()
-                                                                                                                                + "<b>' has missing or extra data field "
-                                                                                                                                + "input(s) in import file '</b>"
-                                                                                                                                + importFile.getAbsolutePath()
-                                                                                                                                + "<b>'; continue?",
-                                                                                                                        "Data Field Error",
-                                                                                                                        "Ignore this invalid data field",
-                                                                                                                        "Ignore this and any remaining invalid data fields",
-                                                                                                                        "Stop importing");
-
-                                                    // Check if the Ignore All
-                                                    // button was pressed
-                                                    if (buttonSelected == IGNORE_BUTTON)
-                                                    {
-                                                        // Set the flag to
-                                                        // ignore subsequent
-                                                        // data field errors
-                                                        continueOnDataFieldError = true;
-                                                    }
-                                                    // Check if the Cancel
-                                                    // button was pressed
-                                                    else if (buttonSelected == CANCEL_BUTTON)
-                                                    {
-                                                        // No error message is
-                                                        // provided since the
-                                                        // user chose this
-                                                        // action
-                                                        throw new CCDDException();
-                                                    }
+                                                    // Check if the error
+                                                    // should be ignored or the
+                                                    // import canceled
+                                                    continueOnTableTypeFieldError = getErrorResponse(continueOnTableTypeFieldError,
+                                                                                                     "<html><b>Table type '</b>"
+                                                                                                                                    + tableTypeDefn.getTypeName()
+                                                                                                                                    + "<b>' has missing or extra data field "
+                                                                                                                                    + "input(s) in import file '</b>"
+                                                                                                                                    + importFile.getAbsolutePath()
+                                                                                                                                    + "<b>'; continue?",
+                                                                                                     "Data Field Error",
+                                                                                                     "Ignore this invalid data field",
+                                                                                                     "Ignore this and any remaining invalid data fields",
+                                                                                                     "Stop importing",
+                                                                                                     parent);
                                                 }
                                             }
 
@@ -609,43 +537,23 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                                                     columnValues[DataTypesColumn.BASE_TYPE.ordinal()],
                                                                                     ""});
                                                 }
-                                                // Check if the user
-                                                // hasn't already elected to
-                                                // ignore data type errors
-                                                else if (!continueOnDataTypeError)
+                                                // The number of inputs is
+                                                // incorrect
+                                                else
                                                 {
-                                                    // Inform the user that the
-                                                    // data type inputs are
-                                                    // incorrect
-                                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                                        "<html><b>Missing or extra data type definition "
-                                                                                                                                + "input(s) in import file '</b>"
-                                                                                                                                + importFile.getAbsolutePath()
-                                                                                                                                + "<b>'; continue?",
-                                                                                                                        "Data Type Error",
-                                                                                                                        "Ignore this data type",
-                                                                                                                        "Ignore this and any remaining invalid data types",
-                                                                                                                        "Stop importing");
-
-                                                    // Check if the Ignore All
-                                                    // button was pressed
-                                                    if (buttonSelected == IGNORE_BUTTON)
-                                                    {
-                                                        // Set the flag to
-                                                        // ignore subsequent
-                                                        // data type errors
-                                                        continueOnDataTypeError = true;
-                                                    }
-                                                    // Check if the Cancel
-                                                    // button was pressed
-                                                    else if (buttonSelected == CANCEL_BUTTON)
-                                                    {
-                                                        // No error message is
-                                                        // provided since the
-                                                        // user chose this
-                                                        // action
-                                                        throw new CCDDException();
-                                                    }
+                                                    // Check if the error
+                                                    // should be ignored or the
+                                                    // import canceled
+                                                    continueOnDataTypeError = getErrorResponse(continueOnDataTypeError,
+                                                                                               "<html><b>Missing or extra data type definition "
+                                                                                                                        + "input(s) in import file '</b>"
+                                                                                                                        + importFile.getAbsolutePath()
+                                                                                                                        + "<b>'; continue?",
+                                                                                               "Data Type Error",
+                                                                                               "Ignore this data type",
+                                                                                               "Ignore this and any remaining invalid data types",
+                                                                                               "Stop importing",
+                                                                                               parent);
                                                 }
                                             }
 
@@ -671,43 +579,23 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                                                                            : ""),
                                                                                  ""});
                                                 }
-                                                // Check if the user
-                                                // hasn't already elected to
-                                                // ignore macro errors
-                                                else if (!continueOnMacroError)
+                                                // The number of inputs is
+                                                // incorrect
+                                                else
                                                 {
-                                                    // Inform the user that the
-                                                    // macro inputs are
-                                                    // incorrect
-                                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                                        "<html><b>Missing or extra macro definition "
-                                                                                                                                + "input(s) in import file '</b>"
-                                                                                                                                + importFile.getAbsolutePath()
-                                                                                                                                + "<b>'; continue?",
-                                                                                                                        "Macro Error",
-                                                                                                                        "Ignore this macro",
-                                                                                                                        "Ignore this and any remaining invalid macros",
-                                                                                                                        "Stop importing");
-
-                                                    // Check if the Ignore All
-                                                    // button was pressed
-                                                    if (buttonSelected == IGNORE_BUTTON)
-                                                    {
-                                                        // Set the flag to
-                                                        // ignore subsequent
-                                                        // macro errors
-                                                        continueOnMacroError = true;
-                                                    }
-                                                    // Check if the Cancel
-                                                    // button was pressed
-                                                    else if (buttonSelected == CANCEL_BUTTON)
-                                                    {
-                                                        // No error message is
-                                                        // provided since the
-                                                        // user chose this
-                                                        // action
-                                                        throw new CCDDException();
-                                                    }
+                                                    // Check if the error
+                                                    // should be ignored or the
+                                                    // import canceled
+                                                    continueOnMacroError = getErrorResponse(continueOnMacroError,
+                                                                                            "<html><b>Missing or extra macro definition "
+                                                                                                                  + "input(s) in import file '</b>"
+                                                                                                                  + importFile.getAbsolutePath()
+                                                                                                                  + "<b>'; continue?",
+                                                                                            "Macro Error",
+                                                                                            "Ignore this macro",
+                                                                                            "Ignore this and any remaining invalid macros",
+                                                                                            "Stop importing",
+                                                                                            parent);
                                                 }
                                             }
 
@@ -730,45 +618,23 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                                                          columnValues[ReservedMsgIDsColumn.DESCRIPTION.ordinal()],
                                                                                          ""});
                                                 }
-                                                // Check if the user
-                                                // hasn't already elected to
-                                                // ignore reserved message ID
-                                                // errors
-                                                else if (!continueOnReservedMsgIDError)
+                                                // The number of inputs is
+                                                // incorrect
+                                                else
                                                 {
-                                                    // Inform the user that the
-                                                    // reserved message ID
-                                                    // inputs are incorrect
-                                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                                        "<html><b>Missing or extra reserved message ID "
-                                                                                                                                + "definition input(s) in import file '</b>"
-                                                                                                                                + importFile.getAbsolutePath()
-                                                                                                                                + "<b>'; continue?",
-                                                                                                                        "Reserved Message ID Error",
-                                                                                                                        "Ignore this data type",
-                                                                                                                        "Ignore this and any remaining invalid reserved message IDs",
-                                                                                                                        "Stop importing");
-
-                                                    // Check if the Ignore All
-                                                    // button was pressed
-                                                    if (buttonSelected == IGNORE_BUTTON)
-                                                    {
-                                                        // Set the flag to
-                                                        // ignore subsequent
-                                                        // reserved message ID
-                                                        // errors
-                                                        continueOnReservedMsgIDError = true;
-                                                    }
-                                                    // Check if the Cancel
-                                                    // button was pressed
-                                                    else if (buttonSelected == CANCEL_BUTTON)
-                                                    {
-                                                        // No error message is
-                                                        // provided since the
-                                                        // user chose this
-                                                        // action
-                                                        throw new CCDDException();
-                                                    }
+                                                    // Check if the error
+                                                    // should be ignored or the
+                                                    // import canceled
+                                                    continueOnReservedMsgIDError = getErrorResponse(continueOnReservedMsgIDError,
+                                                                                                    "<html><b>Missing or extra reserved message ID "
+                                                                                                                                  + "definition input(s) in import file '</b>"
+                                                                                                                                  + importFile.getAbsolutePath()
+                                                                                                                                  + "<b>'; continue?",
+                                                                                                    "Reserved Message ID Error",
+                                                                                                    "Ignore this data type",
+                                                                                                    "Ignore this and any remaining invalid reserved message IDs",
+                                                                                                    "Stop importing",
+                                                                                                    parent);
                                                 }
                                             }
 
@@ -877,50 +743,26 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                         // matched columns
                                                         numValidColumns++;
                                                     }
-                                                    // Check that the user
-                                                    // hasn't elected to ignore
-                                                    // column name errors
-                                                    else if (!continueOnColumnError)
+                                                    // The number of inputs is
+                                                    // incorrect
+                                                    else
                                                     {
-                                                        // Inform the user that
-                                                        // the column name is
-                                                        // invalid
-                                                        int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                                            "<html><b>Table '</b>"
-                                                                                                                                    + tableDefn.getName()
-                                                                                                                                    + "<b>' column name '</b>"
-                                                                                                                                    + columnValues[index]
-                                                                                                                                    + "<b>' unrecognized in import file '</b>"
-                                                                                                                                    + importFile.getAbsolutePath()
-                                                                                                                                    + "<b>'; continue?",
-                                                                                                                            "Column Error",
-                                                                                                                            "Ignore this invalid column name",
-                                                                                                                            "Ignore this and any remaining invalid column names",
-                                                                                                                            "Stop importing");
-
-                                                        // Check if the Ignore
-                                                        // All button was
-                                                        // pressed
-                                                        if (buttonSelected == IGNORE_BUTTON)
-                                                        {
-                                                            // Set the flag to
-                                                            // ignore
-                                                            // subsequent
-                                                            // column name
-                                                            // errors
-                                                            continueOnColumnError = true;
-                                                        }
-                                                        // Check if the Cancel
-                                                        // button was pressed
-                                                        else if (buttonSelected == CANCEL_BUTTON)
-                                                        {
-                                                            // No error message
-                                                            // is provided
-                                                            // since
-                                                            // the user chose
-                                                            // this action
-                                                            throw new CCDDException();
-                                                        }
+                                                        // Check if the error
+                                                        // should be ignored or
+                                                        // the import canceled
+                                                        continueOnColumnError = getErrorResponse(continueOnColumnError,
+                                                                                                 "<html><b>Table '</b>"
+                                                                                                                        + tableDefn.getName()
+                                                                                                                        + "<b>' column name '</b>"
+                                                                                                                        + columnValues[index]
+                                                                                                                        + "<b>' unrecognized in import file '</b>"
+                                                                                                                        + importFile.getAbsolutePath()
+                                                                                                                        + "<b>'; continue?",
+                                                                                                 "Column Error",
+                                                                                                 "Ignore this invalid column name",
+                                                                                                 "Ignore this and any remaining invalid column names",
+                                                                                                 "Stop importing",
+                                                                                                 parent);
                                                     }
                                                 }
 
@@ -960,7 +802,8 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                             for (int index = 0; index < columnValues.length; index++)
                                             {
                                                 // Check if the column exists
-                                                if (columnIndex[index] != -1)
+                                                if (index < columnIndex.length
+                                                    && columnIndex[index] != -1)
                                                 {
                                                     // Store the cell data in
                                                     // the column matching the
@@ -984,55 +827,41 @@ public class CcddCSVHandler implements CcddImportExportInterface
                                                 if (columnValues.length == FieldsColumn.values().length - 1)
                                                 {
                                                     // Add the data field
-                                                    // definition
-                                                    tableDefn.addDataField(new String[] {tablePath,
-                                                                                         columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
-                                                                                         columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
-                                                                                         columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
-                                                                                         columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
-                                                                                         columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
-                                                                                         columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
-                                                                                         columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1]});
+                                                    // definition, checking for
+                                                    // (and if possible,
+                                                    // correcting) errors
+                                                    continueOnDataFieldError = addImportedDataFieldDefinition(continueOnDataFieldError,
+                                                                                                              tableDefn,
+                                                                                                              new String[] {CcddFieldHandler.getFieldTypeName(tableTypeDefn.getTypeName()),
+                                                                                                                            columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
+                                                                                                                            columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
+                                                                                                                            columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
+                                                                                                                            columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
+                                                                                                                            columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
+                                                                                                                            columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
+                                                                                                                            columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1]},
+                                                                                                              importFile.getAbsolutePath(),
+                                                                                                              parent);
                                                 }
-                                                // Check that the user hasn't
-                                                // elected to ignore data field
-                                                // errors
-                                                else if (!continueOnDataFieldError)
+                                                // The number of inputs is
+                                                // incorrect
+                                                else
                                                 {
-                                                    // Inform the user that the
-                                                    // data field name inputs
-                                                    // are incorrect
-                                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                                        "<html><b>Table '</b>"
-                                                                                                                                + tableDefn.getName()
-                                                                                                                                + "<b>' has missing or extra data field "
-                                                                                                                                + "input(s) in import file '</b>"
-                                                                                                                                + importFile.getAbsolutePath()
-                                                                                                                                + "<b>'; continue?",
-                                                                                                                        "Data Field Error",
-                                                                                                                        "Ignore this invalid data field",
-                                                                                                                        "Ignore this and any remaining invalid data fields",
-                                                                                                                        "Stop importing");
-
-                                                    // Check if the Ignore All
-                                                    // button was pressed
-                                                    if (buttonSelected == IGNORE_BUTTON)
-                                                    {
-                                                        // Set the flag to
-                                                        // ignore subsequent
-                                                        // data field errors
-                                                        continueOnDataFieldError = true;
-                                                    }
-                                                    // Check if the Cancel
-                                                    // button was pressed
-                                                    else if (buttonSelected == CANCEL_BUTTON)
-                                                    {
-                                                        // No error message is
-                                                        // provided since the
-                                                        // user chose this
-                                                        // action
-                                                        throw new CCDDException();
-                                                    }
+                                                    // Check if the error
+                                                    // should be ignored or
+                                                    // the import canceled
+                                                    continueOnDataFieldError = getErrorResponse(continueOnDataFieldError,
+                                                                                                "<html><b>Table '</b>"
+                                                                                                                          + tableDefn.getName()
+                                                                                                                          + "<b>' has missing or extra data field "
+                                                                                                                          + "input(s) in import file '</b>"
+                                                                                                                          + importFile.getAbsolutePath()
+                                                                                                                          + "<b>'; continue?",
+                                                                                                "Data Field Error",
+                                                                                                "Ignore this invalid data field",
+                                                                                                "Ignore this and any remaining invalid data fields",
+                                                                                                "Stop importing",
+                                                                                                parent);
                                                 }
                                             }
 
@@ -1132,6 +961,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
             }
         }
         finally
+
         {
             try
             {
@@ -1163,7 +993,7 @@ public class CcddCSVHandler implements CcddImportExportInterface
      *            reference to the user-specified output file
      *
      * @param tableNames
-     *            array of table names to convert
+     *            array of table names to export
      *
      * @param replaceMacros
      *            true to replace any embedded macros with their corresponding

@@ -49,7 +49,7 @@ public class CcddDbCommandHandler
 
     /**************************************************************************
      * Database command handler class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
@@ -73,7 +73,7 @@ public class CcddDbCommandHandler
 
     /**************************************************************************
      * Set the database connection
-     * 
+     *
      * @param connection
      *            database connection
      *************************************************************************/
@@ -84,7 +84,7 @@ public class CcddDbCommandHandler
 
     /**************************************************************************
      * Get the database connection
-     * 
+     *
      * @return The database connection
      *************************************************************************/
     protected Connection getConnection()
@@ -94,7 +94,7 @@ public class CcddDbCommandHandler
 
     /**************************************************************************
      * Set the connection statement
-     * 
+     *
      * @param statement
      *            connection statement
      *************************************************************************/
@@ -168,16 +168,16 @@ public class CcddDbCommandHandler
     /**************************************************************************
      * Execute a database update statement and log the command to the session
      * log
-     * 
+     *
      * @param commandType
      *            command type (DbCommandType)
-     * 
+     *
      * @param command
      *            SQL update command to execute
-     * 
+     *
      * @param component
      *            GUI component over which to center any error dialog
-     * 
+     *
      * @return Command result (content is dependent on the command type);
      *         throws an SQLexception and returns null if no connection exists
      *         to the server
@@ -256,8 +256,8 @@ public class CcddDbCommandHandler
                     // Inform the user that rolling back the changes failed
                     eventLog.logFailEvent(component,
                                           "Cannot revert changes project; cause '"
-                                              + se2.getMessage()
-                                              + "'",
+                                                     + se2.getMessage()
+                                                     + "'",
                                           "<html><b>Cannot revert changes to project");
                 }
             }
@@ -270,8 +270,18 @@ public class CcddDbCommandHandler
     }
 
     /**************************************************************************
+     * Get the save point status
+     *
+     * @return true if a save point is enabled and exists
+     *************************************************************************/
+    protected boolean getSavePointEnable()
+    {
+        return savePointEnabled && isSavePointCreated;
+    }
+
+    /**************************************************************************
      * Enable or disable creation of a save point prior to a transaction
-     * 
+     *
      * @param enable
      *            true to enable creating a save point
      *************************************************************************/
@@ -285,17 +295,17 @@ public class CcddDbCommandHandler
      * Retrieve a list from the server or database. The command strings are set
      * up to explicitly sort the list alphabetically, without regard to
      * capitalization
-     * 
+     *
      * @param listType
      *            type of list to be retrieved
-     * 
+     *
      * @param listOption
      *            array containing replacement text within a command; null if
      *            none is needed
-     * 
+     *
      * @param dialog
      *            GUI component calling this method
-     * 
+     *
      * @return String array containing the requested list items in alphabetical
      *         order; an empty array if no items exist
      *************************************************************************/
@@ -336,13 +346,13 @@ public class CcddDbCommandHandler
             // Inform the user that the list retrieval failed
             eventLog.logFailEvent(parent,
                                   "Cannot retrieve "
-                                      + listType
-                                      + " list; cause '"
-                                      + se.getMessage()
-                                      + "'",
+                                          + listType
+                                          + " list; cause '"
+                                          + se.getMessage()
+                                          + "'",
                                   "<html><b>Cannot retrieve "
-                                      + listType
-                                      + " list");
+                                                 + listType
+                                                 + " list");
         }
 
         return list.toArray(new String[0]);

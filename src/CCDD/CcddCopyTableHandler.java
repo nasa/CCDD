@@ -124,7 +124,7 @@ public class CcddCopyTableHandler
                     // indicated by the packet definition
                     int structureOffset = linkHandler.getVariableOffset(variable.getFullName());
 
-                    // CHeck if the message ID name field name is provided
+                    // Ceck if the message ID name field name is provided
                     if (messageIDNameField != null)
                     {
                         // Get the field information for the message ID name
@@ -326,9 +326,8 @@ public class CcddCopyTableHandler
             // after the previous entry's variable
             if (initial != null
                 && current[CopyTableEntry.VARIABLE_ROOT.ordinal()].equals(initial[CopyTableEntry.VARIABLE_ROOT.ordinal()])
-                && Integer.valueOf(current[CopyTableEntry.INPUT_OFFSET.ordinal()])
-                    == Integer.valueOf(initial[CopyTableEntry.INPUT_OFFSET.ordinal()])
-                       + Integer.valueOf(initial[CopyTableEntry.VARIABLE_BYTES.ordinal()]))
+                && Integer.valueOf(current[CopyTableEntry.INPUT_OFFSET.ordinal()]) == Integer.valueOf(initial[CopyTableEntry.INPUT_OFFSET.ordinal()])
+                                                                                      + Integer.valueOf(initial[CopyTableEntry.VARIABLE_BYTES.ordinal()]))
             {
                 // Add the size in bytes of the current variable to the initial
                 // one

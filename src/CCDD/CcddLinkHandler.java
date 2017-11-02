@@ -157,7 +157,7 @@ public class CcddLinkHandler
     protected List<String[]> getLinkDefinitionsByName(String linkName,
                                                       String linkRate)
     {
-        List<String[]> definitions = new ArrayList<>();
+        List<String[]> definitions = new ArrayList<String[]>();
 
         // Step through the link definitions
         for (int index = 0; index < linkDefinitions.size(); index++)

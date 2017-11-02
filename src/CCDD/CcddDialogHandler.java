@@ -2282,7 +2282,7 @@ public class CcddDialogHandler extends JDialog
         if (availableRegions != null && availableRegions.length != 0)
         {
             boolean notFound = true;
-            List<Rectangle> intersecting = new ArrayList<>(3);
+            List<Rectangle> intersecting = new ArrayList<Rectangle>(3);
 
             // Step through each screen
             for (Rectangle region : availableRegions)

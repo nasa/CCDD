@@ -138,9 +138,6 @@ public class CcddConstants
     protected static final String RADIO_BUTTON_CHANGE_EVENT = "radioButtonChanged";
     protected static final String CHECK_BOX_CHANGE_EVENT = "checkBoxChanged";
 
-    // Table cell renderer name
-    protected static final String BOOLEAN_CELL_RENDERER = "BooleanCellRenderer";
-
     // Characters used to encompass a macro name
     protected static final String MACRO_IDENTIFIER = "##";
 
@@ -168,6 +165,9 @@ public class CcddConstants
     // (un)linked variables
     protected static final String LINKED_VARIABLES_NODE_NAME = "Linked Variables";
     protected static final String UNLINKED_VARIABLES_NODE_NAME = "Unlinked Variables";
+
+    // Node name for the pseudo-group containing all tables
+    protected static final String ALL_TABLES_GROUP_NODE_NAME = "All tables";
 
     // Main window initial and minimum window size
     protected static final int INIT_WINDOW_WIDTH = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getWidth() / 2;
@@ -1913,12 +1913,12 @@ public class CcddConstants
                              + "alphanumeric (see Alphanumeric)"),
 
         DESCRIPTION("Description",
-                    ".*",
+                    "(?s).*",
                     "text",
                     "Data description; same constraints as for text (see Text)"),
 
         ENUMERATION("Enumeration",
-                    ".*",
+                    ".*", // TODO INCLUDE (?s) TO ALLOW LINE FEEDS?
                     "enumeration",
                     "Text, including alphabetic, numeric, and special characters"),
 
@@ -2052,29 +2052,29 @@ public class CcddConstants
                      + "integer to denote rates faster than 1 Hz"),
 
         TEXT("Text",
-             ".*",
+             "(?s).*", // TODO
              "text",
              "Text, including alphabetic, numeric, and special characters"),
 
         TEXT_MULTI("Text (multi-line)",
-                   "(?s).*",
+                   "(?s).*", // TODO
                    "text",
                    "Multi-line text, including alphabetic, "
                            + "numeric, special, and new line characters"),
 
         TEXT_WHT_SPC("Text (spaces)",
-                     ".*",
+                     "(?s).*", // TODO
                      "text",
                      "Text (see Text) with leading/traling white space characters preserved"),
 
         TEXT_MULTI_WHT_SPC("Text (multi-line, spaces)",
-                           ".*",
+                           "(?s).*", // TODO
                            "text",
                            "Multi-line text (see Text (multi-line)) with "
                                    + "leading/trailing white space characters preserved"),
 
         UNITS("Units",
-              ".*",
+              ".*", // TODO ALLOW (?s) FOR LINE FEEDS?
               "text",
               "Data units; same constraints as for text (see Text)"),
 
@@ -2386,6 +2386,36 @@ public class CcddConstants
         protected String getApplicabilityName()
         {
             return applicabilityName;
+        }
+
+        /**********************************************************************
+         * Get the ApplicabilityType with the same name as the one specified,
+         * ignoring case
+         *
+         * @param name
+         *            applicability type name
+         *
+         * @return ApplicabilityType with the name matching the one specified;
+         *         null if the name isn't recognized
+         *********************************************************************/
+        protected static ApplicabilityType getApplicabilityByName(String name)
+        {
+            ApplicabilityType type = null;
+
+            // Step through each applicability type
+            for (ApplicabilityType applicabilityType : ApplicabilityType.values())
+            {
+                // Check if the applicability type name matches the supplied
+                // name, ignoring case
+                if (applicabilityType.applicabilityName.equalsIgnoreCase(name))
+                {
+                    // Store the applicability type and stop searching
+                    type = applicabilityType;
+                    break;
+                }
+            }
+
+            return type;
         }
 
         /**********************************************************************

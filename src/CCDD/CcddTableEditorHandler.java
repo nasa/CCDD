@@ -118,17 +118,17 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     // update
     private TableInformation committedInfo;
 
-    // Column indices for the variable name, data type, array size, bit length,
-    // enumeration, rate columns, and variable path (in model coordinates), if
-    // present. Also set the row index and primary key column indices
+    // Column indices for the primary key, row index, variable name, data type,
+    // array size, bit length, enumeration(s), rate(s) , variable path, and
+    // message ID name(s) (in model coordinates)
+    private final int primaryKeyIndex;
+    private final int rowIndex;
     private int variableNameIndex;
     private int dataTypeIndex;
     private int arraySizeIndex;
     private int bitLengthIndex;
     private List<Integer> enumerationIndex;
     private List<Integer> rateIndex;
-    private final int rowIndex;
-    private final int primaryKeyIndex;
     private int variablePathIndex;
     private List<Integer> msgIDNameIndex;
 
@@ -3179,9 +3179,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             @Override
             protected Object cleanUpCellValue(Object value, int row, int column)
             {
-                // Check if the cell value represents a string (i.e., it isn't
-                // boolean, etc.)
-                if (value instanceof String)
+                // Check if the cell isn't being actively edited and if the
+                // cell value represents a string (i.e., it isn't boolean,
+                // etc.)
+                if (!table.isEditing() && value instanceof String)
                 {
                     // Get the input type for this column
                     InputDataType inputType = typeDefn.getInputTypes()[column];
@@ -4875,6 +4876,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         modifications.clear();
         deletions.clear();
 
+        // Create an empty row of data for comparison purposes
+        Object[] emptyRow = table.getEmptyRow();
+
         // Re-index the rows in case any have been added, moved, or deleted
         updateRowIndices();
 
@@ -4887,9 +4891,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Get the table cell values
         Object[][] tableData = table.getTableData(true);
 
-        // Create storage for the array used to indicate if a row has a match
-        // between the current and committed data
-        boolean[] rowFound = new boolean[committedInfo.getData().length];
+        // Create storage for the array used to indicate if a row has been
+        // modified
+        boolean[] rowModified = new boolean[committedInfo.getData().length];
 
         // Step through each row in the table
         for (int tblRow = 0; tblRow < tableData.length; tblRow++)
@@ -4911,38 +4915,42 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // Check if the primary key values match for these rows
                 if (tableData[tblRow][primaryKeyIndex].equals(committedInfo.getData()[comRow][primaryKeyIndex]))
                 {
-                    // Set the flags indicating this row has a match
-                    rowFound[comRow] = true;
+                    // Set the flag indicating this row has a match
                     matchFound = true;
 
-                    boolean isChangedColumn = false;
+                    // Copy the current row's primary key and row index into
+                    // the empty comparison row
+                    emptyRow[primaryKeyIndex] = tableData[tblRow][primaryKeyIndex];
+                    emptyRow[rowIndex] = tableData[tblRow][rowIndex];
 
-                    // Step through each column in the row
-                    for (int column = 0; column < tableData[tblRow].length; column++)
+                    // Check if the row is not now empty (if empty then the
+                    // change is processed as a row deletion instead of a
+                    // modification)
+                    if (!Arrays.equals(tableData[tblRow], emptyRow))
                     {
-                        // Check if the current and committed values don't
-                        // match and this isn't the variable path column
-                        if (!tableData[tblRow][column].equals(committedInfo.getData()[comRow][column])
-                            && column != variablePathIndex)
+                        // Set the flag indicating this row has a modification
+                        rowModified[comRow] = true;
+
+                        // Step through each column in the row
+                        for (int column = 0; column < tableData[tblRow].length; column++)
                         {
-                            // Set the flag to indicate a column value changed
-                            // and stop searching
-                            isChangedColumn = true;
-                            break;
+                            // Check if the current and committed values don't
+                            // match and this isn't the variable path column
+                            if (!tableData[tblRow][column].equals(committedInfo.getData()[comRow][column])
+                                && column != variablePathIndex)
+                            {
+                                // Store the row modification information and
+                                // stop searching
+                                modifications.add(new TableModification(tableData[tblRow],
+                                                                        committedInfo.getData()[comRow],
+                                                                        variableNameIndex,
+                                                                        dataTypeIndex,
+                                                                        arraySizeIndex,
+                                                                        bitLengthIndex,
+                                                                        rateIndex));
+                                break;
+                            }
                         }
-                    }
-
-                    // Check if any columns were changed
-                    if (isChangedColumn)
-                    {
-                        // Store the row modification information
-                        modifications.add(new TableModification(tableData[tblRow],
-                                                                committedInfo.getData()[comRow],
-                                                                variableNameIndex,
-                                                                dataTypeIndex,
-                                                                arraySizeIndex,
-                                                                bitLengthIndex,
-                                                                rateIndex));
                     }
                 }
             }
@@ -4963,7 +4971,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         for (int comRow = 0; comRow < numCommitted; comRow++)
         {
             // Check if no matching row was found with the current data
-            if (!rowFound[comRow])
+            if (!rowModified[comRow])
             {
                 // Store the row deletion information
                 deletions.add(new TableModification(committedInfo.getData()[comRow],

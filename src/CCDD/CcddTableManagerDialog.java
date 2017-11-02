@@ -330,15 +330,14 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                             // events
                             tableTree.addMouseListener(new MouseAdapter()
                             {
-                                /******************************************************
+                                /**********************************************
                                  * Handle mouse press events
-                                 *****************************************************/
+                                 *********************************************/
                                 @Override
                                 public void mousePressed(MouseEvent me)
                                 {
                                     // Check if the right mouse button is
-                                    // double
-                                    // clicked
+                                    // double clicked
                                     if (me.getClickCount() == 2
                                         && SwingUtilities.isRightMouseButton(me))
                                     {
@@ -353,13 +352,12 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                             // row
                                             TreePath path = tableTree.getPathForRow(rowIndex);
 
-                                            // Check that a table was selected
+                                            // Check if a table was selected
                                             if (path.getPathCount() > tableTree.getHeaderNodeLevel())
                                             {
                                                 // Load the selected table's
-                                                // data into
-                                                // a table editor and close
-                                                // this dialog
+                                                // data into a table editor and
+                                                // close this dialog
                                                 dbTable.loadTableDataInBackground(tableTree.getFullVariablePath(path.getPath()),
                                                                                   callingEditorDialog);
                                                 closeDialog();
@@ -657,10 +655,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                             {
                                 CcddVariableConversionHandler variableHandler = null;
 
-                                // Create storage for the list of
-                                // table+variable names, table paths, and the
-                                // parent table names
-                                List<String> protoVarNames = new ArrayList<String>();
+                                // Create storage for the list of table paths
                                 List<String> tablePaths = new ArrayList<String>();
 
                                 // Check if the export command originated from
@@ -671,14 +666,16 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                     // tree
                                     for (TreePath path : tableTree.getSelectionPaths())
                                     {
+                                        // Get the full path for the table
+                                        String fullPath = tableTree.getFullVariablePath(path.getPath());
+
                                         // Check if the table isn't already in
                                         // the list
-                                        if (!protoVarNames.contains(path.getLastPathComponent().toString()))
+                                        if (!tablePaths.contains(fullPath))
                                         {
-                                            // Add the table variable name and
-                                            // variable path to the lists
-                                            protoVarNames.add(path.getLastPathComponent().toString());
-                                            tablePaths.add(tableTree.getFullVariablePath(path.getPath()));
+                                            // Add the table variable path to
+                                            // the list
+                                            tablePaths.add(fullPath);
                                         }
                                     }
                                 }
@@ -687,8 +684,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                 else
                                 {
                                     // Add the table editor's table variable
-                                    // name and variable path to the lists
-                                    protoVarNames.add(callingEditorDialog.getTableEditor().getTableInformation().getProtoVariableName());
+                                    // path to the list
                                     tablePaths.add(callingEditorDialog.getTableEditor().getTableInformation().getTablePath());
                                 }
 
@@ -702,7 +698,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                 // Export the contents of the selected table(s)
                                 // in the specified format
                                 fileIOHandler.exportSelectedTables(pathFld.getText(),
-                                                                   protoVarNames.toArray(new String[0]),
                                                                    tablePaths.toArray(new String[0]),
                                                                    overwriteFileCb.isSelected(),
                                                                    singleFileCb.isSelected(),

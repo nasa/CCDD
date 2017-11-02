@@ -303,10 +303,10 @@ public class CcddFieldHandler
                 // is applicable to this owner
                 if (ownerName == null
                     || ownerName.isEmpty()
-                    || (ownerName.equalsIgnoreCase(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].toString()))
-                    && isFieldApplicable(ownerName,
-                                         fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()].toString(),
-                                         isRootStruct))
+                    || (ownerName.equalsIgnoreCase(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].toString())
+                        && isFieldApplicable(ownerName,
+                                             fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()].toString(),
+                                             isRootStruct)))
                 {
                     // Store the field information
                     addField(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].toString(),
@@ -336,7 +336,8 @@ public class CcddFieldHandler
      *            type name)
      *
      * @param applicability
-     *            one of the ApplicabilityType names
+     *            one of the ApplicabilityType names; a blank is treated the
+     *            same as being applicable for all tables
      *
      * @param isRootStruct
      *            true if the owner is a root structure table
@@ -367,11 +368,12 @@ public class CcddFieldHandler
         }
 
         return isTypeOrGroup
+               || applicability.isEmpty()
                || applicability.equals(ApplicabilityType.ALL.getApplicabilityName())
                || (isRootStruct
-               && applicability.equals(ApplicabilityType.ROOT_ONLY.getApplicabilityName()))
+                   && applicability.equals(ApplicabilityType.ROOT_ONLY.getApplicabilityName()))
                || (!isRootStruct
-               && applicability.equals(ApplicabilityType.CHILD_ONLY.getApplicabilityName()));
+                   && applicability.equals(ApplicabilityType.CHILD_ONLY.getApplicabilityName()));
     }
 
     /**************************************************************************
@@ -438,8 +440,8 @@ public class CcddFieldHandler
         {
             // Create storage for a single field definition
             Object[] row = new Object[isEditor
-                                              ? FieldEditorColumnInfo.values().length
-                                              : FieldsColumn.values().length];
+                                               ? FieldEditorColumnInfo.values().length
+                                               : FieldsColumn.values().length];
 
             // Check if the array is for the field editor
             if (isEditor)

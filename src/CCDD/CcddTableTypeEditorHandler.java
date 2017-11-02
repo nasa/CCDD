@@ -19,6 +19,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.DefaultCellEditor;
@@ -1245,8 +1246,11 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         // Initialize the column order change status
         columnOrderChange = false;
 
-        // Create storage for flags that indicate if a row has been matched
-        boolean[] rowFound = new boolean[committedData.length];
+        // Create an empty row of data for comparison purposes
+        Object[] emptyRow = table.getEmptyRow();
+
+        // Create storage for flags that indicate if a row has been modified
+        boolean[] rowModified = new boolean[committedData.length];
 
         // Step through each row of the current data
         for (int tblRow = 0; tblRow < typeData.length; tblRow++)
@@ -1264,42 +1268,55 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
                 // Check if the committed row hasn't already been matched and
                 // if the current and committed column indices are the same
-                if (!rowFound[comRow]
+                if (!rowModified[comRow]
                     && typeData[tblRow][TableTypeEditorColumnInfo.INDEX.ordinal()].equals(committedData[comRow][TableTypeEditorColumnInfo.INDEX.ordinal()]))
                 {
-                    // Set the flags indicating a matching row has been found
-                    rowFound[comRow] = true;
+                    // Set the flag indicating this row has a match
                     matchFound = true;
 
-                    // Check if the previous and current column definition row
-                    // is different
-                    if (tblRow != comRow)
+                    // Copy the current row's index into the empty comparison
+                    // row so that the otherwise blank index doesn't register
+                    // as a difference when comparing the rows below
+                    emptyRow[TableTypeEditorColumnInfo.INDEX.ordinal()] = typeData[tblRow][TableTypeEditorColumnInfo.INDEX.ordinal()];
+
+                    // Check if the row is not now empty (if empty then the
+                    // change is processed as a row deletion instead of a
+                    // modification)
+                    if (!Arrays.equals(typeData[tblRow], emptyRow))
                     {
-                        // Set the flag indicating the column order changed
-                        columnOrderChange = true;
+                        // Set the flag indicating this row has a modification
+                        rowModified[comRow] = true;
+
+                        // Check if the previous and current column definition
+                        // row is different
+                        if (tblRow != comRow)
+                        {
+                            // Set the flag indicating the column order changed
+                            columnOrderChange = true;
+                        }
+
+                        // Get the original and current input data type
+                        String oldInputType = committedData[comRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString();
+                        String newInputType = typeData[tblRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString();
+
+                        // Check if the column name changed or if the input
+                        // type changed to/from a rate
+                        if (!prevColumnName.equals(currColumnName)
+                            || ((newInputType.equals(InputDataType.RATE.getInputName())
+                                 || oldInputType.equals(InputDataType.RATE.getInputName()))
+                                && !newInputType.equals(oldInputType)))
+                        {
+                            // The column name is changed. Add the new and old
+                            // column names to the list
+                            typeModifications.add(new String[] {prevColumnName,
+                                                                currColumnName,
+                                                                oldInputType,
+                                                                newInputType});
+                        }
+
+                        // Stop searching since a match exists
+                        break;
                     }
-
-                    // Get the original and current input data type
-                    String oldInputType = committedData[comRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString();
-                    String newInputType = typeData[tblRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString();
-
-                    // Check if the column name changed or if the input type
-                    // changed to/from a rate
-                    if (!prevColumnName.equals(currColumnName)
-                        || ((newInputType.equals(InputDataType.RATE.getInputName())
-                             || oldInputType.equals(InputDataType.RATE.getInputName()))
-                            && !newInputType.equals(oldInputType)))
-                    {
-                        // The column name is changed. Add the new and old
-                        // column names to the list
-                        typeModifications.add(new String[] {prevColumnName,
-                                                            currColumnName,
-                                                            oldInputType,
-                                                            newInputType});
-                    }
-
-                    // Stop searching since a match exists
-                    break;
                 }
             }
 
@@ -1318,7 +1335,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         for (int comRow = 0; comRow < committedData.length; comRow++)
         {
             // Check if no matching row was found with the current data
-            if (!rowFound[comRow])
+            if (!rowModified[comRow])
             {
                 // The column definition has been deleted; add the column name
                 // and input type to the list

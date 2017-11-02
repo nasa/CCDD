@@ -10,6 +10,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.CCDD_PROJECT_IDENTIFIER;
 import static CCDD.CcddConstants.DATABASE_COMMENT_SEPARATOR;
+import static CCDD.CcddConstants.DB_SAVE_POINT_NAME;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.SCRIPT_DESCRIPTION_TAG;
 import static CCDD.CcddConstants.USERS_GUIDE;
@@ -29,6 +30,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLDecoder;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,6 +62,7 @@ import CCDD.CcddConstants.InternalTable.ReservedMsgIDsColumn;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
+import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddImportExportInterface.ImportType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
@@ -70,6 +73,7 @@ public class CcddFileIOHandler
 {
     // Class references
     private final CcddMain ccddMain;
+    private final CcddDbCommandHandler dbCommand;
     private final CcddDbControlHandler dbControl;
     private final CcddDbTableCommandHandler dbTable;
     private CcddTableTypeHandler tableTypeHandler;
@@ -93,6 +97,7 @@ public class CcddFileIOHandler
         this.ccddMain = ccddMain;
 
         // Create references to shorten subsequent calls
+        dbCommand = ccddMain.getDbCommandHandler();
         dbControl = ccddMain.getDbControlHandler();
         dbTable = ccddMain.getDbTableCommandHandler();
         eventLog = ccddMain.getSessionEventLog();
@@ -546,10 +551,10 @@ public class CcddFileIOHandler
 
         // Store the current table type, data type, macro, reserved message ID,
         // and data field information in case it needs to be restored
-        final List<TypeDefinition> originalTableTypes = tableTypeHandler.getTypeDefinitions();
-        final List<String[]> originalDataTypes = dataTypeHandler.getDataTypeData();
-        final List<String[]> originalMacros = macroHandler.getMacroData();
-        final List<String[]> originalReservedMsgIDs = rsvMsgIDHandler.getReservedMsgIDData();
+        final List<TypeDefinition> originalTableTypes = new ArrayList<TypeDefinition>(tableTypeHandler.getTypeDefinitions());
+        final List<String[]> originalDataTypes = new ArrayList<String[]>(dataTypeHandler.getDataTypeData());
+        final List<String[]> originalMacros = new ArrayList<String[]>(macroHandler.getMacroData());
+        final List<String[]> originalReservedMsgIDs = new ArrayList<String[]>(rsvMsgIDHandler.getReservedMsgIDData());
         final List<String[]> originalDataFields = new ArrayList<String[]>(fieldHandler.getFieldDefinitions());
 
         // Execute the import operation in the background
@@ -784,28 +789,64 @@ public class CcddFileIOHandler
                 {
                     try
                     {
+                        // Enable creation of a save point in case an error
+                        // occurs while creating or modifying a table. This
+                        // prevents committing the changes to the database
+                        // until after all database transactions are complete
+                        dbCommand.setSavePointEnable(true);
+
                         // Create the data tables from the imported table
                         // definitions from all files
                         createTablesFromDefinitions(allTableDefinitions,
                                                     replaceExisting,
                                                     parent);
+
+                        // Commit the change(s) to the database
+                        dbCommand.getConnection().commit();
                     }
-                    catch (CCDDException ce)
+                    catch (CCDDException | SQLException cse)
                     {
-                        // Check if an error message is provided
-                        if (!ce.getMessage().isEmpty())
+                        errorFlag = true;
+
+                        // Check if this is an internally generated exception
+                        // and that an error message is provided
+                        if (cse instanceof CCDDException
+                            && !cse.getMessage().isEmpty())
                         {
                             // Inform the user that an error occurred reading
                             // the import file
                             new CcddDialogHandler().showMessageDialog(parent,
                                                                       "<html><b>"
-                                                                              + ce.getMessage(),
+                                                                              + cse.getMessage(),
                                                                       "File Error",
-                                                                      ce.getMessageType(),
+                                                                      ((CCDDException) cse).getMessageType(),
                                                                       DialogOption.OK_OPTION);
                         }
 
-                        errorFlag = true;
+                        try
+                        {
+                            // Revert the changes to the tables that were
+                            // successfully updated prior the current table
+                            dbCommand.executeDbCommand("ROLLBACK TO SAVEPOINT "
+                                                       + DB_SAVE_POINT_NAME
+                                                       + ";",
+                                                       parent);
+                        }
+                        catch (SQLException se)
+                        {
+                            // Inform the user that the reversion to the save
+                            // point failed
+                            eventLog.logFailEvent(parent,
+                                                  "Cannot revert changes to table(s); cause '"
+                                                          + se.getMessage()
+                                                          + "'",
+                                                  "<html><b>Cannot revert changes to table(s)");
+                        }
+                    }
+                    finally
+                    {
+                        // Reset the flag for creating a save point
+                        dbCommand.setSavePointEnable(false);
                     }
                 }
 
@@ -888,6 +929,13 @@ public class CcddFileIOHandler
         boolean prototypesOnly = true;
         List<String> skippedTables = new ArrayList<String>();
 
+        // Get the list of all tables, including the paths for child structure
+        // tables
+        CcddTableTreeHandler tableTree = new CcddTableTreeHandler(ccddMain,
+                                                                  TableTreeType.TABLES,
+                                                                  parent);
+        List<String> allTables = tableTree.getTableTreePathList(null);
+
         // Perform two passes; first to process prototype tables, and second to
         // process child tables
         for (int loop = 1; loop <= 2 && !cancelImport; loop++)
@@ -922,7 +970,7 @@ public class CcddFileIOHandler
                                                                       new String[0][0],
                                                                       tableTypeHandler.getDefaultColumnOrder(tableDefn.getType()),
                                                                       tableDefn.getDescription(),
-                                                                      true,
+                                                                      !tableDefn.getName().contains("."),
                                                                       tableDefn.getDataFields().toArray(new Object[0][0]));
 
                     // Check if the new table is not a prototype
@@ -991,10 +1039,11 @@ public class CcddFileIOHandler
                                                              "Cannot create prototype '"
                                                                               + descendantInfo.getPrototypeName()
                                                                               + "' of child table",
+                                                             allTables,
                                                              parent))
                                     {
                                         // Add the skipped table to the list
-                                        skippedTables.add(descendantInfo.getProtoVariableName());
+                                        skippedTables.add(descendantInfo.getTablePath());
                                     }
                                 }
                                 // This is an ancestor of the child table
@@ -1021,10 +1070,11 @@ public class CcddFileIOHandler
                                                              "Cannot create prototype '"
                                                                               + descendantInfo.getPrototypeName()
                                                                               + "' of child table's ancestor",
+                                                             allTables,
                                                              parent))
                                     {
                                         // Add the skipped table to the list
-                                        skippedTables.add(descendantInfo.getProtoVariableName());
+                                        skippedTables.add(descendantInfo.getTablePath());
                                     }
                                 }
                             }
@@ -1049,10 +1099,11 @@ public class CcddFileIOHandler
                                              "Cannot create prototype '"
                                                               + tableInfo.getPrototypeName()
                                                               + "'",
+                                             allTables,
                                              parent))
                     {
                         // Add the skipped table to the list
-                        skippedTables.add(tableInfo.getProtoVariableName());
+                        skippedTables.add(tableInfo.getTablePath());
                     }
                 }
             }
@@ -1068,7 +1119,7 @@ public class CcddFileIOHandler
                                                       "<html><b>Table(s) not imported<br>'</b>"
                                                               + dbTable.getShortenedTableNames(skippedTables.toArray(new String[0]))
                                                               + "<b>';<br>table already exists",
-                                                      "Import Error",
+                                                      "Import Warning",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
         }
@@ -1128,78 +1179,80 @@ public class CcddFileIOHandler
      * @param errorMsg
      *            error message prefix used in the event an error occurs
      *
-     * @return true if the table is successfully imported; false if the table
-     *         is an existing prototype and the replaceExisting flag is not
-     *         true
+     * @param allTables
+     *            list containing the paths and names of all tables
      *
      * @param parent
      *            GUI component calling this method
      *
-     * @return ImportResult.SUCCESSFUL if the table is imported,
-     *         ImportResult.SKIPPED if the table exists and the flag is not set
-     *         to replace existing tables, or ImportResult.CANCELED if an error
-     *         occurs when pasting the data and the user selected the Cancel
-     *         button
+     * @return true if the table is successfully imported; false if the table
+     *         is exists and the replaceExisting flag is not true
      *************************************************************************/
     private boolean createImportedTable(TableInformation tableInfo,
                                         List<String> cellData,
                                         int numColumns,
                                         boolean replaceExisting,
                                         String errorMsg,
+                                        List<String> allTables,
                                         Component parent) throws CCDDException
     {
         boolean isImported = true;
         List<String[]> tableName = new ArrayList<String[]>();
 
-        // Check if this table is a prototype
-        if (tableInfo.isPrototype())
+        // Set the flag if the table already is present in the database
+        boolean isExists = allTables.contains(tableInfo.getTablePath());
+
+        // Check if the table already exists and if the user didn't elect to
+        // replace existing tables
+        if (isExists && !replaceExisting)
         {
-            // Check if the table already exists in the project database
-            if (dbTable.isTableExists(tableInfo.getPrototypeName().toLowerCase(),
-                                      parent))
+            // Set the flag to indicate the table wasn't imported
+            isImported = false;
+        }
+        // The table doesn't exist or the user elected to overwrite the
+        // existing table
+        else
+        {
+            // Check if this table is a prototype
+            if (tableInfo.isPrototype())
             {
-                // Check if the user didn't elect to replace existing tables
-                if (!replaceExisting)
+                // Check if the table exists
+                if (isExists)
                 {
-                    // Set the flag to indicate the prototype table wasn't
-                    // created since it already exists and the user didn't
-                    // elect to overwrite existing tables
-                    isImported = false;
+                    // Delete the existing table from the database
+                    if (dbTable.deleteTable(new String[] {tableInfo.getPrototypeName()},
+                                            null,
+                                            ccddMain.getMainFrame()))
+                    {
+                        throw new CCDDException();
+                    }
+
+                    // Add the prototype table name to the list of table
+                    // editors to close
+                    tableName.add(new String[] {tableInfo.getPrototypeName(), null});
                 }
 
-                // Delete the existing table from the database
-                if (dbTable.deleteTable(new String[] {tableInfo.getPrototypeName()},
-                                        null,
+                // Create the table in the database
+                if (dbTable.createTable(new String[] {tableInfo.getPrototypeName()},
+                                        tableInfo.getDescription(),
+                                        tableInfo.getType(),
                                         ccddMain.getMainFrame()))
                 {
                     throw new CCDDException();
                 }
             }
-
-            // Create the table in the database
-            if (dbTable.createTable(new String[] {tableInfo.getPrototypeName()},
-                                    tableInfo.getDescription(),
-                                    tableInfo.getType(),
-                                    ccddMain.getMainFrame()))
+            // Not a prototype table. Check if the child structure table exists
+            else if (isExists)
             {
-                throw new CCDDException();
+                // Add the parent and prototype table name to the list of table
+                // editors to close
+                tableName.add(new String[] {tableInfo.getParentTable(),
+                                            tableInfo.getPrototypeName()});
             }
-
-            // Add the prototype table name to the list of table editors to
-            // close
-            tableName.add(new String[] {tableInfo.getPrototypeName(), null});
-        }
-        // Not a prototype table
-        else
-        {
-            // Add the parent and prototype table name to the list of table
-            // editors to close
-            tableName.add(new String[] {tableInfo.getParentTable(),
-                                        tableInfo.getPrototypeName()});
         }
 
         // Check if the prototype was successfully created, or if the table
-        // isn't a prototype
+        // isn't a prototype and doesn't already exist
         if (isImported)
         {
             // Close any editors associated with this prototype table
@@ -1488,10 +1541,6 @@ public class CcddFileIOHandler
      *            path to the folder in which to store the exported tables.
      *            Includes the name if storing the tables to a single file
      *
-     * @param tblVarNames
-     *            array of the combined table and variable name for the
-     *            table(s) to load
-     *
      * @param tablePaths
      *            table path for each table to load
      *
@@ -1551,7 +1600,6 @@ public class CcddFileIOHandler
      *            GUI component calling this method
      *************************************************************************/
     protected void exportSelectedTables(final String filePath,
-                                        final String[] tblVarNames,
                                         final String[] tablePaths,
                                         final boolean overwriteFile,
                                         final boolean singleFile,
@@ -1683,12 +1731,12 @@ public class CcddFileIOHandler
                     else
                     {
                         // Step through each table
-                        for (String tblName : tblVarNames)
+                        for (String tablePath : tablePaths)
                         {
                             // Create the file using a name derived from the
                             // table name
                             file = new File(path
-                                            + tblName.replaceAll("[\\[\\]]", "_")
+                                            + tablePath.replaceAll("[,\\.\\[\\]]", "_")
                                             + fileExtn.getExtension());
 
                             // Check if the file doesn't exist, or if it does
@@ -1700,7 +1748,7 @@ public class CcddFileIOHandler
                                 // Export the formatted table data; the file
                                 // name is derived from the table name
                                 if (ioHandler.exportToFile(file,
-                                                           new String[] {tblName},
+                                                           new String[] {tablePath},
                                                            replaceMacros,
                                                            includeReservedMsgIDs,
                                                            includeVariablePaths,
@@ -1720,7 +1768,7 @@ public class CcddFileIOHandler
                             else
                             {
                                 // Add the skipped table to the list
-                                skippedTables.add(tblName);
+                                skippedTables.add(tablePath);
                             }
                         }
                     }

@@ -505,9 +505,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                         public void actionPerformed(ActionEvent ae)
                         {
                             // Execute the selected associations
-                            scriptHandler.executeScriptAssociations(CcddScriptManagerDialog.this,
-                                                                    tableTree,
-                                                                    false);
+                            scriptHandler.executeScriptAssociations(tableTree,
+                                                                    false,
+                                                                    CcddScriptManagerDialog.this);
                         }
                     });
 
@@ -535,9 +535,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                             {
                                 // Execute all script associations
-                                scriptHandler.executeScriptAssociations(CcddScriptManagerDialog.this,
-                                                                        tableTree,
-                                                                        true);
+                                scriptHandler.executeScriptAssociations(tableTree,
+                                                                        true,
+                                                                        CcddScriptManagerDialog.this);
                             }
                         }
                     });

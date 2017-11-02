@@ -108,10 +108,9 @@ public class CcddDbVerificationHandler
     // Data table column indices
     private final int primaryKeyIndex;
     private final int rowIndex;
-    private final int variableNameIndex;
-    private final int dataTypeIndex;
-    private final int arraySizeIndex;
-    private final int bitLengthIndex;
+    private int variableNameIndex;
+    private int dataTypeIndex;
+    private int arraySizeIndex;
 
     // Array member index values
     private int[] totalArraySize;
@@ -522,13 +521,9 @@ public class CcddDbVerificationHandler
         // Data table column indices
         primaryKeyIndex = DefaultColumn.PRIMARY_KEY.ordinal();
         rowIndex = DefaultColumn.ROW_INDEX.ordinal();
-        variableNameIndex = DefaultColumn.VARIABLE_NAME.ordinal();
-        dataTypeIndex = DefaultColumn.DATA_TYPE.ordinal();
-        arraySizeIndex = DefaultColumn.ARRAY_SIZE.ordinal();
-        bitLengthIndex = DefaultColumn.BIT_LENGTH.ordinal();
 
         // Initialize the database issues list
-        issues = new ArrayList<>();
+        issues = new ArrayList<TableIssue>();
 
         // Execute the consistency check
         verifyDatabase();
@@ -1218,7 +1213,8 @@ public class CcddDbVerificationHandler
             // Load the group names from the database
             List<String> groupNames = Arrays.asList(new CcddGroupHandler(ccddMain,
                                                                          null,
-                                                                         ccddMain.getMainFrame()).getGroupNames(false));
+                                                                         ccddMain.getMainFrame()).getGroupNames(false,
+                                                                                                                true));
 
             // Get the list of table and variable paths and names, retaining
             // any macros and bit lengths
@@ -1228,7 +1224,7 @@ public class CcddDbVerificationHandler
             // List to contain invalid table or variable references. This is
             // used to prevent logging multiple issues for the same
             // table/variable in the same internal table
-            List<String> badRefs = new ArrayList<>();
+            List<String> badRefs = new ArrayList<String>();
 
             // Go to the first row in the result set
             tableResult.first();
@@ -1533,7 +1529,7 @@ public class CcddDbVerificationHandler
                     // List to contain the variables without bit lengths and to
                     // include array definitions. A separate list is created to
                     // speed the comparisons
-                    List<String> cleanName = new ArrayList<>();
+                    List<String> cleanName = new ArrayList<String>();
 
                     // Step through each variable in the list
                     for (String variablePath : variableHandler.getAllVariableNameList())
@@ -1661,7 +1657,7 @@ public class CcddDbVerificationHandler
         if (members == null)
         {
             // Return an empty list; the error is logged by the query method
-            members = new ArrayList<>();
+            members = new ArrayList<String[]>();
         }
 
         return members;
@@ -1920,7 +1916,7 @@ public class CcddDbVerificationHandler
 
         // Initialize the storage for each table's information and committed
         // data
-        tableStorage = new ArrayList<>();
+        tableStorage = new ArrayList<TableStorage>();
 
         // Step through the root node's children
         for (Enumeration<?> element = tableTree.getRootNode().preorderEnumeration(); element.hasMoreElements();)
@@ -1946,6 +1942,7 @@ public class CcddDbVerificationHandler
                                                                    false,
                                                                    false,
                                                                    ccddMain.getMainFrame());
+
                 // Check if the table loaded successfully and that the table
                 // has data
                 if (!tableInfo.isErrorFlag() && tableInfo.getData().length > 0)
@@ -1972,6 +1969,12 @@ public class CcddDbVerificationHandler
                     // Get the table's type definition
                     typeDefn = tableTypeHandler.getTypeDefinition(tableInfo.getType());
 
+                    // Get the variable name, data type, and array size column
+                    // indices for this table type
+                    variableNameIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
+                    dataTypeIndex = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
+                    arraySizeIndex = typeDefn.getColumnIndexByInputType(InputDataType.ARRAY_INDEX);
+
                     // Initialize the array check parameters: array data type,
                     // name, number of members, array dimension sizes, and
                     // current index position
@@ -1997,123 +2000,132 @@ public class CcddDbVerificationHandler
                             checkInputType(tableInfo, row, column);
                         }
 
-                        // Check if this is a structure table and that the
-                        // array size isn't blank
-                        if (typeDefn.isStructure()
-                            && tableInfo.getData()[row][arraySizeIndex] != null
-                            && !tableInfo.getData()[row][arraySizeIndex].isEmpty())
+                        // Check if this is a structure table
+                        if (typeDefn.isStructure())
                         {
-                            // Check if this is the first pass through the
-                            // array; an array definition is expected
-                            if (membersRemaining == 0)
+                            // Check if the array size isn't blank
+                            if (tableInfo.getData()[row][arraySizeIndex] != null
+                                && !tableInfo.getData()[row][arraySizeIndex].isEmpty())
                             {
-                                // Get the variable name for this row
-                                arrayName = tableInfo.getData()[row][variableNameIndex];
-
-                                // Store the index of the array definition row
-                                definitionRow = row;
-
-                                // Check that no extra array member exists
-                                if (!checkExcessArrayMember(tableInfo,
-                                                            row,
-                                                            arrayName))
+                                // Check if this is the first pass through the
+                                // array; an array definition is expected
+                                if (membersRemaining == 0)
                                 {
-                                    // Get the number of array members
-                                    // remaining and data type for this row and
-                                    // initialize the array index
-                                    totalArraySize = ArrayVariable.getArrayIndexFromSize(macroHandler.getMacroExpansion(tableInfo.getData()[row][arraySizeIndex]));
+                                    // Get the variable name for this row
+                                    arrayName = tableInfo.getData()[row][variableNameIndex];
 
-                                    // Get the total number of members for this
-                                    // array
-                                    membersRemaining = ArrayVariable.getNumMembersFromArrayDimension(totalArraySize);
+                                    // Store the index of the array definition
+                                    // row
+                                    definitionRow = row;
 
-                                    // Initialize the current array index
-                                    // values
-                                    currentArrayIndex = new int[totalArraySize.length];
-
-                                    // Get the data type
-                                    dataType = tableInfo.getData()[row][dataTypeIndex];
-
-                                    // Check if the expected array definition
-                                    // is missing
-                                    if (checkForArrayDefinition(tableInfo,
+                                    // Check that no extra array member exists
+                                    if (!checkExcessArrayMember(tableInfo,
                                                                 row,
                                                                 arrayName))
                                     {
-                                        // Remove the array index from the
-                                        // array variable name and back up a
-                                        // row so that the array members can be
-                                        // checked
-                                        arrayName = ArrayVariable.removeArrayIndex(arrayName);
-                                        row--;
+                                        // Get the number of array members
+                                        // remaining and data type for this row
+                                        // and initialize the array index
+                                        totalArraySize = ArrayVariable.getArrayIndexFromSize(macroHandler.getMacroExpansion(tableInfo.getData()[row][arraySizeIndex]));
+
+                                        // Get the total number of members for
+                                        // this array
+                                        membersRemaining = ArrayVariable.getNumMembersFromArrayDimension(totalArraySize);
+
+                                        // Initialize the current array index
+                                        // values
+                                        currentArrayIndex = new int[totalArraySize.length];
+
+                                        // Get the data type
+                                        dataType = tableInfo.getData()[row][dataTypeIndex];
+
+                                        // Check if the expected array
+                                        // definition is missing
+                                        if (checkForArrayDefinition(tableInfo,
+                                                                    row,
+                                                                    arrayName))
+                                        {
+                                            // Remove the array index from the
+                                            // array variable name and back up
+                                            // a row so that the array members
+                                            // can be checked
+                                            arrayName = ArrayVariable.removeArrayIndex(arrayName);
+                                            row--;
+                                        }
                                     }
                                 }
-                            }
-                            // This is not the first pass through this array;
-                            // i.e., an array member is expected
-                            else
-                            {
-                                // Check if the array definition and all of its
-                                // members don't have the same variable name
-                                if (checkArrayNamesMatch(tableInfo,
-                                                         row,
-                                                         arrayName))
-                                {
-                                    // Back up a row so that it can be checked
-                                    // as a separate variable
-                                    row--;
-                                }
-                                // The array names match
+                                // This is not the first pass through this
+                                // array; i.e., an array member is expected
                                 else
                                 {
                                     // Check if the array definition and all of
-                                    // its members have the same array size
-                                    checkArraySizesMatch(tableInfo,
-                                                         row,
-                                                         arrayName,
-                                                         tableInfo.getData()[row][arraySizeIndex]);
+                                    // its members don't have the same variable
+                                    // name
+                                    if (checkArrayNamesMatch(tableInfo,
+                                                             row,
+                                                             arrayName))
+                                    {
+                                        // Back up a row so that it can be
+                                        // checked as a separate variable
+                                        row--;
+                                    }
+                                    // The array names match
+                                    else
+                                    {
+                                        // Check if the array definition and
+                                        // all of its members have the same
+                                        // array size
+                                        checkArraySizesMatch(tableInfo,
+                                                             row,
+                                                             arrayName,
+                                                             tableInfo.getData()[row][arraySizeIndex]);
 
-                                    // Check if the array definition and all of
-                                    // its members have the same data type
-                                    checkDataTypesMatch(tableInfo,
-                                                        row,
-                                                        arrayName,
-                                                        dataType);
+                                        // Check if the array definition and
+                                        // all of its members have the same
+                                        // data type
+                                        checkDataTypesMatch(tableInfo,
+                                                            row,
+                                                            arrayName,
+                                                            dataType);
+                                    }
+
+                                    // Update the array member counters
+                                    membersRemaining--;
+
+                                    // Update the current array index value(s)
+                                    goToNextArrayMember();
                                 }
-
-                                // Update the array member counters
-                                membersRemaining--;
-
-                                // Update the current array index value(s)
-                                goToNextArrayMember();
                             }
-                        }
-                        // Check if there are remaining array members that
-                        // don't exist
-                        else
-                        {
-                            // Check if an array member is expected but not
-                            // present
-                            checkForMissingArrayMember(tableInfo,
-                                                       row,
-                                                       arrayName);
+                            // Check if there are remaining array members that
+                            // don't exist
+                            else
+                            {
+                                // Check if an array member is expected but not
+                                // present
+                                checkForMissingArrayMember(tableInfo,
+                                                           row,
+                                                           arrayName);
 
-                            // Store the row number for use if other members
-                            // are
-                            // found to be missing after all other rows have
-                            // been checked
-                            lastMissingRow = row;
+                                // Store the row number for use if other
+                                // members are found to be missing after all
+                                // other rows have been checked
+                                lastMissingRow = row;
+                            }
                         }
                     }
 
-                    // Perform for each remaining missing array member
-                    while (membersRemaining != 0)
+                    // Check if this is a structure table
+                    if (typeDefn.isStructure())
                     {
-                        // Check if there are remaining array members that
-                        // don't exist
-                        checkForMissingArrayMember(tableInfo,
-                                                   lastMissingRow,
-                                                   arrayName);
+                        // Perform for each remaining missing array member
+                        while (membersRemaining != 0)
+                        {
+                            // Check if there are remaining array members that
+                            // don't exist
+                            checkForMissingArrayMember(tableInfo,
+                                                       lastMissingRow,
+                                                       arrayName);
+                        }
                     }
 
                     // Check if the flag to make changes is not already set
@@ -2627,107 +2639,48 @@ public class CcddDbVerificationHandler
      *************************************************************************/
     private void buildUpdates(TableStorage tblStrg)
     {
-        // Create storage for any changes
-        List<TableModification> additions = new ArrayList<>();
-        List<TableModification> modifications = new ArrayList<>();
-        List<TableModification> deletions = new ArrayList<>();
+        // Create a table editor handler, but without the visible editor. This
+        // is done so that the internal methods for building the updates can be
+        // used
+        CcddTableEditorHandler editor = new CcddTableEditorHandler(ccddMain,
+                                                                   tblStrg.getTableInformation(),
+                                                                   (CcddTableEditorDialog) null);
+
+        // Set the flag so that the table updates aren't stored in the
+        // undo/redo stack since this isn't needed for these changes
+        editor.getTable().getUndoHandler().setAllowUndo(false);
 
         // Step through each row in the table
-        for (int row = 0; row < tblStrg.getTableInformation().getData().length; row++)
+        for (int row = 0; row < editor.getTableInformation().getData().length; row++)
         {
-            // Reindex the rows in case any have been added, moved, or deleted
-            tblStrg.getTableInformation().getData()[row][rowIndex] = String.valueOf(row + 1);
-        }
-
-        // Create storage for the array used to indicate if a row has a match
-        // between the current and committed data
-        boolean[] rowFound = new boolean[tblStrg.getCommittedData().length];
-
-        // Step through each row in the table
-        for (int tblRow = 0; tblRow < tblStrg.getTableInformation().getData().length; tblRow++)
-        {
-            boolean matchFound = false;
-
-            // Step through each row in the committed version of the table data
-            for (int comRow = 0; comRow < tblStrg.getCommittedData().length && !matchFound; comRow++)
+            // Step through each column in the table
+            for (int column = 0; column < editor.getTableInformation().getData()[row].length; column++)
             {
-                // Check if the primary key values match for these rows
-                if (tblStrg.getTableInformation().getData()[tblRow][primaryKeyIndex].equals(tblStrg.getCommittedData()[comRow][primaryKeyIndex]))
-                {
-                    // Set the flags indicating this row has a match
-                    rowFound[comRow] = true;
-                    matchFound = true;
-
-                    boolean isChangedColumn = false;
-
-                    // Step through each column in the row
-                    for (int column = 0; column < tblStrg.getTableInformation().getData()[tblRow].length; column++)
-                    {
-                        // Check if the current and committed values don't
-                        // match
-                        if (tblStrg.getCommittedData()[comRow][column] == null
-                            || !macroHandler.getMacroExpansion(tblStrg.getTableInformation().getData()[tblRow][column]).equals(macroHandler.getMacroExpansion(tblStrg
-                                                                                                                                                                     .getCommittedData()[comRow][column])))
-                        {
-                            // Set the flag to indicate a column value changed
-                            // and stop searching
-                            isChangedColumn = true;
-                            break;
-                        }
-                    }
-
-                    // Check if any columns were changed
-                    if (isChangedColumn)
-                    {
-                        // Store the row modification information
-                        modifications.add(new TableModification(tblStrg.getTableInformation().getData()[tblRow],
-                                                                tblStrg.getCommittedData()[comRow],
-                                                                variableNameIndex,
-                                                                dataTypeIndex,
-                                                                arraySizeIndex,
-                                                                bitLengthIndex,
-                                                                new ArrayList<Integer>()));
-                    }
-                }
-            }
-
-            // Check if no matching row was found with the current data
-            if (!matchFound)
-            {
-                // Store the row addition information
-                additions.add(new TableModification(tblStrg.getTableInformation().getData()[tblRow],
-                                                    variableNameIndex,
-                                                    dataTypeIndex,
-                                                    arraySizeIndex,
-                                                    bitLengthIndex));
+                // Store the (possibly) updated cell value into the table
+                // editor's model, then store the original cell value into the
+                // table information.The table editor handler sees the updates
+                // as having been typed into the cells
+                editor.getTable().getModel().setValueAt(tblStrg.getTableInformation().getData()[row][column],
+                                                        row,
+                                                        column);
+                editor.getTableInformation().getData()[row][column] = tblStrg.getCommittedData()[row][column];
             }
         }
 
-        // Step through each row of the committed data
-        for (int comRow = 0; comRow < tblStrg.getCommittedData().length; comRow++)
-        {
-            // Check if no matching row was found with the current data
-            if (!rowFound[comRow])
-            {
-                // Store the row deletion information
-                deletions.add(new TableModification(tblStrg.getCommittedData()[comRow],
-                                                    variableNameIndex,
-                                                    dataTypeIndex,
-                                                    arraySizeIndex,
-                                                    bitLengthIndex));
-            }
-        }
+        // Build the table updates based on the differences between the stored
+        // table data and the table model values
+        editor.buildUpdates();
 
         // Check if any updates need to be made
-        if (!additions.isEmpty()
-            || !modifications.isEmpty()
-            || !deletions.isEmpty())
+        if (!editor.getAdditions().isEmpty()
+            || !editor.getModifications().isEmpty()
+            || !editor.getDeletions().isEmpty())
         {
             // Store the updates to the change list
-            tableChanges.add(new TableChange(tblStrg.getTableInformation(),
-                                             additions,
-                                             modifications,
-                                             deletions));
+            tableChanges.add(new TableChange(editor.getTableInformation(),
+                                             editor.getAdditions(),
+                                             editor.getModifications(),
+                                             editor.getDeletions()));
         }
     }
 
@@ -3088,7 +3041,7 @@ public class CcddDbVerificationHandler
                             else if (issue.getRowData() != null)
                             {
                                 // Insert the row into the existing table data
-                                List<String[]> tableData = new ArrayList<>(Arrays.asList(issue.getTableInformation().getData()));
+                                List<String[]> tableData = new ArrayList<String[]>(Arrays.asList(issue.getTableInformation().getData()));
                                 tableData.add(issue.getRow() + rowAdjust, issue.getRowData());
                                 issue.getTableInformation().setData(tableData.toArray(new String[0][0]));
                                 rowAdjust++;
@@ -3097,7 +3050,7 @@ public class CcddDbVerificationHandler
                             else
                             {
                                 // Remove the row from the existing table data
-                                List<String[]> tableData = new ArrayList<>(Arrays.asList(issue.getTableInformation().getData()));
+                                List<String[]> tableData = new ArrayList<String[]>(Arrays.asList(issue.getTableInformation().getData()));
                                 tableData.remove(issue.getRow() + rowAdjust);
                                 issue.getTableInformation().setData(tableData.toArray(new String[0][0]));
                                 rowAdjust--;
@@ -3106,7 +3059,7 @@ public class CcddDbVerificationHandler
                     }
 
                     // Initialize the storage for any table changes
-                    tableChanges = new ArrayList<>();
+                    tableChanges = new ArrayList<TableChange>();
 
                     // Step through each table's information
                     for (TableStorage tblStrg : tableStorage)
@@ -3152,6 +3105,10 @@ public class CcddDbVerificationHandler
                     {
                         // Commit the change(s) to the database
                         dbCommand.getConnection().commit();
+
+                        // Update the various handlers so that the updated
+                        // internal tables will now be in use
+                        ccddMain.setDbSpecificHandlers();
 
                         // Log that the table update(s) succeeded
                         message = "One or more project database inconsistencies were detected and corrected";

@@ -30,6 +30,7 @@ import javax.swing.JComboBox;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
@@ -553,6 +554,41 @@ public class CcddKeyboardHandler
                         ((CcddCommonTreeHandler) comp).expandCollapseSelectedNodes();
                     }
                 }
+                // Check if the Alt-Enter keys are pressed in a table cell that
+                // displays multi-line text
+                else if (ke.getID() == KeyEvent.KEY_PRESSED
+                         && ke.isAltDown()
+                         && !ke.isControlDown()
+                         && ke.getKeyCode() == KeyEvent.VK_ENTER
+                         && comp.getParent() instanceof CcddJTableHandler
+                         && comp instanceof JTextArea)
+                {
+                    // Get the table editor dialog with the focus
+                    CcddTableEditorDialog editorDialog = getFocusedTableEditorDialog();
+
+                    // Check if a table editor dialog has the focus
+                    if (editorDialog != null)
+                    {
+                        // Get references to shorten subsequent calls
+                        CcddTableEditorHandler editor = editorDialog.getTableEditor();
+                        CcddJTableHandler table = editor.getTable();
+
+                        // Check if a cell in the table is being edited
+                        if (table.isEditing())
+                        {
+                            JTextComponent textComp = (JTextComponent) comp;
+
+                            // Get the cell's current value
+                            String cellValue = textComp.getText();
+
+                            // Replace the currently selected text with a line
+                            // feed
+                            textComp.setText(cellValue.substring(0, textComp.getSelectionStart())
+                                             + "\n"
+                                             + cellValue.substring(textComp.getSelectionEnd()));
+                        }
+                    }
+                }
 
                 // Check if the macros are currently expanded for a table and
                 // that the expansion key sequence is no longer active
@@ -569,6 +605,7 @@ public class CcddKeyboardHandler
                         // events that are close together time-wise
                         releaseTimer = new Timer(75, new ActionListener()
                         {
+
                             /**************************************************
                              * Handle the key release action
                              *************************************************/
@@ -587,6 +624,7 @@ public class CcddKeyboardHandler
                                     isShowMacros = false;
                                 }
                             }
+
                         });
 
                         // Allow the timer to send only a single expiration

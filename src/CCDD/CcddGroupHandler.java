@@ -8,6 +8,8 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.ALL_TABLES_GROUP_NODE_NAME;
+
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -294,7 +296,34 @@ public class CcddGroupHandler
      *************************************************************************/
     protected String[] getGroupNames(boolean applicationOnly)
     {
+        return getGroupNames(applicationOnly, false);
+    }
+
+    /**************************************************************************
+     * Get an array containing the group names
+     *
+     * @param applicationOnly
+     *            true if only groups representing CFS applications should be
+     *            returned
+     *
+     * @param includeAllGroup
+     *            true to include the name of pseudo-group that contains all
+     *            tables
+     *
+     * @return Array containing the group names
+     *************************************************************************/
+    protected String[] getGroupNames(boolean applicationOnly, boolean includeAllGroup)
+    {
         List<String> groupNames = new ArrayList<String>();
+
+        // Check if this list applies for application and non-application
+        // groups and if the name of the pseudo-group containing all tables
+        // should be included
+        if (includeAllGroup && !applicationOnly)
+        {
+            // Add the 'All tables' group name to the list
+            groupNames.add(ALL_TABLES_GROUP_NODE_NAME);
+        }
 
         // Step through each group
         for (GroupInformation groupInfo : groupInformation)

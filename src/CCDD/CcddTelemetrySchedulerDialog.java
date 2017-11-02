@@ -459,7 +459,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
     private void storeData()
     {
         // Create a list to hold the data streams
-        List<DataStream> streams = new ArrayList<>();
+        List<DataStream> streams = new ArrayList<DataStream>();
 
         // Step through all the current scheduler handlers
         for (CcddSchedulerHandler handler : schHandlers)

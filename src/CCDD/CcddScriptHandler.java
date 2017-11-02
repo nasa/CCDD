@@ -8,6 +8,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.ALL_TABLES_GROUP_NODE_NAME;
 import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.HIDE_SCRIPT_PATH;
@@ -207,7 +208,8 @@ public class CcddScriptHandler
 
                 // Get the list of association table paths
                 List<String> tablePaths = getAssociationTablePaths(assn[AssociationsColumn.MEMBERS.ordinal()].toString(),
-                                                                   groupHandler);
+                                                                   groupHandler,
+                                                                   parent);
 
                 // Check if at least one table is assigned to this script
                 // association
@@ -637,11 +639,15 @@ public class CcddScriptHandler
      * @param groupHandler
      *            group handler reference
      *
+     * @param parent
+     *            GUI component calling this method
+     *
      * @return List containing the tables (path+name) from the association
      *         member string
      *************************************************************************/
     private List<String> getAssociationTablePaths(String associationMembers,
-                                                  CcddGroupHandler groupHandler)
+                                                  CcddGroupHandler groupHandler,
+                                                  Component parent)
     {
         List<String> tablePaths = new ArrayList<String>();
 
@@ -654,22 +660,35 @@ public class CcddScriptHandler
             // Check if this is a reference to a group
             if (member.startsWith(GROUP_DATA_FIELD_IDENT))
             {
-                // Extract the group name and use it to get the group's
-                // information reference
-                GroupInformation groupInfo = groupHandler.getGroupInformationByName(member.substring(GROUP_DATA_FIELD_IDENT.length()));
+                // Extract the group name
+                String groupName = member.substring(GROUP_DATA_FIELD_IDENT.length());
 
-                // Check if the group exists
-                if (groupInfo != null)
+                // Check if this is the pseudo-group containing all tables
+                if (groupName.equals(ALL_TABLES_GROUP_NODE_NAME))
                 {
-                    // Add the group member table(s) to the list
-                    tablePaths.addAll(groupInfo.getTablesAndAncestors());
+                    // Add the names of all root tables to the list
+                    tablePaths.addAll(dbTable.getRootTables(false, parent));
                 }
-                // The group doesn't exist
+                // This is a user-defined group
                 else
                 {
-                    // Add an invalid table so that he association is flagged
-                    // as unavailable
-                    tablePaths.add(" ");
+                    // Extract the group name and use it to get the group's
+                    // information reference
+                    GroupInformation groupInfo = groupHandler.getGroupInformationByName(groupName);
+
+                    // Check if the group exists
+                    if (groupInfo != null)
+                    {
+                        // Add the group member table(s) to the list
+                        tablePaths.addAll(groupInfo.getTablesAndAncestors());
+                    }
+                    // The group doesn't exist
+                    else
+                    {
+                        // Add an invalid table so that he association is
+                        // flagged as unavailable
+                        tablePaths.add(" ");
+                    }
                 }
             }
             // Check if the table path isn't blank
@@ -806,20 +825,20 @@ public class CcddScriptHandler
      * Execute one or more scripts based on the script associations in the
      * script associations list
      *
-     * @param dialog
-     *            reference to the script dialog (manager or executive) calling
-     *            this method
-     *
      * @param tableTree
      *            CcddTableTreeHandler reference describing the table tree
      *
      * @param executeAll
      *            true to execute all of the available script associations;
      *            false to execute only the selected, available associations
+     *
+     * @param dialog
+     *            reference to the script dialog (manager or executive) calling
+     *            this method
      *************************************************************************/
-    protected void executeScriptAssociations(CcddFrameHandler dialog,
-                                             CcddTableTreeHandler tableTree,
-                                             boolean executeAll)
+    protected void executeScriptAssociations(CcddTableTreeHandler tableTree,
+                                             boolean executeAll,
+                                             CcddFrameHandler dialog)
     {
         List<Object[]> selectedAssn;
 
@@ -870,9 +889,9 @@ public class CcddScriptHandler
         if (selectedAssn.size() != 0)
         {
             // Execute the script script association(s)
-            getDataAndExecuteScriptInBackground(dialog,
-                                                tableTree,
-                                                selectedAssn);
+            getDataAndExecuteScriptInBackground(tableTree,
+                                                selectedAssn,
+                                                dialog);
         }
     }
 
@@ -884,20 +903,20 @@ public class CcddScriptHandler
      * continue to update. The script execution command, however, is disabled
      * until the this command completes execution
      *
-     * @param dialog
-     *            reference to the script dialog (manager or executive) calling
-     *            this method
-     *
      * @param tree
      *            table tree of the table instances (parent tables with their
      *            child tables); null if the tree should be loaded
      *
      * @param associations
      *            list of script association to execute
+     *
+     * @param dialog
+     *            reference to the script dialog (manager or executive) calling
+     *            this method
      *************************************************************************/
-    private void getDataAndExecuteScriptInBackground(final CcddFrameHandler dialog,
-                                                     final CcddTableTreeHandler tree,
-                                                     final List<Object[]> associations)
+    private void getDataAndExecuteScriptInBackground(final CcddTableTreeHandler tree,
+                                                     final List<Object[]> associations,
+                                                     final CcddFrameHandler dialog)
     {
         final CcddDialogHandler cancelDialog = new CcddDialogHandler();
 
@@ -915,7 +934,7 @@ public class CcddScriptHandler
 
                 // Execute the script association(s) and obtain the completion
                 // status(es)
-                isBad = getDataAndExecuteScript(dialog, tree, associations);
+                isBad = getDataAndExecuteScript(tree, associations, dialog);
 
                 // Close the script cancellation dialog. This also logs the
                 // association completion status and re-enables the calling
@@ -990,11 +1009,6 @@ public class CcddScriptHandler
      * Get the table information array from the table data used by the script
      * script association(s), then execute the script(s)
      *
-     * @param dialog
-     *            reference to the script dialog (manager or executive) calling
-     *            this method; set to null if executing the script from the
-     *            command line
-     *
      * @param tree
      *            table tree of the table instances (parent tables with their
      *            child tables); null if the tree should be loaded
@@ -1002,12 +1016,15 @@ public class CcddScriptHandler
      * @param associations
      *            list of script associations to execute
      *
+     * @param parent
+     *            GUI component calling this method; null if none
+     *
      * @return Array containing flags that indicate, for each association, if
      *         the association did not complete successfully
      *************************************************************************/
-    protected boolean[] getDataAndExecuteScript(Component component,
-                                                CcddTableTreeHandler tree,
-                                                List<Object[]> associations)
+    protected boolean[] getDataAndExecuteScript(CcddTableTreeHandler tree,
+                                                List<Object[]> associations,
+                                                Component parent)
     {
         int assnIndex = 0;
 
@@ -1023,7 +1040,7 @@ public class CcddScriptHandler
             // Build the table tree
             tableTree = new CcddTableTreeHandler(ccddMain,
                                                  TableTreeType.INSTANCE_TABLES,
-                                                 component);
+                                                 parent);
         }
 
         // Create storage for the individual tables' data and table path+names
@@ -1031,17 +1048,17 @@ public class CcddScriptHandler
         loadedTablePaths = new ArrayList<String>();
 
         // Get the link assignment information, if any
-        CcddLinkHandler linkHandler = new CcddLinkHandler(ccddMain, component);
+        CcddLinkHandler linkHandler = new CcddLinkHandler(ccddMain, parent);
 
         // Load the data field information from the database
         CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain,
                                                              null,
-                                                             component);
+                                                             parent);
 
         // Load the group information from the database
         CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain,
                                                              null,
-                                                             component);
+                                                             parent);
 
         // Get the list of the table paths in the order of appearance in the
         // table tree. This is used to sort the association table paths
@@ -1057,7 +1074,8 @@ public class CcddScriptHandler
             {
                 // Get the list of association table paths
                 List<String> tablePaths = getAssociationTablePaths(assn[AssociationsColumn.MEMBERS.ordinal()].toString(),
-                                                                   groupHandler);
+                                                                   groupHandler,
+                                                                   parent);
 
                 // Check if at least one table is assigned to this script
                 // association
@@ -1106,7 +1124,7 @@ public class CcddScriptHandler
                         // Read the table and child table data from the
                         // database and store the results from the last table
                         // loaded
-                        TableInformation tableInfo = readTable(tablePath, component);
+                        TableInformation tableInfo = readTable(tablePath, parent);
 
                         // Check if the table hasn't already been loaded
                         if (tableInfo != null)
@@ -1183,10 +1201,10 @@ public class CcddScriptHandler
             catch (CCDDException ce)
             {
                 // Inform the user that script execution failed
-                logScriptError(component,
-                               assn[AssociationsColumn.SCRIPT_FILE.ordinal()].toString(),
+                logScriptError(assn[AssociationsColumn.SCRIPT_FILE.ordinal()].toString(),
                                assn[AssociationsColumn.MEMBERS.ordinal()].toString(),
-                               ce.getMessage());
+                               ce.getMessage(),
+                               parent);
 
                 // Set the flag for this association indicating it can't be
                 // executed
@@ -1218,7 +1236,8 @@ public class CcddScriptHandler
 
                 // Get the list of association table paths
                 List<String> tablePaths = getAssociationTablePaths(assn[AssociationsColumn.MEMBERS.ordinal()].toString(),
-                                                                   groupHandler);
+                                                                   groupHandler,
+                                                                   parent);
 
                 String[] members = assn[AssociationsColumn.MEMBERS.ordinal()].toString().split(Pattern.quote(LIST_TABLE_SEPARATOR));
 
@@ -1328,21 +1347,21 @@ public class CcddScriptHandler
                 try
                 {
                     // Execute the script using the indicated table data
-                    executeScript(component,
-                                  assn[AssociationsColumn.SCRIPT_FILE.ordinal()].toString(),
+                    executeScript(assn[AssociationsColumn.SCRIPT_FILE.ordinal()].toString(),
                                   combinedTableInfo,
                                   groupNames,
                                   linkHandler,
                                   fieldHandler,
-                                  groupHandler);
+                                  groupHandler,
+                                  parent);
                 }
                 catch (CCDDException ce)
                 {
                     // Inform the user that script execution failed
-                    logScriptError(component,
-                                   assn[AssociationsColumn.SCRIPT_FILE.ordinal()].toString(),
+                    logScriptError(assn[AssociationsColumn.SCRIPT_FILE.ordinal()].toString(),
                                    assn[AssociationsColumn.MEMBERS.ordinal()].toString(),
-                                   ce.getMessage());
+                                   ce.getMessage(),
+                                   parent);
 
                     // Set the flag for this association indicating it can't be
                     // executed
@@ -1436,9 +1455,6 @@ public class CcddScriptHandler
     /**************************************************************************
      * Log a script execution error
      *
-     * @param component
-     *            GUI component calling this method
-     *
      * @param scriptFileName
      *            script file name
      *
@@ -1447,14 +1463,17 @@ public class CcddScriptHandler
      *
      * @param cause
      *            cause of the execution error
+     *
+     * @param parent
+     *            GUI component calling this method
      *************************************************************************/
-    private void logScriptError(Component component,
-                                String scriptFileName,
+    private void logScriptError(String scriptFileName,
                                 String tables,
-                                String cause)
+                                String cause,
+                                Component parent)
     {
         // Inform the user that the script can't be executed
-        eventLog.logFailEvent(component,
+        eventLog.logFailEvent(parent,
                               "Script Error",
                               "Cannot execute script '"
                                               + scriptFileName
@@ -1472,9 +1491,6 @@ public class CcddScriptHandler
 
     /**************************************************************************
      * Execute a script
-     *
-     * @param component
-     *            GUI component calling this method
      *
      * @param scriptFileName
      *            script file name. The file extension is used to determine the
@@ -1497,15 +1513,18 @@ public class CcddScriptHandler
      * @param groupHandler
      *            group handler reference
      *
+     * @param parent
+     *            GUI component calling this method
+     *
      * @return true if an error occurs during script execution
      *************************************************************************/
-    private void executeScript(Component component,
-                               String scriptFileName,
+    private void executeScript(String scriptFileName,
                                TableInformation[] tableInformation,
                                List<String> groupNames,
                                CcddLinkHandler linkHandler,
                                CcddFieldHandler fieldHandler,
-                               CcddGroupHandler groupHandler) throws CCDDException
+                               CcddGroupHandler groupHandler,
+                               Component parent) throws CCDDException
     {
         // Check if the script file doesn't exist
         if (!new File(scriptFileName).isFile())
@@ -1567,7 +1586,7 @@ public class CcddScriptHandler
                                                                                                 groupHandler,
                                                                                                 scriptFileName,
                                                                                                 groupNames,
-                                                                                                component);
+                                                                                                parent);
                     CcddScriptDataAccessHandlerStatic staticHandler = new CcddScriptDataAccessHandlerStatic(accessHandler);
 
                     // Bind the script data access handlers (non-static and

@@ -679,8 +679,8 @@ public class CcddCommandLineHandler
 
                         // Execute the script association(s) and log the result
                         boolean[] isBad = ccddMain.getScriptHandler().getDataAndExecuteScript(null,
-                                                                                              null,
-                                                                                              associations);
+                                                                                              associations,
+                                                                                              null);
                         ccddMain.getScriptHandler().logScriptCompletionStatus(associations, isBad);
 
                         // Step through the script execution fail flags

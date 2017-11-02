@@ -8,8 +8,6 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.CANCEL_BUTTON;
-import static CCDD.CcddConstants.IGNORE_BUTTON;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 
 import java.awt.Component;
@@ -42,7 +40,6 @@ import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.TableDefinition;
 import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddClasses.TableTypeDefinition;
-import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DataTypeEditorColumnInfo;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
@@ -59,7 +56,7 @@ import CCDD.CcddTableTypeHandler.TypeDefinition;
 /******************************************************************************
  * CFS Command & Data Dictionary JSON handler class
  *****************************************************************************/
-public class CcddJSONHandler implements CcddImportExportInterface
+public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImportExportInterface
 {
     // Class references
     private final CcddMain ccddMain;
@@ -280,12 +277,22 @@ public class CcddJSONHandler implements CcddImportExportInterface
      *            and macro definitions, and the data from all the table
      *            definitions; ImportType.FIRST_DATA_ONLY to load only the data
      *            for the first table defined
+     *
+     * @throws CCDDException
+     *             If a data is missing, extraneous, or in error in the import
+     *             file
+     *
+     * @throws IOException
+     *             If an import file I/O error occurs
+     *
+     * @throws Exception
+     *             For any unanticipated errors
      *************************************************************************/
     @Override
     public void importFromFile(File importFile,
                                ImportType importType) throws CCDDException,
-                                                     IOException,
-                                                     Exception
+                                                      IOException,
+                                                      Exception
     {
         BufferedReader br = null;
 
@@ -302,6 +309,7 @@ public class CcddJSONHandler implements CcddImportExportInterface
             boolean continueOnReservedMsgIDError = false;
             boolean continueOnColumnError = false;
             boolean continueOnDataFieldError = false;
+            boolean continueOnTableTypeFieldError = false;
 
             // Create a JSON parser and use it to parse the import file
             // contents
@@ -339,106 +347,53 @@ public class CcddJSONHandler implements CcddImportExportInterface
                         // Step through each table type column definition
                         for (JSONObject typeJO : parseJSONArray(typeColumn))
                         {
-                            // Get the table type column definition components
-                            String name = getString(typeJO,
-                                                    TableTypeEditorColumnInfo.NAME.getColumnName());
-                            String description = getString(typeJO,
-                                                           TableTypeEditorColumnInfo.DESCRIPTION.getColumnName());
-                            String inputType = getString(typeJO,
-                                                         TableTypeEditorColumnInfo.INPUT_TYPE.getColumnName());
-                            String unique = getString(typeJO,
-                                                      TableTypeEditorColumnInfo.UNIQUE.getColumnName());
-                            String required = getString(typeJO,
-                                                        TableTypeEditorColumnInfo.REQUIRED.getColumnName());
-                            String structAllow = getString(typeJO,
-                                                           CcddUtilities.removeHTMLTags(TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.getColumnName()));
-                            String ptrAllow = getString(typeJO,
-                                                        CcddUtilities.removeHTMLTags(TableTypeEditorColumnInfo.POINTER_ALLOWED.getColumnName()));
-
                             // Check if the expected input is present
-                            if (!name.isEmpty()
-                                && typeJO.keySet().size() <= TableTypeEditorColumnInfo.values().length)
+                            if (typeJO.keySet().size() == TableTypeEditorColumnInfo.values().length - 1)
                             {
-                                // Check if the input type is empty
-                                if (inputType.isEmpty())
-                                {
-                                    // Default to text
-                                    inputType = InputDataType.TEXT.getInputName();
-                                }
+                                // Add the table type column definition,
+                                // checking for (and if possible, correcting)
+                                // errors
+                                continueOnTableTypeError = addImportedTableTypeDefinition(continueOnTableTypeError,
+                                                                                          tableTypeDefn,
+                                                                                          new String[] {String.valueOf(columnNumber),
+                                                                                                        getString(typeJO,
+                                                                                                                  TableTypeEditorColumnInfo.NAME.getColumnName()),
+                                                                                                        getString(typeJO,
+                                                                                                                  TableTypeEditorColumnInfo.DESCRIPTION.getColumnName()),
+                                                                                                        getString(typeJO,
+                                                                                                                  TableTypeEditorColumnInfo.INPUT_TYPE.getColumnName()),
+                                                                                                        getString(typeJO,
+                                                                                                                  TableTypeEditorColumnInfo.UNIQUE.getColumnName()),
+                                                                                                        getString(typeJO,
+                                                                                                                  TableTypeEditorColumnInfo.REQUIRED.getColumnName()),
+                                                                                                        getString(typeJO,
+                                                                                                                  CcddUtilities.removeHTMLTags(TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.getColumnName())),
+                                                                                                        getString(typeJO,
+                                                                                                                  CcddUtilities.removeHTMLTags(TableTypeEditorColumnInfo.POINTER_ALLOWED.getColumnName()))},
+                                                                                          importFile.getAbsolutePath(),
+                                                                                          parent);
 
-                                // Check if the 'unique' flag is empty
-                                if (unique.isEmpty())
-                                {
-                                    // Default to 'false'
-                                    unique = "false";
-                                }
-
-                                // Check if the 'required' flag is empty
-                                if (required.isEmpty())
-                                {
-                                    // Default to 'false'
-                                    required = "false";
-                                }
-
-                                // Check if the 'structure allowed' flag is
-                                // empty
-                                if (structAllow.isEmpty())
-                                {
-                                    // Default to 'false'
-                                    structAllow = "false";
-                                }
-
-                                // Check if the 'pointer allowed' flag is empty
-                                if (ptrAllow.isEmpty())
-                                {
-                                    // Default to 'false'
-                                    ptrAllow = "false";
-                                }
-
-                                // Add the table type column definition
-                                tableTypeDefn.addColumn(new Object[] {columnNumber,
-                                                                      name,
-                                                                      description,
-                                                                      inputType,
-                                                                      Boolean.valueOf(unique),
-                                                                      Boolean.valueOf(required),
-                                                                      Boolean.valueOf(structAllow),
-                                                                      Boolean.valueOf(ptrAllow)});
+                                // Update the column index number for the next
+                                // column definition
                                 columnNumber++;
                             }
-                            // Incorrect number of inputs. Check if the user
-                            // hasn't already elected to ignore table type
-                            // errors
-                            else if (!continueOnTableTypeError)
+                            // The number of inputs is incorrect
+                            else
                             {
-                                // Inform the user that the table type column
-                                // name is missing
-                                int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                    "<html><b>Table type '"
-                                                                                                        + typeName
-                                                                                                        + "' definition has missing or extra "
-                                                                                                        + "input(s) in import file '</b>"
-                                                                                                        + importFile.getAbsolutePath()
-                                                                                                        + "<b>'; continue?",
-                                                                                                    "Table Type Error",
-                                                                                                    "Ignore this table type",
-                                                                                                    "Ignore this and any remaining invalid table types",
-                                                                                                    "Stop importing");
-
-                                // Check if the Ignore All button was pressed
-                                if (buttonSelected == IGNORE_BUTTON)
-                                {
-                                    // Set the flag to ignore subsequent table
-                                    // type errors
-                                    continueOnTableTypeError = true;
-                                }
-                                // Check if the Cancel button was pressed
-                                else if (buttonSelected == CANCEL_BUTTON)
-                                {
-                                    // No error message is provided since the
-                                    // user chose this action
-                                    throw new CCDDException();
-                                }
+                                // Check if the error should be ignored or the
+                                // import canceled
+                                continueOnTableTypeError = getErrorResponse(continueOnTableTypeError,
+                                                                            "<html><b>Table type '"
+                                                                                                      + typeName
+                                                                                                      + "' definition has missing or extra "
+                                                                                                      + "input(s) in import file '</b>"
+                                                                                                      + importFile.getAbsolutePath()
+                                                                                                      + "<b>'; continue?",
+                                                                            "Table Type Error",
+                                                                            "Ignore this table type",
+                                                                            "Ignore this and any remaining invalid table types",
+                                                                            "Stop importing",
+                                                                            parent);
                             }
                         }
 
@@ -453,89 +408,27 @@ public class CcddJSONHandler implements CcddImportExportInterface
                             // definition
                             for (JSONObject typeJO : parseJSONArray(typeField))
                             {
-                                // Get the table type data field definition
-                                // components
-                                String name = getString(typeJO,
-                                                        FieldEditorColumnInfo.NAME.getColumnName());
-                                String description = getString(typeJO,
-                                                               FieldEditorColumnInfo.DESCRIPTION.getColumnName());
-                                String size = getString(typeJO,
-                                                        FieldEditorColumnInfo.SIZE.getColumnName());
-                                String inputType = getString(typeJO,
-                                                             FieldEditorColumnInfo.INPUT_TYPE.getColumnName());
-                                String required = getString(typeJO,
-                                                            FieldEditorColumnInfo.REQUIRED.getColumnName());
-                                String applicability = getString(typeJO,
-                                                                 FieldEditorColumnInfo.APPLICABILITY.getColumnName());
-                                String value = getString(typeJO,
-                                                         FieldEditorColumnInfo.VALUE.getColumnName());
-
-                                // Check if the expected inputs are present
-                                if (!name.isEmpty()
-                                    && !size.isEmpty()
-                                    && !inputType.isEmpty()
-                                    && typeJO.keySet().size() <= FieldEditorColumnInfo.values().length)
-                                {
-                                    // Check if the 'required' flag is empty
-                                    if (required.isEmpty())
-                                    {
-                                        // Default to 'false'
-                                        required = "false";
-                                    }
-
-                                    // Check if the field applicability is
-                                    // empty
-                                    if (applicability.isEmpty())
-                                    {
-                                        // Default to applicable for all tables
-                                        applicability = ApplicabilityType.ALL.getApplicabilityName();
-                                    }
-
-                                    // Add the table type data field definition
-                                    tableTypeDefn.addDataField(new String[] {CcddFieldHandler.getFieldTypeName(tableTypeDefn.getTypeName()),
-                                                                             name,
-                                                                             description,
-                                                                             size,
-                                                                             inputType,
-                                                                             required,
-                                                                             applicability,
-                                                                             value});
-                                }
-                                // Incorrect number of inputs. Check if the
-                                // user hasn't already elected to ignore table
-                                // type errors
-                                else if (!continueOnTableTypeError)
-                                {
-                                    // Inform the user that the table type
-                                    // data field inputs are missing
-                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                        "<html><b>Table type '</b>"
-                                                                                                            + tableTypeDefn.getTypeName()
-                                                                                                            + "<b>' has missing or extra data field "
-                                                                                                            + "input(s) in import file '</b>"
-                                                                                                            + importFile.getAbsolutePath()
-                                                                                                            + "<b>'; continue?",
-                                                                                                        "Table Type Error",
-                                                                                                        "Ignore this table type",
-                                                                                                        "Ignore this and any remaining invalid table types",
-                                                                                                        "Stop importing");
-
-                                    // Check if the Ignore All button was
-                                    // pressed
-                                    if (buttonSelected == IGNORE_BUTTON)
-                                    {
-                                        // Set the flag to ignore subsequent
-                                        // table type errors
-                                        continueOnTableTypeError = true;
-                                    }
-                                    // Check if the Cancel button was pressed
-                                    else if (buttonSelected == CANCEL_BUTTON)
-                                    {
-                                        // No error message is provided since
-                                        // the user chose this action
-                                        throw new CCDDException();
-                                    }
-                                }
+                                // Add the data field definition, checking for
+                                // (and if possible, correcting) errors
+                                continueOnTableTypeFieldError = addImportedDataFieldDefinition(continueOnTableTypeFieldError,
+                                                                                               tableTypeDefn,
+                                                                                               new String[] {CcddFieldHandler.getFieldTypeName(tableTypeDefn.getTypeName()),
+                                                                                                             getString(typeJO,
+                                                                                                                       FieldEditorColumnInfo.NAME.getColumnName()),
+                                                                                                             getString(typeJO,
+                                                                                                                       FieldEditorColumnInfo.DESCRIPTION.getColumnName()),
+                                                                                                             getString(typeJO,
+                                                                                                                       FieldEditorColumnInfo.SIZE.getColumnName()),
+                                                                                                             getString(typeJO,
+                                                                                                                       FieldEditorColumnInfo.INPUT_TYPE.getColumnName()),
+                                                                                                             getString(typeJO,
+                                                                                                                       FieldEditorColumnInfo.REQUIRED.getColumnName()),
+                                                                                                             getString(typeJO,
+                                                                                                                       FieldEditorColumnInfo.APPLICABILITY.getColumnName()),
+                                                                                                             getString(typeJO,
+                                                                                                                       FieldEditorColumnInfo.VALUE.getColumnName())},
+                                                                                               importFile.getAbsolutePath(),
+                                                                                               parent);
                             }
                         }
 
@@ -599,36 +492,21 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                                             baseType,
                                                             ""});
                         }
-                        // Incorrect number of inputs. Check if the user
-                        // hasn't already elected to ignore data type errors
-                        else if (!continueOnDataTypeError)
+                        // The number of inputs is incorrect
+                        else
                         {
-                            // Inform the user that the data type inputs are
-                            // incorrect
-                            int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                "<html><b>Missing or extra data type definition "
-                                                                                                    + "input(s) in import file '</b>"
-                                                                                                    + importFile.getAbsolutePath()
-                                                                                                    + "<b>'; continue?",
-                                                                                                "Data Type Error",
-                                                                                                "Ignore this data type",
-                                                                                                "Ignore this and any remaining invalid data types",
-                                                                                                "Stop importing");
-
-                            // Check if the Ignore All button was pressed
-                            if (buttonSelected == IGNORE_BUTTON)
-                            {
-                                // Set the flag to ignore subsequent data type
-                                // errors
-                                continueOnDataTypeError = true;
-                            }
-                            // Check if the Cancel button was pressed
-                            else if (buttonSelected == CANCEL_BUTTON)
-                            {
-                                // No error message is provided since the user
-                                // chose this action
-                                throw new CCDDException();
-                            }
+                            // Check if the error should be ignored or the
+                            // import canceled
+                            continueOnDataTypeError = getErrorResponse(continueOnDataTypeError,
+                                                                       "<html><b>Missing or extra data type definition "
+                                                                                                + "input(s) in import file '</b>"
+                                                                                                + importFile.getAbsolutePath()
+                                                                                                + "<b>'; continue?",
+                                                                       "Data Type Error",
+                                                                       "Ignore this data type",
+                                                                       "Ignore this and any remaining invalid data types",
+                                                                       "Stop importing",
+                                                                       parent);
                         }
                     }
                 }
@@ -656,35 +534,21 @@ public class CcddJSONHandler implements CcddImportExportInterface
                             // represent the OID)
                             macroDefns.add(new String[] {name, value, ""});
                         }
-                        // Incorrect number of inputs. Check if the user
-                        // hasn't already elected to ignore macro errors
-                        else if (!continueOnMacroError)
+                        // The number of inputs is incorrect
+                        else
                         {
-                            // Inform the user that the macro name is missing
-                            int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                "<html><b>Missing or extra macro definition "
-                                                                                                    + "input(s) in import file '</b>"
-                                                                                                    + importFile.getAbsolutePath()
-                                                                                                    + "<b>'; continue?",
-                                                                                                "Macro Error",
-                                                                                                "Ignore this macro",
-                                                                                                "Ignore this and any remaining invalid macros",
-                                                                                                "Stop importing");
-
-                            // Check if the Ignore All button was pressed
-                            if (buttonSelected == IGNORE_BUTTON)
-                            {
-                                // Set the flag to ignore subsequent macro
-                                // errors
-                                continueOnMacroError = true;
-                            }
-                            // Check if the Cancel button was pressed
-                            else if (buttonSelected == CANCEL_BUTTON)
-                            {
-                                // No error message is provided since the user
-                                // chose this action
-                                throw new CCDDException();
-                            }
+                            // Check if the error should be ignored or the
+                            // import canceled
+                            continueOnMacroError = getErrorResponse(continueOnMacroError,
+                                                                    "<html><b>Missing or extra macro definition "
+                                                                                          + "input(s) in import file '</b>"
+                                                                                          + importFile.getAbsolutePath()
+                                                                                          + "<b>'; continue?",
+                                                                    "Macro Error",
+                                                                    "Ignore this macro",
+                                                                    "Ignore this and any remaining invalid macros",
+                                                                    "Stop importing",
+                                                                    parent);
                         }
                     }
                 }
@@ -712,36 +576,21 @@ public class CcddJSONHandler implements CcddImportExportInterface
                             // blank to represent the OID)
                             reservedMsgIDDefns.add(new String[] {name, value, ""});
                         }
-                        // Incorrect number of inputs. Check if the user hasn't
-                        // already elected to ignore reserved message ID errors
-                        else if (!continueOnReservedMsgIDError)
+                        // The number of inputs is incorrect
+                        else
                         {
-                            // Inform the user that the reserved message ID is
-                            // missing
-                            int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                "<html><b>Missing or extra reserved message ID "
-                                                                                                    + "definition input(s) in import file '</b>"
-                                                                                                    + importFile.getAbsolutePath()
-                                                                                                    + "<b>'; continue?",
-                                                                                                "Reserved Message ID Error",
-                                                                                                "Ignore this reserved message ID",
-                                                                                                "Ignore this and any remaining invalid reserved message IDs",
-                                                                                                "Stop importing");
-
-                            // Check if the Ignore All button was pressed
-                            if (buttonSelected == IGNORE_BUTTON)
-                            {
-                                // Set the flag to ignore subsequent reserved
-                                // message ID errors
-                                continueOnMacroError = true;
-                            }
-                            // Check if the Cancel button was pressed
-                            else if (buttonSelected == CANCEL_BUTTON)
-                            {
-                                // No error message is provided since the user
-                                // chose this action
-                                throw new CCDDException();
-                            }
+                            // Check if the error should be ignored or the
+                            // import canceled
+                            continueOnReservedMsgIDError = getErrorResponse(continueOnReservedMsgIDError,
+                                                                            "<html><b>Missing or extra reserved message ID "
+                                                                                                          + "definition input(s) in import file '</b>"
+                                                                                                          + importFile.getAbsolutePath()
+                                                                                                          + "<b>'; continue?",
+                                                                            "Reserved Message ID Error",
+                                                                            "Ignore this reserved message ID",
+                                                                            "Ignore this and any remaining invalid reserved message IDs",
+                                                                            "Stop importing",
+                                                                            parent);
                         }
                     }
                 }
@@ -850,40 +699,24 @@ public class CcddJSONHandler implements CcddImportExportInterface
                                     rowData[column] = getString(rowDataJO,
                                                                 typeDefn.getColumnNamesVisible()[column]);
                                 }
-                                // Check that the user hasn't elected to ignore
-                                // column name errors
-                                else if (!continueOnColumnError)
+                                // The number of inputs is incorrect
+                                else
                                 {
-                                    // Inform the user that the column name is
-                                    // invalid
-                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                        "<html><b>Table '</b>"
-                                                                                                            + tableName
-                                                                                                            + "<b>' column name '</b>"
-                                                                                                            + columnName
-                                                                                                            + "<b>' unrecognized in import file '</b>"
-                                                                                                            + importFile.getAbsolutePath()
-                                                                                                            + "<b>'; continue?",
-                                                                                                        "Column Error",
-                                                                                                        "Ignore this invalid column name",
-                                                                                                        "Ignore this and any remaining invalid column names",
-                                                                                                        "Stop importing");
-
-                                    // Check if the Ignore All button was
-                                    // pressed
-                                    if (buttonSelected == IGNORE_BUTTON)
-                                    {
-                                        // Set the flag to ignore subsequent
-                                        // column name errors
-                                        continueOnColumnError = true;
-                                    }
-                                    // Check if the Cancel button was pressed
-                                    else if (buttonSelected == CANCEL_BUTTON)
-                                    {
-                                        // No error message is provided since
-                                        // the user chose this action
-                                        throw new CCDDException();
-                                    }
+                                    // Check if the error should be ignored or
+                                    // the import canceled
+                                    continueOnColumnError = getErrorResponse(continueOnColumnError,
+                                                                             "<html><b>Table '</b>"
+                                                                                                    + tableName
+                                                                                                    + "<b>' column name '</b>"
+                                                                                                    + columnName
+                                                                                                    + "<b>' unrecognized in import file '</b>"
+                                                                                                    + importFile.getAbsolutePath()
+                                                                                                    + "<b>'; continue?",
+                                                                             "Column Error",
+                                                                             "Ignore this invalid column name",
+                                                                             "Ignore this and any remaining invalid column names",
+                                                                             "Stop importing",
+                                                                             parent);
                                 }
                             }
 
@@ -900,99 +733,27 @@ public class CcddJSONHandler implements CcddImportExportInterface
                             // Step through each data field definition
                             for (JSONObject dataFieldJO : parseJSONArray(dataFieldsJA))
                             {
-                                // Get the data field definition components
-                                String name = getString(dataFieldJO,
-                                                        FieldEditorColumnInfo.NAME.getColumnName());
-                                String description = getString(dataFieldJO,
-                                                               FieldEditorColumnInfo.DESCRIPTION.getColumnName());
-                                String size = getString(dataFieldJO,
-                                                        FieldEditorColumnInfo.SIZE.getColumnName());
-                                String inputType = getString(dataFieldJO,
-                                                             FieldEditorColumnInfo.INPUT_TYPE.getColumnName());
-                                String required = getString(dataFieldJO,
-                                                            FieldEditorColumnInfo.REQUIRED.getColumnName());
-                                String applicability = getString(dataFieldJO,
-                                                                 FieldEditorColumnInfo.APPLICABILITY.getColumnName());
-                                String value = getString(dataFieldJO,
-                                                         FieldEditorColumnInfo.VALUE.getColumnName());
-
-                                // Check if the expected inputs are present
-                                if (!name.isEmpty()
-                                    && !size.isEmpty()
-                                    && dataFieldJO.keySet().size() <= FieldEditorColumnInfo.values().length)
-                                {
-                                    // Check if the field size is empty
-                                    if (size.isEmpty())
-                                    {
-                                        // Default to ten characters
-                                        size = "10";
-                                    }
-
-                                    // Check if the input type is empty
-                                    if (inputType.isEmpty())
-                                    {
-                                        // Default to text
-                                        inputType = InputDataType.TEXT.getInputName();
-                                    }
-
-                                    // Check if the 'required' flag is empty
-                                    if (required.isEmpty())
-                                    {
-                                        // Default to 'false'
-                                        required = "false";
-                                    }
-
-                                    // Check if applicability is empty
-                                    if (applicability.isEmpty())
-                                    {
-                                        // Default to all tables
-                                        applicability = ApplicabilityType.ALL.getApplicabilityName();
-                                    }
-
-                                    // Add the data field definition
-                                    tableDefn.addDataField(new String[] {tableName,
-                                                                         name,
-                                                                         description,
-                                                                         size,
-                                                                         inputType,
-                                                                         required,
-                                                                         applicability,
-                                                                         value});
-                                }
-                                // Check that the user hasn't elected to ignore
-                                // data field errors
-                                else if (!continueOnDataFieldError)
-                                {
-                                    // Inform the user that the data field name
-                                    // is missing
-                                    int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
-                                                                                                        "<html><b>Table '</b>"
-                                                                                                            + tableName
-                                                                                                            + "<b>' has missing or extra data field "
-                                                                                                            + "input(s) in import file '</b>"
-                                                                                                            + importFile.getAbsolutePath()
-                                                                                                            + "<b>'; continue?",
-                                                                                                        "Data Field Error",
-                                                                                                        "Ignore this invalid data field",
-                                                                                                        "Ignore this and any remaining invalid data fields",
-                                                                                                        "Stop importing");
-
-                                    // Check if the Ignore All button was
-                                    // pressed
-                                    if (buttonSelected == IGNORE_BUTTON)
-                                    {
-                                        // Set the flag to ignore subsequent
-                                        // data field errors
-                                        continueOnDataFieldError = true;
-                                    }
-                                    // Check if the Cancel button was pressed
-                                    else if (buttonSelected == CANCEL_BUTTON)
-                                    {
-                                        // No error message is provided since
-                                        // the user chose this action
-                                        throw new CCDDException();
-                                    }
-                                }
+                                // Add the data field definition, checking for
+                                // (and if possible, correcting) errors
+                                continueOnDataFieldError = addImportedDataFieldDefinition(continueOnDataFieldError,
+                                                                                          tableDefn,
+                                                                                          new String[] {tableName,
+                                                                                                        getString(dataFieldJO,
+                                                                                                                  FieldEditorColumnInfo.NAME.getColumnName()),
+                                                                                                        getString(dataFieldJO,
+                                                                                                                  FieldEditorColumnInfo.DESCRIPTION.getColumnName()),
+                                                                                                        getString(dataFieldJO,
+                                                                                                                  FieldEditorColumnInfo.SIZE.getColumnName()),
+                                                                                                        getString(dataFieldJO,
+                                                                                                                  FieldEditorColumnInfo.INPUT_TYPE.getColumnName()),
+                                                                                                        getString(dataFieldJO,
+                                                                                                                  FieldEditorColumnInfo.REQUIRED.getColumnName()),
+                                                                                                        getString(dataFieldJO,
+                                                                                                                  FieldEditorColumnInfo.APPLICABILITY.getColumnName()),
+                                                                                                        getString(dataFieldJO,
+                                                                                                                  FieldEditorColumnInfo.VALUE.getColumnName())},
+                                                                                          importFile.getAbsolutePath(),
+                                                                                          parent);
                             }
                         }
 
@@ -1015,10 +776,10 @@ public class CcddJSONHandler implements CcddImportExportInterface
             // Inform the user that the file cannot be closed
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Cannot parse import file<br>'</b>"
-                                                          + importFile.getAbsolutePath()
-                                                          + "<b>'; cause '"
-                                                          + pe.getMessage()
-                                                          + "'",
+                                                              + importFile.getAbsolutePath()
+                                                              + "<b>'; cause '"
+                                                              + pe.getMessage()
+                                                              + "'",
                                                       "File Warning",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -1039,8 +800,8 @@ public class CcddJSONHandler implements CcddImportExportInterface
                 // Inform the user that the file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
                                                           "<html><b>Cannot close import file<br>'</b>"
-                                                              + importFile.getAbsolutePath()
-                                                              + "<b>'",
+                                                                  + importFile.getAbsolutePath()
+                                                                  + "<b>'",
                                                           "File Warning",
                                                           JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
@@ -1121,13 +882,13 @@ public class CcddJSONHandler implements CcddImportExportInterface
             JSONObject outputJO = new JSONObject();
             outputJO.put(JSONTags.FILE_DESCRIPTION.getTag(),
                          "Created "
-                             + new Date().toString()
-                             + " : project = "
-                             + dbControl.getDatabase()
-                             + " : host = "
-                             + dbControl.getServer()
-                             + " : user = "
-                             + dbControl.getUser());
+                                                             + new Date().toString()
+                                                             + " : project = "
+                                                             + dbControl.getDatabase()
+                                                             + " : host = "
+                                                             + dbControl.getServer()
+                                                             + " : user = "
+                                                             + dbControl.getUser());
 
             // Check if any tables are provided
             if (tableNames.length != 0)
@@ -1279,8 +1040,8 @@ public class CcddJSONHandler implements CcddImportExportInterface
             // Inform the user that the data file cannot be written to
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Cannot write to export file<br>'</b>"
-                                                          + exportFile.getAbsolutePath()
-                                                          + "<b>'",
+                                                              + exportFile.getAbsolutePath()
+                                                              + "<b>'",
                                                       "File Error",
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -1291,8 +1052,8 @@ public class CcddJSONHandler implements CcddImportExportInterface
             // Inform the user that formatting the JSON output failed
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Cannot format JSON output using JavaScript; cause '"
-                                                          + se.getMessage()
-                                                          + "'",
+                                                              + se.getMessage()
+                                                              + "'",
                                                       "JavaScript Error",
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -1334,8 +1095,8 @@ public class CcddJSONHandler implements CcddImportExportInterface
                 // Inform the user that the data file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
                                                           "<html><b>Cannot close export file<br>'</b>"
-                                                              + exportFile.getAbsolutePath()
-                                                              + "<b>'",
+                                                                  + exportFile.getAbsolutePath()
+                                                                  + "<b>'",
                                                           "File Warning",
                                                           JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);

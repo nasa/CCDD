@@ -1598,7 +1598,7 @@ public class CcddSchedulerEditorHandler
      *************************************************************************/
     private List<String> getSubOptions(float rate)
     {
-        List<String> msgs = new ArrayList<>();
+        List<String> msgs = new ArrayList<String>();
 
         // Current message option
         String msg = "";

@@ -1528,12 +1528,12 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             if (groupTree.getRowCount() != 0)
             {
                 // Step through the currently defined group names
-                for (String name : groupTree.getGroupHandler().getGroupNames(false))
+                for (String name : groupTree.getGroupHandler().getGroupNames(false, true))
                 {
                     // Check if the new name matches an existing one
                     if (groupName.equals(name))
                     {
-                        // Inform the user that the group name already is in
+                        // Inform the user that the group name is already in
                         // use
                         throw new CCDDException("Group name is already in use");
                     }

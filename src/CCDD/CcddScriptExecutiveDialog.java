@@ -150,9 +150,9 @@ public class CcddScriptExecutiveDialog extends CcddFrameHandler
                         public void actionPerformed(ActionEvent ae)
                         {
                             // Execute the selected associations
-                            scriptHandler.executeScriptAssociations(CcddScriptExecutiveDialog.this,
-                                                                    tableTree,
-                                                                    false);
+                            scriptHandler.executeScriptAssociations(tableTree,
+                                                                    false,
+                                                                    CcddScriptExecutiveDialog.this);
                         }
                     });
 
@@ -180,9 +180,9 @@ public class CcddScriptExecutiveDialog extends CcddFrameHandler
                                                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                             {
                                 // Execute all script associations
-                                scriptHandler.executeScriptAssociations(CcddScriptExecutiveDialog.this,
-                                                                        tableTree,
-                                                                        true);
+                                scriptHandler.executeScriptAssociations(tableTree,
+                                                                        true,
+                                                                        CcddScriptExecutiveDialog.this);
                             }
                         }
                     });

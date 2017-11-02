@@ -11,6 +11,7 @@ package CCDD;
 import static CCDD.CcddConstants.AUTO_COMPLETE_TEXT_SEPARATOR;
 import static CCDD.CcddConstants.LAF_CHECK_BOX_HEIGHT;
 import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
+import static CCDD.CcddConstants.MACRO_IDENTIFIER;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
 
@@ -1060,8 +1061,11 @@ public class CcddClasses
          *
          * @param description
          *            table description
+         *
+         * @throws CCDDException
+         *             If the table name/path is not in the expected format
          *********************************************************************/
-        TableDefinition(String tableName, String description)
+        TableDefinition(String tableName, String description) throws CCDDException
         {
             this();
 
@@ -1069,6 +1073,9 @@ public class CcddClasses
             // description
             this.tableName = tableName;
             this.description = description;
+
+            // Validate the table name/path
+            validatePathFormat();
         }
 
         /**********************************************************************
@@ -1086,10 +1093,16 @@ public class CcddClasses
          *
          * @param tableName
          *            table name (including path, if applicable)
+         *
+         * @throws CCDDException
+         *             If the table name/path is not in the expected format
          *********************************************************************/
-        protected void setName(String tableName)
+        protected void setName(String tableName) throws CCDDException
         {
             this.tableName = tableName;
+
+            // Validate the table name/path
+            validatePathFormat();
         }
 
         /**********************************************************************
@@ -1174,6 +1187,51 @@ public class CcddClasses
         protected void addDataField(String[] fieldInfo)
         {
             dataFields.add(fieldInfo);
+        }
+
+        /**********************************************************************
+         * Check if the table name/path is in the expected format:
+         * rootName<,childStructure.childName<,...>>
+         *
+         * @throws CCDDException
+         *             If the table name/path is not in the expected format
+         *********************************************************************/
+        protected void validatePathFormat() throws CCDDException
+        {
+            boolean isChild = false;
+
+            // Split the path into the root and children (if present) and step
+            // through each
+            for (String child : tableName.split(","))
+            {
+                // Split the table into the data type and variable name. The
+                // root table only has the data type portion
+                String[] dataTypeAndVariable = child.split("\\.");
+
+                // Check if the data type and (if present) variable name are in
+                // the correct format. Embedded macros are accounted for by
+                // simply removing the associated macro identifiers prior to
+                // checking the name
+                if (!dataTypeAndVariable[0].matches(InputDataType.VARIABLE.getInputMatch())
+                    || (isChild
+                        && !(dataTypeAndVariable.length == 2
+                             && dataTypeAndVariable[1].replaceAll(MACRO_IDENTIFIER
+                                                                  + "(.+?)"
+                                                                  + MACRO_IDENTIFIER,
+                                                                  "$1")
+                                                      .matches(InputDataType.VARIABLE.getInputMatch()
+                                                               + "(?:\\[[0-9]+\\])?"))))
+                {
+                    // Indicate that the table name/path doesn't match the
+                    // valid pattern
+                    throw new CCDDException("Invalid table path '"
+                                            + tableName
+                                            + "'");
+                }
+
+                isChild = true;
+            }
+
         }
     }
 
@@ -3512,7 +3570,7 @@ public class CcddClasses
             // Check if the sub-messages doesn't exist
             if (subMessages == null)
             {
-                subMessages = new ArrayList<>();
+                subMessages = new ArrayList<Message>();
             }
 
             // Create the name of the sub-message
