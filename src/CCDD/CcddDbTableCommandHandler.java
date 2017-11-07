@@ -8,9 +8,9 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.DB_SAVE_POINT_NAME;
 import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
-import static CCDD.CcddConstants.LIST_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.PATH_IDENT;
@@ -113,7 +113,7 @@ public class CcddDbTableCommandHandler
         // Escape any special characters in the script associations and
         // telemetry scheduler table
         // separators
-        assnsSeparator = CcddUtilities.escapePostgreSQLReservedChars(LIST_TABLE_SEPARATOR);
+        assnsSeparator = CcddUtilities.escapePostgreSQLReservedChars(ASSN_TABLE_SEPARATOR);
         tlmSchSeparator = CcddUtilities.escapePostgreSQLReservedChars(TLM_SCH_SEPARATOR);
     }
 
@@ -6183,14 +6183,15 @@ public class CcddDbTableCommandHandler
             String[] tableNames = null;
             String names = "";
 
-            // Set the flag that indicates if the table type definition
-            // represents a structure prior to making the updates
+            // Get the type definition based on the table type name
+            TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(typeName);
+
+            // Set the flags that indicates if the table type definition
+            // represents a structure prior to and after making the updates
             boolean wasStructure = originalDefn != null
                                                         ? originalDefn.isStructure()
                                                         : false;
-
-            // Get the type definition based on the table type name
-            TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(typeName);
+            boolean isStructure = typeDefn.isStructure();
 
             // Create the command to update the table definitions table
             StringBuilder command = new StringBuilder(storeTableTypesInfoTableCommand());
@@ -6252,7 +6253,8 @@ public class CcddDbTableCommandHandler
                         // database form
                         InputDataType inputDataType = InputDataType.getInputTypeByName(add[1]);
                         String dbName = DefaultColumn.convertVisibleToDatabase(add[0],
-                                                                               inputDataType);
+                                                                               inputDataType,
+                                                                               isStructure);
 
                         // Append the add command
                         command.append("ALTER TABLE "
@@ -6267,9 +6269,11 @@ public class CcddDbTableCommandHandler
                     {
                         // Get the old and new column names in database form
                         String oldDbName = DefaultColumn.convertVisibleToDatabase(mod[0],
-                                                                                  InputDataType.getInputTypeByName(mod[2]));
+                                                                                  InputDataType.getInputTypeByName(mod[2]),
+                                                                                  isStructure);
                         String newDbName = DefaultColumn.convertVisibleToDatabase(mod[1],
-                                                                                  InputDataType.getInputTypeByName(mod[3]));
+                                                                                  InputDataType.getInputTypeByName(mod[3]),
+                                                                                  isStructure);
 
                         // Check if the database form of the name changed
                         if (!oldDbName.equals(newDbName))
@@ -6292,7 +6296,8 @@ public class CcddDbTableCommandHandler
                         // database form
                         InputDataType inputDataType = InputDataType.getInputTypeByName(del[1]);
                         String dbName = DefaultColumn.convertVisibleToDatabase(del[0],
-                                                                               inputDataType);
+                                                                               inputDataType,
+                                                                               isStructure);
 
                         // Append the delete command
                         command.append("ALTER TABLE "
@@ -6360,7 +6365,7 @@ public class CcddDbTableCommandHandler
                     valuesCmd.append(")");
 
                     // Check if the table type represents a structure
-                    if (typeDefn.isStructure() && wasStructure)
+                    if (isStructure && wasStructure)
                     {
                         // Step through each prototype table of the specified
                         // type
@@ -6402,7 +6407,7 @@ public class CcddDbTableCommandHandler
 
                     // Check if the table type changed from representing a
                     // structure to no longer doing so
-                    if (!typeDefn.isStructure() && wasStructure)
+                    if (!isStructure && wasStructure)
                     {
                         boolean hasSharedRate = false;
 
@@ -6495,7 +6500,7 @@ public class CcddDbTableCommandHandler
 
                         // Check if the table type represents a structure and
                         // the column input type was a rate
-                        if (typeDefn.isStructure() && wasStructure
+                        if (isStructure && wasStructure
                             && mod[2].equals(InputDataType.RATE.getInputName()))
                         {
                             // Check if the column changed from a rate column
@@ -6594,7 +6599,7 @@ public class CcddDbTableCommandHandler
 
                         // Check if the table type represents a structure and a
                         // rate column is deleted
-                        if (typeDefn.isStructure() && wasStructure
+                        if (isStructure && wasStructure
                             && del[1].equals(InputDataType.RATE.getInputName()))
                         {
                             // Check if the rate name is used by another
@@ -6623,7 +6628,7 @@ public class CcddDbTableCommandHandler
                 List<String> rootStructures = null;
 
                 // Check if the modified type represents a structure
-                if (typeDefn.isStructure())
+                if (isStructure)
                 {
                     // Get the list of root structure tables
                     rootStructures = getRootStructures(editorDialog);
@@ -6639,7 +6644,7 @@ public class CcddDbTableCommandHandler
                 {
                     // Set the flag to indicate if the table is a root
                     // structure
-                    boolean isRootStruct = typeDefn.isStructure()
+                    boolean isRootStruct = isStructure
                                            && rootStructures.contains(tableName);
 
                     // Get the existing data fields for this table
@@ -6786,7 +6791,7 @@ public class CcddDbTableCommandHandler
 
             // Check that no errors occurred and if the table type represents
             // or represented a structure
-            if (!errorFlag && (typeDefn.isStructure() || wasStructure))
+            if (!errorFlag && (isStructure || wasStructure))
             {
                 // Step through each column addition
                 for (String add[] : additions)

@@ -3198,6 +3198,7 @@ public abstract class CcddJTableHandler extends JTable
                                 boolean startFirstColumn)
     {
         Boolean showMessage = true;
+        int modelRow = 0;
 
         // Get the table data array
         List<Object[]> tableData = getTableDataList(false);
@@ -3219,9 +3220,7 @@ public abstract class CcddJTableHandler extends JTable
         int startColumn = startFirstColumn
                                            ? 0
                                            : Math.max(Math.max(getSelectedColumn(), 0),
-                                                      getSelectedColumn()
-                                                                                        + getSelectedColumnCount()
-                                                                                        - 1);
+                                                      getSelectedColumn() + getSelectedColumnCount() - 1);
         int endColumn = startColumn + numColumns - 1;
         int endColumnSelect = Math.min(endColumn, getColumnCount() - 1);
 
@@ -3230,19 +3229,27 @@ public abstract class CcddJTableHandler extends JTable
         int startRow = Math.max(getSelectedRow(),
                                 getSelectedRow() + getSelectedRowCount() - 1);
 
+        // Check if no row is selected or if the table contains no rows
+        if (startRow == -1)
+        {
+            // Set the start row to the first row
+            startRow = 0;
+        }
+
+        // Check if the table contains any rows
+        if (tableModel.getRowCount() != 0)
+        {
+            // Get the row index in model coordinates
+            modelRow = convertRowIndexToModel(startRow);
+        }
+
         // Check if the data is to be inserted versus overwriting existing
         // cells
         if (isInsert)
         {
             // Adjust the starting row index to the one after the selected row
             startRow = startRow + 1;
-        }
-        // Overwrite the existing cells. Check if no row is selected or if the
-        // table contains no rows
-        else if (startRow == -1)
-        {
-            // Set the start row to the first row
-            startRow = 0;
+            modelRow++;
         }
 
         // Determine the ending row for pasting the data
@@ -3251,13 +3258,14 @@ public abstract class CcddJTableHandler extends JTable
         // Clear the cell selection
         clearSelection();
 
+        // Calculate the difference between the row's view and model
+        // coordinates
+        int rowModelDelta = modelRow - startRow;
+
         // Step through each new row
         for (int index = 0, row = startRow; row < endRow
-                                            && showMessage != null; row++)
+                                            && showMessage != null; row++, modelRow++)
         {
-            // Convert the view row index to model coordinates
-            int modelRow = convertRowIndexToModel(row);
-
             // Check if a row needs to be inserted to contain the cell data
             if (isInsert
                 || (isAddIfNeeded && modelRow == tableData.size()))
@@ -3384,12 +3392,16 @@ public abstract class CcddJTableHandler extends JTable
 
             // Select all of the rows and columns into which the data was
             // pasted
-            setRowSelectionInterval(startRow, endRow - 1);
+            setRowSelectionInterval(startRow + rowModelDelta,
+                                    endRow - 1 + rowModelDelta);
             setColumnSelectionInterval(startColumn, endColumnSelect);
 
             // Select the pasted cells and force the table to be redrawn so
             // that the changes are displayed
-            setSelectedCells(startRow, endRow - 1, startColumn, endColumnSelect);
+            setSelectedCells(startRow + rowModelDelta,
+                             endRow - 1 + rowModelDelta,
+                             startColumn,
+                             endColumnSelect);
             repaint();
         }
 

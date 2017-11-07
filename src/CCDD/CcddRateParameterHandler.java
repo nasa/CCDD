@@ -836,7 +836,7 @@ public class CcddRateParameterHandler
             ratesInUse.addAll(dbTable.queryDatabase("SELECT DISTINCT ON (2) * FROM find_columns_by_name('"
                                                     + rateName
                                                     + "', '"
-                                                    + DefaultColumn.convertVisibleToDatabase(rateName, InputDataType.RATE)
+                                                    + DefaultColumn.convertVisibleToDatabase(rateName, InputDataType.RATE, true)
                                                     + "', '{"
                                                     + Arrays.toString(tableTypeHandler.getStructureTableTypes()).replaceAll("[\\[\\]]",
                                                                                                                             "")

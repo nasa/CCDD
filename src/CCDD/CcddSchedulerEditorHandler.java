@@ -1002,7 +1002,8 @@ public class CcddSchedulerEditorHandler
             for (int index = 1; index <= getMaxNumberOfSubMessages(); index++)
             {
                 // Add an ID column for the sub-message
-                columns.add(getSubHeaderOrTabName(index)
+                columns.add("<html><center>"
+                            + getSubHeaderOrTabName(index)
                             + "<br>ID");
             }
         }

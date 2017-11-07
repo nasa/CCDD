@@ -1356,7 +1356,8 @@ public class CcddDbControlHandler
                     {
                         // Get the rate column name (in its database form)
                         String rateColName = DefaultColumn.convertVisibleToDatabase(rateInfo.getRateName(),
-                                                                                    InputDataType.RATE);
+                                                                                    InputDataType.RATE,
+                                                                                    true);
 
                         // Add detection for the rate column. If the column
                         // doesn't exist in the table then a blank is returned

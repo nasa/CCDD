@@ -796,30 +796,6 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             }
         });
 
-        // Add a listener for the Export - EDS command
-        mntmExportEDS.addActionListener(new ValidateCellActionListener()
-        {
-            /******************************************************************
-             * Export the table to a file in EDS format
-             *****************************************************************/
-            @Override
-            protected void performAction(ActionEvent ae)
-            {
-                new CcddTableManagerDialog(ccddMain,
-                                           ManagerDialogType.EXPORT_EDS,
-                                           CcddTableEditorDialog.this);
-            }
-
-            /******************************************************************
-             * Get the reference to the currently displayed table
-             *****************************************************************/
-            @Override
-            protected CcddJTableHandler getTable()
-            {
-                return activeEditor.getTable();
-            }
-        });
-
         // Add a listener for the Print command
         mntmPrint.addActionListener(new ValidateCellActionListener()
         {

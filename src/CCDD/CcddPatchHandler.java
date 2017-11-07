@@ -10,7 +10,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.CCDD_PROJECT_IDENTIFIER;
 import static CCDD.CcddConstants.DATABASE_COMMENT_SEPARATOR;
-import static CCDD.CcddConstants.LIST_TABLE_SEPARATOR;
+import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.EventLogMessageType.SUCCESS_MSG;
 
@@ -258,7 +258,7 @@ public class CcddPatchHandler
                         tableData.set(row, new String[] {"",
                                                          tableData.get(row)[1],
                                                          tableData.get(row)[2].replaceAll(" \\+ ",
-                                                                                          LIST_TABLE_SEPARATOR)});
+                                                                                          ASSN_TABLE_SEPARATOR)});
                     }
                 }
 

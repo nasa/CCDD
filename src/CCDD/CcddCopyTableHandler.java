@@ -222,20 +222,30 @@ public class CcddCopyTableHandler
             // Check if the message ID name and ID value are not blank
             if (!message.getName().isEmpty() && !message.getID().isEmpty())
             {
-                // Add the message ID name and ID value to the list
-                messageIDs.add(new String[] {message.getName(),
-                                             message.getID()});
-
-                // Step through each sub-message
-                for (Message subMsg : message.getSubMessages())
+                // Check if this parent message has no sub-messages (other than
+                // the default one)
+                if (message.getNumberOfSubMessages() <= 1)
                 {
-                    // Check if the sub-message ID name and ID value are not
-                    // blank
-                    if (!subMsg.getName().isEmpty() && !subMsg.getID().isEmpty())
+                    // Add the message ID name and ID value to the list
+                    messageIDs.add(new String[] {message.getName(),
+                                                 message.getID()});
+                }
+                // This parent has multiple sub-messages
+                else
+                {
+                    // Step through each sub-message
+                    for (Message subMsg : message.getSubMessages())
                     {
-                        // Add the sub-message ID name and ID value to the list
-                        messageIDs.add(new String[] {subMsg.getName(),
-                                                     subMsg.getID()});
+                        // Check if the sub-message ID name and ID value are
+                        // not blank
+                        if (!subMsg.getName().isEmpty() && !subMsg.getID().isEmpty())
+                        {
+                            // Add the sub-message ID name and ID value to the
+                            // list. Replace the period in the sub-message name
+                            // with an underscore so that it is a valid name
+                            messageIDs.add(new String[] {subMsg.getName().replaceFirst("\\.", "_"),
+                                                         subMsg.getID()});
+                        }
                     }
                 }
             }

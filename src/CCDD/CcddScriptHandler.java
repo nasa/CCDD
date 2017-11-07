@@ -12,7 +12,7 @@ import static CCDD.CcddConstants.ALL_TABLES_GROUP_NODE_NAME;
 import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.HIDE_SCRIPT_PATH;
-import static CCDD.CcddConstants.LIST_TABLE_SEPARATOR;
+import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.PATH_COLUMN_DELTA;
 import static CCDD.CcddConstants.TYPE_COLUMN_DELTA;
@@ -652,7 +652,7 @@ public class CcddScriptHandler
         List<String> tablePaths = new ArrayList<String>();
 
         // Separate the individual table path+names
-        String[] members = associationMembers.split(Pattern.quote(LIST_TABLE_SEPARATOR));
+        String[] members = associationMembers.split(Pattern.quote(ASSN_TABLE_SEPARATOR));
 
         // Step through each table path+name or group
         for (String member : members)
@@ -1239,7 +1239,7 @@ public class CcddScriptHandler
                                                                    groupHandler,
                                                                    parent);
 
-                String[] members = assn[AssociationsColumn.MEMBERS.ordinal()].toString().split(Pattern.quote(LIST_TABLE_SEPARATOR));
+                String[] members = assn[AssociationsColumn.MEMBERS.ordinal()].toString().split(Pattern.quote(ASSN_TABLE_SEPARATOR));
 
                 // Step through each table path+name or group
                 for (String member : members)

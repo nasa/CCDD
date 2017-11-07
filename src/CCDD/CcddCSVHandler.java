@@ -651,7 +651,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                             // Inform the user that no tag
                                             // appears in the file before other
                                             // data
-                                            throw new CCDDException("Import file <br>'</b>"
+                                            throw new CCDDException("Import file '</b>"
                                                                     + importFile.getAbsolutePath()
                                                                     + "<b>' information missing");
                                     }
@@ -676,18 +676,18 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                 // information class
                                                 tablePath = columnValues[0];
                                                 tableDefn.setName(tablePath);
-                                                tableDefn.setType(columnValues[1]);
+                                                tableDefn.setTypeName(columnValues[1]);
 
                                                 // Get the table's type
                                                 // definition
-                                                typeDefn = tableTypeHandler.getTypeDefinition(tableDefn.getType());
+                                                typeDefn = tableTypeHandler.getTypeDefinition(tableDefn.getTypeName());
 
                                                 // Check if the table type
                                                 // doesn't exist
                                                 if (typeDefn == null)
                                                 {
                                                     throw new CCDDException("Unknown table type '"
-                                                                            + tableDefn.getType()
+                                                                            + tableDefn.getTypeName()
                                                                             + "'");
                                                 }
 
@@ -771,7 +771,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                 // table
                                                 if (numValidColumns == 0)
                                                 {
-                                                    throw new CCDDException("No columns in import file<br>'</b>"
+                                                    throw new CCDDException("No columns in import file '</b>"
                                                                             + importFile.getAbsolutePath()
                                                                             + "<b>' match those in the target table",
                                                                             JOptionPane.WARNING_MESSAGE);
@@ -780,7 +780,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                             // The file contains no column data
                                             else
                                             {
-                                                throw new CCDDException("Format invalid for import file<br>'</b>"
+                                                throw new CCDDException("Format invalid for import file '</b>"
                                                                         + importFile.getAbsolutePath()
                                                                         + "<b>'");
                                             }
@@ -832,7 +832,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                     // correcting) errors
                                                     continueOnDataFieldError = addImportedDataFieldDefinition(continueOnDataFieldError,
                                                                                                               tableDefn,
-                                                                                                              new String[] {CcddFieldHandler.getFieldTypeName(tableTypeDefn.getTypeName()),
+                                                                                                              new String[] {tableDefn.getName(),
                                                                                                                             columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
                                                                                                                             columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
                                                                                                                             columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
@@ -878,7 +878,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                             // Inform the user that no tag
                                             // appears in the file before other
                                             // data
-                                            throw new CCDDException("Import file <br>'</b>"
+                                            throw new CCDDException("Import file '</b>"
                                                                     + importFile.getAbsolutePath()
                                                                     + "<b>' information missing");
                                     }
@@ -976,7 +976,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             {
                 // Inform the user that the file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
-                                                          "<html><b>Cannot close import file<br>'</b>"
+                                                          "<html><b>Cannot close import file '</b>"
                                                                   + importFile.getAbsolutePath()
                                                                   + "<b>'",
                                                           "File Warning",
@@ -1370,7 +1370,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         {
             // Inform the user that the data file cannot be written to
             new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Cannot write to export file<br>'</b>"
+                                                      "<html><b>Cannot write to export file '</b>"
                                                               + exportFile.getAbsolutePath()
                                                               + "<b>'",
                                                       "File Error",
@@ -1413,7 +1413,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             {
                 // Inform the user that the data file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
-                                                          "<html><b>Cannot close export file<br>'</b>"
+                                                          "<html><b>Cannot close export file '</b>"
                                                                   + exportFile.getAbsolutePath()
                                                                   + "<b>'",
                                                           "File Warning",

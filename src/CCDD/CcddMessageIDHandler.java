@@ -521,19 +521,47 @@ public class CcddMessageIDHandler
         }
 
         // Get the telemetry rates, message ID names, and IDs assigned in the
-        // telemetry scheduler table
-        ownersNamesAndIDs.addAll(dbTable.queryDatabase("SELECT DISTINCT ON (2) 'Tlm:' || "
-                                                       + InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.RATE_NAME.ordinal())
-                                                       + ", "
-                                                       + InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.MESSAGE_NAME.ordinal())
-                                                       + ", "
-                                                       + InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.MESSAGE_ID.ordinal())
-                                                       + " FROM "
-                                                       + InternalTable.TLM_SCHEDULER.getTableName()
-                                                       + " WHERE "
-                                                       + InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.MESSAGE_NAME.ordinal())
-                                                       + " !~ E'^.+\\\\..*$';",
-                                                       parent));
+        // telemetry scheduler table. This query returns only those the message
+        // names with the sub-message index appended, so for parent messages
+        // without any sub-messages this retrieves the 'default' sub-message
+        // name
+        ArrayListMultiple tlmMsgs = new ArrayListMultiple(1);
+        tlmMsgs.addAll(dbTable.queryDatabase("SELECT DISTINCT ON (3,2) 'Tlm:' || "
+                                             + InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.RATE_NAME.ordinal())
+                                             + ", regexp_replace("
+                                             + InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.MESSAGE_NAME.ordinal())
+                                             + ", E'\\\\.', '_'), "
+                                             + InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.MESSAGE_ID.ordinal())
+                                             + " FROM "
+                                             + InternalTable.TLM_SCHEDULER.getTableName()
+                                             + " WHERE "
+                                             + InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.MESSAGE_NAME.ordinal())
+                                             + " ~ E'\\\\.';",
+                                             parent));
+
+        // Step through each of the telemetry messages retrieved
+        for (String[] tlmMsg : tlmMsgs)
+        {
+            // Check if this message has the default sub-message name
+            if (tlmMsg[1].endsWith("_0"))
+            {
+                // Get the parent message name
+                String parentMsg = tlmMsg[1].substring(0, tlmMsg[1].length() - 2);
+
+                // Check if the list of messages does not include the second
+                // sub-message. This indicates that the parent has no 'real'
+                // sub-messages
+                if (!tlmMsgs.contains(parentMsg + "_1"))
+                {
+                    // Store the parent message name in place of the default
+                    // sub-message name
+                    tlmMsg[1] = parentMsg;
+                }
+            }
+        }
+
+        // Add the processed telemetry message to the list
+        ownersNamesAndIDs.addAll(tlmMsgs);
 
         // Sort the message ID list in the order specified
         switch (sortOrder)
@@ -567,7 +595,7 @@ public class CcddMessageIDHandler
                     public int compare(final String[] msgID1, final String[] msgID2)
                     {
                         return msgID1[MsgIDListColumnIndex.MESSAGE_ID_NAME.ordinal()].toLowerCase()
-                                                                                .compareTo(msgID2[MsgIDListColumnIndex.MESSAGE_ID_NAME.ordinal()].toLowerCase());
+                                                                                     .compareTo(msgID2[MsgIDListColumnIndex.MESSAGE_ID_NAME.ordinal()].toLowerCase());
                     }
                 });
 

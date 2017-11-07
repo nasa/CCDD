@@ -1037,7 +1037,7 @@ public class CcddClasses
     protected static class TableDefinition
     {
         private String tableName;
-        private String type;
+        private String typeName;
         private String description;
         private final List<String> data;
         private final List<String[]> dataFields;
@@ -1106,24 +1106,24 @@ public class CcddClasses
         }
 
         /**********************************************************************
-         * Get the table type
+         * Get the table type name
          *
-         * @return Table type
+         * @return Table type name
          *********************************************************************/
-        protected String getType()
+        protected String getTypeName()
         {
-            return type;
+            return typeName;
         }
 
         /**********************************************************************
-         * Set the table type
+         * Set the table type name
          *
-         * @param type
-         *            table type
+         * @param typeName
+         *            table type name
          *********************************************************************/
-        protected void setType(String type)
+        protected void setTypeName(String typeName)
         {
-            this.type = type;
+            this.typeName = typeName;
         }
 
         /**********************************************************************
@@ -3613,6 +3613,8 @@ public class CcddClasses
          * Get the number of sub-messages
          *
          * @return Number of sub-messages; 0 if there are no sub-messages
+         *         (i.e., this isn't a parent message; parent messages always
+         *         have at least one sub-message)
          *********************************************************************/
         protected int getNumberOfSubMessages()
         {

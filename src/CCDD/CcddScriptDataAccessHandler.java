@@ -5349,6 +5349,7 @@ public class CcddScriptDataAccessHandler
         // Check if this is a valid stream name
         if (rateHandler.getRateInformationIndexByStreamName(streamName) != -1)
         {
+            // Get the message names and IDs for this data stream
             messageIDs = copyHandler.getTelemetryMessageIDs(streamName);
         }
 

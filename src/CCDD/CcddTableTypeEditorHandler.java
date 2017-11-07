@@ -471,16 +471,15 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                                             rowData[TableTypeEditorColumnInfo.NAME.ordinal()].toString())
 
                            // ... and this isn't the structure allowed column,
-                           // or it
-                           // is and the input type isn't a rate or enumeration
+                           // or it is and the input type isn't a rate or
+                           // enumeration
                            && ((column != TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal()
                                 || (!rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].equals(InputDataType.RATE.getInputName())
                                     && !rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].equals(InputDataType.ENUMERATION.getInputName())))
 
                                // ... and this isn't the pointer allowed
-                               // column, or it is
-                               // and the input type isn't a bit length or
-                               // enumeration
+                               // column, or it is and the input type isn't a
+                               // bit length or enumeration
                                && (column != TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal()
                                    || (!rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].equals(InputDataType.BIT_LENGTH.getInputName())
                                        && !rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].equals(InputDataType.ENUMERATION.getInputName())))));
@@ -566,9 +565,14 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                                     + "' already in use (hidden)");
                         }
 
+                        // Set the flag to true if the table type represents a
+                        // structure
+                        boolean isStructure = typeDefinition.isStructure();
+
                         // Get the database form of the column name
                         String dbName = DefaultColumn.convertVisibleToDatabase(newValueS,
-                                                                               InputDataType.getInputTypeByName(tableData.get(row)[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString()));
+                                                                               InputDataType.getInputTypeByName(tableData.get(row)[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString()),
+                                                                               isStructure);
 
                         // Compare this column name to the others in the table
                         // in order to avoid creating a duplicate
@@ -590,7 +594,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                 // name matches matches the database form of
                                 // the one being added
                                 if (dbName.equalsIgnoreCase(DefaultColumn.convertVisibleToDatabase(tableData.get(otherRow)[TableTypeEditorColumnInfo.NAME.ordinal()].toString(),
-                                                                                                   InputDataType.getInputTypeByName(tableData.get(otherRow)[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString()))))
+                                                                                                   InputDataType.getInputTypeByName(tableData.get(otherRow)[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString()),
+                                                                                                   isStructure)))
                                 {
                                     throw new CCDDException("Column name '"
                                                             + newValueS
@@ -1120,29 +1125,19 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
                 // Check if the input type should be disabled based on the
                 // following criteria:
-                if ((
+                if (
                 // The input type matches the one on this row and this input
                 // type can only be used once in a table type
                 (inputType.equals(inputNames[index])
-                 && ((typeOfTable == TableTypeIndicator.IS_STRUCTURE &&
-                      DefaultColumn.isInputTypeUnique(TYPE_STRUCTURE, inputNames[index]))
-                     || (typeOfTable == TableTypeIndicator.IS_COMMAND &&
-                         DefaultColumn.isInputTypeUnique(TYPE_COMMAND, inputNames[index])))))
+                 && ((typeOfTable == TableTypeIndicator.IS_STRUCTURE
+                      && DefaultColumn.isInputTypeUnique(TYPE_STRUCTURE, inputNames[index]))
+                     || (typeOfTable == TableTypeIndicator.IS_COMMAND
+                         && DefaultColumn.isInputTypeUnique(TYPE_COMMAND, inputNames[index]))))
 
                     // The table type doesn't represent a structure and the
                     // input type is the variable path
                     || (typeOfTable != TableTypeIndicator.IS_STRUCTURE
-                        && inputName.equals(InputDataType.VARIABLE_PATH.getInputName()))
-
-                    // The input type is for a primitive+structure data type
-                    // and this is the primitive data type input type
-                    || (inputType.equals(InputDataType.PRIM_AND_STRUCT.getInputName())
-                        && inputName.equals(InputDataType.PRIMITIVE.getInputName()))
-
-                    // The input type is for a primitive data type and this is
-                    // the primitive+structure data type input type
-                    || (inputType.equals(InputDataType.PRIMITIVE.getInputName())
-                        && inputName.equals(InputDataType.PRIM_AND_STRUCT.getInputName())))
+                        && inputName.equals(InputDataType.VARIABLE_PATH.getInputName())))
                 {
                     // Set the input type so that it appears disabled in the
                     // list

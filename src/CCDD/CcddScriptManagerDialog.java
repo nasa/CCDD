@@ -15,7 +15,7 @@ import static CCDD.CcddConstants.EXECUTE_ALL_ICON;
 import static CCDD.CcddConstants.EXECUTE_ICON;
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.INSERT_ICON;
-import static CCDD.CcddConstants.LIST_TABLE_SEPARATOR;
+import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.REDO_ICON;
 import static CCDD.CcddConstants.SCRIPTS_ICON;
@@ -280,7 +280,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                     // the individual table names
                                     String[] tableNames = assnsTable.getValueAt(row,
                                                                                 assnsTable.convertColumnIndexToView(AssociationsTableColumnInfo.MEMBERS.ordinal()))
-                                                                    .toString().split(Pattern.quote(LIST_TABLE_SEPARATOR));
+                                                                    .toString().split(Pattern.quote(ASSN_TABLE_SEPARATOR));
 
                                     List<TreePath> paths = new ArrayList<TreePath>();
 
@@ -892,11 +892,11 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             for (String member : members)
             {
                 // Add the table/group name to the script association
-                assn += member + LIST_TABLE_SEPARATOR;
+                assn += member + ASSN_TABLE_SEPARATOR;
             }
 
             // Remove the trailing table separator
-            assn = CcddUtilities.removeTrailer(assn, LIST_TABLE_SEPARATOR);
+            assn = CcddUtilities.removeTrailer(assn, ASSN_TABLE_SEPARATOR);
 
             // Insert the new script association at the end of the associations
             // table, then select it and scroll to it
@@ -974,7 +974,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             if (scriptName.equals(assn[AssociationsColumn.SCRIPT_FILE.ordinal()].toString())
                 && CcddUtilities.isArraySetsEqual(tables,
                                                   assn[AssociationsColumn.MEMBERS.ordinal()].toString()
-                                                                                            .split(Pattern.quote(LIST_TABLE_SEPARATOR))))
+                                                                                            .split(Pattern.quote(ASSN_TABLE_SEPARATOR))))
             {
                 // Set the flag to indicate a match and quit searching
                 isExists = true;

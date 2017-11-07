@@ -761,7 +761,7 @@ public class CcddFileIOHandler
                             new CcddDialogHandler().showMessageDialog(parent,
                                                                       "<html><b>"
                                                                               + ce.getMessage(),
-                                                                      "File Error",
+                                                                      "Import Error",
                                                                       ce.getMessageType(),
                                                                       DialogOption.OK_OPTION);
                         }
@@ -810,8 +810,7 @@ public class CcddFileIOHandler
 
                         // Check if this is an internally generated exception
                         // and that an error message is provided
-                        if (cse instanceof CCDDException
-                            && !cse.getMessage().isEmpty())
+                        if (cse instanceof CCDDException && !cse.getMessage().isEmpty())
                         {
                             // Inform the user that an error occurred reading
                             // the import file
@@ -863,11 +862,11 @@ public class CcddFileIOHandler
 
                     // Update any open editor's data type columns to include
                     // the new table(s), if applicable
-                    dbTable.updateDataTypeColumns(ccddMain.getMainFrame());
+                    dbTable.updateDataTypeColumns(parent);
 
                     // Update any open editor's message ID names columns to
                     // include any new message ID names, if applicable
-                    dbTable.updateMessageIDNamesColumns(ccddMain.getMainFrame());
+                    dbTable.updateMessageIDNamesColumns(parent);
 
                     eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
                                       "Table import completed successfully");
@@ -898,7 +897,7 @@ public class CcddFileIOHandler
                     dbTable.storeInformationTable(InternalTable.FIELDS,
                                                   originalDataFields,
                                                   null,
-                                                  ccddMain.getMainFrame());
+                                                  parent);
 
                     eventLog.logFailEvent(parent,
                                           "Import Error",
@@ -943,6 +942,21 @@ public class CcddFileIOHandler
             // Step through each table definition
             for (TableDefinition tableDefn : tableDefinitions)
             {
+                // Check if the table path/name format is valid
+                if (!tableDefn.getName().matches(InputDataType.VARIABLE.getInputMatch()
+                                                 + "(?:$|(?:,"
+                                                 + InputDataType.VARIABLE.getInputMatch()
+                                                 + "\\."
+                                                 + InputDataType.VARIABLE.getInputMatch()
+                                                 + ")+)"))
+                {
+                    // Inform the user the table path/name isn't in the correct
+                    // format
+                    throw new CCDDException("Invalid table path/name '</b>"
+                                            + tableDefn.getName()
+                                            + "<b>' format");
+                }
+
                 // Check if the table import was canceled by the user
                 if (cancelImport)
                 {
@@ -959,16 +973,16 @@ public class CcddFileIOHandler
                     && (!tableDefn.getName().contains(",") != !prototypesOnly))
                 {
                     // Get the table type definition for this table
-                    TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableDefn.getType());
+                    TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableDefn.getTypeName());
 
                     // Get the number of table columns
                     int numColumns = typeDefn.getColumnCountVisible();
 
                     // Create the table information for the new table
-                    TableInformation tableInfo = new TableInformation(tableDefn.getType(),
+                    TableInformation tableInfo = new TableInformation(tableDefn.getTypeName(),
                                                                       tableDefn.getName(),
                                                                       new String[0][0],
-                                                                      tableTypeHandler.getDefaultColumnOrder(tableDefn.getType()),
+                                                                      tableTypeHandler.getDefaultColumnOrder(tableDefn.getTypeName()),
                                                                       tableDefn.getDescription(),
                                                                       !tableDefn.getName().contains("."),
                                                                       tableDefn.getDataFields().toArray(new Object[0][0]));
@@ -995,10 +1009,10 @@ public class CcddFileIOHandler
                             {
                                 // Create the table information for the new
                                 // prototype table
-                                TableInformation descendantInfo = new TableInformation(tableDefn.getType(),
+                                TableInformation descendantInfo = new TableInformation(tableDefn.getTypeName(),
                                                                                        typeAndVar[0],
                                                                                        new String[0][0],
-                                                                                       tableTypeHandler.getDefaultColumnOrder(tableDefn.getType()),
+                                                                                       tableTypeHandler.getDefaultColumnOrder(tableDefn.getTypeName()),
                                                                                        "",
                                                                                        true,
                                                                                        tableDefn.getDataFields().toArray(new Object[0][0]));
@@ -1197,6 +1211,7 @@ public class CcddFileIOHandler
                                         Component parent) throws CCDDException
     {
         boolean isImported = true;
+
         List<String[]> tableName = new ArrayList<String[]>();
 
         // Set the flag if the table already is present in the database
@@ -1236,7 +1251,7 @@ public class CcddFileIOHandler
                 if (dbTable.createTable(new String[] {tableInfo.getPrototypeName()},
                                         tableInfo.getDescription(),
                                         tableInfo.getType(),
-                                        ccddMain.getMainFrame()))
+                                        parent))
                 {
                     throw new CCDDException();
                 }
@@ -1313,7 +1328,7 @@ public class CcddFileIOHandler
                                             true,
                                             null,
                                             null,
-                                            ccddMain.getMainFrame()))
+                                            parent))
                 {
                     throw new CCDDException();
                 }

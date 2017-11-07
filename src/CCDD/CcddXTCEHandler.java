@@ -701,17 +701,17 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     if (ancillaryData.getName().equals(XTCETags.TABLE_TYPE.getTag()))
                     {
                         // Store the table's type name
-                        tableDefn.setType(ancillaryData.getValue());
+                        tableDefn.setTypeName(ancillaryData.getValue());
 
                         // Get the table's type definition based on the type
                         // name
-                        typeDefn = tableTypeHandler.getTypeDefinition(tableDefn.getType());
+                        typeDefn = tableTypeHandler.getTypeDefinition(tableDefn.getTypeName());
 
                         // Check if the table type isn't recognized
                         if (typeDefn == null)
                         {
                             throw new CCDDException("unknown table type '"
-                                                    + tableDefn.getType()
+                                                    + tableDefn.getTypeName()
                                                     + "'");
                         }
 

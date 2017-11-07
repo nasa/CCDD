@@ -667,7 +667,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         }
 
                         // Store the table's type name
-                        tableDefn.setType(tableType);
+                        tableDefn.setTypeName(tableType);
 
                         // Get the number of expected columns (the hidden
                         // columns, primary key and row index, should not be

@@ -111,9 +111,9 @@ public class CcddConstants
     protected static final String COL_MINIMUM = "Minimum";
     protected static final String COL_MAXIMUM = "Maximum";
 
-    // Information list definition item separators
-    protected static final String LIST_TABLE_SEPARATOR = ";\n";
-    protected static final String LIST_TABLE_DESC_SEPARATOR = " : ";
+    // Script association item separators
+    protected static final String ASSN_TABLE_SEPARATOR = ";\n";
+    protected static final String SCRIPT_MEMBER_SEPARATOR = ":";
 
     // Separator for the project database comment
     protected static final String DATABASE_COMMENT_SEPARATOR = ";";
@@ -2052,23 +2052,23 @@ public class CcddConstants
                      + "integer to denote rates faster than 1 Hz"),
 
         TEXT("Text",
-             "(?s).*", // TODO
+             "(?s).*",
              "text",
              "Text, including alphabetic, numeric, and special characters"),
 
         TEXT_MULTI("Text (multi-line)",
-                   "(?s).*", // TODO
+                   "(?s).*",
                    "text",
                    "Multi-line text, including alphabetic, "
                            + "numeric, special, and new line characters"),
 
         TEXT_WHT_SPC("Text (spaces)",
-                     "(?s).*", // TODO
+                     "(?s).*",
                      "text",
                      "Text (see Text) with leading/traling white space characters preserved"),
 
         TEXT_MULTI_WHT_SPC("Text (multi-line, spaces)",
-                           "(?s).*", // TODO
+                           "(?s).*",
                            "text",
                            "Multi-line text (see Text (multi-line)) with "
                                    + "leading/trailing white space characters preserved"),
@@ -2848,8 +2848,9 @@ public class CcddConstants
         /**************************************************************************
          * Convert the visible column name to its database equivalent by
          * replacing all characters that are invalid in a database column name
-         * with underscores. Specific input types use predefined names in place
-         * of the conversion name
+         * with underscores. If the column belongs to a table representing a
+         * structure the specific input types use predefined names in place of
+         * the conversion name
          *
          * @param columnName
          *            column name (as seen by the user)
@@ -2861,37 +2862,52 @@ public class CcddConstants
          *         name
          *************************************************************************/
         protected static String convertVisibleToDatabase(String columnName,
-                                                         InputDataType inputType)
+                                                         InputDataType inputType,
+                                                         boolean isStructure)
         {
             String dbColumnName = null;
 
-            switch (inputType)
+            // Check if the column belongs to a structure type table
+            if (isStructure)
             {
-                case VARIABLE:
-                    // Use the default database name for the variable name
-                    // column
-                    dbColumnName = DefaultColumn.VARIABLE_NAME.getDbName();
-                    break;
+                switch (inputType)
+                {
+                    case VARIABLE:
+                        // Use the default database name for the variable name
+                        // column
+                        dbColumnName = DefaultColumn.VARIABLE_NAME.getDbName();
+                        break;
 
-                case ARRAY_INDEX:
-                    // Use the default database name for the array size column
-                    dbColumnName = DefaultColumn.ARRAY_SIZE.getDbName();
-                    break;
+                    case ARRAY_INDEX:
+                        // Use the default database name for the array size
+                        // column
+                        dbColumnName = DefaultColumn.ARRAY_SIZE.getDbName();
+                        break;
 
-                case BIT_LENGTH:
-                    // Use the default database name for the bit length column
-                    dbColumnName = DefaultColumn.BIT_LENGTH.getDbName();
-                    break;
+                    case BIT_LENGTH:
+                        // Use the default database name for the bit length
+                        // column
+                        dbColumnName = DefaultColumn.BIT_LENGTH.getDbName();
+                        break;
 
-                case PRIM_AND_STRUCT:
-                    // Use the default database name for the data type column
-                    dbColumnName = DefaultColumn.DATA_TYPE.getDbName();
-                    break;
+                    case PRIM_AND_STRUCT:
+                        // Use the default database name for the data type
+                        // column
+                        dbColumnName = DefaultColumn.DATA_TYPE.getDbName();
+                        break;
 
-                default:
-                    // Replace any characters that aren't allowed in a database
-                    // column name with underscores
-                    dbColumnName = columnName.toLowerCase().replaceAll("[^a-z0-9_]", "_");
+                    default:
+                        // Replace any characters that aren't allowed in a
+                        // database column name with underscores
+                        dbColumnName = columnName.toLowerCase().replaceAll("[^a-z0-9_]", "_");
+                }
+            }
+            // The column doesn't belong to a structure type table
+            else
+            {
+                // Replace any characters that aren't allowed in a database
+                // column name with underscores
+                dbColumnName = columnName.toLowerCase().replaceAll("[^a-z0-9_]", "_");
             }
 
             return dbColumnName;
@@ -4136,8 +4152,8 @@ public class CcddConstants
     protected static enum SchedulerColumn
     {
         NAME("Message Name", "Time Slot", "Column A"),
-        SIZE("Free<br>Bytes", "Time (msec)", "Column B"),
-        ID("Common<br>ID", "", "Column C");
+        SIZE("<html><center>Free<br>Bytes", "Time (msec)", "Column B"),
+        ID("<html><center>Common<br>ID", "", "Column C");
 
         private final String tlmColumn;
         private final String appColumn;

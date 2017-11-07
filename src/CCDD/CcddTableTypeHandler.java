@@ -187,6 +187,28 @@ public class CcddTableTypeHandler
         }
 
         /**********************************************************************
+         * Convert the visible column names to their database equivalents. The
+         * database column name is the visible name with any characters that
+         * are invalid in a database column name replaced with an underscore;
+         * however, if the table type represents a structure then certain
+         * column names use fixed values
+         *********************************************************************/
+        protected void setColumnNamesDatabase()
+        {
+            // Set the flag to true if the table type represents a structure
+            boolean isStructure = isStructure();
+
+            // Step through each visible column name
+            for (int row = NUM_HIDDEN_COLUMNS; row < columnNamesDatabase.size(); row++)
+            {
+                // Convert he column name to the database equivalent
+                columnNamesDatabase.set(row, DefaultColumn.convertVisibleToDatabase(columnNamesDatabase.get(row),
+                                                                                    columnInputType.get(row),
+                                                                                    isStructure));
+            }
+        }
+
+        /**********************************************************************
          * Get the array of column names as seen by the user (includes names
          * for hidden columns)
          *
@@ -752,7 +774,8 @@ public class CcddTableTypeHandler
                          && inputTypes[index] != InputDataType.COMMAND_CODE)
                 {
                     // Check that this is a data type column
-                    if (inputTypes[index] == InputDataType.PRIMITIVE)
+                    if (inputTypes[index] == InputDataType.PRIMITIVE
+                        || inputTypes[index] == InputDataType.PRIM_AND_STRUCT)
                     {
                         // Save the data type column index
                         dataTypeColumn = index;
@@ -938,6 +961,7 @@ public class CcddTableTypeHandler
                                         Object[][] typeData,
                                         String description)
     {
+        // Get the reference to the type definition
         TypeDefinition typeDefn = getTypeDefinition(typeName);
 
         // Check if this type already exists
@@ -976,17 +1000,10 @@ public class CcddTableTypeHandler
             // Get the InputDataType for this column
             InputDataType inputType = InputDataType.getInputTypeByName(typeData[row][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString());
 
-            // Convert the visible column name to its database equivalent.
-            // Except for certain default columns the database name is the
-            // visible name with any characters that are invalid in a database
-            // column name replaced with an underscore
-            String dbColumnName = DefaultColumn.convertVisibleToDatabase(typeData[row][TableTypeEditorColumnInfo.NAME.ordinal()].toString(),
-                                                                         inputType);
-
             // Add the column names, description, input type, and flags to the
             // type definition
             typeDefn.addColumn(row,
-                               dbColumnName,
+                               (String) typeData[row][TableTypeEditorColumnInfo.NAME.ordinal()],
                                (String) typeData[row][TableTypeEditorColumnInfo.NAME.ordinal()],
                                (String) typeData[row][TableTypeEditorColumnInfo.DESCRIPTION.ordinal()],
                                inputType,
@@ -995,6 +1012,9 @@ public class CcddTableTypeHandler
                                (Boolean) typeData[row][TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal()],
                                (Boolean) typeData[row][TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal()]);
         }
+
+        // Convert the visible column names to their database equivalents
+        typeDefn.setColumnNamesDatabase();
     }
 
     /**************************************************************************

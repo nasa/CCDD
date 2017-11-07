@@ -8,11 +8,11 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.DEFAULT_DATABASE;
-import static CCDD.CcddConstants.LIST_TABLE_DESC_SEPARATOR;
-import static CCDD.CcddConstants.LIST_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.MIN_WINDOW_HEIGHT;
 import static CCDD.CcddConstants.MIN_WINDOW_WIDTH;
+import static CCDD.CcddConstants.SCRIPT_MEMBER_SEPARATOR;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -617,7 +617,7 @@ public class CcddCommandLineHandler
         argument.add(new CommandHandler("execute",
                                         "Execute script(s)",
                                         "[\" or ']script name["
-                                                             + LIST_TABLE_DESC_SEPARATOR.trim()
+                                                             + SCRIPT_MEMBER_SEPARATOR
                                                              + "table1 or Group:group1[+...[+tableN or Group:groupN]]][;...][\" or ']",
                                         CommandLineType.NAME,
                                         10)
@@ -655,7 +655,7 @@ public class CcddCommandLineHandler
                         {
                             // Break the supplied association into the script
                             // name and table(s) (if any)
-                            String[] scriptAndTable = associationString.split(Pattern.quote(LIST_TABLE_DESC_SEPARATOR.trim()), 2);
+                            String[] scriptAndTable = associationString.split(Pattern.quote(SCRIPT_MEMBER_SEPARATOR), 2);
 
                             // Set the script and table in the association
                             // array (assumes no table(s))
@@ -670,7 +670,7 @@ public class CcddCommandLineHandler
                                 association[2] = scriptAndTable[1].replaceAll(" ",
                                                                               "")
                                                                   .replaceAll(Pattern.quote("+"),
-                                                                              LIST_TABLE_SEPARATOR);
+                                                                              ASSN_TABLE_SEPARATOR);
                             }
 
                             // Add the association to the list

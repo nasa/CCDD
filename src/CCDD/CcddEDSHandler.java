@@ -1392,19 +1392,19 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                             if (intfcDecType.getName().equals(EDSTags.TABLE_TYPE.getTag()))
                                             {
                                                 // Store the table's type name
-                                                tableDefn.setType(genType.getShortDescription());
+                                                tableDefn.setTypeName(genType.getShortDescription());
 
                                                 // Get the table's type
                                                 // definition based on the type
                                                 // name
-                                                typeDefn = tableTypeHandler.getTypeDefinition(tableDefn.getType());
+                                                typeDefn = tableTypeHandler.getTypeDefinition(tableDefn.getTypeName());
 
                                                 // Check if the table type
                                                 // isn't recognized
                                                 if (typeDefn == null)
                                                 {
                                                     throw new CCDDException("unknown table type '"
-                                                                            + tableDefn.getType()
+                                                                            + tableDefn.getTypeName()
                                                                             + "'");
                                                 }
 

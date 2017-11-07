@@ -48,10 +48,10 @@ public class CcddSchedulerDbIOHandler
      *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param option
      *            scheduler option for the database handler
-     * 
+     *
      * @param dialog
      *            reference to the scheduler dialog
      *************************************************************************/
@@ -122,10 +122,10 @@ public class CcddSchedulerDbIOHandler
 
     /**************************************************************************
      * Get the list of stored messages for the specified data stream
-     * 
+     *
      * @param streamIndex
      *            data stream index
-     * 
+     *
      * @return List of current messages for the specified data stream
      *************************************************************************/
     protected List<Message> getStoredData(int streamIndex)
@@ -144,10 +144,10 @@ public class CcddSchedulerDbIOHandler
 
     /**************************************************************************
      * Get the list of variables for the specified data stream
-     * 
+     *
      * @param streamIndex
      *            data stream index
-     * 
+     *
      * @return List of variables for the specified data stream
      **************************************************************************/
     protected List<Variable> getVariableList(int streamIndex)
@@ -168,10 +168,10 @@ public class CcddSchedulerDbIOHandler
      * Get the list of the message definitions for all data streams. Each list
      * item is a string array containing the rate name, message name, message
      * ID, and a space-separated list of variables in that message
-     * 
+     *
      * @param streams
      *            list of data streams
-     * 
+     *
      * @return List of message definitions
      *************************************************************************/
     private List<String[]> getTelemetryData(List<DataStream> streams)
@@ -203,13 +203,13 @@ public class CcddSchedulerDbIOHandler
      * Get the list of the message definitions for the specified (sub-)message.
      * Each list item is a string array containing the rate name, message name,
      * message ID, and a space-separated list of variables in that message
-     * 
+     *
      * @param stream
      *            data stream
-     * 
+     *
      * @param message
      *            (sub-)message reference
-     * 
+     *
      * @return List of the specified message's definitions
      *************************************************************************/
     private List<String[]> addVariablesToMessage(DataStream stream,
@@ -400,7 +400,7 @@ public class CcddSchedulerDbIOHandler
                         message = new Message(nameAndIndex[0],
                                               messageID,
                                               info.getMaxBytesPerSec()
-                                                  / info.getMaxMsgsPerCycle());
+                                                         / info.getMaxMsgsPerCycle());
 
                         subIndex = 0;
 
@@ -469,10 +469,10 @@ public class CcddSchedulerDbIOHandler
      * Get the list of the current messages. Each list item is a string arrays
      * containing the message name and a space-separated list of applications
      * in that message
-     * 
+     *
      * @param messages
      *            list of messages
-     * 
+     *
      * @return List of current messages
      *************************************************************************/
     private List<String[]> getApplicationData(List<Message> messages)

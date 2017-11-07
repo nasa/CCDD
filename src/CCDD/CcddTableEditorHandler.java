@@ -3854,7 +3854,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         for (int index = 0; index < typeDefn.getColumnCountDatabase(); index++)
         {
             // Check if the column expects a primitive data type input
-            if (typeDefn.getInputTypes()[index] == InputDataType.PRIMITIVE)
+            if (typeDefn.getInputTypes()[index] == InputDataType.PRIMITIVE
+                || typeDefn.getInputTypes()[index] == InputDataType.PRIM_AND_STRUCT)
             {
                 // Check if the combo box hasn't been created
                 if (comboBox == null)

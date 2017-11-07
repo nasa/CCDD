@@ -13,7 +13,7 @@ import static CCDD.CcddConstants.CANCEL_ICON;
 import static CCDD.CcddConstants.DB_SAVE_POINT_NAME;
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
-import static CCDD.CcddConstants.LIST_TABLE_SEPARATOR;
+import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.OK_ICON;
 import static CCDD.CcddConstants.PRINT_ICON;
@@ -1255,7 +1255,7 @@ public class CcddDbVerificationHandler
                         if (!member[0].trim().isEmpty())
                         {
                             // Step through each table in the association
-                            for (String table : member[0].split(Pattern.quote(LIST_TABLE_SEPARATOR)))
+                            for (String table : member[0].split(Pattern.quote(ASSN_TABLE_SEPARATOR)))
                             {
                                 // Check if this is a reference to a group
                                 if (table.startsWith(GROUP_DATA_FIELD_IDENT))
