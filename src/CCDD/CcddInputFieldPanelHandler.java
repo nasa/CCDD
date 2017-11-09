@@ -21,6 +21,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.InputVerifier;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -167,7 +168,7 @@ public abstract class CcddInputFieldPanelHandler
      *
      * @return Data field information for this field panel handler
      *************************************************************************/
-    protected CcddFieldHandler getDataFieldHandler()
+    protected CcddFieldHandler getFieldHandler()
     {
         return dataFieldHandler;
     }
@@ -270,21 +271,21 @@ public abstract class CcddInputFieldPanelHandler
      * @param fieldInformation
      *            data field information list
      *************************************************************************/
-    protected void updateCurrentFields(List<FieldInformation> fieldInformation)
+    protected void updateCurrentFieldValues(List<FieldInformation> fieldInformation)
     {
         // Step through each data field
         for (FieldInformation fieldInfo : fieldInformation)
         {
-            // Check if a text field exists for this data field
+            // Check if a text field or check box exists for this data field
             if (fieldInfo.getInputFld() != null)
             {
                 // Check if this is a boolean input (check box) data field
                 if (fieldInfo.getInputType() == InputDataType.BOOLEAN)
                 {
                     // Update the data field with the check box selection state
-                    fieldInfo.setValue(((UndoableCheckBox) fieldInfo.getInputFld()).isSelected()
-                                                                                                 ? "true"
-                                                                                                 : "false");
+                    fieldInfo.setValue(((JCheckBox) fieldInfo.getInputFld()).isSelected()
+                                                                                          ? "true"
+                                                                                          : "false");
                 }
                 // Not a boolean input (check box) data field
                 else
@@ -362,7 +363,10 @@ public abstract class CcddInputFieldPanelHandler
         border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
                                                                                     Color.LIGHT_GRAY,
                                                                                     Color.GRAY),
-                                                    BorderFactory.createEmptyBorder(2, 2, 2, 2));
+                                                    BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
         // Create a panel to hold the table's system name, description and, if
         // applicable, message ID information

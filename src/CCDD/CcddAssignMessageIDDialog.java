@@ -399,7 +399,10 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                 border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
                                                                                             Color.LIGHT_GRAY,
                                                                                             Color.GRAY),
-                                                            BorderFactory.createEmptyBorder(2, 2, 2, 2));
+                                                            BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
                 etchBorder = BorderFactory.createEtchedBorder();
 
                 // Create a tabbed pane to contain the message name/ID

@@ -192,7 +192,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         // fields assigned to the table type
         mntmClearValues.setEnabled(enable
                                    && activeEditor != null
-                                   && !activeEditor.getDataFieldHandler().getFieldInformation().isEmpty());
+                                   && !activeEditor.getFieldHandler().getFieldInformation().isEmpty());
     }
 
     /**************************************************************************
@@ -448,7 +448,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     {
                         activeEditor.getTable().printTable("Table Type: "
                                                            + activeEditor.getTypeName(),
-                                                           activeEditor.getDataFieldHandler(),
+                                                           activeEditor.getFieldHandler(),
                                                            CcddTableTypeEditorDialog.this,
                                                            PageFormat.LANDSCAPE);
                     }
@@ -640,7 +640,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                         // Enable/disable the Clear values command depending on
                         // if any data fields remain
-                        mntmClearValues.setEnabled(!activeEditor.getDataFieldHandler().getFieldInformation().isEmpty());
+                        mntmClearValues.setEnabled(!activeEditor.getFieldHandler().getFieldInformation().isEmpty());
                     }
 
                     /**********************************************************
@@ -665,7 +665,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     protected void performAction(ActionEvent ae)
                     {
                         // Check if there are any data fields to clear
-                        if (!activeEditor.getDataFieldHandler().getFieldInformation().isEmpty())
+                        if (!activeEditor.getFieldHandler().getFieldInformation().isEmpty())
                         {
                             // Remove all of the data field values
                             activeEditor.getInputFieldPanelHandler().clearFieldValues();
@@ -1193,7 +1193,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         // Recreate the table type definitions table in the database and update
         // the affected table(s)
         dbTable.modifyTableTypeInBackground(editor.getTypeName(),
-                                            editor.getDataFieldHandler().getFieldInformation(),
+                                            editor.getFieldHandler().getFieldInformation(),
                                             mntmOverwrite.isSelected(),
                                             editor.getTypeAdditions(),
                                             editor.getTypeModifications(),
@@ -1234,7 +1234,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                         // Perform the changes to the table in the database
                         dbTable.modifyTableType(editor.getTypeName(),
-                                                editor.getDataFieldHandler().getFieldInformation(),
+                                                editor.getFieldHandler().getFieldInformation(),
                                                 mntmOverwrite.isSelected(),
                                                 editor.getTypeAdditions(),
                                                 editor.getTypeModifications(),

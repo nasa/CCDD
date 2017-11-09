@@ -135,7 +135,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         this.includeApplicability = includeApplicability;
 
         // Get the reference to the data field information
-        fieldInformation = fieldPnlHandler.getDataFieldHandler().getFieldInformation();
+        fieldInformation = fieldPnlHandler.getFieldHandler().getFieldInformation();
 
         // Store the old data fields in case an undo is requested
         fieldPnlHandler.storeCurrentFieldInformation();
@@ -156,7 +156,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         if (!fieldInformation.isEmpty())
         {
             // Store the field information
-            currentData = fieldPnlHandler.getDataFieldHandler().getFieldDefinitionArray(true);
+            currentData = fieldPnlHandler.getFieldHandler().getFieldDefinitionArray(true);
         }
         // The table has no data fields
         else
@@ -835,7 +835,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
 
         // Build the field definitions from the editor table data, then use
         // the definitions to build the field information
-        fieldPnlHandler.getDataFieldHandler().buildFieldInformation(fieldPnlHandler.getDataFieldHandler().buildFieldDefinition(currentData,
+        fieldPnlHandler.getFieldHandler().buildFieldInformation(fieldPnlHandler.getFieldHandler().buildFieldDefinition(currentData,
                                                                                                                                ownerName),
                                                                     ownerName);
 

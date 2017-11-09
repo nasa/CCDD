@@ -122,8 +122,8 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
             // undoable tree model if an undo handler is provided; otherwise
             // use the default (non-undoable) tree model
             infoTreeModel = undoHandler != null
-                                               ? undoHandler.new UndoableTreeModel(root)
-                                               : new DefaultTreeModel(root);
+                                                ? undoHandler.new UndoableTreeModel(root)
+                                                : new DefaultTreeModel(root);
             setModel(infoTreeModel);
             setRootVisible(false);
 
@@ -430,10 +430,10 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                                                  boolean isApp)
     {
         return addNode(isFilterByApp
-                                    ? (ToolTipTreeNode) root.getChildAt(isApp
-                                                                             ? 0
-                                                                             : 1)
-                                    : root,
+                                     ? (ToolTipTreeNode) root.getChildAt(isApp
+                                                                               ? 0
+                                                                               : 1)
+                                     : root,
                        nodeName,
                        toolTipText,
                        TreeChildOrder.ALPHABETICAL);
@@ -608,8 +608,8 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                                nodeName,
                                "",
                                treePathOrder == null
-                                                    ? TreeChildOrder.NATURAL
-                                                    : TreeChildOrder.PATH_ORDER);
+                                                     ? TreeChildOrder.NATURAL
+                                                     : TreeChildOrder.PATH_ORDER);
 
                 // Expand the tree to display the added node
                 expandPath(new TreePath(((ToolTipTreeNode) node.getParent()).getPath()));
@@ -792,6 +792,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                 // Get the path for this row
                 TreePath path = getPathForRow(row);
 
+                System.out.println("chk tree row: " + row); // TODO
                 // Check if the path represents a top-level node or its
                 // children
                 if (path.getPathCount() > getGroupNodeLevel())
@@ -799,14 +800,18 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                     // Get the top-level path for this node path
                     TreePath topPath = getPathFromNode((ToolTipTreeNode) path.getPathComponent(getGroupNodeLevel()));
 
+                    System.out.println(" path level valid"); // TODO
                     // Check if a selected node has not yet been added to the
                     // list
                     if (!selectedPaths.contains(topPath))
                     {
+                        System.out.println("  add path " + Arrays.toString(topPath.getPath())); // TODO
                         // Store the node name
                         selectedPaths.add(topPath);
                     }
                 }
+                else
+                    System.out.println(" path level invalid"); // TODO
             }
         }
 

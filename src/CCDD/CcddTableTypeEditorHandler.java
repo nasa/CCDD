@@ -343,7 +343,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             {
                 // Update the field information with the current text field
                 // values
-                updateCurrentFields(fieldHandler.getFieldInformation());
+                updateCurrentFieldValues(fieldHandler.getFieldInformation());
 
                 // Set the change flag if the number of fields in the committed
                 // version differs from the current version of the table

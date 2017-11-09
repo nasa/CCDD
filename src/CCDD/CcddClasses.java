@@ -1688,6 +1688,63 @@ public class CcddClasses
          *
          * @param value
          *            field value
+         *
+         * @param inputFld
+         *            reference to the field's UndoableTextField or
+         *            UndoableCheckBox
+         *********************************************************************/
+        FieldInformation(String ownerName,
+                         String fieldName,
+                         String description,
+                         int charSize,
+                         InputDataType fieldType,
+                         boolean isRequired,
+                         ApplicabilityType applicability,
+                         String value,
+                         Component inputFld)
+        {
+            this.ownerName = ownerName;
+            this.fieldName = fieldName;
+            this.description = description;
+            this.charSize = charSize;
+            this.fieldType = fieldType;
+            this.isRequired = isRequired;
+            this.applicability = applicability;
+            this.value = value;
+            this.inputFld = inputFld;
+        }
+
+        /**********************************************************************
+         * Data field information class constructor. Sets the input field
+         * component to null
+         *
+         * @param ownerName
+         *            name of the table, including the path if this table
+         *            represents a structure, or group for which the field is a
+         *            member
+         *
+         * @param fieldName
+         *            field name
+         *
+         * @param description
+         *            data field description; used as the tool tip for this
+         *            field
+         *
+         * @param charSize
+         *            field display size in characters
+         *
+         * @param fieldType
+         *            field InputDataType
+         *
+         * @param isRequired
+         *            true if a value is required for this field
+         *
+         * @param applicability
+         *            field applicability type; all tables, parent tables only,
+         *            or child tables only
+         *
+         * @param value
+         *            field value
          *********************************************************************/
         FieldInformation(String ownerName,
                          String fieldName,
@@ -1698,18 +1755,21 @@ public class CcddClasses
                          ApplicabilityType applicability,
                          String value)
         {
-            this.ownerName = ownerName;
-            this.fieldName = fieldName;
-            this.description = description;
-            this.charSize = charSize;
-            this.fieldType = fieldType;
-            this.isRequired = isRequired;
-            this.applicability = applicability;
-            this.value = value;
+            this(ownerName,
+                 fieldName,
+                 description,
+                 charSize,
+                 fieldType,
+                 isRequired,
+                 applicability,
+                 value,
+                 null);
         }
 
         /**********************************************************************
-         * Data field information class constructor
+         * Data field information class constructor. Sets the input field
+         * component to null and uses default input and applicability types if
+         * the names supplied are unrecognized
          *
          * @param ownerName
          *            name of the table, including the path if this table
@@ -1727,14 +1787,14 @@ public class CcddClasses
          *            field display size in characters
          *
          * @param inputType
-         *            field input type
+         *            field input type name
          *
          * @param isRequired
          *            true if a value is required for this field
          *
          * @param applicability
-         *            field applicability; all tables, parent tables only, or
-         *            child tables only
+         *            field applicability name; all tables, parent tables only,
+         *            or child tables only
          *
          * @param value
          *            field value
@@ -5796,7 +5856,10 @@ public class CcddClasses
             borderFld = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
                                                                                            Color.LIGHT_GRAY,
                                                                                            Color.GRAY),
-                                                           BorderFactory.createEmptyBorder(2, 2, 2, 2));
+                                                           BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
             JPanel selectPanel = new JPanel();
             selectPanel.setLayout(new BoxLayout(selectPanel, BoxLayout.X_AXIS));

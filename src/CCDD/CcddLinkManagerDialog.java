@@ -170,7 +170,10 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                 border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
                                                                                             Color.LIGHT_GRAY,
                                                                                             Color.GRAY),
-                                                            BorderFactory.createEmptyBorder(2, 2, 2, 2));
+                                                            BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                            ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                            ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                            ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
                 // Set the initial layout manager characteristics
                 GridBagConstraints gbc = new GridBagConstraints(0,
@@ -315,6 +318,15 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                     public void actionPerformed(ActionEvent ae)
                     {
                         activeHandler.getUndoManager().undo();
+
+                        // String[] selected =
+                        // activeHandler.getLinkTree().getTopLevelSelectedNodeNames();
+                        // System.out.println("selected = " +
+                        // Arrays.toString(selected));
+                        // TODO UPDATES selectedGroup AFTER AN UNDO
+                        activeHandler.getUndoHandler().setAllowUndo(false);
+                        activeHandler.getLinkTree().updateTableSelection();
+                        activeHandler.getUndoHandler().setAllowUndo(true);
 
                         // Update the link definitions, selected link, link
                         // fields, and link tree node names

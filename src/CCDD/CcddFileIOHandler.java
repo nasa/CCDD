@@ -1380,7 +1380,7 @@ public class CcddFileIOHandler
                 {
                     // Create a CSV handler
                     ioHandler = new CcddCSVHandler(ccddMain,
-                                                   tableHandler.getDataFieldHandler(),
+                                                   tableHandler.getFieldHandler(),
                                                    tableHandler.getOwner());
                 }
                 // Check if the file to import is in EDS XML format based on
@@ -1389,7 +1389,7 @@ public class CcddFileIOHandler
                 {
                     // Create an EDS handler
                     ioHandler = new CcddEDSHandler(ccddMain,
-                                                   tableHandler.getDataFieldHandler(),
+                                                   tableHandler.getFieldHandler(),
                                                    tableHandler.getOwner());
                 }
                 // Check if the file to import is in JSON format based on the
@@ -1398,7 +1398,7 @@ public class CcddFileIOHandler
                 {
                     // Create a JSON handler
                     ioHandler = new CcddJSONHandler(ccddMain,
-                                                    tableHandler.getDataFieldHandler(),
+                                                    tableHandler.getFieldHandler(),
                                                     tableHandler.getOwner());
                 }
                 // Check if the file to import is in XTCE XML format based on
@@ -1407,7 +1407,7 @@ public class CcddFileIOHandler
                 {
                     // Create an XTCE handler
                     ioHandler = new CcddXTCEHandler(ccddMain,
-                                                    tableHandler.getDataFieldHandler(),
+                                                    tableHandler.getFieldHandler(),
                                                     tableHandler.getOwner());
                 }
                 // The file extension isn't recognized
@@ -1508,8 +1508,8 @@ public class CcddFileIOHandler
         tableHandler.setDescription(tableDefn.getDescription());
 
         // Update the field information in case the field values changed
-        tableHandler.getDataFieldHandler().setFieldDefinitions(tableDefn.getDataFields());
-        tableHandler.getDataFieldHandler().buildFieldInformation(tableDefn.getName(),
+        tableHandler.getFieldHandler().setFieldDefinitions(tableDefn.getDataFields());
+        tableHandler.getFieldHandler().buildFieldInformation(tableDefn.getName(),
                                                                  tableHandler.getTableInformation().isRootStructure());
 
         // Rebuild the table's editor panel which contains the data fields

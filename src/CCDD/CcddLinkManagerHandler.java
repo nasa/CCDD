@@ -237,7 +237,11 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
                                                                                     Color.LIGHT_GRAY,
                                                                                     Color.GRAY),
-                                                    BorderFactory.createEmptyBorder(2, 2, 2, 2));
+                                                    BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+
         emptyBorder = BorderFactory.createEmptyBorder();
 
         selectedLink = null;
@@ -940,11 +944,31 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
      *************************************************************************/
     private void removeVariableFromLink(String[] linkNames)
     {
+        ToolTipTreeNode node = null;
+
+        // TODO SELECT THE LINK NAME NODE AFTER REMOVING VARIABLE
+        // Check if a single link is selected
+        if (selectedLink != null)
+        {
+            // Store the selected group's node
+            node = (ToolTipTreeNode) linkTree.getSelectionPath().getPathComponent(1);
+        }
+
         // Remove the selected variable(s) from the links in the link tree
         linkTree.removeSelectedChildNodes(true);
 
         // Clean up the links following removal of the variable
         cleanUpLinks(linkNames);
+
+        // TODO
+        // Check if a single link was selected prior to removing the selected
+        // variable(s)
+        if (node != null)
+        {
+            // Select the node for the group that had the table(s)
+            // removed
+            linkTree.setSelectionPath(new TreePath(node.getPath()));
+        }
     }
 
     /**************************************************************************

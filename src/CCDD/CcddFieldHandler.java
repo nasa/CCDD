@@ -146,7 +146,8 @@ public class CcddFieldHandler
                                                  info.getInputType(),
                                                  info.isRequired(),
                                                  info.getApplicabilityType(),
-                                                 info.getValue()));
+                                                 info.getValue(),
+                                                 info.getInputFld()));
             }
         }
 

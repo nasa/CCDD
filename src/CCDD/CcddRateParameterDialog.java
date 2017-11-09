@@ -27,7 +27,9 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -59,17 +61,18 @@ public class CcddRateParameterDialog extends CcddDialogHandler
     private JTextField[] maxMsgsPerCycleFld;
     private JTextField[] maxBytesPerSecFld;
     private JTextField[] streamNameFld;
-    private JTextField[] availRatesFld;
+    private JTextArea[] availRatesFld;
     private JCheckBox unevenCb;
     private JTabbedPane tabbedPane;
     private Border border;
+    private Border emptyBorder;
 
     // Reference to the rate parameter input verifier
     private InputVerifier verifyInputs;
 
     /**************************************************************************
      * Rate parameter assignment dialog class constructor
-     * 
+     *
      * @param ccddMain
      *            main class
      *************************************************************************/
@@ -128,15 +131,17 @@ public class CcddRateParameterDialog extends CcddDialogHandler
                                                         0,
                                                         0);
 
-        // Create a border for the input fields
+        // Create borders for the input fields
         border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
                                                                                     Color.LIGHT_GRAY,
                                                                                     Color.GRAY),
-                                                    BorderFactory.createEmptyBorder(2, 2, 2, 2));
+                                                    BorderFactory.createLineBorder(ModifiableColorInfo.INPUT_BACK.getColor(),
+                                                                                   ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+        emptyBorder = BorderFactory.createEmptyBorder();
 
         // Create a panel to contain the dialog components
         JPanel dialogPnl = new JPanel(new GridBagLayout());
-        dialogPnl.setBorder(BorderFactory.createEmptyBorder());
+        dialogPnl.setBorder(emptyBorder);
 
         // Create the maximum seconds per message label
         JLabel maxSecPerMsgLbl = new JLabel("Maximum seconds per message");
@@ -179,7 +184,7 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         streamNameFld = new JTextField[rateInformation.size()];
         maxMsgsPerCycleFld = new JTextField[rateInformation.size()];
         maxBytesPerSecFld = new JTextField[rateInformation.size()];
-        availRatesFld = new JTextField[rateInformation.size()];
+        availRatesFld = new JTextArea[rateInformation.size()];
 
         // Create a tabbed pane to contain the rate parameters that are
         // stream-specific
@@ -201,16 +206,16 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         JPanel unevenPnl = new JPanel(new FlowLayout(FlowLayout.LEFT,
                                                      ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
                                                      0));
-        unevenPnl.setBorder(BorderFactory.createEmptyBorder());
+        unevenPnl.setBorder(emptyBorder);
 
         // Create a check box for including/excluding unevenly time-spaced
         // sample rates
         unevenCb = new JCheckBox("Include unevenly time-spaced rates");
-        unevenCb.setBorder(BorderFactory.createEmptyBorder());
+        unevenCb.setBorder(emptyBorder);
         unevenCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         unevenCb.setSelected(rateHandler.isIncludeUneven()
-                                                          ? true
-                                                          : false);
+                                                           ? true
+                                                           : false);
         unevenCb.addActionListener(new ActionListener()
         {
             /******************************************************************
@@ -297,7 +302,6 @@ public class CcddRateParameterDialog extends CcddDialogHandler
      * Calculate and display the available rates for the currently selected
      * rate column
      *************************************************************************/
-    //
     private void updateAvailableRates()
     {
         // Get the rate column to calculate and display its valid rates
@@ -305,13 +309,14 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         availRatesFld[index].setText(Arrays.toString(rateHandler.calculateSampleRates(Integer.valueOf(maxSecPerMsgFld.getText()),
                                                                                       Integer.valueOf(maxMsgsPerSecFld.getText()),
                                                                                       Integer.valueOf(maxMsgsPerCycleFld[index].getText()),
-                                                                                      unevenCb.isSelected())).replaceAll("\\[|\\]", ""));
+                                                                                      unevenCb.isSelected()))
+                                           .replaceAll("\\[|\\]", ""));
         availRatesFld[index].setCaretPosition(0);
     }
 
     /**************************************************************************
      * Create the tabs for the stream specific input fields
-     * 
+     *
      * @param rateInfo
      *            list containing the rate information
      *************************************************************************/
@@ -345,16 +350,21 @@ public class CcddRateParameterDialog extends CcddDialogHandler
             availRatesPnl.add(availRatesLbl, gbc);
 
             // Create the available rates field and add it to the rates panel
-            availRatesFld[index] = new JTextField("", 1);
+            availRatesFld[index] = new JTextArea("", 3, 1);
             availRatesFld[index].setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
             availRatesFld[index].setEditable(false);
+            availRatesFld[index].setWrapStyleWord(true);
+            availRatesFld[index].setLineWrap(true);
             availRatesFld[index].setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
             availRatesFld[index].setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
-            availRatesFld[index].setBorder(border);
+            availRatesFld[index].setBorder(emptyBorder);
             gbc.gridwidth = GridBagConstraints.REMAINDER;
             gbc.weightx = 1.0;
             gbc.gridx++;
-            availRatesPnl.add(availRatesFld[index], gbc);
+            JScrollPane scrollPane = new JScrollPane(availRatesFld[index]);
+            scrollPane.setBorder(emptyBorder);
+            scrollPane.setViewportBorder(border);
+            availRatesPnl.add(scrollPane, gbc);
 
             // Create a panel to contain the stream's text fields
             JPanel streamPnl = new JPanel(new GridBagLayout());
@@ -428,31 +438,31 @@ public class CcddRateParameterDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Check if any rate parameter changed
-     * 
+     *
      * @param maxSecPerMsg
      *            maximum number of seconds allowed between downlinking two of
      *            the same message
-     * 
+     *
      * @param maxMsgsPerSec
      *            maximum number of messages that can be downlinked in one
      *            second
-     * 
+     *
      * @param streamName
      *            array containing the stream name per stream
-     * 
+     *
      * @param maxMsgsPerCycle
      *            array containing the maximum number of messages that can be
      *            downlinked before repeating the message list per stream
-     * 
+     *
      * @param maxBytesPerSec
      *            array containing the maximum number of bytes that can be
      *            downlinked in one second per stream
-     * 
+     *
      * @param includeUneven
      *            true to include unevenly time-spaced sample rate values;
      *            false to only include sample rates that are evenly
      *            time-spaced
-     * 
+     *
      * @return true if any of the rate parameters changed
      *************************************************************************/
     private boolean isRateChanges(int maxSecPerMsg,
@@ -499,7 +509,7 @@ public class CcddRateParameterDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Verify that the dialog content is valid
-     * 
+     *
      * @return true if the input values are valid
      *************************************************************************/
     @Override
@@ -597,7 +607,7 @@ public class CcddRateParameterDialog extends CcddDialogHandler
             // Inform the user that the input value is invalid
             new CcddDialogHandler().showMessageDialog(CcddRateParameterDialog.this,
                                                       "<html><b>"
-                                                          + ce.getMessage(),
+                                                                                    + ce.getMessage(),
                                                       "Missing/Invalid Input",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);

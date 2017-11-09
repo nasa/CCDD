@@ -1319,6 +1319,7 @@ public class CcddConstants
         HEADER_VERTICAL_PADDING("Table header vertical spacing", "Table header vertical padding, in pixels. The padding is split equally between the top and bottom of the header text", "HeaderVerticalPadding", 4, 1, 50),
         CELL_HORIZONTAL_PADDING("Table cell horizontal padding", "Table cell horizontal padding, in pixels", "CellHorizontalPadding", 5, 1, 50),
         CELL_VERTICAL_PADDING("Table cell vertical padding", "Table cell vertical padding, in pixels", "CellVerticalPadding", 3, 1, 50),
+        INPUT_FIELD_PADDING("Input field padding", "Input field horizontal and vertical padding, in pixels", "InputFieldPadding", 2, 0, 50),
         DIALOG_BORDER_PAD("Dialog border padding", "Padding between the dialog contents and the dialog's frame, in pixels", "DialogBorderPadding", 4, 1, 50),
         DIALOG_ICON_PAD("Dialog icon padding", "Padding between the a dialog's icon and text message, in pixels", "DialogIconPadding", 10, 1, 50);
 

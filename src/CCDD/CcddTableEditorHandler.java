@@ -769,7 +769,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         table.loadAndFormatData();
 
         // Update the current field information
-        getDataFieldHandler().setFieldInformation(tableInfo.getFieldHandler().getFieldInformation());
+        getFieldHandler().setFieldInformation(tableInfo.getFieldHandler().getFieldInformation());
 
         // Update the editor data fields
         updateDataFields();
@@ -1222,7 +1222,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 {
                     // Update the field information with the current text
                     // field values
-                    updateCurrentFields(tableInfo.getFieldHandler().getFieldInformation());
+                    updateCurrentFieldValues(tableInfo.getFieldHandler().getFieldInformation());
 
                     // Set the change flag if the number of fields in the
                     // committed version differs from the current version of
@@ -4799,7 +4799,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         CcddFieldHandler fieldHandler = tableInfo.getFieldHandler();
 
         // Update the field information with the current text field values
-        updateCurrentFields(fieldHandler.getFieldInformation());
+        updateCurrentFieldValues(fieldHandler.getFieldInformation());
 
         // Rebuild the data field panel in the table editor using the updated
         // fields

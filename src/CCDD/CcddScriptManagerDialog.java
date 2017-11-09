@@ -204,7 +204,10 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                     descriptionFld.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
                                                                                                                 Color.LIGHT_GRAY,
                                                                                                                 Color.GRAY),
-                                                                                BorderFactory.createEmptyBorder(2, 2, 2, 2)));
+                                                                                BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
                     gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
                     gbc.gridy++;
                     dialogPnl.add(descriptionFld, gbc);
@@ -693,7 +696,10 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         scriptFld.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
                                                                                                Color.LIGHT_GRAY,
                                                                                                Color.GRAY),
-                                                               BorderFactory.createEmptyBorder(2, 2, 2, 2)));
+                                                               BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.gridy++;
         scriptPnl.add(scriptFld, gbc);

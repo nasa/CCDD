@@ -840,8 +840,13 @@ public class CcddUndoHandler
                 @Override
                 public void focusGained(FocusEvent fe)
                 {
-                    // End the editing sequence
-                    undoManager.endEditSequence();
+                    // Check if the flag is set that allows automatically
+                    // ending the edit sequence
+                    if (isAutoEndEditSequence)
+                    {
+                        // End the editing sequence
+                        undoManager.endEditSequence();
+                    }
                 }
             });
         }
@@ -1033,11 +1038,6 @@ public class CcddUndoHandler
             // Register the undo manager as an edit listener for this class
             listenerList.add(UndoableEditListener.class, undoManager);
 
-            // This is initially false to prevent storing the initial values as
-            // undoable edits. Set the flag to true so that subsequent edits
-            // can be undone
-            isAllowUndo = true;
-
             // Initialize the text field's original value
             oldValue = text;
 
@@ -1050,8 +1050,13 @@ public class CcddUndoHandler
                 @Override
                 public void focusGained(FocusEvent fe)
                 {
-                    // End the editing sequence
-                    undoManager.endEditSequence();
+                    // Check if the flag is set that allows automatically
+                    // ending the edit sequence
+                    if (isAutoEndEditSequence)
+                    {
+                        // End the editing sequence
+                        undoManager.endEditSequence();
+                    }
 
                     // Store the current text field value
                     oldValue = getText();
@@ -1328,8 +1333,13 @@ public class CcddUndoHandler
                 @Override
                 public void focusGained(FocusEvent fe)
                 {
-                    // End the editing sequence
-                    undoManager.endEditSequence();
+                    // Check if the flag is set that allows automatically
+                    // ending the edit sequence
+                    if (isAutoEndEditSequence)
+                    {
+                        // End the editing sequence
+                        undoManager.endEditSequence();
+                    }
 
                     // Store the current text area value
                     oldValue = getText();
@@ -3257,6 +3267,8 @@ public class CcddUndoHandler
 
                 // Insert the child back into the parent
                 parent.insert(child, index);
+                // System.out.println("NODE REMOVE UNDO - " +
+                // ((ToolTipTreeNode) child).getUserObject()); // TODO
 
                 // Check if the tree's expansion state was stored and that the
                 // state has changed

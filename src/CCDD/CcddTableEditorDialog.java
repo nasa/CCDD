@@ -281,7 +281,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmWithPrototype.setEnabled(enableChild);
         mntmManageFields.setEnabled(enable);
         mntmClearValues.setEnabled(enable
-                                   && !activeEditor.getDataFieldHandler().getFieldInformation().isEmpty());
+                                   && !activeEditor.getFieldHandler().getFieldInformation().isEmpty());
 
         // Set the button enable status
         btnInsertRow.setEnabled(enableParent);
@@ -808,7 +808,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 // Print the table
                 activeEditor.getTable().printTable("Table: "
                                                    + activeEditor.getOwnerName(),
-                                                   activeEditor.getDataFieldHandler(),
+                                                   activeEditor.getFieldHandler(),
                                                    CcddTableEditorDialog.this,
                                                    PageFormat.LANDSCAPE);
             }
@@ -1138,7 +1138,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
                 // Enable/disable the Clear values command depending on if any
                 // data fields remain
-                mntmClearValues.setEnabled(!activeEditor.getDataFieldHandler().getFieldInformation().isEmpty());
+                mntmClearValues.setEnabled(!activeEditor.getFieldHandler().getFieldInformation().isEmpty());
             }
 
             /******************************************************************
@@ -1161,7 +1161,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             protected void performAction(ActionEvent ae)
             {
                 // Check if there are any data fields to clear
-                if (!activeEditor.getDataFieldHandler().getFieldInformation().isEmpty())
+                if (!activeEditor.getFieldHandler().getFieldInformation().isEmpty())
                 {
                     // Remove all of the data field values from the table
                     activeEditor.getInputFieldPanelHandler().clearFieldValues();
