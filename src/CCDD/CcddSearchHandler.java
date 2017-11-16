@@ -143,15 +143,15 @@ public class CcddSearchHandler extends CcddDialogHandler
         // Set the search type based on the dialog type and, for a table
         // search, the state of the 'data tables only' check box
         String searchType = searchDlgType == SearchDialogType.TABLES
-                                                                    ? (dataTablesOnly
-                                                                                     ? SearchType.DATA.toString()
-                                                                                     : SearchType.ALL.toString())
-                                                                    : SearchType.SCRIPT.toString();
+                                                                     ? (dataTablesOnly
+                                                                                       ? SearchType.DATA.toString()
+                                                                                       : SearchType.ALL.toString())
+                                                                     : SearchType.SCRIPT.toString();
 
         // Search the database for the text
         String[] hits = dbCommand.getList(DatabaseListCommand.SEARCH,
-                                          new String[][] { {"_search_text_",
-                                                            searchText},
+                                          new String[][] {{"_search_text_",
+                                                           searchText},
                                                           {"_case_insensitive_",
                                                            String.valueOf(ignoreCase)},
                                                           {"_allow_regex_",
@@ -297,12 +297,11 @@ public class CcddSearchHandler extends CcddDialogHandler
                                     location += ", variable '"
                                                 + tablePath.substring(index + 1).replaceFirst("^.+\\.", "")
                                                 + "'";
-                                    tablePath = tablePath.substring(0, index).replaceFirst(",", ":");
                                 }
                             }
 
                             // Set the search result table values
-                            target = tablePath;
+                            target = CcddUtilities.highlightDataType(tablePath);
                             context = value;
                         }
                     }
@@ -404,11 +403,6 @@ public class CcddSearchHandler extends CcddDialogHandler
                         else if ((columnValue[FieldsColumn.OWNER_NAME.ordinal()] + ":").startsWith(CcddFieldHandler.getFieldGroupName("")))
                         {
                             target = "Group data field";
-                        }
-                        // Table data field
-                        else
-                        {
-                            target = columnValue[FieldsColumn.OWNER_NAME.ordinal()].replaceFirst(",", ":");
                         }
 
                         // Check if the match is with the field owner name

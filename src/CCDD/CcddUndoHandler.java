@@ -3267,8 +3267,6 @@ public class CcddUndoHandler
 
                 // Insert the child back into the parent
                 parent.insert(child, index);
-                // System.out.println("NODE REMOVE UNDO - " +
-                // ((ToolTipTreeNode) child).getUserObject()); // TODO
 
                 // Check if the tree's expansion state was stored and that the
                 // state has changed

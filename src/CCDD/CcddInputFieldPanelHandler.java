@@ -359,7 +359,7 @@ public abstract class CcddInputFieldPanelHandler
             inputPnl.add(innerPanel, gbc);
         }
 
-        // Create a border for the input fields
+        // Create borders for the input fields
         border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
                                                                                     Color.LIGHT_GRAY,
                                                                                     Color.GRAY),
@@ -367,6 +367,7 @@ public abstract class CcddInputFieldPanelHandler
                                                                                     ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
                                                                                     ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
                                                                                     ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+        Border emptyBorder = BorderFactory.createEmptyBorder();
 
         // Create a panel to hold the table's system name, description and, if
         // applicable, message ID information
@@ -393,12 +394,16 @@ public abstract class CcddInputFieldPanelHandler
         descriptionPnl.add(descriptionLbl, gbc);
 
         // Create the description input field
-        descriptionFld = undoHandler.new UndoableTextArea(description, 3, 20);
+        descriptionFld = undoHandler.new UndoableTextArea(description, 3, 1);
         descriptionFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+        descriptionFld.setBorder(emptyBorder);
         descriptionFld.setEditable(true);
+        descriptionFld.setLineWrap(true);
+        descriptionFld.setWrapStyleWord(true);
         descriptionFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
         descriptionFld.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null);
         descriptionFld.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
+        descScrollPane = new JScrollPane(descriptionFld);
         gbc.fill = GridBagConstraints.BOTH;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
@@ -409,13 +414,11 @@ public abstract class CcddInputFieldPanelHandler
             // Place the description field within a scroll pane, initially
             // disabled, and add the field to the editor
             inputPnl.setBorder(BorderFactory.createEtchedBorder());
-            gbc.gridy++;
             descriptionFld.setBackground(ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
-            descriptionFld.setBorder(BorderFactory.createEmptyBorder());
-            descScrollPane = new JScrollPane(descriptionFld);
             descScrollPane.setBackground(ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
             descScrollPane.setBorder(border);
             descScrollPane.setMinimumSize(descScrollPane.getPreferredSize());
+            gbc.gridy++;
             descriptionPnl.add(descScrollPane, gbc);
         }
         // The editor contains a table
@@ -423,13 +426,17 @@ public abstract class CcddInputFieldPanelHandler
         {
             // Place the description field within a scroll pane and add the
             // field to the editor
-            inputPnl.setBorder(BorderFactory.createEmptyBorder());
-            gbc.gridx++;
+            inputPnl.setBorder(emptyBorder);
             descriptionFld.setToolTipText(CcddUtilities.wrapText("Table description",
                                                                  ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
             descriptionFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
-            descriptionFld.setBorder(border);
-            descriptionPnl.add(descriptionFld, gbc);
+            descScrollPane.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
+            descScrollPane.setBorder(emptyBorder);
+            descScrollPane.setViewportBorder(border);
+            descScrollPane.setMinimumSize(descScrollPane.getPreferredSize());
+            gbc.gridx++;
+            descriptionPnl.add(descScrollPane, gbc);
+
             gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
             gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
         }

@@ -131,6 +131,9 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
             {
                 // Store the links in the committed links list
                 linkHandler.updateCommittedLinks();
+
+                // Discard any store edits
+                linkHandler.getUndoManager().discardAllEdits();
             }
 
             // Step through each data stream tab
@@ -140,6 +143,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                 tabbedPane.setTitleAt(index,
                                       tabbedPane.getTitleAt(index).replaceAll("\\*", ""));
             }
+
         }
     }
 
@@ -319,11 +323,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                     {
                         activeHandler.getUndoManager().undo();
 
-                        // String[] selected =
-                        // activeHandler.getLinkTree().getTopLevelSelectedNodeNames();
-                        // System.out.println("selected = " +
-                        // Arrays.toString(selected));
-                        // TODO UPDATES selectedGroup AFTER AN UNDO
+                        // Update the link selection following an undo
                         activeHandler.getUndoHandler().setAllowUndo(false);
                         activeHandler.getLinkTree().updateTableSelection();
                         activeHandler.getUndoHandler().setAllowUndo(true);
@@ -919,7 +919,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                                                 // Add the invalid link and
                                                 // data stream to the list
                                                 notCopiedList.add(new Object[] {nameOnly,
-                                                                                subNode.getUserObject(),
+                                                                                CcddUtilities.highlightDataType(subNode.getUserObject().toString()),
                                                                                 arrayItemData[index][0],
                                                                                 "Sample rate differs or variable unavailable in target"});
                                             }
@@ -1025,6 +1025,16 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                                        || column == LinkCopyErrorColumnInfo.CAUSE.ordinal();
                             }
 
+                            /******************************************************************
+                             * Allow HTML-formatted text in the specified
+                             * column(s)
+                             *****************************************************************/
+                            @Override
+                            protected boolean isColumnHTML(int column)
+                            {
+                                return column == LinkCopyErrorColumnInfo.MEMBER.ordinal();
+                            }
+
                             /**************************************************
                              * Load the link & members not copied data into the
                              * table and format the table cells
@@ -1041,10 +1051,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                                 setUpdatableCharacteristics(notCopiedList.toArray(new Object[0][0]),
                                                             LinkCopyErrorColumnInfo.getColumnNames(),
                                                             null,
-                                                            null,
-                                                            null,
                                                             LinkCopyErrorColumnInfo.getToolTips(),
-                                                            true,
                                                             true,
                                                             true,
                                                             true);

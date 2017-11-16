@@ -9,9 +9,7 @@
 package CCDD;
 
 import static CCDD.CcddConstants.CLOSE_ICON;
-import static CCDD.CcddConstants.EXECUTE_ALL_ICON;
 import static CCDD.CcddConstants.EXECUTE_ICON;
-import static CCDD.CcddConstants.OK_BUTTON;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -23,11 +21,9 @@ import java.awt.event.KeyEvent;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
-import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 
@@ -44,7 +40,6 @@ public class CcddScriptExecutiveDialog extends CcddFrameHandler
 
     // Components referenced by multiple methods
     private JButton btnExecute;
-    private JButton btnExecuteAll;
     private JButton btnClose;
 
     /**************************************************************************
@@ -59,6 +54,10 @@ public class CcddScriptExecutiveDialog extends CcddFrameHandler
 
         // Create reference to shorten subsequent calls
         scriptHandler = ccddMain.getScriptHandler();
+
+        // Set the reference to the script associations executive in the script
+        // handler
+        scriptHandler.setScriptDialog(this);
 
         // Create the script executive dialog
         initialize();
@@ -134,12 +133,6 @@ public class CcddScriptExecutiveDialog extends CcddFrameHandler
                                                                      KeyEvent.VK_E,
                                                                      "Execute the selected script association(s)");
 
-                    // Script execution button
-                    btnExecute = CcddButtonPanelHandler.createButton("Execute",
-                                                                     EXECUTE_ICON,
-                                                                     KeyEvent.VK_E,
-                                                                     "Execute the selected script association(s)");
-
                     // Add a listener for the Execute button
                     btnExecute.addActionListener(new ActionListener()
                     {
@@ -151,41 +144,10 @@ public class CcddScriptExecutiveDialog extends CcddFrameHandler
                         {
                             // Execute the selected associations
                             scriptHandler.executeScriptAssociations(tableTree,
-                                                                    false,
                                                                     CcddScriptExecutiveDialog.this);
                         }
                     });
 
-                    // Execute all script associations button
-                    btnExecuteAll = CcddButtonPanelHandler.createButton("Execute All",
-                                                                        EXECUTE_ALL_ICON,
-                                                                        KeyEvent.VK_A,
-                                                                        "Execute all of the script associations");
-
-                    // Add a listener for the Execute All button
-                    btnExecuteAll.addActionListener(new ActionListener()
-                    {
-                        /******************************************************
-                         * Execute all of the script associations
-                         *****************************************************/
-                        @Override
-                        public void actionPerformed(ActionEvent ae)
-                        {
-                            // Check if at least one script association exists
-                            if (scriptHandler.getAssociationsTable().getRowCount() != 0
-                                && new CcddDialogHandler().showMessageDialog(CcddScriptExecutiveDialog.this,
-                                                                             "<html><b>Execute all script associations?",
-                                                                             "Execute All",
-                                                                             JOptionPane.QUESTION_MESSAGE,
-                                                                             DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-                            {
-                                // Execute all script associations
-                                scriptHandler.executeScriptAssociations(tableTree,
-                                                                        true,
-                                                                        CcddScriptExecutiveDialog.this);
-                            }
-                        }
-                    });
                     // Close button
                     btnClose = CcddButtonPanelHandler.createButton("Close",
                                                                    CLOSE_ICON,
@@ -201,13 +163,17 @@ public class CcddScriptExecutiveDialog extends CcddFrameHandler
                         @Override
                         public void actionPerformed(ActionEvent ae)
                         {
+                            // Reset the reference to the script associations
+                            // executive in the script handler since the
+                            // handler remains active)
+                            scriptHandler.setScriptDialog(null);
+
                             closeFrame();
                         }
                     });
 
                     // Add buttons to the button panel
                     buttonPnl.add(btnExecute);
-                    buttonPnl.add(btnExecuteAll);
                     buttonPnl.add(btnClose);
                 }
 

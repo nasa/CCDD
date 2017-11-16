@@ -8,7 +8,6 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
 import static CCDD.CcddConstants.REPLACE_INDICATOR;
 
 import java.awt.AWTException;
@@ -62,14 +61,17 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.JViewport;
 import javax.swing.KeyStroke;
+import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
@@ -147,11 +149,6 @@ public abstract class CcddJTableHandler extends JTable
     // Table cell font
     private Font cellFont;
 
-    // Indices for columns displayed as check boxes in model and view
-    // coordinates
-    private List<Integer> checkBoxColumnModel;
-    private List<Integer> checkBoxColumnView;
-
     // Array containing the table column names
     private String[] columnNames;
 
@@ -198,6 +195,10 @@ public abstract class CcddJTableHandler extends JTable
     // Mouse listener used to resize a column when the right column header
     // border is double clicked
     private ResizeColumnListener resizeColumnListener;
+
+    // Sort keys for the last sort via column header. Used to restore the sort
+    // order after reloading the table data
+    private List<? extends SortKey> lastSortKeys;
 
     /**************************************************************************
      * Custom Swing table handler constructor
@@ -816,6 +817,22 @@ public abstract class CcddJTableHandler extends JTable
 
     /**************************************************************************
      * Placeholder for method to determine if a column's cells can be displayed
+     * with HTML formatting and multiple lines. Override this method to allow
+     * HTML-formatted, multiple line display of one or more columns
+     *
+     * @param column
+     *            column index; model coordinate
+     *
+     * @return true to allow display of HTML-formatted, multiple lines in the
+     *         specified column's cells; false otherwise
+     *************************************************************************/
+    protected boolean isColumnHTML(int column)
+    {
+        return false;
+    }
+
+    /**************************************************************************
+     * Placeholder for method to determine if a column's cells can be displayed
      * with the text highlighted. Override this method to allow highlighting of
      * the text in one or more columns
      *
@@ -826,6 +843,36 @@ public abstract class CcddJTableHandler extends JTable
      *         column's cells; false otherwise
      *************************************************************************/
     protected boolean isColumnHighlight(int column)
+    {
+        return false;
+    }
+
+    /**************************************************************************
+     * Placeholder for method to determine if a column should be hidden.
+     * Override this method to allow hiding one or more columns
+     *
+     * @param column
+     *            column index; model coordinate
+     *
+     * @return true to hide the specified column; false otherwise
+     *************************************************************************/
+    protected boolean isColumnHidden(int column)
+    {
+        return false;
+    }
+
+    /**************************************************************************
+     * Placeholder for method to determine if a column should be displayed as a
+     * check box. Override this method to allow boolean input for one or more
+     * columns
+     *
+     * @param column
+     *            column index; model coordinate
+     *
+     * @return true to display the specified column as a check box; false
+     *         otherwise
+     *************************************************************************/
+    protected boolean isColumnBoolean(int column)
     {
         return false;
     }
@@ -1314,25 +1361,12 @@ public abstract class CcddJTableHandler extends JTable
      * @param columnOrder
      *            string of colon-separated column indices
      *
-     * @param hiddenColumnIndices
-     *            array of column indices for columns that will not be
-     *            displayed in the table; null or an empty array if no columns
-     *            are hidden
-     *
-     * @param checkBoxColumnIndices
-     *            array containing the indices of the columns displaying a
-     *            check box in model coordinates; null if no column applies
-     *
      * @param toolTips
      *            tool tip text to display when hovering over the column
      *            headers; null if no column has tool tip text
      *
      * @param centerText
      *            true to center the text within the cells
-     *
-     * @param showScrollBar
-     *            true if the table width must account for a vertical scroll
-     *            bar
      *
      * @param calcTotalWidth
      *            true to calculate the total width of the table
@@ -1345,20 +1379,14 @@ public abstract class CcddJTableHandler extends JTable
     protected int setUpdatableCharacteristics(Object[][] tableData,
                                               String[] columnNames,
                                               String columnOrder,
-                                              Integer[] hiddenColumnIndices,
-                                              Integer[] checkBoxColumnIndices,
                                               String[] toolTips,
                                               boolean centerText,
-                                              boolean showScrollBar,
                                               boolean calcTotalWidth,
                                               boolean showGrid)
     {
-        // Initialize the hidden column and check box column indices lists.
-        // These lists remain empty if there is no hidden column(s) and/or no
-        // columns are displayed as check boxes
+        // Initialize the hidden column list. This list remains empty if there
+        // is no hidden column
         hiddenColumns = new ArrayList<TableColumn>();
-        checkBoxColumnModel = new ArrayList<Integer>();
-        checkBoxColumnView = new ArrayList<Integer>();
 
         // Initialize the total table pixel width
         int totalWidth = 0;
@@ -1390,37 +1418,11 @@ public abstract class CcddJTableHandler extends JTable
         // Arrange the columns in the order specified
         arrangeColumns(columnOrder);
 
-        // Check if any columns are to be displayed as check boxes
-        if (checkBoxColumnIndices != null)
-        {
-            // Step through each check box column
-            for (int cboxColumn : checkBoxColumnIndices)
-            {
-                // Save the index of the column displayed as check boxes (if
-                // any). The model and view coordinates remain identical unless
-                // columns are hidden
-                checkBoxColumnModel.add(cboxColumn);
-                checkBoxColumnView.add(cboxColumn);
-            }
-        }
-
         // Set up the table grid lines
         setTableGrid();
 
-        // Check if any columns are initially hidden
-        if (hiddenColumnIndices != null && hiddenColumnIndices.length != 0)
-        {
-            // Hide the specified columns
-            showHiddenColumns(false, hiddenColumnIndices);
-        }
-
-        // Step through each column displayed as a check box
-        for (int index = 0; index < checkBoxColumnModel.size(); index++)
-        {
-            // Convert the check box column index to view coordinates
-            checkBoxColumnView.set(index,
-                                   convertColumnIndexToView(checkBoxColumnModel.get(index)));
-        }
+        // Do not display columns that are flagged as hidden
+        updateHiddenColumns();
 
         // Set up the renderers for the table header and cells
         setHeaderRenderer();
@@ -1432,95 +1434,70 @@ public abstract class CcddJTableHandler extends JTable
         // Check if the width should be calculated
         if (calcTotalWidth)
         {
-            // Calculate and set the widths of the tab columns and get the
-            // minimum width needed to display the tab's table
-            totalWidth = calcAndSetColumnWidths(showScrollBar);
+            // Calculate and set the widths of the table columns and get the
+            // minimum width needed to display the table
+            totalWidth = calcAndSetColumnWidths();
         }
 
         return totalWidth;
     }
 
     /**************************************************************************
-     * Display (hide) the specified hidden (displayed) column(s). Note that a
-     * column, when no longer hidden, is shown at the right of the table
-     *
-     * @param isShow
-     *            true to show the specified column(s) (if hidden); false to
-     *            hide the specified columns (if showing)
-     *
-     * @param columns
-     *            array of column indices, in model coordinates, to show/hide
+     * Display or hide columns. Note that a column, when no longer hidden, is
+     * shown at the right of the table
      *************************************************************************/
-    protected void showHiddenColumns(boolean isShow, Integer[] columns)
+    protected void updateHiddenColumns()
     {
-        // Sort the columns to show/hide in ascending order. This is required
-        // when showing columns so that that appear in the expected order, and
-        // for hiding columns since they must be removed from left (lower
-        // index) to right (higher index)
-        Arrays.sort(columns);
+        List<TableColumn> wasHidden = new ArrayList<TableColumn>();
 
-        // Check if the specified column(s) should be shown
-        if (isShow)
+        // Step through each column in the table
+        for (int column = 0; column < tableModel.getColumnCount(); column++)
         {
-            // Step through each column to show
-            for (int column : columns)
+            boolean isAlreadyHidden = false;
+
+            // Set the flag if this column should not be displayed
+            boolean shouldBeHidden = isColumnHidden(column);
+
+            // Step through the columns currently hidden
+            for (TableColumn hiddenColumn : hiddenColumns)
             {
-                // Step through the columns currently hidden
-                for (TableColumn hiddenColumn : hiddenColumns)
+                // Check if the column should be displayed but is currently
+                // hidden
+                if (!shouldBeHidden && column == hiddenColumn.getModelIndex())
                 {
-                    // Check if the column indices match. This prevents
-                    // attempting to show a column that isn't hidden
-                    if (column == hiddenColumn.getModelIndex())
-                    {
-                        // Remove the column from the hidden columns list and
-                        // add it to the view
-                        hiddenColumns.remove(hiddenColumn);
-                        addColumn(hiddenColumn);
-                        break;
-                    }
+                    // Add the column to the list of those that were hidden but
+                    // should now be showing, and add it to the view
+                    wasHidden.add(hiddenColumn);
+                    addColumn(hiddenColumn);
+                }
+                // Check is the column should not be displayed but is already
+                // hidden
+                else if (shouldBeHidden && column == hiddenColumn.getModelIndex())
+                {
+                    // Set the flag indicating this column is already hidden
+                    isAlreadyHidden = true;
+                    break;
                 }
             }
-        }
-        // Hide the specified column(s)
-        else
-        {
-            // Step through each column to hide
-            for (int column : columns)
+
+            // Check if the column isn't already hidden, but should be
+            if (!isAlreadyHidden && shouldBeHidden)
             {
-                boolean isFound = false;
+                // Get the column information. Adjust the column index based on
+                // the number of columns already hidden
+                TableColumn tableColumn = getColumnModel().getColumn(column
+                                                                     - hiddenColumns.size());
 
-                // Step through the columns currently hidden
-                for (TableColumn hiddenColumn : hiddenColumns)
-                {
-                    // Check if the column indices match
-                    if (column == hiddenColumn.getModelIndex())
-                    {
-                        // Set the flag indicating that the column is already
-                        // hidden and stop searching
-                        isFound = true;
-                        break;
-                    }
-                }
-
-                // Check if the column isn't already hidden
-                if (!isFound)
-                {
-                    // Get the column information. Adjust the column index
-                    // based on the number of columns already hidden
-                    TableColumn tableColumn = getColumnModel().getColumn(column
-                                                                         - hiddenColumns.size());
-
-                    // Check that the column isn't already hidden
-                    if (!hiddenColumns.contains(tableColumn))
-                    {
-                        // Add the column to the hidden columns list and remove
-                        // it from the view
-                        hiddenColumns.add(tableColumn);
-                        removeColumn(tableColumn);
-                    }
-                }
+                // Add the column to the hidden columns list and remove it from
+                // the view
+                hiddenColumns.add(tableColumn);
+                removeColumn(tableColumn);
             }
         }
+
+        // Remove the columns that were hidden but are now showing (if any)
+        // from the list of hidden columns
+        hiddenColumns.removeAll(wasHidden);
     }
 
     /**************************************************************************
@@ -1555,6 +1532,17 @@ public abstract class CcddJTableHandler extends JTable
 
         // Enable/disable table sort capability based on if any rows exist
         setTableSortable();
+
+        // Check if the table was sorted prior to loading the table data
+        if (allowSort
+            && tableModel.getRowCount() != 0
+            && getRowSorter() != null
+            && lastSortKeys != null)
+        {
+            // Restore the sort order
+            ((TableRowSorter<?>) getRowSorter()).setSortKeys(lastSortKeys);
+            ((TableRowSorter<?>) getRowSorter()).sort();
+        }
 
         // Create a runnable object to be executed
         SwingUtilities.invokeLater(new Runnable()
@@ -1623,6 +1611,10 @@ public abstract class CcddJTableHandler extends JTable
 
                     // Store the row sort change in the undo manager
                     tableModel.sortRows(sortKeys, getSortKeys());
+
+                    // Store the sort keys in case the sort order needs to be
+                    // restored
+                    lastSortKeys = getSortKeys();
 
                     // Flag the end of the editing sequence for undo/redo
                     // purposes
@@ -1940,6 +1932,94 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**************************************************************************
+     * Create a cell renderer for cells that can display HTML-formatted text on
+     * more than one line. This allows adjusting the row height to fit the text
+     * and to set the cell border to provide padding around the cell contents
+     *************************************************************************/
+    private class HTMLCellRenderer extends JTextPane implements TableCellRenderer
+    {
+        /**********************************************************************
+         * HTML-formatted Multi-line table cell renderer constructor
+         *********************************************************************/
+        HTMLCellRenderer()
+        {
+            // Set the cell to be non-editable
+            setEditable(false);
+
+            // Set the font
+            setFont(cellFont);
+
+            // Add inset space around the cell's perimeter to provide padding
+            // between it and the cell's contents
+            setBorder(cellBorder);
+
+            // Set the property so that the font selection applies to HTML text
+            putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
+
+            // Set to paint every pixel within the cell. This is needed to
+            // prevent a border appearing around the cell for some look & feels
+            setOpaque(true);
+        }
+
+        /**********************************************************************
+         * Override this method so that the cell border is set
+         *********************************************************************/
+        @Override
+        public Border getBorder()
+        {
+            return cellBorder;
+        }
+
+        /**********************************************************************
+         * Override this method so that the text is displayed in the cell and
+         * the row height can be adjusted to fit the text
+         *********************************************************************/
+        @Override
+        public Component getTableCellRendererComponent(JTable jtable,
+                                                       Object value,
+                                                       boolean isSelected,
+                                                       boolean hasFocus,
+                                                       int row,
+                                                       int column)
+        {
+            // Check if the cell value is HTML-formatted
+            if (value != null && value.toString().startsWith("<html>"))
+            {
+                // Set the cell's content type to display HTML and remove the
+                // HTML tag
+                setContentType("text/html");
+                value = value.toString().substring("<html>".length());
+            }
+            // The cell value isn't HTML-formatted
+            else
+            {
+                // Set the cell's content type to plain text
+                setContentType("text/plain");
+            }
+
+            // Set the cell to the string representation of the value. Replace
+            // any line feed place-holders with line feed characters
+            setText(value == null
+                                  ? ""
+                                  : value.toString());
+
+            // Check if the row and column indices are valid
+            if (row < table.getRowCount() && column < table.getColumnCount())
+            {
+                // Set the text pane's width to the table column width. This
+                // causes the JTextPane to calculate the height required to
+                // show all of the cell's text. Subtract 1 from the width so
+                // that cell text matching the exact width doesn't have text
+                // truncated
+                setSize(jtable.getColumnModel().getColumn(column).getWidth() - 1,
+                        jtable.getRowHeight(row));
+            }
+
+            return this;
+        }
+    }
+
+    /**************************************************************************
      * Set the table cell renderers
      *
      * @param centerText
@@ -1947,13 +2027,16 @@ public abstract class CcddJTableHandler extends JTable
      *************************************************************************/
     private void setCellRenderers(boolean centerText)
     {
-        // Create a single-line cell renderer to display the text in the
-        // specified columns on a single line
+        // Create a cell renderer to display the text in the specified columns
+        // on a single line
         SingleLineCellRenderer singleLineRenderer = new SingleLineCellRenderer(centerText);
 
-        // Create a multi-line renderer for columns that can display text on
-        // multiple lines
+        // Create a renderer for columns that can display text on multiple
+        // lines
         MultiLineCellRenderer multiLineRenderer = new MultiLineCellRenderer();
+
+        // Create a renderer for columns that can display HTML formatted text
+        HTMLCellRenderer htmlRenderer = new HTMLCellRenderer();
 
         // Create a cell renderer to display cells containing boolean values as
         // check boxes
@@ -1965,14 +2048,21 @@ public abstract class CcddJTableHandler extends JTable
             // Get the table column to shorten the calls below
             TableColumn tableColumn = getColumnModel().getColumn(column);
 
+            // Get the column index in model coordinates
+            int columnModel = convertColumnIndexToModel(column);
+
             // Check if the column doesn't display a check box
-            if (!checkBoxColumnView.contains(column))
+            if (!isColumnBoolean(columnModel))
             {
-                // Set the cell renderer based on if the column is displayed in
-                // multiple lines, and if the column allows HTML formatting
-                tableColumn.setCellRenderer(isColumnMultiLine(convertColumnIndexToModel(column))
-                                                                                                 ? multiLineRenderer
-                                                                                                 : singleLineRenderer);
+                // Set the cell renderer based on if the column supports
+                // HTML-formatted text, is displayed in multiple lines, or is
+                // displayed in a single line. HTML supports multiple lines, so
+                // takes precedence over the multiple line stting
+                tableColumn.setCellRenderer(isColumnHTML(columnModel)
+                                                                      ? htmlRenderer
+                                                                      : (isColumnMultiLine(columnModel)
+                                                                                                        ? multiLineRenderer
+                                                                                                        : singleLineRenderer));
             }
             // This column displays check boxes
             else
@@ -2149,15 +2239,18 @@ public abstract class CcddJTableHandler extends JTable
         // Step through each column in the table
         for (int column = 0; column < getColumnCount(); column++)
         {
+            // Get the column index in model coordinates
+            int columnModel = convertColumnIndexToModel(column);
+
             // Check if the column's contents is not displayed as a check box
-            if (!checkBoxColumnView.contains(column))
+            if (!isColumnBoolean(columnModel))
             {
                 // Set the editor so that the contents can be modified within
                 // the table cell. Use the editor appropriate for the number of
                 // cell display lines
-                getColumnModel().getColumn(column).setCellEditor(isColumnMultiLine(convertColumnIndexToModel(column))
-                                                                                                                      ? dceMulti
-                                                                                                                      : dceSingle);
+                getColumnModel().getColumn(column).setCellEditor(isColumnMultiLine(columnModel)
+                                                                                                ? dceMulti
+                                                                                                : dceSingle);
             }
         }
     }
@@ -2166,13 +2259,9 @@ public abstract class CcddJTableHandler extends JTable
      * Calculate and then set the minimum width for each visible column and
      * return the combined width of all of the columns
      *
-     * @param showScrollBar
-     *            true if the table width must account for a vertical scroll
-     *            bar
-     *
      * @return Combined width of all visible columns in pixels
      *************************************************************************/
-    private int calcAndSetColumnWidths(boolean showScrollBar)
+    private int calcAndSetColumnWidths()
     {
         // Create storage for the minimum header and data column widths
         minHeaderWidth = new int[getColumnCount()];
@@ -2185,12 +2274,8 @@ public abstract class CcddJTableHandler extends JTable
             calcAndSetColumnWidth(column);
         }
 
-        // Return the total width of the table. Include space for the table's
-        // vertical scroll bar, if present
-        return getPreferredSize().width
-               + (showScrollBar
-                                ? LAF_SCROLL_BAR_WIDTH
-                                : 0);
+        // Return the total width of the table
+        return getPreferredSize().width;
     }
 
     /**************************************************************************
@@ -2231,9 +2316,9 @@ public abstract class CcddJTableHandler extends JTable
                                          row,
                                          column);
 
-            // Compare the width of the cell to the largest width found
-            // so far and store it if it's larger, but no larger than a
-            // specified maximum starting width
+            // Compare the width of the cell to the largest width found so far
+            // and store it if it's larger, but no larger than a specified
+            // maximum starting width
             minDataWidth[column] = Math.min(Math.max(comp.getPreferredSize().width
                                                      + ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() * 2,
                                                      minDataWidth[column]),
@@ -2591,8 +2676,10 @@ public abstract class CcddJTableHandler extends JTable
          *********************************************************************/
         MoveCellSelection()
         {
-            startRow = getSelectedRow();
-            endRow = getSelectionModel().getMaxSelectionIndex();
+            // Get the start and end row indices in model coordinates, and the
+            // start and end column indices in view coordinates
+            startRow = convertRowIndexToModel(getSelectedRow());
+            endRow = convertRowIndexToModel(getSelectionModel().getMaxSelectionIndex());
             startColumn = getSelectedColumn();
             endColumn = getColumnModel().getSelectionModel().getMaxSelectionIndex();
         }
@@ -2647,12 +2734,26 @@ public abstract class CcddJTableHandler extends JTable
             // Check if a valid row is selected
             if (startRow != -1)
             {
+                // Check if the row(s) moved and the table is sorted
+                if (rowDelta != 0
+                    && allowSort
+                    && tableModel.getRowCount() != 0
+                    && getRowSorter() != null
+                    && lastSortKeys != null)
+                {
+                    // Remove the sort since row movement would appear erratic
+                    // with a sort active, and reset the table's sort
+                    // capability
+                    setRowSorter(null);
+                    setTableSortable();
+                }
+
                 // Set the row selection
-                setRowSelectionInterval(startRow + rowDelta,
-                                        endRow + rowDelta);
+                setRowSelectionInterval(convertRowIndexToView(startRow) + rowDelta,
+                                        convertRowIndexToView(endRow) + rowDelta);
             }
 
-            // Check if a column is selected
+            // Check if a valid column is selected
             if (startColumn != -1)
             {
                 // Set the column selection
@@ -2736,10 +2837,26 @@ public abstract class CcddJTableHandler extends JTable
             removeRowSelectionInterval(getSelectedRow(), viewRow);
         }
 
-        // Insert the data into a new row below the selected row and get the
-        // new row's index view coordinate
-        viewRow = insertRowData(modelRow, data);
+        // Insert the data into a new row below the selected row, and select
+        // and scroll to the inserted row
+        setSelectedRow(insertRowData(modelRow, data));
 
+        // Check if the end of the edit sequence should be flagged
+        if (endEdit)
+        {
+            // Flag the end of the editing sequence for undo/redo purposes
+            undoManager.endEditSequence();
+        }
+    }
+
+    /**************************************************************************
+     * Select the specified row and scroll the table so that it is visible
+     *
+     * @param viewRow
+     *            row index to select and scroll to, view coordinates
+     *************************************************************************/
+    protected void setSelectedRow(int viewRow)
+    {
         // Check if the new row is visible (row filters can make the row
         // invisible)
         if (viewRow != -1 && viewRow < getRowCount())
@@ -2756,13 +2873,6 @@ public abstract class CcddJTableHandler extends JTable
 
         // Set the table sort capability in case this is the table's only row
         setTableSortable();
-
-        // Check if the end of the edit sequence should be flagged
-        if (endEdit)
-        {
-            // Flag the end of the editing sequence for undo/redo purposes
-            undoManager.endEditSequence();
-        }
     }
 
     /**************************************************************************
@@ -3430,11 +3540,11 @@ public abstract class CcddJTableHandler extends JTable
      * @param rowDelta
      *            row move direction and magnitude
      *************************************************************************/
-    protected void performRowMove(final int startRow,
+    protected void performRowMove(int startRow,
                                   int endRow,
                                   int toRow,
                                   MoveCellSelection selected,
-                                  final int rowDelta)
+                                  int rowDelta)
     {
         // Flag the end of the editing sequence for undo/redo purposes
         undoManager.endEditSequence();
@@ -4078,7 +4188,7 @@ public abstract class CcddJTableHandler extends JTable
                     newValue = tableModel.getValueAt(editRow, editColumn);
 
                     // Check if this cell isn't a check box
-                    if (!checkBoxColumnModel.contains(editColumn))
+                    if (!isColumnBoolean(editColumn))
                     {
                         // Store the value back in the table; this causes any
                         // clean-up steps dictated by the table model to be

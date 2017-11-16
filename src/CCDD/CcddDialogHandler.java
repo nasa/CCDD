@@ -15,6 +15,7 @@ import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.ERROR_ICON;
 import static CCDD.CcddConstants.IGNORE_BUTTON;
 import static CCDD.CcddConstants.INFORMATION_ICON;
+import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.OK_ICON;
 import static CCDD.CcddConstants.QUESTION_ICON;
@@ -68,6 +69,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
@@ -2186,12 +2188,20 @@ public class CcddDialogHandler extends JDialog
             if (resizable)
             {
                 // Set the minimum width to the larger of (1) the default
-                // dialog width and (2) the packed dialog width (a pixel is
-                // added to this width to prevent the dialog from being resized
-                // smaller than its original width). Set the minimum height to
-                // the packed height of the dialog components
+                // dialog width and (2) the packed dialog width (the pixel
+                // width of a vertical scroll bar is added if the dialog
+                // contains a table so that the horizontal scroll bar isn't
+                // automatically displayed if the table contents exceeds the
+                // initial height, and a pixel is added to this width to
+                // prevent the dialog from being resized smaller than its
+                // original width). Set the minimum height to the packed height
+                // of the dialog components
                 setMinimumSize(new Dimension(Math.max(ModifiableSizeInfo.MIN_DIALOG_WIDTH.getSize(),
-                                                      getWidth() + 1),
+                                                      getWidth() + (isContainsComponent(this,
+                                                                                        JTable.class)
+                                                                                                      ? LAF_SCROLL_BAR_WIDTH
+                                                                                                      : 0)
+                                                                                                     + 1),
                                              getHeight()));
             }
 
@@ -2211,6 +2221,53 @@ public class CcddDialogHandler extends JDialog
         }
 
         return buttonSelected;
+    }
+
+    /**************************************************************************
+     * Check if the specified container or its children contains a component of
+     * the specified class. This is a recursive method
+     * 
+     * @param <E>
+     *
+     * @param container
+     *            container object in which to search
+     *
+     * @param tgtClass
+     *            target class for which to search
+     *
+     * @return true if the container contains an component of the specified
+     *         class
+     *************************************************************************/
+    private <E> boolean isContainsComponent(Container container, Class<E> tgtClass)
+    {
+        boolean isFound = false;
+
+        // Step through each component in the container
+        for (Component comp : container.getComponents())
+        {
+            // Check if the component is an instance of the target class
+            if (tgtClass.isInstance(comp))
+            {
+                // Set the flag to indicate a component of the target class is
+                // within the container
+                isFound = true;
+            }
+            // Check if the component is a container
+            else if (comp instanceof Container)
+            {
+                // Check the child container's components for the target class
+                isFound = isContainsComponent((Container) comp, tgtClass);
+            }
+
+            // Check if a component of the target class has been found
+            if (isFound)
+            {
+                // Stop searching
+                break;
+            }
+        }
+
+        return isFound;
     }
 
     /**************************************************************************

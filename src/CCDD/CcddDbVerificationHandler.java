@@ -8,12 +8,12 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.CANCEL_ICON;
 import static CCDD.CcddConstants.DB_SAVE_POINT_NAME;
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
-import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.OK_ICON;
 import static CCDD.CcddConstants.PRINT_ICON;
@@ -2755,6 +2755,15 @@ public class CcddDbVerificationHandler
                 }
 
                 /**************************************************************
+                 * Display the specified column(s) as check boxes
+                 *************************************************************/
+                @Override
+                protected boolean isColumnBoolean(int column)
+                {
+                    return column == VerificationColumnInfo.FIX.ordinal();
+                }
+
+                /**************************************************************
                  * Allow the fix column to be edited (enables toggling of the
                  * check box via the mouse) unless there is no command to
                  * correct to the issue (i.e., the issue must be corrected
@@ -2797,10 +2806,7 @@ public class CcddDbVerificationHandler
                     setUpdatableCharacteristics(tableData,
                                                 VerificationColumnInfo.getColumnNames(),
                                                 null,
-                                                null,
-                                                new Integer[] {VerificationColumnInfo.FIX.ordinal()},
                                                 VerificationColumnInfo.getToolTips(),
-                                                true,
                                                 true,
                                                 true,
                                                 true);

@@ -109,10 +109,19 @@ public class CcddDuplicateMsgIDDialog extends CcddDialogHandler
         CcddJTableHandler duplicatesTable = new CcddJTableHandler()
         {
             /******************************************************************
-             * Allow multiple line display in the specified columns
+             * Allow multiple line display in the specified column(s)
              *****************************************************************/
             @Override
             protected boolean isColumnMultiLine(int column)
+            {
+                return column == DuplicateMsgIDColumnInfo.OWNERS.ordinal();
+            }
+
+            /******************************************************************
+             * Allow HTML-formatted text in the specified column(s)
+             *****************************************************************/
+            @Override
+            protected boolean isColumnHTML(int column)
             {
                 return column == DuplicateMsgIDColumnInfo.OWNERS.ordinal();
             }
@@ -131,10 +140,7 @@ public class CcddDuplicateMsgIDDialog extends CcddDialogHandler
                 setUpdatableCharacteristics(duplicates.toArray(new String[0][0]),
                                             DuplicateMsgIDColumnInfo.getColumnNames(),
                                             "1:0",
-                                            null,
-                                            null,
                                             DuplicateMsgIDColumnInfo.getToolTips(),
-                                            true,
                                             true,
                                             true,
                                             true);

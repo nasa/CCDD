@@ -10,6 +10,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
+import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
@@ -403,6 +404,30 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             }
 
             /******************************************************************
+             * Hide the the specified columns
+             *****************************************************************/
+            @Override
+            protected boolean isColumnHidden(int column)
+            {
+                return column == TableTypeEditorColumnInfo.INDEX.ordinal()
+                       || (typeOfTable != TableTypeIndicator.IS_STRUCTURE
+                           && (column == TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal()
+                               || column == TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal()));
+            }
+
+            /******************************************************************
+             * Display the specified column(s) as check boxes
+             *****************************************************************/
+            @Override
+            protected boolean isColumnBoolean(int column)
+            {
+                return column == TableTypeEditorColumnInfo.UNIQUE.ordinal()
+                       || column == TableTypeEditorColumnInfo.REQUIRED.ordinal()
+                       || column == TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal()
+                       || column == TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal();
+            }
+
+            /******************************************************************
              * Override isCellEditable so that all columns can be edited
              *****************************************************************/
             @Override
@@ -687,21 +712,6 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             @Override
             protected void loadAndFormatData()
             {
-                // Create a list for any columns to be hidden
-                List<Integer> hiddenColumns = new ArrayList<Integer>();
-
-                // Hide the index column
-                hiddenColumns.add(TableTypeEditorColumnInfo.INDEX.ordinal());
-
-                // Check if the columns only applicable to a structure table
-                // should be hidden
-                if (typeOfTable != TableTypeIndicator.IS_STRUCTURE)
-                {
-                    // Hide the structure table type columns
-                    hiddenColumns.add(TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal());
-                    hiddenColumns.add(TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal());
-                }
-
                 // Place the data into the table model along with the column
                 // names, set up the editors and renderers for the table cells,
                 // set up the table grid lines, and calculate the minimum width
@@ -709,20 +719,14 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                 int totalWidth = setUpdatableCharacteristics(committedData,
                                                              TableTypeEditorColumnInfo.getColumnNames(),
                                                              null,
-                                                             hiddenColumns.toArray(new Integer[0]),
-                                                             new Integer[] {TableTypeEditorColumnInfo.UNIQUE.ordinal(),
-                                                                            TableTypeEditorColumnInfo.REQUIRED.ordinal(),
-                                                                            TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal(),
-                                                                            TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal()},
                                                              TableTypeEditorColumnInfo.getToolTips(),
-                                                             true,
                                                              true,
                                                              true,
                                                              true);
 
                 // Get the minimum width needed to display all columns, but no
                 // wider than the display
-                int width = Math.min(totalWidth,
+                int width = Math.min(totalWidth + LAF_SCROLL_BAR_WIDTH,
                                      GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getWidth());
 
                 // Check if this is the widest editor table in this tabbed
@@ -875,9 +879,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
                         // Show/hide the structure table type specific editor
                         // columns
-                        table.showHiddenColumns(typeOfTableNew == TableTypeIndicator.IS_STRUCTURE,
-                                                new Integer[] {TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal(),
-                                                               TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal()});
+                        table.updateHiddenColumns();
 
                         // Update the input type combo box item list, enabling
                         // and/or disabling items based on those currently in

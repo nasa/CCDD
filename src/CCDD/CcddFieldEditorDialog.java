@@ -30,7 +30,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -190,6 +189,26 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                 return column != FieldEditorColumnInfo.REQUIRED.ordinal()
                        && column != FieldEditorColumnInfo.SIZE.ordinal()
                        && column != FieldEditorColumnInfo.APPLICABILITY.ordinal();
+            }
+
+            /******************************************************************
+             * Hide the specified column(s)
+             *****************************************************************/
+            @Override
+            protected boolean isColumnHidden(int column)
+            {
+                return column == FieldEditorColumnInfo.VALUE.ordinal()
+                       || (!includeApplicability
+                           && column == FieldEditorColumnInfo.APPLICABILITY.ordinal());
+            }
+
+            /******************************************************************
+             * Display the specified column(s) as check boxes
+             *****************************************************************/
+            @Override
+            protected boolean isColumnBoolean(int column)
+            {
+                return column == FieldEditorColumnInfo.REQUIRED.ordinal();
             }
 
             /******************************************************************
@@ -381,19 +400,6 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             @Override
             protected void loadAndFormatData()
             {
-                // Create a list for any columns to be hidden
-                List<Integer> hiddenColumns = new ArrayList<Integer>();
-
-                // Check if the applicability column should be hidden
-                if (!includeApplicability)
-                {
-                    // Hide the applicability column
-                    hiddenColumns.add(FieldEditorColumnInfo.APPLICABILITY.ordinal());
-                }
-
-                // Hide the values column
-                hiddenColumns.add(FieldEditorColumnInfo.VALUE.ordinal());
-
                 // Place the data into the table model along with the column
                 // names, set up the editors and renderers for the table cells,
                 // set up the table grid lines, and calculate the minimum width
@@ -401,10 +407,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                 setUpdatableCharacteristics(currentData,
                                             FieldEditorColumnInfo.getColumnNames(),
                                             null,
-                                            hiddenColumns.toArray(new Integer[0]),
-                                            new Integer[] {FieldEditorColumnInfo.REQUIRED.ordinal()},
                                             FieldEditorColumnInfo.getToolTips(),
-                                            true,
                                             true,
                                             true,
                                             true);
@@ -836,8 +839,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Build the field definitions from the editor table data, then use
         // the definitions to build the field information
         fieldPnlHandler.getFieldHandler().buildFieldInformation(fieldPnlHandler.getFieldHandler().buildFieldDefinition(currentData,
-                                                                                                                               ownerName),
-                                                                    ownerName);
+                                                                                                                       ownerName),
+                                                                ownerName);
 
         // Rebuild the data field panel in the table editor using the current
         // text field contents

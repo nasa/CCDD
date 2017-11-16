@@ -22,6 +22,7 @@ import java.util.List;
 
 import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.Message;
+import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
@@ -273,7 +274,7 @@ public class CcddMessageIDHandler
             // Check if the message ID data field is assigned to a structure
             // (command, other) table and the structure (command, other) IDs
             // are to be included, and that the ID is not already in the list
-            if (includeStructures && structureTables.contains(tableOwnerAndID[0])
+            if (includeStructures && structureTables.contains(TableInformation.getPrototypeName(tableOwnerAndID[0]))
                 || includeCommands && commandTables.contains(tableOwnerAndID[0])
                 || includeOthers && otherTables.contains(tableOwnerAndID[0]))
             {
@@ -632,7 +633,7 @@ public class CcddMessageIDHandler
         {
             // Prepend the owner type to the owner name and reformat the
             // message ID to remove extra leading zeroes
-            ownerAndID[0] = ownerType + ": " + ownerAndID[0];
+            ownerAndID[0] = ownerType + ": " + ownerAndID[0].replaceFirst(".*:", "");
             ownerAndID[1] = "0x" + Integer.toHexString(msgID);
         }
 

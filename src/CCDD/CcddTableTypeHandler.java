@@ -573,12 +573,13 @@ public class CcddTableTypeHandler
          * columns of the Command table type
          *
          * @return true if this table type contains all of the protected
-         *         columns of the Command table type; i.e., this table type
-         *         represents a Command table
+         *         columns of the Command table type (but not those of a
+         *         Structure table type); i.e., this table type represents a
+         *         Command table
          *********************************************************************/
         protected boolean isCommand()
         {
-            return isTargetType(TYPE_COMMAND);
+            return isTargetType(TYPE_COMMAND) && !isTargetType(TYPE_STRUCTURE);
         }
 
         /**********************************************************************

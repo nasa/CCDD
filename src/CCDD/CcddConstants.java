@@ -190,6 +190,7 @@ public class CcddConstants
     protected static final String CLOSE_ICON = "/images/close.png";
     protected static final String INSERT_ICON = "/images/insert.png";
     protected static final String DELETE_ICON = "/images/delete.png";
+    protected static final String REPLACE_ICON = "/images/replace.png";
     protected static final String UP_ICON = "/images/up.png";
     protected static final String DOWN_ICON = "/images/down.png";
     protected static final String LEFT_ICON = "/images/left.png";
@@ -1919,7 +1920,7 @@ public class CcddConstants
                     "Data description; same constraints as for text (see Text)"),
 
         ENUMERATION("Enumeration",
-                    ".*", // TODO INCLUDE (?s) TO ALLOW LINE FEEDS?
+                    ".*",
                     "enumeration",
                     "Text, including alphabetic, numeric, and special characters"),
 
@@ -2075,7 +2076,7 @@ public class CcddConstants
                                    + "leading/trailing white space characters preserved"),
 
         UNITS("Units",
-              ".*", // TODO ALLOW (?s) FOR LINE FEEDS?
+              ".*",
               "text",
               "Data units; same constraints as for text (see Text)"),
 
@@ -3176,7 +3177,9 @@ public class CcddConstants
 
         // Script & data table combinations
         ASSOCIATIONS("associations",
-                     new String[][] {{AssociationsColumn.DESCRIPTION.columnName,
+                     new String[][] {{AssociationsColumn.NAME.columnName,
+                                      AssociationsColumn.NAME.dataType},
+                                     {AssociationsColumn.DESCRIPTION.columnName,
                                       AssociationsColumn.DESCRIPTION.dataType},
                                      {AssociationsColumn.SCRIPT_FILE.columnName,
                                       AssociationsColumn.SCRIPT_FILE.dataType},
@@ -3400,6 +3403,7 @@ public class CcddConstants
          *********************************************************************/
         protected static enum AssociationsColumn
         {
+            NAME("name", "text"),
             DESCRIPTION("description", "text"),
             SCRIPT_FILE("script_file", "text"),
             MEMBERS("member_tables", "text");
@@ -4942,6 +4946,7 @@ public class CcddConstants
      *************************************************************************/
     protected static enum AssociationsTableColumnInfo
     {
+        NAME("Name", "Script association name"),
         DESCRIPTION("Description", "Script association description"),
         SCRIPT_FILE("Script File", "Script file name"),
         MEMBERS("Table(s)", "Table(s) associated with the script file"),

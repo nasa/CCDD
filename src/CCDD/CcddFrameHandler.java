@@ -298,7 +298,7 @@ public class CcddFrameHandler extends JFrame
         // the columns and (2) the screen width. Set minimum width to the
         // larger of (1) the default window width (or its updated value) and
         // (2) the button panel width. Set the preferred height to larger of
-        // (1) the minimum window height and (2) the packed height, the select
+        // (1) the minimum window height and (2) the packed height, then select
         // (1) the smaller of this value and (2) the screen height. Set the
         // minimum height to the default minimum window height. Finally, set
         // the initial frame size to the preferred size

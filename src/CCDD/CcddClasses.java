@@ -2230,7 +2230,7 @@ public class CcddClasses
     {
         private final String rateName;
         private String linkName;
-        private final String sampleRate;
+        private String sampleRate;
         private String description;
 
         /**********************************************************************
@@ -2319,6 +2319,18 @@ public class CcddClasses
         protected String getSampleRate()
         {
             return sampleRate;
+        }
+
+        /**********************************************************************
+         * Set the link rate in samples per second
+         *
+         * @param sampleRate
+         *            link rate in samples per second; "0" if no rate is
+         *            assigned to this link
+         *********************************************************************/
+        protected void setSampleRate(String sampleRate)
+        {
+            this.sampleRate = sampleRate;
         }
 
         /**********************************************************************

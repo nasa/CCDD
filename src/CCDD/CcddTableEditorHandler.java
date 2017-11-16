@@ -11,6 +11,7 @@ package CCDD;
 import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.HIDE_DATA_TYPE;
 import static CCDD.CcddConstants.IGNORE_BUTTON;
+import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.REPLACE_INDICATOR;
 import static CCDD.CcddConstants.TYPE_NAME_SEPARATOR;
@@ -118,19 +119,22 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     // update
     private TableInformation committedInfo;
 
-    // Column indices for the primary key, row index, variable name, data type,
-    // array size, bit length, enumeration(s), rate(s) , variable path, and
+    // Column indices for the primary key, row index, variable path, and
     // message ID name(s) (in model coordinates)
     private final int primaryKeyIndex;
     private final int rowIndex;
+    private List<Integer> msgIDNameIndex;
+    private int variablePathIndex;
+
+    // Column indices for the variable name, data type, array size, bit length,
+    // enumeration(s), and rate(s) (in model coordinates). These are only set
+    // for tables representing structures
     private int variableNameIndex;
     private int dataTypeIndex;
     private int arraySizeIndex;
     private int bitLengthIndex;
     private List<Integer> enumerationIndex;
     private List<Integer> rateIndex;
-    private int variablePathIndex;
-    private List<Integer> msgIDNameIndex;
 
     // Variable path separators and flag to show/hide the data type
     private String varPathSep;
@@ -724,7 +728,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             bitLengthIndex = typeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH);
             enumerationIndex = typeDefn.getColumnIndicesByInputType(InputDataType.ENUMERATION);
             rateIndex = typeDefn.getColumnIndicesByInputType(InputDataType.RATE);
-            msgIDNameIndex = typeDefn.getColumnIndicesByInputType(InputDataType.MESSAGE_ID_NAMES_AND_IDS);
         }
         // The table doesn't represent a structure
         else
@@ -737,8 +740,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             bitLengthIndex = -1;
             enumerationIndex = new ArrayList<Integer>();
             rateIndex = new ArrayList<Integer>();
-            msgIDNameIndex = new ArrayList<Integer>();
         }
+
+        // Get the list of message names & IDs column(s)
+        msgIDNameIndex = typeDefn.getColumnIndicesByInputType(InputDataType.MESSAGE_ID_NAMES_AND_IDS);
 
         // Set the variable path column index. This column is only active for a
         // structure table, but can appear in other table types (if the column
@@ -1272,6 +1277,15 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             protected boolean isColumnMultiLine(int column)
             {
                 return true;
+            }
+
+            /******************************************************************
+             * Hide the the specified columns
+             *****************************************************************/
+            @Override
+            protected boolean isColumnHidden(int column)
+            {
+                return column == primaryKeyIndex || column == rowIndex;
             }
 
             /******************************************************************
@@ -2092,11 +2106,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 int totalWidth = setUpdatableCharacteristics(committedInfo.getData(),
                                                              typeDefn.getColumnNamesUser(),
                                                              committedInfo.getColumnOrder(),
-                                                             new Integer[] {primaryKeyIndex,
-                                                                            rowIndex},
-                                                             null,
                                                              toolTips,
-                                                             true,
                                                              true,
                                                              true,
                                                              true);
@@ -2108,7 +2118,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 {
                     // Get the minimum width needed to display all columns, but
                     // no wider than the display
-                    int width = Math.min(totalWidth,
+                    int width = Math.min(totalWidth + LAF_SCROLL_BAR_WIDTH,
                                          GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getWidth());
 
                     // Check if the editor's width is less than the minimum
@@ -2247,9 +2257,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             {
                 boolean isCanMove = false;
 
-                // Convert the selected row coordinates from view to model
-                modelStartRow = table.convertRowIndexToModel(selected.getStartRow());
-                modelEndRow = table.convertRowIndexToModel(selected.getEndRow());
+                // Get the selected row model coordinates
+                modelStartRow = selected.getStartRow();
+                modelEndRow = selected.getEndRow();
 
                 // Check if the table array members are set to display
                 if (isShowArrayMembers)
@@ -3671,17 +3681,36 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // combo box to be rebuilt
         enumDataTypeCellEditor = null;
 
-        // Set up the structure table data type column
-        setUpDataTypeColumn(allStructTbls, tblTree);
+        // Check if a cell is currently being edited
+        if (table.getCellEditor() != null)
+        {
+            // Incorporate any cell changes and terminate editing
+            table.getCellEditor().stopCellEditing();
+        }
 
-        // Set up the command table argument data type column(s)
-        setUpCommandArgumentColumns();
+        // Set up the columns with an input type that displays primitive or
+        // primitive & structure data types
+        setDataTypeColumns(allStructTbls, tblTree);
+
+        // Check if this is a structure table
+        if (typeDefn.isStructure())
+        {
+            // Set the data type and enumeration column pairing(s) for
+            // structure tables
+            setStructureDataTypeEnumAssociations();
+        }
+        // Check if this is a command table
+        else if (typeDefn.isCommand())
+        {
+            // Set the associated command argument columns
+            setCommandArgumentAssociations();
+        }
     }
 
     /**************************************************************************
-     * Set up or update the combo box containing the available primitive data
-     * types and existing structure tables for display in the table's 'Data
-     * Type' column cells
+     * Set up or update the combo box(es) for table columns that display the
+     * available primitive data types, or both the primitive data types and
+     * existing structure tables
      *
      * @param allStructTbls
      *            array containing all structure table names; null to load the
@@ -3691,19 +3720,47 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *            reference to the CcddTableTreeHandler table tree; null to
      *            create the table tree
      *************************************************************************/
-    private void setUpDataTypeColumn(String[] allStructTbls,
-                                     CcddTableTreeHandler tblTree)
+    private void setDataTypeColumns(String[] allStructTbls,
+                                    CcddTableTreeHandler tblTree)
     {
-        // Check if a cell is currently being edited
-        if (table.getCellEditor() != null)
+        // Get the lists of columns that display primitive data types and
+        // primitive & structure data types
+        List<Integer> primColumns = typeDefn.getColumnIndicesByInputType(InputDataType.PRIMITIVE);
+        List<Integer> primAndStructColumns = typeDefn.getColumnIndicesByInputType(InputDataType.PRIM_AND_STRUCT);
+
+        // Check if any columns displaying primitive data types only exist
+        if (!primColumns.isEmpty())
         {
-            // Incorporate any cell changes and terminate editing
-            table.getCellEditor().stopCellEditing();
+            // Create a combo box for displaying data types
+            PaddedComboBox comboBox = new PaddedComboBox(table.getFont());
+
+            // Add the primitive data types to the combo box list
+            addPrimitivesToComboBox(comboBox);
+
+            // Step through each primitive column defined for this table's type
+            for (int index : primColumns)
+            {
+                // Get the column reference for this data type column
+                TableColumn dataTypeColumn = table.getColumnModel().getColumn(table.convertColumnIndexToView(index));
+
+                // Set the column table editor to the combo box
+                dataTypeColumn.setCellEditor(new DefaultCellEditor(comboBox));
+            }
+
+            // Create the enumerated data type cell editor
+            createEnumDataTypeCellEditor();
         }
 
-        // Check if this table has a data type column
-        if (dataTypeIndex != -1)
+        // Check if any columns displaying both primitive & structure data
+        // types exist
+        if (!primAndStructColumns.isEmpty())
         {
+            // Create a combo box for displaying data types
+            PaddedComboBox comboBox = new PaddedComboBox(table.getFont());
+
+            // Add the primitive data types to the combo box list
+            addPrimitivesToComboBox(comboBox);
+
             // Get the array of structure tables, if any
             allStructureTables = (allStructTbls == null)
                                                          ? dbTable.getPrototypeTablesOfType(TYPE_STRUCTURE)
@@ -3716,58 +3773,96 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                                      editorDialog)
                                           : tblTree;
 
-            // Get the column reference for the data type column
-            TableColumn dataTypeColumn = table.getColumnModel().getColumn(table.convertColumnIndexToView(dataTypeIndex));
+            // Add the structure data types to the combo box list
+            addStructuresToComboBox(comboBox);
 
-            // Create a combo box for displaying data types
-            PaddedComboBox comboBox = new PaddedComboBox(table.getFont());
-
-            // Step through each enumeration column
-            for (int enumIndex : enumerationIndex)
+            // Step through each primitive & structure column defined for this
+            // table's type
+            for (int index : primAndStructColumns)
             {
-                // Add the data type and enumeration column index pair to the
-                // list
-                associatedColumns.add(new AssociatedColumns(dataTypeIndex,
-                                                            enumIndex));
+                // Get the column reference for this data type column
+                TableColumn dataTypeColumn = table.getColumnModel().getColumn(table.convertColumnIndexToView(index));
 
-                // Create the cell editor for enumerated data types
-                createEnumDataTypeCellEditor();
+                // Set the column table editor to the combo box
+                dataTypeColumn.setCellEditor(new DefaultCellEditor(comboBox));
             }
 
-            // Set the table column editor to the combo box
-            dataTypeColumn.setCellEditor(new DefaultCellEditor(comboBox));
+            // Create the enumerated data type cell editor
+            createEnumDataTypeCellEditor();
+        }
+    }
 
-            // Step through each primitive data type
-            for (String[] dataType : dataTypeHandler.getDataTypeData())
+    /**************************************************************************
+     * Add the primitive data types to the supplied combo box's item list
+     *
+     * @param comboBox
+     *            reference to the combo box to which the primitive data types
+     *            are added
+     *************************************************************************/
+    private void addPrimitivesToComboBox(PaddedComboBox comboBox)
+    {
+        // Step through each primitive data type
+        for (String[] dataType : dataTypeHandler.getDataTypeData())
+        {
+            // Add the data type to the combo box list
+            comboBox.addItem(CcddDataTypeHandler.getDataTypeName(dataType));
+        }
+    }
+
+    /**************************************************************************
+     * Add the structure data types to the supplied combo box's item list
+     *
+     * @param comboBox
+     *            reference to the combo box to which the structure data types
+     *            are added
+     *************************************************************************/
+    private void addStructuresToComboBox(PaddedComboBox comboBox)
+    {
+        // Check if any structure tables exist
+        if (allStructureTables != null && allStructureTables.length != 0)
+        {
+            // Sort the array of structure table names alphabetically,
+            // ignoring case. This ordering should match the ordering in
+            // the table tree (which is determined by a PostgreSQL sort)
+            Arrays.sort(allStructureTables, String.CASE_INSENSITIVE_ORDER);
+
+            // Step through each structure table
+            for (String structure : allStructureTables)
             {
-                // Add the data type to the combo box list
-                comboBox.addItem(CcddDataTypeHandler.getDataTypeName(dataType));
-            }
-
-            // Check if any structure tables exist
-            if (allStructureTables != null && allStructureTables.length != 0)
-            {
-                // Sort the array of structure table names alphabetically,
-                // ignoring case. This ordering should match the ordering in
-                // the table tree (which is determined by a PostgreSQL sort)
-                Arrays.sort(allStructureTables, String.CASE_INSENSITIVE_ORDER);
-
-                // Step through each structure table
-                for (String structure : allStructureTables)
+                // Check that this structure is not referenced is the
+                // table's tree; otherwise use of the structure would
+                // constitute a recursive reference
+                if (!tableTree.isTargetInTablePath(tableInfo.getProtoVariableName(),
+                                                   structure))
                 {
-                    // Check that this structure is not referenced is the
-                    // table's tree; otherwise use of the structure would
-                    // constitute a recursive reference
-                    if (!tableTree.isTargetInTablePath(tableInfo.getProtoVariableName(),
-                                                       structure))
-                    {
-                        // Since the structure isn't in this table's tree path
-                        // add the structure table name to the combo box list
-                        comboBox.addItem(structure);
-                    }
+                    // Since the structure isn't in this table's tree path
+                    // add the structure table name to the combo box list
+                    comboBox.addItem(structure);
                 }
             }
         }
+    }
+
+    /**************************************************************************
+     * Associate the structure table's data type column (the first column with
+     * the primitive & structure input type) with any enumeration columns
+     *************************************************************************/
+    private void setStructureDataTypeEnumAssociations()
+    {
+        // Step through each enumeration column
+        for (int enumIndex : enumerationIndex)
+        {
+            // Add the data type and enumeration column index pair to the list
+            associatedColumns.add(new AssociatedColumns(dataTypeIndex, enumIndex));
+        }
+    }
+
+    /**************************************************************************
+     * Associate the command table's command argument columns
+     *************************************************************************/
+    private void setCommandArgumentAssociations()
+    {
+        associatedColumns.addAll(typeDefn.getAssociatedCommandArgumentColumns(false));
     }
 
     /**************************************************************************
@@ -3833,54 +3928,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 msgNameIDColumn.setCellEditor(new DefaultCellEditor(comboBox));
             }
 
-        }
-    }
-
-    /**************************************************************************
-     * Set up the command argument groups. Create combo box(es) containing the
-     * available primitive data types for display in the table's column cells
-     * with a 'data type' input type (excluding the "Data Type" column), and
-     * associate enumeration, minimum, and maximum columns with the data type
-     * column
-     *************************************************************************/
-    private void setUpCommandArgumentColumns()
-    {
-        // Get the associated command argument columns
-        associatedColumns.addAll(typeDefn.getAssociatedCommandArgumentColumns(false));
-
-        PaddedComboBox comboBox = null;
-
-        // Step through each column defined for this table's type
-        for (int index = 0; index < typeDefn.getColumnCountDatabase(); index++)
-        {
-            // Check if the column expects a primitive data type input
-            if (typeDefn.getInputTypes()[index] == InputDataType.PRIMITIVE
-                || typeDefn.getInputTypes()[index] == InputDataType.PRIM_AND_STRUCT)
-            {
-                // Check if the combo box hasn't been created
-                if (comboBox == null)
-                {
-                    // Create a combo box and set its color and font
-                    comboBox = new PaddedComboBox(table.getFont());
-
-                    // Step through each primitive data type
-                    for (String[] dataType : dataTypeHandler.getDataTypeData())
-                    {
-                        // Add the data type to the combo box list
-                        comboBox.addItem(CcddDataTypeHandler.getDataTypeName(dataType));
-                    }
-
-                    // Create the cell editor for enumerated data types if it
-                    // doesn't exist
-                    createEnumDataTypeCellEditor();
-                }
-
-                // Get the column reference for this data type column
-                TableColumn dataTypeColumn = table.getColumnModel().getColumn(table.convertColumnIndexToView(index));
-
-                // Set the column table editor to the combo box
-                dataTypeColumn.setCellEditor(new DefaultCellEditor(comboBox));
-            }
         }
     }
 
@@ -3979,8 +4026,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // created
         if (enumDataTypeCellEditor == null)
         {
-            // Create a combo box for displaying data types for
-            // enumerations (integer and unsigned integers only)
+            // Create a combo box for displaying data types for enumerations
+            // (integer and unsigned integers only)
             PaddedComboBox enumComboBox = new PaddedComboBox(table.getFont());
 
             // Step through each primitive data type

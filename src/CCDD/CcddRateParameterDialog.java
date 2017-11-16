@@ -95,8 +95,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         verifyInputs = new InputVerifier()
         {
             /******************************************************************
-             * Verify the contents of a the rate parameters and update the
-             * available rates
+             * Verify the contents of a rate parameter and update the available
+             * rates
              *****************************************************************/
             @Override
             public boolean verify(JComponent input)
@@ -135,8 +135,10 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
                                                                                     Color.LIGHT_GRAY,
                                                                                     Color.GRAY),
-                                                    BorderFactory.createLineBorder(ModifiableColorInfo.INPUT_BACK.getColor(),
-                                                                                   ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+                                                    BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
         emptyBorder = BorderFactory.createEmptyBorder();
 
         // Create a panel to contain the dialog components
@@ -358,12 +360,13 @@ public class CcddRateParameterDialog extends CcddDialogHandler
             availRatesFld[index].setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
             availRatesFld[index].setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
             availRatesFld[index].setBorder(emptyBorder);
+            JScrollPane scrollPane = new JScrollPane(availRatesFld[index]);
+            scrollPane.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
+            scrollPane.setBorder(emptyBorder);
+            scrollPane.setViewportBorder(border);
             gbc.gridwidth = GridBagConstraints.REMAINDER;
             gbc.weightx = 1.0;
             gbc.gridx++;
-            JScrollPane scrollPane = new JScrollPane(availRatesFld[index]);
-            scrollPane.setBorder(emptyBorder);
-            scrollPane.setViewportBorder(border);
             availRatesPnl.add(scrollPane, gbc);
 
             // Create a panel to contain the stream's text fields
@@ -604,10 +607,9 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         }
         catch (CCDDException ce)
         {
-            // Inform the user that the input value is invalid
+            // Inform the user that an input value is invalid
             new CcddDialogHandler().showMessageDialog(CcddRateParameterDialog.this,
-                                                      "<html><b>"
-                                                                                    + ce.getMessage(),
+                                                      "<html><b>" + ce.getMessage(),
                                                       "Missing/Invalid Input",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);

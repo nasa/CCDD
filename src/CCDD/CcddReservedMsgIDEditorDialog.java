@@ -410,6 +410,15 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
             }
 
             /******************************************************************
+             * Hide the the specified columns
+             *****************************************************************/
+            @Override
+            protected boolean isColumnHidden(int column)
+            {
+                return column == ReservedMsgIDEditorColumnInfo.OID.ordinal();
+            }
+
+            /******************************************************************
              * Override isCellEditable so that all columns can be edited
              *****************************************************************/
             @Override
@@ -591,10 +600,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                 setUpdatableCharacteristics(committedData,
                                             ReservedMsgIDEditorColumnInfo.getColumnNames(),
                                             null,
-                                            new Integer[] {ReservedMsgIDEditorColumnInfo.OID.ordinal()},
-                                            null,
                                             ReservedMsgIDEditorColumnInfo.getToolTips(),
-                                            true,
                                             true,
                                             true,
                                             true);

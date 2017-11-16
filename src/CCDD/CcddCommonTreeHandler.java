@@ -34,7 +34,6 @@ import CCDD.CcddClasses.ArrayVariable;
 import CCDD.CcddClasses.GroupInformation;
 import CCDD.CcddClasses.NodeIndex;
 import CCDD.CcddClasses.ToolTipTreeNode;
-import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 
 /******************************************************************************
@@ -108,28 +107,8 @@ public class CcddCommonTreeHandler extends JTree
                 // Check if the node isn't flagged as disabled
                 else if (!name.startsWith(DISABLED_TEXT_COLOR))
                 {
-                    // Create the tag using the data type highlight color
-                    String highlightOn = "<font color="
-                                         + String.format("#%02x%02x%02x",
-                                                         ModifiableColorInfo.DATA_TYPE.getColor().getRed(),
-                                                         ModifiableColorInfo.DATA_TYPE.getColor().getGreen(),
-                                                         ModifiableColorInfo.DATA_TYPE.getColor().getBlue())
-                                         + ">";
-                    String highlightOff = "<font color=#000000>";
-
-                    // Check if the name doesn't already begin with the HTML
-                    // marker
-                    if (!newName.startsWith("<html>"))
-                    {
-                        // Add the HTML marker
-                        newName = "<html>" + newName;
-                    }
-
-                    // Add HTML tags to italicize the data type portion
-                    newName = newName.replaceFirst("(.*>)(.*\\.)", "$1"
-                                                                   + highlightOn
-                                                                   + "$2"
-                                                                   + highlightOff);
+                    // Highlight the data type portion of the name, if present
+                    newName = CcddUtilities.highlightDataType(newName);
                 }
 
                 // Update the displayed node's name

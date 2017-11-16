@@ -8,6 +8,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
 import static CCDD.CcddConstants.POSTGRESQL_RESERVED_CHARS;
 import static CCDD.CcddConstants.SPLIT_IGNORE_QUOTES;
 
@@ -22,6 +23,7 @@ import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.ModifiableColorInfo;
 
 /******************************************************************************
  * CFS Command & Data Dictionary utilities class
@@ -113,36 +115,6 @@ public class CcddUtilities
     }
 
     /**************************************************************************
-     * Convert the specified string to a float
-     *
-     * @param value
-     *            string in the format # or #/#
-     *
-     * @return Floating point representation of the value
-     *************************************************************************/
-    protected static float convertStringToFloat(String value)
-    {
-        float result;
-
-        // Check if the value is a fraction (#/#)
-        if (value.contains("/"))
-        {
-            // Separate the numerator and denominator and perform the
-            // conversion of each part
-            String[] temp = value.split("/");
-            result = Float.valueOf(temp[0]) / Float.valueOf(temp[1]);
-        }
-        // Not a fraction
-        else
-        {
-            // Perform the conversion
-            result = Float.valueOf(value);
-        }
-
-        return result;
-    }
-
-    /**************************************************************************
      * HTML tag storage class. HTML tags that are removed from the input string
      * are store in this object along with the string index location
      *************************************************************************/
@@ -188,6 +160,36 @@ public class CcddUtilities
     }
 
     /**************************************************************************
+     * Convert the specified string to a float
+     *
+     * @param value
+     *            string in the format # or #/#
+     *
+     * @return Floating point representation of the value
+     *************************************************************************/
+    protected static float convertStringToFloat(String value)
+    {
+        float result;
+
+        // Check if the value is a fraction (#/#)
+        if (value.contains("/"))
+        {
+            // Separate the numerator and denominator and perform the
+            // conversion of each part
+            String[] temp = value.split("/");
+            result = Float.valueOf(temp[0]) / Float.valueOf(temp[1]);
+        }
+        // Not a fraction
+        else
+        {
+            // Perform the conversion
+            result = Float.valueOf(value);
+        }
+
+        return result;
+    }
+
+    /**************************************************************************
      * Check if two arrays contain the same set of items. The order of the
      * items in each set has no effect on the match outcome
      *
@@ -195,13 +197,31 @@ public class CcddUtilities
      *************************************************************************/
     protected static boolean isArraySetsEqual(Object[] array1, Object[] array2)
     {
-        // Convert the item arrays into lists for comparison purposes
-        HashSet<Object> set1 = new HashSet<Object>(Arrays.asList(array1));
-        HashSet<Object> set2 = new HashSet<Object>(Arrays.asList(array2));
+        boolean isEqual = false;
 
-        // Return true if all items exist in both arrays (the order of the
-        // items in the arrays doesn't matter)
-        return set1.equals(set2);
+        // Check if the array sizes are the same
+        if (array1.length == array2.length)
+        {
+            // Check if both arrays are empty
+            if (array1.length == 0)
+            {
+                isEqual = true;
+            }
+            // Both arrays contain a member and have the same number of members
+            else
+            {
+                // Convert the item arrays into lists for comparison purposes
+                HashSet<Object> set1 = new HashSet<Object>(Arrays.asList(array1));
+                HashSet<Object> set2 = new HashSet<Object>(Arrays.asList(array2));
+
+                // Return true if all items exist in both arrays (the order of
+                // the
+                // items in the arrays doesn't matter)
+                isEqual = set1.equals(set2);
+            }
+        }
+
+        return isEqual;
     }
 
     /**************************************************************************
@@ -693,18 +713,25 @@ public class CcddUtilities
     }
 
     /**************************************************************************
-     * Replace any HTML break tags with spaces, then remove the remaining HTML
-     * tag(s) from the supplied text
+     * Replace any HTML break tags with spaces, remove the remaining HTML
+     * tag(s) from the supplied text, and replace special character markers
+     * with the special character if recognized, else with a blank
      *
      * @param text
      *            string from which to remove the HTML tags
      *
-     * @return Input string with spaces replacing breaks and minus any HTML
-     *         tag(s)
+     * @return Input string with spaces replacing breaks, minus any HTML
+     *         tag(s), and with special character markers replaced
      *************************************************************************/
     protected static String removeHTMLTags(String text)
     {
-        return text.replaceAll("<br>", " ").replaceAll("<[^>]*>", "");
+        return text.replaceAll("<br>", " ")
+                   .replaceAll("<[^>]*>", "")
+                   .replaceAll("&#160;", " ")
+                   .replaceAll("&amp;", "&")
+                   .replaceAll("&gt;", ">")
+                   .replaceAll("&lt;", "<")
+                   .replaceAll("&.+;", "");
     }
 
     /**************************************************************************
@@ -1137,6 +1164,50 @@ public class CcddUtilities
         }
 
         return outputText;
+    }
+
+    /**************************************************************************
+     * Highlight the data type portion of a structure table/variable path
+     *
+     * @param path
+     *            structure/variable path
+     *
+     * @return Structure/variable path with the data type(s) highlighted
+     *************************************************************************/
+    protected static String highlightDataType(String path)
+
+    {
+        // Check if the path contains a child structure reference and isn't
+        // disabled
+        if (path.contains(".") && !path.startsWith(DISABLED_TEXT_COLOR))
+        {
+            // Create the tag using the data type highlight color
+            String highlightOn = "<font color="
+                                 + String.format("#%02x%02x%02x",
+                                                 ModifiableColorInfo.DATA_TYPE.getColor().getRed(),
+                                                 ModifiableColorInfo.DATA_TYPE.getColor().getGreen(),
+                                                 ModifiableColorInfo.DATA_TYPE.getColor().getBlue())
+                                 + ">";
+            String highlightOff = "<font color=#000000>";
+
+            // Check if the path doesn't already begin with the HTML marker
+            if (!path.startsWith("<html>"))
+            {
+                // Add the HTML marker
+                path = "<html>" + path;
+            }
+
+            // Add HTML tags to highlight the data type portion and replace
+            // each line feed character with a line break
+            path = path.replaceAll("(<html>.*?,|,|<html>)(.*?)(\\..*?)", "$1"
+                                                                         + highlightOn
+                                                                         + "$2"
+                                                                         + highlightOff
+                                                                         + "$3")
+                       .replaceAll("\\n", "<br>");
+        }
+
+        return path;
     }
 
     /**************************************************************************

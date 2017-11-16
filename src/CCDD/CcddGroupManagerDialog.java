@@ -770,11 +770,6 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                     {
                         undoManager.undo();
 
-                        // String[] selected =
-                        // groupTree.getTopLevelSelectedNodeNames();
-                        // System.out.println("selected = " +
-                        // Arrays.toString(selected));
-                        // TODO UPDATES selectedGroup AFTER AN UNDO
                         // Update the group selection following an undo
                         undoHandler.setAllowUndo(false);
                         groupTree.updateTableSelection();
@@ -1149,7 +1144,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
         // Add the buttons to the panel
         buttonPnl.add(rightArrowBtn, gbc);
-        gbc.insets.bottom = LAF_CHECK_BOX_HEIGHT * 2 + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+        gbc.insets.bottom = LAF_CHECK_BOX_HEIGHT * 3
+                            + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
         gbc.gridy++;
         buttonPnl.add(leftArrowBtn, gbc);
 
@@ -1245,16 +1241,16 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         dialogPnl.add(descriptionLbl, gbc);
 
         // Create the group description input field
-        final JTextArea descriptionFld = new JTextArea("", 3, 20);
+        final JTextArea descriptionFld = new JTextArea("", 3, 1);
         descriptionFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         descriptionFld.setEditable(true);
         descriptionFld.setLineWrap(true);
+        descriptionFld.setWrapStyleWord(true);
         descriptionFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
         descriptionFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         descriptionFld.setBorder(emptyBorder);
         descriptionFld.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null);
         descriptionFld.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
-
         JScrollPane descScrollPane = new JScrollPane(descriptionFld);
         descScrollPane.setBorder(border);
 

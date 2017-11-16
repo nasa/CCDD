@@ -181,9 +181,9 @@ public class CcddSearchDialog extends CcddFrameHandler
                                                                                            Color.LIGHT_GRAY,
                                                                                            Color.GRAY),
                                                            BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
         // Set the initial layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0,
@@ -506,6 +506,16 @@ public class CcddSearchDialog extends CcddFrameHandler
             }
 
             /******************************************************************
+             * Allow HTML-formatted text in the specified column(s)
+             *****************************************************************/
+            @Override
+            protected boolean isColumnHTML(int column)
+            {
+                return searchDlgType == SearchDialogType.TABLES
+                       && column == SearchResultsColumnInfo.TARGET.ordinal();
+            }
+
+            /******************************************************************
              * Allow the specified column's cells to be displayed with the text
              * highlighted
              *****************************************************************/
@@ -529,10 +539,7 @@ public class CcddSearchDialog extends CcddFrameHandler
                 setUpdatableCharacteristics(resultsData,
                                             SearchResultsColumnInfo.getColumnNames(searchDlgType),
                                             null,
-                                            null,
-                                            null,
                                             SearchResultsColumnInfo.getToolTips(searchDlgType),
-                                            true,
                                             true,
                                             true,
                                             true);

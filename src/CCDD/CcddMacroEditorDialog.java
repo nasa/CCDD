@@ -506,6 +506,15 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
             }
 
             /******************************************************************
+             * Hide the the specified columns
+             *****************************************************************/
+            @Override
+            protected boolean isColumnHidden(int column)
+            {
+                return column == MacroEditorColumnInfo.OID.ordinal();
+            }
+
+            /******************************************************************
              * Override isCellEditable so that all columns can be edited
              *****************************************************************/
             @Override
@@ -758,10 +767,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                 setUpdatableCharacteristics(committedData,
                                             MacroEditorColumnInfo.getColumnNames(),
                                             null,
-                                            new Integer[] {MacroEditorColumnInfo.OID.ordinal()},
-                                            null,
                                             MacroEditorColumnInfo.getToolTips(),
-                                            true,
                                             true,
                                             true,
                                             true);

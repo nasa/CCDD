@@ -530,6 +530,15 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
             }
 
             /******************************************************************
+             * Hide the specified column(s)
+             *****************************************************************/
+            @Override
+            protected boolean isColumnHidden(int column)
+            {
+                return column == DataTypeEditorColumnInfo.OID.ordinal();
+            }
+
+            /******************************************************************
              * Override isCellEditable so that all columns can be edited
              *****************************************************************/
             @Override
@@ -983,10 +992,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                 setUpdatableCharacteristics(committedData,
                                             DataTypeEditorColumnInfo.getColumnNames(),
                                             null,
-                                            new Integer[] {DataTypeEditorColumnInfo.OID.ordinal()},
-                                            null,
                                             DataTypeEditorColumnInfo.getToolTips(),
-                                            true,
                                             true,
                                             true,
                                             true);

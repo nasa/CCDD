@@ -86,7 +86,9 @@ public class CcddCommandLineHandler
          *
          *
          * @param type
-         *            command type: CmdType.NAME, or CmdType.COLOR
+         *            command type: CommandLineType.NAME,
+         *            CommandLineType.MINMAX, CommandLineType.SIZE,
+         *            CommandLineType.COLOR, or CommandLineType.OPTION
          *
          * @param priority
          *            order in which the command line argument should be
@@ -403,6 +405,25 @@ public class CcddCommandLineHandler
             }
         });
 
+        // PostgreSQL server secure socket layer command
+        argument.add(new CommandHandler("ssl",
+                                        "Enable/disable SSL",
+                                        "on or off",
+                                        CommandLineType.OPTION,
+                                        2,
+                                        new Object[] {true, false},
+                                        new String[] {"on", "off"})
+        {
+            /******************************************************************
+             * Enable/disable server secure socket for the PostgreSQL server
+             *****************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                ccddMain.getDbControlHandler().setSSL((Boolean) parmVal);
+            }
+        });
+
         // 'All' event log filter
         argument.add(new CommandHandler("events",
                                         "Show events",
@@ -616,7 +637,7 @@ public class CcddCommandLineHandler
         // Execute script command
         argument.add(new CommandHandler("execute",
                                         "Execute script(s)",
-                                        "[\" or ']script name["
+                                        "[script name] or [\" or ']script file name["
                                                              + SCRIPT_MEMBER_SEPARATOR
                                                              + "table1 or Group:group1[+...[+tableN or Group:groupN]]][;...][\" or ']",
                                         CommandLineType.NAME,
@@ -653,28 +674,66 @@ public class CcddCommandLineHandler
                         // Step through each association
                         for (String associationString : associationsArray)
                         {
+                            String[] association;
+
                             // Break the supplied association into the script
                             // name and table(s) (if any)
                             String[] scriptAndTable = associationString.split(Pattern.quote(SCRIPT_MEMBER_SEPARATOR), 2);
 
-                            // Set the script and table in the association
-                            // array (assumes no table(s))
-                            String[] association = new String[] {"", scriptAndTable[0].trim(), " "};
+                            // Remove any leading/trailing white space
+                            // characters from the script name
+                            String name = scriptAndTable[0].trim();
 
-                            // Check if one or more tables are provided
-                            if (scriptAndTable.length == 2)
+                            // Check if the name contains a file extension
+                            // (it's a script file name)
+                            if (scriptAndTable[0].contains("."))
                             {
-                                // Set the association tables. If multiple
-                                // tables are provided then separate these with
-                                // the expected separator string
-                                association[2] = scriptAndTable[1].replaceAll(" ",
-                                                                              "")
-                                                                  .replaceAll(Pattern.quote("+"),
-                                                                              ASSN_TABLE_SEPARATOR);
-                            }
+                                // Set the script and table in the association
+                                // array (assumes no table(s))
+                                association = new String[] {"", "", name, " "};
 
-                            // Add the association to the list
-                            associations.add(association);
+                                // Check if one or more tables are provided
+                                if (scriptAndTable.length == 2)
+                                {
+                                    // Set the association tables. If multiple
+                                    // tables are provided then separate these
+                                    // with the expected separator string
+                                    association[2] = scriptAndTable[1].replaceAll(" ",
+                                                                                  "")
+                                                                      .replaceAll(Pattern.quote("+"),
+                                                                                  ASSN_TABLE_SEPARATOR);
+                                }
+
+                                // Add the association to the list
+                                associations.add(association);
+                            }
+                            // No file extension; assume this is an association
+                            // name
+                            else
+                            {
+                                // Get the association with this name
+                                association = ccddMain.getScriptHandler().getScriptAssociationByName(name, null);
+
+                                // Check if the association exists
+                                if (association != null)
+                                {
+                                    // Add the association to the list
+                                    associations.add(association);
+                                }
+                                // No association exists with this name
+                                else
+                                {
+                                    // Inform the user that the association
+                                    // name is invalid
+                                    ccddMain.getSessionEventLog().logFailEvent(null,
+                                                                               "Unrecognized association name '"
+                                                                                     + name
+                                                                                     + "'",
+                                                                               "<html><b>Unrecognized association name '"
+                                                                                            + name
+                                                                                            + "'");
+                                }
+                            }
                         }
 
                         // Execute the script association(s) and log the result
@@ -706,7 +765,7 @@ public class CcddCommandLineHandler
 
                     // Inform the user that one or more required parameters is
                     // missing
-                    ccddMain.getSessionEventLog().logFailEvent(ccddMain.getMainFrame(),
+                    ccddMain.getSessionEventLog().logFailEvent(null,
                                                                "Project database, user name, and/or host missing",
                                                                "<html><b>Project database, user name, and/or host missing");
                 }

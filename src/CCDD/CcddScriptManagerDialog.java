@@ -8,16 +8,16 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.DOWN_ICON;
-import static CCDD.CcddConstants.EXECUTE_ALL_ICON;
 import static CCDD.CcddConstants.EXECUTE_ICON;
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.INSERT_ICON;
-import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.REDO_ICON;
+import static CCDD.CcddConstants.REPLACE_ICON;
 import static CCDD.CcddConstants.SCRIPTS_ICON;
 import static CCDD.CcddConstants.STORE_ICON;
 import static CCDD.CcddConstants.UNDO_ICON;
@@ -41,22 +41,27 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
+import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddClasses.CustomSplitPane;
 import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddClasses.ValidateCellActionListener;
 import CCDD.CcddConstants.AssociationsTableColumnInfo;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -83,8 +88,10 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
     // Components referenced by multiple methods
     private JButton btnSelectScript;
     private JTextField scriptFld;
+    private JTextField nameFld;
     private JTextArea descriptionFld;
     private JButton btnExecute;
+    private Border border;
 
     // Node selection change in progress flag
     private boolean isNodeSelectionChanging;
@@ -112,7 +119,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
 
         // Set the reference to the script associations manager in the script
         // handler
-        scriptHandler.setScriptManager(this);
+        scriptHandler.setScriptDialog(this);
 
         // Create the script association manager dialog
         initialize();
@@ -174,65 +181,118 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                 {
                     isNodeSelectionChanging = false;
 
+                    // Create borders for the input fields
+                    border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                                Color.LIGHT_GRAY,
+                                                                                                Color.GRAY),
+                                                                BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+                    Border emptyBorder = BorderFactory.createEmptyBorder();
+
                     // Set the initial layout manager characteristics
                     GridBagConstraints gbc = new GridBagConstraints(0,
                                                                     0,
                                                                     1,
                                                                     1,
-                                                                    1.0,
+                                                                    0.0,
                                                                     0.0,
                                                                     GridBagConstraints.LINE_START,
                                                                     GridBagConstraints.BOTH,
-                                                                    new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
-                                                                               ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
-                                                                               ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                    new Insets(0,
+                                                                               0,
+                                                                               ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
                                                                                ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
                                                                     0,
                                                                     0);
 
-                    dialogPnl.setBorder(BorderFactory.createEmptyBorder());
+                    dialogPnl.setBorder(emptyBorder);
+
+                    // Create a panel to contain the script file name,
+                    // association name, and association description labels and
+                    // fields
+                    JPanel inputPnl = new JPanel(new GridBagLayout());
+
+                    // Add the script file selection components to the input
+                    // panel
+                    inputPnl.add(createScriptSelectionPanel(), gbc);
+
+                    // Create the name label and field, and add these to the
+                    // input panel
+                    JLabel nameLbl = new JLabel("Script association name");
+                    nameLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                    gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
+                    gbc.gridy++;
+                    inputPnl.add(nameLbl, gbc);
+                    nameFld = new JTextField("", 1);
+                    nameFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+                    nameFld.setEditable(true);
+                    nameFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+                    nameFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
+                    nameFld.setBorder(border);
+                    gbc.insets.top = 0;
+                    gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+                    gbc.weightx = 1.0;
+                    gbc.gridy++;
+                    inputPnl.add(nameFld, gbc);
 
                     // Create the description label and field, and add these to
-                    // the dialog
+                    // the input panel
                     JLabel descriptionLbl = new JLabel("Script association description");
-                    dialogPnl.add(descriptionLbl, gbc);
-                    descriptionFld = new JTextArea("", 2, 10);
+                    descriptionLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                    gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
+                    gbc.insets.left = 0;
+                    gbc.weightx = 0.0;
+                    gbc.gridy++;
+                    inputPnl.add(descriptionLbl, gbc);
+                    descriptionFld = new JTextArea("", 3, 1);
                     descriptionFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                     descriptionFld.setEditable(true);
+                    descriptionFld.setWrapStyleWord(true);
+                    descriptionFld.setLineWrap(true);
                     descriptionFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
                     descriptionFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
-                    descriptionFld.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
-                                                                                                                Color.LIGHT_GRAY,
-                                                                                                                Color.GRAY),
-                                                                                BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
-                    gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
-                    gbc.gridy++;
-                    dialogPnl.add(descriptionFld, gbc);
-
-                    // Add the script file selection components to the dialog
+                    descriptionFld.setBorder(emptyBorder);
+                    JScrollPane scrollPane = new JScrollPane(descriptionFld);
+                    scrollPane.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
+                    scrollPane.setBorder(emptyBorder);
+                    scrollPane.setViewportBorder(border);
+                    scrollPane.setMinimumSize(scrollPane.getPreferredSize());
+                    gbc.insets.top = 0;
                     gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+                    gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() * 2;
+                    gbc.gridwidth = GridBagConstraints.REMAINDER;
+                    gbc.weightx = 1.0;
+                    gbc.weighty = 1.0;
                     gbc.gridy++;
-                    dialogPnl.add(createScriptSelectionPanel(), gbc);
+                    inputPnl.add(scrollPane, gbc);
 
-                    // Add the script association list components to the
-                    // dialog within a vertically split pane. Use a separator
-                    // to denote the split pane's drag component
-                    JSeparator separator = new JSeparator();
-                    separator.setForeground(dialogPnl.getBackground().darker());
+                    // Add the input panel and the table selection components
+                    // to the inputs pane within a horizontally split pane. Use
+                    // a separator to denote the split pane's drag component
+                    JSeparator inputSep = new JSeparator(SwingConstants.VERTICAL);
+                    inputSep.setForeground(dialogPnl.getBackground().darker());
+                    CustomSplitPane inputsPane = new CustomSplitPane(inputPnl,
+                                                                     createSelectionPanel("Select associated tables",
+                                                                                          TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION),
+                                                                     inputSep,
+                                                                     JSplitPane.HORIZONTAL_SPLIT);
+
+                    // Add the inputs pane and the script association table
+                    // components to the dialog within a vertically split pane.
+                    // Use a separator to denote the split pane's drag
+                    // component
+                    JSeparator assnSep = new JSeparator();
+                    assnSep.setForeground(dialogPnl.getBackground().darker());
                     gbc.weighty = 1.0;
                     gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
-                    gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
-                    gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
-                    gbc.gridy++;
-                    dialogPnl.add(new CustomSplitPane(createSelectionPanel("Select one or more tables",
-                                                                           TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION),
+                    gbc.gridy = 0;
+                    dialogPnl.add(new CustomSplitPane(inputsPane,
                                                       scriptHandler.getAssociationsPanel("Script Associations",
                                                                                          true,
                                                                                          CcddScriptManagerDialog.this),
-                                                      separator,
+                                                      assnSep,
                                                       JSplitPane.VERTICAL_SPLIT),
                                   gbc);
 
@@ -267,6 +327,12 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                 // Check if a table row item is selected
                                 if (row != -1)
                                 {
+                                    // Store the association name in the the
+                                    // name field
+                                    nameFld.setText(assnsTable.getValueAt(row,
+                                                                          assnsTable.convertColumnIndexToView(AssociationsTableColumnInfo.NAME.ordinal()))
+                                                              .toString());
+
                                     // Store the association description in the
                                     // the description field
                                     descriptionFld.setText(assnsTable.getValueAt(row,
@@ -343,7 +409,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                             // Check that a script is specified
                             if (!scriptFld.getText().trim().isEmpty())
                             {
-                                addAssociation();
+                                addAssociation(TableInsertionPoint.START);
                             }
                             // The script file field is blank
                             else
@@ -375,6 +441,25 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                         public void actionPerformed(ActionEvent ae)
                         {
                             removeAssociations();
+                        }
+                    });
+
+                    // Replace script association(s) button
+                    JButton btnReplaceAssn = CcddButtonPanelHandler.createButton("Replace",
+                                                                                 REPLACE_ICON,
+                                                                                 KeyEvent.VK_P,
+                                                                                 "Replace the selected script association");
+
+                    // Add a listener for the Replace button
+                    btnReplaceAssn.addActionListener(new ActionListener()
+                    {
+                        /******************************************************
+                         * Replace the selected script association
+                         *****************************************************/
+                        @Override
+                        public void actionPerformed(ActionEvent ae)
+                        {
+                            replaceAssociation();
                         }
                     });
 
@@ -509,39 +594,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                         {
                             // Execute the selected associations
                             scriptHandler.executeScriptAssociations(tableTree,
-                                                                    false,
                                                                     CcddScriptManagerDialog.this);
-                        }
-                    });
-
-                    // Execute all script associations button
-                    JButton btnExecuteAll = CcddButtonPanelHandler.createButton("Execute All",
-                                                                                EXECUTE_ALL_ICON,
-                                                                                KeyEvent.VK_A,
-                                                                                "Execute all of the script associations");
-
-                    // Add a listener for the Execute All button
-                    btnExecuteAll.addActionListener(new ActionListener()
-                    {
-                        /******************************************************
-                         * Execute all of the script associations
-                         *****************************************************/
-                        @Override
-                        public void actionPerformed(ActionEvent ae)
-                        {
-                            // Check if at least one script association exists
-                            if (assnsTable.getRowCount() != 0
-                                && new CcddDialogHandler().showMessageDialog(CcddScriptManagerDialog.this,
-                                                                             "<html><b>Execute all script associations?",
-                                                                             "Execute All",
-                                                                             JOptionPane.QUESTION_MESSAGE,
-                                                                             DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-                            {
-                                // Execute all script associations
-                                scriptHandler.executeScriptAssociations(tableTree,
-                                                                        true,
-                                                                        CcddScriptManagerDialog.this);
-                            }
                         }
                     });
 
@@ -613,7 +666,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                 // Reset the reference to the script
                                 // associations manager in the script handler
                                 // since the handler remains active)
-                                scriptHandler.setScriptManager(null);
+                                scriptHandler.setScriptDialog(null);
 
                                 // Close the dialog
                                 closeFrame();
@@ -624,14 +677,14 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                     // Add buttons in the order in which they'll appear (left
                     // to right, top to bottom)
                     buttonPnl.add(btnAddAssn);
+                    buttonPnl.add(btnReplaceAssn);
                     buttonPnl.add(btnMoveUp);
                     buttonPnl.add(btnUndo);
-                    buttonPnl.add(btnExecute);
                     buttonPnl.add(btnStoreAssns);
                     buttonPnl.add(btnRemoveAssn);
+                    buttonPnl.add(btnExecute);
                     buttonPnl.add(btnMoveDown);
                     buttonPnl.add(btnRedo);
-                    buttonPnl.add(btnExecuteAll);
                     buttonPnl.add(btnClose);
 
                     // Distribute the buttons across two rows
@@ -672,7 +725,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                        new Insets(0,
                                                                    0,
                                                                    ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
                                                                    ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
@@ -685,6 +738,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         // Create the script selection dialog labels and fields
         JLabel scriptLbl = new JLabel("Enter or select a script file");
         scriptLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         scriptPnl.add(scriptLbl, gbc);
 
         // Create a text field for entering & displaying the script file name
@@ -693,14 +747,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         scriptFld.setEditable(true);
         scriptFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
         scriptFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
-        scriptFld.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
-                                                                                               Color.LIGHT_GRAY,
-                                                                                               Color.GRAY),
-                                                               BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
+        scriptFld.setBorder(border);
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+        gbc.insets.bottom = 0;
         gbc.gridy++;
         scriptPnl.add(scriptFld, gbc);
 
@@ -780,7 +829,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
                                                         new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
-                                                                   0,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
                                                                    ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
                                                                    0),
                                                         0,
@@ -821,7 +870,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             }
         };
 
-        // Check if the database contains no tables
+        // Check if the database contains any tables
         if (tableTree.getRowCount() != (tableTree.isRootVisible()
                                                                   ? 1
                                                                   : 0))
@@ -836,7 +885,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
 
             // Create the choices and selected lists and add them to the dialog
             gbc.insets.top = 0;
-            gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+            gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
             gbc.weighty = 1.0;
             gbc.gridy++;
             tablePnl.add(tableTree.createTreePanel(null,
@@ -863,34 +912,80 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
     /**************************************************************************
      * Add an association to the script associations list based on the script
      * and table selections
+     *
+     * @param insertPoint
+     *            insertion point for the added row into the associations
+     *            table: TableInsertionPoint.START to insert as the first row
+     *            in the table, TableInsertionPoint.SELECTION to insert below
+     *            the currently selected row, or TableInsertionPoint.END to
+     *            insert as the last row in the table
+     *
+     * @return true if the association inputs are valid and the association is
+     *         successfully added
      *************************************************************************/
-    private void addAssociation()
+    private boolean addAssociation(TableInsertionPoint insertPoint)
     {
-        List<String> members = new ArrayList<String>();
+        boolean isAdded = false;
 
-        // Check if the tree is filtered by group
-        if (tableTree.isFilteredByGroup())
+        try
         {
-            // Step through each selected group
-            for (String group : tableTree.getSelectedGroups())
+            List<String> members = new ArrayList<String>();
+
+            // Check if the tree is filtered by group
+            if (tableTree.isFilteredByGroup())
             {
-                // Add the group to the list. Any table belonging to the group
-                // is deselected
-                members.add(GROUP_DATA_FIELD_IDENT + group);
+                // Step through each selected group
+                for (String group : tableTree.getSelectedGroups())
+                {
+                    // Add the group to the list. Any table belonging to the
+                    // group is deselected
+                    members.add(GROUP_DATA_FIELD_IDENT + group);
+                }
             }
-        }
 
-        // Add the selected table names, skipping child tables if an ancestor
-        // of the table is selected
-        members.addAll(tableTree.getSelectedTablesWithoutChildren());
+            // Remove any excess white space
+            nameFld.setText(nameFld.getText().trim());
+            descriptionFld.setText(descriptionFld.getText().trim());
 
-        // Get a file descriptor for the script file name
-        File scriptFile = new File(scriptFld.getText());
+            // Check if the name field isn't blank
+            if (!nameFld.getText().isEmpty())
+            {
+                // Check if the association name does not match the
+                // alphanumeric input type
+                if (!nameFld.getText().matches(InputDataType.ALPHANUMERIC.getInputMatch()))
+                {
+                    throw new CCDDException("Illegal character(s) in association name");
+                }
 
-        // Check that the script association doesn't already exist in the list
-        if (!isAssociationExists(scriptFile.getAbsolutePath(),
-                                 members.toArray(new String[0])))
-        {
+                // Compare this association name to the others in the table in
+                // order to avoid creating a duplicate
+                for (int row = 0; row < assnsTable.getRowCount(); row++)
+                {
+                    // Check if this row isn't the one being edited, and if the
+                    // association name matches the one being added (case
+                    // insensitive)
+                    if (nameFld.getText().equalsIgnoreCase(assnsTable.getValueAt(row, AssociationsTableColumnInfo.NAME.ordinal()).toString()))
+                    {
+                        throw new CCDDException("Association name already in use");
+                    }
+                }
+            }
+
+            // Add the selected table names, skipping child tables if an
+            // ancestor of the table is selected
+            members.addAll(tableTree.getSelectedTablesWithoutChildren());
+
+            // Get a file descriptor for the script file name
+            File scriptFile = new File(scriptFld.getText());
+
+            // Check that the script association already exists in the list
+            if (isAssociationExists(scriptFile.getAbsolutePath(),
+                                    members.toArray(new String[0])))
+            {
+                throw new CCDDException("An association with this script and table(s) "
+                                        + "already exists in the script associations table");
+            }
+
             // Create the script association strings
             String assn = "";
 
@@ -907,23 +1002,26 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             // Insert the new script association at the end of the associations
             // table, then select it and scroll to it
             assnsTable.insertRow(true,
-                                 TableInsertionPoint.START,
-                                 new Object[] {descriptionFld.getText().trim(),
+                                 insertPoint,
+                                 new Object[] {nameFld.getText(),
+                                               descriptionFld.getText(),
                                                scriptFile.getAbsolutePath(),
-                                               assn,
+                                               CcddUtilities.highlightDataType(assn),
                                                scriptFile.exists()});
+
+            isAdded = true;
         }
-        // The association already exists
-        else
+        catch (CCDDException ce)
         {
-            // Inform the user that the association already is in the table
+            // Inform the user that an input value is invalid
             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                      "<html><b>An association with this script and table(s) "
-                                                                               + "already exists in the script associations table",
-                                                      "Association Exists",
+                                                      "<html><b>" + ce.getMessage(),
+                                                      "Invalid Input",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
         }
+
+        return isAdded;
     }
 
     /**************************************************************************
@@ -932,6 +1030,28 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
     private void removeAssociations()
     {
         assnsTable.removeRows(assnsTable.getSelectedRows());
+    }
+
+    /**************************************************************************
+     * Replace the selected association in the script associations table
+     *************************************************************************/
+    private void replaceAssociation()
+    {
+        // Check if a single association is selected in the associations table
+        if (assnsTable.getSelectedRowCount() == 1)
+        {
+            // Get the selected row
+            int selectedRow = assnsTable.getSelectedRow();
+
+            // Check if adding the new row below the selected row succeeded
+            if (addAssociation(TableInsertionPoint.SELECTION))
+            {
+                // Remove the selected association and set the selection to the
+                // newly added association
+                assnsTable.removeRows(new int[] {selectedRow});
+                assnsTable.setSelectedRow(selectedRow);
+            }
+        }
     }
 
     /**************************************************************************
@@ -949,9 +1069,10 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         {
             // Get the script association information from the table and add it
             // to the list
-            currentAssociations.add(new String[] {assn[AssociationsTableColumnInfo.DESCRIPTION.ordinal()].toString(),
+            currentAssociations.add(new String[] {assn[AssociationsTableColumnInfo.NAME.ordinal()].toString(),
+                                                  assn[AssociationsTableColumnInfo.DESCRIPTION.ordinal()].toString(),
                                                   assn[AssociationsTableColumnInfo.SCRIPT_FILE.ordinal()].toString(),
-                                                  assn[AssociationsTableColumnInfo.MEMBERS.ordinal()].toString()});
+                                                  CcddUtilities.removeHTMLTags(assn[AssociationsTableColumnInfo.MEMBERS.ordinal()].toString().replaceAll("<br>", "\n"))});
         }
 
         return currentAssociations;
@@ -975,12 +1096,15 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         // Step through the committed script associations
         for (Object[] assn : assnsTable.getTableDataList(true))
         {
+            String members = assn[AssociationsColumn.MEMBERS.ordinal()].toString();
+
             // Check if the script and tables match between the two script
             // associations
             if (scriptName.equals(assn[AssociationsColumn.SCRIPT_FILE.ordinal()].toString())
                 && CcddUtilities.isArraySetsEqual(tables,
-                                                  assn[AssociationsColumn.MEMBERS.ordinal()].toString()
-                                                                                            .split(Pattern.quote(ASSN_TABLE_SEPARATOR))))
+                                                  members.isEmpty()
+                                                                    ? new String[] {}
+                                                                    : members.split(Pattern.quote(ASSN_TABLE_SEPARATOR))))
             {
                 // Set the flag to indicate a match and quit searching
                 isExists = true;

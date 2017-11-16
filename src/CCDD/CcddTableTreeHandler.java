@@ -2018,6 +2018,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                                                                     200),
                                                            400),
                                                   treeScroll.getPreferredSize().height));
+        // TODO ALLOW TREE HEIGHT TO BE SMALLER THAN THIS. AND WHY ISN'T IT
+        // RELATED TO THE VISIBLEROWCOUNT SET ABOVE?
         treeScroll.setMinimumSize(treeScroll.getPreferredSize());
 
         // Add the tree to the panel

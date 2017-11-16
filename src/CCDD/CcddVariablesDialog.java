@@ -72,7 +72,7 @@ public class CcddVariablesDialog extends CcddDialogHandler
 
     /**************************************************************************
      * Variable paths & names dialog class constructor
-     * 
+     *
      * @param ccddMain
      *            main class reference
      *************************************************************************/
@@ -120,7 +120,7 @@ public class CcddVariablesDialog extends CcddDialogHandler
                 {
                     // Get the variable path and name,removing the bit length
                     // (if present)
-                    tableData[row][0] = variableHandler.getAllVariableNameList().get(row).toString();
+                    tableData[row][0] = CcddUtilities.highlightDataType(variableHandler.getAllVariableNameList().get(row).toString());
                 }
 
                 // Create a border for the dialog components
@@ -128,9 +128,9 @@ public class CcddVariablesDialog extends CcddDialogHandler
                                                                                                    Color.LIGHT_GRAY,
                                                                                                    Color.GRAY),
                                                                    BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+                                                                                                   ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                   ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                   ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
                 // Set the initial layout manager characteristics
                 GridBagConstraints gbc = new GridBagConstraints(0,
@@ -240,6 +240,15 @@ public class CcddVariablesDialog extends CcddDialogHandler
                         return true;
                     }
 
+                    /******************************************************************
+                     * Allow HTML-formatted text in the specified column(s)
+                     *****************************************************************/
+                    @Override
+                    protected boolean isColumnHTML(int column)
+                    {
+                        return column == 0;
+                    }
+
                     /**********************************************************
                      * Load the structure table variables paths & names into
                      * the table and format the table cells
@@ -256,7 +265,7 @@ public class CcddVariablesDialog extends CcddDialogHandler
                             // character(s), and by changing the array member
                             // left brackets to underscores and removing the
                             // array member right brackets
-                            tableData[row][1] = variableHandler.getFullVariableName(tableData[row][0].toString(),
+                            tableData[row][1] = variableHandler.getFullVariableName(variableHandler.getAllVariableNameList().get(row).toString(),
                                                                                     varPathSepFld.getText(),
                                                                                     hideDataTypeCb.isSelected(),
                                                                                     typeNameSepFld.getText());
@@ -271,14 +280,11 @@ public class CcddVariablesDialog extends CcddDialogHandler
                                                     new String[] {"Application Format",
                                                                   "User Format"},
                                                     null,
-                                                    null,
-                                                    null,
                                                     new String[] {"Variable name with structure path "
                                                                   + "as defined within the application",
                                                                   "Variable name with structure path "
-                                                                      + "as specified by user input"},
+                                                                                                         + "as specified by user input"},
                                                     false,
-                                                    true,
                                                     true,
                                                     true);
                     }
@@ -336,7 +342,7 @@ public class CcddVariablesDialog extends CcddDialogHandler
                         // cannot be used
                         if (varPathSepFld.getText().matches(".*[\\[\\]].*")
                             || (!hideDataTypeCb.isSelected()
-                            && typeNameSepFld.getText().matches(".*[\\[\\]].*")))
+                                && typeNameSepFld.getText().matches(".*[\\[\\]].*")))
                         {
                             // Inform the user that the input value is invalid
                             new CcddDialogHandler().showMessageDialog(CcddVariablesDialog.this,

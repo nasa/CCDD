@@ -9,10 +9,11 @@
 package CCDD;
 
 import static CCDD.CcddConstants.ALL_TABLES_GROUP_NODE_NAME;
+import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.HIDE_SCRIPT_PATH;
-import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
+import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.PATH_COLUMN_DELTA;
 import static CCDD.CcddConstants.TYPE_COLUMN_DELTA;
@@ -91,7 +92,7 @@ public class CcddScriptHandler
     private CcddTableTypeHandler tableTypeHandler;
     private CcddDataTypeHandler dataTypeHandler;
     private CcddJTableHandler assnsTable;
-    private CcddScriptManagerDialog scriptMgr;
+    private CcddFrameHandler scriptDialog = null;
 
     // Component referenced by multiple methods
     private JCheckBox hideScriptFilePath;
@@ -128,7 +129,7 @@ public class CcddScriptHandler
         // Get the available script engines
         scriptFactories = new ScriptEngineManager().getEngineFactories();
 
-        scriptMgr = null;
+        scriptDialog = null;
     }
 
     /**************************************************************************
@@ -141,12 +142,45 @@ public class CcddScriptHandler
     }
 
     /**************************************************************************
-     * Set the reference to the script manager class. This should be null when
-     * the script manager isn't open
+     * Set the reference to the active script manager or executive dialog. This
+     * should be null when the script manager or executive isn't open
      *************************************************************************/
-    protected void setScriptManager(CcddScriptManagerDialog scriptMgr)
+    protected void setScriptDialog(CcddFrameHandler scriptDialog)
     {
-        this.scriptMgr = scriptMgr;
+        this.scriptDialog = scriptDialog;
+    }
+
+    /**************************************************************************
+     * Get a script association based on the association name
+     *
+     * @param assnName
+     *            script association name
+     *
+     * @param parent
+     *            GUI component calling this method
+     *
+     * @return Array containing the script association having the same name;
+     *         null if no association has the specified name
+     *************************************************************************/
+    protected String[] getScriptAssociationByName(String assnName,
+                                                  Component parent)
+    {
+        String[] association = null;
+
+        // Step through each association stored in the project database
+        for (String[] assn : dbTable.retrieveInformationTable(InternalTable.ASSOCIATIONS,
+                                                              parent))
+        {
+            // Check if the association's name matches the one supplied
+            if (assnName.equals(assn[AssociationsColumn.NAME.ordinal()]))
+            {
+                // Store the association array and stop searching
+                association = assn;
+                break;
+            }
+        }
+
+        return association;
     }
 
     /**************************************************************************
@@ -315,9 +349,10 @@ public class CcddScriptHandler
             }
 
             // Add the association to the script associations list
-            associationsData.add(new Object[] {assn[AssociationsColumn.DESCRIPTION.ordinal()],
+            associationsData.add(new Object[] {assn[AssociationsColumn.NAME.ordinal()],
+                                               assn[AssociationsColumn.DESCRIPTION.ordinal()],
                                                assn[AssociationsColumn.SCRIPT_FILE.ordinal()],
-                                               assn[AssociationsColumn.MEMBERS.ordinal()],
+                                               CcddUtilities.highlightDataType(assn[AssociationsColumn.MEMBERS.ordinal()]),
                                                isAvailable});
         }
 
@@ -398,14 +433,137 @@ public class CcddScriptHandler
             }
 
             /******************************************************************
+             * Allow HTML-formatted text in the specified column(s)
+             *****************************************************************/
+            @Override
+            protected boolean isColumnHTML(int column)
+            {
+                return column == AssociationsTableColumnInfo.MEMBERS.ordinal();
+            }
+
+            /******************************************************************
+             * Hide the the specified columns
+             *****************************************************************/
+            @Override
+            protected boolean isColumnHidden(int column)
+            {
+                return column == AssociationsTableColumnInfo.AVAILABLE.ordinal();
+            }
+
+            /******************************************************************
              * Allow editing the description in the script manager's
              * associations table
              *****************************************************************/
             @Override
             public boolean isCellEditable(int row, int column)
             {
-                return column == convertColumnIndexToModel(AssociationsTableColumnInfo.DESCRIPTION.ordinal())
+                return (column == convertColumnIndexToModel(AssociationsTableColumnInfo.NAME.ordinal())
+                        || column == convertColumnIndexToModel(AssociationsTableColumnInfo.DESCRIPTION.ordinal()))
                        && allowSelectDisabled;
+            }
+
+            /******************************************************************
+             * Validate changes to the editable cells
+             *
+             * @param tableData
+             *            list containing the table data row arrays
+             *
+             * @param row
+             *            table model row number
+             *
+             * @param column
+             *            table model column number
+             *
+             * @param oldValue
+             *            original cell contents
+             *
+             * @param newValue
+             *            new cell contents
+             *
+             * @param showMessage
+             *            true to display the invalid input dialog, if
+             *            applicable
+             *
+             * @param isMultiple
+             *            true if this is one of multiple cells to be entered
+             *            and checked; false if only a single input is being
+             *            entered
+             *
+             * @return Always returns false
+             ****************************************************************/
+            @Override
+            protected Boolean validateCellContent(List<Object[]> tableData,
+                                                  int row,
+                                                  int column,
+                                                  Object oldValue,
+                                                  Object newValue,
+                                                  Boolean showMessage,
+                                                  boolean isMultiple)
+            {
+                // Reset the flag that indicates the last edited cell's content
+                // is invalid
+                setLastCellValid(true);
+
+                // Create a string version of the new value
+                String newValueS = newValue.toString();
+
+                try
+                {
+                    // Check if the value isn't blank
+                    if (!newValueS.isEmpty())
+                    {
+                        // Check if the association name has been changed and
+                        // if the name isn't blank
+                        if (column == AssociationsTableColumnInfo.NAME.ordinal())
+                        {
+                            // Check if the association name does not match the
+                            // alphanumeric input type
+                            if (!newValueS.matches(InputDataType.ALPHANUMERIC.getInputMatch()))
+                            {
+                                throw new CCDDException("Illegal character(s) in association name");
+                            }
+
+                            // Compare this association name to the others in
+                            // the table in order to avoid creating a duplicate
+                            for (int otherRow = 0; otherRow < getRowCount(); otherRow++)
+                            {
+                                // Check if this row isn't the one being
+                                // edited, and if the association name matches
+                                // the one being added (case insensitive)
+                                if (otherRow != row
+                                    && newValueS.equalsIgnoreCase(tableData.get(otherRow)[column].toString()))
+                                {
+                                    throw new CCDDException("Association name already in use");
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (CCDDException ce)
+                {
+                    // Set the flag that indicates the last edited cell's
+                    // content is invalid
+                    setLastCellValid(false);
+
+                    // Check if the input error dialog should be displayed
+                    if (showMessage)
+                    {
+                        // Inform the user that the input value is invalid
+                        new CcddDialogHandler().showMessageDialog(parent,
+                                                                  "<html><b>"
+                                                                          + ce.getMessage(),
+                                                                  "Invalid Input",
+                                                                  JOptionPane.WARNING_MESSAGE,
+                                                                  DialogOption.OK_OPTION);
+                    }
+
+                    // Restore the cell contents to its original value and pop
+                    // the edit from the stack
+                    tableData.get(row)[column] = oldValue;
+                    getUndoManager().undoRemoveEdit();
+                }
+
+                return false;
             }
 
             /******************************************************************
@@ -419,20 +577,27 @@ public class CcddScriptHandler
                 // names, set up the editors and renderers for the table cells,
                 // set up the table grid lines, and calculate the minimum width
                 // required to display the table information
-                setUpdatableCharacteristics(getScriptAssociationData(allowSelectDisabled, parent),
-                                            AssociationsTableColumnInfo.getColumnNames(),
-                                            null,
-                                            new Integer[] {AssociationsTableColumnInfo.AVAILABLE.ordinal()},
-                                            null,
-                                            AssociationsTableColumnInfo.getToolTips(),
-                                            true,
-                                            true,
-                                            true,
-                                            true);
+                int totalWidth = setUpdatableCharacteristics(getScriptAssociationData(allowSelectDisabled, parent),
+                                                             AssociationsTableColumnInfo.getColumnNames(),
+                                                             null,
+                                                             AssociationsTableColumnInfo.getToolTips(),
+                                                             true,
+                                                             true,
+                                                             true);
+
+                // Check if the script manager or executive is active
+                if (scriptDialog != null)
+                {
+                    // Set the script manager or executive width to the
+                    // associations table width
+                    scriptDialog.setTableWidth(totalWidth
+                                               + LAF_SCROLL_BAR_WIDTH
+                                               + ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2);
+                }
             }
 
             /******************************************************************
-             * Highlight the matching search text in the context column cells
+             * Alter the association table cell color or contents
              *
              * @param component
              *            reference to the table cell renderer component
@@ -461,12 +626,16 @@ public class CcddScriptHandler
                 // unavailable
                 if (!isAssociationAvailable(convertRowIndexToModel(row)))
                 {
+                    // Set the text color for this row to indicate it's not
+                    // available
                     ((JTextComponent) component).setForeground(Color.GRAY);
 
                     // Check if selection of disabled associations isn't
                     // allowed
                     if (!allowSelectDisabled)
                     {
+                        // Set the background color to indicate the row isn't
+                        // selectable
                         ((JTextComponent) component).setBackground(ModifiableColorInfo.TABLE_BACK.getColor());
                     }
                 }
@@ -533,10 +702,11 @@ public class CcddScriptHandler
             {
                 // Check if the reference to the script manager is set (i.e.,
                 // the script associations manager dialog is open)
-                if (scriptMgr != null)
+                if (scriptDialog != null
+                    && scriptDialog instanceof CcddScriptManagerDialog)
                 {
                     // Update the script associations manager change indicator
-                    scriptMgr.updateChangeIndicator();
+                    ((CcddScriptManagerDialog) scriptDialog).updateChangeIndicator();
                 }
             }
         };
@@ -828,16 +998,11 @@ public class CcddScriptHandler
      * @param tableTree
      *            CcddTableTreeHandler reference describing the table tree
      *
-     * @param executeAll
-     *            true to execute all of the available script associations;
-     *            false to execute only the selected, available associations
-     *
      * @param dialog
      *            reference to the script dialog (manager or executive) calling
      *            this method
      *************************************************************************/
     protected void executeScriptAssociations(CcddTableTreeHandler tableTree,
-                                             boolean executeAll,
                                              CcddFrameHandler dialog)
     {
         List<Object[]> selectedAssn;
@@ -845,43 +1010,24 @@ public class CcddScriptHandler
         // Get the current associations table data
         List<Object[]> assnsData = assnsTable.getTableDataList(true);
 
-        // Check if the flag is set to execute all valid associations
-        if (executeAll)
+        selectedAssn = new ArrayList<Object[]>();
+
+        // Step through each selected row in the associations table
+        for (int row : assnsTable.getSelectedRows())
         {
-            // Set the data to all of the table data
-            selectedAssn = assnsData;
+            // Convert the row index to model coordinates in case the table is
+            // sorted by one of the columns
+            row = assnsTable.convertRowIndexToModel(row);
 
-            // Step through each association
-            for (int row = selectedAssn.size() - 1; row >= 0; row--)
+            // Check if the association is available; i.e., that the script
+            // file and table(s) are present
+            if (isAssociationAvailable(row))
             {
-                // Check if the association is unavailable; i.e., that the
-                // script file and/or table(s) are not present
-                if (!isAssociationAvailable(assnsTable.convertRowIndexToModel(row)))
-                {
-                    // Remove the association form the list of those to execute
-                    selectedAssn.remove(row);
-                }
-            }
-        }
-        // Only execute the selected associations
-        else
-        {
-            selectedAssn = new ArrayList<Object[]>();
+                // Remove any HTML tags from the member column
+                assnsData.get(row)[AssociationsTableColumnInfo.MEMBERS.ordinal()] = CcddUtilities.removeHTMLTags(assnsData.get(row)[AssociationsTableColumnInfo.MEMBERS.ordinal()].toString());
 
-            // Step through each selected row in the associations table
-            for (int row : assnsTable.getSelectedRows())
-            {
-                // Convert the row index to model coordinates in case the table
-                // is sorted by one of the columns
-                row = assnsTable.convertRowIndexToModel(row);
-
-                // Check if the association is available; i.e., that the script
-                // file and table(s) are present
-                if (isAssociationAvailable(row))
-                {
-                    // Add the association to the list of those to execute
-                    selectedAssn.add(assnsData.get(row));
-                }
+                // Add the association to the list of those to execute
+                selectedAssn.add(assnsData.get(row));
             }
         }
 

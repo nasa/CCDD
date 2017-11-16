@@ -494,10 +494,11 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         descPnl.add(descriptionLbl, gbc);
 
         // Create the link description input field
-        descriptionFld = undoHandler.new UndoableTextArea("", 3, 20);
+        descriptionFld = undoHandler.new UndoableTextArea("", 3, 1);
         descriptionFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         descriptionFld.setEditable(false);
         descriptionFld.setLineWrap(true);
+        descriptionFld.setWrapStyleWord(true);
         descriptionFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
         descriptionFld.setBackground(ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
         descriptionFld.setBorder(emptyBorder);
@@ -909,7 +910,8 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
 
         // Add the buttons to the panel
         buttonPnl.add(rightArrowBtn, gbc);
-        gbc.insets.bottom = LAF_CHECK_BOX_HEIGHT + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+        gbc.insets.bottom = LAF_CHECK_BOX_HEIGHT * 2
+                            + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
         gbc.gridy++;
         buttonPnl.add(leftArrowBtn, gbc);
 
@@ -930,6 +932,10 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
                                             variableTree.getHeaderNodeLevel(),
                                             true);
 
+        // Set the link's sample rate to the currently selected rate. This only
+        // makes a change if this is the first variable(s) added to the link
+        linkTree.getLinkInformation(linkName).setSampleRate(selectedRate);
+
         // Clean up the links following addition of the variable
         cleanUpLinks(new String[] {linkName});
     }
@@ -946,7 +952,6 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
     {
         ToolTipTreeNode node = null;
 
-        // TODO SELECT THE LINK NAME NODE AFTER REMOVING VARIABLE
         // Check if a single link is selected
         if (selectedLink != null)
         {
@@ -957,10 +962,21 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         // Remove the selected variable(s) from the links in the link tree
         linkTree.removeSelectedChildNodes(true);
 
+        // Step through each on the links
+        for (String linkName : linkNames)
+        {
+            // Check if the link has no member variables
+            if (linkTree.getLinkVariables(linkName).size() == 0)
+            {
+                // Set the link's sample rate to zero (indicating it has no
+                // rate since it has no members)
+                linkTree.getLinkInformation(linkName).setSampleRate("0");
+            }
+        }
+
         // Clean up the links following removal of the variable
         cleanUpLinks(linkNames);
 
-        // TODO
         // Check if a single link was selected prior to removing the selected
         // variable(s)
         if (node != null)
@@ -980,14 +996,14 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
      *************************************************************************/
     private void cleanUpLinks(String[] linkNames)
     {
-        // Update the link definitions to account for the deletions
+        // Update the link definitions to account for the changes
         linkTree.updateLinkDefinitions();
 
         // Add the rate and size to the link nodes and set the color based on
         // the selected rate
         linkTree.adjustNodeText(linkTree.getRootNode());
 
-        // Get the list off all linked variables
+        // Get the list of all linked variables
         List<String> linkedVars = linkTree.getLinkVariables(null);
 
         // Set the linked variables list in the variable tree
@@ -1000,7 +1016,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         // Check if the link names are provided
         if (linkNames != null)
         {
-            // If a single link is selected then set the selected/ link, enable
+            // If a single link is selected then set the selected link, enable
             // and populate the description, rate, and size in bytes fields;
             // otherwise clear the selected link, disable and clear the
             // description, rate, and size in bytes fields

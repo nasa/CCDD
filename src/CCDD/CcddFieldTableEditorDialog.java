@@ -949,6 +949,34 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             }
 
             /******************************************************************
+             * Allow HTML-formatted text in the specified column(s)
+             *****************************************************************/
+            @Override
+            protected boolean isColumnHTML(int column)
+            {
+                return column == FieldTableEditorColumnInfo.OWNER.ordinal()
+                       || column == FieldTableEditorColumnInfo.PATH.ordinal();
+            }
+
+            /******************************************************************
+             * Hide the specified column(s)
+             *****************************************************************/
+            @Override
+            protected boolean isColumnHidden(int column)
+            {
+                return !isPath && column == FieldTableEditorColumnInfo.PATH.ordinal();
+            }
+
+            /******************************************************************
+             * Display the specified column(s) as check boxes
+             *****************************************************************/
+            @Override
+            protected boolean isColumnBoolean(int column)
+            {
+                return checkBoxColumns.contains(column);
+            }
+
+            /******************************************************************
              * Allow editing of the table cells in the specified columns only
              *****************************************************************/
             @Override
@@ -1096,21 +1124,12 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 toolTips[FieldTableEditorColumnInfo.OWNER.ordinal()] = FieldTableEditorColumnInfo.OWNER.getToolTip();
                 toolTips[FieldTableEditorColumnInfo.PATH.ordinal()] = FieldTableEditorColumnInfo.PATH.getToolTip();
 
-                // Create lists for any columns to be hidden and to be
-                // displayed as check boxes
-                List<Integer> hiddenColumns = new ArrayList<Integer>();
+                // Create lists for any columns to be displayed as check boxes
                 checkBoxColumns = new ArrayList<Integer>();
 
                 // Get the owners, paths, data field values values, and check
                 // box columns based on the specified data fields
                 committedData = getDataFieldsToDisplay();
-
-                // Check if none of the tables to display have paths
-                if (!isPath)
-                {
-                    // Hide the structure path column
-                    hiddenColumns.add(FieldTableEditorColumnInfo.PATH.ordinal());
-                }
 
                 // Place the data into the table model along with the column
                 // names, set up the editors and renderers for the table cells,
@@ -1119,10 +1138,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 setUpdatableCharacteristics(committedData,
                                             columnNames,
                                             null,
-                                            hiddenColumns.toArray(new Integer[0]),
-                                            checkBoxColumns.toArray(new Integer[0]),
                                             toolTips,
-                                            true,
                                             true,
                                             true,
                                             true);
@@ -1503,8 +1519,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
                         // Insert the owner name, path, and the data field
                         // value into the new row
-                        newTable[FieldTableEditorColumnInfo.OWNER.ordinal()] = ownerName;
-                        newTable[FieldTableEditorColumnInfo.PATH.ordinal()] = pathName;
+                        newTable[FieldTableEditorColumnInfo.OWNER.ordinal()] = CcddUtilities.highlightDataType(ownerName);
+                        newTable[FieldTableEditorColumnInfo.PATH.ordinal()] = CcddUtilities.highlightDataType(pathName);
                         newTable[dataFieldIndex] = fieldInfo.getInputType() == InputDataType.BOOLEAN
                                                                                                      ? Boolean.valueOf(fieldInfo.getValue())
                                                                                                      : fieldInfo.getValue();

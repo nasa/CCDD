@@ -417,9 +417,6 @@ public class CcddSchedulerEditorHandler
                                             getColumnNames(),
                                             null,
                                             null,
-                                            null,
-                                            null,
-                                            true,
                                             true,
                                             true,
                                             true);

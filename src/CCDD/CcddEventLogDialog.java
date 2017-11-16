@@ -10,6 +10,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.CCDD_ICON;
 import static CCDD.CcddConstants.CLOSE_ICON;
+import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
 import static CCDD.CcddConstants.PRINT_ICON;
 import static CCDD.CcddConstants.SEARCH_ICON;
 import static CCDD.CcddConstants.EventLogMessageType.FAIL_MSG;
@@ -385,8 +386,6 @@ public class CcddEventLogDialog extends CcddFrameHandler
                 int totalWidth = setUpdatableCharacteristics(eventLogList.toArray(new Object[0][0]),
                                                              EventColumns.getColumnNames(),
                                                              null,
-                                                             null,
-                                                             null,
                                                              new String[] {"Event sequence number",
                                                                            "Server hosting the project database",
                                                                            "Project to which the event applies",
@@ -396,11 +395,10 @@ public class CcddEventLogDialog extends CcddFrameHandler
                                                                            "Event message"},
                                                              true,
                                                              true,
-                                                             true,
                                                              false);
 
                 // Store the table width
-                setTableWidth(totalWidth);
+                setTableWidth(totalWidth + LAF_SCROLL_BAR_WIDTH);
 
                 // Set the dialog's title so that it includes the event log
                 // file name

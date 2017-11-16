@@ -581,11 +581,18 @@ public class CcddKeyboardHandler
                             // Get the cell's current value
                             String cellValue = textComp.getText();
 
+                            // Get the starting position of the selected text
+                            int caretPosn = textComp.getSelectionStart();
+
                             // Replace the currently selected text with a line
                             // feed
-                            textComp.setText(cellValue.substring(0, textComp.getSelectionStart())
+                            textComp.setText(cellValue.substring(0, caretPosn)
                                              + "\n"
                                              + cellValue.substring(textComp.getSelectionEnd()));
+
+                            // Position the cursor after the newly inserted
+                            // line feed
+                            textComp.setCaretPosition(caretPosn + 1);
                         }
                     }
                 }

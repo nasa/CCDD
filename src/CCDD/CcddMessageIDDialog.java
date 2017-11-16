@@ -116,24 +116,33 @@ public class CcddMessageIDDialog extends CcddDialogHandler
             }
 
             /******************************************************************
+             * Allow HTML-formatted text in the specified column(s)
+             *****************************************************************/
+            @Override
+            protected boolean isColumnHTML(int column)
+            {
+                return column == MsgIDTableColumnInfo.OWNER.ordinal()
+                       || column == MsgIDTableColumnInfo.PATH.ordinal();
+            }
+
+            /******************************************************************
+             * Hide the the specified columns
+             *****************************************************************/
+            @Override
+            protected boolean isColumnHidden(int column)
+            {
+                return !isPath && column == MsgIDTableColumnInfo.PATH.ordinal();
+            }
+
+            /******************************************************************
              * Load the message ID data into the table and format the table
              * cells
              *****************************************************************/
             @Override
             protected void loadAndFormatData()
             {
-                // Create lists for any columns to be hidden
-                List<Integer> hiddenColumns = new ArrayList<Integer>();
-
                 // Build the message ID table information
                 Object[][] messageIDData = getMessageIDsToDisplay(msgIDs);
-
-                // Check if none of the tables to display have paths
-                if (!isPath)
-                {
-                    // Hide the structure path column
-                    hiddenColumns.add(MsgIDTableColumnInfo.PATH.ordinal());
-                }
 
                 // Place the data into the table model along with the column
                 // names, set up the editors and renderers for the table cells,
@@ -142,10 +151,7 @@ public class CcddMessageIDDialog extends CcddDialogHandler
                 setUpdatableCharacteristics(messageIDData,
                                             MsgIDTableColumnInfo.getColumnNames(),
                                             null,
-                                            hiddenColumns.toArray(new Integer[0]),
-                                            null,
                                             MsgIDTableColumnInfo.getToolTips(),
-                                            true,
                                             true,
                                             true,
                                             true);
@@ -270,9 +276,9 @@ public class CcddMessageIDDialog extends CcddDialogHandler
             for (int column = 0; column < msgIDTable.getColumnCount(); column++)
             {
                 // Get the owner for this row
-                String ownerName = msgIDTable.getModel().getValueAt(row,
-                                                                    MsgIDTableColumnInfo.OWNER.ordinal())
-                                             .toString().trim();
+                String ownerName = CcddUtilities.removeHTMLTags(msgIDTable.getModel().getValueAt(row,
+                                                                                                 MsgIDTableColumnInfo.OWNER.ordinal())
+                                                                          .toString().trim());
 
                 // Check if the cell at these coordinates is selected and that
                 // the message ID for this row belongs to a table (versus a
@@ -282,9 +288,9 @@ public class CcddMessageIDDialog extends CcddDialogHandler
                     && !ownerName.startsWith("Tlm:"))
                 {
                     // Get the structure path for this row
-                    String path = msgIDTable.getModel().getValueAt(row,
-                                                                   MsgIDTableColumnInfo.PATH.ordinal())
-                                            .toString();
+                    String path = CcddUtilities.removeHTMLTags(msgIDTable.getModel().getValueAt(row,
+                                                                                                MsgIDTableColumnInfo.PATH.ordinal())
+                                                                         .toString());
 
                     // Add the table path to the list and stop checking the
                     // columns in this row
@@ -304,13 +310,12 @@ public class CcddMessageIDDialog extends CcddDialogHandler
     }
 
     /**************************************************************************
-     * Build the data field array
+     * Build the message ID information array
      *
      * @param msgIDs
      *            list containing the message ID owners, names, and ID values
      *
-     * @return Array containing the data field owner names and corresponding
-     *         user-selected data field values
+     * @return Array containing the message ID information
      *************************************************************************/
     private Object[][] getMessageIDsToDisplay(List<String[]> msgIDs)
     {
@@ -351,7 +356,7 @@ public class CcddMessageIDDialog extends CcddDialogHandler
                     {
                         // Add spaces to the indentation. This aids in
                         // identifying the structure members
-                        indent += "  ";
+                        indent += "&#160;&#160;";
                     }
 
                     // Remove the path and leave only the table name
@@ -372,8 +377,8 @@ public class CcddMessageIDDialog extends CcddDialogHandler
             }
 
             // Add the message ID information to the list
-            ownerMsgIDs.add(new Object[] {ownerName,
-                                          pathName,
+            ownerMsgIDs.add(new Object[] {CcddUtilities.highlightDataType(ownerName),
+                                          CcddUtilities.highlightDataType(pathName),
                                           msgID[MsgIDListColumnIndex.MESSAGE_ID_NAME.ordinal()],
                                           msgID[MsgIDListColumnIndex.MESSAGE_ID.ordinal()]});
         }

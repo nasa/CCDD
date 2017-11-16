@@ -780,19 +780,15 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     {
         List<TreePath> selectedPaths = new ArrayList<TreePath>();
 
-        // Get the array of selected node indices
-        int[] rows = getSelectionRows();
+        // Get the array of selected node paths
+        TreePath[] paths = getSelectionPaths();
 
         // Check if at least one node is selected
-        if (rows != null && rows.length != 0)
+        if (paths != null && paths.length != 0)
         {
-            // Step through each selected row
-            for (int row : rows)
+            // Step through each selected node
+            for (TreePath path : paths)
             {
-                // Get the path for this row
-                TreePath path = getPathForRow(row);
-
-                System.out.println("chk tree row: " + row); // TODO
                 // Check if the path represents a top-level node or its
                 // children
                 if (path.getPathCount() > getGroupNodeLevel())
@@ -800,18 +796,14 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                     // Get the top-level path for this node path
                     TreePath topPath = getPathFromNode((ToolTipTreeNode) path.getPathComponent(getGroupNodeLevel()));
 
-                    System.out.println(" path level valid"); // TODO
                     // Check if a selected node has not yet been added to the
                     // list
                     if (!selectedPaths.contains(topPath))
                     {
-                        System.out.println("  add path " + Arrays.toString(topPath.getPath())); // TODO
                         // Store the node name
                         selectedPaths.add(topPath);
                     }
                 }
-                else
-                    System.out.println(" path level invalid"); // TODO
             }
         }
 
