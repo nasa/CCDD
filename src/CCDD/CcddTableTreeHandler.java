@@ -18,13 +18,13 @@ import static CCDD.CcddConstants.TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIV
 import static CCDD.CcddConstants.TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES;
 import static CCDD.CcddConstants.TableTreeType.INSTANCE_TABLES;
 import static CCDD.CcddConstants.TableTreeType.INSTANCE_TABLES_WITH_PRIMITIVES;
+import static CCDD.CcddConstants.TableTreeType.PROTOTYPE_STRUCTURES_WITH_PRIMITIVES;
 import static CCDD.CcddConstants.TableTreeType.PROTOTYPE_TABLES;
 import static CCDD.CcddConstants.TableTreeType.STRUCTURES_WITH_PRIMITIVES;
 import static CCDD.CcddConstants.TableTreeType.TABLES_WITH_PRIMITIVES;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -513,6 +513,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         // variable name
         tableMembers = dbTable.loadTableMembers((treeType == TABLES_WITH_PRIMITIVES
                                                  || treeType == STRUCTURES_WITH_PRIMITIVES
+                                                 || treeType == PROTOTYPE_STRUCTURES_WITH_PRIMITIVES
                                                  || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES
                                                  || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES
                                                  || treeType == INSTANCE_TABLES_WITH_PRIMITIVES)
@@ -780,6 +781,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 if (leaf
                     && ((ToolTipTreeNode) value).getLevel() > ((CcddTableTreeHandler) tree).getHeaderNodeLevel()
                     && (treeType == STRUCTURES_WITH_PRIMITIVES
+                        || treeType == PROTOTYPE_STRUCTURES_WITH_PRIMITIVES
                         || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES
                         || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES))
                 {
@@ -945,6 +947,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             if ((nameList == null
                  || nameList.contains(member.getTableName()))
                 && ((treeType != STRUCTURES_WITH_PRIMITIVES
+                     && treeType != PROTOTYPE_STRUCTURES_WITH_PRIMITIVES
                      && treeType != INSTANCE_STRUCTURES_WITH_PRIMITIVES
                      && treeType != INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES)
                     || tableTypeHandler.getTypeDefinition(member.getTableType()).isStructure()))
@@ -1160,6 +1163,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // Check if primitive variables are included in the tree and this
             // node has no children (variables)
             if ((treeType == STRUCTURES_WITH_PRIMITIVES
+                 || treeType == PROTOTYPE_STRUCTURES_WITH_PRIMITIVES
                  || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES
                  || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES)
                 && childNode.getChildCount() == 0)
@@ -2012,15 +2016,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                                                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
                                                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
                                                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
-
-        // Set the preferred width of the tree's scroll pane
-        treeScroll.setPreferredSize(new Dimension(Math.min(Math.max(treeScroll.getPreferredSize().width,
-                                                                    200),
-                                                           400),
-                                                  treeScroll.getPreferredSize().height));
-        // TODO ALLOW TREE HEIGHT TO BE SMALLER THAN THIS. AND WHY ISN'T IT
-        // RELATED TO THE VISIBLEROWCOUNT SET ABOVE?
-        treeScroll.setMinimumSize(treeScroll.getPreferredSize());
 
         // Add the tree to the panel
         gbc.weighty = 1.0;

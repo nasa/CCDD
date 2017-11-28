@@ -13,6 +13,7 @@ import static CCDD.CcddConstants.HIDE_DATA_TYPE;
 import static CCDD.CcddConstants.IGNORE_BUTTON;
 import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
+import static CCDD.CcddConstants.PAD_VARIABLE;
 import static CCDD.CcddConstants.REPLACE_INDICATOR;
 import static CCDD.CcddConstants.TYPE_NAME_SEPARATOR;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
@@ -1071,7 +1072,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      * @return Value of the cell in the table model with any macro name
      *         replaced with its corresponding macro value
      *************************************************************************/
-    private String getExpandedValueAt(int row, int column)
+    protected String getExpandedValueAt(int row, int column)
     {
         return newMacroHandler.getMacroExpansion(tableModel.getValueAt(row, column).toString());
     }
@@ -2185,9 +2186,19 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // Check if this cell is protected from changes
                     else if (!isCellEditable(row, column))
                     {
-                        // Shade the cell's background
+                        // Change the cell's text and background colors
                         comp.setForeground(ModifiableColorInfo.PROTECTED_TEXT.getColor());
                         comp.setBackground(ModifiableColorInfo.PROTECTED_BACK.getColor());
+                    }
+                    // Check if the row's variable name is present and matches
+                    // that for a padding variable
+                    else if (variableNameIndex != 1
+                             && getExpandedValueAt(table.convertRowIndexToModel(row),
+                                                   variableNameIndex).toString().matches(PAD_VARIABLE
+                                                                                         + "[0-9]+$"))
+                    {
+                        // Change the cell's background color
+                        comp.setBackground(ModifiableColorInfo.PADDING_BACK.getColor());
                     }
                 }
 
@@ -2582,8 +2593,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     }
                 }
 
-                // Insert an empty row below the selected row
-                return super.insertRowData(targetRow, null);
+                // Insert the supplied data below the selected row
+                return super.insertRowData(targetRow, data);
             }
 
             /******************************************************************
@@ -4637,14 +4648,135 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     {
         isRateChange = false;
 
+        // TODO
+        PackIndex packIndex = getPackedVariables(tableData, row);
+        int firstRow = packIndex.getFirstIndex();
+        int lastRow = packIndex.getLastIndex();
+
+        // // Get the number of bytes occupied by this variable
+        // String dataType = tableData.get(row)[dataTypeIndex].toString();
+        // int dataTypeBitSize = dataTypeHandler.getSizeInBits(dataType);
+        //
+        // int curRow = row - 1;
+        //
+        // // Step backwards through the table while a variable having a bit
+        // // length and of the same data type is found
+        // while (curRow >= 0
+        // && !getExpandedValueAt(tableData, curRow, bitLengthIndex).isEmpty()
+        // && dataType.equals(tableData.get(curRow)[dataTypeIndex].toString()))
+        // {
+        // // Go to the previous row
+        // curRow--;
+        // }
+        //
+        // // Store the first row in the pack
+        // curRow++;
+        // int firstRow = curRow;
+        //
+        // int bitCount = 0;
+        // boolean isTargetPack = false;
+        //
+        // // Step forward, packing the bits, in order to determine the
+        // variables
+        // // in the target row's pack
+        // while (curRow < tableData.size()
+        // && !getExpandedValueAt(tableData, curRow, bitLengthIndex).isEmpty()
+        // && dataType.equals(tableData.get(curRow)[dataTypeIndex].toString()))
+        // {
+        // // Add the number of bits occupied by this variable to the running
+        // // count
+        // int numBits = Integer.valueOf(getExpandedValueAt(tableData,
+        // curRow,
+        // bitLengthIndex));
+        // bitCount += numBits;
+        //
+        // // Check if the bit count rolled over the maximum allowed
+        // if (bitCount > dataTypeBitSize)
+        // {
+        // // Check if the target variable is included
+        // if (isTargetPack)
+        // {
+        // // Stop searching
+        // break;
+        // }
+        //
+        // // Reset the bit count to the current row's value and store the
+        // // row index for the first variable in the pack
+        // bitCount = numBits;
+        // firstRow = curRow;
+        // }
+        //
+        // // Check if the target row is reached
+        // if (curRow == row)
+        // {
+        // // Set the flag indicating this pack includes the target
+        // // variable
+        // isTargetPack = true;
+        // }
+        //
+        // curRow++;
+        // }
+        //
+        // // Store the last row in the pack
+        // int lastRow = curRow - 1;
+
+        // Set the row that has the governing rate
+        int theRow = useRowRate ? row : firstRow;
+
+        // Step through each rate column
+        for (int column : rateIndex)
+        {
+            // Step through the rows for the variables that are packed together
+            for (int curRow = firstRow; curRow <= lastRow; curRow++)
+            {
+                // Check that this isn't the target's row
+                if (tableData.get(curRow)[column] != tableData.get(theRow)[column])
+                {
+                    // Set the rate for this variable to match that of the
+                    // target row's variable and set the flag indicating a rate
+                    // value changed
+                    tableData.get(curRow)[column] = tableData.get(theRow)[column];
+                    isRateChange = true;
+                }
+            }
+        }
+
+        return lastRow;
+    }
+
+    // TODO
+    class PackIndex
+    {
+        private final int firstIndex;
+        private final int lastIndex;
+
+        PackIndex(int firstIndex, int lastIndex)
+        {
+            this.firstIndex = firstIndex;
+            this.lastIndex = lastIndex;
+        }
+
+        protected int getFirstIndex()
+        {
+            return firstIndex;
+        }
+
+        protected int getLastIndex()
+        {
+            return lastIndex;
+        }
+    }
+
+    protected PackIndex getPackedVariables(List<Object[]> tableData, int row)
+    {
         // Get the number of bytes occupied by this variable
         String dataType = tableData.get(row)[dataTypeIndex].toString();
         int dataTypeBitSize = dataTypeHandler.getSizeInBits(dataType);
 
         int curRow = row - 1;
 
-        // Step backwards through the table while a variable with a bit length
-        // of the same data type is found
+        // Step backwards through the table while a variable having a bit
+        // length and of the same data type is found
         while (curRow >= 0
                && !getExpandedValueAt(tableData, curRow, bitLengthIndex).isEmpty()
                && dataType.equals(tableData.get(curRow)[dataTypeIndex].toString()))
@@ -4656,7 +4788,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Store the first row in the pack
         curRow++;
         int firstRow = curRow;
-
         int bitCount = 0;
         boolean isTargetPack = false;
 
@@ -4700,31 +4831,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             curRow++;
         }
 
-        // Store the last row in the pack
-        int lastRow = curRow - 1;
-
-        // Set the row that has the governing rate
-        int theRow = useRowRate ? row : firstRow;
-
-        // Step through each rate column
-        for (int column : rateIndex)
-        {
-            // Step through the rows for the variables that are packed together
-            for (curRow = firstRow; curRow <= lastRow; curRow++)
-            {
-                // Check that this isn't the target's row
-                if (tableData.get(curRow)[column] != tableData.get(theRow)[column])
-                {
-                    // Set the rate for this variable to match that of the
-                    // target row's variable and set the flag indicating a rate
-                    // value changed
-                    tableData.get(curRow)[column] = tableData.get(theRow)[column];
-                    isRateChange = true;
-                }
-            }
-        }
-
-        return lastRow;
+        return new PackIndex(firstRow, curRow - 1);
     }
 
     /**************************************************************************
@@ -5045,24 +5152,21 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         if (typeDefn.isStructure())
         {
             // Step through each row in the table
-            for (int row = 0; row < table.getRowCount() && !stopCheck; row++)
+            for (int row = 0; row < tableModel.getRowCount() && !stopCheck; row++)
             {
                 // Skip rows in the table that are empty
                 row = table.getNextPopulatedRowNumber(row);
 
                 // Check that the end of the table hasn't been reached and if a
                 // required column is empty
-                if (row < table.getRowCount())
+                if (row < tableModel.getRowCount())
                 {
                     // Step through the columns required for a structure
                     // variable
                     for (int column : new int[] {variableNameIndex, dataTypeIndex})
                     {
-                        // Convert the column to view coordinates
-                        column = table.convertColumnIndexToView(column);
-
                         // Check if the cell is empty
-                        if (table.getValueAt(row, column).toString().isEmpty())
+                        if (tableModel.getValueAt(row, column).toString().isEmpty())
                         {
                             // Set the 'data is missing' flag
                             dataIsMissing = true;

@@ -14,7 +14,6 @@ import static CCDD.CcddConstants.OK_ICON;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -805,13 +804,6 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
                                                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
                                                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
                                                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
-
-        // Set the preferred width of the tree's scroll pane
-        treeScroll.setPreferredSize(new Dimension(Math.min(Math.max(treeScroll.getPreferredSize().width,
-                                                                    200),
-                                                           400),
-                                                  treeScroll.getPreferredSize().height));
-        treeScroll.setMinimumSize(treeScroll.getPreferredSize());
 
         // Add the tree to the panel
         gbc.weighty = 1.0;

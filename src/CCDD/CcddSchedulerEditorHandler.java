@@ -120,10 +120,13 @@ public class CcddSchedulerEditorHandler
      *            reference to the scheduler dialog that created this class
      *
      * @param totalMessages
+     *            total number of parent messages
      *
      * @param totalBytes
+     *            total number of bytes per a second
      *
      * @param msgsPerSecond
+     *            total messages per second
      *************************************************************************/
     CcddSchedulerEditorHandler(CcddMain ccddMain,
                                CcddSchedulerHandler schedulerHndlr,

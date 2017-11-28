@@ -287,6 +287,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                     assnSep.setForeground(dialogPnl.getBackground().darker());
                     gbc.weighty = 1.0;
                     gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+                    gbc.insets.bottom = 0;
                     gbc.gridy = 0;
                     dialogPnl.add(new CustomSplitPane(inputsPane,
                                                       scriptHandler.getAssociationsPanel("Script Associations",
@@ -346,12 +347,17 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                                                 .toString());
 
                                     // Separate the table member portion into
-                                    // the individual table names
-                                    String[] tableNames = assnsTable.getValueAt(row,
-                                                                                assnsTable.convertColumnIndexToView(AssociationsTableColumnInfo.MEMBERS.ordinal()))
-                                                                    .toString().split(Pattern.quote(ASSN_TABLE_SEPARATOR));
+                                    // the individual table names. The line
+                                    // breaks used for HTML formatting must be
+                                    // replaced by line feed characters so that
+                                    // the split is made correctly
+                                    String[] tableNames = CcddUtilities.removeHTMLTags(assnsTable.getValueAt(row,
+                                                                                                             assnsTable.convertColumnIndexToView(AssociationsTableColumnInfo.MEMBERS.ordinal()))
+                                                                                                 .toString()
+                                                                                                 .replaceAll("<br>", "\n"))
+                                                                       .split(Pattern.quote(ASSN_TABLE_SEPARATOR));
 
-                                    List<TreePath> paths = new ArrayList<TreePath>();
+                                    List<TreePath> paths = new ArrayList<>();
 
                                     // Step through each table name
                                     for (String tableName : tableNames)
@@ -368,6 +374,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                         // The name refers to a table
                                         else
                                         {
+
                                             // Get the node in the table tree
                                             // for this table name
                                             node = tableTree.getNodeByNodePath(tableName);
@@ -929,7 +936,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
 
         try
         {
-            List<String> members = new ArrayList<String>();
+            List<String> members = new ArrayList<>();
 
             // Check if the tree is filtered by group
             if (tableTree.isFilteredByGroup())
@@ -1062,7 +1069,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
      *************************************************************************/
     private List<String[]> createAssociationsFromTable()
     {
-        List<String[]> currentAssociations = new ArrayList<String[]>();
+        List<String[]> currentAssociations = new ArrayList<>();
 
         // Step through each defined script association
         for (Object[] assn : assnsTable.getTableData(true))

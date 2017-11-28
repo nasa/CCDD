@@ -222,6 +222,11 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                                       "New Type",
                                       DialogOption.CREATE_OPTION) == OK_BUTTON)
                 {
+                    // Add the table type definition
+                    tableTypeHandler.createTypeDefinition(typeNameFld.getText(),
+                                                          new Object[][] {},
+                                                          "");
+
                     // Display an new, empty type editor
                     editorDialog.addTypePanes(new String[] {typeNameFld.getText()},
                                               dbTable.retrieveInformationTable(InternalTable.FIELDS,
@@ -368,9 +373,9 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                                                                                                  Color.LIGHT_GRAY,
                                                                                                  Color.GRAY),
                                                                  BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
+                                                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
 
         // Add the label to the dialog panel
         gbc.gridy++;

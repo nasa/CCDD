@@ -150,6 +150,8 @@ public class CcddMain
     private JMenuItem mntmRenameTable;
     private JMenuItem mntmCopyTable;
     private JMenuItem mntmDeleteTable;
+    private JMenuItem mntmAddPadding;
+    private JMenuItem mntmRemovePadding;
     private JMenuItem mntmImportTable;
     private JMenuItem mntmExportCSV;
     private JMenuItem mntmExportEDS;
@@ -831,6 +833,8 @@ public class CcddMain
         mntmRenameTable.setEnabled(dbControl.isDatabaseConnected());
         mntmCopyTable.setEnabled(dbControl.isDatabaseConnected());
         mntmDeleteTable.setEnabled(dbControl.isDatabaseConnected());
+        mntmAddPadding.setEnabled(dbControl.isDatabaseConnected());
+        mntmRemovePadding.setEnabled(dbControl.isDatabaseConnected());
         mntmImportTable.setEnabled(dbControl.isDatabaseConnected());
         mntmExportCSV.setEnabled(dbControl.isDatabaseConnected());
         mntmExportEDS.setEnabled(dbControl.isDatabaseConnected());
@@ -1343,6 +1347,9 @@ public class CcddMain
         mntmDuplicateMsgID = createMenuItem(mnMessageID, "Find duplicates", KeyEvent.VK_F, 1, "Detect duplicate message ID numbers");
         mntmEditDataField = createMenuItem(mnData, "Show/edit fields", KeyEvent.VK_F, 1, "Open the data field table editor");
         mnData.addSeparator();
+        JMenu mnPadding = createSubMenu(mnData, "Padding", KeyEvent.VK_P, 1, null);
+        mntmAddPadding = createMenuItem(mnPadding, "Add/update", KeyEvent.VK_A, 1, "Add or update padding variables");
+        mntmRemovePadding = createMenuItem(mnPadding, "Remove", KeyEvent.VK_R, 1, "Remove padding variables");
         mntmShowVariables = createMenuItem(mnData, "Show variables", KeyEvent.VK_V, 1, "Display all of the variable paths + names in various formats");
         mnData.addSeparator();
         mntmSearchTable = createMenuItem(mnData, "Search tables", KeyEvent.VK_S, 1, "Search the project database tables");
@@ -1738,6 +1745,32 @@ public class CcddMain
             {
                 new CcddTableManagerDialog(CcddMain.this,
                                            ManagerDialogType.DELETE);
+            }
+        });
+
+        // Add a listener for the Add Padding Data menu item
+        mntmAddPadding.addActionListener(new ActionListener()
+        {
+            /******************************************************************
+             * Add or update padding variables in the data structure tables
+             *****************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                new CcddStructurePaddingHandler(CcddMain.this, true);
+            }
+        });
+
+        // Add a listener for the Remove Padding Data menu item
+        mntmRemovePadding.addActionListener(new ActionListener()
+        {
+            /******************************************************************
+             * Remove padding variables from the data structure tables
+             *****************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                new CcddStructurePaddingHandler(CcddMain.this, false);
             }
         });
 

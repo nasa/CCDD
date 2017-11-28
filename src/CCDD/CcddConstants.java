@@ -169,6 +169,10 @@ public class CcddConstants
     // Node name for the pseudo-group containing all tables
     protected static final String ALL_TABLES_GROUP_NODE_NAME = "All tables";
 
+    // Variable name prefix and data type for padding variables
+    protected static String PAD_VARIABLE = "__pad";
+    protected static String PAD_DATA_TYPE = "char";
+
     // Main window initial and minimum window size
     protected static final int INIT_WINDOW_WIDTH = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getWidth() / 2;
     protected static final int INIT_WINDOW_HEIGHT = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getHeight() / 2;
@@ -355,6 +359,10 @@ public class CcddConstants
         // Prototype and instance tables, structure types only, with primitive
         // variables
         STRUCTURES_WITH_PRIMITIVES,
+
+        // Prototype tables only, structure types only, with primitive
+        // variables
+        PROTOTYPE_STRUCTURES_WITH_PRIMITIVES,
 
         // Instance tables only, structure types only, with primitive variables
         INSTANCE_STRUCTURES_WITH_PRIMITIVES,
@@ -803,6 +811,7 @@ public class CcddConstants
         PROTECTED_BACK("Protected cell background", "Background color for a protected (non-editable) cell", "ProtectedBackgroundColor", 192, 192, 192),
         VALID_TEXT("Valid table text", "Text color for valid table rows. Used in the telemetry and application scheduler tables", "ValidTextColor", 0, 200, 0),
         INVALID_TEXT("Invalid table text", "Text color for invalid table rows. Used in the telemetry and application scheduler tables", "InvalidTextColor", 200, 0, 0),
+        PADDING_BACK("Padding variable cell background", "Background color for a padding variable cell", "PaddingBackgroundColor", 240, 220, 240),
         SPECIAL_LABEL_TEXT("Dialog component group label", "Text color for a group of components in a dialog", "SpecialLabelTextColor", 170, 40, 80),
         DATA_TYPE("Data type (tree)", "Text color for a data type in a table or variable tree", "DataTypeTextColor", 130, 0, 110),
         TOOL_TIP_TEXT("Tool tip text", "Text color for tool tip pop-ups. Ignored by some look & feels", "ToolTipTextColor", 0, 0, 0),

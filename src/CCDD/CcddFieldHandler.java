@@ -247,7 +247,6 @@ public class CcddFieldHandler
         buildFieldInformation(fieldDefinitions,
                               ownerName,
                               null);
-
     }
 
     /**************************************************************************

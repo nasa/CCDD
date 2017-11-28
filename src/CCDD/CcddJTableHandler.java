@@ -3609,7 +3609,7 @@ public abstract class CcddJTableHandler extends JTable
      * Remove one or more rows from the table
      *
      * @param rows
-     *            array of indices of the rows to remove
+     *            array of indices of the rows to remove, view coordinates
      *************************************************************************/
     protected void removeRows(int[] rows)
     {

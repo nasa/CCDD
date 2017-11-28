@@ -13,7 +13,6 @@ import static CCDD.CcddConstants.GROUP_ICON;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -676,13 +675,6 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                                                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
                                                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
                                                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
-
-        // Set the preferred width of the tree's scroll pane
-        treeScroll.setPreferredSize(new Dimension(Math.min(Math.max(treeScroll.getPreferredSize().width,
-                                                                    200),
-                                                           400),
-                                                  treeScroll.getPreferredSize().height));
-        treeScroll.setMinimumSize(treeScroll.getPreferredSize());
 
         // Check if this is the last component to add
         if (noFilters)
