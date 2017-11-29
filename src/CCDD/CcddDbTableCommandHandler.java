@@ -39,7 +39,7 @@ import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.ArrayVariable;
 import CCDD.CcddClasses.FieldInformation;
-import CCDD.CcddClasses.NodeIndex;
+import CCDD.CcddClasses.BitPackNodeIndex;
 import CCDD.CcddClasses.RateInformation;
 import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddClasses.TableMembers;
@@ -4557,7 +4557,7 @@ public class CcddDbTableCommandHandler
         {
             // Get the indices of all variables bit-packed the variable at the
             // current child index
-            NodeIndex nodeIndex = tableTree.getBitPackedVariables((ToolTipTreeNode) updTableNode.getChildAt(childIndex));
+            BitPackNodeIndex nodeIndex = tableTree.getBitPackedVariables((ToolTipTreeNode) updTableNode.getChildAt(childIndex));
 
             // Check if any variables are bit-packed with the current variable
             if (nodeIndex.getFirstIndex() != nodeIndex.getLastIndex())
@@ -4596,7 +4596,7 @@ public class CcddDbTableCommandHandler
         {
             // Get the indices of all variables bit-packed the variable at the
             // current child index
-            NodeIndex nodeIndex = tableTree.getBitPackedVariables((ToolTipTreeNode) orgTableNode.getChildAt(childIndex));
+            BitPackNodeIndex nodeIndex = tableTree.getBitPackedVariables((ToolTipTreeNode) orgTableNode.getChildAt(childIndex));
 
             // Check if any variables are bit-packed with the current variable
             if (nodeIndex.getFirstIndex() != nodeIndex.getLastIndex())

@@ -2785,30 +2785,80 @@ public class CcddClasses
     }
 
     /**************************************************************************
-     * Node indices for bit-packed variables class
+     * Table row indices for bit-packed variables class
      *************************************************************************/
-    protected static class NodeIndex
+    protected static class BitPackRowIndex
+    {
+        private final int firstIndex;
+        private final int lastIndex;
+
+        /**********************************************************************
+         * Table row indices for bit-packed variables class constructor
+         *
+         * @param firstIndex
+         *            table row index for the first member in a group of
+         *            bit-packed variables, model coordinates
+         *
+         * @param lastIndex
+         *            table row index for the last member in a group of
+         *            bit-packed variables, model coordinates
+         *********************************************************************/
+        BitPackRowIndex(int firstIndex, int lastIndex)
+        {
+            this.firstIndex = firstIndex;
+            this.lastIndex = lastIndex;
+        }
+
+        /**********************************************************************
+         * Get the table row index for the first member in a group of
+         * bit-packed variable
+         *
+         * @return Table row index for the first member in a group of
+         *         bit-packed variable, model coordinates
+         *********************************************************************/
+        protected int getFirstIndex()
+        {
+            return firstIndex;
+        }
+
+        /**********************************************************************
+         * Get the table row index for the last member in a group of bit-packed
+         * variable
+         *
+         * @return Table row index for the last member in a group of bit-packed
+         *         variable, model coordinates
+         *********************************************************************/
+        protected int getLastIndex()
+        {
+            return lastIndex;
+        }
+    }
+
+    /**************************************************************************
+     * Table tree node indices for bit-packed variables class
+     *************************************************************************/
+    protected static class BitPackNodeIndex
     {
         private final int firstIndex;
         private final int lastIndex;
         private final int tableIndex;
 
         /**********************************************************************
-         * Node indices for bit-packed variables class constructor
+         * Table tree node indices for bit-packed variables class constructor
          *
          * @param firstIndex
-         *            node index for the first member in a group of bit-packed
-         *            variable
+         *            tree node index for the first member in a group of
+         *            bit-packed variables
          *
          * @param lastIndex
-         *            node index for the last member in a group of bit-packed
-         *            variables
+         *            tree node index for the last member in a group of
+         *            bit-packed variables
          *
          * @param tableIndex
-         *            node index for the selected member in a group of
+         *            tree node index for the selected member in a group of
          *            bit-packed variables
          *********************************************************************/
-        NodeIndex(int firstIndex, int lastIndex, int tableIndex)
+        BitPackNodeIndex(int firstIndex, int lastIndex, int tableIndex)
         {
             this.firstIndex = firstIndex;
             this.lastIndex = lastIndex;

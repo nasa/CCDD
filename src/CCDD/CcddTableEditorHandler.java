@@ -56,6 +56,7 @@ import javax.swing.text.JTextComponent;
 
 import CCDD.CcddClasses.ArrayVariable;
 import CCDD.CcddClasses.AssociatedColumns;
+import CCDD.CcddClasses.BitPackRowIndex;
 import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddClasses.MinMaxPair;
 import CCDD.CcddClasses.PaddedComboBox;
@@ -2192,7 +2193,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     }
                     // Check if the row's variable name is present and matches
                     // that for a padding variable
-                    else if (variableNameIndex != 1
+                    else if (variableNameIndex != -1
                              && getExpandedValueAt(table.convertRowIndexToModel(row),
                                                    variableNameIndex).toString().matches(PAD_VARIABLE
                                                                                          + "[0-9]+$"))
@@ -4284,11 +4285,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      * @param columnChanged
      *            table model index of the column being changed
      *************************************************************************/
-    private void adjustArrayMember(List<Object[]> tableData,
-                                   int[] arraySizeOld,
-                                   int[] arraySizeNew,
-                                   int definitionRow,
-                                   int columnChanged)
+    protected void adjustArrayMember(List<Object[]> tableData,
+                                     int[] arraySizeOld,
+                                     int[] arraySizeNew,
+                                     int definitionRow,
+                                     int columnChanged)
     {
         // Initialize the total original and updated array size values to 1 so
         // that the size calculations below can be made
@@ -4648,86 +4649,17 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     {
         isRateChange = false;
 
-        // TODO
-        PackIndex packIndex = getPackedVariables(tableData, row);
-        int firstRow = packIndex.getFirstIndex();
-        int lastRow = packIndex.getLastIndex();
-
-        // // Get the number of bytes occupied by this variable
-        // String dataType = tableData.get(row)[dataTypeIndex].toString();
-        // int dataTypeBitSize = dataTypeHandler.getSizeInBits(dataType);
-        //
-        // int curRow = row - 1;
-        //
-        // // Step backwards through the table while a variable having a bit
-        // // length and of the same data type is found
-        // while (curRow >= 0
-        // && !getExpandedValueAt(tableData, curRow, bitLengthIndex).isEmpty()
-        // && dataType.equals(tableData.get(curRow)[dataTypeIndex].toString()))
-        // {
-        // // Go to the previous row
-        // curRow--;
-        // }
-        //
-        // // Store the first row in the pack
-        // curRow++;
-        // int firstRow = curRow;
-        //
-        // int bitCount = 0;
-        // boolean isTargetPack = false;
-        //
-        // // Step forward, packing the bits, in order to determine the
-        // variables
-        // // in the target row's pack
-        // while (curRow < tableData.size()
-        // && !getExpandedValueAt(tableData, curRow, bitLengthIndex).isEmpty()
-        // && dataType.equals(tableData.get(curRow)[dataTypeIndex].toString()))
-        // {
-        // // Add the number of bits occupied by this variable to the running
-        // // count
-        // int numBits = Integer.valueOf(getExpandedValueAt(tableData,
-        // curRow,
-        // bitLengthIndex));
-        // bitCount += numBits;
-        //
-        // // Check if the bit count rolled over the maximum allowed
-        // if (bitCount > dataTypeBitSize)
-        // {
-        // // Check if the target variable is included
-        // if (isTargetPack)
-        // {
-        // // Stop searching
-        // break;
-        // }
-        //
-        // // Reset the bit count to the current row's value and store the
-        // // row index for the first variable in the pack
-        // bitCount = numBits;
-        // firstRow = curRow;
-        // }
-        //
-        // // Check if the target row is reached
-        // if (curRow == row)
-        // {
-        // // Set the flag indicating this pack includes the target
-        // // variable
-        // isTargetPack = true;
-        // }
-        //
-        // curRow++;
-        // }
-        //
-        // // Store the last row in the pack
-        // int lastRow = curRow - 1;
+        // Get the first and last row indices of the packed variables
+        BitPackRowIndex packIndex = getPackedVariables(tableData, row);
 
         // Set the row that has the governing rate
-        int theRow = useRowRate ? row : firstRow;
+        int theRow = useRowRate ? row : packIndex.getFirstIndex();
 
         // Step through each rate column
         for (int column : rateIndex)
         {
             // Step through the rows for the variables that are packed together
-            for (int curRow = firstRow; curRow <= lastRow; curRow++)
+            for (int curRow = packIndex.getFirstIndex(); curRow <= packIndex.getLastIndex(); curRow++)
             {
                 // Check that this isn't the target's row
                 if (tableData.get(curRow)[column] != tableData.get(theRow)[column])
@@ -4741,33 +4673,24 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             }
         }
 
-        return lastRow;
+        return packIndex.getLastIndex();
     }
 
-    // TODO
-    class PackIndex
-    {
-        private final int firstIndex;
-        private final int lastIndex;
-
-        PackIndex(int firstIndex, int lastIndex)
-        {
-            this.firstIndex = firstIndex;
-            this.lastIndex = lastIndex;
-        }
-
-        protected int getFirstIndex()
-        {
-            return firstIndex;
-        }
-
-        protected int getLastIndex()
-        {
-            return lastIndex;
-        }
-    }
-
-    protected PackIndex getPackedVariables(List<Object[]> tableData, int row)
+    /**************************************************************************
+     * Determine the first and last row indices for bit-wise variables that are
+     * packed together with the bit-wise variable in the specified row
+     *
+     * @param tableData
+     *            list containing the table data row arrays
+     *
+     * @param row
+     *            table model row index
+     *
+     * @return BitPackRowIndex instance containing the first and last row
+     *         indices of the packed variables. The values are the same if no
+     *         variables are packed with the variable in the target row
+     *************************************************************************/
+    protected BitPackRowIndex getPackedVariables(List<Object[]> tableData, int row)
     {
         // Get the number of bytes occupied by this variable
         String dataType = tableData.get(row)[dataTypeIndex].toString();
@@ -4831,7 +4754,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             curRow++;
         }
 
-        return new PackIndex(firstRow, curRow - 1);
+        return new BitPackRowIndex(firstRow, curRow - 1);
     }
 
     /**************************************************************************

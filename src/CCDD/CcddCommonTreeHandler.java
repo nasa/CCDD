@@ -32,7 +32,7 @@ import javax.swing.tree.TreePath;
 
 import CCDD.CcddClasses.ArrayVariable;
 import CCDD.CcddClasses.GroupInformation;
-import CCDD.CcddClasses.NodeIndex;
+import CCDD.CcddClasses.BitPackNodeIndex;
 import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.ModifiableFontInfo;
 
@@ -780,7 +780,7 @@ public class CcddCommonTreeHandler extends JTree
                 // string must be selected. Check if this node has any siblings
                 if (node.getSiblingCount() > 1)
                 {
-                    NodeIndex nodeIndex = null;
+                    BitPackNodeIndex nodeIndex = null;
 
                     // Check if this is a variable tree
                     if (isVariable)
@@ -959,7 +959,7 @@ public class CcddCommonTreeHandler extends JTree
      * @return NodeIndex object containing the node indices bounding the
      *         bit-packed variables
      *************************************************************************/
-    protected NodeIndex getBitPackedVariables(ToolTipTreeNode node)
+    protected BitPackNodeIndex getBitPackedVariables(ToolTipTreeNode node)
     {
         // Get the variable name from the node
         String varName = removeExtraText(node.getUserObject().toString());
@@ -1080,7 +1080,7 @@ public class CcddCommonTreeHandler extends JTree
             lastIndex = curIndex - (isTargetInPack ? 1 : 0);
         }
 
-        return new NodeIndex(firstIndex, lastIndex, tblIndex);
+        return new BitPackNodeIndex(firstIndex, lastIndex, tblIndex);
     }
 
     /**************************************************************************
@@ -1093,7 +1093,7 @@ public class CcddCommonTreeHandler extends JTree
      * @return NodeIndex object containing the node indices bounding the string
      *         variable
      *************************************************************************/
-    protected NodeIndex getStringVariableMembers(ToolTipTreeNode node)
+    protected BitPackNodeIndex getStringVariableMembers(ToolTipTreeNode node)
     {
         // Get the target variable's data type and name from the node without
         // the string size array index
@@ -1153,7 +1153,7 @@ public class CcddCommonTreeHandler extends JTree
         // index is the same as the first index
         int lastIndex = curIndex - 1;
 
-        return new NodeIndex(firstIndex, lastIndex, tblIndex);
+        return new BitPackNodeIndex(firstIndex, lastIndex, tblIndex);
     }
 
     /**************************************************************************
@@ -1207,7 +1207,7 @@ public class CcddCommonTreeHandler extends JTree
             {
                 // Determine if this row's variable is bit-packed with other
                 // variables
-                NodeIndex nodeIndex = getBitPackedVariables(node);
+                BitPackNodeIndex nodeIndex = getBitPackedVariables(node);
 
                 // Check if the variable is bit-packed with other variables
                 if (nodeIndex.getFirstIndex() != nodeIndex.getLastIndex())

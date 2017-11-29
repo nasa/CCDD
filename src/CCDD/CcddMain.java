@@ -150,6 +150,7 @@ public class CcddMain
     private JMenuItem mntmRenameTable;
     private JMenuItem mntmCopyTable;
     private JMenuItem mntmDeleteTable;
+    private JMenuItem mntmSetAlignment;
     private JMenuItem mntmAddPadding;
     private JMenuItem mntmRemovePadding;
     private JMenuItem mntmImportTable;
@@ -833,6 +834,7 @@ public class CcddMain
         mntmRenameTable.setEnabled(dbControl.isDatabaseConnected());
         mntmCopyTable.setEnabled(dbControl.isDatabaseConnected());
         mntmDeleteTable.setEnabled(dbControl.isDatabaseConnected());
+        mntmSetAlignment.setEnabled(dbControl.isDatabaseConnected());
         mntmAddPadding.setEnabled(dbControl.isDatabaseConnected());
         mntmRemovePadding.setEnabled(dbControl.isDatabaseConnected());
         mntmImportTable.setEnabled(dbControl.isDatabaseConnected());
@@ -1348,6 +1350,7 @@ public class CcddMain
         mntmEditDataField = createMenuItem(mnData, "Show/edit fields", KeyEvent.VK_F, 1, "Open the data field table editor");
         mnData.addSeparator();
         JMenu mnPadding = createSubMenu(mnData, "Padding", KeyEvent.VK_P, 1, null);
+        mntmSetAlignment = createMenuItem(mnPadding, "Set alignment", KeyEvent.VK_S, 1, "Set the padding byte alignment value");
         mntmAddPadding = createMenuItem(mnPadding, "Add/update", KeyEvent.VK_A, 1, "Add or update padding variables");
         mntmRemovePadding = createMenuItem(mnPadding, "Remove", KeyEvent.VK_R, 1, "Remove padding variables");
         mntmShowVariables = createMenuItem(mnData, "Show variables", KeyEvent.VK_V, 1, "Display all of the variable paths + names in various formats");
@@ -1748,6 +1751,19 @@ public class CcddMain
             }
         });
 
+        // Add a listener for the Padding byte alignment Data menu item
+        mntmSetAlignment.addActionListener(new ActionListener()
+        {
+            /******************************************************************
+             * Set the padding byte alignment value
+             *****************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                new CcddPaddingAlignmentDialog(CcddMain.this);
+            }
+        });
+
         // Add a listener for the Add Padding Data menu item
         mntmAddPadding.addActionListener(new ActionListener()
         {
@@ -1757,7 +1773,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddStructurePaddingHandler(CcddMain.this, true);
+                new CcddPaddingVariableHandler(CcddMain.this, true);
             }
         });
 
@@ -1770,7 +1786,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddStructurePaddingHandler(CcddMain.this, false);
+                new CcddPaddingVariableHandler(CcddMain.this, false);
             }
         });
 
@@ -2850,7 +2866,7 @@ public class CcddMain
                 editorDialog.closeFrame();
             }
 
-            // Check if the type editor dialog is open
+            // Check if the table type editor dialog is open
             if (tableTypeEditorDialog != null && tableTypeEditorDialog.isShowing())
             {
                 // Close the editor dialog

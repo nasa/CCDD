@@ -29,7 +29,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 import CCDD.CcddClasses.AssociatedVariable;
 import CCDD.CcddClasses.Message;
-import CCDD.CcddClasses.NodeIndex;
+import CCDD.CcddClasses.BitPackNodeIndex;
 import CCDD.CcddClasses.TelemetryData;
 import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddClasses.Variable;
@@ -441,7 +441,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
 
                     // Get the node indices that encompass the packed variables
                     // (if applicable)
-                    NodeIndex nodeIndex = allVariableTree.getBitPackedVariables(last);
+                    BitPackNodeIndex nodeIndex = allVariableTree.getBitPackedVariables(last);
 
                     // Update the variable index to skip the packed members, if
                     // present, so that their bytes don't affect the total
@@ -502,7 +502,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
             // Get the indices of the other variables associated with this
             // variable (i.e., other variable bit-packed or other members of
             // the string)
-            NodeIndex nodeIndex = isBitPack
+            BitPackNodeIndex nodeIndex = isBitPack
                                             ? allVariableTree.getBitPackedVariables(last)
                                             : allVariableTree.getStringVariableMembers(last);
 

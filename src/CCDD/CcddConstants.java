@@ -74,6 +74,7 @@ public class CcddConstants
     protected static final String TYPE_NAME_SEPARATOR = "TypeNameSeparator";
     protected static final String HIDE_DATA_TYPE = "HideDataType";
     protected static final String HIDE_SCRIPT_PATH = "HideScriptPath";
+    protected static final String PADDING_ALIGNMENT = "PaddingAlignment";
 
     // Prefix assigned to internally created CCDD database tables
     protected static final String INTERNAL_TABLE_PREFIX = "__";
