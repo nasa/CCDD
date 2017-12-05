@@ -226,15 +226,15 @@ public class CcddDataTypeHandler
     }
 
     /**************************************************************************
-     * Get the data type size in bytes for the specified data type
+     * Get the data type size for the specified data type
      *
      * @param dataTypeName
      *            data type name
      *
-     * @return Data type size in bytes for the specified data type; returns 0
-     *         if the data type doesn't exist
+     * @return Data type size for the specified data type; returns 0 if the
+     *         data type doesn't exist
      *************************************************************************/
-    protected int getSizeInBytes(String dataTypeName)
+    protected int getDataTypeSize(String dataTypeName)
     {
         int dataTypeSize = 0;
 
@@ -246,6 +246,32 @@ public class CcddDataTypeHandler
         {
             // Get the associated data type size
             dataTypeSize = Integer.valueOf(dataType[DataTypesColumn.SIZE.ordinal()]);
+        }
+
+        return dataTypeSize;
+    }
+
+    /**************************************************************************
+     * Get the data type size in bytes for the specified data type
+     *
+     * @param dataTypeName
+     *            data type name
+     *
+     * @return Data type size in bytes for the specified data type; returns 0
+     *         if the data type doesn't exist
+     *************************************************************************/
+    protected int getSizeInBytes(String dataTypeName)
+    {
+        // Get the data type size
+        int dataTypeSize = getDataTypeSize(dataTypeName);
+
+        // Check if this data type is a character string
+        if (isString(dataTypeName))
+        {
+            // Force the size to 1 byte. This prevents the string pseudo-data
+            // type, which uses a size other than 1 to indicate the data type
+            // is a string, from returning an incorrect size
+            dataTypeSize = 1;
         }
 
         return dataTypeSize;
@@ -376,7 +402,7 @@ public class CcddDataTypeHandler
     protected boolean isString(String dataTypeName)
     {
         return getBaseDataType(dataTypeName) == BaseDataTypeInfo.CHARACTER
-               && getSizeInBytes(dataTypeName) > 1;
+               && getDataTypeSize(dataTypeName) > 1;
     }
 
     /**************************************************************************

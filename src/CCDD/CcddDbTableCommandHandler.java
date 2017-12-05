@@ -38,8 +38,8 @@ import javax.swing.SwingWorker;
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.ArrayVariable;
-import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.BitPackNodeIndex;
+import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.RateInformation;
 import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddClasses.TableMembers;
@@ -2852,7 +2852,6 @@ public class CcddDbTableCommandHandler
                                       Component parent)
     {
         boolean errorFlag = false;
-        List<Integer> newKeys = new ArrayList<Integer>();
 
         try
         {
@@ -2989,33 +2988,6 @@ public class CcddDbTableCommandHandler
                 dbCommand.executeDbQuery("SELECT reset_link_rate();", parent);
             }
 
-            // Check if this is a prototype table and that new rows were added.
-            // New rows have database-generated primary key values that aren't
-            // reflected in the table editor, so these must be extracted and
-            // passed to the editor
-            if (tableInfo.isPrototype() && !additions.isEmpty())
-            {
-                // Get the table's primary key values
-                ResultSet keySet = dbCommand.executeDbQuery("SELECT "
-                                                            + DefaultColumn.PRIMARY_KEY.getDbName()
-                                                            + ", "
-                                                            + DefaultColumn.ROW_INDEX.getDbName()
-                                                            + " from "
-                                                            + dbTableName
-                                                            + " ORDER BY "
-                                                            + DefaultColumn.ROW_INDEX.getDbName(),
-                                                            parent);
-
-                // Step through each row in the table
-                while (keySet.next())
-                {
-                    // Store the row's primary key value
-                    newKeys.add(keySet.getInt(1));
-                }
-
-                keySet.close();
-            }
-
             // Log that inserting data into the table succeeded
             eventLog.logEvent(SUCCESS_MSG,
                               "Table '"
@@ -3048,9 +3020,7 @@ public class CcddDbTableCommandHandler
         {
             // Make changes to any open table editors
             CcddTableEditorDialog.doTableModificationComplete(ccddMain,
-                                                              newKeys,
                                                               tableInfo,
-                                                              additions,
                                                               modifications,
                                                               deletions,
                                                               forceUpdate);
@@ -7575,7 +7545,7 @@ public class CcddDbTableCommandHandler
                                         {
                                             // Check if the cell value is
                                             // editable
-                                            if (table.isCellEditable(row, table.convertColumnIndexToView(column)))
+                                            if (table.isCellEditable(row, column))
                                             {
                                                 // Check if this is a data type
                                                 // change

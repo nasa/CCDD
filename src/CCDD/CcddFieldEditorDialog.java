@@ -155,7 +155,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         if (!fieldInformation.isEmpty())
         {
             // Store the field information
-            currentData = fieldPnlHandler.getFieldHandler().getFieldDefinitionArray(true);
+            currentData = fieldPnlHandler.getFieldHandler().getFieldEditorDefinition();
         }
         // The table has no data fields
         else

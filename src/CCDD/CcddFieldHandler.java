@@ -377,6 +377,58 @@ public class CcddFieldHandler
     }
 
     /**************************************************************************
+     * Determine if the number of data fields, field attributes, or field
+     * contents differ between two sets of data field information
+     *
+     * @param compFieldInfoA
+     *            reference to the the first data field information with which
+     *            to compare the second data field information
+     *
+     * @param compFieldInfoB
+     *            reference to the second data field information with which to
+     *            compare the first data field information
+     *
+     * @param isIgnoreOwnerName
+     *            true if the owner name is ignored. This is the case if called
+     *            by the data field or table type editors
+     *
+     * @return Data field definitions array
+     *************************************************************************/
+    protected static boolean isFieldChanged(List<FieldInformation> compFieldInfoA,
+                                            List<FieldInformation> compFieldInfoB,
+                                            boolean isIgnoreOwnerName)
+    {
+        // Set the change flag if the number of fields in the two field
+        // handlers differ
+        boolean isFieldChanged = compFieldInfoA.size() != compFieldInfoB.size();
+
+        // Check if the number of fields is the same
+        if (!isFieldChanged)
+        {
+            // Step through each field
+            for (int index = 0; index < compFieldInfoA.size(); index++)
+            {
+                // Check if the field information differs
+                if ((!isIgnoreOwnerName && !compFieldInfoA.get(index).getOwnerName().equals(compFieldInfoB.get(index).getOwnerName()))
+                    || !compFieldInfoA.get(index).getFieldName().equals(compFieldInfoB.get(index).getFieldName())
+                    || !compFieldInfoA.get(index).getDescription().equals(compFieldInfoB.get(index).getDescription())
+                    || !compFieldInfoA.get(index).getInputType().equals(compFieldInfoB.get(index).getInputType())
+                    || compFieldInfoA.get(index).getSize() != compFieldInfoB.get(index).getSize()
+                    || !compFieldInfoA.get(index).getValue().equals(compFieldInfoB.get(index).getValue())
+                    || compFieldInfoA.get(index).isRequired() != compFieldInfoB.get(index).isRequired())
+                {
+                    // Set the flag indicating a field is changed and stop
+                    // searching
+                    isFieldChanged = true;
+                    break;
+                }
+            }
+        }
+
+        return isFieldChanged;
+    }
+
+    /**************************************************************************
      * Build the data field definitions from the data field editor provided
      *
      * @param fieldData
@@ -423,15 +475,12 @@ public class CcddFieldHandler
     }
 
     /**************************************************************************
-     * Get the array of data field definitions
+     * Get the array of data field definitions for the data field editor
      *
-     * @param isEditor
-     *            true if the array is for use in the field editor. The field
-     *            editor doesn't use the owner name in the array
-     *
-     * @return Object array containing the data field definitions
+     * @return Object array containing the data field definitions used by the
+     *         data field editor
      *************************************************************************/
-    protected Object[][] getFieldDefinitionArray(boolean isEditor)
+    protected Object[][] getFieldEditorDefinition()
     {
         List<Object[]> definitions = new ArrayList<Object[]>();
 
@@ -439,35 +488,16 @@ public class CcddFieldHandler
         for (FieldInformation fieldInfo : fieldInformation)
         {
             // Create storage for a single field definition
-            Object[] row = new Object[isEditor
-                                               ? FieldEditorColumnInfo.values().length
-                                               : FieldsColumn.values().length];
+            Object[] row = new Object[FieldEditorColumnInfo.values().length];
 
-            // Check if the array is for the field editor
-            if (isEditor)
-            {
-                // Store the field definition in the proper order
-                row[FieldEditorColumnInfo.NAME.ordinal()] = fieldInfo.getFieldName();
-                row[FieldEditorColumnInfo.DESCRIPTION.ordinal()] = fieldInfo.getDescription();
-                row[FieldEditorColumnInfo.INPUT_TYPE.ordinal()] = fieldInfo.getInputType().getInputName();
-                row[FieldEditorColumnInfo.SIZE.ordinal()] = fieldInfo.getSize();
-                row[FieldEditorColumnInfo.REQUIRED.ordinal()] = fieldInfo.isRequired();
-                row[FieldEditorColumnInfo.APPLICABILITY.ordinal()] = fieldInfo.getApplicabilityType().getApplicabilityName();
-                row[FieldEditorColumnInfo.VALUE.ordinal()] = fieldInfo.getValue();
-            }
-            // The array is not for the field editor
-            else
-            {
-                // Store the field definition in the proper order
-                row[FieldsColumn.OWNER_NAME.ordinal()] = fieldInfo.getOwnerName();
-                row[FieldsColumn.FIELD_NAME.ordinal()] = fieldInfo.getFieldName();
-                row[FieldsColumn.FIELD_DESC.ordinal()] = fieldInfo.getDescription();
-                row[FieldsColumn.FIELD_TYPE.ordinal()] = fieldInfo.getInputType().getInputName();
-                row[FieldsColumn.FIELD_SIZE.ordinal()] = fieldInfo.getSize();
-                row[FieldsColumn.FIELD_REQUIRED.ordinal()] = fieldInfo.isRequired();
-                row[FieldsColumn.FIELD_APPLICABILITY.ordinal()] = fieldInfo.getApplicabilityType().getApplicabilityName();
-                row[FieldsColumn.FIELD_VALUE.ordinal()] = fieldInfo.getValue();
-            }
+            // Store the field definition in the proper order
+            row[FieldEditorColumnInfo.NAME.ordinal()] = fieldInfo.getFieldName();
+            row[FieldEditorColumnInfo.DESCRIPTION.ordinal()] = fieldInfo.getDescription();
+            row[FieldEditorColumnInfo.INPUT_TYPE.ordinal()] = fieldInfo.getInputType().getInputName();
+            row[FieldEditorColumnInfo.SIZE.ordinal()] = fieldInfo.getSize();
+            row[FieldEditorColumnInfo.REQUIRED.ordinal()] = fieldInfo.isRequired();
+            row[FieldEditorColumnInfo.APPLICABILITY.ordinal()] = fieldInfo.getApplicabilityType().getApplicabilityName();
+            row[FieldEditorColumnInfo.VALUE.ordinal()] = fieldInfo.getValue();
 
             // Add the field definition to the list
             definitions.add(row);

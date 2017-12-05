@@ -369,7 +369,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                             // usually used to perform the update, occurs after
                             // the node selection edit and would cause the
                             // wrong description field to be changed
-                            fieldPnlHndlr.updateDescriptionField();
+                            fieldPnlHndlr.updateDescriptionField(true);
 
                             // Get the name of the selected group(s)
                             String[] selected = getTopLevelSelectedNodeNames();
@@ -1728,39 +1728,11 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             // Check if the group isn't new
             if (committedInfo != null)
             {
-                // Get the group's current and committed data field information
-                List<FieldInformation> currentField = currentInfo.getFieldInformation();
-                List<FieldInformation> committedField = committedInfo.getFieldInformation();
-
-                // Check if the number of fields for this group changed
-                if (currentField.size() != committedField.size())
-                {
-                    // Set the flag indicating a field changed
-                    isDiffers = true;
-                }
-
-                // Check if the number of fields is the same between the
-                // committed and current versions
-                if (!isDiffers)
-                {
-                    // Step through each field
-                    for (int index = 0; index < currentField.size(); index++)
-                    {
-                        // Check if the field information differs
-                        if (!currentField.get(index).getFieldName().equals(committedField.get(index).getFieldName())
-                            || !currentField.get(index).getDescription().equals(committedField.get(index).getDescription())
-                            || !currentField.get(index).getInputType().equals(committedField.get(index).getInputType())
-                            || currentField.get(index).getSize() != committedField.get(index).getSize()
-                            || !currentField.get(index).getValue().equals(committedField.get(index).getValue())
-                            || currentField.get(index).isRequired() != committedField.get(index).isRequired())
-                        {
-                            // Set the flag indicating a field changed and stop
-                            // searching
-                            isDiffers = true;
-                            break;
-                        }
-                    }
-                }
+                // Set the flag if the number of fields, field attributes, or
+                // field contents have changed
+                isDiffers = CcddFieldHandler.isFieldChanged(currentInfo.getFieldInformation(),
+                                                            committedInfo.getFieldInformation(),
+                                                            true);
             }
             // This is a new group
             else

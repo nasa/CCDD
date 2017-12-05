@@ -311,11 +311,11 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Create the Edit menu and menu items
                 JMenu mnEdit = ccddMain.createMenu(menuBar, "Edit", 1, KeyEvent.VK_E, null);
                 mntmCopy = ccddMain.createMenuItem(mnEdit, "Copy", KeyEvent.VK_O, 1, "Copy the currently selected cell(s) to the clipboard");
-                mntmPaste = ccddMain.createMenuItem(mnEdit, "Paste", KeyEvent.VK_V, 1, "Paste the clipboard contents at the current focus location");
+                mntmPaste = ccddMain.createMenuItem(mnEdit, "Paste (Ctrl-V)", KeyEvent.VK_V, 1, "Paste the clipboard contents at the current focus location");
                 mntmInsert = ccddMain.createMenuItem(mnEdit, "Insert", KeyEvent.VK_I, 1, "Insert the clipboard contents at the current focus location");
                 mnEdit.addSeparator();
-                mntmUndo = ccddMain.createMenuItem(mnEdit, "Undo", KeyEvent.VK_Z, 1, "Undo the last edit operation");
-                mntmRedo = ccddMain.createMenuItem(mnEdit, "Redo", KeyEvent.VK_Y, 1, "Redo the last undone edit operation");
+                mntmUndo = ccddMain.createMenuItem(mnEdit, "Undo (Ctrl-Z)", KeyEvent.VK_Z, 1, "Undo the last edit operation");
+                mntmRedo = ccddMain.createMenuItem(mnEdit, "Redo (Ctrl-Y)", KeyEvent.VK_Y, 1, "Redo the last undone edit operation");
                 mnEdit.addSeparator();
                 mntmClear = ccddMain.createMenuItem(mnEdit, "Clear data", KeyEvent.VK_L, 1, "Clear the current table type contents");
 
@@ -792,7 +792,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Move Down button
                 JButton btnMoveDown = CcddButtonPanelHandler.createButton("Down",
                                                                           DOWN_ICON,
-                                                                          KeyEvent.VK_W,
+                                                                          KeyEvent.VK_N,
                                                                           "Move the selected row(s) down");
 
                 // Create a listener for the Move Down command

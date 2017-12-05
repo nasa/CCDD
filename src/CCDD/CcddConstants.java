@@ -130,6 +130,10 @@ public class CcddConstants
     // stored as a single string in the program preferences
     protected static final String AUTO_COMPLETE_TEXT_SEPARATOR = "%~%";
 
+    // Characters used to separate the data field owner and name that is
+    // assigned as the text field name for the undo handler
+    protected static final String DATA_FIELD_IDENTIFIER_SEPARATOR = "%~%";
+
     // Special character to denote that a child data table cell value is to be
     // replaced with the corresponding entry in its prototype table, and that
     // its entry in the custom values table is to be removed

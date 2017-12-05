@@ -2724,7 +2724,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     private InterfaceDeclarationType createParameterSet(NamespaceType nameSpace)
     {
         InterfaceDeclarationType intParmType = factory.createInterfaceDeclarationType();
-        intParmType.setParameterSet(factory.createInterfaceParameterSetType());
+        intParmType.setParameterSet(factory.createParameterSetType());
         nameSpace.getDeclaredInterfaceSet().getInterface().add(intParmType);
         return intParmType;
     }
@@ -2740,7 +2740,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     private InterfaceDeclarationType createCommandSet(NamespaceType nameSpace)
     {
         InterfaceDeclarationType intCmdType = factory.createInterfaceDeclarationType();
-        intCmdType.setCommandSet(factory.createInterfaceCommandSetType());
+        intCmdType.setCommandSet(factory.createCommandSetType());
         nameSpace.getDeclaredInterfaceSet().getInterface().add(intCmdType);
         return intCmdType;
     }

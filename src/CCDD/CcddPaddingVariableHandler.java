@@ -16,6 +16,7 @@ import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import java.util.ArrayList;
 import java.util.List;
 
+import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.ArrayVariable;
 import CCDD.CcddClasses.BitPackRowIndex;
 import CCDD.CcddClasses.TableInformation;
@@ -109,17 +110,21 @@ public class CcddPaddingVariableHandler
                         if (editor.getOwnerName().equals(structureName))
                         {
                             // Replace the table's contents with the committed
-                            // data. This accounts for any uncommitted changes
+                            // data. This eliminates for any uncommitted
+                            // changes
                             editor.getTable().loadDataArrayIntoTable(editor.getCommittedTableInformation().getData(),
                                                                      false);
+
                             editor.getTable().getUndoManager().discardAllEdits();
                             isOpen = true;
                             break;
                         }
                     }
 
+                    // Check if the table's editor exists
                     if (isOpen)
                     {
+                        // Stop searching
                         break;
                     }
                 }
@@ -128,6 +133,13 @@ public class CcddPaddingVariableHandler
                 tableEditor = new CcddTableEditorHandler(ccddMain,
                                                          tableInfo,
                                                          (CcddTableEditorDialog) null);
+
+                // Check if the arrays aren't expanded
+                if (!tableEditor.isExpanded())
+                {
+                    // Expand the array members
+                    tableEditor.showHideArrayMembers();
+                }
 
                 // Get the a reference to the table's type definition
                 TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableEditor.getTableInformation().getType());
@@ -208,7 +220,7 @@ public class CcddPaddingVariableHandler
         }
 
         /**********************************************************************
-         * Remove any existing padding variable from the structure table
+         * Remove any existing padding variable(s) from the structure table
          *********************************************************************/
         protected void removePadding()
         {
@@ -219,10 +231,11 @@ public class CcddPaddingVariableHandler
             {
                 // Check if this row contains a padding variable
                 if (getVariableName(row).matches(PAD_VARIABLE + "[0-9]+$")
-                    && getDataType(row).equals(PAD_DATA_TYPE))
+                    && (getDataType(row).equals(PAD_DATA_TYPE)
+                        || !getBitLength(row).isEmpty()))
                 {
                     // Add the row index to the list of those to be removed
-                    removedRows.add(tableEditor.getTable().convertRowIndexToView(row));
+                    removedRows.add(row);
                 }
             }
 
@@ -260,16 +273,17 @@ public class CcddPaddingVariableHandler
                 String dataType = getDataType(row);
 
                 int variableSize = 0;
+                int numPads = 0;
 
                 // Check if the data type is a primitive
                 if (dataTypeHandler.isPrimitive(dataType))
                 {
                     // Extract the variable's data type and array size
-                    String variable = getVariableName(row);
+                    String variableName = getVariableName(row);
                     String arraySize = getArraySize(row);
 
                     // Check if the variable isn't an array definition
-                    if (arraySize.isEmpty() || ArrayVariable.isArrayMember(variable))
+                    if (arraySize.isEmpty() || ArrayVariable.isArrayMember(variableName))
                     {
                         // Check if the variable has a bit length
                         if (!getBitLength(row).isEmpty())
@@ -277,7 +291,8 @@ public class CcddPaddingVariableHandler
                             // Get the start and stop row indices for any
                             // subsequent variables that are bit-packed with
                             // this variable
-                            packIndex = tableEditor.getPackedVariables(tableEditor.getTable().getTableDataList(false), row);
+                            packIndex = tableEditor.getPackedVariables(tableEditor.getTable().getTableDataList(false),
+                                                                       row);
                         }
                         // The variable doesn't have a bit length
                         else
@@ -288,10 +303,13 @@ public class CcddPaddingVariableHandler
                         // Get the size of the variable in bytes
                         variableSize = dataTypeHandler.getSizeInBytes(dataType);
 
-                        // Check if the variable is already positioned on the
-                        // alignment point. This also accounts for variables
-                        // with a size greater than the alignment value
-                        if ((variableSize + byteCount) % byteAlignment != 0)
+                        // Check if the variable isn't already positioned on
+                        // the alignment point. This also accounts for
+                        // variables with a size greater than the alignment
+                        // value
+                        if (byteCount != 0
+                            && variableSize != 1
+                            && (variableSize + byteCount) % byteAlignment != 0)
                         {
                             // Check if the variable doesn't fit within the
                             // remaining bytes
@@ -300,10 +318,7 @@ public class CcddPaddingVariableHandler
                                 // Calculate the number of padding variables
                                 // needed to align the variable to the next
                                 // alignment value
-                                int numPads = byteAlignment - byteCount;
-
-                                // Add the padding variable(s), if needed
-                                row = addPaddingVariable(row, numPads);
+                                numPads = byteAlignment - byteCount;
                             }
                             // The variable doesn't exceed the next alignment
                             // point
@@ -312,21 +327,47 @@ public class CcddPaddingVariableHandler
                                 // Calculate the number of padding variables
                                 // needed to align the variable within the
                                 // current alignment value
-                                int numPads = (byteAlignment - byteCount) % variableSize;
-
-                                // Add the padding variable(s), if needed
-                                row = addPaddingVariable(row, numPads);
+                                numPads = (byteAlignment - byteCount) % variableSize;
                             }
+
+                            // Add the padding variable(s)
+                            row = addPaddingVariable(row, numPads, 0);
                         }
 
-                        // Check if the variable is bit-packed with one or more
-                        // subsequent variables
-                        if (packIndex != null
-                            && packIndex.getFirstIndex() != packIndex.getLastIndex())
+                        // Check if this is a bit-wise variable
+                        if (packIndex != null)
                         {
-                            // Adjust the tree index to skip the other pack
-                            // members
-                            row = packIndex.getLastIndex();
+                            int bitCount = 0;
+
+                            // Step through each of the bit-wise variables that
+                            // are packed together (this includes single,
+                            // unpacked bit-wise variables). Adjust the start
+                            // and stop to account for any padding added above
+                            for (int bitRow = packIndex.getFirstIndex() + numPads; bitRow <= packIndex.getLastIndex() + numPads; bitRow++)
+                            {
+                                // Add the variable's number of bits to the
+                                // pack count
+                                bitCount += Integer.valueOf(getBitLength(bitRow));
+                            }
+
+                            // Calculate the number of unused bits in the
+                            // packed variables
+                            int numPadBits = dataTypeHandler.getSizeInBits(dataType) - bitCount;
+
+                            // Check if there are any unused bits in the packed
+                            // variable
+                            if (numPadBits != 0)
+                            {
+                                // Add a padding variable to fill in the unused
+                                // bits
+                                addPaddingVariable(packIndex.getLastIndex() + numPads + 1,
+                                                   1,
+                                                   numPadBits);
+                            }
+
+                            // Update the row index to skip the other variables
+                            // packed with the current one
+                            row += packIndex.getLastIndex() - packIndex.getFirstIndex() + 1;
                         }
                     }
                 }
@@ -344,10 +385,10 @@ public class CcddPaddingVariableHandler
                         {
                             // Calculate the number of padding variables needed
                             // to align the child structure variable
-                            int numPads = (byteAlignment - byteCount) % childPadInfo.largestDataType;
+                            numPads = (byteAlignment - byteCount) % childPadInfo.largestDataType;
 
                             // Add the padding variable(s), if needed
-                            row = addPaddingVariable(row, numPads);
+                            row = addPaddingVariable(row, numPads, 0);
 
                             // Store the child structure size as the variable
                             // size
@@ -371,29 +412,58 @@ public class CcddPaddingVariableHandler
             int numPads = (byteAlignment - byteCount) % largestDataType;
 
             // Add the padding variable(s), if needed
-            addPaddingVariable(tableEditor.getTable().getModel().getRowCount(), numPads);
+            addPaddingVariable(tableEditor.getTable().getModel().getRowCount(), numPads, 0);
         }
 
         /**********************************************************************
          * Add a padding variable at the specified row index
+         *
+         * @param row
+         *            structure table row index at which to insert the padding
+         *            variable(s)
+         *
+         * @param padSize
+         *            number of padding variables to insert
+         *
+         * @param numPadBits
+         *            number of bits to assign to the padding variable to fill
+         *            in a sequence of bit-packed variables. 0 if the padding
+         *            variable isn't associated with bit-packed variables
+         *
+         * @return Row index below the added padding variable(s)
          *********************************************************************/
-        private int addPaddingVariable(int row, int padSize)
+        private int addPaddingVariable(int row, int padSize, int numPadBits)
         {
             // Check if any padding is needed
             if (padSize > 0)
             {
-                // Create an empty row array, then set the padding variable
-                // name and data type
+                // Create an empty row array and set the padding variable name
                 Object[] rowData = tableEditor.getTable().getEmptyRow();
                 rowData[varNameColumn] = PAD_VARIABLE + padCounter;
-                rowData[dataTypeColumn] = PAD_DATA_TYPE;
+
+                // Check if the padding variable is not for filling up one or
+                // more bit-packed variables
+                if (numPadBits == 0)
+                {
+                    // Set the padding variable data type
+                    rowData[dataTypeColumn] = PAD_DATA_TYPE;
+                }
+                // Padding is added to fill up one or more packed variables
+                else
+                {
+                    // Set the padding variable data type to match that of the
+                    // bit-wise variable(s) and set the bit length to the
+                    // number of bits needed to fill up the packing
+                    rowData[dataTypeColumn] = getDataType(row - 1);
+                    rowData[bitLengthColumn] = String.valueOf(numPadBits);
+                }
 
                 // Check if multiple padding variables are to be added
                 if (padSize > 1)
                 {
                     // Set the array size value to match the number of padding
                     // variables needed
-                    rowData[arraySizeColumn] = padSize;
+                    rowData[arraySizeColumn] = String.valueOf(padSize);
                 }
 
                 // Insert the padding variable row into the table
@@ -421,9 +491,18 @@ public class CcddPaddingVariableHandler
                 // Adjust the row index past the padding variables
                 row += padSize;
 
-                // Update the padding name and byte counters
+                // Update the padding name counter
                 padCounter++;
-                byteCount += padSize;
+
+                // Check if the padding variable is not for filling up one or
+                // more bit-packed variables. The byte count is unaffected when
+                // adding padding for bit-packing
+                if (numPadBits == 0)
+                {
+                    // Update the byte count to account for the number of added
+                    // bytes
+                    byteCount += padSize;
+                }
             }
 
             return row;
@@ -439,14 +518,15 @@ public class CcddPaddingVariableHandler
 
             // Check if any updates were made (padding variables added or
             // deleted)
-            if (!tableEditor.getAdditions().isEmpty() || !tableEditor.getDeletions().isEmpty())
+            if (!tableEditor.getAdditions().isEmpty()
+                || !tableEditor.getDeletions().isEmpty())
             {
                 // Update the table in the database
                 dbTable.modifyTableData(tableInfo,
                                         tableEditor.getAdditions(),
                                         tableEditor.getModifications(),
                                         tableEditor.getDeletions(),
-                                        true,
+                                        false,
                                         false,
                                         false,
                                         false,
@@ -468,7 +548,7 @@ public class CcddPaddingVariableHandler
      *            true to add or update the variable padding; false to remove
      *            the padding variables
      *************************************************************************/
-    CcddPaddingVariableHandler(CcddMain ccddMain, boolean addPadding)
+    CcddPaddingVariableHandler(final CcddMain ccddMain, final boolean addPadding)
     {
         // Check if there are uncommitted changes and if so, confirm discarding
         // the changes before proceeding
@@ -479,59 +559,74 @@ public class CcddPaddingVariableHandler
                                               ccddMain.getMainFrame()))
         {
             this.ccddMain = ccddMain;
-            dbTable = ccddMain.getDbTableCommandHandler();
-            tableTypeHandler = ccddMain.getTableTypeHandler();
-            dataTypeHandler = ccddMain.getDataTypeHandler();
 
-            paddingInformation = new ArrayList<StructurePaddingHandler>();
-
-            // Get the current byte alignment value
-            byteAlignment = Integer.valueOf(ccddMain.getProgPrefs().get(PADDING_ALIGNMENT, "4"));
-
-            // Step through each prototype structure table
-            for (String protoStruct : dbTable.getPrototypeTablesOfType(TYPE_STRUCTURE))
+            // Execute the commands to add/update/remove the padding variables
+            // in the background
+            CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
             {
-                // Load the table's data
-                StructurePaddingHandler paddingInfo = new StructurePaddingHandler(protoStruct);
-
-                // Check if the table loaded successfully
-                if (paddingInfo.isLoaded())
+                /**************************************************************
+                 * Update structure table padding variables command
+                 *************************************************************/
+                @Override
+                protected void execute()
                 {
-                    // Add the table's padding information to the list
-                    paddingInformation.add(paddingInfo);
+                    dbTable = ccddMain.getDbTableCommandHandler();
+                    tableTypeHandler = ccddMain.getTableTypeHandler();
+                    dataTypeHandler = ccddMain.getDataTypeHandler();
 
-                    // Remove any existing padding variables from the table
-                    paddingInfo.removePadding();
+                    paddingInformation = new ArrayList<StructurePaddingHandler>();
+
+                    // Get the current byte alignment value
+                    byteAlignment = Integer.valueOf(ccddMain.getProgPrefs().get(PADDING_ALIGNMENT, "4"));
+
+                    // Step through each prototype structure table
+                    for (String protoStruct : dbTable.getPrototypeTablesOfType(TYPE_STRUCTURE))
+                    {
+                        // Load the table's data
+                        StructurePaddingHandler paddingInfo = new StructurePaddingHandler(protoStruct);
+
+                        // Check if the table loaded successfully
+                        if (paddingInfo.isLoaded())
+                        {
+                            // Add the table's padding information to the list
+                            paddingInformation.add(paddingInfo);
+
+                            // Remove any existing padding variables from the
+                            // table
+                            paddingInfo.removePadding();
+                        }
+                    }
+
+                    // Check if padding variables should be added
+                    if (addPadding)
+                    {
+                        // Step through each successfully loaded table
+                        for (StructurePaddingHandler paddingInfo : paddingInformation)
+                        {
+                            // Find largest primitive data type referenced in
+                            // this table's hierarchy, including those in any
+                            // child structures, and the structure's total size
+                            setStructureSizes(paddingInfo);
+                        }
+
+                        // Step through each successfully loaded table
+                        for (StructurePaddingHandler paddingInfo : paddingInformation)
+                        {
+                            if (paddingInfo.largestDataType != 0)
+                                // Add any padding variables to the table
+                                // needed to align the variables
+                                paddingInfo.addPadding();
+                        }
+                    }
+
+                    // Step through each successfully loaded table
+                    for (StructurePaddingHandler paddingInfo : paddingInformation)
+                    {
+                        // Update the table in the project database
+                        paddingInfo.updateTable();
+                    }
                 }
-            }
-
-            // Check if padding variables should be added
-            if (addPadding)
-            {
-                // Step through each successfully loaded table
-                for (StructurePaddingHandler paddingInfo : paddingInformation)
-                {
-                    // Find largest primitive data type referenced in this
-                    // table's hierarchy, including those in any child
-                    // structures, and the structure's total size
-                    setStructureSizes(paddingInfo);
-                }
-
-                // Step through each successfully loaded table
-                for (StructurePaddingHandler paddingInfo : paddingInformation)
-                {
-                    // Add any padding variables to the table needed to align
-                    // the variables
-                    paddingInfo.addPadding();
-                }
-            }
-
-            // Step through each successfully loaded table
-            for (StructurePaddingHandler paddingInfo : paddingInformation)
-            {
-                // Update the table in the project database
-                paddingInfo.updateTable();
-            }
+            });
         }
     }
 

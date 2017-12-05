@@ -7,6 +7,8 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.DATA_FIELD_IDENTIFIER_SEPARATOR;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
@@ -222,12 +224,15 @@ public abstract class CcddInputFieldPanelHandler
     }
 
     /**************************************************************************
-     * Update the description field text. This puts the edit on the undo/redo
-     * stack
+     * Update the description field text. Put the edit on the undo/redo stack
+     * based on the input flag
+     *
+     * @param undoable
+     *            true to enable putting the edit on the undo/redo stack
      *************************************************************************/
-    protected void updateDescriptionField()
+    protected void updateDescriptionField(boolean undoable)
     {
-        descriptionFld.updateText();
+        descriptionFld.updateText(undoable);
     }
 
     /**************************************************************************
@@ -558,7 +563,7 @@ public abstract class CcddInputFieldPanelHandler
                         // can identify the check box, even if it's destroyed
                         // and recreated
                         booleanCb.setName(fieldInfo.getOwnerName()
-                                          + ","
+                                          + DATA_FIELD_IDENTIFIER_SEPARATOR
                                           + fieldInfo.getFieldName());
 
                         // Adjust the left and right padding around the check
@@ -640,7 +645,7 @@ public abstract class CcddInputFieldPanelHandler
                         // can identify the text field, even if it's destroyed
                         // and recreated
                         inputFld.setName(fieldInfo.getOwnerName()
-                                         + ","
+                                         + DATA_FIELD_IDENTIFIER_SEPARATOR
                                          + fieldInfo.getFieldName());
 
                         // Check if a description exists for this field

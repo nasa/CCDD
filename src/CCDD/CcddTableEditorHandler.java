@@ -29,8 +29,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -58,6 +56,7 @@ import CCDD.CcddClasses.ArrayVariable;
 import CCDD.CcddClasses.AssociatedColumns;
 import CCDD.CcddClasses.BitPackRowIndex;
 import CCDD.CcddClasses.CCDDException;
+import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.MinMaxPair;
 import CCDD.CcddClasses.PaddedComboBox;
 import CCDD.CcddClasses.RateInformation;
@@ -842,29 +841,22 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     /**************************************************************************
      * Perform the steps needed following execution of database table changes
      *
-     * @param keys
-     *            list of primary key values for each row in the table
+     * @param dbTableInfo
+     *            table's information, as it currently exists in the database
      *
      * @param applyToChild
      *            true if the table that was updated is a prototype and this
      *            table is a child of the updated table
-     *
-     * @param additions
-     *            list of row addition information
-     *
-     * @param modifications
-     *            list of row update information
-     *
-     * @param deletions
-     *            list of row deletion information
      *************************************************************************/
-    protected void doTableUpdatesComplete(List<Integer> keys,
-                                          boolean applyToChild,
-                                          List<TableModification> additions,
-                                          List<TableModification> modifications,
-                                          List<TableModification> deletions)
+    protected void doTableUpdatesComplete(TableInformation dbTableInfo,
+                                          boolean applyToChild)
     {
-        List<Object[]> committedData = null;
+        // Check if this is the editor for the table that was changed
+        if (dbTableInfo.getTablePath().equals(tableInfo.getTablePath()))
+        {
+            // Replace any custom value deletion flags with blanks
+            clearCustomValueDeletionFlags();
+        }
 
         // Check if a cell editor is active
         if (table.getCellEditor() != null)
@@ -874,190 +866,185 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             table.getCellEditor().stopCellEditing();
         }
 
+        Object[][] originalCommData = null;
+
+        // Get the current table description
+        // Check if the table contains any committed data
+        if (committedInfo.getData().length != 0)
+        {
+            originalCommData = new Object[committedInfo.getData().length][committedInfo.getData()[0].length];
+
+            // Step through the currently committed data rows
+            for (int row = 0; row < committedInfo.getData().length; row++)
+            {
+                // Step through the currently committed data columns
+                for (int column = 0; column < committedInfo.getData()[row].length; column++)
+                {
+                    // Store the currently committed data cell value. Note that
+                    // this is what this editor considers the committed data
+                    // and doesn't reflect changes that were made externally
+                    // (such as a change to a prototype altering an instance's
+                    // contents)
+                    originalCommData[row][column] = committedInfo.getData()[row][column];
+                }
+            }
+        }
+
+        // Store the table information that represents the currently committed
+        // table data
+        setCommittedInformation(dbTableInfo);
+
+        // Load the committed array of data into the table
+        table.loadDataArrayIntoTable(dbTableInfo.getData(), false);
+
         // Check if this is a child table to a prototype that has been updated;
         // if so this table needs to have the same changes applied
         if (applyToChild)
         {
-            // Get the child table's committed data so that it can be updated
-            // along with the table. This allows the changes made to the child
-            // (as a result of the changes to its prototype) to be considered
-            // as already stored in the database. Any other changes made
-            // specifically to the child table are still indicated as not being
-            // stored
-            committedData = new ArrayList<Object[]>(Arrays.asList((Object[][]) committedInfo.getData()));
+            // Store the current array member display status
+            boolean isShowArrayMembersOld = isShowArrayMembers;
 
-            // Step through each row added to the table
-            for (TableModification add : additions)
+            // Check if array members are currently hidden
+            if (!isShowArrayMembers)
             {
-                // Get the index at which to insert the new row
-                int row = Integer.valueOf(add.getRowData()[rowIndex].toString()) - 1;
-
-                // Insert the new table row and stop searching
-                tableModel.insertRow(row, add.getRowData(), false);
-                committedData.add(row, add.getRowData());
+                // Display the array members. All rows must be displayed in
+                // order for any uncommitted changes to be re-applied since
+                // isCellEditable() (called below) requires the view
+                // coordinates
+                showHideArrayMembers();
             }
 
-            // If the row order in the prototype changed then the row order of
-            // the current table must be changed to match the new order prior
-            // to comparing the column changes per the modifications. Step
-            // through each row in the table
-            for (int row = 0; row < tableModel.getRowCount(); row++)
+            // Get the table's currently displayed data
+            Object[][] preChangeData = table.getTableData(true);
+
+            // Disable automatic termination of edits so that all of the
+            // changes can be combined into a single edit
+            table.getUndoHandler().setAutoEndEditSequence(false);
+
+            // Step through each row of the table (committed)
+            for (int postRow = 0; postRow < tableModel.getRowCount(); postRow++)
             {
-                // Step through each modification
-                for (TableModification mod : modifications)
+                // Step through each row of the table (uncommitted)
+                for (int preRow = 0; preRow < preChangeData.length; preRow++)
                 {
-                    // Check if the row isn't already in the correct order
-                    // (from a previous pass), the row index changed, and that
-                    // the primary key values match for the table row and the
-                    // modification
-                    if (!mod.getRowData()[rowIndex].equals(mod.getOriginalRowData()[rowIndex])
-                        && mod.getOriginalRowData()[primaryKeyIndex].equals(tableModel.getValueAt(row,
-                                                                                                  primaryKeyIndex)))
+                    // Check if the rows are the same, based on the primary key
+                    // value
+                    if (tableModel.getValueAt(postRow, primaryKeyIndex).equals(preChangeData[preRow][primaryKeyIndex]))
                     {
-                        // Get the row's new row index
-                        int newRow = Integer.valueOf(mod.getRowData()[rowIndex].toString()) - 1;
-
-                        // Move the row from its current location to its new
-                        // location
-                        tableModel.moveRow(row, row, newRow, false);
-
-                        // Move the row in the committed data as well
-                        if (row <= newRow)
-                        {
-                            Collections.rotate(committedData.subList(row, newRow + 1), -1);
-                        }
-                        else
-                        {
-                            Collections.rotate(committedData.subList(newRow, row + 1), 1);
-                        }
-                    }
-                }
-            }
-
-            // Step through each row modified in the table
-            for (TableModification mod : modifications)
-            {
-                // Step through each row in the table
-                for (int row = 0; row < tableModel.getRowCount(); row++)
-                {
-                    // Check if the primary keys match between the table row
-                    // and the row to modify
-                    if (tableModel.getValueAt(row, primaryKeyIndex).toString().equals(mod.getRowData()[primaryKeyIndex].toString()))
-                    {
-                        // Step through each column of the updated row data
+                        // Step though each column in the row
                         for (int column = 0; column < tableModel.getColumnCount(); column++)
                         {
-                            // Get the current value of the column in the
-                            // updated row
-                            Object currentValue = tableModel.getValueAt(row, column);
+                            // Get the value of the cell prior to the change
+                            String preChangeCell = preChangeData[preRow][column].toString();
 
-                            // Check if the modification's column value differs
-                            // from this tables' current value, and if this
-                            // table's column doesn't have a custom value
-                            if (!currentValue.equals(mod.getRowData()[column])
-                                && currentValue.equals(mod.getOriginalRowData()[column]))
+                            // Check if the values differ between the committed
+                            // and uncommitted cell values
+                            if (!tableModel.getValueAt(postRow, column).toString().equals(preChangeCell)
+                                && (originalCommData == null
+                                    || !originalCommData[preRow][column].toString().equals(preChangeCell)))
                             {
-                                // Replace the current column value with the
-                                // updated column value
-                                tableModel.setValueAt(mod.getRowData()[column],
-                                                      row,
-                                                      column,
-                                                      false);
-                                committedData.get(row)[column] = mod.getRowData()[column];
+                                // Convert the row and column indices to view
+                                // coordinates
+                                int modelRow = table.convertRowIndexToView(postRow);
+                                int modelColumn = table.convertColumnIndexToView(column);
+
+                                // Check if this is an editable cell. This
+                                // prevents retaining a value that was changed
+                                // (and can only be changed) in the prototype
+                                // (e.g., variable name or data type), or
+                                // values in cells that are no longer allowed
+                                // to be updated after changing the prototype
+                                // (e.g., bit length after changing the data
+                                // type to a non-integer)
+                                if (modelRow != -1
+                                    && modelColumn != -1
+                                    && table.isCellEditable(table.convertRowIndexToView(postRow),
+                                                            table.convertColumnIndexToView(column)))
+                                {
+                                    // Update the value in the cell
+                                    tableModel.setValueAt(preChangeCell,
+                                                          postRow,
+                                                          column);
+                                }
                             }
                         }
 
-                        // Stop searching since the matching row was found
                         break;
                     }
                 }
             }
 
-            // Sort the row deletions in descending order
-            Collections.sort(deletions, new Comparator<TableModification>()
-            {
-                /**********************************************************
-                 * Compare the row numbers of two deletion actions in order to
-                 * sort the row deletion from highest to lowest
-                 *********************************************************/
-                @Override
-                public int compare(TableModification del1, TableModification del2)
-                {
-                    return Integer.compare(Integer.valueOf(del2.getRowData()[rowIndex].toString()),
-                                           Integer.valueOf(del1.getRowData()[rowIndex].toString()));
-                }
-            });
+            // Get the current table description
+            String description = getDescription();
 
-            // Step through each row deleted from the table
-            for (TableModification del : deletions)
+            // Check if the description doesn't match the one stored in the
+            // database
+            if (!description.equals(dbTableInfo.getDescription()))
             {
-                // Step through each row in the table
-                for (int row = 0; row < tableModel.getRowCount(); row++)
-                {
-                    // Check if the primary keys match between the table row
-                    // and the row to delete
-                    if (tableModel.getValueAt(row, primaryKeyIndex).toString().equals(del.getRowData()[primaryKeyIndex].toString()))
-                    {
-                        // Remove the deleted row and stop searching
-                        tableModel.removeRow(row, false);
-                        committedData.remove(row);
-                        break;
-                    }
-                }
+                // Set the description so that when it is restored it's flagged
+                // as an undoable change
+                setDescription(dbTableInfo.getDescription());
+                updateDescriptionField(false);
+
+                // Restore the description, with the undo flag enabled
+                setDescription(description);
+                updateDescriptionField(true);
             }
-        }
-        // Not a child of a prototype
-        else
-        {
-            // Set the committed data to the table's current data
-            committedData = table.getTableDataList(true);
-        }
 
-        // Any added rows in the table model don't have the primary key value
-        // set. These values are extracted from the database after the table is
-        // updated, then used here to update the table model
-        int keyRow = 0;
+            // Get the current table column order
+            String columnOrder = table.getColumnOrder();
 
-        // Step through each row in the table model
-        for (int row = 0; row < tableModel.getRowCount(); row++)
-        {
-            // Check if the primary key column if empty
-            if (tableModel.getValueAt(row, primaryKeyIndex).toString().isEmpty())
+            // Check if the column order doesn't match the one stored in the
+            // database
+            if (!columnOrder.equals(dbTableInfo.getColumnOrder()))
             {
-                // Step through each column in the table model
-                for (int column = 0; column < tableModel.getColumnCount(); column++)
-                {
-                    // Check if the cell is not empty. This prevents assigning
-                    // the primary key to an empty row
-                    if (!tableModel.getValueAt(row, column).toString().isEmpty())
-                    {
-                        // Set the primary key value from the list
-                        tableModel.setValueAt(keys.get(keyRow).toString(),
-                                              row,
-                                              primaryKeyIndex,
-                                              false);
-                        committedData.get(row)[primaryKeyIndex] = keys.get(keyRow).toString();
+                // Set the column order so that when it is restored it's
+                // flagged as an undoable change
+                table.getUndoHandler().setAllowUndo(false);
+                table.arrangeColumns(dbTableInfo.getColumnOrder());
 
-                        // Update the index to the next key value row and stop
-                        // searching
-                        keyRow++;
-                        break;
-                    }
-                }
+                // Restore the column order
+                table.getUndoHandler().setAllowUndo(true);
+                table.arrangeColumns(columnOrder);
             }
-            // The row has a primary key value
-            else
+
+            // Check if the data fields don't match those stored in the
+            // database
+            if (CcddFieldHandler.isFieldChanged(getFieldHandler().getFieldInformation(),
+                                                dbTableInfo.getFieldHandler().getFieldInformation(),
+                                                false))
             {
-                // Update the index to the next key value row
-                keyRow++;
+                // Create a copy of the current data fields
+                List<FieldInformation> currentFields = getFieldHandler().getFieldInformationCopy();
+
+                // Set the data fields so that when these are restored it's
+                // flagged as an undoable change
+                getFieldHandler().setFieldInformation(dbTableInfo.getFieldHandler().getFieldInformation());
+                createDataFieldPanel(false);
+                storeCurrentFieldInformation();
+
+                // Restore the data fields
+                getFieldHandler().setFieldInformation(currentFields);
+                createDataFieldPanel(true);
+                storeCurrentFieldInformation();
+            }
+
+            // Enable automatic edit termination and end the edit sequence. Any
+            // uncommitted changes are now combined into a single edit that can
+            // be undone/redone
+            table.getUndoHandler().setAutoEndEditSequence(true);
+            table.getUndoManager().endEditSequence();
+
+            // Check if the array member visibility was changed above
+            if (isShowArrayMembersOld != isShowArrayMembers)
+            {
+                // Restore the original array member visibility
+                showHideArrayMembers();
             }
         }
 
-        // Store the table data, column order, description, and data fields
-        committedInfo.setData(CcddUtilities.convertObjectToString(committedData.toArray(new Object[0][0])));
-        committedInfo.setColumnOrder(table.getColumnOrder());
-        committedInfo.setDescription(getDescription());
-        committedInfo.getFieldHandler().setFieldInformation(tableInfo.getFieldHandler().getFieldInformationCopy());
+        // Update the change indicator in the editor tab
+        updateOwnerChangeIndicator();
     }
 
     /**************************************************************************
@@ -1231,38 +1218,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // field values
                     updateCurrentFieldValues(tableInfo.getFieldHandler().getFieldInformation());
 
-                    // Set the change flag if the number of fields in the
-                    // committed version differs from the current version of
-                    // the table
-                    isFieldChanged = tableInfo.getFieldHandler().getFieldInformation().size() != committedInfo.getFieldHandler().getFieldInformation().size();
-
-                    // Check if the number of fields is the same between the
-                    // committed and current versions
-                    if (!isFieldChanged)
-                    {
-                        // Create shortcut references to the current and
-                        // committed field descriptions
-                        Object[][] current = tableInfo.getFieldHandler().getFieldDefinitionArray(false);
-                        Object[][] committed = committedInfo.getFieldHandler().getFieldDefinitionArray(false);
-
-                        // Step through each field
-                        for (int row = 0; row < current.length; row++)
-                        {
-                            // Step through each field member
-                            for (int column = 0; column < current[row].length; column++)
-                            {
-                                // Check if the current and committed values
-                                // differ
-                                if (!current[row][column].equals(committed[row][column]))
-                                {
-                                    // Set the flag indicating a field is
-                                    // changed and stop searching
-                                    isFieldChanged = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
+                    // Set the flag if the number of fields, field attributes,
+                    // or field contents have changed
+                    isFieldChanged = CcddFieldHandler.isFieldChanged(tableInfo.getFieldHandler().getFieldInformation(),
+                                                                     committedInfo.getFieldHandler().getFieldInformation(),
+                                                                     false);
                 }
 
                 return super.isTableChanged(previousData, ignoreColumns)
@@ -1389,8 +1349,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                             && !dataTypeHandler.isPrimitive(rowData[dataTypeIndex].toString())
                             && !typeDefn.isStructureAllowed()[column])
 
-                    // This data type is a pointer and the column isn't
-                    // valid for pointers
+                    // This data type is a pointer and the column isn't valid
+                    // for pointers
                         || (dataTypeIndex != -1
                             && dataTypeHandler.isPointer(rowData[dataTypeIndex].toString())
                             && !typeDefn.isPointerAllowed()[column])
@@ -1401,9 +1361,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                              && rateIndex.contains(column))
                             && isArrayDefinition)
 
-                    // This is the bit length cell and either the array
-                    // size is present or the data type is not an integer
-                    // (signed or unsigned)
+                    // This is the bit length cell and either the array size is
+                    // present or the data type is not an integer (signed or
+                    // unsigned)
                         || (column == bitLengthIndex
                             && ((arraySizeIndex != -1
                                  && !rowData[arraySizeIndex].toString().isEmpty())
@@ -3580,18 +3540,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // and that this isn't an array definition row
         if (!dataTypeHandler.isPrimitive(dataType)
             && isCanHaveArrays()
-            && (ArrayVariable.isArrayMember(getExpandedValueAt(modelRow,
-                                                               variableNameIndex))
+            && (ArrayVariable.isArrayMember(getExpandedValueAt(modelRow, variableNameIndex))
                 || getExpandedValueAt(modelRow, arraySizeIndex).isEmpty()))
         {
             // Get the row's primary key, variable name, and array size
-            String rowPrimaryKey = tableModel.getValueAt(modelRow,
-                                                         primaryKeyIndex)
-                                             .toString();
-            String variableName = getExpandedValueAt(modelRow,
-                                                     variableNameIndex);
-            String arraySize = getExpandedValueAt(modelRow,
-                                                  arraySizeIndex);
+            String rowPrimaryKey = tableModel.getValueAt(modelRow, primaryKeyIndex).toString();
+            String variableName = getExpandedValueAt(modelRow, variableNameIndex);
+            String arraySize = getExpandedValueAt(modelRow, arraySizeIndex);
 
             // Get the number of rows that have been committed to the database
             // for this table
@@ -5139,6 +5094,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     @Override
     protected void updateOwnerChangeIndicator()
     {
+
         editorDialog.updateChangeIndicator(this);
     }
 }

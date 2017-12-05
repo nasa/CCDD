@@ -772,8 +772,7 @@ public abstract class CcddJTableHandler extends JTable
                     // value and the column isn't in the list of those to
                     // ignore (if present)
                     if (!currentData[row][column].equals(previousData[row][column])
-                        && (ignoreColumns == null
-                            || !ignoreColumns.contains(column)))
+                        && (ignoreColumns == null || !ignoreColumns.contains(column)))
                     {
                         // Set the flag indicating a change exists
                         hasChanges = true;
@@ -2430,8 +2429,7 @@ public abstract class CcddJTableHandler extends JTable
                         // Move the column to its location in the new order,
                         // skipping any hidden column(s)
                         ((UndoableTableColumnModel) getColumnModel()).moveColumn(viewColumn,
-                                                                                 column
-                                                                                             - numHiddenColumns);
+                                                                                 column - numHiddenColumns);
                     }
                 }
                 // The column is hidden

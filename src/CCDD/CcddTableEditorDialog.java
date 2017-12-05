@@ -307,14 +307,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      * @param dbTblCmdHndlr
      *            reference to CcddDbTableCommandHandler
      *
-     * @param newKeys
-     *            list of primary keys for new rows in a prototype table
-     *
      * @param tableInfo
      *            table information
-     *
-     * @param additions
-     *            list of row addition information
      *
      * @param modifications
      *            list of row update information
@@ -328,9 +322,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      *            originally took place
      ************************************************************************/
     protected static void doTableModificationComplete(CcddMain main,
-                                                      List<Integer> newKeys,
                                                       TableInformation tableInfo,
-                                                      List<TableModification> additions,
                                                       List<TableModification> modifications,
                                                       List<TableModification> deletions,
                                                       boolean forceUpdate)
@@ -404,29 +396,23 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 {
                     // Flag that indicates true if a forced update is set (such
                     // as when a macro name or value is changed), or if the
-                    // updated table is a prototype and the editor is for a
-                    // child table of the updated table
+                    // updated table is a prototype and the editor is for an
+                    // instance table of the updated table
                     boolean applyToChild = forceUpdate
                                            || (tableInfo.isPrototype()
-                                               && !tableInfo.equals(editor.getTableInformation()));
+                                               && !tableInfo.getTablePath().equals(editor.getTableInformation().getTablePath()));
 
-                    // Check if no link handler is already created and this
-                    // Perform the command completion steps for this table
-                    editor.doTableUpdatesComplete(newKeys,
-                                                  applyToChild,
-                                                  additions,
-                                                  modifications,
-                                                  deletions);
-                }
+                    // Load the table from the database
+                    TableInformation updateInfo = main.getDbTableCommandHandler().loadTableData(editor.getTableInformation().getTablePath(),
+                                                                                                editor.getTableInformation().isRootStructure(),
+                                                                                                true,
+                                                                                                true,
+                                                                                                true,
+                                                                                                editorDialog);
 
-                // Check if this is the editor for the table that was changed
-                if (tableInfo.equals(editor.getTableInformation()))
-                {
-                    // Replace any custom value deletion flags with blanks
-                    editor.clearCustomValueDeletionFlags();
-
-                    // Accept all edits for this table
-                    editor.getTable().getUndoManager().discardAllEdits();
+                    // Store the updates as the committed changes in the table
+                    // (so that other changes are recognized)
+                    editor.doTableUpdatesComplete(updateInfo, applyToChild);
                 }
 
                 // Step through each row modification
@@ -594,11 +580,11 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         // Create the Edit menu and menu items
         JMenu mnEdit = ccddMain.createMenu(menuBar, "Edit", KeyEvent.VK_E, 1, null);
         mntmCopy = ccddMain.createMenuItem(mnEdit, "Copy", KeyEvent.VK_C, 1, "Copy the selected cell(s) to the clipboard");
-        mntmPaste = ccddMain.createMenuItem(mnEdit, "Paste", KeyEvent.VK_V, 1, "Paste the clipboard contents at the current focus location");
+        mntmPaste = ccddMain.createMenuItem(mnEdit, "Paste (Ctrl-V)", KeyEvent.VK_V, 1, "Paste the clipboard contents at the current focus location");
         mntmInsert = ccddMain.createMenuItem(mnEdit, "Insert", KeyEvent.VK_I, 1, "Insert the clipboard contents at the current focus location");
         mnEdit.addSeparator();
-        mntmUndo = ccddMain.createMenuItem(mnEdit, "Undo", KeyEvent.VK_Z, 1, "Undo the last edit operation");
-        mntmRedo = ccddMain.createMenuItem(mnEdit, "Redo", KeyEvent.VK_Y, 1, "Redo the last undone edit operation");
+        mntmUndo = ccddMain.createMenuItem(mnEdit, "Undo (Ctrl-Z)", KeyEvent.VK_Z, 1, "Undo the last edit operation");
+        mntmRedo = ccddMain.createMenuItem(mnEdit, "Redo (Ctrl-Y)", KeyEvent.VK_Y, 1, "Redo the last undone edit operation");
         mnEdit.addSeparator();
         mntmInsertMacro = ccddMain.createMenuItem(mnEdit, "Insert macro", KeyEvent.VK_M, 1, "Insert a macro selected from the pop-up list");
         mntmShowMacros = ccddMain.createCheckBoxMenuItem(mnEdit, "Show macros", KeyEvent.VK_S, 1, "Temporarily replace macro(s) with the corresponding value(s)", false);
@@ -618,7 +604,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmExpColArray = ccddMain.createCheckBoxMenuItem(mnRow, "Expand arrays", KeyEvent.VK_E, 1, "Expand/collapse display of array members", false);
         JMenu mnOverwrite = ccddMain.createSubMenu(mnRow, "Array overwrite", KeyEvent.VK_O, 1, null);
         mntmOverwriteAll = ccddMain.createRadioButtonMenuItem(mnOverwrite, "Overwrite all", KeyEvent.VK_A, 1, "Copy array definition value change to all members", true);
-        mntmOverwriteEmpty = ccddMain.createRadioButtonMenuItem(mnOverwrite, "Overwrite empty", KeyEvent.VK_E, 2, "Copy array definition value change only to empty members", false);
+        mntmOverwriteEmpty = ccddMain.createRadioButtonMenuItem(mnOverwrite, "Overwrite empty", KeyEvent.VK_E, 3, "Copy array definition value change only to empty members", false);
         mntmOverwriteNone = ccddMain.createRadioButtonMenuItem(mnOverwrite, "Overwrite none", KeyEvent.VK_N, 1, "Do not copy definition value change to members", false);
         ButtonGroup rbtnGroup = new ButtonGroup();
         rbtnGroup.add(mntmOverwriteAll);
@@ -626,7 +612,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         rbtnGroup.add(mntmOverwriteNone);
 
         // Create the Column menu and menu items
-        JMenu mnColumn = ccddMain.createMenu(menuBar, "Column", KeyEvent.VK_C, 1, null);
+        JMenu mnColumn = ccddMain.createMenu(menuBar, "Column", KeyEvent.VK_M, 1, null);
         mntmMoveLeft = ccddMain.createMenuItem(mnColumn, "Move left", KeyEvent.VK_L, 1, "Move the currently selected column(s) left one column");
         mntmMoveRight = ccddMain.createMenuItem(mnColumn, "Move right", KeyEvent.VK_R, 1, "Move the currently selected column(s) right one column");
         mntmResetOrder = ccddMain.createMenuItem(mnColumn, "Reset order", KeyEvent.VK_O, 1, "Reset the column order to the default");
@@ -1304,7 +1290,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         // Move Down button
         btnMoveDown = CcddButtonPanelHandler.createButton("Down",
                                                           DOWN_ICON,
-                                                          KeyEvent.VK_W,
+                                                          KeyEvent.VK_N,
                                                           "Move the selected row(s) down");
 
         // Create a listener for the Move Down command

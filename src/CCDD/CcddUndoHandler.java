@@ -8,6 +8,8 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.DATA_FIELD_IDENTIFIER_SEPARATOR;
+
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -925,7 +927,7 @@ public class CcddUndoHandler
             if (fieldHandler != null && checkBox.getName() != null)
             {
                 // Divide the check box's name into the owner and field name
-                String[] ownerAndName = checkBox.getName().split(",");
+                String[] ownerAndName = checkBox.getName().split(DATA_FIELD_IDENTIFIER_SEPARATOR);
 
                 // Check if the check box name has the expected format (two
                 // parts: owner name and field name)
@@ -1103,9 +1105,6 @@ public class CcddUndoHandler
                                                                                           oldValue,
                                                                                           text));
 
-                    // Store the value as the old value for the next edit
-                    oldValue = text;
-
                     // Step through the registered listeners
                     for (UndoableEditListener listener : listeners)
                     {
@@ -1122,6 +1121,9 @@ public class CcddUndoHandler
                     undoManager.endEditSequence();
                 }
             }
+
+            // Store the value as the old value for the next edit
+            oldValue = text;
         }
     }
 
@@ -1200,7 +1202,7 @@ public class CcddUndoHandler
             if (fieldHandler != null && textField.getName() != null)
             {
                 // Divide the text field's name into the owner and field name
-                String[] ownerAndName = textField.getName().split(",");
+                String[] ownerAndName = textField.getName().split(DATA_FIELD_IDENTIFIER_SEPARATOR);
 
                 // Check if the text field name has the expected format (two
                 // parts: owner name and field name)
@@ -1357,16 +1359,31 @@ public class CcddUndoHandler
                 {
                     // Update the text area and store the edit in the undo/redo
                     // stack
-                    updateText();
+                    setText();
                 }
             });
+        }
+
+        /**********************************************************************
+         * Flag the text as being allowed/prevented being stored as an update
+         * on the undo/redo stack. The other criteria (the allow undo flag is
+         * set and the text has changed) must be met in order for the edit to
+         * be undoable
+         *
+         * @param undoable
+         *            true to enable putting the edit on the undo/redo stack
+         *********************************************************************/
+        protected void updateText(boolean undoable)
+        {
+            this.undoable = undoable;
+            setText();
         }
 
         /**********************************************************************
          * Check if an edit to the text area should be stored on the undo/redo
          * stack, and if so add it to the stack
          *********************************************************************/
-        protected void updateText()
+        private void setText()
         {
             // Get the text area's new value
             String newValue = getText();
@@ -1386,9 +1403,6 @@ public class CcddUndoHandler
                                                                                          oldValue,
                                                                                          newValue));
 
-                    // Store the new text area value for the next edit
-                    oldValue = newValue;
-
                     // Step through the registered listeners
                     for (UndoableEditListener listener : listeners)
                     {
@@ -1405,6 +1419,9 @@ public class CcddUndoHandler
                     undoManager.endEditSequence();
                 }
             }
+
+            // Store the new text area value for the next edit
+            oldValue = newValue;
 
             // Reset the flag so that any further edits must be preceded by
             // another focus gained event in order to be stored on the

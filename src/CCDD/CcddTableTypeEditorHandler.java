@@ -346,35 +346,11 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                 // values
                 updateCurrentFieldValues(fieldHandler.getFieldInformation());
 
-                // Set the change flag if the number of fields in the committed
-                // version differs from the current version of the table
-                boolean isFieldChanged = fieldHandler.getFieldInformation().size() != committedInfo.getFieldInformation().size();
-
-                // Check if the number of fields is the same between the
-                // committed and current versions
-                if (!isFieldChanged)
-                {
-                    // Get the current and committed field descriptions
-                    Object[][] current = fieldHandler.getFieldDefinitionArray(true);
-                    Object[][] committed = committedInfo.getFieldDefinitionArray(true);
-
-                    // Step through each field
-                    for (int row = 0; row < current.length; row++)
-                    {
-                        // Step through each field member
-                        for (int column = 0; column < current[row].length; column++)
-                        {
-                            // Check if the current and committed values differ
-                            if (!current[row][column].equals(committed[row][column]))
-                            {
-                                // Set the flag indicating a field is changed
-                                // and stop searching
-                                isFieldChanged = true;
-                                break;
-                            }
-                        }
-                    }
-                }
+                // Set the flag if the number of fields, field attributes, or
+                // field contents have changed
+                boolean isFieldChanged = CcddFieldHandler.isFieldChanged(fieldHandler.getFieldInformation(),
+                                                                         committedInfo.getFieldInformation(),
+                                                                         true);
 
                 return isFieldChanged
                        || !committedDescription.equals(getDescription())

@@ -315,7 +315,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
                     // to perform the update, occurs after the node selection
                     // edit and would cause the wrong description field to be
                     // changed
-                    descriptionFld.updateText();
+                    descriptionFld.updateText(true);
 
                     // Get the name of the selected link(s)
                     String[] selected = getTopLevelSelectedNodeNames();
