@@ -548,6 +548,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @param importFileName
      *            import file name
+     *
+     * @throws CCDDException
+     *             If an input error is detected
      *************************************************************************/
     private void unbuildDataSheets(ImportType importType,
                                    String importFileName) throws CCDDException
@@ -1703,7 +1706,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         {
             // Create a name space to contain the table type definitions
             NamespaceType tableTypesNameSpace = addNameSpace("",
-                                                             "",
                                                              EDSTags.TABLE_TYPE.getTag(),
                                                              "Table type definitions");
 
@@ -1739,7 +1741,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
             // Create a name space to contain the primitive data types
             NamespaceType dataTypeNameSpace = addNameSpace("",
-                                                           "",
                                                            EDSTags.DATA_TYPE.getTag(),
                                                            "Data type definitions");
 
@@ -1846,7 +1847,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         {
             // Create a name space to contain the macro definitions
             NamespaceType macroNameSpace = addNameSpace("",
-                                                        "",
                                                         EDSTags.MACRO.getTag(),
                                                         "Macro definitions");
 
@@ -1868,7 +1868,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // Create a name space to contain the reserved message ID
             // definitions
             NamespaceType reservedMsgIDNameSpace = addNameSpace("",
-                                                                "",
                                                                 EDSTags.RESERVED_MSG_ID.getTag(),
                                                                 "Reserved message ID definitions");
 
@@ -1900,7 +1899,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         {
             // Create a name space to contain the variable paths
             NamespaceType variablePathNameSpace = addNameSpace("",
-                                                               "",
                                                                EDSTags.VARIABLE_PATH.getTag(),
                                                                "Variable paths");
 
@@ -2046,8 +2044,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
                     // Add the structure to the telemetry data sheet
                     nameSpace = addNameSpace(systemName,
-                                             tableInfo.getTablePath(),
-                                             tableInfo.getProtoVariableName(),
+                                             tableName,
                                              description);
 
                     // Create a list containing the table type
@@ -2112,7 +2109,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
                     // Create a name space if not already present
                     nameSpace = addNameSpace(systemName,
-                                             "",
                                              tableName,
                                              description);
 
@@ -2237,9 +2233,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            system name; null or blank if no system (e.g., macro
      *            definitions)
      *
-     * @param path
-     *            table path
-     *
      * @param nameSpaceName
      *            name for the new name space
      *
@@ -2249,17 +2242,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @return Reference to the new name space
      *************************************************************************/
     private NamespaceType addNameSpace(String systemName,
-                                       String path,
                                        String nameSpaceName,
                                        String shortDescription)
     {
-        // Check if a path exists
-        if (!path.isEmpty() && path.contains(","))
-        {
-            // Append the path to the system name
-            nameSpaceName = path + "," + nameSpaceName;
-        }
-
         // Check if a system name is provided
         if (systemName != null && !systemName.isEmpty())
         {
@@ -2879,9 +2864,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         catch (IllegalArgumentException iae)
         {
             // TODO User-supplied units don't match one of the hard-coded Unit
-            // types, which are the only ones that can be supplied to the
-            // semantics setUnit() method. The hard-coded unit types is a very
-            // limited list (and metric only)
+            // types (from Units.java), which are the only ones that are
+            // accepted by the Unit fromValue() method. The hard-coded unit
+            // types list is limited
         }
 
         InterfaceDeclarationType intParmType = null;

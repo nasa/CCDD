@@ -476,8 +476,18 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                             {
                                                 // Check if the expected number
                                                 // of inputs is present
-                                                if (columnValues.length == FieldsColumn.values().length - 1)
+                                                if (columnValues.length == FieldsColumn.values().length - 1
+                                                    || columnValues.length == FieldsColumn.values().length - 2)
                                                 {
+                                                    // Append empty columns as
+                                                    // needed to fill out the
+                                                    // expected number of
+                                                    // inputs
+                                                    columnValues = CcddUtilities.appendArrayColumns(columnValues,
+                                                                                                    FieldsColumn.values().length
+                                                                                                                  - 1
+                                                                                                                  - columnValues.length);
+
                                                     // Add the data field
                                                     // definition, checking for
                                                     // (and if possible,
@@ -608,8 +618,15 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                             {
                                                 // Check if the expected number
                                                 // of inputs is present
-                                                if (columnValues.length == 2)
+                                                if (columnValues.length == 2 || columnValues.length == 1)
                                                 {
+                                                    // Append empty columns as
+                                                    // needed to fill out the
+                                                    // expected number of
+                                                    // inputs
+                                                    columnValues = CcddUtilities.appendArrayColumns(columnValues,
+                                                                                                    2 - columnValues.length);
+
                                                     // Add the reserved message
                                                     // ID definition (add a
                                                     // blank to represent the
@@ -824,8 +841,18 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                             {
                                                 // Check if the expected number
                                                 // of inputs is present
-                                                if (columnValues.length == FieldsColumn.values().length - 1)
+                                                if (columnValues.length == FieldsColumn.values().length - 1
+                                                    || columnValues.length == FieldsColumn.values().length - 2)
                                                 {
+                                                    // Append empty columns as
+                                                    // needed to fill out the
+                                                    // expected number of
+                                                    // inputs
+                                                    columnValues = CcddUtilities.appendArrayColumns(columnValues,
+                                                                                                    FieldsColumn.values().length
+                                                                                                                  - 1
+                                                                                                                  - columnValues.length);
+
                                                     // Add the data field
                                                     // definition, checking for
                                                     // (and if possible,

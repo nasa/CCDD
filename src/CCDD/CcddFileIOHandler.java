@@ -13,6 +13,9 @@ import static CCDD.CcddConstants.DATABASE_COMMENT_SEPARATOR;
 import static CCDD.CcddConstants.DB_SAVE_POINT_NAME;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.SCRIPT_DESCRIPTION_TAG;
+import static CCDD.CcddConstants.TYPE_COMMAND;
+import static CCDD.CcddConstants.TYPE_OTHER;
+import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import static CCDD.CcddConstants.USERS_GUIDE;
 
 import java.awt.Component;
@@ -919,6 +922,10 @@ public class CcddFileIOHandler
      *
      * @param parent
      *            GUI component calling this method
+     *
+     * @throws CCDDException
+     *             If the table path name is invalid or the table cannot be
+     *             created from the table definition
      *************************************************************************/
     private void createTablesFromDefinitions(List<TableDefinition> tableDefinitions,
                                              boolean replaceExisting,
@@ -1009,13 +1016,13 @@ public class CcddFileIOHandler
                             {
                                 // Create the table information for the new
                                 // prototype table
-                                TableInformation descendantInfo = new TableInformation(tableDefn.getTypeName(),
-                                                                                       typeAndVar[0],
-                                                                                       new String[0][0],
-                                                                                       tableTypeHandler.getDefaultColumnOrder(tableDefn.getTypeName()),
-                                                                                       "",
-                                                                                       true,
-                                                                                       tableDefn.getDataFields().toArray(new Object[0][0]));
+                                TableInformation ancestorInfo = new TableInformation(tableDefn.getTypeName(),
+                                                                                     typeAndVar[0],
+                                                                                     new String[0][0],
+                                                                                     tableTypeHandler.getDefaultColumnOrder(tableDefn.getTypeName()),
+                                                                                     "",
+                                                                                     true,
+                                                                                     tableDefn.getDataFields().toArray(new Object[0][0]));
 
                                 // Check if this is the child table and not one
                                 // of its ancestors
@@ -1032,12 +1039,19 @@ public class CcddFileIOHandler
                                         for (int colIndex = 0; colIndex < numColumns; colIndex++)
                                         {
                                             // Check if the column is not
-                                            // protected
-                                            if (!DefaultColumn.isProtectedColumn(typeDefn.getName(),
-                                                                                 typeDefn.getColumnNamesVisible()[colIndex]))
+                                            // required by the table type
+                                            if (!DefaultColumn.isTypeRequiredColumn((typeDefn.isStructure()
+                                                                                                            ? TYPE_STRUCTURE
+                                                                                                            : (typeDefn.isCommand()
+                                                                                                                                    ? TYPE_COMMAND
+                                                                                                                                    : TYPE_OTHER)),
+                                                                                    typeDefn.getInputTypesVisible()[colIndex]))
                                             {
-                                                // Replace the non-protected
-                                                // column value with a blank
+                                                // Replace the non-required
+                                                // column value with a blank.
+                                                // The child's non-required
+                                                // values are therefore not
+                                                // inherited from the prototype
                                                 protoData.set(cellIndex + colIndex, "");
                                             }
                                         }
@@ -1046,24 +1060,24 @@ public class CcddFileIOHandler
                                     // Create the prototype of the child table
                                     // and populate it with the protected
                                     // column data
-                                    if (!createImportedTable(descendantInfo,
+                                    if (!createImportedTable(ancestorInfo,
                                                              protoData,
                                                              numColumns,
                                                              replaceExisting,
                                                              "Cannot create prototype '"
-                                                                              + descendantInfo.getPrototypeName()
+                                                                              + ancestorInfo.getPrototypeName()
                                                                               + "' of child table",
                                                              allTables,
                                                              parent))
                                     {
                                         // Add the skipped table to the list
-                                        skippedTables.add(descendantInfo.getTablePath());
+                                        skippedTables.add(ancestorInfo.getTablePath());
                                     }
                                 }
                                 // This is an ancestor of the child table
                                 else
                                 {
-                                    // Split the descendant into the data type
+                                    // Split the ancestor into the data type
                                     // (i.e., structure name) and variable name
                                     typeAndVar = ancestors[index + 1].split("\\.|$", -1);
 
@@ -1077,18 +1091,18 @@ public class CcddFileIOHandler
                                     // Create the prototype of the child table
                                     // and populate it with the protected
                                     // column data
-                                    if (!createImportedTable(descendantInfo,
+                                    if (!createImportedTable(ancestorInfo,
                                                              Arrays.asList(rowData),
                                                              numColumns,
                                                              replaceExisting,
                                                              "Cannot create prototype '"
-                                                                              + descendantInfo.getPrototypeName()
+                                                                              + ancestorInfo.getPrototypeName()
                                                                               + "' of child table's ancestor",
                                                              allTables,
                                                              parent))
                                     {
                                         // Add the skipped table to the list
-                                        skippedTables.add(descendantInfo.getTablePath());
+                                        skippedTables.add(ancestorInfo.getTablePath());
                                     }
                                 }
                             }
@@ -1201,6 +1215,11 @@ public class CcddFileIOHandler
      *
      * @return true if the table is successfully imported; false if the table
      *         is exists and the replaceExisting flag is not true
+     * 
+     * @throws CCDDException
+     *             The existing table that the new table replaces cannot be
+     *             removed, the new table cannot be created, or the data cannot
+     *             be added to the newly created table
      *************************************************************************/
     private boolean createImportedTable(TableInformation tableInfo,
                                         List<String> cellData,
@@ -1510,7 +1529,7 @@ public class CcddFileIOHandler
         // Update the field information in case the field values changed
         tableHandler.getFieldHandler().setFieldDefinitions(tableDefn.getDataFields());
         tableHandler.getFieldHandler().buildFieldInformation(tableDefn.getName(),
-                                                                 tableHandler.getTableInformation().isRootStructure());
+                                                             tableHandler.getTableInformation().isRootStructure());
 
         // Rebuild the table's editor panel which contains the data fields
         tableHandler.createDataFieldPanel(true);

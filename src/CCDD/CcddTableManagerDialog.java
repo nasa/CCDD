@@ -272,9 +272,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                                             Color.LIGHT_GRAY,
                                                                                             Color.GRAY),
                                                             BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+                                                                                            ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                            ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                            ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
                 // Create dialog based on supplied dialog type
                 switch (dialogType)
@@ -1593,6 +1593,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
      *
      * @param tableName
      *            table name
+     *
+     * @throws CCDDException
+     *             If the table name is invalid
      *************************************************************************/
     private void verifyTableName(String tableName) throws CCDDException
     {

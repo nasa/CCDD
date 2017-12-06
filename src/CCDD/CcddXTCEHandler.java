@@ -652,6 +652,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param importFileName
      *            import file name
+     *
+     * @throws CCDDException
+     *             If an input error is detected
      *************************************************************************/
     private void unbuildSpaceSystems(SpaceSystemType parentSystem,
                                      String systemName,
@@ -1558,6 +1561,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param importFileName
      *            import file name
+     *
+     * @throws CCDDException
+     *             If an input error is detected
      *************************************************************************/
     private void importTableTypeDefinitions(SpaceSystemType spaceSystem,
                                             String importFileName) throws CCDDException
@@ -1721,6 +1727,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param importFileName
      *            import file name
+     *
+     * @throws CCDDException
+     *             If the number of data type inputs is incorrect and the user
+     *             cancels the import, or the data type doesn't match an
+     *             existing one of the same name
      *************************************************************************/
     private void importDataTypeDefinitions(SpaceSystemType spaceSystem,
                                            String importFileName) throws CCDDException
@@ -1799,6 +1810,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param importFileName
      *            import file name
+     *
+     * @throws CCDDException
+     *             If the number of macro inputs is incorrect and the user
+     *             cancels the import, or the macro doesn't match an existing
+     *             one of the same name
      *************************************************************************/
     private void importMacroDefinitions(SpaceSystemType spaceSystem,
                                         String importFileName) throws CCDDException
@@ -1876,6 +1892,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param importFileName
      *            import file name
+     *
+     * @throws CCDDException
+     *             If the number of reserved message inputs is incorrect and
+     *             the user cancels the import
      *************************************************************************/
     private void importReservedMsgIDDefinitions(SpaceSystemType spaceSystem,
                                                 String importFileName) throws CCDDException

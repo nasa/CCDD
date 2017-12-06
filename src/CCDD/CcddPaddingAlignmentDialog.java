@@ -92,6 +92,7 @@ public class CcddPaddingAlignmentDialog extends CcddDialogHandler
         byteAlignmentSld.setSnapToTicks(true);
         byteAlignmentSld.setMajorTickSpacing(1);
         byteAlignmentSld.setPaintTicks(true);
+
         Hashtable<Integer, JLabel> labels = new Hashtable<Integer, JLabel>();
         labels.put(0, new JLabel("1"));
         labels.put(1, new JLabel("2"));
@@ -120,6 +121,7 @@ public class CcddPaddingAlignmentDialog extends CcddDialogHandler
             }
         });
 
+        // TODO
         gbc.gridy++;
         dialogPnl.add(byteAlignmentSld, gbc);
 

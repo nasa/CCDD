@@ -469,7 +469,7 @@ public class CcddRateParameterHandler
         try
         {
             // Check if the number of rate parameters is invalid
-            if (rateValues.length < 7 || (rateValues.length - 3) % 4 != 0)
+            if (rateValues.length < 3 || (rateValues.length - 3) % 4 != 0)
             {
                 throw new Exception("missing rate value");
             }

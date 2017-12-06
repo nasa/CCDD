@@ -855,10 +855,13 @@ public class CcddMain
         mntmEditDataField.setEnabled(dbControl.isDatabaseConnected());
         mntmShowVariables.setEnabled(dbControl.isDatabaseConnected());
         mntmSearchTable.setEnabled(dbControl.isDatabaseConnected());
-        mntmManageLinks.setEnabled(dbControl.isDatabaseConnected());
-        mntmManageTlm.setEnabled(dbControl.isDatabaseConnected());
+        mntmManageLinks.setEnabled(dbControl.isDatabaseConnected()
+                                   && rateHandler.getNumRateColumns() != 0);
+        mntmManageTlm.setEnabled(dbControl.isDatabaseConnected()
+                                 && rateHandler.getNumRateColumns() != 0);
         mntmManageApps.setEnabled(dbControl.isDatabaseConnected());
-        mntmRateParameters.setEnabled(dbControl.isDatabaseConnected());
+        mntmRateParameters.setEnabled(dbControl.isDatabaseConnected()
+                                      && rateHandler.getNumRateColumns() != 0);
         mntmAppParameters.setEnabled(dbControl.isDatabaseConnected());
         mntmManageScripts.setEnabled(dbControl.isDatabaseConnected());
         mntmExecuteScripts.setEnabled(dbControl.isDatabaseConnected());

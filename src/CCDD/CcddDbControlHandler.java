@@ -1332,7 +1332,7 @@ public class CcddDbControlHandler
                                                + "WHERE table_name = row.real_name AND ("
                                                + compareColumns
                                                + ")) AS alias1 WHERE count = '"
-                                               + DefaultColumn.getProtectedColumnCount(TYPE_STRUCTURE)
+                                               + DefaultColumn.getTypeRequiredColumnCount(TYPE_STRUCTURE)
                                                + "') THEN RETURN QUERY EXECUTE E'SELECT ''' || "
                                                + "row.real_name || '''::text, * FROM get_def_columns_by_"
                                                + functionParm[0]

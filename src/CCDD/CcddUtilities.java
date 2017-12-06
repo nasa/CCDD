@@ -399,6 +399,38 @@ public class CcddUtilities
     }
 
     /**************************************************************************
+     * Create a copy of a single dimensional array with a specified number of
+     * extra columns appended
+     *
+     * @param array
+     *            array to copy
+     *
+     * @param numColumns
+     *            number of columns to append
+     *
+     * @return Array containing the data from the input array plus the
+     *         specified number of extra, empty columns appended
+     *************************************************************************/
+    protected static String[] appendArrayColumns(String[] array,
+                                                 int numColumns)
+    {
+        // Create the new array with the number of specified extra columns
+        String[] newArray = new String[array.length + numColumns];
+
+        // Initialize the array to blanks (this populates the added column(s))
+        Arrays.fill(newArray, "");
+
+        // Step through each column in the input array
+        for (int column = 0; column < array.length; column++)
+        {
+            // Copy the input array value to the new array
+            newArray[column] = array[column];
+        }
+
+        return newArray;
+    }
+
+    /**************************************************************************
      * Create a copy of a two-dimensional array with a specified number of
      * extra columns appended
      *
@@ -421,6 +453,10 @@ public class CcddUtilities
         // Step through each row in the input array
         for (int row = 0; row < array.length; row++)
         {
+            // Initialize the row to blanks (this populates the added
+            // column(s))
+            Arrays.fill(newArray[row], "");
+
             // Step through each column in the input array
             for (int column = 0; column < array[row].length; column++)
             {

@@ -187,6 +187,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @return List containing the parsed JSON objects in the supplied JSON
      *         array
+     *
+     * @throws ParseException
+     *             If an error occurs while attempting to parse the JSON object
      *************************************************************************/
     @SuppressWarnings("unchecked")
     private List<JSONObject> parseJSONArray(Object arrayObj) throws ParseException
@@ -227,6 +230,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *            JSON object
      *
      * @return Parsed JSON object
+     *
+     * @throws ParseException
+     *             If an error occurs while attempting to parse the JSON object
      *************************************************************************/
     @SuppressWarnings("unchecked")
     private JSONObject parseJSONObject(JSONObject jsonObj) throws ParseException

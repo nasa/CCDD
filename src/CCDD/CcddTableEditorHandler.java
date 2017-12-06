@@ -4040,6 +4040,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *
      * @param maxColumn
      *            index of the maximum value column, model coordinates
+     *
+     * @throws CCDDException
+     *             If a value doesn't match the expected input type, a value is
+     *             outside the possible range of the data type, or the maximum
+     *             value is less than the minimum value
      *************************************************************************/
     private void validateMinMaxContent(List<Object[]> tableData,
                                        int row,

@@ -262,6 +262,10 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *         data type/variable name separator character(s); the default
      *         separators if the input parameters string is blank. An exception
      *         is thrown if the parameter string format is invalid
+     *
+     * @throws CCDDException
+     *             If an invalid character is detected in the separator
+     *             field(s)
      *************************************************************************/
     private String[] getVariablePathSeparators(String parameters) throws CCDDException
     {
@@ -881,6 +885,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *         if no data tables exist in the project database, or blank if the
      *         specified table has no data or none of the tables have data.
      *         Empty cells are included
+     *
+     * @throws CCDDException
+     *             If an error occurs while parsing the table data
      *************************************************************************/
     @SuppressWarnings("unchecked")
     private String getTableData(String tableName,
@@ -1059,6 +1066,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * @return JSON encoded string containing the specified table's data
      *         fields; null if the table doesn't exist or if the project
      *         database contains no data tables
+     *
+     * @throws CCDDException
+     *             If an error occurs while parsing the table data field data
      *************************************************************************/
     @SuppressWarnings("unchecked")
     private String getTableFields(String tableName,
@@ -1343,6 +1353,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * @return JSON encoded string containing the specified table information;
      *         null if a table name is specified and the table doesn't exist or
      *         if no data tables exist in the project database
+     *
+     * @throws CCDDException
+     *             If an error occurs while parsing the table information
      *************************************************************************/
     @SuppressWarnings("unchecked")
     private String getTableInformation(String tableName,
@@ -1439,6 +1452,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *         groups/applications, or blank if the specified group/application
      *         has no table member or if all groups/applications are requested
      *         but none have a table member
+     *
+     * @throws CCDDException
+     *             If an error occurs while parsing the group tables
      *************************************************************************/
     @SuppressWarnings("unchecked")
     private String getGroupTables(String groupName,
@@ -1570,6 +1586,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *         groups/applications, or blank if the specified group/application
      *         has no description or if all groups/applications are requested
      *         but none have a description
+     *
+     * @throws CCDDException
+     *             If an error occurs while parsing the group description
      *************************************************************************/
     @SuppressWarnings("unchecked")
     private String getGroupDescription(String groupName,
@@ -1688,6 +1707,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *         fields; null if the group doesn't exist or if the project
      *         database contains no groups, or blank if the group contains no
      *         data fields
+     *
+     * @throws CCDDException
+     *             If an error occurs while parsing the group data fields
      *************************************************************************/
     @SuppressWarnings("unchecked")
     private String getGroupFields(String groupName,
@@ -1861,6 +1883,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *         information; null if a group name is specified and the
      *         group/application doesn't exist or if no groups/applications
      *         exist in the project database
+     *
+     * @throws CCDDException
+     *             If an error occurs while parsing the group information
      *************************************************************************/
     @SuppressWarnings("unchecked")
     private String getGroupInformation(String groupName,
@@ -1994,6 +2019,10 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *
      * @return JSON encoded string containing the specified copy table entries;
      *         null if the number of parameters or their formats are incorrect
+     *
+     * @throws CCDDException
+     *             If an error occurs while parsing the telemetry scheduler
+     *             data
      *************************************************************************/
     @SuppressWarnings("unchecked")
     private String getTelemetrySchedulerData(String parameters) throws CCDDException
@@ -2116,6 +2145,10 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * @return JSON encoded string containing the variable names; blank if the
      *         project doesn't contain any variables and null if any input
      *         parameter is invalid
+     *
+     * @throws CCDDException
+     *             If an illegal separator character(s) or invalid show/hide
+     *             data type flag value is detected
      *************************************************************************/
     @SuppressWarnings("unchecked")
     private String getVariableNames(String variablePath,
@@ -2204,6 +2237,10 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *         description, units, data stream name(s), and enumeration(s) for
      *         each telemetered variable matching the specified filters; empty
      *         array if no variables are telemetered
+     *
+     * @throws CCDDException
+     *             If an invalid group name, data stream name, or rate value
+     *             format is detected
      *************************************************************************/
     @SuppressWarnings("unchecked")
     private String getTelemetryInformation(String telemetryFilter) throws CCDDException
@@ -2489,6 +2526,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *
      * @return JSON encoded string containing information for each command
      *         matching the specified filters
+     *
+     * @throws CCDDException
+     *             If the supplied group name is unrecognized
      *************************************************************************/
     @SuppressWarnings("unchecked")
     private String getCommandInformation(String groupFilter) throws CCDDException

@@ -805,7 +805,7 @@ public class CcddConstants
         LABEL_TEXT("Label text", "General text label color", "LabelTextColor", 0, 0, 0),
         TABLE_TEXT("Table text", "Table text color (when not selected)", "TableTextColor", 0, 0, 0),
         TABLE_BACK("Table background", "Table background color (when not selected)", "TableBackgroundColor", 255, 255, 255),
-        ALTERNATE_BACK("Alternating table row background", "Background color for alternating table rows (when not selected)", "TableAlternateBackgroundColor", 240, 245, 245),
+        ALTERNATE_BACK("Alternating table row background", "Background color for alternating table rows (when not selected)", "TableAlternateBackgroundColor", 244, 249, 249),
         SELECTED_TEXT("Selected table cell text", "Text color for a table's selected cell(s)", "SelectedTextColor", 255, 255, 255),
         SELECTED_BACK("Selected table cell background", "Background color for a table's selected cell(s)", "SelectedBackgroundColor", 110, 150, 200),
         FOCUS_BACK("Focused table cell background", "Background color for the table cell that has the input focus", "FocusBackgroundColor", 60, 100, 180),
@@ -814,6 +814,7 @@ public class CcddConstants
         REQUIRED_BACK("Required cell and data field background", "Background color for input fields that are required", "RequiredBackgroundColor", 255, 255, 0),
         PROTECTED_TEXT("Protected cell text", "Text color for a protected (non-editable) cell", "ProtectedTextColor", 0, 0, 255),
         PROTECTED_BACK("Protected cell background", "Background color for a protected (non-editable) cell", "ProtectedBackgroundColor", 192, 192, 192),
+        TYPE_REQUIRED_BACK("Table type required column cell background", "Background color for a cell in a table type column definition that is required to define the type", "TypeRequiredBackgroundColor", 241, 250, 241),
         VALID_TEXT("Valid table text", "Text color for valid table rows. Used in the telemetry and application scheduler tables", "ValidTextColor", 0, 200, 0),
         INVALID_TEXT("Invalid table text", "Text color for invalid table rows. Used in the telemetry and application scheduler tables", "InvalidTextColor", 200, 0, 0),
         PADDING_BACK("Padding variable cell background", "Background color for a padding variable cell", "PaddingBackgroundColor", 240, 220, 240),
@@ -2685,11 +2686,11 @@ public class CcddConstants
         private final String columnName;
         private final String description;
         private final InputDataType inputType;
-        private final boolean isProtected;
+        private final boolean isRequiredForType;
         private final boolean isRowValueUnique;
-        private final boolean isRequired;
-        private final boolean isStructure;
-        private final boolean isPointer;
+        private final boolean isInputRequired;
+        private final boolean isStructureAllowed;
+        private final boolean isPointerAllowed;
         private final boolean isInputTypeUnique;
 
         /**********************************************************************
@@ -2708,28 +2709,28 @@ public class CcddConstants
          * @param inputType
          *            column input data type
          *
-         * @param isProtected
-         *            true if this column cannot be altered or removed by the
-         *            user. Tables that include all of the protected columns
-         *            are considered a table of this type, even if other
-         *            columns are present or differ
+         * @param isRequiredForType
+         *            true if this column is required in order to define a
+         *            table type. Tables that include all of the required
+         *            columns for a table type are considered a table of this
+         *            type
          *
          * @param isRowValueUnique
          *            true if this parameter must be unique in this column of
          *            this table. The user can change this flag in the type
          *            editor
          *
-         * @param isRequired
+         * @param isInputRequired
          *            true if this parameter requires a data value. This flag
          *            is used to determine if the cell in the table is
          *            highlighted when empty; it does not enforce entering a
          *            value. The user can change this flag in the type editor
          *
-         * @param isStructure
+         * @param isStructureAllowed
          *            true if the the column applies to structure data types.
          *            The user can change this flag in the type editor
          *
-         * @param isPointer
+         * @param isPointerAllowed
          *            true if the the column applies to pointer data types. The
          *            user can change this flag in the type editor
          *
@@ -2741,22 +2742,22 @@ public class CcddConstants
                       String columnName,
                       String description,
                       InputDataType inputType,
-                      boolean isProtected,
+                      boolean isRequiredForType,
                       boolean isRowValueUnique,
-                      boolean isRequired,
-                      boolean isStructure,
-                      boolean isPointer,
+                      boolean isInputRequired,
+                      boolean isStructureAllowed,
+                      boolean isPointerAllowed,
                       boolean isInputTypeUnique)
         {
             this.tableType = tableType;
             this.columnName = columnName;
             this.description = description;
             this.inputType = inputType;
-            this.isProtected = isProtected;
+            this.isRequiredForType = isRequiredForType;
             this.isRowValueUnique = isRowValueUnique;
-            this.isRequired = isRequired;
-            this.isStructure = isStructure;
-            this.isPointer = isPointer;
+            this.isInputRequired = isInputRequired;
+            this.isStructureAllowed = isStructureAllowed;
+            this.isPointerAllowed = isPointerAllowed;
             this.isInputTypeUnique = isInputTypeUnique;
         }
 
@@ -2798,7 +2799,7 @@ public class CcddConstants
          *********************************************************************/
         protected boolean isProtected()
         {
-            return isProtected;
+            return isRequiredForType;
         }
 
         /**********************************************************************
@@ -2812,13 +2813,13 @@ public class CcddConstants
         }
 
         /**********************************************************************
-         * Get the column required status
+         * Get the column input required status
          *
-         * @return true if the column is required
+         * @return true if a value is required to be entered in this column
          *********************************************************************/
-        protected boolean isRequired()
+        protected boolean isInputRequired()
         {
-            return isRequired;
+            return isInputRequired;
         }
 
         /**********************************************************************
@@ -2826,9 +2827,9 @@ public class CcddConstants
          *
          * @return true if the column applies to structure data types
          *********************************************************************/
-        protected boolean isStructure()
+        protected boolean isStructureAllowed()
         {
-            return isStructure;
+            return isStructureAllowed;
         }
 
         /**********************************************************************
@@ -2836,9 +2837,9 @@ public class CcddConstants
          *
          * @return true if the column applies to pointer data types
          *********************************************************************/
-        protected boolean isPointer()
+        protected boolean isPointerAllowed()
         {
-            return isPointer;
+            return isPointerAllowed;
         }
 
         /**********************************************************************
@@ -2955,67 +2956,68 @@ public class CcddConstants
         }
 
         /**********************************************************************
-         * Get the number of protected columns for the specified table type
+         * Get the number of columns that are required to define the specified
+         * table type
          *
          * @param type
          *            table type
          *
-         * @return Number of the protected columns for the specified table type
+         * @return Number of the columns that are required to define the
+         *         specified table type
          *********************************************************************/
-        protected static int getProtectedColumnCount(String type)
+        protected static int getTypeRequiredColumnCount(String type)
         {
-            int numProtectedColumns = 0;
+            int numRequiredColumns = 0;
 
             // Step through the default columns
             for (DefaultColumn defCol : DefaultColumn.values())
             {
-                // Check if the column is protected and that the column's table
-                // type matches the specified type
-                if (defCol.isProtected && type.equals(defCol.tableType))
+                // Check if the column is required by this type and that the
+                // column's table type matches the specified type
+                if (defCol.isRequiredForType && type.equals(defCol.tableType))
                 {
-                    // Increment the protected column counter
-                    numProtectedColumns++;
+                    // Increment the required column counter
+                    numRequiredColumns++;
                 }
             }
 
-            return numProtectedColumns;
+            return numRequiredColumns;
         }
 
         /**********************************************************************
-         * Check if the supplied table type and column name match one of the
-         * default table type & column name pairs
+         * Check if the supplied table type and column input type match that
+         * for a column required to define the specified type
          *
          * @param compareTableType
-         *            table type
+         *            table type: TYPE_STRUCTURE, TYPE_COMMAND, or TYPE_OTHER
          *
-         * @param compareColumnName
-         *            column name
+         * @param compareInputType
+         *            column input type
          *
-         * @return true if the supplied table type and column name match a
-         *         protected table type and column name combination, and if
-         *         this pair is flagged as protected
+         * @return true if the supplied table type and column input type match
+         *         that for a column required to define the specified type
          *********************************************************************/
-        protected static boolean isProtectedColumn(String compareTableType,
-                                                   String compareColumnName)
+        protected static boolean isTypeRequiredColumn(String compareTableType,
+                                                      InputDataType compareInputType)
         {
-            boolean isColumnProtected = false;
+            boolean isColumnRequired = false;
 
             // Step through the default columns
             for (DefaultColumn defCol : DefaultColumn.values())
             {
-                // Check if the table type and column name matches the one in
-                // the table
+                // Check if the table type and column input type match the one
+                // in the table
                 if (defCol.tableType.equals(compareTableType)
-                    && defCol.columnName.equals(compareColumnName))
+                    && defCol.inputType.equals(compareInputType))
                 {
-                    // Set the flag based on this parameter's protected status
-                    // and stop searching
-                    isColumnProtected = defCol.isProtected;
+                    // Set the flag based on this parameter's required by table
+                    // type status and stop searching
+                    isColumnRequired = defCol.isRequiredForType;
                     break;
                 }
             }
 
-            return isColumnProtected;
+            return isColumnRequired;
         }
 
         /**********************************************************************
@@ -3126,11 +3128,11 @@ public class CcddConstants
                                       + "', "
                                       + defCol.isRowValueUnique
                                       + ", "
-                                      + defCol.isRequired
+                                      + defCol.isInputRequired
                                       + ", "
-                                      + defCol.isStructure
+                                      + defCol.isStructureAllowed
                                       + ", "
-                                      + defCol.isPointer
+                                      + defCol.isPointerAllowed
                                       + "), ";
 
                         index++;
@@ -3140,6 +3142,42 @@ public class CcddConstants
 
             // Remove the ending comma
             return CcddUtilities.removeTrailer(columnDefn, ", ");
+        }
+
+        /**********************************************************************
+         * Get the default column definitions for the specified table type for
+         * use in populating new table type definitions
+         *
+         * @param type
+         *            Default table type name
+         *
+         * @return Default column definitions array for the specified table
+         *         type; and empty array if the type is not one of the default
+         *         types
+         *********************************************************************/
+        protected static Object[][] getDefaultColumnDefinitions(String type)
+        {
+            List<Object[]> typeData = new ArrayList<Object[]>();
+
+            // Step through the default columns
+            for (DefaultColumn defCol : DefaultColumn.values())
+            {
+                // Check if the table type matches the current column's type
+                if (type.equals(defCol.tableType))
+                {
+                    // Add the column definition to the list
+                    typeData.add(new Object[] {0,
+                                               defCol.columnName,
+                                               defCol.description,
+                                               defCol.getInputType().inputName,
+                                               defCol.isRowValueUnique,
+                                               defCol.isInputRequired,
+                                               defCol.isStructureAllowed,
+                                               defCol.isPointerAllowed});
+                }
+            }
+
+            return typeData.toArray(new Object[0][0]);
         }
 
         /**********************************************************************
@@ -4000,16 +4038,15 @@ public class CcddConstants
         }
 
         /**********************************************************************
-         * Get the command substring the defines the data fields table columns
-         * and any special command(s) required to build this internal table
+         * Get the command substring the defines the table columns and any
+         * special command(s) required to build this internal table
          *
          * @param includeInitCmd
          *            true to include the table initialization command(s);
          *            false to only include the column definition and create
          *            commands
          *
-         * @return Data fields table columns command substring and special
-         *         command(s)
+         * @return Table columns command substring and special command(s)
          *********************************************************************/
         protected String getColumnCommand(boolean includeInitCmd)
         {
@@ -6143,6 +6180,7 @@ public class CcddConstants
         {
             return defaultButton;
         }
+
     }
 
     /**************************************************************************

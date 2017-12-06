@@ -4658,6 +4658,9 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @return Number of pages that would be output when for printing the
      *         printable object
+     * 
+     * @throws PrinterException
+     *             If the print job is terminated
      *************************************************************************/
     private int getNumberOfPages(Printable delegate,
                                  PageFormat pageFormat) throws PrinterException

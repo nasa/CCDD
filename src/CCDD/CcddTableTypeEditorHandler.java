@@ -12,6 +12,7 @@ import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
 import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
 import static CCDD.CcddConstants.TYPE_COMMAND;
+import static CCDD.CcddConstants.TYPE_OTHER;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
 import java.awt.Component;
@@ -467,23 +468,18 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                  || column == TableTypeEditorColumnInfo.DESCRIPTION.ordinal()
                  || typeDefinition == null)
 
-                       // The column isn't protected...
-                       || (!DefaultColumn.isProtectedColumn(typeDefinition.getName(),
-                                                            rowData[TableTypeEditorColumnInfo.NAME.ordinal()].toString())
+                       // This isn't the structure allowed column, or it is and
+                       // the input type isn't a rate or enumeration
+                       || ((column != TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal()
+                            || (!rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].equals(InputDataType.RATE.getInputName())
+                                && !rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].equals(InputDataType.ENUMERATION.getInputName())))
 
-                           // ... and this isn't the structure allowed column,
-                           // or it is and the input type isn't a rate or
+                           // ... and this isn't the pointer allowed column, or
+                           // it is and the input type isn't a bit length or
                            // enumeration
-                           && ((column != TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal()
-                                || (!rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].equals(InputDataType.RATE.getInputName())
-                                    && !rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].equals(InputDataType.ENUMERATION.getInputName())))
-
-                               // ... and this isn't the pointer allowed
-                               // column, or it is and the input type isn't a
-                               // bit length or enumeration
-                               && (column != TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal()
-                                   || (!rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].equals(InputDataType.BIT_LENGTH.getInputName())
-                                       && !rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].equals(InputDataType.ENUMERATION.getInputName())))));
+                           && (column != TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal()
+                               || (!rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].equals(InputDataType.BIT_LENGTH.getInputName())
+                                   && !rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].equals(InputDataType.ENUMERATION.getInputName()))));
             }
 
             /******************************************************************
@@ -775,9 +771,22 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                     // Check if this cell is protected from changes
                     else if (!isCellEditable(row, column))
                     {
-                        // Shade the cell's background
+                        // Change the cell's text and background colors
                         comp.setForeground(ModifiableColorInfo.PROTECTED_TEXT.getColor());
                         comp.setBackground(ModifiableColorInfo.PROTECTED_BACK.getColor());
+                    }
+                    // Check if the cell is in a column that is required in
+                    // order to define the table type as a structure or command
+                    // table
+                    else if (DefaultColumn.isTypeRequiredColumn((typeOfTable == TableTypeIndicator.IS_STRUCTURE
+                                                                                                                ? TYPE_STRUCTURE
+                                                                                                                : (typeOfTable == TableTypeIndicator.IS_COMMAND
+                                                                                                                                                                ? TYPE_COMMAND
+                                                                                                                                                                : TYPE_OTHER)),
+                                                                InputDataType.getInputTypeByName(table.getValueAt(row, inputTypeIndex).toString())))
+                    {
+                        // Change the cell's background color
+                        comp.setBackground(ModifiableColorInfo.TYPE_REQUIRED_BACK.getColor());
                     }
                 }
 
@@ -794,42 +803,6 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             protected Object[] getEmptyRow()
             {
                 return TableTypeEditorColumnInfo.getEmptyRow();
-            }
-
-            /******************************************************************
-             * Override the CcddJTableHandler method for removing a row from
-             * the table. Don't allow deletion of a row that represents a
-             * protected column definition for this table type
-             *
-             * @param tableData
-             *            list containing the table data row arrays
-             *
-             * @param modelRow
-             *            row to remove (model coordinates)
-             *
-             * @return The index of the row prior to the last deleted row's
-             *         index
-             *****************************************************************/
-            @Override
-            protected int removeRow(List<Object[]> tableData, int modelRow)
-            {
-                // Check if this row doesn't represent a protected column
-                // definition (i.e., isn't a default column for the table type)
-                if (typeDefinition == null
-                    || !DefaultColumn.isProtectedColumn(typeDefinition.getName(),
-                                                        tableData.get(modelRow)[TableTypeEditorColumnInfo.NAME.ordinal()].toString()))
-                {
-                    // Remove the row from the table
-                    modelRow = super.removeRow(tableData, modelRow);
-                }
-                // This row represents a protected column definition
-                else
-                {
-                    // Adjust the row index, but don't delete the row
-                    modelRow--;
-                }
-
-                return modelRow;
             }
 
             /******************************************************************

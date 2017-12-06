@@ -31,70 +31,76 @@ public interface CcddImportExportInterface
 
     /**************************************************************************
      * Get the status of the conversion setup error flag
-     * 
+     *
      * @return true if an error occurred setting up for the EDS conversion
      *************************************************************************/
     abstract boolean getErrorStatus();
 
     /**************************************************************************
      * Get the table definitions
-     * 
+     *
      * @return List of table definitions
      *************************************************************************/
     abstract List<TableDefinition> getTableDefinitions();
 
     /**************************************************************************
      * Build the information from the table definition(s) in the current file
-     * 
+     *
      * @param importFile
      *            reference to the user-specified input file
-     * 
+     *
      * @param importAll
      *            ImportType.IMPORT_ALL to import the table type, data type,
      *            and macro definitions, and the data from all the table
      *            definitions; ImportType.FIRST_DATA_ONLY to load only the data
      *            for the first table defined
+     * 
+     * @throws CCDDException
+     * 
+     * @throws IOException
+     * 
+     * @throws Exception
      *************************************************************************/
     abstract void importFromFile(File importFile,
                                  ImportType importType) throws CCDDException,
-                                                       IOException,
-                                                       Exception;
+                                                        IOException,
+                                                        Exception;
 
     /**************************************************************************
      * Export the project to the specified file
-     * 
+     *
      * @param exportFile
      *            reference to the user-specified output file
-     * 
+     *
      * @param tableNames
      *            array of table names to convert
-     * 
+     *
      * @param replaceMacros
      *            true to replace any embedded macros with their corresponding
      *            values
-     * 
+     *
      * @param includeReservedMsgIDs
      *            true to include the contents of the reserved message ID table
      *            in the export file
-     * 
+     *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a
      *            structure table, both in application format and using the
      *            user-defined separator characters
-     * 
+     *
      * @param variableHandler
      *            variable handler class reference; null if
      *            includeVariablePaths is false
-     * 
+     *
      * @param separators
      *            string array containing the variable path separator
      *            character(s), show/hide data types flag ('true' or 'false'),
      *            and data type/variable name separator character(s); null if
      *            includeVariablePaths is false
-     * 
+     *
      * @param extraInfo
      *            extra parameters dependent on the export format
-     * 
+     *
      * @return true if an error occurred preventing exporting the project to
      *         the file
      *************************************************************************/

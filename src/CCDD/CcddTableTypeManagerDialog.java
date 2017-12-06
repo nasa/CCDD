@@ -9,6 +9,8 @@
 package CCDD;
 
 import static CCDD.CcddConstants.OK_BUTTON;
+import static CCDD.CcddConstants.TYPE_COMMAND;
+import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
 import java.awt.Color;
 import java.awt.GridBagConstraints;
@@ -25,6 +27,7 @@ import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 
 import CCDD.CcddClasses.CCDDException;
+import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ManagerDialogType;
@@ -216,6 +219,21 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                 // to the dialog panel
                 addTypeNameField("Enter the new type's name", "", dialogPnl, gbc);
 
+                // Create a panel containing allowing addition of default
+                // columns to the new table type and add it to the dialog
+                JPanel radioBtns = new JPanel(new GridBagLayout());
+                addRadioButtons("None",
+                                true,
+                                new String[][] {{"None", ""},
+                                                {TYPE_STRUCTURE, ""},
+                                                {TYPE_COMMAND, ""}},
+                                null,
+                                "Add columns required for table type",
+                                radioBtns,
+                                gbc);
+                gbc.gridy++;
+                dialogPnl.add(radioBtns, gbc);
+
                 // Get the user's input
                 if (showOptionsDialog(editorDialog,
                                       dialogPnl,
@@ -224,7 +242,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                 {
                     // Add the table type definition
                     tableTypeHandler.createTypeDefinition(typeNameFld.getText(),
-                                                          new Object[][] {},
+                                                          DefaultColumn.getDefaultColumnDefinitions(getRadioButtonSelected()),
                                                           "");
 
                     // Display an new, empty type editor

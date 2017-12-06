@@ -50,9 +50,12 @@ public class CcddPatchHandler
      * versions of the application are no longer guaranteed to function
      * properly and may have detrimental effects
      *
-     * * @param ccddMain main class
+     * @param ccddMain
+     *            main class
      *
      * @throws CCDDException
+     *             If the user elects to not install the patch or an error
+     *             occurs while applying the patch
      *************************************************************************/
     CcddPatchHandler(CcddMain ccddMain) throws CCDDException
     {
@@ -84,6 +87,10 @@ public class CcddPatchHandler
      * Update the associations table to include a name column. Older versions
      * of CCDD are not compatible with the project database after applying this
      * patch
+     *
+     * @throws CCDDException
+     *             If the user elects to not install the patch or an error
+     *             occurs while applying the patch
      *************************************************************************/
     private void updateAssociationsTable2() throws CCDDException
     {
@@ -207,6 +214,10 @@ public class CcddPatchHandler
      * Update the data fields table applicability column to change "Parents
      * only" to "Roots only". Older versions of CCDD are not compatible with
      * the project database after applying this patch
+     *
+     * @throws CCDDException
+     *             If the user elects to not install the patch or an error
+     *             occurs while applying the patch
      *************************************************************************/
     private void updateFieldApplicability() throws CCDDException
     {
@@ -297,6 +308,10 @@ public class CcddPatchHandler
      * change the table separator characters in the member_table column. Older
      * versions of CCDD are not compatible with the project database after
      * applying this patch
+     *
+     * @throws CCDDException
+     *             If the user elects to not install the patch or an error
+     *             occurs while applying the patch
      *************************************************************************/
     private void updateAssociationsTable() throws CCDDException
     {
@@ -434,6 +449,9 @@ public class CcddPatchHandler
      * <CCDD project identifier string><lock status, 0 or 1>;<project name with
      * capitalization intact>;<project description>. Older versions of CCDD are
      * compatible with the project database after applying this patch
+     *
+     * @throws CCDDException
+     *             If an error occurs while applying the patch
      *************************************************************************/
     private void updateDataBaseComment()
     {
@@ -506,6 +524,10 @@ public class CcddPatchHandler
      * attempts. The project database is first backed up to the file
      * <projectName>_<timeStamp>.dbu. Older versions of CCDD are not compatible
      * with the project database after applying this patch
+     *
+     * @throws CCDDException
+     *             If the user elects to not install the patch or an error
+     *             occurs while applying the patch
      *************************************************************************/
     private void updateTableTypesTable() throws CCDDException
     {

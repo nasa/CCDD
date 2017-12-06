@@ -1663,6 +1663,10 @@ public class CcddScriptHandler
      *            GUI component calling this method
      *
      * @return true if an error occurs during script execution
+     *
+     * @throws CCDDException
+     *             If an error occurs while attempting to access the script
+     *             file
      *************************************************************************/
     private void executeScript(String scriptFileName,
                                TableInformation[] tableInformation,

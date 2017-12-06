@@ -112,8 +112,11 @@ public class CcddDbCommandHandler
      * @param component
      *            GUI component over which to center any error dialog
      *
-     * @return Command results; throws an SQLexception and returns null if no
-     *         connection exists to the server
+     * @return Command results; returns null if no connection exists to the
+     *         server
+     *
+     * @throws SQLexception
+     *             If no connection exists to the server
      *************************************************************************/
     protected ResultSet executeDbQuery(String command,
                                        Component component) throws SQLException
@@ -132,8 +135,11 @@ public class CcddDbCommandHandler
      * @param component
      *            GUI component over which to center any error dialog
      *
-     * @return Command result row count; throws an SQLexception and returns
-     *         null if no connection exists to the server
+     * @return Command result row count; returns null if no connection exists
+     *         to the server
+     *
+     * @throws SQLexception
+     *             If no connection exists to the server
      *************************************************************************/
     protected int executeDbUpdate(String command,
                                   Component component) throws SQLException
@@ -153,9 +159,11 @@ public class CcddDbCommandHandler
      *            GUI component over which to center any error dialog
      *
      * @return true if the first result is a ResultSet object, or false if it
-     *         is an update count or there are no results; throws an
-     *         SQLexception and returns null if no connection exists to the
-     *         server
+     *         is an update count or there are no results; returns null if no
+     *         connection exists to the server
+     *
+     * @throws SQLexception
+     *             If no connection exists to the server
      *************************************************************************/
     protected boolean executeDbCommand(String command,
                                        Component component) throws SQLException
@@ -179,8 +187,10 @@ public class CcddDbCommandHandler
      *            GUI component over which to center any error dialog
      *
      * @return Command result (content is dependent on the command type);
-     *         throws an SQLexception and returns null if no connection exists
-     *         to the server
+     *         returns null if no connection exists to the server
+     *
+     * @throws SQLexception
+     *             If no connection exists to the server
      *************************************************************************/
     protected Object executeDbStatement(DbCommandType commandType,
                                         String command,

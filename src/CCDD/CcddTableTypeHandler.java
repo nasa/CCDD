@@ -282,6 +282,18 @@ public class CcddTableTypeHandler
         }
 
         /**********************************************************************
+         * Get the array of column input data types that are not hidden
+         *
+         * @return Array of column input data types that are not hidden
+         *********************************************************************/
+        protected InputDataType[] getInputTypesVisible()
+        {
+            return Arrays.copyOfRange(columnInputType.toArray(new InputDataType[0]),
+                                      NUM_HIDDEN_COLUMNS,
+                                      columnInputType.size());
+        }
+
+        /**********************************************************************
          * Get the array of column tool tip text
          *
          * @return Array of column tool tip text; null if no tool tips were
@@ -982,18 +994,18 @@ public class CcddTableTypeHandler
                            description,
                            DefaultColumn.PRIMARY_KEY.getInputType(),
                            DefaultColumn.PRIMARY_KEY.isRowValueUnique(),
-                           DefaultColumn.PRIMARY_KEY.isRequired(),
-                           DefaultColumn.PRIMARY_KEY.isStructure(),
-                           DefaultColumn.PRIMARY_KEY.isPointer());
+                           DefaultColumn.PRIMARY_KEY.isInputRequired(),
+                           DefaultColumn.PRIMARY_KEY.isStructureAllowed(),
+                           DefaultColumn.PRIMARY_KEY.isPointerAllowed());
         typeDefn.addColumn(DefaultColumn.ROW_INDEX.ordinal(),
                            DefaultColumn.ROW_INDEX.getDbName(),
                            DefaultColumn.ROW_INDEX.getName(),
                            DefaultColumn.ROW_INDEX.getDescription(),
                            DefaultColumn.ROW_INDEX.getInputType(),
                            DefaultColumn.ROW_INDEX.isRowValueUnique(),
-                           DefaultColumn.ROW_INDEX.isRequired(),
-                           DefaultColumn.PRIMARY_KEY.isStructure(),
-                           DefaultColumn.PRIMARY_KEY.isPointer());
+                           DefaultColumn.ROW_INDEX.isInputRequired(),
+                           DefaultColumn.PRIMARY_KEY.isStructureAllowed(),
+                           DefaultColumn.PRIMARY_KEY.isPointerAllowed());
 
         // Step through each row in the type definition data
         for (int row = 0; row < typeData.length; row++)
