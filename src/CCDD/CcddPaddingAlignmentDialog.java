@@ -87,12 +87,12 @@ public class CcddPaddingAlignmentDialog extends CcddDialogHandler
         // dialog
         final JSlider byteAlignmentSld = new JSlider(0,
                                                      6,
-                                                     (int) (Math.log(Double.valueOf(ccddMain.getProgPrefs().get(PADDING_ALIGNMENT, "4")))
+                                                     (int) (Math.log(Double.valueOf(ccddMain.getProgPrefs().get(PADDING_ALIGNMENT,
+                                                                                                                "4")))
                                                             / Math.log(2)));
         byteAlignmentSld.setSnapToTicks(true);
         byteAlignmentSld.setMajorTickSpacing(1);
         byteAlignmentSld.setPaintTicks(true);
-
         Hashtable<Integer, JLabel> labels = new Hashtable<Integer, JLabel>();
         labels.put(0, new JLabel("1"));
         labels.put(1, new JLabel("2"));
@@ -121,7 +121,7 @@ public class CcddPaddingAlignmentDialog extends CcddDialogHandler
             }
         });
 
-        // TODO
+        // Add the slider to the dialog
         gbc.gridy++;
         dialogPnl.add(byteAlignmentSld, gbc);
 
@@ -132,7 +132,8 @@ public class CcddPaddingAlignmentDialog extends CcddDialogHandler
                               DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
         {
             // Store the padding alignment value
-            ccddMain.getProgPrefs().put(PADDING_ALIGNMENT, String.valueOf((int) Math.pow(byteAlignmentSld.getValue(), 2)));
+            ccddMain.getProgPrefs().put(PADDING_ALIGNMENT,
+                                        String.valueOf((int) Math.pow(byteAlignmentSld.getValue(), 2)));
         }
     }
 }

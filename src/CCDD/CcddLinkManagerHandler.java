@@ -61,7 +61,7 @@ import CCDD.CcddUndoHandler.UndoableTreePathSelection;
  * CFS Command & Data Dictionary link manager handler class
  *****************************************************************************/
 @SuppressWarnings("serial")
-public class CcddLinkManagerHandler extends CcddDialogHandler
+public class CcddLinkManagerHandler
 {
     // Class references
     private final CcddMain ccddMain;
@@ -477,7 +477,8 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
         gbc.gridy++;
         managerPnl.add(new CustomSplitPane(treePnl,
                                            linkTree.createTreePanel("Links",
-                                                                    TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION),
+                                                                    TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
+                                                                    variableTree.getPreferredSize().width),
                                            createArrowButtonPanel(),
                                            JSplitPane.HORIZONTAL_SPLIT),
                        gbc);
@@ -643,7 +644,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
                     variableTree.buildTableTree(null,
                                                 rateName,
                                                 selectedRate,
-                                                CcddLinkManagerHandler.this);
+                                                linkDialog);
                 }
 
                 // Get the list of all variable tree paths in the variable tree
@@ -665,7 +666,7 @@ public class CcddLinkManagerHandler extends CcddDialogHandler
                                        false,
                                        rateName,
                                        false,
-                                       CcddLinkManagerHandler.this);
+                                       linkDialog);
 
                     // Set the flag to prevent rebuilding the link tree when
                     // subsequent rate selection changes are made

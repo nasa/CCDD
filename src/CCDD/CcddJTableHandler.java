@@ -10,7 +10,6 @@ package CCDD;
 
 import static CCDD.CcddConstants.REPLACE_INDICATOR;
 
-import java.awt.AWTException;
 import java.awt.AWTKeyStroke;
 import java.awt.Color;
 import java.awt.Component;
@@ -25,7 +24,6 @@ import java.awt.GraphicsEnvironment;
 import java.awt.KeyboardFocusManager;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -2211,7 +2209,6 @@ public abstract class CcddJTableHandler extends JTable
         // to create a multi-line editor for cells containing one or more lines
         // of text
         JTextArea textFieldMulti = new JTextArea();
-
         textFieldMulti.setFont(cellFont);
         textFieldMulti.setBorder(editBorder);
 
@@ -3025,6 +3022,8 @@ public abstract class CcddJTableHandler extends JTable
                 if (isCellEditable(cell.getRow(), cell.getColumn())
                     && isCellBlankable(cell.getRow(), cell.getColumn()))
                 {
+                    Object replaceChars;
+
                     // Convert the row and column indices to model coordinates
                     int modelRow = convertRowIndexToModel(cell.getRow());
                     int modelColumn = convertColumnIndexToModel(cell.getColumn());
@@ -3032,97 +3031,90 @@ public abstract class CcddJTableHandler extends JTable
                     // Get the current cell value
                     Object oldValue = tableData.get(modelRow)[modelColumn];
 
-                    // Set the default replacement character when deleting a
-                    // cell's contents
-                    String replaceChars = "";
+                    // Get the cell's renderer component
+                    Component comp = getCellRenderer(cell.getRow(),
+                                                     cell.getColumn()).getTableCellRendererComponent(table,
+                                                                                                     getValueAt(cell.getRow(),
+                                                                                                                cell.getColumn()),
+                                                                                                     true,
+                                                                                                     false,
+                                                                                                     cell.getRow(),
+                                                                                                     cell.getColumn());
 
-                    // Check if special replacement characters should be used
-                    // in place of the default blank
-                    if (isReplaceSpecial)
+                    // Check if the cell contains a check box
+                    if (comp instanceof JCheckBox)
                     {
-                        // Get the special replacement character(s)
-                        replaceChars = getSpecialReplacement(modelRow, modelColumn);
+                        // Deselect the check box
+                        replaceChars = false;
+                    }
+                    // The cell doesn't contain a check box (it's a text field,
+                    // combo box, etc.)
+                    else
+                    {
+                        // Set the default replacement character when deleting
+                        // a cell's contents
+                        replaceChars = "";
+
+                        // Check if special replacement characters should be
+                        // used in place of the default blank
+                        if (isReplaceSpecial)
+                        {
+                            // Get the special replacement character(s)
+                            replaceChars = getSpecialReplacement(modelRow, modelColumn);
+                        }
                     }
 
                     // Check if the cell value changes due to the deletion
                     // operation
-                    if (!replaceChars.equals(oldValue.toString()))
+                    if (!replaceChars.equals(oldValue))
                     {
-                        // Get this cell's editor component
-                        Component comp = ((DefaultCellEditor) getCellEditor(cell.getRow(),
-                                                                            cell.getColumn())).getComponent();
-
-                        // Check if the cell contains a check box
-                        if (!(comp instanceof JCheckBox))
+                        // Check if the cell contains a combo box
+                        if (comp instanceof JComboBox)
                         {
-                            // Check if the cell contains a combo box
-                            if (comp instanceof JComboBox)
-                            {
-                                // Check if special replacement characters
-                                // should be used in place of the default blank
-                                if (isReplaceSpecial)
-                                {
-                                    // Temporarily add the item with the
-                                    // replace flag prepended. This allows the
-                                    // combo box item get methods to 'find' the
-                                    // flagged item. The flagged item is
-                                    // removed if the cell is later edited
-                                    ((JComboBox<String>) comp).insertItemAt(REPLACE_INDICATOR
-                                                                            + replaceChars,
-                                                                            0);
-                                }
-                                // Use no special character replacement
-                                else
-                                {
-                                    // Set the selection so that the cell is
-                                    // blank
-                                    ((JComboBox<?>) comp).setSelectedIndex(-1);
-                                }
-                            }
-
-                            // Insert the value into the cell
-                            tableData.get(modelRow)[modelColumn] = replaceChars;
-
-                            // Handle changes to the cell contents
-                            validateCellContent(tableData,
-                                                modelRow,
-                                                modelColumn,
-                                                oldValue,
-                                                replaceChars,
-                                                true,
-                                                false);
-
-                            // Check if special replacement characters are used
+                            // Check if special replacement characters should
+                            // be used in place of the default blank
                             if (isReplaceSpecial)
                             {
-                                // Prepend the indicator to the cell's value to
-                                // flag it for special handling
-                                tableData.get(modelRow)[modelColumn] = REPLACE_INDICATOR
-                                                                       + replaceChars;
+                                // Temporarily add the item with the replace
+                                // flag prepended. This allows the combo box
+                                // item get methods to 'find' the flagged item.
+                                // The flagged item is removed if the cell is
+                                // later edited
+                                ((JComboBox<String>) comp).insertItemAt(REPLACE_INDICATOR
+                                                                        + replaceChars,
+                                                                        0);
                             }
-
-                            // Set the flag indicating a cell value changed
-                            isChange = true;
+                            // Use no special character replacement
+                            else
+                            {
+                                // Set the selection so that the cell is blank
+                                ((JComboBox<?>) comp).setSelectedIndex(-1);
+                            }
                         }
-                        // Check if the check box is selected
-                        else if ((Boolean) oldValue == true)
+
+                        // Insert the value into the cell
+                        tableData.get(modelRow)[modelColumn] = replaceChars;
+
+                        // Handle changes to the cell contents
+                        validateCellContent(tableData,
+                                            modelRow,
+                                            modelColumn,
+                                            oldValue,
+                                            replaceChars,
+                                            true,
+                                            false);
+
+                        // Check if special replacement characters are used
+                        if (isReplaceSpecial)
                         {
-                            try
-                            {
-                                // Create a robot to simulate key press events
-                                Robot robot = new Robot();
-
-                                // Send the equivalent space key event to
-                                // deselect the check box
-                                robot.keyPress(KeyEvent.VK_SPACE);
-                                robot.keyRelease(KeyEvent.VK_SPACE);
-                            }
-                            catch (AWTException awte)
-                            {
-                                // Ignore the space key if key press simulation
-                                // isn't supported
-                            }
+                            // Prepend the indicator to the cell's value to
+                            // flag it for special handling
+                            tableData.get(modelRow)[modelColumn] = REPLACE_INDICATOR
+                                                                   + replaceChars;
                         }
+
+                        // Set the flag indicating a cell value changed
+                        isChange = true;
                     }
                 }
             }
@@ -4658,7 +4650,7 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @return Number of pages that would be output when for printing the
      *         printable object
-     * 
+     *
      * @throws PrinterException
      *             If the print job is terminated
      *************************************************************************/

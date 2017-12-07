@@ -2226,7 +2226,7 @@ public class CcddDialogHandler extends JDialog
     /**************************************************************************
      * Check if the specified container or its children contains a component of
      * the specified class. This is a recursive method
-     * 
+     *
      * @param <E>
      *
      * @param container

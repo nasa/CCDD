@@ -1600,6 +1600,74 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         }
     }
 
+    // TODO
+    protected List<String> getSelectedTablesWithChildren()
+    {
+        // Create storage for the table names
+        List<String> tables = new ArrayList<String>();
+
+        // Check if any tables are selected in the table tree
+        if (getSelectionPaths() != null)
+        {
+            // Step through each selected table in the tree
+            for (TreePath path : getSelectionPaths())
+            {
+                // Check that this node represents a structure or variable, or
+                // a header node one level above
+                if (path.getPathCount() >= getHeaderNodeLevel())
+                {
+                    // Get the node for this path
+                    ToolTipTreeNode node = (ToolTipTreeNode) path.getLastPathComponent();
+
+                    // Check if the node has no children or if this node
+                    // represents a table (i.e., isn't a header node with no
+                    // child nodes)
+                    if (node.getChildCount() == 0
+                        || path.getPathCount() > getHeaderNodeLevel())
+                    {
+                        boolean isParentSelected = false;
+
+                        // Get the individual elements in the selected path
+                        Object[] pathElements = path.getPath();
+
+                        // Step through the node's ancestors
+                        for (int index = getHeaderNodeLevel(); index < path.getPathCount() - 1; index++)
+                        {
+                            // Check of the ancestor node is selected
+                            if (tables.contains(pathElements[index].toString()))
+                            {
+                                // Set the flag indicating that an ancestor of
+                                // this node is selected and stop searching
+                                isParentSelected = true;
+                                break;
+                            }
+                        }
+
+                        // Check if no ancestor of this node is selected
+                        if (!isParentSelected)
+                        {
+                            // Add the table path+name to the list
+                            tables.add(getFullVariablePath(node.getPath()));
+                        }
+                    }
+                    // The node is a header node (i.e., a node with table nodes
+                    // as children)
+                    else
+                    {
+                        // Step through each child node
+                        for (int index = 0; index < node.getChildCount(); index++)
+                        {
+                            // Add the path+name of the child to the table list
+                            tables.add(getFullVariablePath(((ToolTipTreeNode) node.getChildAt(index)).getPath()));
+                        }
+                    }
+                }
+            }
+        }
+
+        return tables;
+    }
+
     /**************************************************************************
      * Get a list of the tables (with their paths) represented by the selected
      * nodes. If a header node (i.e., a non-table node one level above a table
@@ -1985,10 +2053,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                                                         0,
                                                         0);
 
-        // Set the table tree font and number of rows to display
-        setFont(ModifiableFontInfo.TREE_NODE.getFont());
-        setVisibleRowCount(10);
-
         // Set the table tree selection mode
         getSelectionModel().setSelectionMode(selectionMode);
 
@@ -2020,6 +2084,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         // Add the tree to the panel
         gbc.weighty = 1.0;
         treePnl.add(treeScroll, gbc);
+
+        // Set the table tree font and number of rows to display
+        setFont(ModifiableFontInfo.TREE_NODE.getFont());
+        setVisibleRowCount(10);
 
         // Add a listener for changes to the table tree
         addTreeSelectionListener(new TreeSelectionListener()

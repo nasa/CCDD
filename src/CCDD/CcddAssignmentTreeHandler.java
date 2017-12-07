@@ -462,10 +462,6 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
                                                         0,
                                                         0);
 
-        // Set the table tree font and number of rows to display
-        setFont(ModifiableFontInfo.TREE_NODE.getFont());
-        setVisibleRowCount(10);
-
         // Set the table tree selection mode
         getSelectionModel().setSelectionMode(selectionMode);
 
@@ -485,6 +481,10 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
 
         // Add the tree to the panel
         treePnl.add(treeScroll, gbc);
+
+        // Set the table tree font and number of rows to display
+        setFont(ModifiableFontInfo.TREE_NODE.getFont());
+        setVisibleRowCount(10);
 
         // Add a listener for changes to the assignment tree
         addTreeSelectionListener(new TreeSelectionListener()

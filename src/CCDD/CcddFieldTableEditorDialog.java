@@ -432,6 +432,14 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                         }
                     }
 
+                    // Add the field panel to the selection panel
+                    gbc.insets.top = 0;
+                    gbc.insets.left = 0;
+                    gbc.weightx = 0.0;
+                    gbc.weighty = 0.0;
+                    gbc.gridy = 0;
+                    selectPnl.add(fieldPnl, gbc);
+
                     // Build the table tree showing both table prototypes and
                     // table instances; i.e., parent tables with their child
                     // tables (i.e., parents with children)
@@ -460,9 +468,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                 isNodeSelectionChanging = true;
 
                                 // Deselect any nodes that don't represent
-                                // a table or the level immediately above the
-                                // table level
-                                clearNonTableNodes(1);
+                                // a table
+                                clearNonTableNodes(0);
 
                                 // Reset the flag to allow variable tree
                                 // updates
@@ -474,19 +481,11 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     // Add the tree to the selection panel
                     gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
                     gbc.weighty = 1.0;
-                    gbc.gridy = 0;
+                    gbc.gridx++;
                     selectPnl.add(tableTree.createTreePanel("Tables",
                                                             TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
                                                             ccddMain.getMainFrame()),
                                   gbc);
-
-                    // Add the field panel to the selection panel
-                    gbc.insets.top = 0;
-                    gbc.insets.left = 0;
-                    gbc.weightx = 0.0;
-                    gbc.weighty = 0.0;
-                    gbc.gridx++;
-                    selectPnl.add(fieldPnl, gbc);
                 }
                 // No data field exists to choose
                 else
@@ -1385,7 +1384,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             // Step through each selected table in the tree
             for (TreePath treePath : treePaths)
             {
-                // Add the full table path, minus the data types, to the list
+                // Add the full table path to the list
                 filterTables.add(tableTree.getFullVariablePath(treePath.getPath()));
             }
         }

@@ -1612,6 +1612,7 @@ public class CcddConstants
         {
             this.path = path;
 
+            System.out.println("set mod path: " + preferenceKey + "  " + path); // TODO
             // Store the file path in the program preferences backing store
             ccddMain.getProgPrefs().put(preferenceKey, path);
         }

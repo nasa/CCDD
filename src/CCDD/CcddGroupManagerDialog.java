@@ -496,6 +496,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                                   groupTree.createTreePanel("Groups",
                                                                             TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
                                                                             false,
+                                                                            tableTree.getPreferredSize().width,
                                                                             ccddMain.getMainFrame()),
                                                   createArrowButtonPanel(),
                                                   JSplitPane.HORIZONTAL_SPLIT),

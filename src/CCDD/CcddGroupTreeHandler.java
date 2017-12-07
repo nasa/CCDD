@@ -13,6 +13,7 @@ import static CCDD.CcddConstants.GROUP_ICON;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -630,6 +631,37 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                                      boolean noFilters,
                                      final Component parent)
     {
+        return createTreePanel(label, selectionMode, noFilters, 0, parent);
+    }
+
+    /**************************************************************************
+     * Create a group tree panel. The table tree is placed in a scroll pane. A
+     * check box is added that allows tree expansion/collapse
+     *
+     * @param label
+     *            group tree title
+     *
+     * @param selectionMode
+     *            tree item selection mode (single versus multiple)
+     *
+     * @param noFilters
+     *            true to not display the filter check boxes
+     *
+     * @param prefTreeWidth
+     *            preferred initial width of the tree in pixels; 0 to let the
+     *            layout manager determine the preferred width
+     *
+     * @param parent
+     *            GUI component calling this method
+     *
+     * @return JPanel containing the group tree components
+     *************************************************************************/
+    protected JPanel createTreePanel(String label,
+                                     int selectionMode,
+                                     boolean noFilters,
+                                     int prefTreeWidth,
+                                     final Component parent)
+    {
         // Create an empty border
         Border emptyBorder = BorderFactory.createEmptyBorder();
 
@@ -648,10 +680,6 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                                                                    0),
                                                         0,
                                                         0);
-
-        // Set the table tree font and number of rows to display
-        setFont(ModifiableFontInfo.TREE_NODE.getFont());
-        setVisibleRowCount(10);
 
         // Set the table tree selection mode
         getSelectionModel().setSelectionMode(selectionMode);
@@ -676,6 +704,13 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                                                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
                                                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
 
+        // Check if a preferred width is specified
+        if (prefTreeWidth != 0)
+        {
+            // Set the tree's preferred width
+            setPreferredSize(new Dimension(prefTreeWidth, 0));
+        }
+
         // Check if this is the last component to add
         if (noFilters)
         {
@@ -686,6 +721,10 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         gbc.weighty = 1.0;
         gbc.gridy++;
         treePnl.add(treeScroll, gbc);
+
+        // Set the table tree font and number of rows to display
+        setFont(ModifiableFontInfo.TREE_NODE.getFont());
+        setVisibleRowCount(10);
 
         // Add a listener for changes to the group tree
         addTreeSelectionListener(new TreeSelectionListener()
