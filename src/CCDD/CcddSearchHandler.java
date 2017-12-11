@@ -45,6 +45,7 @@ import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
 import CCDD.CcddConstants.SearchDialogType;
 import CCDD.CcddConstants.SearchResultsQueryColumn;
+import CCDD.CcddConstants.SearchTarget;
 import CCDD.CcddConstants.SearchType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
@@ -246,7 +247,9 @@ public class CcddSearchHandler extends CcddDialogHandler
                         }
 
                         // Set the search result table values
-                        target = nameAndType[0];
+                        target = SearchTarget.TABLE.getTargetName(true)
+                                 + ": "
+                                 + nameAndType[0];
                         location = "Column '"
                                    + typeDefn.getColumnNamesUser()[colIndex]
                                    + "', "
@@ -308,7 +311,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                     // Check if the match is in the data types internal table
                     else if (hitTableName.equals(InternalTable.DATA_TYPES.getTableName()))
                     {
-                        target = "Data type";
+                        target = SearchTarget.DATA_TYPE.getTargetName(true);
                         location = "Data type '"
                                    + CcddDataTypeHandler.getDataTypeName(columnValue[DataTypesColumn.USER_NAME.ordinal()],
                                                                          columnValue[DataTypesColumn.C_NAME.ordinal()])
@@ -342,7 +345,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                     // Check if the match is in the groups table
                     else if (hitTableName.equals(InternalTable.GROUPS.getTableName()))
                     {
-                        target = "Group";
+                        target = SearchTarget.GROUP.getTargetName(true);
                         location = "Group '"
                                    + columnValue[GroupsColumn.GROUP_NAME.ordinal()]
                                    + "' ";
@@ -390,19 +393,30 @@ public class CcddSearchHandler extends CcddDialogHandler
                     // Check if the match is in the fields internal table
                     else if (hitTableName.equals(InternalTable.FIELDS.getTableName()))
                     {
-                        location = "Data field '"
+                        location = "Field name '"
                                    + columnValue[FieldsColumn.FIELD_NAME.ordinal()]
                                    + "' ";
 
                         // Check if this is a default data field
                         if ((columnValue[FieldsColumn.OWNER_NAME.ordinal()] + ":").startsWith(CcddFieldHandler.getFieldTypeName("")))
                         {
-                            target = "Default data field";
+                            target = SearchTarget.DEFAULT_FIELD.getTargetName(true)
+                                     + ": "
+                                     + columnValue[FieldsColumn.OWNER_NAME.ordinal()].replaceFirst("^.*:", "");
                         }
                         // Check if this is a group data field
                         else if ((columnValue[FieldsColumn.OWNER_NAME.ordinal()] + ":").startsWith(CcddFieldHandler.getFieldGroupName("")))
                         {
-                            target = "Group data field";
+                            target = SearchTarget.GROUP_FIELD.getTargetName(true)
+                                     + ": "
+                                     + columnValue[FieldsColumn.OWNER_NAME.ordinal()].replaceFirst("^.*:", "");
+                        }
+                        // This is a table data field
+                        else
+                        {
+                            target = SearchTarget.TABLE_FIELD.getTargetName(true)
+                                     + ": "
+                                     + columnValue[FieldsColumn.OWNER_NAME.ordinal()];
                         }
 
                         // Check if the match is with the field owner name
@@ -458,7 +472,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                     // Check if the match is in the associations internal table
                     else if (hitTableName.equals(InternalTable.ASSOCIATIONS.getTableName()))
                     {
-                        target = "Script association";
+                        target = SearchTarget.SCRIPT_ASSN.getTargetName(true);
                         location = "Script '"
                                    + columnValue[AssociationsColumn.SCRIPT_FILE.ordinal()]
                                    + "' association ";
@@ -481,7 +495,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                     // internal table
                     else if (hitTableName.equals(InternalTable.TLM_SCHEDULER.getTableName()))
                     {
-                        target = "Telemetry message";
+                        target = SearchTarget.TLM_MESSAGE.getTargetName(true);
                         location = "Message '"
                                    + columnValue[TlmSchedulerColumn.MESSAGE_NAME.ordinal()]
                                    + "' ";
@@ -525,7 +539,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                     // Check if the match is in the links internal table
                     else if (hitTableName.equals(InternalTable.LINKS.getTableName()))
                     {
-                        target = "Telemetry link";
+                        target = SearchTarget.TLM_LINK.getTargetName(true);
                         location = "Link '"
                                    + columnValue[LinksColumn.LINK_NAME.ordinal()]
                                    + "' ";
@@ -563,7 +577,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                     // Check if the match is in the table types internal table
                     else if (hitTableName.equals(InternalTable.TABLE_TYPES.getTableName()))
                     {
-                        target = "Table type";
+                        target = SearchTarget.TABLE_TYPE.getTargetName(true);
                         location = "Table type '"
                                    + columnValue[TableTypesColumn.TYPE_NAME.ordinal()]
                                    + "' ";
@@ -609,7 +623,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                     // internal table
                     else if (hitTableName.equals(InternalTable.APP_SCHEDULER.getTableName()))
                     {
-                        target = "Scheduler";
+                        target = SearchTarget.APP_SCHEDULER.getTargetName(true);
                         location = "Application '"
                                    + columnValue[AppSchedulerColumn.TIME_SLOT.ordinal()]
                                    + "' ";

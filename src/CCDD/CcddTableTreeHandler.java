@@ -9,6 +9,8 @@
 package CCDD;
 
 import static CCDD.CcddConstants.ALL_TABLES_GROUP_NODE_NAME;
+import static CCDD.CcddConstants.DEFAULT_INSTANCE_NODE_NAME;
+import static CCDD.CcddConstants.DEFAULT_PROTOTYPE_NODE_NAME;
 import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
 import static CCDD.CcddConstants.LINKED_VARIABLES_NODE_NAME;
 import static CCDD.CcddConstants.UNLINKED_VARIABLES_NODE_NAME;
@@ -607,9 +609,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         setRootVisible(false);
 
         // Create a node to display the prototype tables
-        ToolTipTreeNode prototype = new ToolTipTreeNode("Prototypes",
+        ToolTipTreeNode prototype = new ToolTipTreeNode(DEFAULT_PROTOTYPE_NODE_NAME,
                                                         "Prototype tables");
-        instance = new ToolTipTreeNode("Parents & Children",
+        instance = new ToolTipTreeNode(DEFAULT_INSTANCE_NODE_NAME,
                                        treeType == INSTANCE_TABLES
                                                                    ? "Parent and children tables"
                                                                    : "Parent and children tables, and variables");
@@ -1251,7 +1253,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             ToolTipTreeNode tableNode = (ToolTipTreeNode) element.nextElement();
 
             // Check that the node represents a table
-            if (tableNode.getLevel() >= this.getHeaderNodeLevel())
+            if (tableNode.getLevel() >= getHeaderNodeLevel())
             {
                 // Check if the node matches the target table's name
                 if (getTableFromNodeName(tableNode.getUserObject().toString()).equals(checkTable))
@@ -1407,7 +1409,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             ToolTipTreeNode node = (ToolTipTreeNode) element.nextElement();
 
             // Check if the node's table name matches the search table's name
-            // and that the node name isn't empty
+            // and that the node name isn't empty, that the node meets the
+            // level requirement (if any), and that the path isn't already in
+            // the list
             if ((searchName == null
                  || searchName.equals(getTableFromNodeName(node.getUserObject().toString())))
                 && node.getUserObjectPath().length != 0
@@ -1600,7 +1604,13 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         }
     }
 
-    // TODO
+    /**************************************************************************
+     * Get a list of the tables (with their paths) represented by the selected
+     * nodes. If a header node (i.e., a non-table node, such as a group or type
+     * node) is selected then all of its child tables are added to the list
+     *
+     * @return List containing the table path+names of the selected node(s)
+     *************************************************************************/
     protected List<String> getSelectedTablesWithChildren()
     {
         // Create storage for the table names
@@ -1612,55 +1622,35 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // Step through each selected table in the tree
             for (TreePath path : getSelectionPaths())
             {
-                // Check that this node represents a structure or variable, or
-                // a header node one level above
-                if (path.getPathCount() >= getHeaderNodeLevel())
+                // Get the node for this path
+                ToolTipTreeNode node = (ToolTipTreeNode) path.getLastPathComponent();
+
+                // Check that this node represents a header node
+                if (path.getPathCount() <= getHeaderNodeLevel())
                 {
-                    // Get the node for this path
-                    ToolTipTreeNode node = (ToolTipTreeNode) path.getLastPathComponent();
-
-                    // Check if the node has no children or if this node
-                    // represents a table (i.e., isn't a header node with no
-                    // child nodes)
-                    if (node.getChildCount() == 0
-                        || path.getPathCount() > getHeaderNodeLevel())
+                    // Check if the node has any children
+                    if (node.getChildCount() != 0)
                     {
-                        boolean isParentSelected = false;
+                        List<Object[]> childPaths = new ArrayList<Object[]>();
 
-                        // Get the individual elements in the selected path
-                        Object[] pathElements = path.getPath();
+                        // Get the children of this header node
+                        addChildNodes(node, childPaths, null, false);
 
-                        // Step through the node's ancestors
-                        for (int index = getHeaderNodeLevel(); index < path.getPathCount() - 1; index++)
+                        // Step through each of the child table paths
+                        for (Object[] childPath : childPaths)
                         {
-                            // Check of the ancestor node is selected
-                            if (tables.contains(pathElements[index].toString()))
-                            {
-                                // Set the flag indicating that an ancestor of
-                                // this node is selected and stop searching
-                                isParentSelected = true;
-                                break;
-                            }
-                        }
-
-                        // Check if no ancestor of this node is selected
-                        if (!isParentSelected)
-                        {
-                            // Add the table path+name to the list
-                            tables.add(getFullVariablePath(node.getPath()));
+                            // Add the table's full path (with the root
+                            // table) to the full path list
+                            tables.add(getFullVariablePath(childPath));
                         }
                     }
-                    // The node is a header node (i.e., a node with table nodes
-                    // as children)
-                    else
-                    {
-                        // Step through each child node
-                        for (int index = 0; index < node.getChildCount(); index++)
-                        {
-                            // Add the path+name of the child to the table list
-                            tables.add(getFullVariablePath(((ToolTipTreeNode) node.getChildAt(index)).getPath()));
-                        }
-                    }
+                }
+                // The path represents a table
+                else
+                {
+                    // Add the table's full path (with the root table) to the
+                    // full path list
+                    tables.add(getFullVariablePath(node.getPath()));
                 }
             }
         }

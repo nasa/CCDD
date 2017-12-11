@@ -786,8 +786,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 // Store each search result in a JSON object and add it to the
                 // search results array
                 JSONObject searchJO = new JSONObject();
-                searchJO.put(SearchResultsColumnInfo.TARGET.getColumnName(SearchDialogType.TABLES),
-                             searchResult[SearchResultsColumnInfo.TARGET.ordinal()]);
+                searchJO.put(SearchResultsColumnInfo.OWNER.getColumnName(SearchDialogType.TABLES),
+                             searchResult[SearchResultsColumnInfo.OWNER.ordinal()]);
                 searchJO.put(SearchResultsColumnInfo.LOCATION.getColumnName(SearchDialogType.TABLES),
                              searchResult[SearchResultsColumnInfo.LOCATION.ordinal()]);
                 searchJO.put(SearchResultsColumnInfo.CONTEXT.getColumnName(SearchDialogType.TABLES),

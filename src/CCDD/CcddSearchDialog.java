@@ -53,12 +53,12 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.JTextComponent;
-import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.AutoCompleteTextField;
 import CCDD.CcddClasses.MultilineLabel;
+import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -66,6 +66,7 @@ import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.SearchDialogType;
 import CCDD.CcddConstants.SearchResultsColumnInfo;
+import CCDD.CcddConstants.SearchTarget;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -103,9 +104,6 @@ public class CcddSearchDialog extends CcddFrameHandler
 
     // Array to contain the search results
     private Object[][] resultsData;
-
-    // Node selection change in progress flag
-    private boolean isNodeSelectionChanging;
 
     /**************************************************************************
      * Search database tables, scripts, and event log dialog class constructor
@@ -504,29 +502,7 @@ public class CcddSearchDialog extends CcddFrameHandler
                                                  TableTreeType.TABLES,
                                                  true,
                                                  false,
-                                                 ccddMain.getMainFrame())
-            {
-                /**************************************************************
-                 * Respond to changes in selection of a node in the table tree
-                 *************************************************************/
-                @Override
-                protected void updateTableSelection()
-                {
-                    // Check that a node selection change is not in
-                    // progress
-                    if (!isNodeSelectionChanging)
-                    {
-                        // Set the flag to prevent variable tree updates
-                        isNodeSelectionChanging = true;
-
-                        // Deselect any nodes that don't represent a table
-                        clearNonTableNodes(0);
-
-                        // Reset the flag to allow variable tree updates
-                        isNodeSelectionChanging = false;
-                    }
-                }
-            };
+                                                 ccddMain.getMainFrame());
 
             // Add the tree to the selection panel
             gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
@@ -579,7 +555,7 @@ public class CcddSearchDialog extends CcddFrameHandler
                        || (searchDlgType == SearchDialogType.LOG
                            && column == SearchResultsColumnInfo.CONTEXT.ordinal())
                        || (searchDlgType == SearchDialogType.SCRIPTS
-                           && (column == SearchResultsColumnInfo.TARGET.ordinal()
+                           && (column == SearchResultsColumnInfo.OWNER.ordinal()
                                || column == SearchResultsColumnInfo.CONTEXT.ordinal()));
             }
 
@@ -590,7 +566,7 @@ public class CcddSearchDialog extends CcddFrameHandler
             protected boolean isColumnHTML(int column)
             {
                 return searchDlgType == SearchDialogType.TABLES
-                       && column == SearchResultsColumnInfo.TARGET.ordinal();
+                       && column == SearchResultsColumnInfo.OWNER.ordinal();
             }
 
             /******************************************************************
@@ -642,7 +618,7 @@ public class CcddSearchDialog extends CcddFrameHandler
                     int delta = getParent().getWidth() - tcm.getTotalColumnWidth();
 
                     // Get the reference to the search results table columns
-                    TableColumn tgtColumn = tcm.getColumn(SearchResultsColumnInfo.TARGET.ordinal());
+                    TableColumn tgtColumn = tcm.getColumn(SearchResultsColumnInfo.OWNER.ordinal());
                     TableColumn locColumn = tcm.getColumn(SearchResultsColumnInfo.LOCATION.ordinal());
                     TableColumn cntxtColumn = tcm.getColumn(SearchResultsColumnInfo.CONTEXT.ordinal());
 
@@ -804,7 +780,6 @@ public class CcddSearchDialog extends CcddFrameHandler
                 else
                 {
                     List<Object[]> resultsDataList = null;
-                    List<String> filterTables = new ArrayList<String>();
 
                     // Update the search string list
                     searchFld.updateList(searchFld.getText());
@@ -838,35 +813,91 @@ public class CcddSearchDialog extends CcddFrameHandler
                     // Check if this is a table search
                     if (searchDlgType == SearchDialogType.TABLES)
                     {
-                        // Get the paths to the tables selected in the table
-                        // tree
-                        TreePath[] treePaths = tableTree.getSelectionPaths();
+                        List<Object[]> removeResults = new ArrayList<Object[]>();
 
-                        // Check if a path is selected in the tree; if no path
-                        // is selected then all of the search results are
-                        // displayed
-                        if (treePaths != null)
+                        // Get the list of selected tables
+                        List<String> filterTables = tableTree.getSelectedTablesWithChildren();
+
+                        // Check if tables were selected to filter the search
+                        // results
+                        if (!filterTables.isEmpty())
                         {
-                            List<Object[]> removeResults = new ArrayList<Object[]>();
+                            List<String> otherTables = new ArrayList<String>();
 
-                            // Step through each selected table in the tree
-                            for (TreePath treePath : treePaths)
+                            // Step through each filter table
+                            for (String filterTable : filterTables)
                             {
-                                // Add the full table path to the list
-                                filterTables.add(tableTree.getFullVariablePath(treePath.getPath()));
+                                int pathSeparator = -1;
+
+                                do
+                                {
+                                    // Check if this isn't the first pass
+                                    if (pathSeparator != -1)
+                                    {
+                                        // Remove the last child in the table
+                                        // path
+                                        filterTable = filterTable.substring(0, pathSeparator);
+
+                                        // Check if the ancestor table isn't in
+                                        // the list
+                                        if (!otherTables.contains(filterTable))
+                                        {
+                                            // Add the ancestor table to the
+                                            // list
+                                            otherTables.add(filterTable);
+                                        }
+                                    }
+
+                                    // Get the table's prototype table name
+                                    String protoTable = TableInformation.getPrototypeName(filterTable);
+
+                                    // Check if the prototype table isn't in
+                                    // the list
+                                    if (!otherTables.contains(protoTable))
+                                    {
+                                        // Add the table's prototype to the
+                                        // list
+                                        otherTables.add(protoTable);
+                                    }
+
+                                    // Find the beginning of the last child in
+                                    // the path
+                                    pathSeparator = filterTable.lastIndexOf(",");
+                                } while (pathSeparator != -1);
+                                // Process every child and root in the table
+                                // path
                             }
+
+                            // Add the ancestor and prototype tables to the
+                            // filter table list
+                            filterTables.addAll(otherTables);
 
                             // Step through the search results
                             for (Object[] result : resultsDataList)
                             {
-                                // Check if the table containing the search
-                                // text isn't in the list of selected tables
-                                if (!filterTables.contains(CcddUtilities.removeHTMLTags(result[SearchResultsColumnInfo.TARGET.ordinal()].toString())))
+                                // Separate the target into the target type and
+                                // owner
+                                String[] typeAndOwner = CcddUtilities.removeHTMLTags(result[SearchResultsColumnInfo.OWNER.ordinal()].toString()).split(": ");
+
+                                // Check if the target type isn't a table or
+                                // table data field, and if owner isn't one of
+                                // the selected tables or its prototype
+                                if (!((typeAndOwner[0].equals(SearchTarget.TABLE.getTargetName(false))
+                                       || typeAndOwner[0].equals(SearchTarget.TABLE_FIELD.getTargetName(false)))
+                                      && filterTables.contains(typeAndOwner[1])))
                                 {
                                     // Add the search result to the list of
                                     // those to remove
                                     removeResults.add(result);
                                 }
+
+                                // TODO Since prototype tables are
+                                // automatically added (needed since a child
+                                // only returns matches in the values table), a
+                                // false match can occur if the filter table is
+                                // a child, the hit is in the child's
+                                // prototype, and the child has overridden the
+                                // prototype's value where the match occurs
                             }
 
                             // Remove the search results that aren't in the
@@ -1012,7 +1043,7 @@ public class CcddSearchDialog extends CcddFrameHandler
                 // instead of the usual comma, so this must be altered for the
                 // table path to be used to open the table
                 String tableName = resultsTable.getModel().getValueAt(row,
-                                                                      SearchResultsColumnInfo.TARGET.ordinal())
+                                                                      SearchResultsColumnInfo.OWNER.ordinal())
                                                .toString().trim().replaceFirst(":", ",");
 
                 // Check if the cell at these coordinates is selected, the

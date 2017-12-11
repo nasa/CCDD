@@ -48,7 +48,6 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
-import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
@@ -117,9 +116,6 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
     // Cell selection container
     private CellSelectionHandler selectedCells;
-
-    // Node selection change in progress flag
-    private boolean isNodeSelectionChanging;
 
     // Dialog title
     private static final String DIALOG_TITLE = "Show/Edit Data Fields";
@@ -311,8 +307,6 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             @Override
             protected void execute()
             {
-                isNodeSelectionChanging = false;
-
                 // Create an empty border to surround the panels
                 Border emptyBorder = BorderFactory.createEmptyBorder();
 
@@ -321,7 +315,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                                                 1,
                                                                 1,
                                                                 1,
-                                                                1.0,
+                                                                0.0,
                                                                 0.0,
                                                                 GridBagConstraints.LINE_START,
                                                                 GridBagConstraints.BOTH,
@@ -435,7 +429,6 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     // Add the field panel to the selection panel
                     gbc.insets.top = 0;
                     gbc.insets.left = 0;
-                    gbc.weightx = 0.0;
                     gbc.weighty = 0.0;
                     gbc.gridy = 0;
                     selectPnl.add(fieldPnl, gbc);
@@ -450,36 +443,11 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                                          TableTreeType.TABLES,
                                                          true,
                                                          false,
-                                                         CcddFieldTableEditorDialog.this)
-                    {
-                        /******************************************************
-                         * Respond to changes in selection of a node in the
-                         * table tree
-                         *****************************************************/
-                        @Override
-                        protected void updateTableSelection()
-                        {
-                            // Check that a node selection change is not in
-                            // progress
-                            if (!isNodeSelectionChanging)
-                            {
-                                // Set the flag to prevent variable tree
-                                // updates
-                                isNodeSelectionChanging = true;
-
-                                // Deselect any nodes that don't represent
-                                // a table
-                                clearNonTableNodes(0);
-
-                                // Reset the flag to allow variable tree
-                                // updates
-                                isNodeSelectionChanging = false;
-                            }
-                        }
-                    };
+                                                         CcddFieldTableEditorDialog.this);
 
                     // Add the tree to the selection panel
                     gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+                    gbc.weightx = 1.0;
                     gbc.weighty = 1.0;
                     gbc.gridx++;
                     selectPnl.add(tableTree.createTreePanel("Tables",
@@ -1373,20 +1341,41 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     {
         isPath = false;
         List<Object[]> ownerDataFields = new ArrayList<Object[]>();
-        List<String> filterTables = new ArrayList<String>();
 
-        // Get the paths to the tables selected in the table tree
-        TreePath[] treePaths = tableTree.getSelectionPaths();
+        // Get the list of selected tables
+        List<String> filterTables = tableTree.getSelectedTablesWithChildren();
 
-        // Check if a path is selected in the tree
-        if (treePaths != null)
+        // Check if tables were selected to filter the search results
+        if (!filterTables.isEmpty())
         {
-            // Step through each selected table in the tree
-            for (TreePath treePath : treePaths)
+            List<String> ancestorTables = new ArrayList<String>();
+
+            // Step through each filter table
+            for (String filterTable : filterTables)
             {
-                // Add the full table path to the list
-                filterTables.add(tableTree.getFullVariablePath(treePath.getPath()));
+                // Find the beginning of the last child in the path
+                int pathSeparator = filterTable.lastIndexOf(",");
+
+                // Process every child and root in the table path
+                while (pathSeparator != -1)
+                {
+                    // Remove the last child in the table path
+                    filterTable = filterTable.substring(0, pathSeparator);
+
+                    // Check if the table isn't in the list
+                    if (!ancestorTables.contains(filterTable))
+                    {
+                        // Add the table to the list
+                        ancestorTables.add(filterTable);
+                    }
+
+                    // Find the beginning of the last child in the path
+                    pathSeparator = filterTable.lastIndexOf(",");
+                }
             }
+
+            // Add the ancestor tables to the filter table list
+            filterTables.addAll(ancestorTables);
         }
 
         // Create a field handler and populate it with the field definitions
@@ -1697,13 +1686,13 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     private String getOwnerWithPath(String ownerName, String path)
     {
         // Remove and leading spaces used for indenting child structure names
-        ownerName = ownerName.trim();
+        ownerName = CcddUtilities.removeHTMLTags(ownerName).trim();
 
         // Check if the owner has a path
         if (!path.isEmpty())
         {
             // Prepend the path to the table name
-            ownerName = path.replaceAll(" ", "") + "," + ownerName;
+            ownerName = CcddUtilities.removeHTMLTags(path).replaceAll(" ", "") + "," + ownerName;
         }
 
         return ownerName;

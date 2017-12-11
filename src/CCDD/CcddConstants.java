@@ -166,6 +166,10 @@ public class CcddConstants
     // insensitive)
     protected static final String TRUE_OR_FALSE = "(?i:true|false)";
 
+    // Default table tree header node names
+    protected static final String DEFAULT_PROTOTYPE_NODE_NAME = "Prototypes";
+    protected static final String DEFAULT_INSTANCE_NODE_NAME = "Parents & Children";
+
     // Node name for the linked and unlinked variables in trees displaying
     // (un)linked variables
     protected static final String LINKED_VARIABLES_NODE_NAME = "Linked Variables";
@@ -1612,7 +1616,6 @@ public class CcddConstants
         {
             this.path = path;
 
-            System.out.println("set mod path: " + preferenceKey + "  " + path); // TODO
             // Store the file path in the program preferences backing store
             ccddMain.getProgPrefs().put(preferenceKey, path);
         }
@@ -5073,12 +5076,12 @@ public class CcddConstants
      *************************************************************************/
     protected static enum SearchResultsColumnInfo
     {
-        TARGET("Table / Object",
-               "Name of the table or data object containing the search text",
-               "Script",
-               "Name of the script containing the search text",
-               "Log Index",
-               "Event log entry index containing the search text"),
+        OWNER("Owner",
+              "Name of the table or data object containing the search text",
+              "Script",
+              "Name of the script containing the search text",
+              "Log Index",
+              "Event log entry index containing the search text"),
         LOCATION("Location",
                  "Location containing the search text",
                  "Line Number",
@@ -6052,6 +6055,59 @@ public class CcddConstants
                    + "\"><b>"
                    + typeName
                    + "</b>";
+        }
+    }
+
+    /**************************************************************************
+     * Search target names
+     *************************************************************************/
+    protected static enum SearchTarget
+    {
+        TABLE("Table"),
+        DATA_TYPE("Data type"),
+        TABLE_TYPE("Table type"),
+        GROUP("Group"),
+        TABLE_FIELD("Table data field"),
+        DEFAULT_FIELD("Default data field"),
+        GROUP_FIELD("Group data field"),
+        SCRIPT_ASSN("Script association"),
+        TLM_MESSAGE("Telemetry message"),
+        TLM_LINK("Telemetry link"),
+        APP_SCHEDULER("Scheduler");
+
+        private final String tgtName;
+
+        /**********************************************************************
+         * Search target names constructor
+         *
+         * @param tgtName
+         *            target name
+         *********************************************************************/
+        SearchTarget(String tgtName)
+        {
+            this.tgtName = tgtName;
+        }
+
+        /**********************************************************************
+         * Get search target name
+         *
+         * @param isFormat
+         *            true to format the target name
+         *
+         * @return Target name
+         *********************************************************************/
+        protected String getTargetName(boolean isFormat)
+        {
+            String name = tgtName;
+
+            // Check if the target name is to be formatted for display
+            if (isFormat)
+            {
+                // Add the formatting to the name
+                name = "<html><i>" + name + "</i>";
+            }
+
+            return name;
         }
     }
 

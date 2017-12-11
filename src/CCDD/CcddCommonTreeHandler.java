@@ -31,8 +31,8 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import CCDD.CcddClasses.ArrayVariable;
-import CCDD.CcddClasses.GroupInformation;
 import CCDD.CcddClasses.BitPackNodeIndex;
+import CCDD.CcddClasses.GroupInformation;
 import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.ModifiableFontInfo;
 

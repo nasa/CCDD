@@ -10,6 +10,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.DB_SAVE_POINT_NAME;
+import static CCDD.CcddConstants.DEFAULT_INSTANCE_NODE_NAME;
 import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.OK_BUTTON;
@@ -94,6 +95,10 @@ public class CcddDbTableCommandHandler
     // be used in a PostgrSQL command
     private final String assnsSeparator;
     private final String tlmSchSeparator;
+
+    // List of arrays scheduled for removal from the links and telemetry
+    // scheduler tables
+    private List<String> deletedArrayDefns;
 
     /**************************************************************************
      * Database table command handler class constructor
@@ -2874,6 +2879,8 @@ public class CcddDbTableCommandHandler
             // the table represents a structure
             if (!skipInternalTables && typeDefinition.isStructure())
             {
+                deletedArrayDefns = new ArrayList<String>();
+
                 // Create the table tree
                 tableTree = new CcddTableTreeHandler(ccddMain,
                                                      TableTreeType.STRUCTURES_WITH_PRIMITIVES,
@@ -2882,10 +2889,8 @@ public class CcddDbTableCommandHandler
                 // Check if there are any additions or modifications
                 if (!additions.isEmpty() || !modifications.isEmpty())
                 {
-                    // Get the list of root tables
-                    rootTables = tableTree.getTableTreePathList(null,
-                                                                (ToolTipTreeNode) tableTree.getRootNode(),
-                                                                tableTree.getHeaderNodeLevel());
+                    // Get the list of root structure tables
+                    rootTables = getRootStructures(parent);
                 }
 
                 // Check if the table is a prototype
@@ -3201,13 +3206,10 @@ public class CcddDbTableCommandHandler
                         // the root structure and its children are not
                         // automatically amended to include the new parent
                         // structure path, but are instead removed
-                        linksDelCmd = deleteLinkPathRef("^"
-                                                        + dataType
-                                                        + "(?:,|\\\\.|$)",
-                                                        linksDelCmd);
-                        tlmDelCmd = deleteTlmPathRef(dataType
-                                                     + "(?:,|\\\\.|$)",
-                                                     tlmDelCmd);
+                        deleteLinkPathRef("^" + dataType + "(?:,|\\\\.|$)",
+                                          linksDelCmd);
+                        deleteTlmPathRef(dataType + "(?:,|\\\\.|$)",
+                                         tlmDelCmd);
                     }
 
                     // Check if the added variable is a string array member
@@ -3234,9 +3236,8 @@ public class CcddDbTableCommandHandler
 
                             // Remove all references to the string array from
                             // the telemetry scheduler table
-                            tlmDelCmd = deleteTlmPathRef(stringArrayDefn
-                                                         + "(?:,|:|$)",
-                                                         tlmDelCmd);
+                            deleteTlmPathRef(stringArrayDefn + "(?:,|:|$)",
+                                             tlmDelCmd);
                         }
                     }
                 }
@@ -3548,18 +3549,20 @@ public class CcddDbTableCommandHandler
                                 // children are not automatically amended to
                                 // include the new parent structure path, but
                                 // are instead removed
-                                linksDelCmd = deleteLinkPathRef("^"
-                                                                + newDataType
-                                                                + "(?:,|\\\\.|$)",
-                                                                linksDelCmd);
-                                tlmDelCmd = deleteTlmPathRef(newDataType
-                                                             + "(?:,|\\\\.|$)",
-                                                             tlmDelCmd);
+                                deleteLinkPathRef("^"
+                                                  + newDataType
+                                                  + "(?:,|\\\\.|$)",
+                                                  linksDelCmd);
+                                deleteTlmPathRef(newDataType
+                                                 + "(?:,|\\\\.|$)",
+                                                 tlmDelCmd);
                             }
 
                             // Create a list of table path arrays that are
                             // instances of this prototype table
-                            List<Object[]> tablePathList = tableTree.getTableTreePathArray(tableInfo.getPrototypeName());
+                            List<Object[]> tablePathList = tableTree.getTableTreePathArray(tableInfo.getPrototypeName(),
+                                                                                           tableTree.getNodeByNodeName(DEFAULT_INSTANCE_NODE_NAME),
+                                                                                           -1);
 
                             // Step through each table path found
                             for (Object[] path : tablePathList)
@@ -3705,8 +3708,8 @@ public class CcddDbTableCommandHandler
                                                                                           ? ""
                                                                                           : ":" + newBitLength);
 
-                                    // Create the command to update the
-                                    // links and telemetry scheduler tables for
+                                    // Create the command to update the links
+                                    // and telemetry scheduler tables for
                                     // instances of variables of the prototype
                                     // table. If bit-packing changed due to the
                                     // bit length update then the affected
@@ -3935,16 +3938,15 @@ public class CcddDbTableCommandHandler
                                 // scheduler tables
                                 if (rateChanged || isDelLinksAndTlm)
                                 {
-                                    // Remove all references to the structure
-                                    // and its children from the links and
-                                    // telemetry scheduler tables
-                                    linksDelCmd = deleteLinkPathRef("^"
-                                                                    + orgVarPathEsc
-                                                                    + "(?:,|:|$)",
-                                                                    linksDelCmd);
-                                    tlmDelCmd = deleteTlmPathRef(orgVarPathEsc
-                                                                 + "(?:,|:|$)",
-                                                                 tlmDelCmd);
+                                    // Create the commands to delete the
+                                    // variable from the link and telemetry
+                                    // scheduler tables
+                                    deleteLinkAndTlmPathRef(oldArraySize,
+                                                            oldVariableName,
+                                                            orgVariablePath,
+                                                            orgVarPathEsc,
+                                                            linksDelCmd,
+                                                            tlmDelCmd);
                                 }
                             }
                         }
@@ -4027,7 +4029,7 @@ public class CcddDbTableCommandHandler
 
                     // Escape any PostgreSQL reserved characters so that the
                     // path can be used in a regular expression
-                    variablePath = CcddUtilities.escapePostgreSQLReservedChars(variablePath);
+                    String variablePathEsc = CcddUtilities.escapePostgreSQLReservedChars(variablePath);
 
                     // Step through each rate index
                     for (int rateIndex : mod.getRateColumn())
@@ -4039,36 +4041,18 @@ public class CcddDbTableCommandHandler
                         // Check if the rate changed
                         if (!oldRate.equals(newRate))
                         {
-                            // Remove all references to the structure and its
-                            // children from the links and telemetry scheduler
-                            // tables
-                            linksDelCmd = deleteLinkPathRef("^"
-                                                            + variablePath
-                                                            + "(?:,|:|$)",
-                                                            linksDelCmd);
-                            tlmDelCmd = deleteTlmPathRef(variablePath
-                                                         + "(?:,|:|$)",
-                                                         tlmDelCmd);
+                            // Create the commands to delete the variable from
+                            // the link and telemetry scheduler tables
+                            deleteLinkAndTlmPathRef(mod.getRowData()[mod.getArraySizeColumn()].toString(),
+                                                    mod.getRowData()[mod.getVariableColumn()].toString(),
+                                                    variablePath,
+                                                    variablePathEsc,
+                                                    linksDelCmd,
+                                                    tlmDelCmd);
                             break;
                         }
                     }
                 }
-            }
-
-            // Check if a change to the links table exists
-            if (linksDelCmd.length() != 0)
-            {
-                // Terminate the links table command and add it to the
-                // modification command
-                modCmd.append(linksDelCmd.append("; "));
-            }
-
-            // Check if a change to the telemetry scheduler table exists
-            if (tlmDelCmd.length() != 0)
-            {
-                // Terminate the telemetry scheduler table command and add it
-                // to the modification command
-                modCmd.append(tlmDelCmd.append("; "));
             }
         }
 
@@ -4126,14 +4110,13 @@ public class CcddDbTableCommandHandler
             for (TableModification del : deletions)
             {
                 // Add the table row deletion command
-                delCmd.append((delCmd.length() == 0
-                                                    ? "DELETE FROM "
-                                                      + dbTableName
-                                                      + " WHERE "
-                                                    : " OR ")
+                delCmd.append("DELETE FROM "
+                              + dbTableName
+                              + " WHERE "
                               + typeDefn.getColumnNamesDatabase()[DefaultColumn.PRIMARY_KEY.ordinal()]
                               + " = "
-                              + del.getRowData()[DefaultColumn.PRIMARY_KEY.ordinal()]);
+                              + del.getRowData()[DefaultColumn.PRIMARY_KEY.ordinal()]
+                              + "; ");
 
                 // Check if the internal tables are to be updated and the
                 // table represents a structure
@@ -4166,27 +4149,23 @@ public class CcddDbTableCommandHandler
                         // Create or add to the command to update the custom
                         // values table for instances of variables of the
                         // prototype table
-                        valuesDelCmd.append((valuesDelCmd.length() == 0
-                                                                        ? "DELETE FROM "
-                                                                          + InternalTable.VALUES.getTableName()
-                                                                          + " WHERE"
-                                                                        : " OR")
-                                            + " "
+                        valuesDelCmd.append("DELETE FROM "
+                                            + InternalTable.VALUES.getTableName()
+                                            + " WHERE "
                                             + ValuesColumn.TABLE_PATH.getColumnName()
                                             + " ~ E'^"
                                             + variablePathEsc
-                                            + "(?:,|:|$)'");
+                                            + "(?:,|:|$)'; ");
 
-                        // Create or add to the commands to update the links
-                        // and telemetry scheduler tables for instances of
+                        // Create the command to delete the variable from the
+                        // link and telemetry scheduler tables for instances of
                         // variables of the prototype table
-                        linksDelCmd = deleteLinkPathRef("^"
-                                                        + variablePathEsc
-                                                        + "(?:,|:|$)",
-                                                        linksDelCmd);
-                        tlmDelCmd = deleteTlmPathRef(variablePathEsc
-                                                     + "(?:,|:|$)",
-                                                     tlmDelCmd);
+                        deleteLinkAndTlmPathRef(del.getRowData()[del.getArraySizeColumn()].toString(),
+                                                variableName,
+                                                variablePath,
+                                                variablePathEsc,
+                                                linksDelCmd,
+                                                tlmDelCmd);
 
                         // Check if the data type represents a structure
                         if (!dataTypeHandler.isPrimitive(dataType))
@@ -4194,36 +4173,27 @@ public class CcddDbTableCommandHandler
                             // Create or add to the commands to update the
                             // internal tables for instances of variables of
                             // the prototype table
-                            groupsDelCmd.append((groupsDelCmd.length() == 0
-                                                                            ? "DELETE FROM "
-                                                                              + InternalTable.GROUPS.getTableName()
-                                                                              + " WHERE"
-                                                                            : " OR")
-                                                + " "
+                            groupsDelCmd.append("DELETE FROM "
+                                                + InternalTable.GROUPS.getTableName()
+                                                + " WHERE "
                                                 + GroupsColumn.MEMBERS.getColumnName()
                                                 + " ~ E'^"
                                                 + variablePathEsc
-                                                + "(?:,|$)'");
-                            fieldsDelCmd.append((fieldsDelCmd.length() == 0
-                                                                            ? "DELETE FROM "
-                                                                              + InternalTable.FIELDS.getTableName()
-                                                                              + " WHERE"
-                                                                            : " OR")
-                                                + " "
+                                                + "(?:,|$)'; ");
+                            fieldsDelCmd.append("DELETE FROM "
+                                                + InternalTable.FIELDS.getTableName()
+                                                + " WHERE "
                                                 + FieldsColumn.OWNER_NAME.getColumnName()
                                                 + " ~ E'^"
                                                 + variablePathEsc
-                                                + "(?:,|$)'");
-                            ordersDelCmd.append((ordersDelCmd.length() == 0
-                                                                            ? "DELETE FROM "
-                                                                              + InternalTable.ORDERS.getTableName()
-                                                                              + " WHERE"
-                                                                            : " OR")
-                                                + " "
+                                                + "(?:,|$)'; ");
+                            ordersDelCmd.append("DELETE FROM "
+                                                + InternalTable.ORDERS.getTableName()
+                                                + " WHERE "
                                                 + OrdersColumn.TABLE_PATH.getColumnName()
                                                 + " ~ E'^"
                                                 + variablePathEsc
-                                                + "(?:,|$)'");
+                                                + "(?:,|$)';");
                             String pathWithChildren = variablePathEsc
                                                       + "(?:,"
                                                       + PATH_IDENT
@@ -4634,12 +4604,12 @@ public class CcddDbTableCommandHandler
 
             // Delete the variable from the links and telemetry scheduler
             // tables
-            linksDelCmd = deleteLinkPathRef("(?:^|[^,]*,)"
-                                            + packPath,
-                                            linksDelCmd);
-            tlmDelCmd = deleteTlmPathRef("(?:[^,]+,)*"
-                                         + packPath,
-                                         tlmDelCmd);
+            deleteLinkPathRef("(?:^|[^,]*,)"
+                              + packPath,
+                              linksDelCmd);
+            deleteTlmPathRef("(?:[^,]+,)*"
+                             + packPath,
+                             tlmDelCmd);
         }
 
         // Check if a change to the links table exists
@@ -4757,21 +4727,16 @@ public class CcddDbTableCommandHandler
      * @return StringBuilder containing the links table command. This must be
      *         terminated by a semi-colon prior to execution
      *************************************************************************/
-    private StringBuilder deleteLinkPathRef(String linksPath,
-                                            StringBuilder linksCmd)
+    private void deleteLinkPathRef(String linksPath,
+                                   StringBuilder linksCmd)
     {
-        linksCmd.append((linksCmd.length() == 0
-                                                ? "DELETE FROM "
-                                                  + InternalTable.LINKS.getTableName()
-                                                  + " WHERE"
-                                                : " OR")
-                        + " "
+        linksCmd.append("DELETE FROM "
+                        + InternalTable.LINKS.getTableName()
+                        + " WHERE "
                         + LinksColumn.MEMBER.getColumnName()
                         + " ~ E'"
                         + linksPath
-                        + "'");
-
-        return linksCmd;
+                        + "'; ");
     }
 
     /**************************************************************************
@@ -4793,22 +4758,16 @@ public class CcddDbTableCommandHandler
      * @return StringBuilder containing the telemetry scheduler table command.
      *         This must be terminated by a semi-colon prior to execution
      *************************************************************************/
-    private StringBuilder deleteTlmPathRef(String tlmPath,
-                                           StringBuilder tlmCmd)
+    private void deleteTlmPathRef(String tlmPath, StringBuilder tlmCmd)
     {
-        tlmCmd.append((tlmCmd.length() == 0
-                                            ? "DELETE FROM "
-                                              + InternalTable.TLM_SCHEDULER.getTableName()
-                                              + " WHERE"
-                                            : " OR")
-                      + " "
+        tlmCmd.append("DELETE FROM "
+                      + InternalTable.TLM_SCHEDULER.getTableName()
+                      + " WHERE "
                       + TlmSchedulerColumn.MEMBER.getColumnName()
                       + " ~ E'^.*"
                       + tlmSchSeparator
                       + tlmPath
-                      + "'");
-
-        return tlmCmd;
+                      + "'; ");
     }
 
     /**************************************************************************
@@ -4833,10 +4792,9 @@ public class CcddDbTableCommandHandler
             for (String path : variablePaths)
             {
                 // Add the command to delete all of the variable's references
-                // from
-                // the telemetry scheduler table
-                tlmCommand = deleteTlmPathRef(CcddUtilities.escapePostgreSQLReservedChars(path),
-                                              tlmCommand);
+                // from the telemetry scheduler table
+                deleteTlmPathRef(CcddUtilities.escapePostgreSQLReservedChars(path),
+                                 tlmCommand);
             }
 
             // Check if a change to the telemetry scheduler table exists
@@ -4848,6 +4806,95 @@ public class CcddDbTableCommandHandler
         }
 
         return tlmCommand.toString();
+    }
+
+    /**************************************************************************
+     * Remove all references to the specified variable paths in the links and
+     * telemetry scheduler tables. If the variable is an array definition then
+     * amend the regular expression to match all members of the array; skip any
+     * subsequent members of the array passed to this method
+     *
+     * @param arraySize
+     *            variable array size
+     *
+     * @param variableName
+     *            variable name
+     *
+     * @param variablePath
+     *            variable path
+     *
+     * @param variablePathEsc
+     *            variable path with any PostgreSQL reserved characters escaped
+     *            so that the path can be used in a regular expression
+     *
+     * @param linksDelCmd
+     *            StringBuilder containing the existing links table deletion
+     *            command
+     *
+     * @param tlmDelCmd
+     *            StringBuilder containing the existing telemetry scheduler
+     *            table deletion command
+     *************************************************************************/
+    private void deleteLinkAndTlmPathRef(String arraySize,
+                                         String variableName,
+                                         String variablePath,
+                                         String variablePathEsc,
+                                         StringBuilder linksDelCmd,
+                                         StringBuilder tlmDelCmd)
+    {
+        boolean isOkayToDelete = true;
+
+        // Set the default regular expression for matching the path
+        String pathEndRegEx = "(?:,|:|$)";
+
+        // Check if this is an array variable
+        if (!arraySize.isEmpty())
+        {
+            // Check if this is the array definition
+            if (!ArrayVariable.isArrayMember(variableName))
+            {
+                // Add the array definition to the list of those to delete
+                deletedArrayDefns.add(variablePath);
+
+                // Set the regular expression for matching the path to include
+                // all array members
+                pathEndRegEx = "(?:\\\\[[0-9]+\\\\],|:|\\\\[[0-9]+\\\\]$)";
+            }
+            // This is an array member
+            else
+            {
+                // Get the variable path without the array index (this is what
+                // appears as the array definition's path)
+                String pathWithoutArrayIndex = variablePath.replaceFirst("(?:\\[[0-9]+\\])?$", "");
+
+                // Step through the list of deleted
+                // array definitions
+                for (String deletedArray : deletedArrayDefns)
+                {
+                    // Check if this array member is a member of an entirely
+                    // deleted array
+                    if (deletedArray.startsWith(pathWithoutArrayIndex))
+                    {
+                        // Set the flag so that deletion of the array member is
+                        // skipped (it was handled by the array definition
+                        // deletion) and stop searching
+                        isOkayToDelete = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Check if the variable can be deleted (i.e., this is not an array
+        // variable, is an array definition, or is an array member that doesn't
+        // have its definition already set to delete
+        if (isOkayToDelete)
+        {
+            // Remove all references to the structure and its children from the
+            // links and telemetry scheduler tables
+            deleteLinkPathRef("^" + variablePathEsc + pathEndRegEx, linksDelCmd);
+            deleteTlmPathRef(variablePathEsc + pathEndRegEx, tlmDelCmd);
+        }
     }
 
     /**************************************************************************
