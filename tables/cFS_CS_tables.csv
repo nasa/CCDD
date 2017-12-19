@@ -1,0 +1,89 @@
+# Copyright 2017 United States Government as represented by the Administrator
+# of the National Aeronautics and Space Administration. No copyright is claimed
+# in the United States under Title 17, U.S. Code. All Other Rights Reserved.
+
+
+# CS cFS application data tables
+#   Use the Data | Import table(s) command to import the CS
+#   data table definitions into an existing project
+
+_macros_
+"CFE_SB_TLM_HDR_SIZE","2"
+"CFE_SB_CMD_HDR_SIZE","2"
+"CFE_TBL_MAX_FULL_NAME_LEN","2"
+"OS_MAX_API_NAME","2"
+
+_name_type_
+"CS_HkPacket_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","","cFE SB Tlm Msg Hdr"
+"uint8","CmdCounter","","","CS Application Command Counter"
+"uint8","CmdErrCounter","","","CS Application Command Error Counter"
+"uint8","ChecksumState","","","CS Application global checksum state"
+"uint8","EepromCSState","","","CS Eeprom table checksum stat e"
+"uint8","MemoryCSState","","","CS Memory table checksum state"
+"uint8","AppCSState","","","CS App table checksum state"
+"uint8","TablesCSState","","","CS Tables table checksum stat e"
+"uint8","OSCSState","","","OS code segment checksum state"
+"uint8","CfeCoreCSState","","","cFE Core code segment checksum stat e"
+"uint8","ChildTaskInUse","","","CS "Child Task In Use" flag"
+"uint8","OneShotTaskInUse","","","CS "OneShot Task In Use" flag"
+"uint8","Filler8","","","8 bit padding"
+"uint16","EepromCSErrCounter","","","Eeprom miscompare counte r"
+"uint16","MemoryCSErrCounter","","","Memory miscompare counter"
+"uint16","AppCSErrCounter","","","App miscompare counter"
+"uint16","TablesCSErrCounter","","","Tables miscompare counter"
+"uint16","CfeCoreCSErrCounter","","","cFE core miscompare counter"
+"uint16","OSCSErrCounter","","","OS code segment miscopmare counter"
+"uint16","CurrentCSTable","","","Current table being checksummed"
+"uint16","CurrentEntryInTable","","","Current entry ID in the table being checksummed"
+"uint32","EepromBaseline","","","Baseline checksum for all of Eeprom"
+"uint32","OSBaseline","","","Baseline checksum for the OS code segment"
+"uint32","CfeCoreBaseline","","","Basline checksum for the cFE core"
+"uint32","LastOneShotAddress","","","Address used in last one shot checksum command"
+"uint32","LastOneShotSize","","","Size used in the last one shot checksum command"
+"uint32","LastOneShotChecksum","","","Checksum of the last one shot checksum command"
+"uint32","PassCounter","","","Number of times CS has passed through all of its tables"
+
+_name_type_
+"CS_NoArgsCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+
+_name_type_
+"CS_GetEntryIDCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint32","Address","","","Address to get the ID for"
+
+_name_type_
+"CS_EntryCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint16","EntryID","","","EntryID to perform a command on"
+
+_name_type_
+"CS_TableNameCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"char","Name","##CFE_TBL_MAX_FULL_NAME_LEN##","","Table name to perform a command on"
+
+_name_type_
+"CS_AppNameCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"char","Name","##OS_MAX_API_NAME##","","App name to perform a command on"
+
+_name_type_
+"CS_OneShotCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint32","Address","","","Address to start checksum"
+"uint32","Size","","","Number of bytes to checksum"

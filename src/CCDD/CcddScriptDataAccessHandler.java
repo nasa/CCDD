@@ -74,7 +74,8 @@ public class CcddScriptDataAccessHandler
     private CcddTableTreeHandler tableTree;
     private CcddApplicationSchedulerTableHandler schTable;
     private CcddCopyTableHandler copyHandler;
-    private CcddVariableConversionHandler variableHandler;
+    private CcddVariableConversionHandler varConvHandler;
+    private final CcddVariableSizeHandler varSizeHandler;
 
     // Calling GUI component
     private final Component parent;
@@ -147,6 +148,7 @@ public class CcddScriptDataAccessHandler
         fileIOHandler = ccddMain.getFileIOHandler();
         rateHandler = ccddMain.getRateParameterHandler();
         macroHandler = ccddMain.getMacroHandler();
+        varSizeHandler = ccddMain.getVariableSizeHandler();
         tableTree = null;
         copyHandler = null;
         isAllVariables = false;
@@ -166,7 +168,7 @@ public class CcddScriptDataAccessHandler
         // has then check if the previous handler only included the subset of
         // variables within the associated structure tables, but now all
         // variables are required
-        if (variableHandler == null
+        if (varConvHandler == null
             || (getAllVariables == true && isAllVariables != true))
         {
             // Check if only the variables referenced within the associated
@@ -206,7 +208,7 @@ public class CcddScriptDataAccessHandler
 
                 // Create the variable handler for only those variables in the
                 // associated structure tables
-                variableHandler = new CcddVariableConversionHandler(variableInformation);
+                varConvHandler = new CcddVariableConversionHandler(variableInformation);
             }
             // All variables in the project database are needed
             else
@@ -214,11 +216,11 @@ public class CcddScriptDataAccessHandler
                 // Set the flag indicating all variables have been loaded and
                 // create the variable handler for all variables
                 isAllVariables = true;
-                variableHandler = new CcddVariableConversionHandler(ccddMain);
+                varConvHandler = new CcddVariableConversionHandler(ccddMain);
             }
 
             // Get the reference to the table tree used in the variable handler
-            tableTree = variableHandler.getTableTree();
+            tableTree = varConvHandler.getTableTree();
         }
     }
 
@@ -524,7 +526,7 @@ public class CcddScriptDataAccessHandler
      *************************************************************************/
     public int getDataTypeSizeInBytes(String dataType)
     {
-        return linkHandler.getDataTypeSizeInBytes(dataType);
+        return varSizeHandler.getDataTypeSizeInBytes(dataType);
     }
 
     /**************************************************************************
@@ -3153,7 +3155,7 @@ public class CcddScriptDataAccessHandler
         createVariableHandler(false);
 
         // Expand any macros in the variable name before getting the full name
-        return variableHandler.getFullVariableName(macroHandler.getMacroExpansion(fullName),
+        return varConvHandler.getFullVariableName(macroHandler.getMacroExpansion(fullName),
                                                    varPathSeparator,
                                                    excludeDataTypes,
                                                    typeNameSeparator);
@@ -3518,7 +3520,7 @@ public class CcddScriptDataAccessHandler
         // hasn't already been created
         createVariableHandler(true);
 
-        return variableHandler.getAllVariableNameList().toArray(new String[0]);
+        return varConvHandler.getAllVariableNameList().toArray(new String[0]);
     }
 
     /**************************************************************************
@@ -4479,9 +4481,9 @@ public class CcddScriptDataAccessHandler
                                                                                                Color.LIGHT_GRAY,
                                                                                                Color.GRAY),
                                                                BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
+                                                                                               ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                               ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                               ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
         gbc.gridx++;
         panel.add(typeField, gbc);
 
@@ -4953,7 +4955,7 @@ public class CcddScriptDataAccessHandler
      *************************************************************************/
     public int getVariableOffset(String path)
     {
-        return linkHandler.getVariableOffset(path);
+        return varSizeHandler.getVariableOffset(path);
     }
 
     /**************************************************************************

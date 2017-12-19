@@ -1215,7 +1215,7 @@ public class CcddFileIOHandler
      *
      * @return true if the table is successfully imported; false if the table
      *         is exists and the replaceExisting flag is not true
-     * 
+     *
      * @throws CCDDException
      *             The existing table that the new table replaces cannot be
      *             removed, the new table cannot be created, or the data cannot

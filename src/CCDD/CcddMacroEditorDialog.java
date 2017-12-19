@@ -15,6 +15,7 @@ import static CCDD.CcddConstants.DOWN_ICON;
 import static CCDD.CcddConstants.INSERT_ICON;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.REDO_ICON;
+import static CCDD.CcddConstants.SIZEOF_DATATYPE;
 import static CCDD.CcddConstants.STORE_ICON;
 import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
 import static CCDD.CcddConstants.UNDO_ICON;
@@ -24,11 +25,15 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -40,6 +45,10 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
+import javax.swing.text.JTextComponent;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.CCDDException;
@@ -54,6 +63,7 @@ import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.SearchResultsQueryColumn;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
+import CCDD.CcddUndoHandler.UndoableTableModel;
 
 /******************************************************************************
  * CFS Command & Data Dictionary macro editor dialog class
@@ -78,6 +88,10 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
     // List of macro references already loaded from the database. This is used
     // to avoid repeated searches for a the same macro
     private List<MacroReference> loadedReferences;
+
+    // Temporary table cell storage for when macro names are replaced by their
+    // corresponding values so that the original cell contents can be restored
+    private String[][] originalCellData;
 
     // Dialog title
     private static final String DIALOG_TITLE = "Macro Editor";
@@ -497,6 +511,104 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
         macroTable = new CcddJTableHandler()
         {
             /******************************************************************
+             * Highlight any macros in the macro values column
+             *
+             * @param component
+             *            reference to the table cell renderer component
+             *
+             * @param text
+             *            cell text
+             *
+             * @param isSelected
+             *            true if the cell is to be rendered with the selection
+             *            highlighted
+             *
+             * @param int
+             *            row cell row, view coordinates
+             *
+             * @param column
+             *            cell column, view coordinates
+             *****************************************************************/
+            @Override
+            protected void doSpecialRendering(Component component,
+                                              String text,
+                                              boolean isSelected,
+                                              int row,
+                                              int column)
+            {
+                // Check if this is the macro values column
+                if (column == MacroEditorColumnInfo.VALUE.ordinal())
+                {
+                    // Highlight any macro names in the table cell. Adjust the
+                    // highlight color to account for the cell selection
+                    // highlighting so that the macro is easily readable
+                    macroHandler.highlightMacro(component,
+                                                text,
+                                                isSelected
+                                                           ? ModifiableColorInfo.INPUT_TEXT.getColor()
+                                                           : ModifiableColorInfo.TEXT_HIGHLIGHT.getColor());
+
+                    // Highlight 'sizeof(data type)' instances. Create a
+                    // highlighter painter
+                    DefaultHighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(isSelected
+                                                                                                                ? ModifiableColorInfo.INPUT_TEXT.getColor()
+                                                                                                                : ModifiableColorInfo.TEXT_HIGHLIGHT.getColor());
+
+                    // Create the match pattern
+                    Pattern pattern = Pattern.compile(SIZEOF_DATATYPE);
+
+                    // Create the pattern matcher from the pattern
+                    Matcher matcher = pattern.matcher(text);
+
+                    // Check if there is a match in the cell value
+                    if (matcher.find())
+                    {
+                        try
+                        {
+                            // Highlight the matching text. Adjust the
+                            // highlight color to account for the cell
+                            // selection highlighting so that the macro is
+                            // easily readable
+                            ((JTextComponent) component).getHighlighter().addHighlight(matcher.start(),
+                                                                                       matcher.end(),
+                                                                                       painter);
+                        }
+                        catch (BadLocationException ble)
+                        {
+                            // Ignore highlighting failure
+                        }
+                    }
+                }
+            }
+
+            /******************************************************************
+             * Get the tool tip text for a table cell, showing any macro name
+             * replaced with its corresponding macro value
+             *****************************************************************/
+            @Override
+            public String getToolTipText(MouseEvent me)
+            {
+                String toolTipText = null;
+
+                // Get the row and column of the cell over which the mouse
+                // pointer is hovering
+                Point point = me.getPoint();
+                int row = rowAtPoint(point);
+                int column = columnAtPoint(point);
+
+                // Check if a cell is beneath the mouse pointer
+                if (row != -1 && column != -1)
+                {
+                    // Expand any macros in the cell text and display this as
+                    // the cell's tool tip text
+                    toolTipText = macroHandler.getMacroToolTipText(getValueAt(row,
+                                                                              column).toString());
+                }
+
+                return toolTipText;
+            }
+
+            /******************************************************************
              * Allow multiple line display in all columns
              *****************************************************************/
             @Override
@@ -615,10 +727,23 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                         {
                             // Create a macro handler using the values
                             // currently displayed in the macro editor
-                            CcddMacroHandler newMacroHandler = new CcddMacroHandler(getUpdatedData());
+                            CcddMacroHandler newMacroHandler = new CcddMacroHandler(ccddMain,
+                                                                                    getUpdatedData());
 
-                            // Get the macro's index
+                            // Get the macro's index and name
                             String index = tableData.get(row)[MacroEditorColumnInfo.OID.ordinal()].toString();
+                            String macroName = tableData.get(row)[MacroEditorColumnInfo.NAME.ordinal()].toString();
+
+                            // Check if the macro has a name and if the macro
+                            // value is valid (doesn't cause a recursive
+                            // reference)
+                            if (!macroName.isEmpty()
+                                && newMacroHandler.isMacroRecursive(macroName))
+                            {
+                                throw new CCDDException("Macro '</b>"
+                                                        + macroName
+                                                        + "<b>' contains a recursive reference");
+                            }
 
                             // Step through the committed macros
                             for (int commRow = 0; commRow < committedData.length; commRow++)
@@ -634,7 +759,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                                     // the editor, in case it's been changed)
                                     // since this is how the macro is
                                     // referenced in the data tables
-                                    String macroName = committedData[commRow][MacroEditorColumnInfo.NAME.ordinal()];
+                                    macroName = committedData[commRow][MacroEditorColumnInfo.NAME.ordinal()];
 
                                     MacroReference macroRefs = null;
 
@@ -737,8 +862,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                     {
                         // Inform the user that the input value is invalid
                         new CcddDialogHandler().showMessageDialog(CcddMacroEditorDialog.this,
-                                                                  "<html><b>"
-                                                                                              + ce.getMessage(),
+                                                                  "<html><b>" + ce.getMessage(),
                                                                   "Invalid Input",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);
@@ -892,6 +1016,47 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
 
             // Clear the modal dialog references in the keyboard handler
             ccddMain.getKeyboardHandler().setModalDialogReference(null, null);
+        }
+    }
+
+    /**************************************************************************
+     * Based on the input flag, display the macro values (names) in place of
+     * the macro names (values)
+     *
+     * @param isExpand
+     *            true to replace the macro names with the corresponding macro
+     *            values; false to restore the macro names
+     *************************************************************************/
+    protected void expandMacros(boolean isExpand)
+    {
+        UndoableTableModel tableModel = (UndoableTableModel) macroTable.getModel();
+
+        // Check if the macro values are being displayed
+        if (isExpand)
+        {
+            // Create storage for the original cell values
+            originalCellData = new String[tableModel.getRowCount()][tableModel.getColumnCount()];
+        }
+
+        // Step through the visible rows
+        for (int row = 0; row < tableModel.getRowCount(); row++)
+        {
+            // Check if the macro values are being displayed
+            if (isExpand)
+            {
+                // Store the original cell values for when the macro names are
+                // restored
+                originalCellData[row][MacroEditorColumnInfo.VALUE.ordinal()] = tableModel.getValueAt(row, MacroEditorColumnInfo.VALUE.ordinal()).toString();
+            }
+
+            // Replace the table cells with their original contents (i.e., show
+            // macro names in place of their corresponding values)
+            tableModel.setValueAt((isExpand
+                                            ? macroHandler.getMacroExpansion(originalCellData[row][MacroEditorColumnInfo.VALUE.ordinal()])
+                                            : originalCellData[row][MacroEditorColumnInfo.VALUE.ordinal()]),
+                                  row,
+                                  MacroEditorColumnInfo.VALUE.ordinal(),
+                                  false);
         }
     }
 

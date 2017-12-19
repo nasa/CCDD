@@ -1155,10 +1155,10 @@ public class CcddSchedulerHandler
         schedulerEditor.resetMessageAvailability();
 
         // Get the selected message's size in bytes
-        int valueSize = schedulerInput.getSelectedValuesSize(null);
+        int variableSize = schedulerInput.getSelectedVariableSize(null);
 
         // Check to make sure a message option is selected
-        if (optionList.getSelectedValue() != null && valueSize > 0)
+        if (optionList.getSelectedValue() != null && variableSize > 0)
         {
             // The selected message option
             String option = optionList.getSelectedValue().toString();
@@ -1186,7 +1186,7 @@ public class CcddSchedulerHandler
                     {
                         // Set the message availability for the message
                         schedulerEditor.setMessageAvailability(indices[msgIndex],
-                                                               smallest - valueSize);
+                                                               smallest - variableSize);
                     }
                 }
                 // This is a sub-message
@@ -1195,7 +1195,7 @@ public class CcddSchedulerHandler
                     // Set the message availability for the message
                     schedulerEditor.setMessageAvailability(parentIndex,
                                                            schedulerEditor.getMessageSize(parentIndex)
-                                                                        - valueSize);
+                                                                        - variableSize);
                 }
             }
         }
@@ -1259,7 +1259,7 @@ public class CcddSchedulerHandler
         leftArrowBtn.addActionListener(new ActionListener()
         {
             /******************************************************************
-             * Remove the selected variable(s) from the packet
+             * Remove the selected variable(s) from the message
              *****************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
@@ -1287,7 +1287,7 @@ public class CcddSchedulerHandler
         rightArrowBtn.addActionListener(new ActionListener()
         {
             /******************************************************************
-             * Add the the selected variable(s) to the selected
+             * Add the the selected variable(s) to the message
              *****************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
@@ -1324,7 +1324,7 @@ public class CcddSchedulerHandler
                             // variables to messages
                             updateAfterVariableAdded();
 
-                            // Excluded the variable from the variable tree
+                            // Exclude the variable from the variable tree
                             setVariableUnavailable(excludedVars);
 
                             // Check if it is not a sub-message

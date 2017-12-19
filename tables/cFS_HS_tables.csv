@@ -1,0 +1,51 @@
+# Copyright 2017 United States Government as represented by the Administrator
+# of the National Aeronautics and Space Administration. No copyright is claimed
+# in the United States under Title 17, U.S. Code. All Other Rights Reserved.
+
+
+# HS cFS application data tables
+#   Use the Data | Import table(s) command to import the HS
+#   data table definitions into an existing project
+
+_macros_
+"CFE_SB_CMD_HDR_SIZE","2"
+"CFE_SB_TLM_HDR_SIZE","2"
+"HS_MAX_CRITICAL_APPS","3"
+"HS_BITS_PER_APPMON_ENABLE","2"
+"HS_MAX_EXEC_CNT_SLOTS","2"
+
+_name_type_
+"HS_NoArgsCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+
+_name_type_
+"HS_SetMaxResetsCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint16","MaxResets","","",""
+
+_name_type_
+"HS_HkPacket_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","","cFE SB Tlm Msg Hdr"
+"uint8","CmdCount","","","HS Application Command Counter"
+"uint8","CmdErrCount","","","HS Application Command Error Counter"
+"uint8","CurrentAppMonState","","","Status of HS Critical Application Monitor"
+"uint8","CurrentEventMonState","","","Status of HS Critical Events Monitor"
+"uint8","CurrentAlivenessState","","","Status of HS Aliveness Indicator"
+"uint8","CurrentCPUHogState","","","Status of HS Hogging Indicator"
+"uint8","StatusFlags","","","Internal HS Error States"
+"uint8","SpareBytes","","","Alignment Spares"
+"uint16","ResetsPerformed","","","HS Performed Processor Reset Count"
+"uint16","MaxResets","","","HS Maximum Processor Reset Count"
+"uint32","EventsMonitoredCount","","","Total count of Event Messages Monitored by the Critical Events Monitor"
+"uint32","InvalidEventMonCount","","","Total count of Invalid Event Monitors Monitored by the Critical Events Monitor"
+"uint32","AppMonEnables","((##HS_MAX_CRITICAL_APPS## - 1) / ##HS_BITS_PER_APPMON_ENABLE##)+1","","Enable states of App Monitor Entries"
+"uint32","MsgActExec","","","Number of Software Bus Message Actions Executed"
+"uint32","UtilCpuAvg","","","Current CPU Utilization Average"
+"uint32","UtilCpuPeak","","","Current CPU Utilization Peak"
+"uint32","ExeCounts","##HS_MAX_EXEC_CNT_SLOTS##","","(WITHIN COMPILER MACRO) Execution Counters"

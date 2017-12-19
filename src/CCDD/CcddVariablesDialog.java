@@ -18,6 +18,7 @@ import static CCDD.CcddConstants.TYPE_NAME_SEPARATOR;
 import static CCDD.CcddConstants.VARIABLE_PATH_SEPARATOR;
 
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -25,6 +26,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.print.PageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -39,6 +42,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
+import javax.swing.tree.TreeSelectionModel;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddConstants.DefaultPrimitiveTypeInfo;
@@ -47,6 +51,7 @@ import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableSelectionMode;
+import CCDD.CcddConstants.TableTreeType;
 
 /******************************************************************************
  * CFS Command & Data Dictionary variable paths & names dialog class
@@ -58,14 +63,13 @@ public class CcddVariablesDialog extends CcddDialogHandler
     private final CcddMain ccddMain;
     private CcddJTableHandler variableTable;
     private final CcddVariableConversionHandler variableHandler;
+    private CcddTableTreeHandler tableTree;
 
     // Components referenced from multiple methods
     private JTextField varPathSepFld;
     private JTextField typeNameSepFld;
     private JCheckBox hideDataTypeCb;
-
-    // Total number of variables
-    private int numVariables;
+    private JLabel numVariablesLbl;
 
     // Variables table data
     private Object[][] tableData;
@@ -110,20 +114,7 @@ public class CcddVariablesDialog extends CcddDialogHandler
             @Override
             protected void execute()
             {
-                // Store the total number of variables
-                numVariables = variableHandler.getAllVariableNameList().size();
-
-                tableData = new Object[numVariables][2];
-
-                // Step through each row in the variables table
-                for (int row = 0; row < numVariables; row++)
-                {
-                    // Get the variable path and name,removing the bit length
-                    // (if present)
-                    tableData[row][0] = CcddUtilities.highlightDataType(variableHandler.getAllVariableNameList().get(row).toString());
-                }
-
-                // Create a border for the dialog components
+                // Create borders for the dialog components
                 Border border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
                                                                                                    Color.LIGHT_GRAY,
                                                                                                    Color.GRAY),
@@ -131,6 +122,7 @@ public class CcddVariablesDialog extends CcddDialogHandler
                                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
                                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
                                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+                Border emptyBorder = BorderFactory.createEmptyBorder();
 
                 // Set the initial layout manager characteristics
                 GridBagConstraints gbc = new GridBagConstraints(0,
@@ -139,26 +131,27 @@ public class CcddVariablesDialog extends CcddDialogHandler
                                                                 1,
                                                                 0.0,
                                                                 0.0,
-                                                                GridBagConstraints.LINE_START,
+                                                                GridBagConstraints.FIRST_LINE_START,
                                                                 GridBagConstraints.NONE,
                                                                 new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
                                                                            0,
                                                                            ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
-                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                                                                           0),
                                                                 0,
                                                                 0);
 
-                dialogPnl.setBorder(BorderFactory.createEmptyBorder());
-
-                // Create a panel to contain the separator character labels and
-                // inputs
-                JPanel separatorPnl = new JPanel(new GridBagLayout());
+                // Create panels to hold the components of the dialog
+                JPanel upperPnl = new JPanel(new GridBagLayout());
+                JPanel inputPnl = new JPanel(new GridBagLayout());
+                dialogPnl.setBorder(emptyBorder);
+                upperPnl.setBorder(emptyBorder);
+                inputPnl.setBorder(emptyBorder);
 
                 // Create the variable path separator label and input field,
                 // and add them to the dialog panel
-                JLabel varPathSepLbl = new JLabel("Enter variable path separator character(s)");
+                JLabel varPathSepLbl = new JLabel("<html>Enter variable path<br>&#160separator character(s)");
                 varPathSepLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-                separatorPnl.add(varPathSepLbl, gbc);
+                inputPnl.add(varPathSepLbl, gbc);
                 varPathSepFld = new JTextField(ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR, "_"), 5);
                 varPathSepFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                 varPathSepFld.setEditable(true);
@@ -166,17 +159,18 @@ public class CcddVariablesDialog extends CcddDialogHandler
                 varPathSepFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                 varPathSepFld.setBorder(border);
                 gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
-                gbc.gridx++;
-                separatorPnl.add(varPathSepFld, gbc);
+                gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+                gbc.gridy++;
+                inputPnl.add(varPathSepFld, gbc);
 
                 // Create the data type/variable name separator label and input
                 // field, and add them to the dialog panel
-                final JLabel typeNameSepLbl = new JLabel("Enter data type/variable name separator character(s)");
+                final JLabel typeNameSepLbl = new JLabel("<html>Enter data type/variable name<br>&#160;separator character(s)");
                 typeNameSepLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 gbc.insets.left = 0;
-                gbc.gridx = 0;
+                gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
                 gbc.gridy++;
-                separatorPnl.add(typeNameSepLbl, gbc);
+                inputPnl.add(typeNameSepLbl, gbc);
                 typeNameSepFld = new JTextField(ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR, "_"), 5);
                 typeNameSepFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                 typeNameSepFld.setEditable(true);
@@ -184,22 +178,18 @@ public class CcddVariablesDialog extends CcddDialogHandler
                 typeNameSepFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                 typeNameSepFld.setBorder(border);
                 gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
-                gbc.gridx++;
-                separatorPnl.add(typeNameSepFld, gbc);
+                gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+                gbc.gridy++;
+                inputPnl.add(typeNameSepFld, gbc);
 
                 // Create a check box for hiding data types
                 hideDataTypeCb = new JCheckBox("Hide data types",
                                                Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE,
                                                                                                 "false")));
                 hideDataTypeCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-                hideDataTypeCb.setBorder(BorderFactory.createEmptyBorder());
-                gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
-                gbc.gridx = 0;
+                hideDataTypeCb.setBorder(emptyBorder);
                 gbc.gridy++;
-                separatorPnl.add(hideDataTypeCb, gbc);
-                gbc.weightx = 1.0;
-                gbc.gridy = 0;
-                dialogPnl.add(separatorPnl, gbc);
+                inputPnl.add(hideDataTypeCb, gbc);
 
                 // Add a listener for the hide data type check box
                 hideDataTypeCb.addActionListener(new ActionListener()
@@ -217,16 +207,60 @@ public class CcddVariablesDialog extends CcddDialogHandler
                     }
                 });
 
-                // Create the variables dialog labels and fields
+                // Add the inputs panel, containing the separator characters
+                // fields and check box, to the upper panel
+                gbc.fill = GridBagConstraints.HORIZONTAL;
+                gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+                gbc.gridy = 0;
+                upperPnl.add(inputPnl, gbc);
+
+                // Build the table tree showing both table prototypes and table
+                // instances; i.e., parent tables with their child tables
+                // (i.e., parents with children)
+                tableTree = new CcddTableTreeHandler(ccddMain,
+                                                     new CcddGroupHandler(ccddMain,
+                                                                          null,
+                                                                          ccddMain.getMainFrame()),
+                                                     TableTreeType.TABLES,
+                                                     true,
+                                                     false,
+                                                     ccddMain.getMainFrame());
+
+                // Add the tree to the upper panel
+                gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
+                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+                gbc.fill = GridBagConstraints.BOTH;
+                gbc.gridwidth = GridBagConstraints.REMAINDER;
+                gbc.weightx = 1.0;
+                gbc.weighty = 1.0;
+                gbc.gridx++;
+                upperPnl.add(tableTree.createTreePanel("Tables",
+                                                       TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
+                                                       ccddMain.getMainFrame()),
+                             gbc);
+                gbc.gridwidth = 1;
+                gbc.insets.right = 0;
+                gbc.gridx = 0;
+                gbc.fill = GridBagConstraints.BOTH;
+                dialogPnl.add(upperPnl, gbc);
+
+                // Create the variables and number of variables total labels
                 JLabel variablesLbl = new JLabel("Variables");
                 variablesLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 variablesLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
+                numVariablesLbl = new JLabel();
+                numVariablesLbl.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
                 gbc.fill = GridBagConstraints.REMAINDER;
+
+                // Add the variables labels to the dialog
+                JPanel variablesPnl = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+                variablesPnl.add(variablesLbl);
+                variablesPnl.add(numVariablesLbl);
+                gbc.weighty = 0.0;
                 gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
-                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                 gbc.insets.bottom = 0;
                 gbc.gridy++;
-                dialogPnl.add(variablesLbl, gbc);
+                dialogPnl.add(variablesPnl, gbc);
 
                 // Define the variable paths & names JTable
                 variableTable = new CcddJTableHandler(DefaultPrimitiveTypeInfo.values().length)
@@ -256,21 +290,6 @@ public class CcddVariablesDialog extends CcddDialogHandler
                     @Override
                     protected void loadAndFormatData()
                     {
-                        // Step through each row in the variables table
-                        for (int row = 0; row < numVariables; row++)
-                        {
-                            // Display the variable path and name with or
-                            // without the data types (based on the check box),
-                            // replacing the commas with the separator
-                            // character(s), and by changing the array member
-                            // left brackets to underscores and removing the
-                            // array member right brackets
-                            tableData[row][1] = variableHandler.getFullVariableName(variableHandler.getAllVariableNameList().get(row).toString(),
-                                                                                    varPathSepFld.getText(),
-                                                                                    hideDataTypeCb.isSelected(),
-                                                                                    typeNameSepFld.getText());
-                        }
-
                         // Place the data into the table model along with the
                         // column names, set up the editors and renderers for
                         // the table cells, set up the table grid lines, and
@@ -289,6 +308,9 @@ public class CcddVariablesDialog extends CcddDialogHandler
                                                     true);
                     }
                 };
+
+                // Get the project's variables
+                tableData = getVariables();
 
                 // Place the table into a scroll pane
                 JScrollPane scrollPane = new JScrollPane(variableTable);
@@ -356,8 +378,10 @@ public class CcddVariablesDialog extends CcddDialogHandler
                                  || !ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR, "_").equals(typeNameSepFld.getText())
                                  || !ccddMain.getProgPrefs().get(HIDE_DATA_TYPE, "_").equals(String.valueOf(hideDataTypeCb.isSelected())))
                         {
-                            // Convert the variables and display the results in
+                            // Get the variables (matching the filtering
+                            // tables, if applicable) and display the them in
                             // the table
+                            tableData = getVariables();
                             variableTable.loadAndFormatData();
                         }
                     }
@@ -445,7 +469,7 @@ public class CcddVariablesDialog extends CcddDialogHandler
                 });
 
                 // Add the buttons to the dialog's button panel
-                buttonPnl.setBorder(BorderFactory.createEmptyBorder());
+                buttonPnl.setBorder(emptyBorder);
                 buttonPnl.add(btnShow);
                 buttonPnl.add(btnPrint);
                 buttonPnl.add(btnStore);
@@ -463,9 +487,76 @@ public class CcddVariablesDialog extends CcddDialogHandler
                                   dialogPnl,
                                   buttonPnl,
                                   btnShow,
-                                  "Variable Paths & Names (" + numVariables + " total)",
+                                  "Variable Paths & Names",
                                   true);
             }
         });
+    }
+
+    /**************************************************************************
+     * Get the array of variables. If the table tree has any selections use
+     * these to filter the variable array
+     *
+     * @return Array of variables matching the filter tables, or all variables
+     *         if no filter table is selected
+     *************************************************************************/
+    private Object[][] getVariables()
+    {
+        List<Object[]> variableList = new ArrayList<Object[]>();
+
+        // Get the list of selected tables
+        List<String> filterTables = tableTree.getSelectedTablesWithChildren();
+
+        // Check if tables were selected to filter the variable results
+        if (!filterTables.isEmpty())
+        {
+            // Step through each filter table
+            for (int index = 0; index < filterTables.size(); index++)
+            {
+                // Append the regular expression to match variables of the
+                // filter table
+                filterTables.set(index,
+                                 filterTables.get(index)
+                                        + ",[a-zA-Z0-9_]*\\.[a-zA-Z0-9_]*");
+            }
+        }
+
+        // Step through each variable in the project
+        for (String variableName : variableHandler.getAllVariableNameList())
+        {
+            // Check if no tables are selected for use as filters
+            if (filterTables.isEmpty())
+            {
+                // Add the variable to the list
+                variableList.add(new Object[] {CcddUtilities.highlightDataType(variableName),
+                                               variableHandler.getFullVariableName(variableName,
+                                                                                   varPathSepFld.getText(),
+                                                                                   hideDataTypeCb.isSelected(),
+                                                                                   typeNameSepFld.getText())});
+            }
+            // One or more tables are selected for use as filters
+            else
+            {
+                // Step through each filter table
+                for (String filterTable : filterTables)
+                {
+                    // Check if the variable is a member of the filter table
+                    if (variableName.matches(filterTable))
+                    {
+                        // Add the variable to the list
+                        variableList.add(new Object[] {CcddUtilities.highlightDataType(variableName),
+                                                       variableHandler.getFullVariableName(variableName,
+                                                                                           varPathSepFld.getText(),
+                                                                                           hideDataTypeCb.isSelected(),
+                                                                                           typeNameSepFld.getText())});
+                    }
+                }
+            }
+        }
+
+        // Update the number of variables label
+        numVariablesLbl.setText("  (" + variableList.size() + " total)");
+
+        return variableList.toArray(new Object[0][2]);
     }
 }

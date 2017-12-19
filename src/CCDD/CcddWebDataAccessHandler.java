@@ -59,7 +59,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     private final CcddEventLogDialog eventLog;
     private CcddTableTypeHandler tableTypeHandler;
     private CcddRateParameterHandler rateHandler;
-    private CcddVariableConversionHandler variableHandler;
+    private CcddVariableConversionHandler varConvHandler;
+    private CcddVariableSizeHandler varSizeHandler;
     private CcddLinkHandler linkHandler;
     private TableTreeType tableTreeType;
     private CcddJSONHandler jsonHandler;
@@ -100,6 +101,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     {
         tableTypeHandler = ccddMain.getTableTypeHandler();
         rateHandler = ccddMain.getRateParameterHandler();
+        varSizeHandler = ccddMain.getVariableSizeHandler();
         fieldHandler = new CcddFieldHandler(ccddMain,
                                             null,
                                             ccddMain.getMainFrame());
@@ -138,7 +140,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
         // Process the request and get the information encoded as a JSON
         // string. The leading '/' is removed from the request path
-        String jsonResponse = getQueryResults(target.replaceFirst("^/", ""),
+        String jsonResponse = getQueryResults(target.replaceFirst("^/", "").trim(),
                                               query);
 
         // Check if the specified content was loaded successfully
@@ -208,40 +210,21 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                               int limit,
                               boolean removeQuotes)
     {
-        String[] parts;
-
         // Extract the parts of the input string using the supplied separator
         // and limit
         String[] splitText = CcddUtilities.splitAndRemoveQuotes(text.trim(),
-                                                                separator,
+                                                                "\\s*" + separator + "\\s*",
                                                                 limit,
                                                                 removeQuotes);
 
-        // Check if a limit is specified
-        if (limit > 0)
+        // Check if a the number of parts is less than the specified limit
+        if (splitText.length < limit)
         {
-            // Create storage for the specified number of array members and
-            // initialize the contents to blanks
-            parts = new String[limit];
-            Arrays.fill(parts, "");
-        }
-        // No limit is specified
-        else
-        {
-            // Create storage for the number of parts determined by the split
-            // operation
-            parts = new String[splitText.length];
+            // Fill out the array to the specified limit with blank columns
+            splitText = CcddUtilities.appendArrayColumns(splitText, limit - splitText.length);
         }
 
-        // Step through each part of the split text array
-        for (int index = 0; index < splitText.length; index++)
-        {
-            // Store the value in the array, minus any leading or trailing
-            // white space characters
-            parts[index] = splitText[index].trim();
-        }
-
-        return parts;
+        return splitText;
     }
 
     /**************************************************************************
@@ -938,10 +921,10 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         {
             // Check if variable paths are to be included and the variable
             // handler hasn't been created already
-            if (isIncludePath && variableHandler == null)
+            if (isIncludePath && varConvHandler == null)
             {
                 // Create the variable handler
-                variableHandler = new CcddVariableConversionHandler(ccddMain);
+                varConvHandler = new CcddVariableConversionHandler(ccddMain);
             }
 
             // Get the table data
@@ -949,7 +932,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                                                    getDescription,
                                                                    isReplaceMacro,
                                                                    isIncludePath,
-                                                                   variableHandler,
+                                                                   varConvHandler,
                                                                    separators,
                                                                    new JSONObject());
 
@@ -1304,7 +1287,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                              ? tableName
                                              : namesAndType[0]));
                     responseJO.put(JSONTags.TABLE_BYTE_SIZE.getTag(),
-                                   linkHandler.getDataTypeSizeInBytes(namesAndType[0]));
+                                   varSizeHandler.getDataTypeSizeInBytes(namesAndType[0]));
 
                     // Check if only one table is being processed
                     if (isSingle)
@@ -1404,17 +1387,17 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         {
             // Check if variable paths are to be included and the variable
             // handler hasn't been created already
-            if (isIncludePath && variableHandler == null)
+            if (isIncludePath && varConvHandler == null)
             {
                 // Create the variable handler
-                variableHandler = new CcddVariableConversionHandler(ccddMain);
+                varConvHandler = new CcddVariableConversionHandler(ccddMain);
             }
 
             // Get the tables information
             JSONObject tableInfoJO = jsonHandler.getTableInformation(tableName,
                                                                      isReplaceMacro,
                                                                      isIncludePath,
-                                                                     variableHandler,
+                                                                     varConvHandler,
                                                                      separators);
 
             // Check if the table loaded successfully
@@ -2172,10 +2155,10 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             String typeNameSeparator = separators[2];
 
             // Check if the variable handler hasn't been created already
-            if (variableHandler == null)
+            if (varConvHandler == null)
             {
                 // Create the variable handler
-                variableHandler = new CcddVariableConversionHandler(ccddMain);
+                varConvHandler = new CcddVariableConversionHandler(ccddMain);
             }
 
             // Check if a variable path is specified
@@ -2184,24 +2167,24 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 // Store the variable path and name in the application and
                 // user-specified formats
                 responseJO.put(variablePath,
-                               variableHandler.getFullVariableName(variablePath,
-                                                                   varPathSeparator,
-                                                                   hideDataTypes,
-                                                                   typeNameSeparator));
+                               varConvHandler.getFullVariableName(variablePath,
+                                                                  varPathSeparator,
+                                                                  hideDataTypes,
+                                                                  typeNameSeparator));
             }
             // Get the conversion for all variables
             else
             {
                 // Step through each row in the variables table
-                for (int row = 0; row < variableHandler.getAllVariableNameList().size(); row++)
+                for (int row = 0; row < varConvHandler.getAllVariableNameList().size(); row++)
                 {
                     // Store the variable paths and names in the application
                     // and user-specified formats
-                    responseJO.put(variableHandler.getAllVariableNameList().get(row).toString(),
-                                   variableHandler.getFullVariableName(variableHandler.getAllVariableNameList().get(row).toString(),
-                                                                       varPathSeparator,
-                                                                       hideDataTypes,
-                                                                       typeNameSeparator));
+                    responseJO.put(varConvHandler.getAllVariableNameList().get(row).toString(),
+                                   varConvHandler.getFullVariableName(varConvHandler.getAllVariableNameList().get(row).toString(),
+                                                                      varPathSeparator,
+                                                                      hideDataTypes,
+                                                                      typeNameSeparator));
                 }
             }
 

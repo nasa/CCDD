@@ -1,0 +1,38 @@
+# Copyright 2017 United States Government as represented by the Administrator
+# of the National Aeronautics and Space Administration. No copyright is claimed
+# in the United States under Title 17, U.S. Code. All Other Rights Reserved.
+
+
+# CI cFS application data tables
+#   Use the Data | Import table(s) command to import the CI
+#   data table definitions into an existing project
+
+_macros_
+"CI_EVT_CNT","2"
+"OS_MAX_API_NAME","2"
+"CFE_SB_TLM_HDR_SIZE","2"
+
+_name_type_
+"CI_AppData_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"CFE_EVS_BinFilter_t","EventTbl","##CI_EVT_CNT##","","Event Filter Table.CFE scheduling pipe"
+"CFE_SB_PipeId_t","SchPipeId","","","Schedule Pipe ID"
+"uint16","usSchPipeDepth","","","Schedule Pipe depth"
+"char","cSchPipeName","##OS_MAX_API_NAME##","","Schedule Pipe nameCFE command pipe"
+"CFE_SB_PipeId_t","CmdPipeId","","","Command Pipe ID"
+"uint16","usCmdPipeDepth","","","Command Pipe depth"
+"char","cCmdPipeName","##OS_MAX_API_NAME##","","Command Pipe nameTask-related"
+"uint32","uiRunStatus","","","Application Run StatusWakeup timeout - may be used to set CI rate without SCH app."
+"uint32","uiWakeupTimeout","","","CI Wakeup Timeout (ms)Output data Data structure defined in $MISSIONappsinc{MISSION}_ci_types.h"
+"CI_OutData_t","OutData","","","Output Data PacketHousekeeping telemetry (Sent on CI_SEND_HK command) Data structure defined in $MISSIONappsinc{MISSION}_ci_types.h"
+"CI_HkTlm_t","HkTlm","","","Housekeeping PacketMutex to protect telemetry packets (outData, hkTlm)."
+"uint32","ciMutex","","","CI AppData Mutex"
+
+_name_type_
+"CI_HkTlm_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","ucTlmHeader","##CFE_SB_TLM_HDR_SIZE##","",""
+"uint16","usCmdCnt","","","Count of all commands received"
+"uint16","usCmdErrCnt","","","Count of command errors"

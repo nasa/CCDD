@@ -1,0 +1,75 @@
+# Copyright 2017 United States Government as represented by the Administrator
+# of the National Aeronautics and Space Administration. No copyright is claimed
+# in the United States under Title 17, U.S. Code. All Other Rights Reserved.
+
+
+# MD cFS application data tables
+#   Use the Data | Import table(s) command to import the MD
+#   data table definitions into an existing project
+
+_macros_
+"CFE_SB_CMD_HDR_SIZE","2"
+"MD_SIGNATURE_FIELD_LENGTH","2"
+"CFE_SB_TLM_HDR_SIZE","2"
+"MD_NUM_DWELL_TABLES","2"
+"MD_DWELL_TABLE_SIZE","2"
+
+_name_type_
+"MD_NoArgsCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+
+_name_type_
+"MD_CmdStartStop_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","Header","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"uint16","TableMask","","","0x0001=TBL1  bit, 0x0002=TBL2 bit,0x0004=TBL3 bit,0x0008=TBL4 enable bit, etc."
+
+_name_type_
+"MD_CmdJam_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","Header","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"uint16","TableId","","","Table Id: 1..#MD_NUM_DWELL_TABLES"
+"uint16","EntryId","","","Address index: 1..#MD_DWELL_TABLE_SIZE"
+"uint16","FieldLength","","","Length of Dwell Field : 0, 1, 2, or 4"
+"uint16","DwellDelay","","","Dwell Delay (number of task wakeup calls before following dwell)"
+"CFS_SymAddr_t","DwellAddress","","","Dwell Address in #CFS_SymAddr_t format"
+
+_name_type_
+"MD_CmdSetSignature_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","Header","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"uint16","TableId","","","Table Id: 1..MD_NUM_DWELL_TABLES"
+"uint16","Padding","","","Padding"
+"char","Signature","##MD_SIGNATURE_FIELD_LENGTH##","",""
+
+_name_type_
+"MD_HkTlm_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","","cFE SB Tlm Msg Hdr ** Task command interface counters..."
+"uint8","InvalidCmdCntr","","","Count of invalid commands received"
+"uint8","ValidCmdCntr","","","Count of valid commands received"
+"uint16","DwellEnabledMask","","","Each bit in bit mask enables a table 0x0001=TBL1 enable bit,0x0002=TBL2 enable bit, 0x0004=TBL3 enable bit,0x0008=TBL4 enable bit, etc."
+"uint16","DwellTblAddrCount","##MD_NUM_DWELL_TABLES##","","Number of dwell addresses in table"
+"uint16","NumWaitsPerPkt","##MD_NUM_DWELL_TABLES##","","Number of delay counts in table"
+"uint16","ByteCount","##MD_NUM_DWELL_TABLES##","","Number of bytes of data specified by table"
+"uint16","DwellPktOffset","##MD_NUM_DWELL_TABLES##","","Current write offset within dwell pkt data region"
+"uint16","DwellTblEntry","##MD_NUM_DWELL_TABLES##","","Next dwell table entry to be processed"
+"uint16","Countdown","##MD_NUM_DWELL_TABLES##","","Current value of countdown timer"
+
+_name_type_
+"MD_DwellPkt_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","","cFE SB Tlm Msg Hdr"
+"uint8","TableId","","","TableId from 1 to #MD_NUM_DWELL_TABLES"
+"uint8","AddrCount","","","Number of addresses being sent - 1..#MD_DWELL_TABLE_SIZE valid"
+"uint16","ByteCount","","","Number of bytes of dwell data contained in packet"
+"uint32","Rate","","","Number of counts between packet sends"
+"char","Signature","##MD_SIGNATURE_FIELD_LENGTH##","","(WITHIN COMPILER MACRO)Signature"
+"uint8","Data","##MD_DWELL_TABLE_SIZE##*4","","Dwell data ( number of bytes varies up to MD_DWELL_TABLE_SIZE *4)"

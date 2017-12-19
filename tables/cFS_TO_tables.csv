@@ -1,0 +1,81 @@
+# Copyright 2017 United States Government as represented by the Administrator
+# of the National Aeronautics and Space Administration. No copyright is claimed
+# in the United States under Title 17, U.S. Code. All Other Rights Reserved.
+
+
+# TO cFS application data tables
+#   Use the Data | Import table(s) command to import the TO
+#   data table definitions into an existing project
+
+_macros_
+"OS_MAX_API_NAME","2"
+"TO_EVT_CNT","2"
+"TO_MAX_NUM_ROUTES","2"
+"TO_NUM_CF_CHANNELS","2"
+"TO_NUM_CRITICAL_MIDS","2"
+"CFE_SB_TLM_HDR_SIZE","2"
+
+_name_type_
+"TO_TlmPipe_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"CFE_SB_PipeId_t","cfePipeId","","","Telemetry Pipe ID"
+"uint16","usTlmPipeDepth","","","Telemetry Pipe depth"
+"char","cTlmPipeName","##OS_MAX_API_NAME##","","Telemetry Pipe name"
+
+_name_type_
+"TO_Route_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint16","usWakePeriod","","","Multiple of TO rate when route should be processed (and associated pipe."
+"int16","sCfChnlIdx","","","Index of CF channel (-1 if none)"
+"uint16","usExists","","","A Route exists (Pipe to be created)"
+"uint16","usIsConfig","","","Route is configured (through to_custom.c)"
+"uint16","usIsEnabled","","","Route is enabled (Telemetry processed)"
+
+_name_type_
+"TO_CfChannel_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint16","usIsEnabled","","","Channel is Enabled (default:true)"
+"uint32","uiCfCntSemId","","","The CF Throttling Counting Semaphore ID. Set by TO_InitPipe."
+"char","cCfCntSemName","##OS_MAX_API_NAME##","","Name of CF throttling semaphore"
+
+_name_type_
+"TO_AppData_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"CFE_EVS_BinFilter_t","EventTbl","##TO_EVT_CNT##","","Event Filter Table.CFE scheduling pipe"
+"CFE_SB_PipeId_t","SchPipeId","","","Schedule Pipe ID"
+"uint16","usSchPipeDepth","","","Schedule Pipe depth"
+"char","cSchPipeName","##OS_MAX_API_NAME##","","Schedule Pipe nameCFE command pipe"
+"CFE_SB_PipeId_t","CmdPipeId","","","Command Pipe ID"
+"uint16","usCmdPipeDepth","","","Command Pipe depth"
+"char","cCmdPipeName","##OS_MAX_API_NAME##","","Command Pipe nameRouting structures"
+"TO_Route_t","routes","##TO_MAX_NUM_ROUTES##","","Output Routes"
+"TO_TlmPipe_t","tlmPipes","##TO_MAX_NUM_ROUTES##","","Telemetry Pipes"
+"TO_CfChannel_t","cfChnls","##TO_NUM_CF_CHANNELS##","","CF ChannelsTask-related"
+"uint32","uiRunStatus","","","Application Run StatusWakeup schedule"
+"uint32","uiWakeupTimeout","","","Wakeup timeout in ms"
+"uint16","usWakeupCount","","","Wakeup cnts, for route wake period check.Output data (Data destined for other applications over SB) Data structure defined in $MISSIONappsinc{MISSION}_to_types.h"
+"TO_OutData_t","OutData","","","Output SB Data PacketHousekeeping telemetry Data structure defined in $MISSIONappsinc{MISSION}_to_types.h"
+"TO_HkTlm_t","HkTlm","","","Housekeeping PacketMIDs which must be present in the config tbl Set in TO_CustomInit."
+"CFE_SB_MsgId_t","criticalMid","##TO_NUM_CRITICAL_MIDS##","","Critical msg IdsConfiguration tables"
+"TO_ConfigTable_t *","pConfigTable","","","Pointer to the config table"
+"CFE_TBL_Handle_t","tableHandle","","","Table handleOutput flags. TO_CustomProcessData called when output is enabled and active."
+"uint16","usOutputEnabled","","","Output enabled(by enable/disable)"
+"uint16","usOutputActive","","","Output active (by pause/resume)"
+
+_name_type_
+"TO_HkTlm_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","ucTlmHeader","##CFE_SB_TLM_HDR_SIZE##","",""
+"uint16","usCmdCnt","","","Count of all commands received"
+"uint16","usCmdErrCnt","","","Count of command errors"
+"uint16","usMsgSubCnt","","","Count of subscribed messages by all telemetry pipe."
+"uint16","usMsgSubErrCnt","","","Count of subscription errors"
+"uint16","usTblUpdateCnt","","","Count of table updates through CFE_TBL"
+"uint16","usTblErrCnt","","","Count of table update errors"
+"uint16","usConfigRoutes","","","Current mask of configured routes"
+"uint16","usEnabledRoutes","","","Current mask of enabled routes"

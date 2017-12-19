@@ -59,7 +59,7 @@ public class CcddSearchHandler extends CcddDialogHandler
     // Class references
     private final CcddDbCommandHandler dbCommand;
     private final CcddTableTypeHandler tableTypeHandler;
-    private final CcddEventLogDialog eventLog;
+    private CcddEventLogDialog eventLog;
 
     // Search dialog type
     private final SearchDialogType searchDlgType;
@@ -105,6 +105,16 @@ public class CcddSearchHandler extends CcddDialogHandler
     CcddSearchHandler(CcddMain ccddMain, SearchDialogType searchType)
     {
         this(ccddMain, searchType, null, null);
+    }
+
+    /**************************************************************************
+     * Set the reference to the event log to search
+     *
+     * @return Reference to the event log to search
+     *************************************************************************/
+    protected void setEventLog(CcddEventLogDialog eventLog)
+    {
+        this.eventLog = eventLog;
     }
 
     /**************************************************************************
@@ -304,7 +314,9 @@ public class CcddSearchHandler extends CcddDialogHandler
                             }
 
                             // Set the search result table values
-                            target = CcddUtilities.highlightDataType(tablePath);
+                            target = CcddUtilities.highlightDataType(SearchTarget.TABLE.getTargetName(true)
+                                                                     + ": "
+                                                                     + tablePath);
                             context = value;
                         }
                     }
@@ -414,9 +426,9 @@ public class CcddSearchHandler extends CcddDialogHandler
                         // This is a table data field
                         else
                         {
-                            target = SearchTarget.TABLE_FIELD.getTargetName(true)
-                                     + ": "
-                                     + columnValue[FieldsColumn.OWNER_NAME.ordinal()];
+                            target = CcddUtilities.highlightDataType(SearchTarget.TABLE_FIELD.getTargetName(true)
+                                                                     + ": "
+                                                                     + columnValue[FieldsColumn.OWNER_NAME.ordinal()]);
                         }
 
                         // Check if the match is with the field owner name
@@ -472,22 +484,20 @@ public class CcddSearchHandler extends CcddDialogHandler
                     // Check if the match is in the associations internal table
                     else if (hitTableName.equals(InternalTable.ASSOCIATIONS.getTableName()))
                     {
-                        target = SearchTarget.SCRIPT_ASSN.getTargetName(true);
-                        location = "Script '"
-                                   + columnValue[AssociationsColumn.SCRIPT_FILE.ordinal()]
-                                   + "' association ";
+                        target = SearchTarget.SCRIPT_ASSN.getTargetName(true)
+                                 + columnValue[AssociationsColumn.SCRIPT_FILE.ordinal()];
 
                         // Check if the match is with the script file path
                         // and/or name
                         if (hitColumnName.equals(AssociationsColumn.SCRIPT_FILE.getColumnName()))
                         {
-                            location += "file path and name";
+                            location += "File path and name";
                             context = columnValue[AssociationsColumn.SCRIPT_FILE.ordinal()];
                         }
                         // The match is with a script association member
                         else
                         {
-                            location += "member table";
+                            location += "Member table";
                             context = columnValue[AssociationsColumn.MEMBERS.ordinal()];
                         }
                     }
@@ -495,21 +505,19 @@ public class CcddSearchHandler extends CcddDialogHandler
                     // internal table
                     else if (hitTableName.equals(InternalTable.TLM_SCHEDULER.getTableName()))
                     {
-                        target = SearchTarget.TLM_MESSAGE.getTargetName(true);
-                        location = "Message '"
-                                   + columnValue[TlmSchedulerColumn.MESSAGE_NAME.ordinal()]
-                                   + "' ";
+                        target = SearchTarget.TLM_MESSAGE.getTargetName(true)
+                                 + columnValue[TlmSchedulerColumn.MESSAGE_NAME.ordinal()];
 
                         // Check if the match is with the message name
                         if (hitColumnName.equals(TlmSchedulerColumn.MESSAGE_NAME.getColumnName()))
                         {
-                            location += "name";
+                            location += "Name";
                             context = columnValue[TlmSchedulerColumn.MESSAGE_NAME.ordinal()];
                         }
                         // Check if the match is with the message rate name
                         else if (hitColumnName.equals(TlmSchedulerColumn.RATE_NAME.getColumnName()))
                         {
-                            location += "rate name";
+                            location += "Rate name";
                             context = columnValue[TlmSchedulerColumn.RATE_NAME.ordinal()];
                         }
                         // Check if the match is with the message ID
@@ -539,21 +547,19 @@ public class CcddSearchHandler extends CcddDialogHandler
                     // Check if the match is in the links internal table
                     else if (hitTableName.equals(InternalTable.LINKS.getTableName()))
                     {
-                        target = SearchTarget.TLM_LINK.getTargetName(true);
-                        location = "Link '"
-                                   + columnValue[LinksColumn.LINK_NAME.ordinal()]
-                                   + "' ";
+                        target = SearchTarget.TLM_LINK.getTargetName(true)
+                                 + columnValue[LinksColumn.LINK_NAME.ordinal()];
 
                         // Check if the match is with the link name
                         if (hitColumnName.equals(LinksColumn.LINK_NAME.getColumnName()))
                         {
-                            location += "name";
+                            location = "Name";
                             context = columnValue[LinksColumn.LINK_NAME.ordinal()];
                         }
                         // Check if the match is with the link rate name
                         else if (hitColumnName.equals(LinksColumn.RATE_NAME.getColumnName()))
                         {
-                            location += "rate name";
+                            location = "Rate name";
                             context = columnValue[LinksColumn.RATE_NAME.ordinal()];
                         }
                         // The match is with a link definition or member
@@ -565,51 +571,49 @@ public class CcddSearchHandler extends CcddDialogHandler
                             // is the link definition
                             if (columnValue[1].matches("^\\d+"))
                             {
-                                location += "rate and description";
+                                location = "Rate and description";
                             }
                             // This is a link member
                             else
                             {
-                                location += "member table and variable";
+                                location = "Member table and variable";
                             }
                         }
                     }
                     // Check if the match is in the table types internal table
                     else if (hitTableName.equals(InternalTable.TABLE_TYPES.getTableName()))
                     {
-                        target = SearchTarget.TABLE_TYPE.getTargetName(true);
-                        location = "Table type '"
-                                   + columnValue[TableTypesColumn.TYPE_NAME.ordinal()]
-                                   + "' ";
+                        target = SearchTarget.TABLE_TYPE.getTargetName(true)
+                                 + columnValue[TableTypesColumn.TYPE_NAME.ordinal()];
 
                         // Check if the match is with the column name
                         if (hitColumnName.equals(TableTypesColumn.COLUMN_NAME_VISIBLE.getColumnName()))
                         {
-                            location += "column name";
+                            location = "Column name";
                             context = columnValue[TableTypesColumn.COLUMN_NAME_VISIBLE.ordinal()];
                         }
                         // Check if the match is with the column description
                         else if (hitColumnName.equals(TableTypesColumn.COLUMN_DESCRIPTION.getColumnName()))
                         {
-                            location += "column description";
+                            location = "Column description";
                             context = columnValue[TableTypesColumn.COLUMN_DESCRIPTION.ordinal()];
                         }
                         // Check if the match is with the column input type
                         else if (hitColumnName.equals(TableTypesColumn.INPUT_TYPE.getColumnName()))
                         {
-                            location += "column input type";
+                            location = "Column input type";
                             context = columnValue[TableTypesColumn.INPUT_TYPE.ordinal()];
                         }
                         // Check if the match is with the column required flag
                         else if (hitColumnName.equals(TableTypesColumn.COLUMN_REQUIRED.getColumnName()))
                         {
-                            location += "column required flag";
+                            location = "Column required flag";
                             context = columnValue[TableTypesColumn.COLUMN_REQUIRED.ordinal()];
                         }
                         // Check if the match is with the row value unique flag
                         else if (hitColumnName.equals(TableTypesColumn.ROW_VALUE_UNIQUE.getColumnName()))
                         {
-                            location += "row value unique flag";
+                            location = "Row value unique flag";
                             context = columnValue[TableTypesColumn.ROW_VALUE_UNIQUE.ordinal()];
                         }
                         // Match is in one of the remaining table type columns
@@ -624,7 +628,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                     else if (hitTableName.equals(InternalTable.APP_SCHEDULER.getTableName()))
                     {
                         target = SearchTarget.APP_SCHEDULER.getTargetName(true);
-                        location = "Application '"
+                        location = "Time slot '"
                                    + columnValue[AppSchedulerColumn.TIME_SLOT.ordinal()]
                                    + "' ";
 
@@ -671,7 +675,7 @@ public class CcddSearchHandler extends CcddDialogHandler
      * other log file)
      *
      * @param searchText
-     *            text string to search for in the database
+     *            text string to search for in the log file
      *
      * @param ignoreCase
      *            true to ignore case when looking for matching text
@@ -747,7 +751,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                     String line = lineMatch.group().toString();
 
                     // Break the input line into its separate columns
-                    String[] parts = line.split("[|]", EventColumns.values().length - 1);
+                    String[] parts = line.split("\\|", EventColumns.values().length - 1);
 
                     // Step through each log entry column
                     for (int column = 0; column < parts.length; column++)

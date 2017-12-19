@@ -623,10 +623,10 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
                                             // Extract the table type
                                             // information
-                                            String[] definition = CcddUtilities.splitAndRemoveQuotes(("\""
-                                                                                                      + genType.getName()
-                                                                                                      + "\","
-                                                                                                      + inputs));
+                                            String[] definition = CcddUtilities.splitAndRemoveQuotes("\""
+                                                                                                     + genType.getName()
+                                                                                                     + "\","
+                                                                                                     + inputs);
 
                                             // Check if the expected number of
                                             // inputs is present

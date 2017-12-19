@@ -7250,7 +7250,7 @@ public class CcddDbTableCommandHandler
         {
             // Create a new macro handler using the updates from the macro
             // editor
-            newHandler = new CcddMacroHandler(updates);
+            newHandler = new CcddMacroHandler(ccddMain, updates);
             changeName = "Macros";
         }
 
@@ -7556,6 +7556,15 @@ public class CcddDbTableCommandHandler
                             }
                         }
 
+                        String macroValue = null;
+
+                        // Check is a change was made to a macro
+                        if (!isDataType)
+                        {
+                            // Get the original value of the macro
+                            macroValue = macroHandler.getMacroValue(oldName);
+                        }
+
                         // Check if a change was made to the data type size or
                         // base type, or macro value
                         if ((isDataType
@@ -7563,8 +7572,8 @@ public class CcddDbTableCommandHandler
                                  || !dataTypeHandler.getBaseDataType(oldName).equals(((CcddDataTypeHandler) newHandler).getBaseDataType(newName))))
 
                             || (!isDataType
-                                && macroHandler.getMacroValue(oldName) != null
-                                && !macroHandler.getMacroValue(oldName).equals(((CcddMacroHandler) newHandler).getMacroValue(newName))))
+                                && macroValue != null
+                                && !macroValue.equals(((CcddMacroHandler) newHandler).getMacroValue(newName))))
                         {
                             // Get the table's data (again if a name change
                             // occurred since changes were made)
@@ -7579,7 +7588,7 @@ public class CcddDbTableCommandHandler
                                 // for the variable name
                                 if (isPrototype
                                                 ? matchColumn.equals(tableData.get(row)[DefaultColumn.PRIMARY_KEY.ordinal()])
-                                                : matchColumn.equals(tableData.get(row)[typeDefn.getColumnIndicesByInputType(InputDataType.VARIABLE).get(0)].toString()))
+                                                : matchColumn.equals(tableData.get(row)[typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE)].toString()))
                                 {
                                     // Step through each column in the row,
                                     // skipping the primary key and row index
@@ -7592,7 +7601,8 @@ public class CcddDbTableCommandHandler
                                         {
                                             // Check if the cell value is
                                             // editable
-                                            if (table.isCellEditable(row, column))
+                                            if (table.isCellEditable(table.convertRowIndexToView(row),
+                                                                     table.convertColumnIndexToView(column)))
                                             {
                                                 // Check if this is a data type
                                                 // change

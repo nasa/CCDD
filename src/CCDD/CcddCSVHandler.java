@@ -260,7 +260,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         // if needed for the number of columns to be equal with
                         // the other rows. These empty trailing columns are
                         // ignored
-                        line = line.replaceAll("(?:[,\\s]|\\\"\\s*\\\")*$", "");
+                        line = line.replaceAll("(?:[,\\s*]|\\\"\\s*\\\")*$", "");
 
                         // Check that the row isn't empty and isn't a comment
                         // line (starts with a # character)

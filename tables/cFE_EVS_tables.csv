@@ -1,0 +1,189 @@
+# Copyright 2017 United States Government as represented by the Administrator
+# of the National Aeronautics and Space Administration. No copyright is claimed
+# in the United States under Title 17, U.S. Code. All Other Rights Reserved.
+
+
+# EVS cFE data tables
+#   Use the Data | Import table(s) command to import the EVS
+#   data table definitions into an existing project
+
+_macros_
+"OS_MAX_PATH_LEN","2"
+"CFE_SB_CMD_HDR_SIZE","2"
+"OS_MAX_API_NAME","2"
+"CFE_ES_MAX_APPLICATIONS","2"
+"CFE_SB_TLM_HDR_SIZE","2"
+"CFE_EVS_MAX_MESSAGE_LENGTH","2"
+
+_name_type_
+"CFE_EVS_LogFileCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","LogFilename","##OS_MAX_PATH_LEN##","","Filename where log data is to be written"
+
+_name_type_
+"CFE_EVS_LogFileCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"CFE_EVS_LogFileCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_EVS_AppDataCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","AppDataFilename","##OS_MAX_PATH_LEN##","","Filename where applicaton data is to be written"
+
+_name_type_
+"CFE_EVS_AppDataCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"CFE_EVS_AppDataCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_EVS_ModeCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","Mode","","","Mode to use in the command"
+"uint8","Spare","","","Pad to even byte"
+
+_name_type_
+"CFE_EVS_ModeCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"CFE_EVS_ModeCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_EVS_BitMaskCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","BitMask","","","BitMask to use in the command"
+"uint8","Spare","","","Pad to even byte"
+
+_name_type_
+"CFE_EVS_BitMaskCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"CFE_EVS_BitMaskCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_EVS_AppNameCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","AppName","##OS_MAX_API_NAME##","","Application name to use in the command"
+
+_name_type_
+"CFE_EVS_AppNameCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"CFE_EVS_AppNameCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_EVS_AppNameEventIDCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","AppName","##OS_MAX_API_NAME##","","Application name to use in the command"
+"uint16","EventID","","","Event ID  to use in the command"
+
+_name_type_
+"CFE_EVS_AppNameEventIDCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"CFE_EVS_AppNameEventIDCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_EVS_AppNameBitMaskCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","AppName","##OS_MAX_API_NAME##","","Application name to use in the command"
+"uint8","BitMask","","","BitMask to use in the command"
+"uint8","Spare","","","Pad to even byte"
+
+_name_type_
+"CFE_EVS_AppNameBitMaskCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"CFE_EVS_AppNameBitMaskCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_EVS_AppNameEventIDMaskCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","AppName","##OS_MAX_API_NAME##","","Application name to use in the command"
+"uint16","EventID","","","Event ID  to use in the command"
+"uint16","Mask","","","Mask to use in the command"
+
+_name_type_
+"CFE_EVS_AppNameEventIDMaskCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"CFE_EVS_AppNameEventIDMaskCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_EVS_AppTlmData_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint32","AppID","","","Numerical application identifier"
+"uint16","AppMessageSentCounter","","","Application message sent counter"
+"uint8","AppEnableStatus","","","Application event service enable status"
+"uint8","Padding","","","Padding for 32 bit boundary"
+
+_name_type_
+"CFE_EVS_TlmPkt_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CommandCounter","","","EVS Command Counter"
+"uint8","CommandErrCounter","","","EVS Command Error Counter"
+"uint8","MessageFormatMode","","","Event message format mode (shortlong)"
+"uint8","MessageTruncCounter","","","Event message truncation counter"
+"uint8","UnregisteredAppCounter","","","Unregistered application message send counter"
+"uint8","OutputPort","","","Output port mask"
+"uint8","LogFullFlag","","","Local event log full flag"
+"uint8","LogMode","","","Local event logging mode (overwritediscard)"
+"uint16","MessageSendCounter","","","Event message send counter"
+"uint16","LogOverflowCounter","","","Local event log overflow counter"
+"uint8","LogEnabled","","","Current event log enabledisable state"
+"uint8","Spare1","","","Padding for 32 bit boundary"
+"uint8","Spare2","","","Padding for 32 bit boundary"
+"uint8","Spare3","","","Padding for 32 bit boundary"
+"CFE_EVS_AppTlmData_t","AppData","##CFE_ES_MAX_APPLICATIONS##","","Array of registered application table data"
+
+_name_type_
+"CFE_EVS_TlmPkt_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","",""
+"CFE_EVS_TlmPkt_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_EVS_PacketID_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","AppName","##OS_MAX_API_NAME##","","Application name"
+"uint16","EventID","","","Numerical event identifier"
+"uint16","EventType","","","Numerical event type identifier"
+"uint32","SpacecraftID","","","Spacecraft identifier"
+"uint32","ProcessorID","","","Numerical processor identifier"
+
+_name_type_
+"CFE_EVS_Packet_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"CFE_EVS_PacketID_t","PacketID","","","Event packet information"
+"char","Message","##CFE_EVS_MAX_MESSAGE_LENGTH##","","Event message string"
+"uint8","Spare1","","","Structure padding"
+"uint8","Spare2","","","Structure padding"
+
+_name_type_
+"CFE_EVS_Packet_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","",""
+"CFE_EVS_Packet_Payload_t","Payload","","",""

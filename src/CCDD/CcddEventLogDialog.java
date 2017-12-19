@@ -242,6 +242,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
                     {
                         ccddMain.showSearchDialog(SearchDialogType.LOG,
                                                   targetRow,
+                                                  CcddEventLogDialog.this,
                                                   CcddEventLogDialog.this);
                     }
                 });

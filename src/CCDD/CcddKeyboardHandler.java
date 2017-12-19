@@ -27,6 +27,8 @@ import javax.swing.CellEditor;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
@@ -41,6 +43,7 @@ import CCDD.CcddConstants.ArrowFocusOption;
 import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.DataTypeEditorColumnInfo;
 import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.MacroEditorColumnInfo;
 import CCDD.CcddConstants.SearchDialogType;
 import CCDD.CcddUndoHandler.UndoableCheckBox;
 import CCDD.CcddUndoHandler.UndoableTextArea;
@@ -97,7 +100,7 @@ public class CcddKeyboardHandler
      *            modal dialog undo manager; null to disable
      *
      * @param table
-     *            modal dialog tab;e reference; null if the modal dialog has no
+     *            modal dialog table reference; null if the modal dialog has no
      *            table
      *************************************************************************/
     protected void setModalDialogReference(CcddUndoManager undoManager,
@@ -444,40 +447,78 @@ public class CcddKeyboardHandler
                         // Open the event log search dialog
                         ccddMain.showSearchDialog(SearchDialogType.LOG,
                                                   null,
-                                                  ccddMain.getSessionEventLog());
+                                                  ccddMain.getSessionEventLog(),
+                                                  ccddMain.getMainFrame());
 
                         // Set the flag to indicate this key press was handled
                         handled = true;
                     }
-                    // Check if the Ctrl-S key is pressed in the data type
-                    // editor. The following handles structure name insertion
-                    else if (ke.getKeyCode() == KeyEvent.VK_S
-                             && ccddMain.getDataTypeEditor() != null
-                             && ccddMain.getDataTypeEditor().isFocused()
-                             && ccddMain.getDataTypeEditor().getTable().isEditing()
-                             && comp instanceof JTextField)
+                    // Check if the Ctrl-S key is pressed. The following
+                    // handles structure name insertion
+                    else if (ke.getKeyCode() == KeyEvent.VK_S)
                     {
-                        // Get the reference to the data type table in the
-                        // dialog
-                        CcddJTableHandler table = ccddMain.getDataTypeEditor().getTable();
+                        // Get the table editor dialog with the focus
+                        CcddTableEditorDialog editorDialog = getFocusedTableEditorDialog();
 
-                        // Get the row and column being edited in the table,
-                        // and the contents of the edited row's base data type
-                        int row = table.getEditingRow();
-                        int column = table.getEditingColumn();
-                        String baseType = table.getValueAt(row, DataTypeEditorColumnInfo.BASE_TYPE.ordinal()).toString();
+                        // Check if a table editor dialog has the focus and
+                        // that the cell doesn't contain a combo box
+                        if (editorDialog != null && !(comp instanceof JComboBox))
+                        {
+                            // Get references to shorten subsequent calls
+                            CcddTableEditorHandler editor = editorDialog.getTableEditor();
+                            CcddJTableHandler table = editor.getTable();
 
-                        // Check if the type name or C name columns are being
-                        // edited and the base data type is empty or a pointer
-                        if ((column == DataTypeEditorColumnInfo.USER_NAME.ordinal()
-                             || column == DataTypeEditorColumnInfo.C_NAME.ordinal())
-                            && (baseType.isEmpty()
-                                || baseType.equals(BaseDataTypeInfo.POINTER.getName())))
+                            // Check if a cell in the table is being edited
+                            if (table.isEditing())
+                            {
+                                // Insert the structure name chosen by the user
+                                // into the text field at the current text
+                                // insertion point
+                                dataTypeHandler.insertDataTypeName((JFrame) editorDialog,
+                                                                   (JTextArea) comp,
+                                                                   true,
+                                                                   editorDialog.getTableEditor().getDataTypes().toArray(new String[0]));
+                            }
+                        }
+                        // Check if the data type editor editing is active
+                        else if (SwingUtilities.getWindowAncestor(comp) instanceof CcddDataTypeEditorDialog
+                                 && modalTable.isEditing())
+                        {
+                            // Get the row and column being edited in the
+                            // table, and the contents of the edited row's base
+                            // data type
+                            int row = modalTable.getEditingRow();
+                            int column = modalTable.convertColumnIndexToModel(modalTable.getEditingColumn());
+                            String baseType = modalTable.getValueAt(row, DataTypeEditorColumnInfo.BASE_TYPE.ordinal()).toString();
+
+                            // Check if the type name or C name columns are
+                            // being edited and the base data type is empty or
+                            // a pointer
+                            if ((column == DataTypeEditorColumnInfo.USER_NAME.ordinal()
+                                 || column == DataTypeEditorColumnInfo.C_NAME.ordinal())
+                                && (baseType.isEmpty()
+                                    || baseType.equals(BaseDataTypeInfo.POINTER.getName())))
+                            {
+                                // Insert the structure name chosen by the user
+                                // into the text field at the current text
+                                // insertion point
+                                dataTypeHandler.insertDataTypeName((JDialog) SwingUtilities.getWindowAncestor(comp),
+                                                                   (JTextArea) comp,
+                                                                   false,
+                                                                   null);
+                            }
+                        }
+                        // Check if the macro editor editing is active
+                        else if (SwingUtilities.getWindowAncestor(comp) instanceof CcddMacroEditorDialog
+                                 && modalTable.isEditing())
                         {
                             // Insert the structure name chosen by the user
                             // into the text field at the current text
                             // insertion point
-                            dataTypeHandler.insertStructureName((JTextField) comp);
+                            dataTypeHandler.insertDataTypeName((JDialog) SwingUtilities.getWindowAncestor(comp),
+                                                               (JTextArea) comp,
+                                                               true,
+                                                               null);
                         }
 
                         // Set the flag to indicate this key press was handled
@@ -504,6 +545,14 @@ public class CcddKeyboardHandler
                                     // corresponding values in the currently
                                     // selected table in this editor
                                     editorDialog.getTableEditor().expandMacros(true, true);
+                                    isShowMacros = true;
+                                }
+                                // Check if this is the macro editor
+                                else if (SwingUtilities.getWindowAncestor(comp) instanceof CcddMacroEditorDialog)
+                                {
+                                    // Expand the macros in the macro value
+                                    // column
+                                    ((CcddMacroEditorDialog) SwingUtilities.getWindowAncestor(comp)).expandMacros(true);
                                     isShowMacros = true;
                                 }
                             }
@@ -537,8 +586,25 @@ public class CcddKeyboardHandler
                                     // Insert the macro name chosen by the user
                                     // into the text component at the current
                                     // text insertion point
-                                    macroHandler.insertMacroName((JTextComponent) comp, inputType);
+                                    macroHandler.insertMacroName(editorDialog,
+                                                                 (JTextComponent) comp,
+                                                                 inputType,
+                                                                 editor.getDataTypes());
                                 }
+                            }
+                            // Check if this is the macro editor, editing is
+                            // active, and the values column is being edited
+                            else if (SwingUtilities.getWindowAncestor(comp) instanceof CcddMacroEditorDialog
+                                     && modalTable.isEditing()
+                                     && modalTable.convertColumnIndexToModel(modalTable.getEditingColumn()) == MacroEditorColumnInfo.VALUE.ordinal())
+                            {
+                                // Insert the macro name chosen by the user
+                                // into the text component at the current text
+                                // insertion point
+                                macroHandler.insertMacroName((JDialog) SwingUtilities.getWindowAncestor(comp),
+                                                             (JTextComponent) comp,
+                                                             InputDataType.TEXT,
+                                                             null);
                             }
                         }
 
@@ -630,8 +696,15 @@ public class CcddKeyboardHandler
                                     editorDialog.getTableEditor().expandMacros(false, true);
                                     isShowMacros = false;
                                 }
+                                // Check if this is the macro editor
+                                else if (SwingUtilities.getWindowAncestor(modalTable) instanceof CcddMacroEditorDialog)
+                                {
+                                    // Expand the macros in the macro value
+                                    // column
+                                    ((CcddMacroEditorDialog) SwingUtilities.getWindowAncestor(modalTable)).expandMacros(false);
+                                    isShowMacros = false;
+                                }
                             }
-
                         });
 
                         // Allow the timer to send only a single expiration

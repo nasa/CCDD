@@ -616,7 +616,8 @@ public abstract class CcddJTableHandler extends JTable
     /**************************************************************************
      * Get the cell values from the table model in a list. Since the values are
      * based on the model instead of the view, repositioning a column doesn't
-     * result in a change to the returned array. Empty rows are ignored
+     * result in a change to the returned array. Empty rows are included or
+     * excluded depending on the input flag
      *
      * @param excludeEmptyRows
      *            true if rows containing only empty cells are to be ignored

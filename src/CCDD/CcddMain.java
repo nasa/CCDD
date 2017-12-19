@@ -101,7 +101,6 @@ public class CcddMain
     private CcddDataTypeHandler dataTypeHandler;
     private CcddTableTypeHandler tableTypeHandler;
     private CcddTableTypeEditorDialog tableTypeEditorDialog;
-    private CcddDataTypeEditorDialog dataTypeEditorDialog;
     private CcddGroupManagerDialog groupManagerDialog;
     private final CcddFileIOHandler fileIOHandler;
     private final CcddScriptHandler scriptHandler;
@@ -113,6 +112,7 @@ public class CcddMain
     private final CcddKeyboardHandler keyboardHandler;
     private CcddMacroHandler macroHandler;
     private CcddReservedMsgIDHandler rsvMsgIDHandler;
+    private CcddVariableSizeHandler varSizeHandler;
     private CcddWebServer webServer;
 
     // References to the various search dialogs
@@ -524,6 +524,12 @@ public class CcddMain
         scriptHandler.setHandlers();
         keyboardHandler.setHandlers();
 
+        // Create a variable size handler and determine the variable offsets
+        // (note that the class must be instantiated before calling the list
+        // build method)
+        varSizeHandler = new CcddVariableSizeHandler(CcddMain.this);
+        varSizeHandler.buildPathAndOffsetLists();
+
         // Check if the web server is activated
         if (webServer != null)
         {
@@ -612,6 +618,16 @@ public class CcddMain
     }
 
     /**************************************************************************
+     * Get the variable size handler
+     *
+     * @return Variable size handler reference
+     *************************************************************************/
+    protected CcddVariableSizeHandler getVariableSizeHandler()
+    {
+        return varSizeHandler;
+    }
+
+    /**************************************************************************
      * Get the keyboard handler
      *
      * @return Keyboard handler reference
@@ -629,27 +645,6 @@ public class CcddMain
     protected CcddTableTypeEditorDialog getTableTypeEditor()
     {
         return tableTypeEditorDialog;
-    }
-
-    /**************************************************************************
-     * Get the reference to the data type editor dialog
-     *
-     * @return Reference to the data type editor dialog
-     *************************************************************************/
-    protected CcddDataTypeEditorDialog getDataTypeEditor()
-    {
-        return dataTypeEditorDialog;
-    }
-
-    /**************************************************************************
-     * Set the reference to the data type editor dialog
-     *
-     * @param dataTypeEditorDialog
-     *            reference to the data type editor dialog
-     *************************************************************************/
-    protected void setDataTypeEditor(CcddDataTypeEditorDialog dataTypeEditorDialog)
-    {
-        this.dataTypeEditorDialog = dataTypeEditorDialog;
     }
 
     /**************************************************************************
@@ -688,10 +683,14 @@ public class CcddMain
      *
      * @param searchType
      *            search dialog type: TABLES or SCRIPTS
+     *
+     * @param parent
+     *            GUI component over which to center the dialog
      *************************************************************************/
-    protected void showSearchDialog(SearchDialogType searchType)
+    protected void showSearchDialog(SearchDialogType searchType,
+                                    Component parent)
     {
-        showSearchDialog(searchType, null, null);
+        showSearchDialog(searchType, null, null, parent);
     }
 
     /**************************************************************************
@@ -705,12 +704,16 @@ public class CcddMain
      *            row index to match if this is an event log entry search on a
      *            table that displays only a single log entry; null otherwise
      *
-     * @param eventLog
+     * @param eventLogToSearch
      *            event log to search; null if not searching a log
+     *
+     * @param parent
+     *            GUI component over which to center the dialog
      *************************************************************************/
     protected void showSearchDialog(SearchDialogType searchType,
                                     Long targetRow,
-                                    CcddEventLogDialog eventLog)
+                                    CcddEventLogDialog eventLogToSearch,
+                                    Component parent)
     {
         CcddSearchDialog searchDialog = null;
 
@@ -727,6 +730,14 @@ public class CcddMain
 
             case LOG:
                 searchDialog = searchLogDlg;
+
+                // Check if the log search dialog exists
+                if (searchLogDlg != null)
+                {
+                    // Set the log to search in the dialog
+                    searchLogDlg.setEventLog(eventLogToSearch);
+                }
+
                 break;
         }
 
@@ -741,21 +752,24 @@ public class CcddMain
                     searchTableDlg = new CcddSearchDialog(CcddMain.this,
                                                           SearchDialogType.TABLES,
                                                           null,
-                                                          null);
+                                                          null,
+                                                          parent);
                     break;
 
                 case SCRIPTS:
                     searchScriptDlg = new CcddSearchDialog(CcddMain.this,
                                                            SearchDialogType.SCRIPTS,
                                                            null,
-                                                           null);
+                                                           null,
+                                                           parent);
                     break;
 
                 case LOG:
                     searchLogDlg = new CcddSearchDialog(CcddMain.this,
                                                         SearchDialogType.LOG,
                                                         targetRow,
-                                                        getSessionEventLog());
+                                                        eventLogToSearch,
+                                                        parent);
                     break;
             }
         }
@@ -1473,7 +1487,8 @@ public class CcddMain
             {
                 showSearchDialog(SearchDialogType.LOG,
                                  null,
-                                 getSessionEventLog());
+                                 getSessionEventLog(),
+                                 getMainFrame());
             }
         });
 
@@ -2105,7 +2120,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                showSearchDialog(SearchDialogType.TABLES);
+                showSearchDialog(SearchDialogType.TABLES, getMainFrame());
             }
         });
 
@@ -2276,7 +2291,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                showSearchDialog(SearchDialogType.SCRIPTS);
+                showSearchDialog(SearchDialogType.SCRIPTS, getMainFrame());
             }
         });
 

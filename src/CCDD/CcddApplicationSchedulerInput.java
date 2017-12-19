@@ -254,7 +254,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
      * @return Total amount of time for the specified application(s)
      *************************************************************************/
     @Override
-    public int getSelectedValuesSize(List<Variable> applications)
+    public int getSelectedVariableSize(List<Variable> applications)
     {
         // Check if no variable list is provided
         if (applications == null)

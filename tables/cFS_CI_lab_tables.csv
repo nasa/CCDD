@@ -1,0 +1,61 @@
+# Copyright 2017 United States Government as represented by the Administrator
+# of the National Aeronautics and Space Administration. No copyright is claimed
+# in the United States under Title 17, U.S. Code. All Other Rights Reserved.
+
+
+# CI_lab cFS application data tables
+#   Use the Data | Import table(s) command to import the CI_lab
+#   data table definitions into an existing project
+
+_macros_
+"CFE_SB_CMD_HDR_SIZE","2"
+"CFE_SB_TLM_HDR_SIZE","2"
+
+_name_type_
+"CI_NoArgsCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+
+_name_type_
+"CI_CapturePDUCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"CFE_SB_MsgId_t","PDUMsgID","","","Message ID of the downlinked PDUs to capture"
+
+_name_type_
+"CI_ModifyFileSizeCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint16","Direction","","","Add or Subtract"
+"uint16","Amount","","","The value to add or subtract from the file size"
+
+_name_type_
+"CI_DropPDUCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint8","PDUType","","","The Type of PDU to capture and drop"
+"uint8","PDUsToDrop","","","The # of rcvd PDUs of the type to drop"
+
+_name_type_
+"ci_hk_tlm_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","",""
+"uint8","ci_command_error_count","","",""
+"uint8","ci_command_count","","",""
+"uint8","ci_xsums_enabled","","",""
+"uint8","SocketConnected","","",""
+"uint8","FDPdusDropped","","",""
+"uint8","EOFPdusDropped","","",""
+"uint8","FINPdusDropped","","",""
+"uint8","ACKPdusDropped","","",""
+"uint8","MDPdusDropped","","",""
+"uint8","NAKPdusDropped","","",""
+"uint8","spare","2","",""
+"uint32","IngestPackets","","",""
+"uint32","IngestErrors","","",""
+"uint32","PDUsCaptured","","",""

@@ -274,13 +274,14 @@ public class CcddUtilities
      * @param text
      *            text string to split
      *
-     * @return Text string divided into separate components, split at commas,
-     *         accounting for commas within double quotes, and with the excess
-     *         double quotes removed
+     * @return Text string divided into separate components, split at commas
+     *         (including any surrounding white space characters), accounting
+     *         for commas within double quotes, and with the excess double
+     *         quotes removed
      *************************************************************************/
     protected static String[] splitAndRemoveQuotes(String text)
     {
-        return splitAndRemoveQuotes(text, ",", -1, true);
+        return splitAndRemoveQuotes(text, "\\s*,\\s*", -1, true);
     }
 
     /**************************************************************************

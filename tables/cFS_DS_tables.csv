@@ -1,0 +1,198 @@
+# Copyright 2017 United States Government as represented by the Administrator
+# of the National Aeronautics and Space Administration. No copyright is claimed
+# in the United States under Title 17, U.S. Code. All Other Rights Reserved.
+
+
+# DS cFS application data tables
+#   Use the Data | Import table(s) command to import the DS
+#   data table definitions into an existing project
+
+_macros_
+"CFE_SB_CMD_HDR_SIZE","2"
+"DS_PATHNAME_BUFSIZE","2"
+"DS_BASENAME_BUFSIZE","2"
+"DS_EXTENSION_BUFSIZE","2"
+"CFE_SB_TLM_HDR_SIZE","2"
+"OS_MAX_PATH_LEN","2"
+"DS_TOTAL_FNAME_BUFSIZE","2"
+"DS_DEST_FILE_CNT","2"
+
+_name_type_
+"DS_NoopCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus command message header"
+
+_name_type_
+"DS_ResetCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus command message header"
+
+_name_type_
+"DS_AppStateCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus command message header"
+"uint16","EnableState","","","Application enable/disable state"
+
+_name_type_
+"DS_FilterFileCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus command message header"
+"uint16","MessageID","","","Message ID of existing entry in Packet Filter Table DS defines Message ID zero to be unused"
+"uint16","FilterParmsIndex","","","Index into Filter Parms Array"
+"uint16","FileTableIndex","","","Index into Destination File Table"
+
+_name_type_
+"DS_FilterTypeCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus command message header"
+"uint16","MessageID","","","Message ID of existing entry in Packet Filter Table DS defines Message ID zero to be unused"
+"uint16","FilterParmsIndex","","","Index into Filter Parms Array"
+"uint16","FilterType","","","Filter type (packet count or time)"
+
+_name_type_
+"DS_FilterParmsCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus command message header"
+"uint16","MessageID","","","Message ID of existing entry in Packet Filter Table DS defines Message ID zero to be unused"
+"uint16","FilterParmsIndex","","","Index into Filter Parms Array"
+"uint16","Algorithm_N","","","Algorithm value N (pass this many)"
+"uint16","Algorithm_X","","","Algorithm value X (out of this many)"
+"uint16","Algorithm_O","","","Algorithm value O (at this offset)"
+
+_name_type_
+"DS_DestTypeCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus command message header"
+"uint16","FileTableIndex","","","Index into Destination File Table"
+"uint16","FileNameType","","","Filename type - count vs time"
+
+_name_type_
+"DS_DestStateCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus command message header"
+"uint16","FileTableIndex","","","Index into Destination File Table"
+"uint16","EnableState","","","File enable/disable state"
+
+_name_type_
+"DS_DestPathCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus command message header"
+"uint32","FileTableIndex","","","Index into Destination File Table"
+"char","Pathname","##DS_PATHNAME_BUFSIZE##","","Path portion of filename"
+
+_name_type_
+"DS_DestBaseCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus command message header"
+"uint32","FileTableIndex","","","Index into Destination File Table"
+"char","Basename","##DS_BASENAME_BUFSIZE##","","Base portion of filename"
+
+_name_type_
+"DS_DestExtCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus command message header"
+"uint32","FileTableIndex","","","Index into Destination File Table"
+"char","Extension","##DS_EXTENSION_BUFSIZE##","","Extension portion of filename"
+
+_name_type_
+"DS_DestSizeCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus command message header"
+"uint32","FileTableIndex","","","Index into Destination File Table"
+"uint32","MaxFileSize","","","Max file size (bytes) before re-open"
+
+_name_type_
+"DS_DestAgeCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus command message header"
+"uint32","FileTableIndex","","","Index into Destination File Table"
+"uint32","MaxFileAge","","","Max file age (seconds)"
+
+_name_type_
+"DS_DestCountCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus command message header"
+"uint32","FileTableIndex","","","Index into Destination File Table"
+"uint32","SequenceCount","","","Sequence count portion of filename"
+
+_name_type_
+"DS_CloseFileCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus command message header"
+"uint32","FileTableIndex","","","Index into Destination File Table"
+
+_name_type_
+"DS_CloseAllCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus command message header"
+
+_name_type_
+"DS_GetFileInfoCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus command message header"
+
+_name_type_
+"DS_AddMidCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus command message header"
+"uint16","MessageID","","","Message ID to add to Packet Filter Table"
+
+_name_type_
+"DS_HkPacket_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","","cFE Software Bus telemetry message header"
+"uint8","CmdAcceptedCounter","","","Count of valid commands received"
+"uint8","CmdRejectedCounter","","","Count of invalid commands received"
+"uint8","DestTblLoadCounter","","","Count of destination file table loads"
+"uint8","DestTblErrCounter","","","Count of failed attempts to get table data pointer"
+"uint8","FilterTblLoadCounter","","","Count of packet filter table loads"
+"uint8","FilterTblErrCounter","","","Count of failed attempts to get table data pointer"
+"uint8","AppEnableState","","","Application enabledisable state"
+"uint8","Spare8","","","Structure alignment padding"
+"uint16","FileWriteCounter","","","Count of good destination file writes"
+"uint16","FileWriteErrCounter","","","Count of bad destination file writes"
+"uint16","FileUpdateCounter","","","Count of good updates to secondary header"
+"uint16","FileUpdateErrCounter","","","Count of bad updates to secondary header"
+"uint32","DisabledPktCounter","","","Count of packets discarded (DS was disabled)"
+"uint32","IgnoredPktCounter","","","Count of packets discarded.  Incoming packets will be discarded when: <ul> <li> The File andor Filter Table has failed to load <li> <li> A packet (that is not a DS HK or command packet) has been received that is not listed in the Filter Table <li> <ul>"
+"uint32","FilteredPktCounter","","","Count of packets discarded (failed filter test)"
+"uint32","PassedPktCounter","","","Count of packets that passed filter test"
+"char","FilterTblFilename","##OS_MAX_PATH_LEN##","","Name of filter table file"
+
+_name_type_
+"DS_FileInfo_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint32","FileAge","","","Current file age in seconds"
+"uint32","FileSize","","","Current file size in bytes"
+"uint32","FileRate","","","Current file data rate (avg since HK)"
+"uint32","SequenceCount","","","Sequence count portion of filename"
+"uint16","EnableState","","","Current file enabledisable state"
+"uint16","OpenState","","","Current file openclose state"
+"char","FileName","##DS_TOTAL_FNAME_BUFSIZE##","","Current filename (path+base+seq+ext)"
+
+_name_type_
+"DS_FileInfoPkt_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","","cFE Software Bus telemetry message header"
+"DS_FileInfo_t","FileInfo","##DS_DEST_FILE_CNT##","","Current state of destination files"

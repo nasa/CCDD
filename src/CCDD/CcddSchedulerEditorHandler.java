@@ -1185,14 +1185,14 @@ public class CcddSchedulerEditorHandler
         {
             // Update the message's byte count
             message.setBytesRemaining(emptyMessageSize
-                                      - schedulerHndlr.getSchedulerInput().getSelectedValuesSize(message.getVariables()));
+                                      - schedulerHndlr.getSchedulerInput().getSelectedVariableSize(message.getVariables()));
 
             // Step through each sub-message
             for (Message subMessage : message.getSubMessages())
             {
                 // Update the sub-message's byte counts
                 subMessage.setBytesRemaining(emptyMessageSize
-                                             - schedulerHndlr.getSchedulerInput().getSelectedValuesSize(subMessage.getAllVariables()));
+                                             - schedulerHndlr.getSchedulerInput().getSelectedVariableSize(subMessage.getAllVariables()));
             }
         }
     }

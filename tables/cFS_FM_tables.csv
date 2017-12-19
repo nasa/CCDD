@@ -1,0 +1,298 @@
+# Copyright 2017 United States Government as represented by the Administrator
+# of the National Aeronautics and Space Administration. No copyright is claimed
+# in the United States under Title 17, U.S. Code. All Other Rights Reserved.
+
+
+# FM cFS application data tables
+#   Use the Data | Import table(s) command to import the FM
+#   data table definitions into an existing project
+
+_macros_
+"CFE_SB_CMD_HDR_SIZE","2"
+"OS_MAX_PATH_LEN","2"
+"CFE_SB_TLM_HDR_SIZE","2"
+"FM_DIR_LIST_PKT_ENTRIES","2"
+"OS_MAX_API_NAME","2"
+"OS_MAX_NUM_OPEN_FILES","2"
+"FM_TABLE_ENTRY_COUNT","2"
+"FM_CHILD_FILE_BLOCK_SIZE","2"
+"FM_CHILD_QUEUE_DEPTH","2"
+
+_name_type_
+"FM_HousekeepingCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE SB cmd hdr"
+
+_name_type_
+"FM_NoopCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE SB cmd hdr"
+
+_name_type_
+"FM_ResetCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE SB cmd hdr"
+
+_name_type_
+"FM_CopyFileCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE SB cmd hdr"
+"uint16","Overwrite","","","Allow overwrite"
+"char","Source","##OS_MAX_PATH_LEN##","","Source filename"
+"char","Target","##OS_MAX_PATH_LEN##","","Target filename"
+
+_name_type_
+"FM_MoveFileCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE SB cmd hdr"
+"uint16","Overwrite","","","Allow overwrite"
+"char","Source","##OS_MAX_PATH_LEN##","","Source filename"
+"char","Target","##OS_MAX_PATH_LEN##","","Target filename"
+
+_name_type_
+"FM_RenameFileCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE SB cmd hdr"
+"char","Source","##OS_MAX_PATH_LEN##","","Source filename"
+"char","Target","##OS_MAX_PATH_LEN##","","Target filename"
+
+_name_type_
+"FM_DeleteFileCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE SB cmd hdr"
+"char","Filename","##OS_MAX_PATH_LEN##","","Delete filename"
+
+_name_type_
+"FM_DeleteAllCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE SB cmd hdr"
+"char","Directory","##OS_MAX_PATH_LEN##","","Directory name"
+
+_name_type_
+"FM_DecompressCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE SB cmd hdr"
+"char","Source","##OS_MAX_PATH_LEN##","","Source filename"
+"char","Target","##OS_MAX_PATH_LEN##","","Target filename"
+
+_name_type_
+"FM_ConcatCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE SB cmd hdr"
+"char","Source1","##OS_MAX_PATH_LEN##","","Source 1 filename"
+"char","Source2","##OS_MAX_PATH_LEN##","","Source 2 filename"
+"char","Target","##OS_MAX_PATH_LEN##","","Target filename"
+
+_name_type_
+"FM_GetFileInfoCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE SB cmd hdr"
+"char","Filename","##OS_MAX_PATH_LEN##","","Filename"
+"uint32","FileInfoCRC","","","File info CRC method"
+
+_name_type_
+"FM_GetOpenFilesCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE SB cmd hdr"
+
+_name_type_
+"FM_CreateDirCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE SB cmd hdr"
+"char","Directory","##OS_MAX_PATH_LEN##","","Directory name"
+
+_name_type_
+"FM_DeleteDirCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE SB cmd hdr"
+"char","Directory","##OS_MAX_PATH_LEN##","","Directory name"
+
+_name_type_
+"FM_GetDirFileCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE SB cmd hdr"
+"char","Directory","##OS_MAX_PATH_LEN##","","Directory name"
+"char","Filename","##OS_MAX_PATH_LEN##","","Filename"
+
+_name_type_
+"FM_GetDirPktCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE SB cmd hdr"
+"char","Directory","##OS_MAX_PATH_LEN##","","Directory name"
+"uint32","DirListOffset","","","Index of 1st dir entry to put in packet"
+
+_name_type_
+"FM_GetFreeSpaceCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE SB cmd hdr"
+
+_name_type_
+"FM_SetTableStateCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE SB cmd hdr"
+"uint32","TableEntryIndex","","","Table entry index"
+"uint32","TableEntryState","","","New table entry state"
+
+_name_type_
+"FM_DirListEntry_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","EntryName","##OS_MAX_PATH_LEN##","","Directory Listing Filename"
+"uint32","EntrySize","","","Directory Listing File Size"
+"uint32","ModifyTime","","","Directory Listing File Last Modification Times"
+
+_name_type_
+"FM_DirListPkt_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","","cFE SB tlm hdr"
+"char","DirName","##OS_MAX_PATH_LEN##","","Directory Name"
+"uint32","TotalFiles","","","Number of files in the directory"
+"uint32","PacketFiles","","","Number of files in this packet"
+"uint32","FirstFile","","","Index into directory files of first packet file"
+"FM_DirListEntry_t","FileList","##FM_DIR_LIST_PKT_ENTRIES##","","Directory listing file data"
+
+_name_type_
+"FM_DirListFileStats_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","DirName","##OS_MAX_PATH_LEN##","","Directory name"
+"uint32","DirEntries","","","Number of entries in the directory"
+"uint32","FileEntries","","","Number of entries written to output file"
+
+_name_type_
+"FM_FileInfoPkt_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","","cFE SB tlm hdr"
+"uint8","FileStatus","","","Status indicating whether the file is open or closed"
+"uint8","CRC_Computed","","","Flag indicating whether a CRC was computed or not"
+"uint8","Spare","2","","Structure padding"
+"uint32","CRC","","","CRC value if computed"
+"uint32","FileSize","","","File Size"
+"uint32","LastModifiedTime","","","Last Modification Time of File"
+"char","Filename","##OS_MAX_PATH_LEN##","","Name of File"
+
+_name_type_
+"FM_OpenFilesEntry_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","LogicalName","##OS_MAX_PATH_LEN##","","Logical filename"
+"char","AppName","##OS_MAX_API_NAME##","","Application that opened file"
+
+_name_type_
+"FM_OpenFilesPkt_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","","cFE SB tlm hdr"
+"uint32","NumOpenFiles","","","Number of files opened via cFE"
+"FM_OpenFilesEntry_t","OpenFilesList","##OS_MAX_NUM_OPEN_FILES##","","List of files opened via cFE"
+
+_name_type_
+"FM_FreeSpacePktEntry_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint32","FreeSpace_A","","","First 32 bit portion of a 64 bit value"
+"uint32","FreeSpace_B","","","Second 32 bit portion of a 64 bit value"
+"char","Name","##OS_MAX_PATH_LEN##","","File system name"
+
+_name_type_
+"FM_FreeSpacePkt_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","","cFE SB tlm hdr"
+"FM_FreeSpacePktEntry_t","FileSys","##FM_TABLE_ENTRY_COUNT##","","Array of file system free space entries"
+
+_name_type_
+"FM_HousekeepingPkt_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","","cFE SB tlm hdr"
+"uint8","CommandCounter","","","Application command counter"
+"uint8","CommandErrCounter","","","Application command error counter"
+"uint8","Spare","","","Placeholder for unused command warning counter"
+"uint8","NumOpenFiles","","","Number of open files in the system"
+"uint8","ChildCmdCounter","","","Child task command counter"
+"uint8","ChildCmdErrCounter","","","Child task command error counter"
+"uint8","ChildCmdWarnCounter","","","Child task command warning counter"
+"uint8","ChildQueueCount","","","Number of pending commands in queue"
+"uint8","ChildCurrentCC","","","Command code currently executing"
+"uint8","ChildPreviousCC","","","Command code previously executed"
+
+_name_type_
+"FM_TableEntry_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint32","State","","","Table entry enable/disable state"
+"char","Name","##OS_MAX_PATH_LEN##","","File system name = string"
+
+_name_type_
+"FM_FreeSpaceTable_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"FM_TableEntry_t","FileSys","##FM_TABLE_ENTRY_COUNT##","","One entry for each file system"
+
+_name_type_
+"FM_ChildQueueEntry_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint32","CommandCode","","","Command code - identifies the command"
+"uint32","DirListOffset","","","Starting entry for dir list commands"
+"uint32","FileInfoState","","","File info state"
+"uint32","FileInfoSize","","","File info size"
+"uint32","FileInfoTime","","","File info time"
+"uint32","FileInfoCRC","","","File info CRC method"
+"char","Source1","##OS_MAX_PATH_LEN##","","First source file or directory name command argument"
+"char","Source2","##OS_MAX_PATH_LEN##","","Second source filename command argument"
+"char","Target","##OS_MAX_PATH_LEN##","","Target filename command argument"
+
+_name_type_
+"FM_GlobalData_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"FM_FreeSpaceTable_t *","FreeSpaceTablePtr","","","File System Table Pointer"
+"CFE_TBL_Handle_t","FreeSpaceTableHandle","","","File System Table Handle"
+"CFE_SB_PipeId_t","CmdPipe","","","cFE software bus command pipe"
+"uint32","ChildTaskID","","","Child task ID"
+"uint32","ChildSemaphore","","","Child task wakeup counting semaphore"
+"uint32","ChildQueueCountSem","","","Child queue counter mutex semaphore"
+"uint8","ChildCmdCounter","","","Child task command success counter"
+"uint8","ChildCmdErrCounter","","","Child task command error counter"
+"uint8","ChildCmdWarnCounter","","","Child task command warning counter"
+"uint8","ChildWriteIndex","","","Array index for next write to command args"
+"uint8","ChildReadIndex","","","Array index for next read from command args"
+"uint8","ChildQueueCount","","","Number of pending commands in queue"
+"uint8","CommandCounter","","","Application command success counter"
+"uint8","CommandErrCounter","","","Application command error counter"
+"uint8","Spare8a","","","Placeholder for unused command warning counter"
+"uint8","ChildCurrentCC","","","Command code currently executing"
+"uint8","ChildPreviousCC","","","Command code previously executed"
+"uint8","Spare8b","","","Structure alignment spare"
+"uint32","FileStatTime","","","Modify time from most recent OS_stat"
+"uint32","FileStatSize","","","File size from most recent OS_stat"
+"FM_DirListFileStats_t","DirListFileStats","","","Get dir list to file statistics structure"
+"FM_DirListPkt_t","DirListPkt","","","Get dir list to packet telemetry packet"
+"FM_FreeSpacePkt_t","FreeSpacePkt","","","Get free space telemetry packet"
+"FM_FileInfoPkt_t","FileInfoPkt","","","Get file info telemetry packet"
+"FM_OpenFilesPkt_t","OpenFilesPkt","","","Get open files telemetry packet"
+"FM_HousekeepingPkt_t","HousekeepingPkt","","","Application housekeeping telemetry packet"
+"char","ChildBuffer","##FM_CHILD_FILE_BLOCK_SIZE##","","Child task file I/O buffer"
+"FM_ChildQueueEntry_t","ChildQueue","##FM_CHILD_QUEUE_DEPTH##","","Child task command queue"

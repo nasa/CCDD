@@ -1001,12 +1001,12 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                     {
                         // Inform the user that the table has a recursive
                         // reference
-                        new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                        new CcddDialogHandler().showMessageDialog(parent,
                                                                   "<html><b>Table '</b>"
-                                                                                           + member.getTableName()
-                                                                                           + "<b>' contains a recursive reference to '</b>"
-                                                                                           + recursionTable
-                                                                                           + "<b>'",
+                                                                          + member.getTableName()
+                                                                          + "<b>' contains a recursive reference to '</b>"
+                                                                          + recursionTable
+                                                                          + "<b>'",
                                                                   "Table Reference",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);
@@ -1034,8 +1034,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                             ToolTipTreeNode parentNode,
                             ToolTipTreeNode childNode)
     {
-        boolean recursionError = false;
-
         // Step through each node in the parent's path
         for (TreeNode node : parentNode.getPath())
         {
@@ -1044,10 +1042,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 // Check if the child is in the path
                 if (((ToolTipTreeNode) node).getUserObject().toString().equals(childNode.getUserObject().toString()))
                 {
-                    // Store the name of the recursively referenced node and
-                    // set the error flag
+                    // Store the name of the recursively referenced node
                     recursionTable = childNode.getUserObject().toString();
-                    recursionError = true;
                     break;
                 }
             }
@@ -1055,7 +1051,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
 
         // Check that a recursion error wasn't found; this prevents an infinite
         // loop from occurring
-        if (!recursionError)
+        if (recursionTable == null)
         {
             // Add the child node to its parent
             parentNode.add(childNode);
@@ -1889,7 +1885,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // Get the node reference
             ToolTipTreeNode node = (ToolTipTreeNode) element.nextElement();
 
-            // Check if this is node has no children, which indicates is may be
+            // Check if this is node has no children, which indicates it may be
             // a variable, and that the node is for a structure or variable
             if (node.isLeaf() && node.getLevel() >= getHeaderNodeLevel())
             {
@@ -1914,8 +1910,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 // present
                 String variablePath = getFullVariablePath(nodes,
                                                           (nodes[1].equals(LINKED_VARIABLES_NODE_NAME)
-                                                                                                       ? 1
-                                                                                                       : 0));
+                                                           && !isFilteredByGroup()
+                                                                                   ? 1
+                                                                                   : 0));
 
                 // Set the flag indicating the variable is excluded if it's in
                 // the exclusion lists

@@ -4213,6 +4213,10 @@ public class CcddClasses
         @Override
         public void actionPerformed(ActionEvent ae)
         {
+            // TODO
+            if (getTable() != null && getTable().isEditing())
+                getTable().getCellEditor().stopCellEditing();
+
             // Check if no table is specified, or if the contents of the last
             // cell edited in the specified table is validated
             if (getTable() == null || getTable().isLastCellValid())

@@ -1,0 +1,30 @@
+# Copyright 2017 United States Government as represented by the Administrator
+# of the National Aeronautics and Space Administration. No copyright is claimed
+# in the United States under Title 17, U.S. Code. All Other Rights Reserved.
+
+
+# HK cFS application data tables
+#   Use the Data | Import table(s) command to import the HK
+#   data table definitions into an existing project
+
+_macros_
+"CFE_SB_TLM_HDR_SIZE","2"
+
+_name_type_
+"HK_Send_Out_Msg_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"CFE_SB_CmdHdr_t","Hdr","","","cFE Software Bus Command Message Header #CFE_SB_CmdHdr_t"
+"CFE_SB_MsgId_t","OutMsgToSend","","","MsgId #CFE_SB_MsgId_t of combined tlm pkt to send"
+
+_name_type_
+"HK_HkPacket_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","","cFE Software Bus Telemetry Message Header"
+"uint8","CmdCounter","","","Count of valid commands received"
+"uint8","ErrCounter","","","Count of invalid commands received"
+"uint16","Padding","","","Padding to force 32 bit alignment"
+"uint16","CombinedPacketsSent","","","Count of combined tlm pkts sent"
+"uint16","MissingDataCtr","","","Number of times missing data was detected"
+"uint32","MemPoolHandle","","","Memory pool handle used to get mempool diags"

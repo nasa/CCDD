@@ -1,0 +1,98 @@
+# Copyright 2017 United States Government as represented by the Administrator
+# of the National Aeronautics and Space Administration. No copyright is claimed
+# in the United States under Title 17, U.S. Code. All Other Rights Reserved.
+
+
+# SC cFS application data tables
+#   Use the Data | Import table(s) command to import the SC
+#   data table definitions into an existing project
+
+_macros_
+"CFE_SB_TLM_HDR_SIZE","2"
+"SC_NUMBER_OF_ATS","2"
+"SC_NUMBER_OF_RTS","17"
+"CFE_SB_CMD_HDR_SIZE","2"
+
+_name_type_
+"SC_HkTlm_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","",""
+"uint8","AtsNumber","","","current ATS number  1 = ATS A, 2 = ATS B"
+"uint8","AtpState","","","current ATP state valid values are: 2 = IDLE, 5 = EXECUTING"
+"uint8","ContinueAtsOnFailureFlag","","","In the event of ATS execution failure (ats command fails checksum) , the ATS execution will continue if this flag is set to TRUE and will stop if this flag is set to FALSE"
+"uint8","CmdErrCtr","","","Counts Request Errors"
+"uint8","CmdCtr","","","Counts Ground Requests"
+"uint8","Padding8","","",""
+"uint16","SwitchPendFlag","","","is an ats switch pending? 0 = NO, 1 = YES This means that the ATS switch is waiting until a safe time"
+"uint16","NumRtsActive","","","number of RTSs currently active"
+"uint16","RtsNumber","","","next RTS number"
+"uint16","RtsActiveCtr","","","Increments when an RTS is started without error"
+"uint16","RtsActiveErrCtr","","","Increments when an attempt to start an RTS fails"
+"uint16","AtsCmdCtr","","","Total ATS cmd cnter counts commands sent by the ATS"
+"uint16","AtsCmdErrCtr","","","Total ATS cmd Error ctr command errors in the ATS"
+"uint16","RtsCmdCtr","","","Counts TOTAL rts cmds that were sent out from ALL active RTSs"
+"uint16","RtsCmdErrCtr","","","Counts TOTAL number of errs from ALL RTSs that are active"
+"uint16","LastAtsErrSeq","","","Last ATS Errant Sequence Num Values: 1 or 2"
+"uint16","LastAtsErrCmd","","","Last ATS Errant Command Num"
+"uint16","LastRtsErrSeq","","","Last RTS Errant Sequence Num"
+"uint16","LastRtsErrCmd","","","The OFFSET in the RTS buffer of the command that had an error  It will be a WORD value i.e. 1st command had an error, this value would be 0, if the 2nd command started at int8 10 in the buffer, this value would be 5."
+"uint16","AppendCmdArg","","","ATS selection argument from most recent Append ATS command"
+"uint16","AppendEntryCount","","","Number of cmd entries in current Append ATS table"
+"uint16","AppendByteCount","","","Size of cmd entries in current Append ATS table"
+"uint16","AppendLoadCount","","","Total number of Append ATS table loads"
+"uint32","AtpCmdNumber","","","current command number"
+"uint32","AtpFreeBytes","##SC_NUMBER_OF_ATS##","","Free Bytes in each ATS"
+"uint32","NextRtsTime","","","next RTS cmd Absolute Time"
+"uint32","NextAtsTime","","","Next ATS Command Time (seconds)"
+"uint16","RtsExecutingStatus","(##SC_NUMBER_OF_RTS## + 15) / 16","","RTS executing status bit map where each uint16 represents 16 RTS numbers.  Note: array index numbers and bit numbers use base zero indexing, but RTS numbers use base one indexing.  Thus, the LSB (bit zero) of uint16 array index zero represents RTS number 1, and bit one of uint16 array index zero represents RTS number 2, etc.  If an RTS is IDLE, then the corresponding bit is zero. If an RTS is EXECUTING, then the corresponding bit is one."
+"uint16","RtsDisabledStatus","(##SC_NUMBER_OF_RTS## + 15) / 16","","RTS disabled status bit map where each uint16 represents 16 RTS numbers.  Note: array index numbers and bit numbers use base zero indexing, but RTS numbers use base one indexing.  Thus, the LSB (bit zero) of uint16 array index zero represents RTS number 1, and bit one of uint16 array index zero represents RTS number 2, etc.  If an RTS is ENABLED, then the corresponding bit is zero. If an RTS is DISABLED, then the corresponding bit is one."
+
+_name_type_
+"SC_NoArgsCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+
+_name_type_
+"SC_StartAtsCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint16","AtsId","","","The ID of the ATS to start, 1 = ATS_A, 2 = ATS_B"
+
+_name_type_
+"SC_RtsCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint16","RtsId","","","The ID of the RTS to start, 1 through #SC_NUMBER_OF_RTS"
+
+_name_type_
+"SC_JumpAtsCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint32","NewTime","","","the time to 'jump' to"
+
+_name_type_
+"SC_SetContinueAtsOnFailureCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint16","ContinueState","","","TRUE or FALSE, to continue ATS after a failure"
+
+_name_type_
+"SC_AppendAtsCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint16","AtsId","","","The ID of the ATS to append to, 1 = ATS_A, 2 = ATS_B"
+
+_name_type_
+"SC_RtsGrpCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint16","FirstRtsId","","","ID of the first RTS to act on, 1 through #SC_NUMBER_OF_RTS"
+"uint16","LastRtsId","","","ID of the last RTS to act on, 1 through #SC_NUMBER_OF_RTS"

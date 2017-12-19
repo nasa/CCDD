@@ -1,0 +1,358 @@
+# Copyright 2017 United States Government as represented by the Administrator
+# of the National Aeronautics and Space Administration. No copyright is claimed
+# in the United States under Title 17, U.S. Code. All Other Rights Reserved.
+
+
+# ES cFE data tables
+#   Use the Data | Import table(s) command to import the ES
+#   data table definitions into an existing project
+
+_macros_
+"CFE_SB_CMD_HDR_SIZE","2"
+"CFE_ES_MAX_SHELL_CMD","2"
+"OS_MAX_PATH_LEN","2"
+"OS_MAX_API_NAME","2"
+"CFE_ES_CDS_MAX_FULL_NAME_LEN","2"
+"CFE_SB_TLM_HDR_SIZE","2"
+"CFE_ES_PERF_MAX_IDS","64"
+"CFE_ES_MAX_SHELL_PKT","2"
+
+_name_type_
+"CFE_ES_NoArgsCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+
+_name_type_
+"CFE_ES_RestartCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint16","RestartType","","","#CFE_ES_PROCESSOR_RESET=Processor Reset or #CFE_ES_POWERON_RESET=Power-On Reset"
+
+_name_type_
+"CFE_ES_RestartCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_ES_RestartCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_ES_ShellCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","CmdString","##CFE_ES_MAX_SHELL_CMD##","","ASCII text string containing shell command to be executed"
+"char","OutputFilename","##OS_MAX_PATH_LEN##","","Filename where shell command output is to be written"
+
+_name_type_
+"CFE_ES_ShellCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_ES_ShellCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_ES_QueryAllCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","QueryAllFileName","##OS_MAX_PATH_LEN##","","ASCII text string containing full path and filename of file in which Application data is to be dumped"
+
+_name_type_
+"CFE_ES_QueryAllCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_ES_QueryAllCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_ES_QueryAllTasksCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","QueryAllFileName","##OS_MAX_PATH_LEN##","","ASCII text string containing full path and filename of file in which Application data is to be dumped"
+
+_name_type_
+"CFE_ES_QueryAllTasksCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_ES_QueryAllTasksCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_ES_WriteSyslogCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","SysLogFileName","##OS_MAX_PATH_LEN##","","ASCII text string containing full path and filename of file in which System Log is to be dumped"
+
+_name_type_
+"CFE_ES_WriteSyslogCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_ES_WriteSyslogCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_ES_WriteERlogCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","ERLogFileName","##OS_MAX_PATH_LEN##","","ASCII text string containing full path and filename of file in which ER Log is to be dumped"
+
+_name_type_
+"CFE_ES_WriteERlogCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_ES_WriteERlogCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_ES_OverWriteSysLogCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint32","Mode","","","#CFE_ES_LOG_DISCARD=Throw away most recent messages, #CFE_ES_LOG_OVERWRITE=Overwrite oldest with most recent"
+
+_name_type_
+"CFE_ES_OverWriteSysLogCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_ES_OverWriteSysLogCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_ES_StartAppCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","Application","##OS_MAX_API_NAME##","","Name of Application to be started"
+"char","AppEntryPoint","##OS_MAX_API_NAME##","","Symbolic name of Application's entry point"
+"char","AppFileName","##OS_MAX_PATH_LEN##","","Full path and filename of Application's executable image"
+"uint32","StackSize","","","Desired stack size for the new application"
+"uint16","ExceptionAction","","","#CFE_ES_APP_EXCEPTION_RESTART_APP=On exception, restart Application, #CFE_ES_APP_EXCEPTION_PROC_RESTART=On exception, perform a Processor Reset"
+"uint16","Priority","","","The new Applications runtime priority."
+
+_name_type_
+"CFE_ES_StartAppCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_ES_StartAppCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_ES_AppNameCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","Application","##OS_MAX_API_NAME##","","ASCII text string containing Application Name"
+
+_name_type_
+"CFE_ES_AppNameCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_ES_AppNameCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_ES_AppReloadCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","Application","##OS_MAX_API_NAME##","","ASCII text string containing Application Name"
+"char","AppFileName","##OS_MAX_PATH_LEN##","","Full path and filename of Application's executable image"
+
+_name_type_
+"CFE_ES_AppReloadCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_ES_AppReloadCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_ES_SetMaxPRCountCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint16","MaxPRCount","","","New maximum number of Processor Resets before an automatic Power-On Reset is performed"
+
+_name_type_
+"CFE_ES_SetMaxPRCountCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_ES_SetMaxPRCountCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_ES_DeleteCDSCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","CdsName","##CFE_ES_CDS_MAX_FULL_NAME_LEN##","","ASCII text string containing name of CDS to delete"
+
+_name_type_
+"CFE_ES_DeleteCDSCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_ES_DeleteCDSCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_ES_PerfStartCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint32","TriggerMode","","","Desired trigger position (Start, Center, End)"
+
+_name_type_
+"CFE_ES_PerfStartCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_ES_PerfStartCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_ES_PerfStopCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","DataFileName","##OS_MAX_PATH_LEN##","","ASCII text string of full path and filename of file Performance Analyzer data is to be written"
+
+_name_type_
+"CFE_ES_PerfStopCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_ES_PerfStopCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_ES_PerfSetFilterMaskCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint32","FilterMaskNum","","","Index into array of Filter Masks"
+"uint32","FilterMask","","","New Mask for specified entry in array of Filter Masks"
+
+_name_type_
+"CFE_ES_PerfSetFilterMaskCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_ES_PerfSetFilterMaskCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_ES_PerfSetTrigMaskCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint32","TriggerMaskNum","","","Index into array of Trigger Masks"
+"uint32","TriggerMask","","","New Mask for specified entry in array of Trigger Masks"
+
+_name_type_
+"CFE_ES_PerfSetTrigMaskCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_ES_PerfSetTrigMaskCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_ES_TlmPoolStatsCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","Application","##OS_MAX_API_NAME##","","- RESERVED - should be all zeroes"
+"CFE_ES_MemHandle_t","PoolHandle","","","Handle of Pool whose statistics are to be telemetered"
+
+_name_type_
+"CFE_ES_TlmPoolStatsCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_ES_TlmPoolStatsCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_ES_DumpCDSRegCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","DumpFilename","##OS_MAX_PATH_LEN##","","ASCII text string of full path and filename of file CDS Registry is to be written"
+
+_name_type_
+"CFE_ES_DumpCDSRegCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_ES_DumpCDSRegCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_ES_OneAppTlm_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"CFE_ES_AppInfo_t","AppInfo","","","For more information, see #CFE_ES_AppInfo_t"
+
+_name_type_
+"CFE_ES_OneAppTlm_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","","cFE Software Bus Telemetry Message Header"
+"CFE_ES_OneAppTlm_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_ES_PoolStatsTlm_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"CFE_ES_MemHandle_t","PoolHandle","","","Handle of memory pool whose stats are being telemetered"
+"CFE_ES_MemPoolStats_t","PoolStats","","","For more info, see #CFE_ES_MemPoolStats_t"
+
+_name_type_
+"CFE_ES_PoolStatsTlm_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","","cFE Software Bus Telemetry Message Header"
+"CFE_ES_PoolStatsTlm_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_ES_HkPacket_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdCounter","","","The ES Application Command Counter"
+"uint8","ErrCounter","","","The ES Application Command Error Counter"
+"uint16","CFECoreChecksum","","","Checksum of cFE Core Code"
+"uint8","CFEMajorVersion","","","Major Version Number of cFE"
+"uint8","CFEMinorVersion","","","Minor Version Number of cFE"
+"uint8","CFERevision","","","Sub-Minor Version Number of cFE"
+"uint8","CFEMissionRevision","","","Mission Version Number of cFE"
+"uint8","OSALMajorVersion","","","OS Abstraction Layer Major Version Number"
+"uint8","OSALMinorVersion","","","OS Abstraction Layer Minor Version Number"
+"uint8","OSALRevision","","","OS Abstraction Layer Revision Number"
+"uint8","OSALMissionRevision","","","OS Abstraction Layer MissionRevision Number"
+"uint32","SysLogBytesUsed","","","Total number of bytes used in system log"
+"uint32","SysLogSize","","","Total size of the system log"
+"uint32","SysLogEntries","","","Number of entries in the system log"
+"uint32","SysLogMode","","","WriteOverwrite Mode"
+"uint32","ERLogIndex","","","Current index of the ER Log (wraps around)"
+"uint32","ERLogEntries","","","Number of entries made in the ER Log since the power on"
+"uint32","RegisteredCoreApps","","","Number of Applications registered with ES"
+"uint32","RegisteredExternalApps","","","Number of Applications registered with ES"
+"uint32","RegisteredTasks","","","Number of Tasks ( main AND child tasks ) registered with ES"
+"uint32","RegisteredLibs","","","Number of Libraries registered with ES"
+"uint32","ResetType","","","Reset type ( PROCESSOR or POWERON )"
+"uint32","ResetSubtype","","","Reset Sub Type"
+"uint32","ProcessorResets","","","Number of processor resets since last power on"
+"uint32","MaxProcessorResets","","","Max processor resets before a power on is done"
+"uint32","BootSource","","","Boot source ( as provided from BSP )"
+"uint32","PerfState","","","Current state of Performance Analyzer"
+"uint32","PerfMode","","","Current mode of Performance Analyzer"
+"uint32","PerfTriggerCount","","","Number of Times Perfomance Analyzer has Triggered"
+"uint32","PerfFilterMask","##CFE_ES_PERF_MAX_IDS## / 32","","Current Setting of Performance Analyzer Filter Masks"
+"uint32","PerfTriggerMask","##CFE_ES_PERF_MAX_IDS## / 32","","Current Setting of Performance Analyzer Trigger Masks"
+"uint32","PerfDataStart","","","Identifies First Stored Entry in Performance Analyzer Log"
+"uint32","PerfDataEnd","","","Identifies Last Stored Entry in Performance Analyzer Log"
+"uint32","PerfDataCount","","","Number of Entries Put Into the Performance Analyzer Log"
+"uint32","PerfDataToWrite","","","Number of Performance Analyzer Log Entries Left to be Written to Log Dump File"
+"uint32","HeapBytesFree","","","Number of free bytes remaining in the OS heap"
+"uint32","HeapBlocksFree","","","Number of free blocks remaining in the OS heap"
+"uint32","HeapMaxBlockSize","","","Number of bytes in the largest free block"
+
+_name_type_
+"CFE_ES_HkPacket_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","","cFE Software Bus Telemetry Message Header"
+"CFE_ES_HkPacket_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_ES_ShellPacket_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","ShellOutput","##CFE_ES_MAX_SHELL_PKT##","","ASCII text string containing output from OS Shell that was received in response to an OS Shell Command"
+
+_name_type_
+"CFE_ES_ShellPacket_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","","cFE Software Bus Telemetry Message Header"
+"CFE_ES_ShellPacket_Payload_t","Payload","","",""

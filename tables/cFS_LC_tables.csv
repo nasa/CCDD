@@ -1,0 +1,88 @@
+# Copyright 2017 United States Government as represented by the Administrator
+# of the National Aeronautics and Space Administration. No copyright is claimed
+# in the United States under Title 17, U.S. Code. All Other Rights Reserved.
+
+
+# LC cFS application data tables
+#   Use the Data | Import table(s) command to import the LC
+#   data table definitions into an existing project
+
+_macros_
+"CFE_SB_CMD_HDR_SIZE","2"
+"CFE_SB_TLM_HDR_SIZE","2"
+"LC_HKWR_NUM_BYTES","2"
+"LC_HKAR_NUM_BYTES","2"
+
+_name_type_
+"LC_NoArgsCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+
+_name_type_
+"LC_SetLCState_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint16","NewLCState","","","New LC application state"
+"uint16","Padding","","","Structure padding"
+
+_name_type_
+"LC_SetAPState_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint16","APNumber","","","Which actionpoint(s) to change"
+"uint16","NewAPState","","","New actionpoint state"
+
+_name_type_
+"LC_SetAPPermOff_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint16","APNumber","","","Which actionpoint to change"
+"uint16","Padding","","","Structure padding"
+
+_name_type_
+"LC_ResetAPStats_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint16","APNumber","","","Which actionpoint(s) to change"
+"uint16","Padding","","","Structure padding"
+
+_name_type_
+"LC_ResetWPStats_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint16","WPNumber","","","Which watchpoint(s) to change"
+"uint16","Padding","","","Structure padding"
+
+_name_type_
+"LC_SampleAP_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint16","StartIndex","","","Which actionpoint(s) to sample"
+"uint16","EndIndex","","",""
+"uint16","UpdateAge","","","Update WP results age (T or F)"
+
+_name_type_
+"LC_HkPacket_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","","cFE SB Tlm Msg Hdr"
+"uint8","CmdCount","","","LC Application Command Counter"
+"uint8","CmdErrCount","","","LC Application Command Error Counter"
+"uint8","CurrentLCState","","","Current LC application operating state"
+"uint8","Pad8","","",""
+"uint8","WPResults","##LC_HKWR_NUM_BYTES##","","Packed watchpoint results data, 2 bits per watchpoint"
+"uint8","APResults","##LC_HKAR_NUM_BYTES##","","Packed actionpoint results data, 4 bits per actionpoint"
+"uint16","PassiveRTSExecCount","","","Total count of RTS sequences not initiated because the LC state is set to #LC_STATE_PASSIVE"
+"uint16","WPsInUse","","","How many watchpoints are currently in effect"
+"uint16","ActiveAPs","","","How many actionpoints are currently active"
+"uint16","Pad16","","",""
+"uint32","APSampleCount","","","Total count of Actionpoints sampled"
+"uint32","MonitoredMsgCount","","","Total count of messages monitored for watchpoints"
+"uint32","RTSExecCount","","","Total count of RTS sequences initiated"

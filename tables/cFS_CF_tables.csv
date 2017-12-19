@@ -1,0 +1,388 @@
+# Copyright 2017 United States Government as represented by the Administrator
+# of the National Aeronautics and Space Administration. No copyright is claimed
+# in the United States under Title 17, U.S. Code. All Other Rights Reserved.
+
+
+# CF cFS application data tables
+#   Use the Data | Import table(s) command to import the CF
+#   data table definitions into an existing project
+
+_macros_
+"CFE_SB_CMD_HDR_SIZE","2"
+"CF_MAX_CFG_VALUE_CHARS","2"
+"OS_MAX_PATH_LEN","2"
+"CF_MAX_CFG_PARAM_CHARS","2"
+"CF_MAX_TRANSID_CHARS","2"
+"CFE_SB_TLM_HDR_SIZE","2"
+"CF_MAX_PLAYBACK_CHANNELS","2"
+"OS_MAX_API_NAME","2"
+
+_name_type_
+"CF_NoArgsCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+
+_name_type_
+"CF_ResetCtrsCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint8","Value","","","0=all, 1=cmd, 2=fault 3=up 4=down"
+"uint8","Spare","3","",""
+
+_name_type_
+"CF_PlaybackFileCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint8","Class","","",""
+"uint8","Channel","","",""
+"uint8","Priority","","",""
+"uint8","Preserve","","",""
+"char","PeerEntityId","##CF_MAX_CFG_VALUE_CHARS##","","2 byte dotted-decimal string eg. "0.24""
+"char","SrcFilename","##OS_MAX_PATH_LEN##","",""
+"char","DstFilename","##OS_MAX_PATH_LEN##","",""
+
+_name_type_
+"CF_PlaybackDirCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint8","Class","","",""
+"uint8","Chan","","",""
+"uint8","Priority","","",""
+"uint8","Preserve","","",""
+"char","PeerEntityId","##CF_MAX_CFG_VALUE_CHARS##","","2 byte dotted-decimal string eg. "0.24""
+"char","SrcPath","##OS_MAX_PATH_LEN##","",""
+"char","DstPath","##OS_MAX_PATH_LEN##","",""
+
+_name_type_
+"CF_EnDisDequeueCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint8","Chan","","",""
+"uint8","Spare","3","",""
+
+_name_type_
+"CF_EnDisPollCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"uint8","Chan","","","0 to (CF_MAX_PLAYBACK_CHANNELS - 1)"
+"uint8","Dir","","","0 to (CF_MAX_POLLING_DIRS_PER_CHAN - 1), or 0xFF for en/dis all"
+"uint8","Spare","2","",""
+
+_name_type_
+"CF_SetPollParamCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint8","Chan","","","0 to (CF_MAX_PLAYBACK_CHANNELS - 1)"
+"uint8","Dir","","","0 to (CF_MAX_POLLING_DIRS_PER_CHAN - 1)"
+"uint8","Class","","",""
+"uint8","Priority","","",""
+"uint8","Preserve","","",""
+"uint8","Spare","3","",""
+"char","PeerEntityId","##CF_MAX_CFG_VALUE_CHARS##","",""
+"char","SrcPath","##OS_MAX_PATH_LEN##","",""
+"char","DstPath","##OS_MAX_PATH_LEN##","",""
+
+_name_type_
+"CF_SetMibParam_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"char","Param ","##CF_MAX_CFG_PARAM_CHARS##","",""
+"char","Value ","##CF_MAX_CFG_VALUE_CHARS##","",""
+
+_name_type_
+"CF_GetMibParam_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"char","Param ","##CF_MAX_CFG_PARAM_CHARS##","",""
+
+_name_type_
+"CF_CARSCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"char","Trans","##OS_MAX_PATH_LEN##","",""
+
+_name_type_
+"CF_WriteQueueCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint8","Type","","","(up=1/down=2)"
+"uint8","Chan","","",""
+"uint8","Queue","","","0=pending,1=active,2=history"
+"uint8","Spare","","",""
+"char","Filename","##OS_MAX_PATH_LEN##","",""
+
+_name_type_
+"CF_WriteActiveTransCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint8","Type","","","(all=0/up=1/down=2)"
+"uint8","Spare","","",""
+"char","Filename","##OS_MAX_PATH_LEN##","",""
+
+_name_type_
+"CF_SendTransCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"char","Trans","##OS_MAX_PATH_LEN##","",""
+
+_name_type_
+"CF_DequeueNodeCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"char","Trans","##OS_MAX_PATH_LEN##","",""
+
+_name_type_
+"CF_PurgeQueueCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint8","Type","","","(up=1/down=2)"
+"uint8","Chan","","",""
+"uint8","Queue","","","0=pending,1=active,2=history"
+"uint8","Spare","","",""
+
+_name_type_
+"CF_KickstartCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint8","Chan","","",""
+"uint8","Spare","3","",""
+
+_name_type_
+"CF_QuickStatCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"char","Trans","##OS_MAX_PATH_LEN##","",""
+
+_name_type_
+"CF_GiveTakeCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint8","Chan","","",""
+"uint8","GiveOrTakeSemaphore","","",""
+
+_name_type_
+"CF_AutoSuspendEnCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint32","EnableDisable","","","0 to disable, 1 to enable"
+
+_name_type_
+"CF_CyclesPerWakeupCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint32","NumCyclesPerWakeup","","",""
+
+_name_type_
+"AutoSuspend_Telemetry_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint32","EnFlag","","",""
+"uint32","LowFreeMark","","",""
+
+_name_type_
+"Uplink_Telemetry_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint32","MetaCount","","",""
+"uint32","UplinkActiveQFileCnt","","",""
+"uint32","SuccessCounter","","",""
+"uint32","FailedCounter","","",""
+"char","LastFileUplinked","##OS_MAX_PATH_LEN##","",""
+
+_name_type_
+"Downlink_Telemetry_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint32","PDUsSent","","",""
+"uint32","FilesSent","","",""
+"uint32","SuccessCounter","","",""
+"uint32","FailedCounter","","",""
+"uint32","PendingQFileCnt","","",""
+"uint32","ActiveQFileCnt","","",""
+"uint32","HistoryQFileCnt","","",""
+"uint32","Flags","","","0=ChanDequeue enabled,1=Chan Blast In progress,"
+"uint32","RedLightCntr","","",""
+"uint32","GreenLightCntr","","",""
+"uint32","PollDirsChecked","","",""
+"uint32","PendingQChecked","","",""
+"uint32","SemValue","","",""
+
+_name_type_
+"Engine_Telemetry_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","FlightEngineEntityId","##CF_MAX_CFG_VALUE_CHARS##","",""
+"uint32","Flags","","","bit 0=frozen"
+"uint32","MachinesAllocated","","",""
+"uint32","MachinesDeallocated","","",""
+"uint8","are_any_partners_frozen","","","Can be true even if there are * no transactions in-progress."
+"uint8","Spare","3","",""
+"uint32","how_many_senders","","","...active Senders?"
+"uint32","how_many_receivers","","","...active Receivers?"
+"uint32","how_many_frozen","","","...trans are frozen?"
+"uint32","how_many_suspended","","","...trans are suspended?"
+"uint32","total_files_sent","","","...files sent succesfully"
+"uint32","total_files_received","","","...files received successfully"
+"uint32","total_unsuccessful_senders","","",""
+"uint32","total_unsuccessful_receivers","","",""
+
+_name_type_
+"Fault_Telemetry_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","PosAckNum","","","Positive ACK Limit Counter"
+"uint8","FileStoreRejNum","","","FileStore Rejection Counter"
+"uint8","FileChecksumNum","","","File Checksum Failure Counter"
+"uint8","FileSizeNum","","","Filesize Error Counter"
+"uint8","NakLimitNum","","","NAK Limit Counter"
+"uint8","InactiveNum","","","Inactivity Counter"
+"uint8","SuspendNum","","","Suspend Request Counter"
+"uint8","CancelNum","","","Cancel Request Counter"
+
+_name_type_
+"App_Telemetry_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint32","WakeupForFileProc","","",""
+"uint32","EngineCycleCount","","",""
+"uint32","MemInUse","","",""
+"uint32","PeakMemInUse","","",""
+"uint32","LowMemoryMark","","",""
+"uint32","MaxMemNeeded","","",""
+"uint32","MemAllocated","","",""
+"uint32","BufferPoolHandle","","",""
+"uint32","QNodesAllocated","","",""
+"uint32","QNodesDeallocated","","",""
+"uint32","PDUsReceived","","",""
+"uint32","PDUsRejected","","",""
+"uint32","TotalInProgTrans","","",""
+"uint32","TotalFailedTrans","","",""
+"uint32","TotalAbandonTrans","","",""
+"uint32","TotalSuccessTrans","","",""
+"uint32","TotalCompletedTrans","","",""
+"char","LastFailedTrans","##CF_MAX_TRANSID_CHARS##","",""
+
+_name_type_
+"CF_HkPacket_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","",""
+"uint16","CmdCounter","","","Count of valid commands received"
+"uint16","ErrCounter","","","Count of invalid commands received"
+"App_Telemetry_t","App","","",""
+"AutoSuspend_Telemetry_t","AutoSuspend","","",""
+"Fault_Telemetry_t","Cond","","",""
+"Engine_Telemetry_t","Eng","","",""
+"Uplink_Telemetry_t","Up","","",""
+"Downlink_Telemetry_t","Chan","##CF_MAX_PLAYBACK_CHANNELS##","",""
+
+_name_type_
+"CF_EngTransStat_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TransLen","","",""
+"uint8","TransVal","","",""
+"uint8","Naks","","","How many Nak PDUs have been sent/recd?"
+"uint8","PartLen","","",""
+"uint8","PartVal","","","Who is this transaction with?"
+"uint8","Phase","","","Either 1, 2, 3, or 4"
+"uint8","Spare1","","",""
+"uint8","Spare2","","",""
+"uint32","Flags","","",""
+"uint32","TransNum","","",""
+"uint32","Attempts","","","How many attempts to send current PDU?"
+"uint32","CondCode","","",""
+"uint32","DeliCode","","",""
+"uint32","FdOffset","","","Offset of last Filedata sent/received"
+"uint32","FdLength","","","Length of last Filedata sent/received"
+"uint32","Checksum","","",""
+"uint32","FinalStat","","",""
+"uint32","FileSize","","",""
+"uint32","RcvdFileSize","","",""
+"uint32","Role","","","(e.g. Receiver Class 1)"
+"uint32","State","","",""
+"uint32","StartTime","","","When was this transaction started?"
+"char","SrcFile","##OS_MAX_PATH_LEN##","",""
+"char","DstFile","##OS_MAX_PATH_LEN##","",""
+"char","TmpFile","##OS_MAX_PATH_LEN##","",""
+
+_name_type_
+"CF_AppTransStat_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint32","Status","","",""
+"uint32","CondCode","","",""
+"uint32","Priority","","","applies only to playback files"
+"uint32","Class","","",""
+"uint32","ChanNum","","","applies only to playback files"
+"uint32","Source","","","from poll dir,playbackfile cmd or playback dir cmd"
+"uint32","NodeType","","",""
+"uint32","TransNum","","",""
+"char","SrcEntityId","##CF_MAX_CFG_VALUE_CHARS##","",""
+"char","SrcFile","##OS_MAX_PATH_LEN##","",""
+"char","DstFile","##OS_MAX_PATH_LEN##","",""
+
+_name_type_
+"CF_TransPacket_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","",""
+"CF_EngTransStat_t","Eng","","",""
+"CF_AppTransStat_t","App","","",""
+
+_name_type_
+"CF_QueueInfoFileEntry_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint32","TransStatus","","",""
+"uint32","TransNum","","","Transaction number assigned by engine"
+"char","SrcEntityId","##CF_MAX_CFG_VALUE_CHARS##","","Entity Id of file sender"
+"char","SrcFile","##OS_MAX_PATH_LEN##","","Path/Filename at the source"
+
+_name_type_
+"CF_ConfigPacket_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","",""
+"uint32","EngCycPerWakeup","","",""
+"uint32","AckLimit","","",""
+"uint32","AckTimeout","","",""
+"uint32","NakLimit","","",""
+"uint32","NakTimeout","","",""
+"uint32","InactTimeout","","",""
+"uint32","DefOutgoingChunkSize","","",""
+"uint32","PipeDepth","","",""
+"uint32","MaxSimultaneousTrans","","",""
+"uint32","IncomingPduBufSize","","",""
+"uint32","OutgoingPduBufSize","","",""
+"uint32","NumInputChannels","","",""
+"uint32","MaxPlaybackChans","","",""
+"uint32","MaxPollingDirsPerChan","","",""
+"uint32","MemPoolBytes","","",""
+"uint32","DebugCompiledIn","","",""
+"char","SaveIncompleteFiles","8","",""
+"char","PipeName","##OS_MAX_API_NAME##","",""
+"char","TmpFilePrefix","##OS_MAX_PATH_LEN##","",""
+"char","CfgTblName","##OS_MAX_PATH_LEN##","",""
+"char","CfgTbleFilename","##OS_MAX_PATH_LEN##","",""
+"char","DefQInfoFilename","##OS_MAX_PATH_LEN##","",""

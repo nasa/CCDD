@@ -327,6 +327,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                                                       List<TableModification> deletions,
                                                       boolean forceUpdate)
     {
+        boolean isStructureChanged = false;
         CcddDataTypeHandler dtHandler = main.getDataTypeHandler();
         CcddDbTableCommandHandler dbTblCmdHndlr = main.getDbTableCommandHandler();
 
@@ -390,6 +391,19 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             // Step through each individual editor
             for (CcddTableEditorHandler editor : editorDialog.getTableEditors())
             {
+                // Check if the table represents a structure
+                if (!isStructureChanged
+                    && main.getTableTypeHandler().getTypeDefinition(editor.getTableInformation().getType()).isStructure())
+                {
+                    // TODO THE VAR SIZES SHOULD BE UPDATED PRIOR TO UPDATING
+                    // THE TABLE
+                    // Rebuild the variable paths and offsets
+                    main.getVariableSizeHandler().buildPathAndOffsetLists();
+
+                    // Set the flag indicating a structure table changed
+                    isStructureChanged = true;
+                }
+
                 // Check if the prototype of the editor's table matches that of
                 // the table that was updated
                 if (editor.getTableInformation().getPrototypeName().equals(tableInfo.getPrototypeName()))
@@ -818,7 +832,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                ccddMain.showSearchDialog(SearchDialogType.TABLES);
+                ccddMain.showSearchDialog(SearchDialogType.TABLES,
+                                          CcddTableEditorDialog.this);
             }
         });
 

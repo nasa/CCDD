@@ -44,7 +44,7 @@ public interface CcddSchedulerInputInterface
      * 
      * @return Size in bytes of the variable or link
      *************************************************************************/
-    abstract int getSelectedValuesSize(List<Variable> variables);
+    abstract int getSelectedVariableSize(List<Variable> variables);
 
     /**************************************************************************
      * Get a list of variable/applications at the specified rate

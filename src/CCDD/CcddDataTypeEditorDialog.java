@@ -73,6 +73,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
     private final CcddDbTableCommandHandler dbTable;
     private final CcddDataTypeHandler dataTypeHandler;
     private CcddJTableHandler dataTypeTable;
+    private final CcddVariableSizeHandler varSizeHandler;
 
     // Cell editor for the base data type column
     private DefaultCellEditor baseTypeCellEditor;
@@ -149,22 +150,10 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
         // Create references to shorten subsequent calls
         dbTable = ccddMain.getDbTableCommandHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
-
-        // Set the reference to this dialog in main
-        ccddMain.setDataTypeEditor(this);
+        varSizeHandler = ccddMain.getVariableSizeHandler();
 
         // Create the data type editor dialog
         initialize();
-    }
-
-    /**************************************************************************
-     * Get the reference to the data type table
-     *
-     * @return Reference to the data type table
-     *************************************************************************/
-    protected CcddJTableHandler getTable()
-    {
-        return dataTypeTable;
     }
 
     /**************************************************************************
@@ -189,6 +178,11 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
             // Update the copy of the data type data so it can be used to
             // determine if changes are made
             storeCurrentData();
+
+            // TODO ANY OPEN EDITORS MAY BE AFFECTED BY THE DATA TYPE SIZE
+            // CHANGES
+            // Rebuild the variable paths and offsets
+            varSizeHandler.buildPathAndOffsetLists();
 
             // Accept all edits for this table
             dataTypeTable.getUndoManager().discardAllEdits();

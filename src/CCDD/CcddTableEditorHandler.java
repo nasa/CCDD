@@ -15,6 +15,7 @@ import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.PAD_VARIABLE;
 import static CCDD.CcddConstants.REPLACE_INDICATOR;
+import static CCDD.CcddConstants.SIZEOF_DATATYPE;
 import static CCDD.CcddConstants.TYPE_NAME_SEPARATOR;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import static CCDD.CcddConstants.VARIABLE_PATH_SEPARATOR;
@@ -169,6 +170,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
     // Flag indicating if the table can be edited
     private boolean isEditEnabled;
+
+    // List containing the primitive data types and structures that can be
+    // referenced by this table (if it is a structure)
+    private List<String> dataTypeList;
 
     /**************************************************************************
      * Table editor handler class constructor
@@ -1062,6 +1067,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *************************************************************************/
     protected String getExpandedValueAt(int row, int column)
     {
+        // System.out.println(tableInfo.getTablePath() + " getExpandedValueAt
+        // A"); // TODO
         return newMacroHandler.getMacroExpansion(tableModel.getValueAt(row, column).toString());
     }
 
@@ -1080,6 +1087,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *************************************************************************/
     private String getExpandedValueAt(List<Object[]> tableData, int row, int column)
     {
+        // System.out.println(tableInfo.getTablePath() + " getExpandedValueAt
+        // B"); // TODO
         return newMacroHandler.getMacroExpansion(tableData.get(row)[column].toString());
     }
 
@@ -1169,6 +1178,41 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         // Ignore highlighting failure
                     }
                 }
+
+                // Check if this is the array size column
+                if (convertColumnIndexToModel(column) == arraySizeIndex)
+                {
+                    // Highlight 'sizeof(data type)' instances. Create a
+                    // highlighter painter
+                    painter = new DefaultHighlighter.DefaultHighlightPainter(isSelected
+                                                                                        ? ModifiableColorInfo.INPUT_TEXT.getColor()
+                                                                                        : ModifiableColorInfo.TEXT_HIGHLIGHT.getColor());
+
+                    // Create the match pattern
+                    pattern = Pattern.compile(SIZEOF_DATATYPE);
+
+                    // Create the pattern matcher from the pattern
+                    matcher = pattern.matcher(text);
+
+                    // Check if there is a match in the cell value
+                    if (matcher.find())
+                    {
+                        try
+                        {
+                            // Highlight the matching text. Adjust the
+                            // highlight color to account for the cell
+                            // selection highlighting so that the macro is
+                            // easily readable
+                            ((JTextComponent) component).getHighlighter().addHighlight(matcher.start(),
+                                                                                       matcher.end(),
+                                                                                       painter);
+                        }
+                        catch (BadLocationException ble)
+                        {
+                            // Ignore highlighting failure
+                        }
+                    }
+                }
             }
 
             /******************************************************************
@@ -1198,12 +1242,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 return toolTipText;
             }
 
-            /**************************************************************************
+            /******************************************************************
              * Return true if the table data, column order, description, or a
              * data field changes. If the table isn't open in and editor (as
              * when a macro is changed) then the table description and data
              * fields are not applicable
-             *************************************************************************/
+             *****************************************************************/
             @Override
             protected boolean isTableChanged(Object[][] previousData,
                                              List<Integer> ignoreColumns)
@@ -1271,23 +1315,15 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     && tableModel != null
                     && tableModel.getRowCount() != 0)
                 {
-                    // Create storage for the row of table data
-                    Object[] rowData = new Object[tableModel.getColumnCount()];
-
                     // Convert the view row and column indices to model
                     // coordinates
                     int modelRow = convertRowIndexToModel(row);
                     int modelColumn = convertColumnIndexToModel(column);
 
-                    // Step through each column in the row
-                    for (int index = 0; index < rowData.length; index++)
-                    {
-                        // Store the column value into the row data array
-                        rowData[index] = getExpandedValueAt(modelRow, index);
-                    }
-
                     // Check if the cell is editable
-                    isEditable = isDataAlterable(rowData, modelRow, modelColumn);
+                    isEditable = isDataAlterable(((List<?>) tableModel.getDataVector().elementAt(modelRow)).toArray(new String[0]),
+                                                 modelRow,
+                                                 modelColumn);
                 }
 
                 return isEditable;
@@ -1318,6 +1354,20 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // Check if the table data has at least one row
                 if (rowData != null && rowData.length != 0)
                 {
+                    // Check if the array size column is present in this table
+                    if (arraySizeIndex != -1)
+                    {
+                        // Expand any macros in the array size column
+                        rowData[arraySizeIndex] = getExpandedValueAt(row, arraySizeIndex);
+                    }
+
+                    // Check if the array size column is present in this table
+                    if (bitLengthIndex != -1)
+                    {
+                        // Expand any macros in the array size column
+                        rowData[bitLengthIndex] = getExpandedValueAt(row, bitLengthIndex);
+                    }
+
                     // Flag that is true if the row represents an array
                     // definition
                     boolean isArrayDefinition = arraySizeIndex != -1
@@ -1433,7 +1483,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                             }
                         }
 
-                        // Check if no command argument pairing rest the flag
+                        // Check if no command argument pairing reset the flag
                         if (isAlterable)
                         {
                             // Step through each non-command argument
@@ -1580,7 +1630,21 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
                     // Create a string version of the new value, replacing any
                     // macro in the text with its corresponding value
-                    String newValueS = newMacroHandler.getMacroExpansion(newValue.toString());
+                    String newValueS = newMacroHandler.getMacroExpansion(newValue.toString(),
+                                                                         dataTypeList);
+
+                    // Check if a sizeof() call in the text makes a recursive
+                    // reference. Example: If this is a structure table then
+                    // this can occur if a sizeof() call refers to this
+                    // structure's prototype or the prototype of one of its
+                    // children
+                    if (ccddMain.getVariableSizeHandler().isInvalidReference())
+                    {
+                        throw new CCDDException("Invalid input value in column '</b>"
+                                                + typeDefn.getColumnNamesUser()[column]
+                                                + "<b>'; sizeof() call may not reference the prototype "
+                                                + "of this structure or any of its descendants");
+                    }
 
                     // Check if the cell is flagged for replacement by the
                     // prototype value
@@ -1702,10 +1766,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         }
                     }
 
-                    // Check if the new value doesn't contain a macro
-                    // reference; this prevents the macro reference from being
-                    // lost
-                    if (!newMacroHandler.hasMacro(newValue.toString()))
+                    // Check if the new value doesn't contain a macro or
+                    // sizeof() reference; this prevents the macro reference
+                    // from being lost
+                    if (!newMacroHandler.hasMacro(newValue.toString())
+                        && !newValue.toString().matches(SIZEOF_DATATYPE))
                     {
                         // Store the new value in the table data array after
                         // formatting the cell value per its input type. This
@@ -3316,7 +3381,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Check if the macro values are being displayed
         if (isExpand)
         {
-            // Create storage for the original cell values. Note he first two
+            // Create storage for the original cell values. Note the first two
             // columns are unused
             originalCellData = new String[lastRow - firstRow][tableModel.getColumnCount()];
         }
@@ -3690,6 +3755,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     private void setDataTypeColumns(String[] allStructTbls,
                                     CcddTableTreeHandler tblTree)
     {
+        dataTypeList = null;
+
         // Get the lists of columns that display primitive data types and
         // primitive & structure data types
         List<Integer> primColumns = typeDefn.getColumnIndicesByInputType(InputDataType.PRIMITIVE);
@@ -3754,9 +3821,30 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 dataTypeColumn.setCellEditor(new DefaultCellEditor(comboBox));
             }
 
+            dataTypeList = new ArrayList<String>();
+
+            // Step through each data type in the combo box
+            for (int index = 0; index < comboBox.getItemCount(); index++)
+            {
+                // Add the data type (primitive or structure) to the array
+                dataTypeList.add(comboBox.getItemAt(index));
+            }
+
             // Create the enumerated data type cell editor
             createEnumDataTypeCellEditor();
         }
+    }
+
+    /**************************************************************************
+     * Get the list of primitive data types and structures. If this is a
+     * structure table then invalid structure table references aren't included
+     *
+     * @return List of primitive data types and structures; null if no data
+     *         type column exists
+     *************************************************************************/
+    protected List<String> getDataTypes()
+    {
+        return dataTypeList;
     }
 
     /**************************************************************************

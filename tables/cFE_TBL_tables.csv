@@ -1,0 +1,202 @@
+# Copyright 2017 United States Government as represented by the Administrator
+# of the National Aeronautics and Space Administration. No copyright is claimed
+# in the United States under Title 17, U.S. Code. All Other Rights Reserved.
+
+
+# TBL cFE data tables
+#   Use the Data | Import table(s) command to import the TBL
+#   data table definitions into an existing project
+
+_macros_
+"CFE_SB_CMD_HDR_SIZE","2"
+"OS_MAX_PATH_LEN","2"
+"CFE_TBL_MAX_FULL_NAME_LEN","2"
+"CFE_SB_TLM_HDR_SIZE","2"
+"OS_MAX_API_NAME","2"
+
+_name_type_
+"CFE_TBL_NoArgsCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+
+_name_type_
+"CFE_TBL_LoadCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","LoadFilename","##OS_MAX_PATH_LEN##","","Filename (and path) of data to be loadedASCII Character string containing full path filename for file to be loaded"
+
+_name_type_
+"CFE_TBL_LoadCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_TBL_LoadCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_TBL_DumpCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint16","ActiveTblFlag","","","#CFE_TBL_INACTIVE_BUFFER=Inactive Table, #CFE_TBL_ACTIVE_BUFFER=Active TableSelects either the "Inactive" (#CFE_TBL_INACTIVE_BUFFER) buffer or the "Active" (#CFE_TBL_ACTIVE_BUFFER) buffer to be dumped"
+"char","TableName","##CFE_TBL_MAX_FULL_NAME_LEN##","","Full name of table to be dumpedASCII string containing full table name identifier of table to be dumped"
+"char","DumpFilename","##OS_MAX_PATH_LEN##","","Full Filename where data is to be writtenASCII string containing full path of filename where data is to be dumped"
+
+_name_type_
+"CFE_TBL_DumpCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_TBL_DumpCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_TBL_ValidateCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint16","ActiveTblFlag","","","#CFE_TBL_INACTIVE_BUFFER=Inactive Table, #CFE_TBL_ACTIVE_BUFFER=Active TableSelects either the "Inactive" (#CFE_TBL_INACTIVE_BUFFER) buffer or the "Active" (#CFE_TBL_ACTIVE_BUFFER) buffer to be validated"
+"char","TableName","##CFE_TBL_MAX_FULL_NAME_LEN##","","Full Name of Table to be validatedASCII string containing full table name identifier of table to be validated"
+
+_name_type_
+"CFE_TBL_ValidateCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_TBL_ValidateCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_TBL_ActivateCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","TableName","##CFE_TBL_MAX_FULL_NAME_LEN##","","Full Name of Table to be activatedASCII string containing full table name identifier of table to be activated"
+
+_name_type_
+"CFE_TBL_ActivateCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_TBL_ActivateCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_TBL_DumpRegCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","DumpFilename","##OS_MAX_PATH_LEN##","","Full Filename where dumped data is to be writtenASCII string containing full path of filename where registry is to be dumped"
+
+_name_type_
+"CFE_TBL_DumpRegCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_TBL_DumpRegCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_TBL_TlmRegCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","TableName","##CFE_TBL_MAX_FULL_NAME_LEN##","","Full Name of Table whose registry entry is to be telemeteredASCII string containing full table name identifier of table whose registry entry is to be telemetered via #CFE_TBL_TblRegPacket_t"
+
+_name_type_
+"CFE_TBL_TlmRegCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_TBL_TlmRegCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_TBL_DelCDSCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","TableName","##CFE_TBL_MAX_FULL_NAME_LEN##","","Full Name of Table whose CDS is to be deletedASCII string containing full table name identifier of a critical table whose CDS is to be deleted"
+
+_name_type_
+"CFE_TBL_DelCDSCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_TBL_DelCDSCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_TBL_AbortLdCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","TableName","##CFE_TBL_MAX_FULL_NAME_LEN##","","Full Name of Table whose load is to be abortedASCII string containing full table name identifier of a table whose load is to be aborted"
+
+_name_type_
+"CFE_TBL_AbortLdCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_TBL_AbortLdCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_TBL_NotifyCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint32","Parameter","","","Application specified command parameter"
+
+_name_type_
+"CFE_TBL_NotifyCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"CFE_TBL_NotifyCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_TBL_HkPacket_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdCounter","","","Count of valid commands received"
+"uint8","ErrCounter","","","Count of invalid commands received ** Table Registry Statistics"
+"uint16","NumTables","","","Number of Tables Registered"
+"uint16","NumLoadPending","","","Number of Tables pending on Applications for their update ** Last Table Validation Results"
+"uint16","ValidationCtr","","","Number of completed table validations"
+"uint32","LastValCrc","","","Data Integrity Value computed for last table validated"
+"int32","LastValStatus","","","Returned status from validation function for last table validated"
+"boolean","ActiveBuffer","","","Indicator of whether table buffer validated was 0=Inactive, 1=Active"
+"char","LastValTableName","##CFE_TBL_MAX_FULL_NAME_LEN##","","Name of last table validated"
+"uint8","SuccessValCtr","","","Total number of successful table validations"
+"uint8","FailedValCtr","","","Total number of unsuccessful table validations"
+"uint8","NumValRequests","","","Number of times Table Services has requested validations from Apps ** Ground system interface information"
+"uint8","NumFreeSharedBufs","","","Number of free Shared Working Buffers"
+"uint8","ByteAlignPad1","","","Spare byte to ensure longword alignment"
+"CFE_ES_MemHandle_t","MemPoolHandle","","","Handle to TBL's memory pool"
+"CFE_TIME_SysTime_t","LastUpdateTime","","","Time of last table update"
+"char","LastUpdatedTbl","##CFE_TBL_MAX_FULL_NAME_LEN##","","Name of the last table updated"
+"char","LastFileLoaded","##OS_MAX_PATH_LEN##","","Path and Name of last table image file loaded"
+"char","LastFileDumped","##OS_MAX_PATH_LEN##","","Path and Name of last file dumped to"
+"char","LastTableLoaded","##CFE_TBL_MAX_FULL_NAME_LEN##","","Name of the last table loaded"
+
+_name_type_
+"CFE_TBL_HkPacket_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","","cFE Software Bus Telemetry Message Header"
+"CFE_TBL_HkPacket_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_TBL_TblRegPacket_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint32","Size","","","Size, in bytes, of Table"
+"uint32","Crc","","","Most recently calculated CRC of Table"
+"cpuaddr","ActiveBufferAddr","","","Address of Active Buffer"
+"cpuaddr","InactiveBufferAddr","","","Address of Inactive Buffer"
+"cpuaddr","ValidationFuncPtr","","","Ptr to Owner App's function that validates tbl contents"
+"CFE_TIME_SysTime_t","TimeOfLastUpdate","","","Time when Table was last updated"
+"uint32","FileCreateTimeSecs","","","File creation time from last file loaded into table"
+"uint32","FileCreateTimeSubSecs","","","File creation time from last file loaded into table"
+"boolean","TableLoadedOnce","","","Flag indicating whether table has been loaded once or not"
+"boolean","LoadPending","","","Flag indicating an inactive buffer is ready to be copied"
+"boolean","DumpOnly","","","Flag indicating Table is NOT to be loaded"
+"boolean","DblBuffered","","","Flag indicating Table has a dedicated inactive buffer"
+"char","Name","##CFE_TBL_MAX_FULL_NAME_LEN##","","Processor specific table name"
+"char","LastFileLoaded","##OS_MAX_PATH_LEN##","","Filename of last file loaded into table"
+"char","OwnerAppName","##OS_MAX_API_NAME##","","Name of owning application"
+"boolean","Critical","","","Indicates whether table is Critical or not"
+"uint8","ByteAlign4","","","Spare byte to maintain byte alignment"
+
+_name_type_
+"CFE_TBL_TblRegPacket_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","","cFE Software Bus Telemetry Message Header"
+"CFE_TBL_TblRegPacket_Payload_t","Payload","","",""

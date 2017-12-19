@@ -83,8 +83,9 @@ public class CcddSearchDialog extends CcddFrameHandler
     private final CcddDbTableCommandHandler dbTable;
     private final CcddTableTypeHandler tableTypeHandler;
     private CcddJTableHandler resultsTable;
-    private final CcddEventLogDialog eventLog;
+    private CcddEventLogDialog eventLog;
     private CcddTableTreeHandler tableTree;
+    private CcddSearchHandler searchHandler;
 
     // Components referenced from multiple methods
     private AutoCompleteTextField searchFld;
@@ -120,11 +121,15 @@ public class CcddSearchDialog extends CcddFrameHandler
      *
      * @param eventLog
      *            event log to search; null if not searching a log
+     *
+     * @param parent
+     *            GUI component over which to center the dialog
      *************************************************************************/
     CcddSearchDialog(CcddMain ccddMain,
                      SearchDialogType searchType,
                      Long targetRow,
-                     CcddEventLogDialog eventLog)
+                     CcddEventLogDialog eventLog,
+                     Component parent)
     {
         this.ccddMain = ccddMain;
         this.searchDlgType = searchType;
@@ -138,7 +143,7 @@ public class CcddSearchDialog extends CcddFrameHandler
         resultsData = new Object[0][0];
 
         // Create the database table search dialog
-        initialize(targetRow);
+        initialize(targetRow, parent);
     }
 
     /**************************************************************************
@@ -149,10 +154,29 @@ public class CcddSearchDialog extends CcddFrameHandler
      *
      * @param searchType
      *            search dialog type: TABLES or SCRIPTS
+     *
+     * @param parent
+     *            GUI component over which to center the dialog
      *************************************************************************/
-    CcddSearchDialog(CcddMain ccddMain, SearchDialogType searchType)
+    CcddSearchDialog(CcddMain ccddMain,
+                     SearchDialogType searchType,
+                     Component parent)
     {
-        this(ccddMain, searchType, null, null);
+        this(ccddMain, searchType, null, null, parent);
+    }
+
+    /**************************************************************************
+     * Set the reference to the event log to search and update the search
+     * dialog title
+     *
+     * @param eventLog
+     *            reference to the event log to search
+     *************************************************************************/
+    protected void setEventLog(CcddEventLogDialog eventLog)
+    {
+        this.eventLog = eventLog;
+        searchHandler.setEventLog(eventLog);
+        setTitle(getLogTitle());
     }
 
     /**************************************************************************
@@ -171,13 +195,16 @@ public class CcddSearchDialog extends CcddFrameHandler
      * @param targetRow
      *            row index to match if this is an event log entry search on a
      *            table that displays only a single log entry; null otherwise
+     *
+     * @param parent
+     *            GUI component over which to center the dialog
      *************************************************************************/
-    private void initialize(final Long targetRow)
+    private void initialize(final Long targetRow, Component parent)
     {
-        final CcddSearchHandler searchHandler = new CcddSearchHandler(ccddMain,
-                                                                      searchDlgType,
-                                                                      targetRow,
-                                                                      eventLog);
+        searchHandler = new CcddSearchHandler(ccddMain,
+                                              searchDlgType,
+                                              targetRow,
+                                              eventLog);
 
         searchColumns = "";
 
@@ -486,7 +513,7 @@ public class CcddSearchDialog extends CcddFrameHandler
         gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.gridy = 0;
         upperPnl.add(inputPnl, gbc);
-        gbc.insets.left = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.fill = GridBagConstraints.BOTH;
 
         // Check if this is a table search
@@ -498,13 +525,13 @@ public class CcddSearchDialog extends CcddFrameHandler
             tableTree = new CcddTableTreeHandler(ccddMain,
                                                  new CcddGroupHandler(ccddMain,
                                                                       null,
-                                                                      ccddMain.getMainFrame()),
+                                                                      parent),
                                                  TableTreeType.TABLES,
                                                  true,
                                                  false,
-                                                 ccddMain.getMainFrame());
+                                                 parent);
 
-            // Add the tree to the selection panel
+            // Add the tree to the upper panel
             gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
             gbc.gridwidth = GridBagConstraints.REMAINDER;
             gbc.weightx = 1.0;
@@ -512,7 +539,7 @@ public class CcddSearchDialog extends CcddFrameHandler
             gbc.gridx++;
             upperPnl.add(tableTree.createTreePanel("Tables",
                                                    TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
-                                                   ccddMain.getMainFrame()),
+                                                   parent),
                          gbc);
             gbc.gridwidth = 1;
         }
@@ -1012,17 +1039,40 @@ public class CcddSearchDialog extends CcddFrameHandler
                 break;
 
             case LOG:
-                title = "Search Event Log";
+                title = getLogTitle();
                 break;
         }
 
         // Display the search dialog
-        createFrame(ccddMain.getMainFrame(),
+        createFrame(parent,
                     dialogPnl,
                     buttonPnl,
                     btnSearch,
                     title,
                     null);
+    }
+
+    /**************************************************************************
+     * Get the text to display in the dialog's header for a log search
+     *
+     * @return Text to display in the dialog's header for a log search
+     *************************************************************************/
+    private String getLogTitle()
+    {
+        String title;
+
+        // Check if the log to search is the session log
+        if (ccddMain.getSessionEventLog().equals(eventLog))
+        {
+            title = "Search Session Event Log";
+        }
+        // Not searching the session log
+        else
+        {
+            title = "Search " + eventLog.getTitle();
+        }
+
+        return title;
     }
 
     /**************************************************************************
@@ -1038,26 +1088,33 @@ public class CcddSearchDialog extends CcddFrameHandler
             // Step through each column in the table
             for (int column = 0; column < resultsTable.getColumnCount(); column++)
             {
-                // Get the table or object for this row. The table path for the
-                // search results uses a colon after the root table name
-                // instead of the usual comma, so this must be altered for the
-                // table path to be used to open the table
+                // Get the owner for this row
                 String tableName = resultsTable.getModel().getValueAt(row,
                                                                       SearchResultsColumnInfo.OWNER.ordinal())
-                                               .toString().trim().replaceFirst(":", ",");
+                                               .toString();
 
-                // Check if the cell at these coordinates is selected, the
-                // target is a data table, and the table isn't already in the
-                // list of those to be opened
+                // Check if the the cell is selected and the owner is a data
+                // table
                 if (resultsTable.isCellSelected(row, column)
-                    && dbTable.isTableExists(tableName.replaceFirst(",.*$", ""),
-                                             CcddSearchDialog.this)
-                    && !tablePaths.contains(tableName))
+                    && tableName.startsWith(SearchTarget.TABLE.getTargetName(true) + ":"))
                 {
-                    // Add the table path to the list and stop checking the
-                    // columns in this row
-                    tablePaths.add(tableName);
-                    break;
+                    // Remove the owner identifier. The table path for the
+                    // search results uses a colon after the root table name
+                    // instead of the usual comma, so this must be altered for
+                    // the table path to be used to open the table
+                    tableName = tableName.substring(SearchTarget.TABLE.getTargetName(true).length() + 1)
+                                         .trim()
+                                         .replaceFirst(":", ",");
+
+                    // Check if the table isn't already in the list of those to
+                    // be opened
+                    if (!tablePaths.contains(tableName))
+                    {
+                        // Add the table path to the list and stop checking the
+                        // columns in this row
+                        tablePaths.add(tableName);
+                        break;
+                    }
                 }
             }
         }

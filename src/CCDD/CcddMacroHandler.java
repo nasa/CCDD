@@ -9,6 +9,7 @@
 package CCDD;
 
 import static CCDD.CcddConstants.MACRO_IDENTIFIER;
+import static CCDD.CcddConstants.SIZEOF_DATATYPE;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -16,6 +17,7 @@ import java.awt.Component;
 import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -40,6 +42,8 @@ import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.JTextComponent;
 
+import org.mariuszgromada.math.mxparser.Expression;
+
 import CCDD.CcddClasses.PaddedComboBox;
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.InputDataType;
@@ -55,18 +59,29 @@ import CCDD.CcddConstants.SearchType;
 public class CcddMacroHandler
 {
     // Class reference
-    private CcddDbCommandHandler dbCommand;
+    private CcddMain ccddMain;
 
     // Pop-up combo box for displaying the macro names and the dialog to
     // contain it
     private PaddedComboBox macroCbox;
     private JDialog comboDlg;
 
-    // List containing the macro names and associated values
+    // List containing the macro names and associated unexpanded values
     private List<String[]> macros;
+
+    // Array containing the expanded macro values. Unless the macro's value
+    // definition changes the expanded value remains the same. Using the stored
+    // data saves the time needed to reevaluate the macro value
+    private String[] expandedMacroValues;
 
     // Macro name pattern
     private final Pattern macroPattern;
+
+    // Flag that indicates if a macro is referenced in its parent path
+    private boolean isMacroRecursive;
+
+    // List containing the valid data types when evaluating sizeof() calls
+    private List<String> validDataTypes;
 
     /**************************************************************************
      * Macro location class
@@ -117,12 +132,16 @@ public class CcddMacroHandler
      * Macro handler class constructor used when setting the macros from a
      * source other than those in the project database
      *
+     * @param ccddMain
+     *            main class
+     *
      * @param macros
      *            list of string arrays containing macro names and the
      *            corresponding macro values
      *************************************************************************/
-    CcddMacroHandler(List<String[]> macros)
+    CcddMacroHandler(CcddMain ccddMain, List<String[]> macros)
     {
+        this.ccddMain = ccddMain;
         this.macros = macros;
 
         // Create the macro name search pattern
@@ -134,6 +153,9 @@ public class CcddMacroHandler
                                        + MACRO_IDENTIFIER
                                        + ").*$",
                                        Pattern.CASE_INSENSITIVE);
+
+        // Initialize the expanded macro value array
+        clearStoredValues();
     }
 
     /**************************************************************************
@@ -145,10 +167,12 @@ public class CcddMacroHandler
     CcddMacroHandler(CcddMain ccddMain)
     {
         // Load the macro table from the project database
-        this(ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.MACROS,
+        this(ccddMain,
+             ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.MACROS,
                                                                           true,
                                                                           ccddMain.getMainFrame()));
-        dbCommand = ccddMain.getDbCommandHandler();
+
+        this.ccddMain = ccddMain;
     }
 
     /**************************************************************************
@@ -163,15 +187,29 @@ public class CcddMacroHandler
     }
 
     /**************************************************************************
-     * Set the macro data to the supplied array
+     * Set the macro data to the supplied list of macro definitions
      *
      * @param macros
      *            list of string arrays containing macro names and the
-     *            corresponding macro values
+     *            corresponding unexpanded macro values
      *************************************************************************/
     protected void setMacroData(List<String[]> macros)
     {
         this.macros = new ArrayList<String[]>(macros);
+
+        // TODO
+        // Reinitialize the expanded macro value array
+        clearStoredValues();
+    }
+
+    /**************************************************************************
+     * Clear the array of expanded macro values. This should be done following
+     * any change to a macro's unexpanded value so that the unexpanded value is
+     * reevaluated when next requested
+     *************************************************************************/
+    protected void clearStoredValues()
+    {
+        expandedMacroValues = new String[macros.size()];
     }
 
     /**************************************************************************
@@ -291,6 +329,9 @@ public class CcddMacroHandler
      * Display a pop-up combo box containing the names of the defined macros.
      * When the user selects a macro insert it into the supplied text component
      *
+     * @param owner
+     *            dialog owning the pop-up combo box
+     *
      * @param textComp
      *            text component over which to display the pop-up combo box and
      *            insert the selected macro name
@@ -298,10 +339,12 @@ public class CcddMacroHandler
      * @param inputType
      *            input data type of the text component
      *************************************************************************/
-    protected void insertMacroName(final JTextComponent textComp,
-                                   InputDataType inputType)
+    protected void insertMacroName(Window owner,
+                                   final JTextComponent textComp,
+                                   InputDataType inputType,
+                                   List<String> validDataTypes)
     {
-        comboDlg = new JDialog();
+        comboDlg = new JDialog(owner);
 
         // Check if any macros exist
         if (!macros.isEmpty())
@@ -317,10 +360,16 @@ public class CcddMacroHandler
                 String text = getInsertedMacro(macro[MacrosColumn.VALUE.ordinal()],
                                                textComp);
 
+                // Create a string version of the new value, replacing any
+                // macro in the text with its corresponding value
+                text = getMacroExpansion(text, validDataTypes);
+
                 // Check if the text component's text, with the macro's value
                 // inserted, is allowed in the target text component based on
                 // the component's input type
-                if (text.isEmpty() || text.matches(inputType.getInputMatch()))
+                if ((text.isEmpty()
+                     || text.matches(inputType.getInputMatch()))
+                    && !isMacroRecursive)
                 {
                     // Add the macro name to the list with its value as the
                     // item's tool tip text
@@ -539,27 +588,179 @@ public class CcddMacroHandler
     }
 
     /**************************************************************************
-     * Get the value associated with the specified macro name
+     * Check for any recursive reference in the specified macro's value
      *
      * @param macroName
      *            macro name
      *
-     * @return Value associated with the specified macro name; returns null if
-     *         the macro doesn't exist
+     * @return true if a recursive reference is detected in the macro's value
+     *************************************************************************/
+    protected boolean isMacroRecursive(String macroName)
+    {
+        // Get the macro's value, checking for recursion
+        getMacroValue(macroName);
+
+        return isMacroRecursive;
+    }
+
+    /**************************************************************************
+     * Get the expanded value associated with the specified macro name. If the
+     * expanded value is already known (from a previous value request) then
+     * this known value is used; otherwise the macro's expanded value is
+     * evaluated from its unexpanded value
+     *
+     * @param macroName
+     *            name of the macro for which the value is needed
+     *
+     * @return Expanded value associated with the specified macro name; returns
+     *         null if the macro doesn't exist. The isMacroRecursive flag will
+     *         be set to true if the macro contains a recursive reference
      *************************************************************************/
     protected String getMacroValue(String macroName)
     {
         String macroValue = null;
+        isMacroRecursive = false;
 
         // Step through each defined macro
-        for (String[] macro : macros)
+        for (int index = 0; index < macros.size(); index++)
         {
             // Check if the supplied name matches this macro's name
-            if (macroName.equalsIgnoreCase(macro[MacrosColumn.MACRO_NAME.ordinal()]))
+            if (macroName.equalsIgnoreCase(macros.get(index)[MacrosColumn.MACRO_NAME.ordinal()]))
             {
-                // Get the associated macro value and stop searching
-                macroValue = macro[MacrosColumn.VALUE.ordinal()];
-                break;
+                // Check if the macro's expanded value hasn't already been
+                // determined
+                if (expandedMacroValues[index] == null)
+                {
+                    // Get the macro's value, replacing any embedded macros
+                    // with their respective values and evaluating any sizeof()
+                    // calls
+                    macroValue = getMacroValue(macroName, new ArrayList<String>());
+
+                    // Create the macro formula
+                    Expression expr = new Expression(macroValue);
+
+                    // Check if the expression is a valid mathematical
+                    // expression
+                    if (expr.checkSyntax())
+                    {
+                        // Evaluate the text as a mathematical expression
+                        macroValue = String.valueOf((int) expr.calculate());
+                    }
+
+                    // Store the expanded macro value
+                    expandedMacroValues[index] = macroValue;
+                }
+                // The macro's expanded value is already determined
+                else
+                {
+                    // Get the expanded macro value
+                    macroValue = expandedMacroValues[index];
+                }
+            }
+        }
+
+        return macroValue;
+    }
+
+    /**************************************************************************
+     * Get the value associated with the specified macro name. This is a
+     * recursive method for macros referencing other macros
+     *
+     * @param macroName
+     *            macro name
+     *
+     * @param referencedMacros
+     *            list containing the macros references in a macro value path.
+     *            This list is used to detect if a macro references itself,
+     *            which would cause an infinite loop. Set to null to not test
+     *            for recursion
+     *
+     * @return Value associated with the specified macro name; returns null if
+     *         the macro doesn't exist
+     *************************************************************************/
+    private String getMacroValue(String macroName, List<String> referencedMacros)
+    {
+        String macroValue = null;
+
+        // Check that a recursion error wasn't found; this prevents an infinite
+        // loop from occurring
+        if (!isMacroRecursive)
+        {
+            // Check if the macro is referenced in the value path above it
+            if (referencedMacros != null
+                && referencedMacros.contains(macroName.toUpperCase()))
+            {
+                // Set the flag to indicate a recursive reference exists
+                isMacroRecursive = true;
+            }
+            // The macro doesn't have a reference to itself in the path above
+            // it
+            else
+            {
+                // Check if recursion is being checked
+                if (referencedMacros != null)
+                {
+                    // Add the macro name to the list of those within the
+                    // macro's value path
+                    referencedMacros.add(0, macroName.toUpperCase());
+                }
+
+                // Step through each defined macro
+                for (String[] macro : macros)
+                {
+                    // Check if the supplied name matches this macro's name
+                    if (macroName.equalsIgnoreCase(macro[MacrosColumn.MACRO_NAME.ordinal()]))
+                    {
+                        // Replace each sizeof() call with its numeric value
+                        macroValue = ccddMain.getVariableSizeHandler().replaceSizeofWithValue(macro[MacrosColumn.VALUE.ordinal()],
+                                                                                              validDataTypes);
+
+                        // Check if the sizeof() call references an invalid
+                        // data type
+                        if (ccddMain.getVariableSizeHandler().isInvalidReference())
+                        {
+                            // Set the flag to indicate a recursive reference
+                            // exists
+                            isMacroRecursive = true;
+                        }
+
+                        // Get a list of macros referenced in this macro's
+                        // value
+                        List<String> refMacros = getReferencedMacros(macroValue);
+
+                        // Check if any macros are referenced by this macro
+                        if (!refMacros.isEmpty())
+                        {
+                            List<String> priorMacroRefs = null;
+
+                            // Check if recursion is being checked
+                            if (referencedMacros != null)
+                            {
+                                // Create a list to contain the macro
+                                // references in the path prior to this
+                                // reference
+                                priorMacroRefs = new ArrayList<String>(referencedMacros);
+                            }
+
+                            // Step through each macro referenced by this macro
+                            for (int argIndex = 0; argIndex < refMacros.size(); argIndex++)
+                            {
+                                // Get the value of the referenced macro
+                                String value = getMacroValue(refMacros.get(argIndex),
+                                                             priorMacroRefs);
+
+                                // Replace all instances of the macro with its
+                                // expanded value
+                                macroValue = macroValue.replaceAll(MACRO_IDENTIFIER
+                                                                   + refMacros.get(argIndex)
+                                                                   + MACRO_IDENTIFIER,
+                                                                   value);
+                            }
+                        }
+
+                        break;
+                    }
+                }
             }
         }
 
@@ -612,34 +813,143 @@ public class CcddMacroHandler
     }
 
     /**************************************************************************
-     * Replace any macro names embedded in the supplied text with the
-     * associated macro values
+     * Replace any macro names and sizeof() calls embedded in the supplied text
+     * with the associated macro values and data type sizes
      *
      * @param text
-     *            text string containing macro names
+     *            text string possibly containing macro names and/or sizeof()
+     *            calls
      *
-     * @return Text string with any embedded macro names replaced with the
-     *         associated macro values
+     * @return Text string with any embedded macro names and sizeof() calls
+     *         replaced with the associated macro values and data type sizes
      *************************************************************************/
     protected String getMacroExpansion(String text)
     {
+        return getMacroExpansion(text, null);
+    }
+
+    /**************************************************************************
+     * Replace any macro names and sizeof() calls embedded in the supplied text
+     * with the associated macro values and data type sizes. If a list of valid
+     * data types is supplied, sizeof() calls set an error flag if the
+     * referenced data type isn't in the list
+     *
+     * @param text
+     *            text string possibly containing macro names and/or sizeof()
+     *            calls
+     *
+     * @param validDataTypes
+     *            List containing the valid data types when evaluating sizeof()
+     *            calls; null if there are no data type constraints for a
+     *            sizeof() call
+     *
+     * @return Text string with any embedded macro names and sizeof() calls
+     *         replaced with the associated macro values and data type sizes
+     *************************************************************************/
+    protected String getMacroExpansion(String text, List<String> validDataTypes)
+    {
+        this.validDataTypes = validDataTypes;
+        isMacroRecursive = false;
+
         String expandedText = "";
         int lastEnd = 0;
 
-        // Step through each macro in the text string
-        for (MacroLocation location : getMacroLocation(text))
+        // Check if the text string to expand isn't blank
+        if (!text.trim().isEmpty())
         {
-            // Append the text leading to the macro name, then add macro value
-            // in place of the name
-            expandedText += text.substring(lastEnd, location.getStart())
-                            + getMacroValue(location.getMacroName().replaceAll(MACRO_IDENTIFIER, ""));
+            Expression expr;
 
-            // Store the end position of the macro name for the next pass
-            lastEnd = location.getStart() + location.getMacroName().length();
+            // Convert any sizeof() calls to the equivalent data type size
+            text = ccddMain.getVariableSizeHandler().replaceSizeofWithValue(text, validDataTypes);
+
+            // Check if the sizeof() call references an invalid
+            // data type
+            if (ccddMain.getVariableSizeHandler().isInvalidReference())
+            {
+                // Set the flag to indicate a recursive reference exists
+                isMacroRecursive = true;
+            }
+
+            // Step through each macro in the text string
+            for (MacroLocation location : getMacroLocation(text))
+            {
+                // Append the text leading to the macro name, then add the
+                // macro value in place of the name
+                expandedText += text.substring(lastEnd, location.getStart())
+                                + getMacroValue(location.getMacroName().replaceAll(MACRO_IDENTIFIER, ""));
+
+                // Store the end position of the macro name for the next pass
+                lastEnd = location.getStart() + location.getMacroName().length();
+            }
+
+            // Append any remaining text
+            expandedText += text.substring(lastEnd);
+
+            // Separate the text at any comma. This is to evaluate each
+            // substring to see if it's an expression. This allows macros to
+            // represent array sizes for multi-dimensional arrays
+            String[] parts = expandedText.split("\\s*,\\s*");
+
+            // Check if there is no comma to separate the text (so that it's
+            // potentially a single expression)
+            if (parts.length == 1)
+            {
+                // Create the macro formula
+                expr = new Expression(expandedText);
+
+                // Check if the text is a valid mathematical expression
+                if (expr.checkSyntax())
+                {
+                    // Evaluate the text as a mathematical expression
+                    expandedText = String.valueOf((int) expr.calculate());
+                }
+            }
+            // The string contains one or more commas. Each substring is
+            // evaluated as an expression
+            else
+            {
+                boolean isExpr = true;
+                String multiText = "";
+
+                // Step through each substring
+                for (String part : parts)
+                {
+                    // Create the macro formula
+                    expr = new Expression(part);
+
+                    // Check if the substring is a valid mathematical
+                    // expression
+                    if (expr.checkSyntax())
+                    {
+                        // Evaluate the text as a mathematical expression and
+                        // append it to the expanded text string
+                        multiText += String.valueOf((int) expr.calculate()) + ",";
+                    }
+                    // The substring isn't an expression
+                    else
+                    {
+                        // Set the flag to indicate that the text isn't
+                        // comma-separated integers and stop checking
+                        isExpr = false;
+                        break;
+                    }
+                }
+
+                // Check if the every substring is an expression
+                if (isExpr)
+                {
+                    // Set the expanded text to the comma-separated integers,
+                    // removing the trailing comma added above
+                    expandedText = CcddUtilities.removeTrailer(multiText, ",").replaceAll(",", ", ");;
+                }
+            }
         }
 
-        // Append any remaining text
-        return expandedText += text.substring(lastEnd);
+        // Reset the valid data types so this list is doesn't inadvertently
+        // affect macro checks where there is no data type constraint
+        this.validDataTypes = null;
+
+        return expandedText;
     }
 
     /**************************************************************************
@@ -714,18 +1024,18 @@ public class CcddMacroHandler
      *************************************************************************/
     protected String[] getMacroReferences(String macroName, Component parent)
     {
-        return dbCommand.getList(DatabaseListCommand.SEARCH,
-                                 new String[][] {{"_search_text_",
-                                                  macroName},
-                                                 {"_case_insensitive_",
-                                                  "true"},
-                                                 {"_allow_regex_",
-                                                  "false"},
-                                                 {"_selected_tables_",
-                                                  SearchType.DATA.toString()},
-                                                 {"_columns_",
-                                                  ""}},
-                                 parent);
+        return ccddMain.getDbCommandHandler().getList(DatabaseListCommand.SEARCH,
+                                                      new String[][] {{"_search_text_",
+                                                                       macroName},
+                                                                      {"_case_insensitive_",
+                                                                       "true"},
+                                                                      {"_allow_regex_",
+                                                                       "false"},
+                                                                      {"_selected_tables_",
+                                                                       SearchType.DATA.toString()},
+                                                                      {"_columns_",
+                                                                       ""}},
+                                                      parent);
     }
 
     /**************************************************************************
@@ -784,11 +1094,13 @@ public class CcddMacroHandler
     protected String getMacroToolTipText(String text)
     {
         // Check if the text string contains any macros
-        if (text != null && text.matches(".*"
-                                         + MACRO_IDENTIFIER
-                                         + ".+"
-                                         + MACRO_IDENTIFIER
-                                         + ".*"))
+        if (text != null
+            && (text.matches(".*"
+                             + MACRO_IDENTIFIER
+                             + ".+"
+                             + MACRO_IDENTIFIER
+                             + ".*")
+                || text.matches(SIZEOF_DATATYPE)))
         {
             // Replace any macro names in the text with the associated macro
             // values
@@ -827,31 +1139,30 @@ public class CcddMacroHandler
      *************************************************************************/
     protected String updateMacros(List<String[]> macroDefinitions)
     {
-        String badType = null;
+        String badMacroName = null;
 
         // Step through each imported macro definition
         for (String[] macroDefn : macroDefinitions)
         {
             // Get the macro value associated with this macro name
-            String macro = getMacroValue(macroDefn[MacrosColumn.MACRO_NAME.ordinal()]);
+            String macroValue = getMacroValue(macroDefn[MacrosColumn.MACRO_NAME.ordinal()]);
 
             // Check if the macro doesn't already exist
-            if (macro == null)
+            if (macroValue == null)
             {
-                // Add the macro
+                // Add the new macro to the existing ones
                 macros.add(macroDefn);
             }
-            // The macro exists; check if the macro value provided matches the
-            // existing macro value
-            else if (!macro.equals(macroDefn[MacrosColumn.VALUE.ordinal()]))
+            // The macro exists; check if the expanded macro value provided
+            // doesn't match the existing macro's expanded value
+            else if (!macroValue.equals(getMacroExpansion(macroDefn[MacrosColumn.VALUE.ordinal()])))
             {
-                // Store the name of the mismatched macro and stop
-                // searching
-                badType = macroDefn[MacrosColumn.MACRO_NAME.ordinal()];
+                // Store the name of the mismatched macro and stop searching
+                badMacroName = macroDefn[MacrosColumn.MACRO_NAME.ordinal()];
                 break;
             }
         }
 
-        return badType;
+        return badMacroName;
     }
 }

@@ -1,0 +1,211 @@
+# Copyright 2017 United States Government as represented by the Administrator
+# of the National Aeronautics and Space Administration. No copyright is claimed
+# in the United States under Title 17, U.S. Code. All Other Rights Reserved.
+
+
+# TIME cFE data tables
+#   Use the Data | Import table(s) command to import the TIME
+#   data table definitions into an existing project
+
+_macros_
+"CFE_SB_CMD_HDR_SIZE","2"
+"CFE_SB_TLM_HDR_SIZE","2"
+
+_name_type_
+"CFE_TIME_NoArgsCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+
+_name_type_
+"CFE_TIME_LeapsCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"int16","LeapSeconds","","",""
+
+_name_type_
+"CFE_TIME_LeapsCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"CFE_TIME_LeapsCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_TIME_StateCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"int16","ClockState","","","#CFE_TIME_INVALID=Spacecraft time has not been accurately set, #CFE_TIME_VALID=Spacecraft clock has been accurately set, #CFE_TIME_FLYWHEEL=Force into FLYWHEEL modeSelects the current clock state"
+
+_name_type_
+"CFE_TIME_StateCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"CFE_TIME_StateCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_TIME_SourceCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"int16","TimeSource","","","#CFE_TIME_USE_INTERN=Internal Source, #CFE_TIME_USE_EXTERN=External SourceSelects either the "Internal" and "External" clock source"
+
+_name_type_
+"CFE_TIME_SourceCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"CFE_TIME_SourceCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_TIME_SignalCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"int16","ToneSource","","","#CFE_TIME_TONE_PRI=Primary Source, #CFE_TIME_TONE_RED=Redundant SourceSelects either the "Primary" or "Redundant" tone signal source"
+
+_name_type_
+"CFE_TIME_SignalCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"CFE_TIME_SignalCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_TIME_TimeCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint32","Seconds","","",""
+"uint32","MicroSeconds","","",""
+
+_name_type_
+"CFE_TIME_TimeCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"CFE_TIME_TimeCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_TIME_1HzAdjCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint32","Seconds","","",""
+"uint32","Subseconds","","",""
+
+_name_type_
+"CFE_TIME_1HzAdjCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"CFE_TIME_1HzAdjCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_TIME_1HzCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+
+_name_type_
+"CFE_TIME_ToneSignalCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+
+_name_type_
+"CFE_TIME_FakeToneCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+
+_name_type_
+"CFE_TIME_ToneDataCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"CFE_TIME_SysTime_t","AtToneMET","","","MET at time of tone"
+"CFE_TIME_SysTime_t","AtToneSTCF","","","STCF at time of tone"
+"int16","AtToneLeaps","","","Leap Seconds at time of tone"
+"int16","AtToneState","","","Clock state at time of tone"
+
+_name_type_
+"CFE_TIME_ToneDataCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"CFE_TIME_ToneDataCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_TIME_HkPacket_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdCounter","","","Time Command Execution Counter"
+"uint8","ErrCounter","","","Time Command Error Counter ** Clock state flags and "as calculated" clock state..."
+"uint16","ClockStateFlags","","","State Flags"
+"int16","ClockStateAPI","","","API State ** Leap Seconds..."
+"int16","LeapSeconds","","","Current Leaps Seconds ** Current MET and STCF time values..."
+"uint32","SecondsMET","","","Current MET (seconds)"
+"uint32","SubsecsMET","","","Current MET (sub-seconds)"
+"uint32","SecondsSTCF","","","Current STCF (seconds)"
+"uint32","SubsecsSTCF","","","Current STCF (sub-seconds) ** 1Hz STCF adjustment values (server only)..."
+"uint32","Seconds1HzAdj","","","(WITHIN COMPILER MACRO) Current 1 Hz SCTF adjustment (seconds)"
+"uint32","Subsecs1HzAdj","","","(WITHIN COMPILER MACRO) Current 1 Hz SCTF adjustment (sub-seconds) ** Time at tone delay values (client only)..."
+"uint32","SecondsDelay","","","(WITHIN COMPILER MACRO) Current 1 Hz SCTF Delay (seconds)"
+"uint32","SubsecsDelay","","","(WITHIN COMPILER MACRO) Current 1 Hz SCTF Delay (sub-seconds)"
+
+_name_type_
+"CFE_TIME_HkPacket_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","",""
+"CFE_TIME_HkPacket_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_TIME_DiagPacket_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"CFE_TIME_SysTime_t","AtToneMET","","","MET at time of tone"
+"CFE_TIME_SysTime_t","AtToneSTCF","","","STCF at time of tone"
+"CFE_TIME_SysTime_t","AtToneDelay","","","Adjustment for slow tone detection"
+"CFE_TIME_SysTime_t","AtToneLatch","","","Local clock latched at time of tone"
+"int16","AtToneLeaps","","","Leap Seconds at time of tone"
+"int16","ClockStateAPI","","","Clock state as per API ** Data values that reflect the time (right now)..."
+"CFE_TIME_SysTime_t","TimeSinceTone","","","Time elapsed since the tone"
+"CFE_TIME_SysTime_t","CurrentLatch","","","Local clock latched just "now""
+"CFE_TIME_SysTime_t","CurrentMET","","","MET at this instant"
+"CFE_TIME_SysTime_t","CurrentTAI","","","TAI at this instant"
+"CFE_TIME_SysTime_t","CurrentUTC","","","UTC at this instant ** Data values used to define the current clock state..."
+"int16","ClockSetState","","","Time has been "set""
+"int16","ClockFlyState","","","Current fly-wheel state"
+"int16","ClockSource","","","Internal vs external, etc."
+"int16","ClockSignal","","","Primary vs redundant, etc."
+"int16","ServerFlyState","","","Used by clients only"
+"int16","Forced2Fly","","","Commanded into fly-wheel ** Clock state flags..."
+"uint16","ClockStateFlags","","","Clock State Flags ** STCF adjustment direction values..."
+"int16","OneTimeDirection","","","One time STCF adjustment direction (Add = 1,  Sub = 2)"
+"int16","OneHzDirection","","","1Hz STCF adjustment direction"
+"int16","DelayDirection","","","Client latency adjustment direction ** STCF adjustment values..."
+"CFE_TIME_SysTime_t","OneTimeAdjust","","","Previous one-time STCF adjustment"
+"CFE_TIME_SysTime_t","OneHzAdjust","","","Current 1Hz STCF adjustment ** Most recent local clock latch values..."
+"CFE_TIME_SysTime_t","ToneSignalLatch","","","Local Clock latched at most recent tone signal"
+"CFE_TIME_SysTime_t","ToneDataLatch","","","Local Clock latched at arrival of tone data ** Miscellaneous counters (subject to reset command)..."
+"uint32","ToneMatchCount","","","Tone signal  data verification count"
+"uint32","ToneMatchErrors","","","Tone signal  data verification error count"
+"uint32","ToneSignalCount","","","Tone signal detected SB message count"
+"uint32","ToneDataCount","","","Time at the tone data SB message count"
+"uint32","ToneIntCount","","","Tone signal ISR execution count"
+"uint32","ToneIntErrors","","","Tone signal ISR error count"
+"uint32","ToneTaskCount","","","Tone task execution count"
+"uint32","VersionCount","","","Count of mods to time at tone reference data (version)"
+"uint32","LocalIntCount","","","Local 1Hz ISR execution count"
+"uint32","LocalTaskCount","","","Local 1Hz task execution count ** Miscellaneous counters (not subject to reset command)..."
+"uint32","VirtualMET","","","Software MET ** Time window verification values (converted from micro-secs)... ** ** Regardless of whether the tone follows the time packet, or vice **    versa, these values define the acceptable window of time for **    the second event to follow the first.  The minimum value may **    be as little as zero, and the maximum must be something less **    than a second."
+"uint32","MinElapsed","","","Min tone signal  data pkt arrival window (Sub-seconds)"
+"uint32","MaxElapsed","","","Max tone signal  data pkt arrival window (Sub-seconds) ** Maximum local clock value (before roll-over)..."
+"CFE_TIME_SysTime_t","MaxLocalClock","","","Max local clock value before rollover ** Tone signal tolerance limits..."
+"uint32","ToneOverLimit","","","Max between tone signal interrupts"
+"uint32","ToneUnderLimit","","","Min between tone signal interrupts ** Reset Area..."
+"uint32","DataStoreStatus","","","Data Store status (preserved across processor reset)"
+
+_name_type_
+"CFE_TIME_DiagPacket_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","",""
+"CFE_TIME_DiagPacket_Payload_t","Payload","","",""

@@ -1,0 +1,71 @@
+# Copyright 2017 United States Government as represented by the Administrator
+# of the National Aeronautics and Space Administration. No copyright is claimed
+# in the United States under Title 17, U.S. Code. All Other Rights Reserved.
+
+
+# SCH cFS application data tables
+#   Use the Data | Import table(s) command to import the SCH
+#   data table definitions into an existing project
+
+_macros_
+"CFE_SB_CMD_HDR_SIZE","2"
+"CFE_SB_TLM_HDR_SIZE","2"
+"SCH_NUM_STATUS_BYTES_REQD","2"
+"SCH_TABLE_ENTRIES","2"
+
+_name_type_
+"SCH_NoArgsCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+
+_name_type_
+"SCH_EntryCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"uint16","SlotNumber","","","Slot Number of Activity whose state is to changeValid Range is zero to (#SCH_TOTAL_SLOTS - 1)"
+"uint16","EntryNumber","","","Entry Number of Activity whose state is to change Valid Range is zero to (#SCH_ENTRIES_PER_SLOT - 1)"
+
+_name_type_
+"SCH_GroupCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","","cFE Software Bus Command Message Header"
+"uint32","GroupData","","","Group and Multi-Group Identifiers Most Significant Byte contains a Group ID of 1 to 255, remaining 24 bits identify 24 Multi-Group Identifiers"
+
+_name_type_
+"SCH_HkPacket_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","","cFE Software Bus Telemetry Message Header ** Command execution counters (ground commands)"
+"uint8","CmdCounter","","","Command Counter SCHHK_CmdCounter "Click for more""
+"uint8","ErrCounter","","","Command Error Counter SCHHK_ErrCounter "Click for more""
+"uint8","SyncToMET","","","Status indicating whether slots are synched to MET SCHHK_SyncToMET "Click for more""
+"uint8","MajorFrameSource","","","Major Frame Signal source identifier SCHHK_MajorFrameSource "Click for more" ** Messages sent by schedule table processor"
+"uint32","ScheduleActivitySuccessCount","","","Number of successfully performed activities SCHHK_ScheduleActivitySuccessCount "Click for more""
+"uint32","ScheduleActivityFailureCount","","","Number of unsuccessful activities attempted SCHHK_ScheduleActivityFailureCount "Click for more" ** Total schedule table slots processed"
+"uint32","SlotsProcessedCount","","","Total # of Schedule Slots (Minor Frames) Processed SCHHK_SlotsProcessedCount "Click for more" ** The number of times that slots were skipped ** (not the number of slots that were skipped)"
+"uint16","SkippedSlotsCount","","","Number of times that slots were skipped The number of times that a slot (minor frame) was skipped. SCHHK_SkippedSlotsCount "Click for more" Note: This is NOT the number of slots that were skipped ** The number of times that multiple slots were processed ** (not the number of slots that were processed)"
+"uint16","MultipleSlotsCount","","","Number of times that multiple slots processed The number of times that multiple slots (minor frames) were processed in the same minor frame. SCHHK_MultipleSlotsCount "Click for more" Note: This is NOT the number of slots that were processed ** The number of times that SH woke up in the same slot as last time"
+"uint16","SameSlotCount","","","# of times SCH woke up in the same slot as last time SCHHK_SameSlotCount "Click for more" ** The number of times that a table entry with bad data was processed ** (the entry previously passed validation but then somehow went bad)"
+"uint16","BadTableDataCount","","","# of times corrupted table entries were processed SCHHK_BadTableDataCount "Click for more" ** The number of tables verified prior to table load"
+"uint16","TableVerifySuccessCount","","","# of times table loads successfully verified SCHHK_TableVerifySuccessCount "Click for more""
+"uint16","TableVerifyFailureCount","","","# of times table loads unsuccessfully verified SCHHK_TableVerifyFailureCount "Click for more""
+"uint32","TablePassCount","","","# of times Schedule Table has been processed SCHHK_TablePassCount "Click for more""
+"uint32","ValidMajorFrameCount","","","# of valid Major Frame tones received SCHHK_ValidMajorFrameCount "Click for more""
+"uint32","MissedMajorFrameCount","","","# of missing Major Frame tones SCHHK_MissedMajorFrameCount "Click for more""
+"uint32","UnexpectedMajorFrameCount","","","# of unexpected Major Frame tones SCHHK_UnexpectedMajorFrameCount "Click for more""
+"uint16","MinorFramesSinceTone","","","# of Minor Frames since last Major Frame tone SCHHK_MinorFramesSinceTone "Click for more""
+"uint16","NextSlotNumber","","","Next Minor Frame to be processed SCHHK_NextSlotNumber "Click for more""
+"uint16","LastSyncMETSlot","","","Slot number where Time Sync last occurred SCHHK_LastSyncMETSlot "Click for more""
+"boolean","IgnoreMajorFrame","","","Major Frame too noisy to trust SCHHK_IgnoreMajorFrame "Click for more""
+"boolean","UnexpectedMajorFrame","","","Most Recent Major Frame signal was unexpected SCHHK_UnexpectedMajorFrame "Click for more""
+
+_name_type_
+"SCH_DiagPacket_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","","cFE Software Bus Telemetry Message Header"
+"uint16","EntryStates","##SCH_NUM_STATUS_BYTES_REQD##/2","","States of each Schedule Entry Each two bits represents the state for a single entry in Schedule Definition Table. Unused=0, Enabled=1, Disabled=2 MSBs are the lowest numbered entry"
+"CFE_SB_MsgId_t","MsgIDs","##SCH_TABLE_ENTRIES##","","Message ID of msg associated with each entry"

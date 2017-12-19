@@ -166,6 +166,9 @@ public class CcddConstants
     // insensitive)
     protected static final String TRUE_OR_FALSE = "(?i:true|false)";
 
+    // Regular expression for detecting sizeof(data type) calls
+    protected static final String SIZEOF_DATATYPE = "sizeof\\(+?\\s*(.+?)\\s*\\)";
+
     // Default table tree header node names
     protected static final String DEFAULT_PROTOTYPE_NODE_NAME = "Prototypes";
     protected static final String DEFAULT_INSTANCE_NODE_NAME = "Parents & Children";
@@ -6073,7 +6076,7 @@ public class CcddConstants
         SCRIPT_ASSN("Script association"),
         TLM_MESSAGE("Telemetry message"),
         TLM_LINK("Telemetry link"),
-        APP_SCHEDULER("Scheduler");
+        APP_SCHEDULER("Application scheduler");
 
         private final String tgtName;
 

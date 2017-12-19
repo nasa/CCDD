@@ -28,8 +28,8 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
 import CCDD.CcddClasses.AssociatedVariable;
-import CCDD.CcddClasses.Message;
 import CCDD.CcddClasses.BitPackNodeIndex;
+import CCDD.CcddClasses.Message;
 import CCDD.CcddClasses.TelemetryData;
 import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddClasses.Variable;
@@ -407,7 +407,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
      * @return Total number of bytes of the specified variable(s)
      *************************************************************************/
     @Override
-    public int getSelectedValuesSize(List<Variable> variables)
+    public int getSelectedVariableSize(List<Variable> variables)
     {
         // Check if no variable list is provided
         if (variables == null)
@@ -503,8 +503,8 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
             // variable (i.e., other variable bit-packed or other members of
             // the string)
             BitPackNodeIndex nodeIndex = isBitPack
-                                            ? allVariableTree.getBitPackedVariables(last)
-                                            : allVariableTree.getStringVariableMembers(last);
+                                                   ? allVariableTree.getBitPackedVariables(last)
+                                                   : allVariableTree.getStringVariableMembers(last);
 
             // Calculate the number of other variables associated with the lead
             // variable

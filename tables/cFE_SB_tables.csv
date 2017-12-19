@@ -1,0 +1,166 @@
+# Copyright 2017 United States Government as represented by the Administrator
+# of the National Aeronautics and Space Administration. No copyright is claimed
+# in the United States under Title 17, U.S. Code. All Other Rights Reserved.
+
+
+# SB cFE data tables
+#   Use the Data | Import table(s) command to import the SB
+#   data table definitions into an existing project
+
+_macros_
+"OS_MAX_PATH_LEN","2"
+"CFE_SB_MAX_PIPES","2"
+"OS_MAX_API_NAME","2"
+"CFE_SB_SUB_ENTRIES_PER_PKT","2"
+
+_name_type_
+"CFE_SB_WriteFileInfoCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"char","Filename","##OS_MAX_PATH_LEN##","","Path and Filename of data to be loaded"
+
+_name_type_
+"CFE_SB_WriteFileInfoCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"CFE_SB_CmdHdr_t","Hdr","","","cFE Software Bus Command Message Header #CFE_SB_CmdHdr_t"
+"CFE_SB_WriteFileInfoCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_SB_EnRoutCmd_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"CFE_SB_MsgId_t","MsgId","","","Message ID of route to be enabled or disabled #CFE_SB_MsgId_t"
+"CFE_SB_PipeId_t","Pipe","","","Pipe ID of route to be enabled or disabled #CFE_SB_PipeId_t"
+"uint8","Spare","","","Spare byte to make command even number of bytes"
+
+_name_type_
+"CFE_SB_EnRoutCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"CFE_SB_CmdHdr_t","Hdr","","","cFE Software Bus Command Message Header #CFE_SB_CmdHdr_t"
+"CFE_SB_EnRoutCmd_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_SB_HKMsg_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CommandCnt","","","Count of valid commands received"
+"uint8","CmdErrCnt","","","Count of invalid commands received"
+"uint8","NoSubscribersCnt","","","Count pkts sent with no subscribers"
+"uint8","MsgSendErrCnt","","","Count of message send errors"
+"uint8","MsgReceiveErrCnt","","","Count of message receive errors"
+"uint8","InternalErrCnt","","","Count of queue read or write errors"
+"uint8","CreatePipeErrCnt","","","Count of errors in create pipe API"
+"uint8","SubscribeErrCnt","","","Count of errors in subscribe API"
+"uint8","Spare","","","Spare Byte"
+"uint8","DupSubscriptionsCnt","","","Count of duplicate subscriptions"
+"uint8","Spare2Align","2","","Spare bytes to ensure alignment"
+"uint16","PipeOverflowErrCnt","","","Count of pipe overflow errors"
+"uint16","MsgLimErrCnt","","","Count of msg id to pipe errors"
+"CFE_ES_MemHandle_t","MemPoolHandle","","","Handle to SB's Memory Pool"
+"uint32","MemInUse","","","Memory in use"
+"uint32","UnmarkedMem","","","cfg param CFE_SB_BUF_MEMORY_BYTES minus Peak Memory in use"
+
+_name_type_
+"CFE_SB_HKMsg_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"CFE_SB_TlmHdr_t","Hdr","","","cFE Software Bus Telemetry Message Header"
+"CFE_SB_HKMsg_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_SB_PipeDepthStats_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"CFE_SB_PipeId_t","PipeId","","","Pipe Id associated with the stats below"
+"uint8","Spare","","","Spare byte to ensure alignment"
+"uint16","Depth","","","Number of messages the pipe can hold"
+"uint16","InUse","","","Number of messages currently on the pipe"
+"uint16","PeakInUse","","","Peak number of messages that have been on the pipe"
+
+_name_type_
+"CFE_SB_StatMsg_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint32","MsgIdsInUse","","","Current number of MsgIds with a destination"
+"uint32","PeakMsgIdsInUse","","","Peak number of MsgIds with a destination"
+"uint32","MaxMsgIdsAllowed","","","cFE Cfg Param #CFE_SB_MAX_MSG_IDS"
+"uint32","PipesInUse","","","Number of pipes currently in use"
+"uint32","PeakPipesInUse","","","Peak number of pipes since last reboot"
+"uint32","MaxPipesAllowed","","","cFE Cfg Param #CFE_SB_MAX_PIPES"
+"uint32","MemInUse","","","Memory bytes currently in use for SB msg transfers"
+"uint32","PeakMemInUse","","","Peak memory bytes in use for SB msg transfers"
+"uint32","MaxMemAllowed","","","cFE Cfg Param #CFE_SB_BUF_MEMORY_BYTES"
+"uint32","SubscriptionsInUse","","","Number of current subscriptions"
+"uint32","PeakSubscriptionsInUse","","","Peak number of subscriptions"
+"uint32","MaxSubscriptionsAllowed","","","product of #CFE_SB_MAX_MSG_IDS and #CFE_SB_MAX_DEST_PER_PKT"
+"uint32","SBBuffersInUse","","","Number of SB message buffers currently in use"
+"uint32","PeakSBBuffersInUse","","","Max number of SB message buffers in use"
+"uint32","MaxPipeDepthAllowed","","","cFE Cfg Param #CFE_SB_MAX_PIPE_DEPTH"
+"CFE_SB_PipeDepthStats_t","PipeDepthStats","##CFE_SB_MAX_PIPES##","","Pipe Depth Statistics #CFE_SB_PipeDepthStats_t"
+
+_name_type_
+"CFE_SB_StatMsg_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"CFE_SB_TlmHdr_t","Hdr","","","cFE Software Bus Telemetry Message Header"
+"CFE_SB_StatMsg_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_SB_RoutingFileEntry_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"CFE_SB_MsgId_t","MsgId","","","Message Id portion of the route"
+"CFE_SB_PipeId_t","PipeId","","","Pipe Id portion of the route"
+"uint8","State","","","Route Enabled or Disabled"
+"uint16","MsgCnt","","","Number of msgs with this MsgId sent to this PipeId"
+"char","AppName","##OS_MAX_API_NAME##","","Pipe Depth Statistics"
+"char","PipeName","##OS_MAX_API_NAME##","","Pipe Depth Statistics"
+
+_name_type_
+"CFE_SB_MsgMapFileEntry_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint16","MsgId","","","Message Id which has been subscribed to"
+"uint16","Index","","","Routing table index where pipe destinations are found"
+
+_name_type_
+"CFE_SB_SubRprtMsg_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","SubType","","","Subscription or Unsubscription"
+"CFE_SB_MsgId_t","MsgId","","","MsgId subscribed or unsubscribe to"
+"CFE_SB_Qos_t","Qos","","","Quality of Service, used only for interprocessor communication"
+"CFE_SB_PipeId_t","Pipe","","","Destination pipe id to send above msg id"
+
+_name_type_
+"CFE_SB_SubRprtMsg_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"CFE_SB_TlmHdr_t","Hdr","","","cFE Software Bus Telemetry Message Header"
+"CFE_SB_SubRprtMsg_Payload_t","Payload","","",""
+
+_name_type_
+"CFE_SB_SubEntries_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"CFE_SB_MsgId_t","MsgId","","","MsgId portion of the subscription"
+"CFE_SB_Qos_t","Qos","","","Qos portion of the subscription"
+"CFE_SB_PipeId_t","Pipe","","","PipeId portion of the subscription"
+
+_name_type_
+"CFE_SB_PrevSubMsg_Payload_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint32","PktSegment","","","Pkt number(starts at 1) in the series"
+"uint32","TotalSegments","","","Total number of pkts needed to complete the request"
+"uint32","Entries","","","Number of entries in the pkt"
+"CFE_SB_SubEntries_t","Entry","##CFE_SB_SUB_ENTRIES_PER_PKT##","","Array of #CFE_SB_SubEntries_t entries"
+
+_name_type_
+"CFE_SB_PrevSubMsg_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"CFE_SB_TlmHdr_t","Hdr","","","cFE Software Bus Telemetry Message Header"
+"CFE_SB_PrevSubMsg_Payload_t","Payload","","",""

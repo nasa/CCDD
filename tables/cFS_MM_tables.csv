@@ -1,0 +1,134 @@
+# Copyright 2017 United States Government as represented by the Administrator
+# of the National Aeronautics and Space Administration. No copyright is claimed
+# in the United States under Title 17, U.S. Code. All Other Rights Reserved.
+
+
+# MM cFS application data tables
+#   Use the Data | Import table(s) command to import the MM
+#   data table definitions into an existing project
+
+_macros_
+"CFE_SB_CMD_HDR_SIZE","2"
+"MM_MAX_UNINTERRUPTABLE_DATA","2"
+"OS_MAX_PATH_LEN","2"
+"OS_MAX_SYM_LEN","2"
+"CFE_SB_TLM_HDR_SIZE","2"
+
+_name_type_
+"MM_NoArgsCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+
+_name_type_
+"MM_PeekCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint8","DataSize","","","Size of the data to be read"
+"uint8","MemType","","","Memory type to peek data from"
+"uint8","Padding","2","","Structure padding"
+"CFS_SymAddr_t","SrcSymAddress","","","Symbolic source peek address"
+
+_name_type_
+"MM_PokeCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint8","DataSize","","","Size of the data to be written"
+"uint8","MemType","","","Memory type to poke data to"
+"uint8","Padding","2","","Structure padding"
+"uint32","Data","","","Data to be written"
+"CFS_SymAddr_t","DestSymAddress","","","Symbolic destination poke address"
+
+_name_type_
+"MM_LoadMemWIDCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint8","NumOfBytes","","","Number of bytes to be loaded"
+"uint8","Padding","3","","Structure padding"
+"uint32","Crc","","","Data check value"
+"CFS_SymAddr_t","DestSymAddress","","","Symbolic destination load address"
+"uint8","DataArray","##MM_MAX_UNINTERRUPTABLE_DATA##","","Data to be loaded"
+
+_name_type_
+"MM_DumpInEventCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint8","MemType","","","Memory dump type"
+"uint8","NumOfBytes","","","Number of bytes to be dumped"
+"uint16","Padding","","","Structure padding"
+"CFS_SymAddr_t","SrcSymAddress","","","Symbolic source address"
+
+_name_type_
+"MM_LoadMemFromFileCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"char","FileName","##OS_MAX_PATH_LEN##","","Name of memory load file"
+
+_name_type_
+"MM_DumpMemToFileCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint8","MemType","","","Memory dump type"
+"uint8","Padding","3","","Structure padding"
+"uint32","NumOfBytes","","","Number of bytes to be dumped"
+"CFS_SymAddr_t","SrcSymAddress","","","Symbol plus optional offset"
+"char","FileName","##OS_MAX_PATH_LEN##","","Name of memory dump file"
+
+_name_type_
+"MM_FillMemCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint8","MemType","","","Memory type"
+"uint8","Padding","3","","Structure padding"
+"uint32","NumOfBytes","","","Number of bytes to fill"
+"uint32","FillPattern","","","Fill pattern to use"
+"CFS_SymAddr_t","DestSymAddress","","","Symbol plus optional offset"
+
+_name_type_
+"MM_LookupSymCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"char","SymName","##OS_MAX_SYM_LEN##","","Symbol name string"
+
+_name_type_
+"MM_SymTblToFileCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"char","FileName","##OS_MAX_PATH_LEN##","","Name of symbol dump file"
+
+_name_type_
+"MM_EepromWriteEnaCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint32","Bank","","","EEPROM bank number to write-enable"
+
+_name_type_
+"MM_EepromWriteDisCmd_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","CmdHeader","##CFE_SB_CMD_HDR_SIZE##","",""
+"uint32","Bank","","","EEPROM bank number to write-disable"
+
+_name_type_
+"MM_HkPacket_t","Structure"
+_column_data_
+"Data Type","Variable Name","Array Size","Bit Length","Description"
+"uint8","TlmHeader","##CFE_SB_TLM_HDR_SIZE##","","cFE SB Tlm Msg Hdr"
+"uint8","CmdCounter","","","MM Application Command Counter"
+"uint8","ErrCounter","","","MM Application Command Error Counter"
+"uint8","LastAction","","","Last command action executed"
+"uint8","MemType","","","Memory type for last command"
+"uint32","Address","","","Fully resolved address used for last command"
+"uint32","DataValue","","","Last command data value -- may be fill pattern or peekpoke value"
+"uint32","BytesProcessed","","","Bytes processed for last command"
+"char","FileName","##OS_MAX_PATH_LEN##","","Name of the data file used for last command, where applicable"
